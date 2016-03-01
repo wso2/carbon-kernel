@@ -22,7 +22,6 @@ import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -30,7 +29,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(name = "datasource")
 @XmlType(propOrder = {"name", "description", "jndiConfig", "definition"})
-public class DataSourceMetaInfo {
+public class DataSourceMetadata {
 
     private String name;
 
@@ -124,10 +123,10 @@ public class DataSourceMetaInfo {
 
     @Override
     public boolean equals(Object rhs) {
-        if (!(rhs instanceof DataSourceMetaInfo)) {
+        if (!(rhs instanceof DataSourceMetadata)) {
             return false;
         }
-        DataSourceMetaInfo dsmInfo = (DataSourceMetaInfo) rhs;
+        DataSourceMetadata dsmInfo = (DataSourceMetadata) rhs;
         if (!DataSourceUtils.nullAllowEquals(dsmInfo.getName(), this.getName())) {
             return false;
         }

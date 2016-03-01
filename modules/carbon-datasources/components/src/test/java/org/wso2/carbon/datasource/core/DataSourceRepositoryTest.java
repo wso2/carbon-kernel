@@ -27,7 +27,7 @@ public class DataSourceRepositoryTest extends BaseTest {
 
     @Test
     public void getAllDataSourcesTest() {
-        int size = dsRepository.getAllDataSources().size();
+        int size = dsRepository.getDataSources().size();
         Assert.assertEquals(size, 1, "Only one data source is configured.");
     }
 

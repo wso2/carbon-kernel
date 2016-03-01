@@ -26,15 +26,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "datasources-configuration")
 public class DataSourcesConfiguration {
 
-    private List<DataSourceMetaInfo> dataSources;
+    private List<DataSourceMetadata> dataSources;
 
     @XmlElementWrapper(name = "datasources")
     @XmlElement(name = "datasource", nillable = false)
-    public List<DataSourceMetaInfo> getDataSources() {
+    public List<DataSourceMetadata> getDataSources() {
         return dataSources;
     }
 
-    public void setDataSources(List<DataSourceMetaInfo> dataSources) {
+    public void setDataSources(List<DataSourceMetadata> dataSources) {
         this.dataSources = dataSources;
     }
 

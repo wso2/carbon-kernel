@@ -28,7 +28,7 @@ import javax.naming.NamingException;
 /**
  * Custom jndi context for unit tests.
  */
-public class CustomContext implements Context{
+public class CustomContext implements Context {
 
     private HashMap<String, Object> contextObjects;
     private Hashtable<?, ?> environment;
@@ -46,7 +46,7 @@ public class CustomContext implements Context{
     @Override
     public Object lookup(String name) throws NamingException {
         Object obj = contextObjects.get(name);
-        if(obj == null) {
+        if (obj == null) {
             throw new NamingException("No binding found for the name: " + name);
         }
         return obj;

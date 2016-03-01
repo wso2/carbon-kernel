@@ -20,16 +20,13 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceConfiguration;
-import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
-import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.xml.bind.JAXBContext;
 
 /**
  * Utility class for Tomcat data sources.
@@ -179,26 +176,6 @@ public class TomcatDataSourceUtils {
             poolProps.setDataSource(extDataSource);
         } catch (Exception e) {
             throw new DataSourceException("Error in creating external data source: " +
-                    e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Generate the configuration bean by reading the xml configuration.
-     *
-     * @param xmlConfiguration String
-     * @return {@code TomcatDataSourceConfiguration}
-     * @throws DataSourceException
-     */
-    public static TomcatDataSourceConfiguration loadConfig(String xmlConfiguration)
-            throws DataSourceException {
-        try {
-            xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml(xmlConfiguration);
-            JAXBContext ctx = JAXBContext.newInstance(TomcatDataSourceConfiguration.class);
-            return (TomcatDataSourceConfiguration) ctx.createUnmarshaller().unmarshal(
-                    new ByteArrayInputStream(xmlConfiguration.getBytes()));
-        } catch (Exception e) {
-            throw new DataSourceException("Error in loading RDBMS configuration: " +
                     e.getMessage(), e);
         }
     }

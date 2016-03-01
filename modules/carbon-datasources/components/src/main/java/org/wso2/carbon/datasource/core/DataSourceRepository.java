@@ -17,31 +17,22 @@ package org.wso2.carbon.datasource.core;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Element;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
-import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.beans.JNDIConfig;
+import org.wso2.carbon.datasource.core.beans.DataSourceMetadata;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.datasource.core.spi.DataSourceReader;
-import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import java.util.stream.Collectors;
 
 /**
- * This class represents the repository which is used to hold the data sources.
+ * DataSourceRepository represents the repository which is used to hold the data sources.
  */
 public class DataSourceRepository {
 
     private static Log log = LogFactory.getLog(DataSourceRepository.class);
     private Map<String, CarbonDataSource> dataSources;
-    private static final String JAVA_COMP_CONTEXT_STRING = "java:comp";
-    private static final String ENV_CONTEXT_STRING = "env";
 
     /**
      * Default constructor for DataSourceRepository.
@@ -50,175 +41,27 @@ public class DataSourceRepository {
         this.dataSources = new HashMap<>();
     }
 
-    /**
-     * Adds a new data source to the repository.
-     *
-     * @param dsmInfo The meta information of the data source to be added.
-     */
-    public void addDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
-        if (log.isDebugEnabled()) {
-            log.debug("Adding data source: " + dsmInfo.getName());
+    public List<DataSourceMetadata> getMetadata() {
+        return dataSources.values().stream().map(CarbonDataSource::getMetadata).collect(Collectors.toList());
+    }
+
+    public DataSourceMetadata getMetadata(String dataSourceName) {
+        CarbonDataSource carbonDataSource = getDataSource(dataSourceName);
+        if(carbonDataSource != null) {
+            return carbonDataSource.getMetadata();
         }
-        registerDataSource(dsmInfo);
+        return null;
     }
 
     /**
-     * Add a list of data sources to the repository.
+     * Gets information about all the data sources.
      *
-     * @param dsInfoList {@code List<DataSourceMetaInfo}
-     * @throws DataSourceException
+     * @return A list of all data sources
      */
-    public void addDataSources(List<DataSourceMetaInfo> dsInfoList) throws DataSourceException {
-        for (DataSourceMetaInfo info : dsInfoList) {
-            addDataSource(info);
-        }
+    public List<CarbonDataSource> getDataSources() {
+        return dataSources.values().stream().collect(Collectors.toList());
     }
 
-    /**
-     * Register a given data source object in JNDI context and in the repository.
-     *
-     * @param dsmInfo {@code DataSourceMetaInfo}
-     * @throws DataSourceException
-     */
-    private void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
-        Object dsObject = null;
-        boolean isDataSourceFactoryReference = false;
-        try {
-            JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-            if (jndiConfig != null) {
-                isDataSourceFactoryReference = jndiConfig.isUseDataSourceFactory();
-            }
-            dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
-            registerJNDI(dsmInfo, dsObject);
-        } catch (DataSourceException e) {
-            String msg = e.getMessage();
-            log.error(msg, e);
-        }
-
-        //Creates a data source object in any error occurred while registering through JNDI.
-        if (isDataSourceFactoryReference) {
-            dsObject = createDataSourceObject(dsmInfo, false);
-        }
-        CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsObject);
-        dataSources.put(cds.getDSMInfo().getName(), cds);
-    }
-
-    /**
-     * Creates the data source object by getting the appropriate DataSourceReader.
-     *
-     * @param dsmInfo                {@code DataSourceMetaInfo}
-     * @param isUseDataSourceFactory {@code boolean}
-     * @return {@code Object}
-     */
-    private Object createDataSourceObject(DataSourceMetaInfo dsmInfo, boolean isUseDataSourceFactory)
-            throws DataSourceException {
-
-        DataSourceReader dsReader = DataSourceManager.getInstance()
-                .getDataSourceReader(dsmInfo.getDefinition().getType());
-
-        log.debug("Generating the DataSource object from \"" + dsReader.getType() + "\" type reader.");
-
-        Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
-        return dsReader.createDataSource(DataSourceUtils.elementToString(configurationXmlDefinition),
-                isUseDataSourceFactory);
-    }
-
-    /**
-     * Register the data source in the JNDI context.
-     *
-     * @param dsmInfo  {@code DataSourceMetaInfo}
-     * @param dsObject {@code Object}
-     * @throws DataSourceException
-     */
-    private void registerJNDI(DataSourceMetaInfo dsmInfo, Object dsObject)
-            throws DataSourceException {
-        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-        if (jndiConfig == null) {
-            return;
-        }
-        InitialContext context;
-        try {
-            context = new InitialContext(jndiConfig.extractHashtableEnv());
-        } catch (NamingException e) {
-            throw new DataSourceException("Error creating JNDI initial context: " + e.getMessage(), e);
-        }
-        Context subContext = checkAndCreateJNDISubContexts(context, jndiConfig);
-        if (subContext == null) {
-            return;
-        }
-        try {
-            subContext.rebind(jndiConfig.getName(), dsObject);
-        } catch (NamingException e) {
-            throw new DataSourceException("Error in binding to JNDI with name '" + jndiConfig.getName()
-                    + "' - " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Check for existence of JNDI sub contexts and create if not found.
-     *
-     * @param context    {@link Context}
-     * @param jndiConfig {@code JNDIConfig}
-     * @throws DataSourceException
-     */
-    private Context checkAndCreateJNDISubContexts(Context context, JNDIConfig jndiConfig) throws DataSourceException {
-        Context compEnvContext;
-        try {
-            //Should we reuse the already existing context or destroy the old context and create a new one?
-            Context compContext = (Context)context.lookup(JAVA_COMP_CONTEXT_STRING);
-            if(compContext == null) {
-                compContext = context.createSubcontext(JAVA_COMP_CONTEXT_STRING);
-            }
-            compEnvContext = (Context)compContext.lookup(ENV_CONTEXT_STRING);
-            if(compEnvContext == null) {
-                compEnvContext = compContext.createSubcontext(ENV_CONTEXT_STRING);
-            }
-        } catch (NamingException e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
-
-        String jndiName = jndiConfig.getName();
-        String[] tokens = jndiName.split("/");
-        jndiConfig.setName(tokens[tokens.length - 1]);
-        Context tmpCtx = compEnvContext;
-        Context subContext = null;
-        String token;
-        for (int i = 0; i < tokens.length - 1; i++) {
-            token = tokens[i];
-            subContext = lookupJNDISubContext(tmpCtx, token);
-            if (subContext == null) {
-                try {
-                    subContext = tmpCtx.createSubcontext(token);
-                } catch (NamingException e) {
-                    throw new DataSourceException("Error in creating JNDI subcontext '" + compEnvContext + "/"
-                            + token + ": " + e.getMessage(), e);
-                }
-            }
-            tmpCtx = subContext;
-        }
-        return subContext;
-    }
-
-    /**
-     * Look up a jndi sub context. This method returns null if a NamingException occurred.
-     *
-     * @param context  {@link Context}
-     * @param jndiName String
-     * @return {@link Context}
-     * @throws DataSourceException
-     */
-    private Context lookupJNDISubContext(Context context, String jndiName) throws DataSourceException {
-        try {
-            Object obj = context.lookup(jndiName);
-            if (!(obj instanceof Context)) {
-                throw new DataSourceException("Non JNDI context already exists at '" + context + "/" + jndiName);
-            }
-            return (Context) obj;
-        } catch (NamingException e) {
-            return null;
-        }
-    }
 
     /**
      * Gets information about a specific given data source.
@@ -231,13 +74,17 @@ public class DataSourceRepository {
     }
 
     /**
-     * Gets information about all the data sources.
+     * Adds a new data source to the repository.
      *
-     * @return A list of all data sources
+     * @param cds The meta information of the data source to be added.
      */
-    public Collection<CarbonDataSource> getAllDataSources() {
-        return dataSources.values();
+    public void addDataSource(CarbonDataSource cds) throws DataSourceException {
+        if (log.isDebugEnabled()) {
+            log.debug("Adding data source: " + cds.getMetadata().getName());
+        }
+        dataSources.put(cds.getMetadata().getName(), cds);
     }
+
 
     /**
      * Unregisters and deletes the data source from the repository.
@@ -252,39 +99,6 @@ public class DataSourceRepository {
         if (cds == null) {
             throw new DataSourceException("Data source does not exist: " + dsName);
         }
-        unregisterDataSource(cds, dsName);
-    }
-
-    /**
-     * Unregister a given data source from the repository.
-     *
-     * @param cds    {@code CarbonDataSource}
-     * @param dsName String
-     */
-    private void unregisterDataSource(CarbonDataSource cds, String dsName) {
-        if (log.isDebugEnabled()) {
-            log.debug("Unregistering data source: " + dsName);
-        }
-        unregisterJNDI(cds.getDSMInfo());
         dataSources.remove(dsName);
     }
-
-    /**
-     * Unregister a given JNDI binding.
-     *
-     * @param dsmInfo {@code DataSourceMetaInfo}
-     */
-    private void unregisterJNDI(DataSourceMetaInfo dsmInfo) {
-        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-        if (jndiConfig == null) {
-            return;
-        }
-        try {
-            InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
-            context.unbind(jndiConfig.getName());
-        } catch (NamingException e) {
-            log.error("Error in unregistering JNDI name: " + jndiConfig.getName() + " - " + e.getMessage(), e);
-        }
-    }
-
 }

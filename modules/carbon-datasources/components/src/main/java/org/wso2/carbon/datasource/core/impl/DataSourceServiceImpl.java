@@ -18,12 +18,9 @@ package org.wso2.carbon.datasource.core.impl;
 import org.wso2.carbon.datasource.core.DataSourceManager;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
-import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * DataSourceServiceImpl is the implementation of DataSourceService interface. This has implemented the operations
@@ -37,68 +34,20 @@ public class DataSourceServiceImpl implements DataSourceService {
      * @return {@code List<CarbonDataSource>}
      * @throws DataSourceException
      */
-    public List<CarbonDataSource> getAllDataSources() throws DataSourceException {
-        return new ArrayList<>(DataSourceManager.getInstance().
-                getDataSourceRepository().getAllDataSources());
+    @Override
+    public List<CarbonDataSource> getDataSources() throws DataSourceException {
+        return DataSourceManager.getInstance().getDataSourceRepository().getDataSources();
     }
 
     /**
-     * Return all the registered data sources for the given type.
+     * Return a data source with the given name.
      *
-     * @param dsType String
-     * @return {@code List<CarbonDataSource>}
-     * @throws DataSourceException
-     */
-    public List<CarbonDataSource> getAllDataSourcesForType(String dsType) throws DataSourceException {
-        return DataSourceManager.getInstance().
-                getDataSourceRepository().getAllDataSources().stream()
-                .filter(cds -> cds.getDSMInfo().getDefinition().getType().equals(dsType))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns a CarbonDataSource for the given name.
-     *
-     * @param dsName name of the data source
+     * @param name Name of the data source.
      * @return {@code CarbonDataSource}
      * @throws DataSourceException
      */
-    public CarbonDataSource getDataSource(String dsName) throws DataSourceException {
-        return DataSourceManager.getInstance().getDataSourceRepository().getDataSource(dsName);
-    }
-
-    /**
-     * Returns the registered data source types.
-     *
-     * @return {@code List<String>}
-     * @throws DataSourceException
-     */
-    public List<String> getDataSourceTypes() throws DataSourceException {
-        return DataSourceManager.getInstance().getDataSourceTypes();
-    }
-
-    /**
-     * Add a new data source to the data sources repository.
-     *
-     * @param dsmInfo {@code DataSourceMetaInfo}
-     * @throws DataSourceException
-     */
-    public void addDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
-        DataSourceManager.getInstance().getDataSourceRepository().addDataSource(dsmInfo);
-    }
-
     @Override
-    public void addDataSources(List<DataSourceMetaInfo> dmsInfoList) throws DataSourceException {
-        DataSourceManager.getInstance().getDataSourceRepository().addDataSources(dmsInfoList);
-    }
-
-    /**
-     * Deletes a data source from the repository.
-     *
-     * @param dsName {@code String}
-     * @throws DataSourceException
-     */
-    public void deleteDataSource(String dsName) throws DataSourceException {
-        DataSourceManager.getInstance().getDataSourceRepository().deleteDataSource(dsName);
+    public CarbonDataSource getDataSource(String name) throws DataSourceException {
+        return DataSourceManager.getInstance().getDataSourceRepository().getDataSource(name);
     }
 }

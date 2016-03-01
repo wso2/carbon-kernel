@@ -20,10 +20,6 @@ import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.hikari.HikariConfiguration;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
-import java.io.ByteArrayInputStream;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-
 /**
  * Encapsulates a set of utility methods for HikariDataSource.
  */
@@ -38,7 +34,8 @@ public class HikariDataSourceUtils {
      */
     public static HikariConfig buildConfiguration(String xmlConfiguration) throws DataSourceException {
         try {
-            HikariConfiguration configuration = HikariDataSourceUtils.loadConfig(xmlConfiguration);
+            HikariConfiguration configuration = DataSourceUtils
+                    .loadJAXBConfiguration(xmlConfiguration, HikariConfiguration.class);
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(configuration.getUrl());
             config.setUsername(configuration.getUsername());
@@ -51,24 +48,6 @@ public class HikariDataSourceUtils {
             return config;
         } catch (DataSourceException e) {
             throw new DataSourceException("Error in loading Hikari configuration: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Generate the configuration bean by reading the xml configuration.
-     *
-     * @param xmlConfiguration String
-     * @return {@code HikariConfiguration}
-     * @throws DataSourceException
-     */
-    public static HikariConfiguration loadConfig(String xmlConfiguration) throws DataSourceException {
-        try {
-            xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml(xmlConfiguration);
-            JAXBContext ctx = JAXBContext.newInstance(HikariConfiguration.class);
-            return (HikariConfiguration) ctx.createUnmarshaller().unmarshal(
-                    new ByteArrayInputStream(xmlConfiguration.getBytes()));
-        } catch (JAXBException e) {
-            throw new DataSourceException("Error in loading X configuration: " + e.getMessage(), e);
         }
     }
 }

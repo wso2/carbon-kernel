@@ -17,8 +17,8 @@ package org.wso2.carbon.datasource.core;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
+import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
+import org.wso2.carbon.datasource.core.beans.DataSourceMetadata;
 import org.wso2.carbon.datasource.core.beans.DataSourcesConfiguration;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 
 /**
  * This class contains the functionality in managing the data sources.
@@ -42,18 +40,20 @@ public class DataSourceManager {
 
     private static Log log = LogFactory.getLog(DataSourceManager.class);
     private static DataSourceManager instance;
+    private DataSourceRepository dataSourceRepository;
     private Map<String, DataSourceReader> dsReaders;
-    private static DataSourceRepository dsRepo;
-    private String dataSourcesPath = null;
-    private boolean initialized = false;
-    private static final String FILE_NAME_SUFFIX = "-datasources.xml";
 
+    private String dataSourcesPath = null;
+
+    private static final String FILE_NAME_SUFFIX = "-datasources.xml";
+    private boolean initialized = false;
 
     /**
      * Private constructor for DataSourceManager class. This is a singleton class, thus the constructor is private.
      */
     private DataSourceManager() {
         this.dsReaders = new HashMap<>();
+        this.dataSourceRepository = new DataSourceRepository();
     }
 
     /**
@@ -74,14 +74,11 @@ public class DataSourceManager {
      * @return DataSourceRepository
      */
     public synchronized DataSourceRepository getDataSourceRepository() {
-        if (dsRepo == null) {
-            dsRepo = new DataSourceRepository();
-        }
-        return dsRepo;
+        return dataSourceRepository;
     }
 
     /**
-     * Returns the types of data source readers specified in the system.
+     * Returns the types of data source readers registered in the system.
      *
      * @return {@code List<String>}
      * @throws DataSourceException if no data source readers are defined.
@@ -121,25 +118,26 @@ public class DataSourceManager {
             return;
         }
         if (dsReaders.size() == 0) {
-            findDataSourceProviders();
+            loadDataSourceProviders();
         }
         if (dsReaders.size() == 0) {
-            throw new DataSourceException("No data source readers found.");
+            throw new DataSourceException("No data source readers found. Datasources will not be initialized!");
         }
         try {
             if (dataSourcesPath == null) {
                 dataSourcesPath = DataSourceUtils.getDataSourceConfigPath().toString();
             }
-            log.debug("Data sources configuration path: " + dataSourcesPath);
+            if (log.isDebugEnabled()) {
+                log.debug("Data sources configuration path: " + dataSourcesPath);
+            }
             Path dSPath = Paths.get(dataSourcesPath);
-
             File dataSourcesFolder = dSPath.toFile();
-            File[] files = dataSourcesFolder.listFiles();
-            if (files != null) {
-                for (File dsFile : files) {
-                    if (dsFile.getName().endsWith(FILE_NAME_SUFFIX)) {
-                        log.debug("Initializing data source: " + dsFile.getName());
-                        initDataSource(dsFile);
+            File[] dataSourceConfigFiles = dataSourcesFolder.listFiles();
+
+            if (dataSourceConfigFiles != null) {
+                for (File dataSourceConfigFile : dataSourceConfigFiles) {
+                    if (dataSourceConfigFile.getName().endsWith(FILE_NAME_SUFFIX)) {
+                        initDataSource(dataSourceConfigFile);
                     }
                 }
             }
@@ -152,37 +150,25 @@ public class DataSourceManager {
     /**
      * Initialize the data sources given in data source config files.
      *
-     * @param sysDSFile {@link File}
+     * @param dataSourceFile {@link File}
      * @throws DataSourceException
      */
-    private void initDataSource(File sysDSFile) throws DataSourceException {
+    private void initDataSource(File dataSourceFile) throws DataSourceException {
+        if (log.isDebugEnabled()) {
+            log.debug("Initializing data source: " + dataSourceFile.getName());
+        }
         try {
-            DataSourcesConfiguration dsConfiguration = getDataSourcesFromConfigFile(sysDSFile);
-            DataSourceRepository dsRepo = getDataSourceRepository();
-            for (DataSourceMetaInfo dsmInfo : dsConfiguration.getDataSources()) {
-                dsRepo.addDataSource(dsmInfo);
+            DataSourcesConfiguration dataSourceConfiguration = DataSourceUtils
+                    .loadJAXBConfiguration(dataSourceFile, DataSourcesConfiguration.class);
+
+            for (DataSourceMetadata dsmInfo : dataSourceConfiguration.getDataSources()) {
+                CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dsmInfo);
+                dataSourceRepository.addDataSource(cds);
+                DataSourceJndiManager.register(cds);
             }
         } catch (DataSourceException e) {
             throw new DataSourceException("Error in initializing system data sources at '" +
-                    sysDSFile.getAbsolutePath() + " - " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Generate {@code DataSourceConfiguration} jaxb bean from the given data source configuration file.
-     *
-     * @param sysDSFile {@link File}
-     * @return {@code DataSourcesConfiguration}
-     * @throws DataSourceException
-     */
-    private DataSourcesConfiguration getDataSourcesFromConfigFile(File sysDSFile) throws DataSourceException {
-        try {
-            log.debug("Parsing configuration file: " + sysDSFile.getName());
-            JAXBContext ctx = JAXBContext.newInstance(DataSourcesConfiguration.class);
-            Document doc = DataSourceUtils.convertToDocument(sysDSFile);
-            return (DataSourcesConfiguration) ctx.createUnmarshaller().unmarshal(doc);
-        } catch (JAXBException e) {
-            throw new DataSourceException("Error occurred while converting configuration into jaxb beans", e);
+                    dataSourceFile.getAbsolutePath() + " - " + e.getMessage(), e);
         }
     }
 
@@ -193,16 +179,16 @@ public class DataSourceManager {
      */
     public void addDataSourceProviders(Map<String, DataSourceReader> readers) {
         if (readers != null && readers.size() > 0) {
-            this.dsReaders = readers;
+            this.dsReaders.putAll(readers);
         }
     }
 
     /**
-     * If {@code DataSourceReader} list is not set from {@code addDataSourceProviders} method,
-     * {@code findDataSourceProviders} is called internally and load data source readers using
+     * If {@code List<DataSourceReader>} is not set from {@code addDataSourceProviders} method,
+     * {@code loadDataSourceProviders} is called internally and load data source readers using
      * {@link java.util.ServiceLoader}.
      */
-    private void findDataSourceProviders() {
+    private void loadDataSourceProviders() {
         if (dsReaders.size() == 0) {
             ServiceLoader<DataSourceReader> dsReaderLoader = ServiceLoader.load(DataSourceReader.class);
             dsReaderLoader.forEach(reader -> {
@@ -215,5 +201,4 @@ public class DataSourceManager {
             });
         }
     }
-
 }

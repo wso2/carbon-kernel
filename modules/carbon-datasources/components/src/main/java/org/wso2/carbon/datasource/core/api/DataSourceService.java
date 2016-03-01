@@ -16,7 +16,6 @@
 package org.wso2.carbon.datasource.core.api;
 
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
-import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 import java.util.List;
@@ -27,59 +26,20 @@ import java.util.List;
 public interface DataSourceService {
 
     /**
-     * Return all the registered data sources.
+     * Returns all the registered {@code CarbonDataSource} objects
      *
      * @return {@code List<CarbonDataSource>}
      * @throws DataSourceException
      */
-    List<CarbonDataSource> getAllDataSources() throws DataSourceException;
+    List<CarbonDataSource> getDataSources() throws DataSourceException;
 
     /**
-     * Return all the registered data sources for the given type.
+     * Returns a {@code CarbonDataSource} object for the given na,e.
      *
-     * @param dsType String
-     * @return {@code List<CarbonDataSource>}
-     * @throws DataSourceException
-     */
-    List<CarbonDataSource> getAllDataSourcesForType(String dsType) throws DataSourceException;
-
-    /**
-     * Returns a CarbonDataSource for the given name.
-     *
-     * @param dsName name of the data source
+     * @param name String
      * @return {@code CarbonDataSource}
      * @throws DataSourceException
      */
-    CarbonDataSource getDataSource(String dsName) throws DataSourceException;
+    CarbonDataSource getDataSource(String name) throws DataSourceException;
 
-    /**
-     * Returns the registered data source types.
-     *
-     * @return {@code List<String>}
-     * @throws DataSourceException
-     */
-    List<String> getDataSourceTypes() throws DataSourceException;
-
-    /**
-     * Add a new data source to the data sources repository.
-     *
-     * @param dsmInfo {@code DataSourceMetaInfo}
-     * @throws DataSourceException
-     */
-    void addDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException;
-
-    /**
-     *
-     * @param dmsInfoList
-     * @throws DataSourceException
-     */
-    void addDataSources(List<DataSourceMetaInfo> dmsInfoList) throws DataSourceException;
-
-    /**
-     * Deletes a data source from the repository.
-     *
-     * @param dsName {@code String}
-     * @throws DataSourceException
-     */
-    void deleteDataSource(String dsName) throws DataSourceException;
 }

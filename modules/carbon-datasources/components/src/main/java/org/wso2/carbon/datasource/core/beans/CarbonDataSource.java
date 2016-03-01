@@ -21,21 +21,36 @@ package org.wso2.carbon.datasource.core.beans;
  */
 public class CarbonDataSource {
 
-    private DataSourceMetaInfo dsmInfo;
+    private DataSourceMetadata dataSourceMetadata;
 
-    private Object dsObject;
+    private Object dataSourceObject;
 
-    public CarbonDataSource(DataSourceMetaInfo dsmInfo, Object dsObject) {
-        this.dsmInfo = dsmInfo;
-        this.dsObject = dsObject;
+    /**
+     *
+     * @param dataSourceMetadata {@code DataSourceMetadata}
+     * @param dataSourceObject {@code Object} - This object is either a {@link javax.sql.DataSource}
+     *                                       or {@link javax.naming.Reference}
+     */
+    public CarbonDataSource(DataSourceMetadata dataSourceMetadata, Object dataSourceObject) {
+        this.dataSourceMetadata = dataSourceMetadata;
+        this.dataSourceObject = dataSourceObject;
     }
 
-    public DataSourceMetaInfo getDSMInfo() {
-        return dsmInfo;
+    /**
+     * Returns {@code DataSourceMetadata} object of this {@code CarbonDataSource}
+     * @return {@code DataSourceMetadata}
+     */
+    public DataSourceMetadata getMetadata() {
+        return dataSourceMetadata;
     }
 
-    public Object getDSObject() {
-        return dsObject;
+    /**
+     * Returns a data source object.
+     * @return {@code Object}- This object should be either a {@link javax.sql.DataSource}
+     *                                       or {@link javax.naming.Reference}
+     */
+    public Object getDataSourceObject() {
+        return dataSourceObject;
     }
 
 }

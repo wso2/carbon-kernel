@@ -19,6 +19,7 @@ import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
+import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 /**
  * This class represents the Tomcat connection pool based data source reader implementation.
@@ -54,7 +55,8 @@ public class TomcatDataSourceReader implements DataSourceReader {
     @Override
     public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
             throws DataSourceException {
-        TomcatDataSource dataSource = new TomcatDataSource(TomcatDataSourceUtils.loadConfig(xmlConfiguration));
+        TomcatDataSource dataSource = new TomcatDataSource(DataSourceUtils
+                .loadJAXBConfiguration(xmlConfiguration, TomcatDataSourceConfiguration.class));
         if (isDataSourceFactoryReference) {
             return dataSource.getDataSourceFactoryReference();
         } else {

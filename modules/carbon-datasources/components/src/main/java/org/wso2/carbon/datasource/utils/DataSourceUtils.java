@@ -41,6 +41,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -317,5 +319,36 @@ public class DataSourceUtils {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Generate the configuration bean by reading the xml file or string xml content.
+     *
+     * @param configuration This should be either a {@link File} or a {@code String}
+     * @param clazz class type of the generated bean
+     * @param <T> class type of the generated bean
+     * @param <U> {@link File} or a {@code String}
+     * @return
+     * @throws DataSourceException
+     */
+    public static <T, U> T loadJAXBConfiguration(U configuration, Class<T> clazz)
+            throws DataSourceException {
+        try {
+            JAXBContext ctx = JAXBContext.newInstance(clazz);
+            if (configuration instanceof File) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Parsing configuration file: " + ((File) configuration).getName());
+                }
+                Document doc = DataSourceUtils.convertToDocument((File) configuration);
+                return (T) ctx.createUnmarshaller().unmarshal(doc);
+            } else if (configuration instanceof String) {
+                String xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml((String) configuration);
+                return (T) ctx.createUnmarshaller().unmarshal(new ByteArrayInputStream(xmlConfiguration.getBytes()));
+            } else {
+                throw new DataSourceException("Only a file or string content allowed to parse jaxb.");
+            }
+        } catch (JAXBException e) {
+            throw new DataSourceException("Error occurred while converting configuration into jaxb beans", e);
+        }
     }
 }
