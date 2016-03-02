@@ -124,6 +124,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public boolean isRoleAuthorized(String roleName, String resourceId, String action) throws UserStoreException {
 
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("isRoleAuthorized", new Object[]{roleName, resourceId, action}, argTypes);
@@ -154,6 +158,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public boolean isUserAuthorized(String userName, String resourceId, String action)
             throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
@@ -295,6 +303,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getAllowedRolesForResource(String resourceId, String action)
             throws UserStoreException {
 
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
             Object object = callSecure("getAllowedRolesForResource", new Object[]{resourceId, action}, argTypes);
@@ -322,6 +334,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
             throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
@@ -351,6 +367,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getDeniedRolesForResource(String resourceId, String action)
             throws UserStoreException {
 
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
             Object object = callSecure("getDeniedRolesForResource", new Object[]{resourceId, action}, argTypes);
@@ -369,6 +389,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public String[] getExplicitlyDeniedUsersForResource(String resourceId, String action)
             throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
@@ -442,6 +466,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {
 
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             callSecure("authorizeRole", new Object[]{roleName, resourceId, action},
@@ -465,6 +493,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void denyRole(String roleName, String resourceId, String action)
             throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
@@ -490,6 +522,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void authorizeUser(String userName, String resourceId, String action)
             throws UserStoreException {
 
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             callSecure("authorizeUser", new Object[]{userName, resourceId, action},
@@ -513,6 +549,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void denyUser(String userName, String resourceId, String action)
             throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
@@ -538,6 +578,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     }
 
     public void clearResourceAuthorizations(String resourceId) throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class};
@@ -586,6 +630,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void clearRoleAuthorization(String roleName, String resourceId, String action)
             throws UserStoreException {
 
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             callSecure("clearRoleAuthorization", new Object[]{roleName, resourceId, action},
@@ -631,6 +679,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void clearUserAuthorization(String userName, String resourceId, String action)
             throws UserStoreException {
+
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
@@ -884,7 +936,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                                          short allow, boolean updateCache) throws UserStoreException {
 
         // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
-        resourceId = resourceId.toLowerCase();
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         // Need to clear tenant authz cache once role authorization is added, currently there is
         // no way to remove cache entry by role.
@@ -996,7 +1050,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                                          short allow, boolean updateCache) throws UserStoreException {
 
         // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
-        resourceId = resourceId.toLowerCase();
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
 
         // Need to clear tenant authz cache once role authorization is removed, currently there is
         // no way to remove cache entry by role.
