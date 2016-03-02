@@ -104,31 +104,10 @@ public class DataSourceJndiManager {
      */
     private static Context checkAndCreateJNDISubContexts(Context context, JNDIConfig jndiConfig)
             throws DataSourceException, NamingException {
-        Context compEnvContext;
-        //Should we reuse the already existing context or destroy the old context and create a new one?
-        Context compContext;
-        //TODO: Try to merge subcontext creation login into one
-        try {
-            compContext = (Context) context.lookup(JAVA_COMP_CONTEXT_STRING);
-        } catch (NameNotFoundException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Creating the JNDI context: " + JAVA_COMP_CONTEXT_STRING);
-            }
-            compContext = context.createSubcontext(JAVA_COMP_CONTEXT_STRING);
-        }
-        try {
-            compEnvContext = (Context) compContext.lookup(ENV_CONTEXT_STRING);
-        } catch (NameNotFoundException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Creating the JNDI context: " + ENV_CONTEXT_STRING);
-            }
-            compEnvContext = compContext.createSubcontext(ENV_CONTEXT_STRING);
-        }
-
-        String jndiName = jndiConfig.getName();
+        String jndiName = JAVA_COMP_CONTEXT_STRING + "/" + ENV_CONTEXT_STRING + "/" + jndiConfig.getName();
         String[] tokens = jndiName.split("/");
         jndiConfig.setName(tokens[tokens.length - 1]);
-        Context tmpCtx = compEnvContext;
+        Context tmpCtx = context;
         Context subContext = null;
         String token;
         for (int i = 0; i < tokens.length - 1; i++) {
@@ -178,6 +157,5 @@ public class DataSourceJndiManager {
         }
         InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
         context.unbind(jndiConfig.getName());
-
     }
 }
