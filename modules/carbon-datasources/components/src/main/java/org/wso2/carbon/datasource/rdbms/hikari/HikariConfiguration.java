@@ -28,10 +28,11 @@ public class HikariConfiguration {
     private String username;
     private Password passwordPersist;
     private String driverClassName;
-    private long connectionTimeout = 30000;
-    private long idleTimeout = 600000;
-    private long maxLifetime = 1800000;
-    private int maximumPoolSize = 10;
+    private long connectionTimeout = HikariConstants.CONNECTION_TIME_OUT;
+    private long idleTimeout = HikariConstants.IDLE_TIME_OUT;
+    private long maxLifetime = HikariConstants.MAX_LIFE_TIME;
+    private int maximumPoolSize = HikariConstants.MAXIMUM_POOL_SIZE;
+    private int minimumIdle = HikariConstants.MAXIMUM_POOL_SIZE;
 
 
     public String getUrl() {
@@ -141,5 +142,13 @@ public class HikariConfiguration {
 
     public void setMaximumPoolSize(int maximumPoolSize) {
         this.maximumPoolSize = maximumPoolSize;
+    }
+
+    public int getMinimumIdle() {
+        return minimumIdle;
+    }
+
+    public void setMinimumIdle(int minimumIdle) {
+        this.minimumIdle = minimumIdle;
     }
 }

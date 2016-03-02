@@ -25,7 +25,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.SAXException;
 
@@ -59,6 +58,9 @@ import javax.xml.transform.stream.StreamResult;
 public class DataSourceUtils {
 
     private static Log log = LogFactory.getLog(DataSourceUtils.class);
+
+    private static final String[] CLASS_RETURN_TYPES = {"String", "Byte", "Character",
+            "Short", "Integer", "Float", "Double", "Character", "Boolean"};
 
     private static final String XML_DECLARATION = "xml-declaration";
 
@@ -311,7 +313,7 @@ public class DataSourceUtils {
             return false;
         }
         if (!(method.getReturnType().isPrimitive() ||
-                Arrays.asList(RDBMSDataSourceConstants.CLASS_RETURN_TYPES).contains(returnType))) {
+                Arrays.asList(CLASS_RETURN_TYPES).contains(returnType))) {
             return false;
         }
         return true;
