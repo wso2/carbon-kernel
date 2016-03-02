@@ -29,17 +29,6 @@ import java.util.List;
 public class DataSourceServiceImpl implements DataSourceService {
 
     /**
-     * Return all the registered data sources.
-     *
-     * @return {@code List<CarbonDataSource>}
-     * @throws DataSourceException
-     */
-    @Override
-    public List<CarbonDataSource> getDataSources() throws DataSourceException {
-        return DataSourceManager.getInstance().getDataSourceRepository().getDataSources();
-    }
-
-    /**
      * Return a data source with the given name.
      *
      * @param name Name of the data source.

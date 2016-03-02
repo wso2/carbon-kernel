@@ -31,7 +31,7 @@ public interface DataSourceManagementService {
      * @return {@code List<DataSourceMetadata>}
      * @throws DataSourceException
      */
-    List<DataSourceMetadata> getMetadata() throws DataSourceException;
+    List<DataSourceMetadata> getDataSource() throws DataSourceException;
 
     /**
      * Returns a {@code DataSourceMetadata} for the given name.
@@ -40,7 +40,7 @@ public interface DataSourceManagementService {
      * @return {@code CarbonDataSource}
      * @throws DataSourceException
      */
-    DataSourceMetadata getMetadata(String dataSourceName) throws DataSourceException;
+    DataSourceMetadata getDataSource(String dataSourceName) throws DataSourceException;
 
     /**
      * Add a new data source metadata object to the repository.
@@ -48,7 +48,7 @@ public interface DataSourceManagementService {
      * @param dataSourceMetadata {@code DataSourceMetaInfo}
      * @throws DataSourceException
      */
-    void addMetadata(DataSourceMetadata dataSourceMetadata) throws DataSourceException;
+    void addDataSource(DataSourceMetadata dataSourceMetadata) throws DataSourceException;
 
     /**
      * Deletes a data source from the repository.
@@ -56,5 +56,5 @@ public interface DataSourceManagementService {
      * @param dataSourceName {@code String}
      * @throws DataSourceException
      */
-    void deleteMetadata(String dataSourceName) throws DataSourceException;
+    void deleteDataSource(String dataSourceName) throws DataSourceException;
 }

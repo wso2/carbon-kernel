@@ -26,14 +26,6 @@ import java.util.List;
 public interface DataSourceService {
 
     /**
-     * Returns all the registered {@code CarbonDataSource} objects
-     *
-     * @return {@code List<CarbonDataSource>}
-     * @throws DataSourceException
-     */
-    List<CarbonDataSource> getDataSources() throws DataSourceException;
-
-    /**
      * Returns a {@code CarbonDataSource} object for the given na,e.
      *
      * @param name String

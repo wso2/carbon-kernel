@@ -23,6 +23,7 @@ import org.wso2.carbon.datasource.core.api.DataSourceManagementService;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.beans.DataSourceMetadata;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
      * @return {@code List<CarbonDataSource>}
      * @throws DataSourceException
      */
-    public List<DataSourceMetadata> getMetadata() throws DataSourceException {
+    public List<DataSourceMetadata> getDataSource() throws DataSourceException {
         return new ArrayList<>(DataSourceManager.getInstance().getDataSourceRepository().getMetadata());
     }
 
@@ -50,7 +51,7 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
      * @return {@code CarbonDataSource}
      * @throws DataSourceException
      */
-    public DataSourceMetadata getMetadata(String dataSourceName) throws DataSourceException {
+    public DataSourceMetadata getDataSource(String dataSourceName) throws DataSourceException {
         return DataSourceManager.getInstance().getDataSourceRepository().getMetadata(dataSourceName);
     }
 
@@ -61,10 +62,13 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
      * @param dataSourceMetadata {@code DataSourceMetaInfo}
      * @throws DataSourceException
      */
-    public void addMetadata(DataSourceMetadata dataSourceMetadata) throws DataSourceException {
-        CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dataSourceMetadata);
+    public void addDataSource(DataSourceMetadata dataSourceMetadata) throws DataSourceException {
+        DataSourceManager dataSourceManager =  DataSourceManager.getInstance();
+        String dataSourceType = dataSourceMetadata.getDefinition().getType();
+        DataSourceReader dataSourceReader = dataSourceManager.getDataSourceReader(dataSourceType);
+        CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dataSourceMetadata, dataSourceReader);
         DataSourceManager.getInstance().getDataSourceRepository().addDataSource(cds);
-        DataSourceJndiManager.register(cds);
+        DataSourceJndiManager.register(cds, dataSourceReader);
     }
 
     /**
@@ -73,7 +77,7 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
      * @param dataSourceName {@code String}
      * @throws DataSourceException
      */
-    public void deleteMetadata(String dataSourceName) throws DataSourceException {
+    public void deleteDataSource(String dataSourceName) throws DataSourceException {
         DataSourceRepository repository = DataSourceManager.getInstance().getDataSourceRepository();
         //Removal from the in memory repository
         repository.deleteDataSource(dataSourceName);

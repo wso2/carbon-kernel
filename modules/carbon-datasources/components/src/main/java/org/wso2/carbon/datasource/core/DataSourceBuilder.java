@@ -40,9 +40,10 @@ public class DataSourceBuilder {
      * @param dataSourceMetadata {@code DataSourceMetaInfo}
      * @throws DataSourceException
      */
-    public static CarbonDataSource buildCarbonDataSource(DataSourceMetadata dataSourceMetadata)
+    public static CarbonDataSource buildCarbonDataSource(DataSourceMetadata dataSourceMetadata,
+                                                         DataSourceReader dataSourceReader)
             throws DataSourceException {
-        Object dataSource = buildDataSourceObject(dataSourceMetadata, false);
+        Object dataSource = buildDataSourceObject(dataSourceMetadata, false, dataSourceReader);
         return new CarbonDataSource(dataSourceMetadata, dataSource);
     }
 
@@ -54,12 +55,9 @@ public class DataSourceBuilder {
      * @param isUseDataSourceFactory {@code boolean}
      * @return {@code Object}
      */
-    public static Object buildDataSourceObject(DataSourceMetadata dataSourceMetadata, boolean isUseDataSourceFactory)
+    public static Object buildDataSourceObject(DataSourceMetadata dataSourceMetadata, boolean isUseDataSourceFactory,
+                                               DataSourceReader dataSourceReader)
             throws DataSourceException {
-
-        DataSourceReader dataSourceReader = DataSourceManager.getInstance()
-                .getDataSourceReader(dataSourceMetadata.getDefinition().getType());
-
         if(log.isDebugEnabled()) {
             log.debug("Generating the DataSource object from \"" + dataSourceReader.getType() + "\" type reader.");
         }

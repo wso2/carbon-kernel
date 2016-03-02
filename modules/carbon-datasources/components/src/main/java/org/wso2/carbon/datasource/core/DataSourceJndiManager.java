@@ -21,6 +21,7 @@ import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.beans.DataSourceMetadata;
 import org.wso2.carbon.datasource.core.beans.JNDIConfig;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -43,8 +44,8 @@ public class DataSourceJndiManager {
      * @param carbonDataSource {@code CarbonDataSource}
      * @throws DataSourceException
      */
-    public static void register(CarbonDataSource carbonDataSource) throws DataSourceException {
-        register(carbonDataSource.getMetadata(), carbonDataSource.getDataSourceObject());
+    public static void register(CarbonDataSource carbonDataSource, DataSourceReader dataSourceReader) throws DataSourceException {
+        register(carbonDataSource.getMetadata(), carbonDataSource.getDataSourceObject(), dataSourceReader);
     }
 
     /**
@@ -54,7 +55,7 @@ public class DataSourceJndiManager {
      * @param dsObject {@code Object}
      * @throws DataSourceException
      */
-    public static void register(DataSourceMetadata dsmInfo, Object dsObject) throws DataSourceException {
+    public static void register(DataSourceMetadata dsmInfo, Object dsObject, DataSourceReader dataSourceReader) throws DataSourceException {
         JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
         //If JNDI configuration is not present, the data source will not be bound to a JNDI context.
         if (jndiConfig == null) {
@@ -74,7 +75,7 @@ public class DataSourceJndiManager {
             //If jndi configuration specify to use data source factory, then create a java.naming.Reference object
             //and pass to JNDI context.
             if (jndiConfig.isUseDataSourceFactory()) {
-                dsObject = DataSourceBuilder.buildDataSourceObject(dsmInfo, true);
+                dsObject = DataSourceBuilder.buildDataSourceObject(dsmInfo, true, dataSourceReader);
             }
             subContext.rebind(jndiConfig.getName(), dsObject);
         } catch (NamingException e) {
@@ -113,6 +114,7 @@ public class DataSourceJndiManager {
         try {
             //Should we reuse the already existing context or destroy the old context and create a new one?
             Context compContext;
+            //TODO: Try to merge subcontext creation login into one
             try {
                 compContext = (Context) context.lookup(JAVA_COMP_CONTEXT_STRING);
             } catch (NameNotFoundException e) {
@@ -131,6 +133,7 @@ public class DataSourceJndiManager {
             }
         } catch (NamingException e) {
             log.error(e.getMessage(), e);
+            //TODO: Throw a DataSourceException
             return null;
         }
 
