@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import javax.naming.NamingException;
 
 /**
  * This class contains the functionality in managing the data sources.
@@ -168,7 +169,7 @@ public class DataSourceManager {
                 dataSourceRepository.addDataSource(carbonDataSource);
                 DataSourceJndiManager.register(carbonDataSource, dataSourceReader);
             }
-        } catch (DataSourceException e) {
+        } catch (DataSourceException | NamingException e) {
             throw new DataSourceException("Error in initializing system data sources at '" +
                     dataSourceFile.getAbsolutePath() + " - " + e.getMessage(), e);
         }

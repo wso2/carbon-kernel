@@ -27,6 +27,7 @@ import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.naming.NamingException;
 
 /**
  * DataSourceManagementServiceImpl is the implementation of DataSourceManagementService interface. This has implemented
@@ -68,7 +69,11 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
         DataSourceReader dataSourceReader = dataSourceManager.getDataSourceReader(dataSourceType);
         CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dataSourceMetadata, dataSourceReader);
         DataSourceManager.getInstance().getDataSourceRepository().addDataSource(cds);
-        DataSourceJndiManager.register(cds, dataSourceReader);
+        try {
+            DataSourceJndiManager.register(cds, dataSourceReader);
+        } catch (NamingException e) {
+            throw new DataSourceException("Error occurred while binding data source into JNDI context", e);
+        }
     }
 
     /**
@@ -84,6 +89,10 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
 
         //Removal from the JNDI context.
         CarbonDataSource carbonDataSource = repository.getDataSource(dataSourceName);
-        DataSourceJndiManager.unregister(carbonDataSource);
+        try {
+            DataSourceJndiManager.unregister(carbonDataSource);
+        } catch (NamingException e) {
+            throw new DataSourceException("Error occurred while unbinding data source in JNDI context", e);
+        }
     }
 }

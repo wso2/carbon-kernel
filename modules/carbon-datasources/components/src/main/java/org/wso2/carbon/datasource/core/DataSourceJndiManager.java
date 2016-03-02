@@ -46,21 +46,21 @@ public class DataSourceJndiManager {
      * @throws DataSourceException
      */
     public static void register(CarbonDataSource carbonDataSource, DataSourceReader dataSourceReader)
-            throws DataSourceException {
+            throws DataSourceException, NamingException {
         register(carbonDataSource.getMetadata(), carbonDataSource.getDataSourceObject(), dataSourceReader);
     }
 
     /**
      * Register the data source in the JNDI context.
      *
-     * @param dataSourceMetadata  {@code DataSourceMetaInfo}
-     * @param dataSourceObject {@code Object}
-     * @param dataSourceReader {@code DataSourceReader}
+     * @param dataSourceMetadata {@code DataSourceMetaInfo}
+     * @param dataSourceObject   {@code Object}
+     * @param dataSourceReader   {@code DataSourceReader}
      * @throws DataSourceException
      */
     public static void register(DataSourceMetadata dataSourceMetadata, Object dataSourceObject,
                                 DataSourceReader dataSourceReader)
-            throws DataSourceException {
+            throws DataSourceException, NamingException {
         JNDIConfig jndiConfig = dataSourceMetadata.getJndiConfig();
         //If JNDI configuration is not present, the data source will not be bound to a JNDI context.
         if (jndiConfig == null) {
@@ -73,20 +73,13 @@ public class DataSourceJndiManager {
             log.debug("Registering " + dataSourceMetadata.getName() + " into JNDI context");
         }
         Context subContext = getBindingContext(jndiConfig);
-        if (subContext == null) {
-            return;
+
+        //If jndi configuration specify to use data source factory, then create a java.naming.Reference object
+        //and pass to JNDI context.
+        if (jndiConfig.isUseDataSourceFactory()) {
+            dataSourceObject = DataSourceBuilder.buildDataSourceObject(dataSourceMetadata, true, dataSourceReader);
         }
-        try {
-            //If jndi configuration specify to use data source factory, then create a java.naming.Reference object
-            //and pass to JNDI context.
-            if (jndiConfig.isUseDataSourceFactory()) {
-                dataSourceObject = DataSourceBuilder.buildDataSourceObject(dataSourceMetadata, true, dataSourceReader);
-            }
-            subContext.rebind(jndiConfig.getName(), dataSourceObject);
-        } catch (NamingException e) {
-            throw new DataSourceException("Error in binding to JNDI with name '" + jndiConfig.getName()
-                    + "' - " + e.getMessage(), e);
-        }
+        subContext.rebind(jndiConfig.getName(), dataSourceObject);
     }
 
     /**
@@ -96,13 +89,9 @@ public class DataSourceJndiManager {
      * @return {@code Context}
      * @throws DataSourceException
      */
-    private static Context getBindingContext(JNDIConfig jndiConfig) throws DataSourceException {
+    private static Context getBindingContext(JNDIConfig jndiConfig) throws DataSourceException, NamingException {
         InitialContext context;
-        try {
-            context = new InitialContext(jndiConfig.extractHashtableEnv());
-        } catch (NamingException e) {
-            throw new DataSourceException("Error creating JNDI initial context: " + e.getMessage(), e);
-        }
+        context = new InitialContext(jndiConfig.extractHashtableEnv());
         return checkAndCreateJNDISubContexts(context, jndiConfig);
     }
 
@@ -114,32 +103,26 @@ public class DataSourceJndiManager {
      * @throws DataSourceException
      */
     private static Context checkAndCreateJNDISubContexts(Context context, JNDIConfig jndiConfig)
-            throws DataSourceException {
+            throws DataSourceException, NamingException {
         Context compEnvContext;
+        //Should we reuse the already existing context or destroy the old context and create a new one?
+        Context compContext;
+        //TODO: Try to merge subcontext creation login into one
         try {
-            //Should we reuse the already existing context or destroy the old context and create a new one?
-            Context compContext;
-            //TODO: Try to merge subcontext creation login into one
-            try {
-                compContext = (Context) context.lookup(JAVA_COMP_CONTEXT_STRING);
-            } catch (NameNotFoundException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Creating the JNDI context: " + JAVA_COMP_CONTEXT_STRING);
-                }
-                compContext = context.createSubcontext(JAVA_COMP_CONTEXT_STRING);
+            compContext = (Context) context.lookup(JAVA_COMP_CONTEXT_STRING);
+        } catch (NameNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Creating the JNDI context: " + JAVA_COMP_CONTEXT_STRING);
             }
-            try {
-                compEnvContext = (Context) compContext.lookup(ENV_CONTEXT_STRING);
-            } catch (NameNotFoundException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Creating the JNDI context: " + ENV_CONTEXT_STRING);
-                }
-                compEnvContext = compContext.createSubcontext(ENV_CONTEXT_STRING);
+            compContext = context.createSubcontext(JAVA_COMP_CONTEXT_STRING);
+        }
+        try {
+            compEnvContext = (Context) compContext.lookup(ENV_CONTEXT_STRING);
+        } catch (NameNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Creating the JNDI context: " + ENV_CONTEXT_STRING);
             }
-        } catch (NamingException e) {
-            log.error(e.getMessage(), e);
-            //TODO: Throw a DataSourceException
-            return null;
+            compEnvContext = compContext.createSubcontext(ENV_CONTEXT_STRING);
         }
 
         String jndiName = jndiConfig.getName();
@@ -152,12 +135,7 @@ public class DataSourceJndiManager {
             token = tokens[i];
             subContext = lookupJNDISubContext(tmpCtx, token);
             if (subContext == null) {
-                try {
-                    subContext = tmpCtx.createSubcontext(token);
-                } catch (NamingException e) {
-                    throw new DataSourceException("Error in creating JNDI subcontext '" + compEnvContext + "/"
-                            + token + ": " + e.getMessage(), e);
-                }
+                subContext = tmpCtx.createSubcontext(token);
             }
             tmpCtx = subContext;
         }
@@ -172,14 +150,15 @@ public class DataSourceJndiManager {
      * @return {@link Context}
      * @throws DataSourceException
      */
-    private static Context lookupJNDISubContext(Context context, String jndiName) throws DataSourceException {
+    private static Context lookupJNDISubContext(Context context, String jndiName) throws DataSourceException
+            , NamingException {
         try {
             Object obj = context.lookup(jndiName);
             if (!(obj instanceof Context)) {
                 throw new DataSourceException("Non JNDI context exists at '" + context + "/" + jndiName);
             }
             return (Context) obj;
-        } catch (NamingException e) {
+        } catch (NameNotFoundException e) {
             return null;
         }
     }
@@ -189,7 +168,7 @@ public class DataSourceJndiManager {
      *
      * @param cds {@code CarbonDataSource}
      */
-    public static void unregister(CarbonDataSource cds) {
+    public static void unregister(CarbonDataSource cds) throws NamingException {
         if (log.isDebugEnabled()) {
             log.debug("Unregistering data source: " + cds.getMetadata().getName());
         }
@@ -197,11 +176,8 @@ public class DataSourceJndiManager {
         if (jndiConfig == null) {
             return;
         }
-        try {
-            InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
-            context.unbind(jndiConfig.getName());
-        } catch (NamingException e) {
-            log.error("Error in unregistering JNDI name: " + jndiConfig.getName() + " - " + e.getMessage(), e);
-        }
+        InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
+        context.unbind(jndiConfig.getName());
+
     }
 }

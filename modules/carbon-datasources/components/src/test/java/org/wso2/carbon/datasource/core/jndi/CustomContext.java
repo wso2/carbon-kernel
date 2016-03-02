@@ -21,6 +21,7 @@ import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameClassPair;
+import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -47,7 +48,7 @@ public class CustomContext implements Context {
     public Object lookup(String name) throws NamingException {
         Object obj = contextObjects.get(name);
         if (obj == null) {
-            throw new NamingException("No binding found for the name: " + name);
+            throw new NameNotFoundException("No binding found for the name: " + name);
         }
         return obj;
     }
