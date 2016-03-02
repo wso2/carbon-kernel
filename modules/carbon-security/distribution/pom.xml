@@ -52,6 +52,12 @@
             <type>zip</type>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.multitenancy</groupId>
+            <artifactId>org.wso2.carbon.context.api.feature</artifactId>
+            <version>${org.wso2.carbon.context.api.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.security</groupId>
             <artifactId>org.wso2.carbon.security.feature</artifactId>
             <version>${carbon.security.version}</version>
@@ -103,6 +109,10 @@
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
                             <features>
                                 <feature>
+                                    <id>org.wso2.carbon.context.api.feature</id>
+                                    <version>${org.wso2.carbon.context.api.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.carbon.security.feature</id>
                                     <version>${carbon.security.version}</version>
                                 </feature>
@@ -139,6 +149,10 @@
                             </destination>
                             <deleteOldProfileFiles>true</deleteOldProfileFiles>
                             <features>
+                                <feature>
+                                    <id>org.wso2.carbon.context.api.feature.group</id>
+                                    <version>${org.wso2.carbon.context.api.version}</version>
+                                </feature>
                                 <feature>
                                     <id>org.wso2.carbon.security.feature.group</id>
                                     <version>${carbon.security.version}</version>

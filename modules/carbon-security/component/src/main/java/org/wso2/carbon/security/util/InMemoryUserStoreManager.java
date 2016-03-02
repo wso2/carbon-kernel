@@ -25,16 +25,16 @@ import java.util.Map;
 /**
  * In memory user store manager.
  */
-public class UserStoreManager {
+public class InMemoryUserStoreManager {
 
     private static Map<String, char[]> userStore = new HashMap<>();
 
     private static Map<String, CarbonPermission[]> permissionStore = new HashMap<>();
 
-    private static UserStoreManager instance = new UserStoreManager();
+    private static InMemoryUserStoreManager instance = new InMemoryUserStoreManager();
 
 
-    private UserStoreManager() {
+    private InMemoryUserStoreManager() {
 
         userStore.put("admin", new char[]{'a', 'd', 'm', 'i', 'n'});
 
@@ -42,7 +42,7 @@ public class UserStoreManager {
                 new CarbonPermission("org.wso2.carbon.mss.stockquote.StockQuoteService.getQuote", "GET")});
     }
 
-    public static UserStoreManager getInstance() {
+    public static InMemoryUserStoreManager getInstance() {
         return instance;
     }
 

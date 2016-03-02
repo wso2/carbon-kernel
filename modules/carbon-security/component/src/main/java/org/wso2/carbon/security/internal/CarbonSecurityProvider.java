@@ -16,21 +16,23 @@
 
 package org.wso2.carbon.security.internal;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.PackagePermission;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.permissionadmin.PermissionAdmin;
 import org.osgi.service.permissionadmin.PermissionInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.security.internal.config.DefaultPermissionInfo;
+import org.wso2.carbon.security.internal.config.DefaultPermissionInfoCollection;
+import org.wso2.carbon.security.internal.config.YAMLSecurityConfigBuilder;
 import org.wso2.carbon.security.jaas.CarbonPolicy;
 
-import java.lang.management.ManagementPermission;
 import java.security.Policy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import javax.security.auth.AuthPermission;
 
 /**
  * OSGi service component which handle authentication and authorization
@@ -41,33 +43,65 @@ import javax.security.auth.AuthPermission;
 )
 public class CarbonSecurityProvider {
 
+    private static final Logger log = LoggerFactory.getLogger(CarbonSecurityProvider.class);
+
     @Activate
     public void registerCarbonSecurityProvider(BundleContext bundleContext) {
+
+        // Set default permissions for all bundles
+        setDefaultPermissions(bundleContext);
 
         //Registering CarbonPolicy
         CarbonPolicy policy = new CarbonPolicy();
         Policy.setPolicy(policy);
         System.setSecurityManager(new SecurityManager());
 
-        // Granting limited number of permissions for the bundle
-        Bundle bundle = bundleContext.getBundle();
-        String bundleLocation = bundle.getLocation();
-        PermissionAdmin permissionAdmin = getPermissionAdmin(bundleContext);
-        if (permissionAdmin != null) {
-            List<PermissionInfo> permissionInfoList = new ArrayList<>();
-            permissionInfoList.add(new PermissionInfo(AuthPermission.class.getName(),"createLoginContext", null));
-            permissionInfoList.add(new PermissionInfo(AuthPermission.class.getName(),"doAsPrivileged", null));
-            permissionInfoList.add(new PermissionInfo(AuthPermission.class.getName(),"modifyPrincipals", null));
-            permissionInfoList.add(new PermissionInfo(PackagePermission.class.getName(),"*", "exportonly,import"));
-            permissionInfoList.add(new PermissionInfo(ManagementPermission.class.getName(),"control", null));
-            permissionAdmin.setPermissions(bundleLocation, permissionInfoList
-                    .toArray(new PermissionInfo[permissionInfoList.size()]));
-        }
+        log.info("Carbon-Security bundle activated successfully.");
     }
 
     @Deactivate
     public void unregisterCarbonSecurityProvider(BundleContext bundleContext) {
-        //TODO
+        log.info("Carbon-Security bundle deactivated successfully.");
+    }
+
+    /**
+     * Set default permissions for all bundles using PermissionAdmin
+     *
+     * @param context
+     */
+    private void setDefaultPermissions(BundleContext context) {
+
+        PermissionAdmin permissionAdmin = getPermissionAdmin(context);
+        if (permissionAdmin != null) {
+
+            DefaultPermissionInfoCollection permissionInfoCollection = YAMLSecurityConfigBuilder
+                    .buildDefaultPermissionInfoCollection();
+            List<PermissionInfo> permissionInfoList = new ArrayList<>();
+            if (!Collections.EMPTY_SET.equals(permissionInfoCollection.getPermissions())) {
+
+                for (DefaultPermissionInfo permissionInfo : permissionInfoCollection.getPermissions()) {
+
+                    if (permissionInfo.getType() == null || permissionInfo.getType().trim().isEmpty()) {
+                        throw new IllegalArgumentException("type can't be null or empty");
+
+                    }
+
+                    if (permissionInfo.getName() == null || permissionInfo.getName().trim().isEmpty()) {
+                        throw new IllegalArgumentException("name can't be null or empty");
+                    }
+
+                    permissionInfoList.add(new PermissionInfo(permissionInfo.getType(), permissionInfo.getName(),
+                                                              (permissionInfo.getActions() != null && !permissionInfo
+                                                                      .getActions().trim().isEmpty()) ?
+                                                              permissionInfo.getActions().trim() : null));
+                }
+            } else {
+                throw new RuntimeException("Default permission info collection can't be empty");
+            }
+
+            permissionAdmin.setDefaultPermissions(permissionInfoList
+                                                          .toArray(new PermissionInfo[permissionInfoList.size()]));
+        }
     }
 
     private PermissionAdmin getPermissionAdmin(BundleContext context) {

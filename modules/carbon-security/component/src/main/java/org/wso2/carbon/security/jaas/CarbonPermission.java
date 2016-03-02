@@ -16,14 +16,8 @@
 
 package org.wso2.carbon.security.jaas;
 
-import org.wso2.carbon.security.util.UserStoreManager;
-
-import java.security.AccessController;
 import java.security.BasicPermission;
 import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Principal;
-import javax.security.auth.Subject;
 
 /**
  * The {@code CarbonPermission} class is an extension of {@code BasicPermission}.
@@ -48,38 +42,16 @@ public class CarbonPermission extends BasicPermission {
 
     }
 
-    //Never get called
-    @Override
-    public boolean implies(Permission permission) {
-
-        // we do not need to worry about - if it is not a CarbonPermission
-        if (!(permission instanceof CarbonPermission)) {
-            return super.implies(permission);
-        }
-
-        // get the current subject.
-        Subject subject = Subject.getSubject(AccessController.getContext());
-
-        // find the CarbonPrincipal
-        for (Principal principal : subject.getPrincipals()) {
-            if (principal instanceof CarbonPrincipal) {
-                if (UserStoreManager.getInstance().authorizePrincipal(principal.getName(),
-                                                                          (CarbonPermission) permission)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     @Override
     public String getActions() {
         return this.actions;
     }
 
     @Override
-    public PermissionCollection newPermissionCollection() {
-        return new CarbonPermissionCollection(this.getClass());
+    public boolean implies(Permission p) {
+
+        //This should not get called since evaluation for CarbonPermission happens inside the CarbonPolicy
+        return false;
     }
 
 }

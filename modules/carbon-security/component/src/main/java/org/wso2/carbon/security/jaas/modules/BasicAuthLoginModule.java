@@ -16,20 +16,13 @@
 
 package org.wso2.carbon.security.jaas.modules;
 
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.context.api.PrivilegedCarbonContext;
-import org.wso2.carbon.security.jaas.CarbonCallback;
 import org.wso2.carbon.security.jaas.CarbonPrincipal;
-import org.wso2.carbon.security.util.CarbonSecurityConstants;
-import org.wso2.carbon.security.util.UserStoreManager;
+import org.wso2.carbon.security.util.InMemoryUserStoreManager;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -110,7 +103,7 @@ public class BasicAuthLoginModule implements LoginModule {
         username = usernameCallback.getName();
         password = passwordCallback.getPassword();
 
-        success = UserStoreManager.getInstance().authenticate(username, password);
+        success = InMemoryUserStoreManager.getInstance().authenticate(username, password);
         return success;
     }
 

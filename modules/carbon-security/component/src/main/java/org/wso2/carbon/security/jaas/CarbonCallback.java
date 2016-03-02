@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.security.jaas;
 
-import io.netty.handler.codec.http.HttpRequest;
-
 import java.io.Serializable;
 import javax.security.auth.callback.Callback;
 

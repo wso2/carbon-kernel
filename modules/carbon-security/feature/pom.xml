@@ -77,7 +77,7 @@
             <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.context</groupId>
+            <groupId>org.wso2.carbon.multitenancy</groupId>
             <artifactId>org.wso2.carbon.context.api</artifactId>
         </dependency>
     </dependencies>

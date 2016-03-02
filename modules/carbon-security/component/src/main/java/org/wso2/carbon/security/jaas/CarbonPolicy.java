@@ -18,12 +18,12 @@ package org.wso2.carbon.security.jaas;
 
 import sun.security.provider.PolicyFile;
 
+import javax.security.auth.Subject;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.Permission;
 import java.security.Principal;
 import java.security.ProtectionDomain;
-import javax.security.auth.Subject;
 
 /**
  * <p>
@@ -47,17 +47,11 @@ public class CarbonPolicy extends PolicyFile {
     @Override
     public boolean implies(ProtectionDomain domain, Permission permission) {
 
-        boolean authorized = super.implies(domain, permission);
-
-        if (authorized && permission instanceof CarbonPermission) {
-
-            // Now CarbonPolicy must authorize
-            authorized = false;
+        if (permission instanceof CarbonPermission) {
 
             // get the current subject.
             Subject subject = Subject.getSubject(AccessController.getContext());
 
-            // find the CarbonPrincipal
             for (Principal principal : subject.getPrincipals()) {
                 if (principal instanceof CarbonPrincipal) {
                     if (((CarbonPrincipal) principal).isAuthorized((CarbonPermission) permission)) {
@@ -65,9 +59,11 @@ public class CarbonPolicy extends PolicyFile {
                     }
                 }
             }
+        } else {
+            return super.implies(domain, permission);
         }
 
-        return authorized;
+        return false;
     }
 
 }

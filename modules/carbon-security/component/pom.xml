@@ -10,8 +10,7 @@
 
     <artifactId>org.wso2.carbon.security</artifactId>
     <packaging>bundle</packaging>
-
-    <name>Security Implementation for Carbon</name>
+    <name>WSO2 Carbon Security - OSGi Bundle</name>
 
     <build>
         <extensions>
@@ -55,7 +54,7 @@
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.context</groupId>
+            <groupId>org.wso2.carbon.multitenancy</groupId>
             <artifactId>org.wso2.carbon.context.api</artifactId>
         </dependency>
         <dependency>
@@ -63,11 +62,18 @@
             <artifactId>testng</artifactId>
             <version>6.9.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
         <private.package>org.wso2.carbon.security.internal</private.package>
-        <export.package>!org.wso2.carbon.security.internal, org.wso2.carbon.security.*</export.package>
+        <export.package>
+            !org.wso2.carbon.security.internal,
+            org.wso2.carbon.security.*
+        </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
             org.osgi.service.permissionadmin.*;version="${org.osgi.service.permissionadmin.import.version.range}",
@@ -76,15 +82,15 @@
             javax.security.auth.*,
             com.nimbusds.jose.*;version="${com.nimbusds.package.import.version.range}",
             com.nimbusds.jwt.*;version="${com.nimbusds.package.import.version.range}",
-            org.wso2.carbon.context.api.*
+            org.wso2.carbon.context.api.*;version="${org.wso2.carbon.context.import.version.range}",
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
         </import.package>
 
         <dsannotations>*</dsannotations>
 
         <!-- OSGi API version range-->
         <osgi.framework.package.import.version.range>[1.8.0, 2.0.0)</osgi.framework.package.import.version.range>
-        <org.osgi.service.permissionadmin.import.version.range>
-            [1.2.0, 1.3.0)</org.osgi.service.permissionadmin.import.version.range>
+        <org.osgi.service.permissionadmin.import.version.range>[1.2.0, 1.3.0)</org.osgi.service.permissionadmin.import.version.range>
 
         <!-- Dependency package version ranges -->
         <io.netty.package.import.version.range>[4.0,5)</io.netty.package.import.version.range>
@@ -94,6 +100,7 @@
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
 
         <org.wso2.carbon.context.import.version.range>[5.0.0, 5.1.0)</org.wso2.carbon.context.import.version.range>
+        <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
     </properties>
 
 </project>
