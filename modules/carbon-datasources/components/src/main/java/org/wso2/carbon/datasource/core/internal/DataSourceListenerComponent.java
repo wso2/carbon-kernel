@@ -83,22 +83,19 @@ public class DataSourceListenerComponent implements RequiredCapabilityListener {
 
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
-        log.info("initializing data source bundle");
         try {
             DataSourceManager dataSourceManager = DataSourceManager.getInstance();
             dataSourceManager.addDataSourceProviders(readers);
             dataSourceManager.initDataSources();
 
-            log.info("initializing data source bundle completed");
             DataSourceService dsService = new DataSourceServiceImpl();
             log.info("Registering DataSourceService");
             bundleContext.registerService(DataSourceService.class.getName(), dsService, null);
 
-            log.info("Registering DataSourceManagementService");
             DataSourceManagementService dataSourceMgtService = new DataSourceManagementServiceImpl();
             bundleContext.registerService(DataSourceManagementService.class.getName(), dataSourceMgtService, null);
         } catch (DataSourceException e) {
-            log.error("error occurred while initializing data sources");
+            log.error("Error occurred while initializing data sources", e);
         }
     }
 }
