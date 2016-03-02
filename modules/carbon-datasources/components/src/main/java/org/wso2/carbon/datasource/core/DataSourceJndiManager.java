@@ -42,30 +42,35 @@ public class DataSourceJndiManager {
      * Register the data source in the JNDI context.
      *
      * @param carbonDataSource {@code CarbonDataSource}
+     * @param dataSourceReader {@code DataSourceReader}
      * @throws DataSourceException
      */
-    public static void register(CarbonDataSource carbonDataSource, DataSourceReader dataSourceReader) throws DataSourceException {
+    public static void register(CarbonDataSource carbonDataSource, DataSourceReader dataSourceReader)
+            throws DataSourceException {
         register(carbonDataSource.getMetadata(), carbonDataSource.getDataSourceObject(), dataSourceReader);
     }
 
     /**
      * Register the data source in the JNDI context.
      *
-     * @param dsmInfo  {@code DataSourceMetaInfo}
-     * @param dsObject {@code Object}
+     * @param dataSourceMetadata  {@code DataSourceMetaInfo}
+     * @param dataSourceObject {@code Object}
+     * @param dataSourceReader {@code DataSourceReader}
      * @throws DataSourceException
      */
-    public static void register(DataSourceMetadata dsmInfo, Object dsObject, DataSourceReader dataSourceReader) throws DataSourceException {
-        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
+    public static void register(DataSourceMetadata dataSourceMetadata, Object dataSourceObject,
+                                DataSourceReader dataSourceReader)
+            throws DataSourceException {
+        JNDIConfig jndiConfig = dataSourceMetadata.getJndiConfig();
         //If JNDI configuration is not present, the data source will not be bound to a JNDI context.
         if (jndiConfig == null) {
             if (log.isDebugEnabled()) {
-                log.debug("JNDI info not found for " + dsmInfo.getName());
+                log.debug("JNDI info not found for " + dataSourceMetadata.getName());
             }
             return;
         }
         if (log.isDebugEnabled()) {
-            log.debug("Registering " + dsmInfo.getName() + " into JNDI context");
+            log.debug("Registering " + dataSourceMetadata.getName() + " into JNDI context");
         }
         Context subContext = getBindingContext(jndiConfig);
         if (subContext == null) {
@@ -75,9 +80,9 @@ public class DataSourceJndiManager {
             //If jndi configuration specify to use data source factory, then create a java.naming.Reference object
             //and pass to JNDI context.
             if (jndiConfig.isUseDataSourceFactory()) {
-                dsObject = DataSourceBuilder.buildDataSourceObject(dsmInfo, true, dataSourceReader);
+                dataSourceObject = DataSourceBuilder.buildDataSourceObject(dataSourceMetadata, true, dataSourceReader);
             }
-            subContext.rebind(jndiConfig.getName(), dsObject);
+            subContext.rebind(jndiConfig.getName(), dataSourceObject);
         } catch (NamingException e) {
             throw new DataSourceException("Error in binding to JNDI with name '" + jndiConfig.getName()
                     + "' - " + e.getMessage(), e);
