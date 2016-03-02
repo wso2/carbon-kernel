@@ -29,9 +29,9 @@ public interface DataSourceService {
      * Returns a {@code CarbonDataSource} object for the given na,e.
      *
      * @param name String
-     * @return {@code CarbonDataSource}
+     * @return DataSource Object
      * @throws DataSourceException
      */
-    CarbonDataSource getDataSource(String name) throws DataSourceException;
+    Object getDataSource(String name) throws DataSourceException;
 
 }

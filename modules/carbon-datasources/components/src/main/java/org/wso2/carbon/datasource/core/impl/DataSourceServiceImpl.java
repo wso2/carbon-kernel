@@ -20,8 +20,6 @@ import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
-import java.util.List;
-
 /**
  * DataSourceServiceImpl is the implementation of DataSourceService interface. This has implemented the operations
  * allowed to perform on data sources.
@@ -32,11 +30,13 @@ public class DataSourceServiceImpl implements DataSourceService {
      * Return a data source with the given name.
      *
      * @param name Name of the data source.
-     * @return {@code CarbonDataSource}
+     * @return DataSource Object
      * @throws DataSourceException
      */
     @Override
-    public CarbonDataSource getDataSource(String name) throws DataSourceException {
-        return DataSourceManager.getInstance().getDataSourceRepository().getDataSource(name);
+    public Object getDataSource(String name) throws DataSourceException {
+        CarbonDataSource carbonDataSource = DataSourceManager.getInstance().getDataSourceRepository()
+                .getDataSource(name);
+        return carbonDataSource.getDataSourceObject();
     }
 }
