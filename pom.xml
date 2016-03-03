@@ -1469,11 +1469,11 @@
                 <artifactId>org.wso2.carbon.identity.mgt.ui</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.sts.store</artifactId>
-                <version>${identity.framework.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon.identity</groupId>-->
+                <!--<artifactId>org.wso2.carbon.identity.sts.store</artifactId>-->
+                <!--<version>${identity.framework.version}</version>-->
+            <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.sts.server.feature</artifactId>-->
