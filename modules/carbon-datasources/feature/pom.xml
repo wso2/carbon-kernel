@@ -72,7 +72,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>com.zaxxer.HikariCP</symbolicName>
-                                    <version>${hikaricp.version}</version>
+                                    <version>${com.zaxxer.hikaricp.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
