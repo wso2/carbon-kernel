@@ -49,7 +49,7 @@ public class DataSourceBuilder {
 
     /**
      * Creates the data source object by getting the appropriate DataSourceReader. The created object would be either
-     * a {@link javax.sql.DataSource} or {@link Reference} if {@code isUseDataSourceFactory} param is true.
+     * a {@link javax.sql.DataSource} or {@link Reference} if {@code isUseJndiReference} param is true.
      *
      * @param dataSourceMetadata                {@code DataSourceMetaInfo}
      * @param isUseDataSourceFactory {@code boolean}

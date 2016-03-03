@@ -51,10 +51,10 @@ public class HikariRDBMSDataSource {
      * @return {@link HikariDataSource}
      */
     public HikariDataSource getDataSource() {
-        if (this.dataSource == null) {
-            this.dataSource = new HikariDataSource(this.config);
+        if (dataSource == null) {
+            dataSource = new HikariDataSource(config);
         }
-        return this.dataSource;
+        return dataSource;
     }
 
     /**

@@ -79,7 +79,7 @@ public class DataSourceListenerComponent implements RequiredCapabilityListener {
     }
 
     protected void unregisterReader(DataSourceReader reader) {
-        readers.remove(reader);
+        readers.remove(reader.getType());
     }
 
     @Override

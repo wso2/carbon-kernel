@@ -84,11 +84,12 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
      */
     public void deleteDataSource(String dataSourceName) throws DataSourceException {
         DataSourceRepository repository = DataSourceManager.getInstance().getDataSourceRepository();
+        CarbonDataSource carbonDataSource = repository.getDataSource(dataSourceName);
+
         //Removal from the in memory repository
         repository.deleteDataSource(dataSourceName);
 
         //Removal from the JNDI context.
-        CarbonDataSource carbonDataSource = repository.getDataSource(dataSourceName);
         try {
             DataSourceJndiManager.unregister(carbonDataSource);
         } catch (NamingException e) {

@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -237,14 +238,14 @@ public class TomcatDataSourceUtils {
         if (isEmptyString(propName)) {
             throw new RuntimeException("Invalid property name");
         }
-        return "set" + propName.substring(0, 1).toUpperCase() + propName.substring(1);
+        return "set" + propName.substring(0, 1).toUpperCase(Locale.getDefault()) + propName.substring(1);
     }
 
     private static Method getSetterMethod(Object obj, String name) {
         Method[] methods = obj.getClass().getMethods();
         for (Method method : methods) {
             if (method.getName().equals(name)
-                    && method.getReturnType().equals(void.class)
+                    && method.getReturnType().equals(Void.class)
                     && method.getParameterTypes().length == 1) {
                 return method;
             }

@@ -33,11 +33,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -78,7 +81,7 @@ public class DataSourceUtils {
 
     public static boolean nullAllowEquals(Object lhs, Object rhs) {
         return lhs == null && rhs == null || !((lhs == null && rhs != null) || (lhs != null && rhs == null))
-                && lhs.equals(rhs);
+                && (lhs != null && lhs.equals(rhs));
     }
 
     public static String elementToString(Element element) {
@@ -221,7 +224,8 @@ public class DataSourceUtils {
      * @throws DataSourceException
      */
     public static String replaceSystemVariablesInXml(String xmlConfiguration) throws DataSourceException {
-        InputStream in = replaceSystemVariablesInXml(new ByteArrayInputStream(xmlConfiguration.getBytes()));
+        InputStream in = replaceSystemVariablesInXml(new
+                ByteArrayInputStream(xmlConfiguration.getBytes(StandardCharsets.UTF_8)));
         try {
             xmlConfiguration = IOUtils.toString(in);
         } catch (IOException e) {
@@ -271,7 +275,7 @@ public class DataSourceUtils {
                         String result = method.invoke(object).toString();
                         nameValueMap.put(FieldName, result);
                     }
-                } catch (Exception e) {
+                } catch (IllegalAccessException | InvocationTargetException e) {
                     throw new DataSourceException("Error in retrieving " + FieldName + " value from the object :" +
                             object.getClass() + e.getMessage(), e);
                 }
@@ -294,7 +298,7 @@ public class DataSourceUtils {
         } else {
             throw new DataSourceException("Error in retrieving attribute name from method : " + name);
         }
-        firstLetter = firstLetter.toLowerCase();
+        firstLetter = firstLetter.toLowerCase(Locale.getDefault());
         return firstLetter.concat(name);
     }
 
@@ -340,7 +344,8 @@ public class DataSourceUtils {
                 return (T) ctx.createUnmarshaller().unmarshal(doc);
             } else if (configuration instanceof String) {
                 String xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml((String) configuration);
-                return (T) ctx.createUnmarshaller().unmarshal(new ByteArrayInputStream(xmlConfiguration.getBytes()));
+                return (T) ctx.createUnmarshaller().unmarshal(new
+                        ByteArrayInputStream(xmlConfiguration.getBytes(StandardCharsets.UTF_8)));
             } else {
                 throw new DataSourceException("Only a file or string content allowed as the first parameter.");
             }

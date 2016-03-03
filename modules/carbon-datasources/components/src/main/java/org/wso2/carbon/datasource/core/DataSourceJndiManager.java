@@ -76,7 +76,7 @@ public class DataSourceJndiManager {
 
         //If jndi configuration specify to use data source factory, then create a java.naming.Reference object
         //and pass to JNDI context.
-        if (jndiConfig.isUseDataSourceFactory()) {
+        if (jndiConfig.isUseJndiReference()) {
             dataSourceObject = DataSourceBuilder.buildDataSourceObject(dataSourceMetadata, true, dataSourceReader);
         }
         subContext.rebind(jndiConfig.getName(), dataSourceObject);

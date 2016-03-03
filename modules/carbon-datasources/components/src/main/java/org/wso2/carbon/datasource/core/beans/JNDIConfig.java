@@ -34,7 +34,7 @@ public class JNDIConfig {
 
     private EnvEntry[] environment;
 
-    private boolean useDataSourceFactory = false;
+    private boolean useJndiReference = false;
 
     public void setName(String name) {
         this.name = name;
@@ -55,13 +55,13 @@ public class JNDIConfig {
         return environment;
     }
 
-    @XmlElement(name = "useDataSourceFactory")
-    public boolean isUseDataSourceFactory() {
-        return useDataSourceFactory;
+    @XmlElement(name = "useJndiReference")
+    public boolean isUseJndiReference() {
+        return useJndiReference;
     }
 
-    public void setUseDataSourceFactory(boolean useDataSourceFactory) {
-        this.useDataSourceFactory = useDataSourceFactory;
+    public void setUseJndiReference(boolean useJndiReference) {
+        this.useJndiReference = useJndiReference;
     }
 
     public Hashtable<String, String> extractHashtableEnv() {
@@ -77,7 +77,7 @@ public class JNDIConfig {
     public JNDIConfig copy() {
         JNDIConfig result = new JNDIConfig();
         result.setName(this.getName());
-        result.setUseDataSourceFactory(this.isUseDataSourceFactory());
+        result.setUseJndiReference(this.isUseJndiReference());
         EnvEntry[] envEntries = null;
         EnvEntry[] origEntries = this.getEnvironment();
         if (origEntries != null) {

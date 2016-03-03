@@ -40,7 +40,7 @@ import javax.naming.NamingException;
 public class DataSourceManager {
 
     private static Log log = LogFactory.getLog(DataSourceManager.class);
-    private static DataSourceManager instance;
+    private static DataSourceManager instance = new DataSourceManager();;
     private DataSourceRepository dataSourceRepository;
     private Map<String, DataSourceReader> dataSourceReaders;
 
@@ -62,10 +62,7 @@ public class DataSourceManager {
      *
      * @return DataSourceManager
      */
-    public synchronized static DataSourceManager getInstance() {
-        if (instance == null) {
-            instance = new DataSourceManager();
-        }
+    public static DataSourceManager getInstance() {
         return instance;
     }
 
@@ -74,7 +71,7 @@ public class DataSourceManager {
      *
      * @return DataSourceRepository
      */
-    public synchronized DataSourceRepository getDataSourceRepository() {
+    public DataSourceRepository getDataSourceRepository() {
         return dataSourceRepository;
     }
 
@@ -108,7 +105,7 @@ public class DataSourceManager {
      * @param configurationDirectory String
      * @throws DataSourceException
      */
-    public synchronized void initDataSources(String configurationDirectory)
+    public void initDataSources(String configurationDirectory)
             throws DataSourceException {
         this.dataSourcesPath = configurationDirectory;
         loadDataSourceProviders();
@@ -120,7 +117,7 @@ public class DataSourceManager {
      * @param dataSourceReaders {@code Map<String, DataSourceReader>}
      * @throws DataSourceException
      */
-    public synchronized void initDataSources(String configurationDir, Map<String, DataSourceReader> dataSourceReaders)
+    public void initDataSources(String configurationDir, Map<String, DataSourceReader> dataSourceReaders)
             throws DataSourceException {
         this.dataSourceReaders = dataSourceReaders;
         if (initialized) {
