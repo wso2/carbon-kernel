@@ -41,13 +41,24 @@ public class DataSourceRepository {
         this.dataSources = new HashMap<>();
     }
 
+    /**
+     * Returns the registered metadata list in this repository.
+     *
+     * @return {@code List<DataSourceMetadata>}
+     */
     public List<DataSourceMetadata> getMetadata() {
         return dataSources.values().stream().map(CarbonDataSource::getMetadata).collect(Collectors.toList());
     }
 
+    /**
+     * Returns a registered DataSourceMetadata object for the given name.
+     *
+     * @param dataSourceName The name of the data source.
+     * @return {@code DataSourceMetadata}
+     */
     public DataSourceMetadata getMetadata(String dataSourceName) {
         CarbonDataSource carbonDataSource = getDataSource(dataSourceName);
-        if(carbonDataSource != null) {
+        if (carbonDataSource != null) {
             return carbonDataSource.getMetadata();
         }
         return null;

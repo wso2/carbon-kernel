@@ -117,7 +117,7 @@ public class DataSourceManager {
 
     /**
      * @param configurationDir  String location of the configuration directory
-     * @param dataSourceReaders
+     * @param dataSourceReaders {@code Map<String, DataSourceReader>}
      * @throws DataSourceException
      */
     public synchronized void initDataSources(String configurationDir, Map<String, DataSourceReader> dataSourceReaders)
@@ -177,9 +177,7 @@ public class DataSourceManager {
     }
 
     /**
-     * If {@code List<DataSourceReader>} is not set from {@code addDataSourceProviders} method,
-     * {@code loadDataSourceProviders} is called internally and load data source readers using
-     * {@link java.util.ServiceLoader}.
+     * Load {@code DataSourceReader} implementations from the class path. This make use of {@link ServiceLoader}.
      */
     private void loadDataSourceProviders() {
         if (dataSourceReaders.size() == 0) {

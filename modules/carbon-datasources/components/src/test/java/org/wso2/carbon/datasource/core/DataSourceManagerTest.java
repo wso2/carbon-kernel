@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -31,32 +29,27 @@ import java.util.List;
  */
 public class DataSourceManagerTest extends BaseTest {
 
-    private DataSourceManager dsManager;
-
     @BeforeSuite
     public void initialize() throws DataSourceException, MalformedURLException {
-        setEnv();
-        Path configPathCopyLocation = Paths.get("target", "carbonHome", "conf", "datasources");
-        dsManager = DataSourceManager.getInstance();
-        dsManager.initDataSources(configPathCopyLocation.toFile().getAbsolutePath());
+        super.init();
     }
 
     @Test(expectedExceptions = DataSourceException.class)
     public void getDataSourceReaderFailTest() throws DataSourceException {
-        dsManager.getDataSourceReader(null);
+        dataSourceManager.getDataSourceReader(null);
         Assert.fail("Exception is not thrown when an exception is expected.");
     }
 
     @Test
     public void getDataSourceRepositoryTest() throws DataSourceException {
-        DataSourceRepository dsRepo = dsManager.getDataSourceRepository();
+        DataSourceRepository dsRepo = dataSourceManager.getDataSourceRepository();
         Assert.assertNotNull(dsRepo, "Expected a DataSourceRepository, but found none!!!");
         //Does loading the data prior to run the test.
     }
 
     @Test
     public void getDataSourceTypesTest() {
-        List<String> types = dsManager.getDataSourceTypes();
+        List<String> types = dataSourceManager.getDataSourceTypes();
         Assert.assertEquals(types.size(), 1, "Expected only one data source type.");
     }
 

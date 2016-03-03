@@ -27,8 +27,8 @@ import org.wso2.carbon.datasource.utils.DataSourceUtils;
 import javax.naming.Reference;
 
 /**
- * DataSourceBuilder is responsible to build data source by passing the data source configuration to the relevant
- * DataSourceReader object.
+ * DataSourceBuilder is a util class responsible to build data source by passing the data source configuration to the
+ * relevant DataSourceReader object.
  */
 public class DataSourceBuilder {
 

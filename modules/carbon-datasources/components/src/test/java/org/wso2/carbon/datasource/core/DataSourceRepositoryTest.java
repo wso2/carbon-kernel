@@ -16,23 +16,18 @@ import java.nio.file.Paths;
  */
 public class DataSourceRepositoryTest extends BaseTest {
 
-    private DataSourceManager dsManager;
     private DataSourceRepository dsRepository;
 
     @BeforeSuite
     public void initialize() throws DataSourceException, MalformedURLException {
-        setEnv();
-        dsManager = DataSourceManager.getInstance();
-        Path configPathCopyLocation = Paths.get("target", "carbonHome", "conf", "datasources");
-
-        dsManager.initDataSources(configPathCopyLocation.toFile().getAbsolutePath());
-        dsRepository = dsManager.getDataSourceRepository();
+        super.init();
+        dsRepository = dataSourceManager.getDataSourceRepository();
     }
 
     @Test
     public void getAllDataSourcesTest() {
         int size = dsRepository.getDataSources().size();
-        Assert.assertEquals(size, 1, "Only one data source is configured.");
+        Assert.assertEquals(size, 2, "Only two data source is configured.");
     }
 
 

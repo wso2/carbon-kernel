@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.datasource.core;
 
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,8 +24,16 @@ import java.nio.file.Paths;
  * Base test class for unit testing. Common methods for unit tests reside here.
  */
 public class BaseTest {
+    protected DataSourceManager dataSourceManager;
 
-    protected void setEnv() {
+    protected void init() throws DataSourceException {
+        setEnv();
+        Path configPathCopyLocation = Paths.get("target", "carbonHome", "conf", "datasources");
+        dataSourceManager = DataSourceManager.getInstance();
+        dataSourceManager.initDataSources(configPathCopyLocation.toFile().getAbsolutePath());
+    }
+
+    private void setEnv() {
         Path carbonHomePath = Paths.get("target", "carbonHome");
         System.setProperty("carbon.home", carbonHomePath.toFile().getAbsolutePath());
 

@@ -15,10 +15,7 @@
  */
 package org.wso2.carbon.datasource.core.api;
 
-import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-
-import java.util.List;
 
 /**
  * DataSourceService interface which exposes the operations allowed to perform on data sources.
@@ -33,5 +30,4 @@ public interface DataSourceService {
      * @throws DataSourceException
      */
     Object getDataSource(String name) throws DataSourceException;
-
 }
