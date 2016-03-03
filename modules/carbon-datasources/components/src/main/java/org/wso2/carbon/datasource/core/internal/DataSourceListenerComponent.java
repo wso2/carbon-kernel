@@ -70,11 +70,6 @@ public class DataSourceListenerComponent implements RequiredCapabilityListener {
             unbind = "unregisterReader"
     )
     protected void registerReader(DataSourceReader reader) {
-        if (readers.containsKey(reader.getType())) {
-            log.warn("A reader with the type " + reader.getType() + "already exists. "
-                    + reader.getClass().toString() + " will be ignored.");
-            return;
-        }
         readers.put(reader.getType(), reader);
     }
 
