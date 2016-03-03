@@ -82,58 +82,59 @@ public class DataSourceManager {
      * Returns the types of data source readers registered in the system.
      *
      * @return {@code List<String>}
-     * @throws DataSourceException if no data source readers are defined.
      */
-    public List<String> getDataSourceTypes() throws DataSourceException {
+    public List<String> getDataSourceTypes() {
         return new ArrayList<>(dataSourceReaders.keySet());
     }
 
     /**
      * Returns a DataSourceReader for the given DataSourceReader type.
      *
-     * @param dsType String
+     * @param dataSourceType String
      * @return {@code DataSourceReader}
      * @throws DataSourceException
      */
-    public DataSourceReader getDataSourceReader(String dsType) throws DataSourceException {
-        DataSourceReader reader = dataSourceReaders.get(dsType);
+    public DataSourceReader getDataSourceReader(String dataSourceType) throws DataSourceException {
+        DataSourceReader reader = dataSourceReaders.get(dataSourceType);
         if (reader == null) {
-            throw new DataSourceException("No reader found for type: " + dsType);
+            throw new DataSourceException("No reader found for type: " + dataSourceType);
         }
         return reader;
     }
 
-    public void setConfigurationDirectory(String path) {
-        this.dataSourcesPath = path;
+    /**
+     * Initializes the data sources.
+     *
+     * @param configurationDirectory String
+     * @throws DataSourceException
+     */
+    public synchronized void initDataSources(String configurationDirectory)
+            throws DataSourceException {
+        this.dataSourcesPath = configurationDirectory;
+        loadDataSourceProviders();
+        initDataSources(dataSourcesPath, dataSourceReaders);
     }
 
     /**
-     * Initializes the system data sources, i.e. /repository/conf/datasources/*-datasources.xml.
-     *
+     * @param configurationDir  String location of the configuration directory
+     * @param dataSourceReaders
      * @throws DataSourceException
      */
-    public void initDataSources() throws DataSourceException {
-        log.debug("Initializing the data sources.");
+    public synchronized void initDataSources(String configurationDir, Map<String, DataSourceReader> dataSourceReaders)
+            throws DataSourceException {
+        this.dataSourceReaders = dataSourceReaders;
         if (initialized) {
             log.debug("Data sources are already initialized.");
             return;
         }
+        log.debug("Initializing the data sources.");
+
         if (dataSourceReaders.isEmpty()) {
-            loadDataSourceProviders();
-        }
-        if (dataSourceReaders.isEmpty()) {
-            //Should throw an RuntimeException??
-            throw new DataSourceException("No data source readers found. Data sources will not be initialized!");
+            throw new RuntimeException("No data source readers found. Data sources will not be initialized!");
         }
         try {
-            if (dataSourcesPath == null) {
-                dataSourcesPath = DataSourceUtils.getDataSourceConfigPath().toString();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Data sources configuration path: " + dataSourcesPath);
-            }
-            Path dSPath = Paths.get(dataSourcesPath);
-            File dataSourcesFolder = dSPath.toFile();
+            Path dataSourcesPath = Paths.get(configurationDir);
+            File dataSourcesFolder = dataSourcesPath.toFile();
             File[] dataSourceConfigFiles = dataSourcesFolder.listFiles();
 
             if (dataSourceConfigFiles != null) {
@@ -172,17 +173,6 @@ public class DataSourceManager {
         } catch (DataSourceException | NamingException e) {
             throw new DataSourceException("Error in initializing system data sources at '" +
                     dataSourceFile.getAbsolutePath() + " - " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Allows the API consumers to provide a map containing a set of {@code DataSourceReader} objects.
-     *
-     * @param readers {@code Map<String, DataSourceReader>}
-     */
-    public void addDataSourceProviders(Map<String, DataSourceReader> readers) {
-        if (readers != null && readers.size() > 0) {
-            this.dataSourceReaders.putAll(readers);
         }
     }
 

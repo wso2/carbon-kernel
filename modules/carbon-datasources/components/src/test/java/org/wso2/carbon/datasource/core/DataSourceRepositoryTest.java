@@ -8,6 +8,8 @@ import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test class for DataSourceRepository class.
@@ -21,7 +23,9 @@ public class DataSourceRepositoryTest extends BaseTest {
     public void initialize() throws DataSourceException, MalformedURLException {
         setEnv();
         dsManager = DataSourceManager.getInstance();
-        dsManager.initDataSources();
+        Path configPathCopyLocation = Paths.get("target", "carbonHome", "conf", "datasources");
+
+        dsManager.initDataSources(configPathCopyLocation.toFile().getAbsolutePath());
         dsRepository = dsManager.getDataSourceRepository();
     }
 

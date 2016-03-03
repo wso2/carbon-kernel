@@ -30,6 +30,7 @@ import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.core.impl.DataSourceManagementServiceImpl;
 import org.wso2.carbon.datasource.core.impl.DataSourceServiceImpl;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
+import org.wso2.carbon.datasource.utils.DataSourceUtils;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 import java.util.HashMap;
@@ -84,12 +85,11 @@ public class DataSourceListenerComponent implements RequiredCapabilityListener {
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
         try {
+            String dataSourcesPath = DataSourceUtils.getDataSourceConfigPath().toString();
             DataSourceManager dataSourceManager = DataSourceManager.getInstance();
-            dataSourceManager.addDataSourceProviders(readers);
-            dataSourceManager.initDataSources();
+            dataSourceManager.initDataSources(dataSourcesPath, readers);
 
             DataSourceService dsService = new DataSourceServiceImpl();
-            log.info("Registering DataSourceService");
             bundleContext.registerService(DataSourceService.class.getName(), dsService, null);
 
             DataSourceManagementService dataSourceMgtService = new DataSourceManagementServiceImpl();
