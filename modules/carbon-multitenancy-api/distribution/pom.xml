@@ -25,7 +25,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>wso2carbon-context</artifactId>
+    <artifactId>wso2carbon-multitenancy</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Context API - Distribution</name>
@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.multitenancy</groupId>
-            <artifactId>org.wso2.carbon.context.api.feature</artifactId>
+            <artifactId>org.wso2.carbon.multitenancy.feature</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -83,7 +83,7 @@
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
                             <features>
                                 <feature>
-                                    <id>org.wso2.carbon.context.api.feature</id>
+                                    <id>org.wso2.carbon.multitenancy.feature</id>
                                     <version>${carbon.multitenancy.version}</version>
                                 </feature>
                             </features>
@@ -104,7 +104,7 @@
                             <deleteOldProfileFiles>true</deleteOldProfileFiles>
                             <features>
                                 <feature>
-                                    <id>org.wso2.carbon.context.api.feature.group</id>
+                                    <id>org.wso2.carbon.multitenancy.feature.group</id>
                                     <version>${carbon.multitenancy.version}</version>
                                 </feature>
                             </features>

@@ -16,6 +16,7 @@
 package org.wso2.carbon.context.api;
 
 import org.wso2.carbon.context.api.internal.CarbonContextHolder;
+import org.wso2.carbon.multitenancy.api.Tenant;
 
 import javax.security.auth.Subject;
 
@@ -26,39 +27,33 @@ import javax.security.auth.Subject;
  * @since 5.0.0
  */
 
-public class PrivilegedCarbonContext extends CarbonContext {
+public final class PrivilegedCarbonContext extends CarbonContext {
 
     private PrivilegedCarbonContext(CarbonContextHolder carbonContextHolder) {
         super(carbonContextHolder);
     }
 
-    public static PrivilegedCarbonContext getThreadLocalCarbonContext() {
-        Utils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextHolder.getThreadLocalCarbonContextHolder());
+    public static CarbonContext getCurrentContext() {
+        return new PrivilegedCarbonContext(CarbonContextHolder.getCurrentContextHolder());
     }
-
-    public static void startTenantFlow() {
-        Utils.checkSecurity();
-        getThreadLocalCarbonContext().getCarbonContextHolder().startTenantFlow();
-    }
-
-
-    public static void endTenantFlow() {
-        Utils.checkSecurity();
-        getThreadLocalCarbonContext().getCarbonContextHolder().endTenantFlow();
-    }
-
 
     public static void destroyCurrentContext() {
-        Utils.checkSecurity();
-        CarbonContextHolder.destroyCurrentCarbonContextHolder();
+        CarbonContextUtils.checkSecurity();
+        getCurrentContext().getCarbonContextHolder().destroyCurrentCarbonContextHolder();
     }
 
-    public void setTenantDomain(String tenantDomain) {
-        getCarbonContextHolder().setTenantDomain(tenantDomain);
+    public void setTenant(Tenant tenant) {
+        CarbonContextUtils.checkSecurity();
+        getCarbonContextHolder().setTenant(tenant);
     }
 
     public void setSubject(Subject subject) {
+        CarbonContextUtils.checkSecurity();
         getCarbonContextHolder().setSubject(subject);
+    }
+
+    public void setProperty(String name, Object value) {
+        CarbonContextUtils.checkSecurity();
+        getCarbonContextHolder().setProperty(name, value);
     }
 }

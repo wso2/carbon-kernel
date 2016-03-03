@@ -41,7 +41,12 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.multitenancy</groupId>
-                <artifactId>org.wso2.carbon.context.api.feature</artifactId>
+                <artifactId>org.wso2.carbon.multitenancy.api</artifactId>
+                <version>${carbon.multitenancy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.multitenancy</groupId>
+                <artifactId>org.wso2.carbon.multitenancy.feature</artifactId>
                 <version>${carbon.multitenancy.version}</version>
                 <type>zip</type>
             </dependency>
@@ -51,16 +56,37 @@
                 <version>${osgi.api.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${equinox.osgi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi.services</artifactId>
+                <version>${equinox.osgi.services.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <modules>
         <module>components/org.wso2.carbon.context.api</module>
-        <module>features/org.wso2.carbon.context.api.feature</module>
+        <module>components/org.wso2.carbon.multitenancy</module>
+        <module>features/org.wso2.carbon.multitenancy.feature</module>
         <module>distribution</module>
     </modules>
 
@@ -69,16 +95,26 @@
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
         <carbon.kernel.version>5.0.0</carbon.kernel.version>
         <osgi.api.version>6.0.0</osgi.api.version>
+        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
 
+        <carbon.kernel.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.import.version.range>
         <osgi.framework.package.import.version.range>[1.8.0, 2.0.0)</osgi.framework.package.import.version.range>
+        <osgi.framework.console.package.import.version.range>[1.1.0,2.0.0)
+        </osgi.framework.console.package.import.version.range>
+        <javax.xml.bind.import.version.range>[0.0.0, 1.0.0)</javax.xml.bind.import.version.range>
         <testng.version>6.9.4</testng.version>
 
 
-        <carbon.context.api.version>5.0.0</carbon.context.api.version>
+        <carbon.context.api.version>1.0.0</carbon.context.api.version>
+        <carbon.multitenancy.api.version>1.0.0</carbon.multitenancy.api.version>
+        <carbon.multitenancy.api.import.version.range>[1.0.0, 2.0.0)</carbon.multitenancy.api.import.version.range>
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
         <maven.findbugs.plugin.version>3.0.3</maven.findbugs.plugin.version>
+
+        <pax.logging.api.version>1.8.4</pax.logging.api.version>
     </properties>
 
 </project>

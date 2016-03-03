@@ -15,13 +15,20 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2carbon-context-${carbon.multitenancy.version}</baseDirectory>
-    <id>carbon-context</id>
+    <baseDirectory>wso2carbon-multitenancy-${carbon.multitenancy.version}</baseDirectory>
+    <id>carbon-multitenancy</id>
     <formats>
         <format>zip</format>
     </formats>
 
     <fileSets>
+
+        <fileSet>
+            <directory>carbon-home/data/tenant</directory>
+            <outputDirectory>data/tenant</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+
         <fileSet>
             <directory>target/wso2carbon-kernel-${carbon.kernel.version}</directory>
             <outputDirectory>.</outputDirectory>

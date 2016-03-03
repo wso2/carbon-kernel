@@ -15,6 +15,11 @@
  */
 package org.wso2.carbon.context.api.internal;
 
+
+import org.wso2.carbon.multitenancy.api.Tenant;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import javax.security.auth.Subject;
 
@@ -27,8 +32,9 @@ import javax.security.auth.Subject;
 
 public class CarbonContextHolder {
 
-    private String tenantDomain;
+    private Tenant tenant;
     private Subject subject;
+    private Map<String, Object> properties;
 
     private static ThreadLocal<CarbonContextHolder> currentContextHolder = new ThreadLocal<CarbonContextHolder>() {
         protected CarbonContextHolder initialValue() {
@@ -37,48 +43,31 @@ public class CarbonContextHolder {
     };
 
     private CarbonContextHolder() {
-        tenantDomain = null;
-        subject = null;
     }
 
-    private static ThreadLocal<Stack<CarbonContextHolder>> parentContextHolderStack = new ThreadLocal<>();
+    private static ThreadLocal<Stack<CarbonContextHolder>> carbonContextHolderStack = new ThreadLocal<>();
 
-    public static CarbonContextHolder getThreadLocalCarbonContextHolder() {
+    public static CarbonContextHolder getCurrentContextHolder() {
         return currentContextHolder.get();
     }
 
-    public void startTenantFlow() {
-        Stack<CarbonContextHolder> carbonContextDataHolders = parentContextHolderStack.get();
-        if (carbonContextDataHolders == null) {
-            carbonContextDataHolders = new Stack<>();
-            parentContextHolderStack.set(carbonContextDataHolders);
-        }
-        carbonContextDataHolders.push(currentContextHolder.get());
+
+    public void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
+        carbonContextHolderStack.remove();
     }
 
-    public void endTenantFlow() {
-        Stack<CarbonContextHolder> carbonContextDataHolders = parentContextHolderStack.get();
-        if (carbonContextDataHolders != null) {
-            currentContextHolder.set(carbonContextDataHolders.pop());
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        if (this.tenant != null && this.tenant.getDomain() != null
+                && !this.tenant.getDomain().equals(tenant.getDomain())) {
+            throw new IllegalStateException("Trying to override the current tenant " + this.tenant.getDomain() +
+                    " to " + tenant.getDomain());
         }
-    }
-
-    public static void destroyCurrentCarbonContextHolder() {
-        currentContextHolder.remove();
-        parentContextHolderStack.remove();
-    }
-
-    public String getTenantDomain() {
-        return tenantDomain;
-    }
-
-    public void setTenantDomain(String tenantDomain) {
-        if (this.tenantDomain != null && !this.tenantDomain.equals(tenantDomain)) {
-            throw new IllegalStateException("Trying to set the domain from " + this.tenantDomain + " to " +
-                    tenantDomain);
-        }
-        this.tenantDomain = tenantDomain;
+        this.tenant = tenant;
     }
 
     public Subject getSubject() {
@@ -91,5 +80,31 @@ public class CarbonContextHolder {
                     this.subject.toString() + " to  " + subject.toString());
         }
         this.subject = subject;
+    }
+
+    /**
+     * Method to obtain a property on this CarbonContext instance.
+     *
+     * @param name the property name.
+     * @return the value of the property by the given name.
+     */
+    public Object getProperty(String name) {
+        if (properties == null) {
+            return null;
+        }
+        return properties.get(name);
+    }
+
+    /**
+     * Method to set a property on this CarbonContext instance.
+     *
+     * @param name  the property name.
+     * @param value the value to be set to the property by the given name.
+     */
+    public void setProperty(String name, Object value) {
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        properties.put(name, value);
     }
 }
