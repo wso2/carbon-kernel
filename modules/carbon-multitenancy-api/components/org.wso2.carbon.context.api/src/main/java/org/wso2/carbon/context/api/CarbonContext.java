@@ -16,6 +16,7 @@
 package org.wso2.carbon.context.api;
 
 import org.wso2.carbon.context.api.internal.CarbonContextHolder;
+import org.wso2.carbon.multitenancy.api.Tenant;
 
 import javax.security.auth.Subject;
 
@@ -26,7 +27,7 @@ import javax.security.auth.Subject;
  *
  * @since 5.0.0
  */
-public class CarbonContext {
+public abstract class CarbonContext {
     private CarbonContextHolder carbonContextHolder = null;
 
     protected CarbonContext(CarbonContextHolder carbonContextHolder) {
@@ -37,16 +38,15 @@ public class CarbonContext {
         return carbonContextHolder;
     }
 
-    public static CarbonContext getThreadLocalCarbonContext() {
-        return new CarbonContext(CarbonContextHolder.getThreadLocalCarbonContextHolder());
-    }
-
-
-    public String getTenantDomain() {
-        return getCarbonContextHolder().getTenantDomain();
+    public Tenant getTenant() {
+        return getCarbonContextHolder().getTenant();
     }
 
     public Subject getSubject() {
         return getCarbonContextHolder().getSubject();
+    }
+
+    public Object getProperty(String name) {
+        return getCarbonContextHolder().getProperty(name);
     }
 }

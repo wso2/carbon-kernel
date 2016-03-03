@@ -17,7 +17,12 @@ package org.wso2.carbon.context.api;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.multitenancy.api.Tenant;
+import org.wso2.carbon.multitenancy.impl.CarbonTenant;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.IntStream;
 import javax.security.auth.Subject;
 
 /**
@@ -27,155 +32,123 @@ import javax.security.auth.Subject;
  */
 public class CarbonContextTest {
     private static final String TENANT_DOMAIN = "test";
+    private static final String TENANT_PROPERTY = "testProperty";
 
     @Test
     public void testCarbonContext() {
-        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
-        Assert.assertEquals(carbonContext.getTenantDomain(), null);
+        CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
+        Assert.assertEquals(carbonContext.getTenant(), null);
         Assert.assertEquals(carbonContext.getSubject(), null);
+        Assert.assertEquals(carbonContext.getProperty("someProperty"), null);
     }
 
     @Test(dependsOnMethods = "testCarbonContext")
     public void testPrivilegeCarbonContext() {
         Subject subject = new Subject();
-        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), null);
+        Tenant tenant = new CarbonTenant(TENANT_DOMAIN);
+        String tenantPropertyValue = "testValue";
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(TENANT_PROPERTY, tenantPropertyValue);
+        tenant.setProperties(properties);
+        String carbonContextPropertyKey = "KEY";
+        Object carbonContextPropertyValue = "VALUE";
+        PrivilegedCarbonContext privilegedCarbonContext =
+                (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
+        Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
 
         try {
-            privilegedCarbonContext.setTenantDomain(TENANT_DOMAIN);
+            privilegedCarbonContext.setTenant(tenant);
             privilegedCarbonContext.setSubject(subject);
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject);
+            privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(), TENANT_DOMAIN);
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getProperty(TENANT_PROPERTY),
+                    tenantPropertyValue);
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getSubject(), subject);
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getProperty(carbonContextPropertyKey),
+                    carbonContextPropertyValue);
         } finally {
             PrivilegedCarbonContext.destroyCurrentContext();
         }
 
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), null);
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), null);
+        Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
+        Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getSubject(), null);
     }
 
-    @Test(dependsOnMethods = "testPrivilegeCarbonContext")
-    public void testCarbonContextTenantFlow1() {
-        String tenantDomain = "tenant1";
-        Subject subject = new Subject();
-        try {
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            privilegedCarbonContext.setTenantDomain(TENANT_DOMAIN);
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
+    @Test(dependsOnMethods = "testCarbonContext")
+    public void testMultiThreadedCarbonContextInvocation() {
+        IntStream.range(1, 10)
+                .forEach(id ->
+                        {
+                            CarbonContextInvoker invoker = new CarbonContextInvoker("tenantDomain" + id,
+                                    "tenantPropertyKey" + id, "tenantPropertyVal" + id, "ccPropertyKey" + id,
+                                    "ccPropertyVal" + id);
+                            invoker.start();
+                        }
+                );
+    }
 
-            PrivilegedCarbonContext.startTenantFlow();
+    class CarbonContextInvoker extends Thread {
+        String tenantDomain;
+        String tenantPropertyKey;
+        String tenantPropertyValue;
+        String carbonContextPropertyKey;
+        Object carbonContextPropertyValue;
+
+        CarbonContextInvoker(String tenantDomain, String tenantPropertyKey, String tenantPropertyValue,
+                             String carbonContextPropertyKey, Object carbonContextPropertyValue) {
+            this.tenantDomain = tenantDomain;
+            this.tenantPropertyKey = tenantPropertyKey;
+            this.tenantPropertyValue = tenantPropertyValue;
+            this.carbonContextPropertyKey = carbonContextPropertyKey;
+            this.carbonContextPropertyValue = carbonContextPropertyValue;
+        }
+
+        @Override
+        public void run() {
+            PrivilegedCarbonContext privilegedCarbonContext =
+                    (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
+
+            Subject subject = new Subject();
+            Tenant tenant = new CarbonTenant(tenantDomain);
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(tenantPropertyKey, tenantPropertyValue);
+            tenant.setProperties(properties);
             try {
-                PrivilegedCarbonContext tenantCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                tenantCarbonContext.setTenantDomain(tenantDomain);
-                tenantCarbonContext.setSubject(subject);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject);
+                privilegedCarbonContext.setTenant(tenant);
+                privilegedCarbonContext.setSubject(subject);
+                privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
+
+                CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
+                Assert.assertEquals(carbonContext.getTenant().getDomain(), tenantDomain);
+                Assert.assertEquals(carbonContext.getTenant().getProperty(tenantPropertyKey), tenantPropertyValue);
+                Assert.assertEquals(carbonContext.getSubject(), subject);
+                Assert.assertEquals(carbonContext.getProperty(carbonContextPropertyKey), carbonContextPropertyValue);
             } finally {
-                PrivilegedCarbonContext.endTenantFlow();
+                PrivilegedCarbonContext.destroyCurrentContext();
             }
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-        } finally {
-            PrivilegedCarbonContext.destroyCurrentContext();
+
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getSubject(), null);
         }
     }
 
-    @Test(dependsOnMethods = "testCarbonContextTenantFlow1")
-    public void testCarbonContextTenantFlow2() {
-        String tenantDomain1 = "tenant1";
-        Subject subject1 = new Subject();
-        String tenantDomain2 = "tenant2";
-        Subject subject2 = new Subject();
 
-        try {
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            privilegedCarbonContext.setTenantDomain(TENANT_DOMAIN);
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-
-            PrivilegedCarbonContext.startTenantFlow();
-            try {
-                PrivilegedCarbonContext tenant1CarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                tenant1CarbonContext.setTenantDomain(tenantDomain1);
-                tenant1CarbonContext.setSubject(subject1);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain1);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject1);
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-
-            Assert.assertEquals(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-
-            PrivilegedCarbonContext.startTenantFlow();
-            try {
-                PrivilegedCarbonContext tenant2CarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                tenant2CarbonContext.setTenantDomain(tenantDomain2);
-                tenant2CarbonContext.setSubject(subject2);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain2);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject2);
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-        } finally {
-            PrivilegedCarbonContext.destroyCurrentContext();
-        }
-    }
-
-    @Test(dependsOnMethods = "testCarbonContextTenantFlow2")
-    public void testCarbonContextTenantFlow3() {
-        String tenantDomain1 = "tenant1";
-        Subject subject1 = new Subject();
-        String tenantDomain2 = "tenant2";
-        Subject subject2 = new Subject();
-
-        try {
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            privilegedCarbonContext.setTenantDomain(TENANT_DOMAIN);
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-
-            PrivilegedCarbonContext.startTenantFlow();
-            try {
-                PrivilegedCarbonContext tenant1CarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                tenant1CarbonContext.setTenantDomain(tenantDomain1);
-                tenant1CarbonContext.setSubject(subject1);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain1);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject1);
-
-                PrivilegedCarbonContext.startTenantFlow();
-                try {
-                    PrivilegedCarbonContext tenant2CarbonContext = PrivilegedCarbonContext.
-                            getThreadLocalCarbonContext();
-                    tenant2CarbonContext.setTenantDomain(tenantDomain2);
-                    tenant2CarbonContext.setSubject(subject2);
-                    Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain2);
-                    Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject2);
-                } finally {
-                    PrivilegedCarbonContext.endTenantFlow();
-                }
-
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain1);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject1);
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-        } finally {
-            PrivilegedCarbonContext.destroyCurrentContext();
-        }
-    }
-
-    @Test(dependsOnMethods = "testCarbonContextTenantFlow3")
+    @Test(dependsOnMethods = "testMultiThreadedCarbonContextInvocation")
     public void testCarbonContextFaultyScenario1() {
-        String tenantDomain = "tenant1";
+        Tenant tenant1 = new CarbonTenant(TENANT_DOMAIN);
+        String tenantDomain2 = "tenant2";
+        Tenant tenant2 = new CarbonTenant(tenantDomain2);
         try {
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            PrivilegedCarbonContext privilegedCarbonContext =
+                    (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             try {
-                privilegedCarbonContext.setTenantDomain(TENANT_DOMAIN);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-                privilegedCarbonContext.setTenantDomain(tenantDomain);
+                privilegedCarbonContext.setTenant(tenant1);
+                Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(), TENANT_DOMAIN);
+                privilegedCarbonContext.setTenant(tenant2);
             } catch (Exception e) {
-                Assert.assertTrue(e.getMessage().contains("Trying to set the domain from " + TENANT_DOMAIN +
-                        " to " + tenantDomain));
+                Assert.assertTrue(e.getMessage().contains("Trying to override the current tenant " + TENANT_DOMAIN +
+                        " to " + tenantDomain2));
             }
         } finally {
             PrivilegedCarbonContext.destroyCurrentContext();
@@ -186,15 +159,18 @@ public class CarbonContextTest {
     public void testCarbonContextFaultyScenario2() {
         Subject subject1 = new Subject();
         Subject subject2 = new Subject();
+        Tenant tenant = new CarbonTenant(TENANT_DOMAIN);
 
         try {
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), null);
+            PrivilegedCarbonContext privilegedCarbonContext =
+                    (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
             try {
-                privilegedCarbonContext.setTenantDomain(TENANT_DOMAIN);
+                privilegedCarbonContext.setTenant(tenant);
                 privilegedCarbonContext.setSubject(subject1);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), TENANT_DOMAIN);
-                Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getSubject(), subject1);
+                Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(),
+                        TENANT_DOMAIN);
+                Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getSubject(), subject1);
                 privilegedCarbonContext.setSubject(subject2);
             } catch (Exception e) {
                 Assert.assertTrue(e.getMessage().contains("Trying to override the already available subject " +

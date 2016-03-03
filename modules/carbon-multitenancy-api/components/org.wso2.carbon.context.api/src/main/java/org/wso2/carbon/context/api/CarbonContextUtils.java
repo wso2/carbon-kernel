@@ -15,19 +15,29 @@
  */
 package org.wso2.carbon.context.api;
 
+import org.wso2.carbon.multitenancy.impl.CarbonTenant;
+
 import java.lang.management.ManagementPermission;
+import java.util.Optional;
 
 /**
  * Utility class for carbon context api bundle.
  *
  * @since 5.0.0
  */
-public class Utils {
+public class CarbonContextUtils {
+
+    private static final String TENANT_DOMAIN = "TENANT_DOMAIN";
 
     public static void checkSecurity() {
-        SecurityManager secMan = System.getSecurityManager();
-        if (secMan != null) {
-            secMan.checkPermission(new ManagementPermission("control"));
-        }
+        Optional<SecurityManager> securityManager = Optional.ofNullable(System.getSecurityManager());
+        securityManager.ifPresent(secMan -> secMan.checkPermission(new ManagementPermission("control")));
+    }
+
+    public static CarbonContext populate() {
+        Optional<String> tenantDomain = Optional.ofNullable(System.getProperty(TENANT_DOMAIN));
+        PrivilegedCarbonContext carbonContext = (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
+        tenantDomain.ifPresent(domain -> carbonContext.setTenant(new CarbonTenant(domain)));
+        return carbonContext;
     }
 }

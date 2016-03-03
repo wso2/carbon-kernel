@@ -27,9 +27,9 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.context.api</artifactId>
+    <artifactId>org.wso2.carbon.multitenancy.api</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Context API - OSGi Bundle</name>
+    <name>WSO2 Carbon Multi Tenancy API - OSGi Bundle</name>
     <url>http://wso2.com</url>
 
     <dependencies>
@@ -53,11 +53,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.multitenancy</groupId>
-            <artifactId>org.wso2.carbon.multitenancy.api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -76,19 +71,19 @@
     </build>
 
     <properties>
+        <bundle.activator>org.wso2.carbon.multitenancy.internal.Activator</bundle.activator>
         <private.package>
-            org.wso2.carbon.context.api.internal,
+            org.wso2.carbon.multitenancy.internal,
         </private.package>
         <export.package>
-            !org.wso2.carbon.context.api.internal,
-            org.wso2.carbon.context.api.*;version="${carbon.context.api.version}",
+            !org.wso2.carbon.multitenancy.internal,
+            org.wso2.carbon.multitenancy.*;version="${carbon.multitenancy.api.version}",
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
             org.eclipse.osgi.framework.console.*;version="${osgi.framework.console.package.import.version.range}",
             javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",
-            org.wso2.carbon.kernel.utils.*;version="${carbon.kernel.import.version.range}",
-            org.wso2.carbon.multitenancy.*;version="${carbon.multitenancy.api.import.version.range}",
+            org.wso2.carbon.kernel.utils.*;version="${carbon.kernel.import.version.range}"
         </import.package>
     </properties>
 
