@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.security.jaas;
 
-import io.netty.handler.codec.http.HttpRequest;
-
 import java.io.Serializable;
 import javax.security.auth.callback.Callback;
 
@@ -29,19 +27,36 @@ import javax.security.auth.callback.Callback;
  * method of a {@code CallbackHandler} to retrieve HttpRequest information.
  * </p>
  */
-public class CarbonCallback implements Callback, Serializable {
+public class CarbonCallback<T> implements Callback, Serializable {
 
     private static final long serialVersionUID = 6056209529374750070L;
 
-    private transient HttpRequest httpRequest;
+    private transient T content;
 
-    public HttpRequest getHttpRequest() {
+    private Type type;
 
-        return httpRequest;
+    public enum Type {
+        BASIC_AUTH,
+        SAML,
+        JWT
     }
 
-    public void setHttpRequest(HttpRequest httpRequest) {
-
-        this.httpRequest = httpRequest;
+    public CarbonCallback(Type type) {
+        this.type = type;
     }
+
+    public T getContent() {
+
+        return content;
+    }
+
+    public void setContent(T content) {
+
+        this.content = content;
+    }
+
+    public Type getType() {
+        return this.type;
+    }
+
 }

@@ -21,15 +21,11 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.context.api.PrivilegedCarbonContext;
-import org.wso2.carbon.security.exception.CarbonSecurityException;
 import org.wso2.carbon.security.jaas.CarbonCallback;
 import org.wso2.carbon.security.jaas.CarbonPrincipal;
-import org.wso2.carbon.security.util.CarbonSecurityConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,76 +72,6 @@ public class JWTLoginModule implements LoginModule {
     private SignedJWT signedJWT;
     private CarbonPrincipal carbonPrincipal;
 
-    /**
-     * <p>
-     * This method determines whether the login module can handle the content of the CarbonCallback.
-     * The method will extract the HttpRequest from the callback and check for a JWT.
-     *
-     * @param carbonCallback CarbonCallback
-     * @return true if the callback content can be handled, false if not.
-     */
-    private boolean canHandle(CarbonCallback carbonCallback) {
-
-        HttpRequest httpRequest = carbonCallback.getHttpRequest();
-        try {
-            requestPreProcessor(httpRequest);
-        } catch (CarbonSecurityException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while handling callbacks.", e);
-            }
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * <p>
-     * This method process the HTTP request and extracts signed JWT from the the HTTP header.
-     * The JWT should be included with the 'Bearer' prefix in the authorization header.
-     *
-     * @param httpRequest HTTP request with authorization header.
-     * @throws CarbonSecurityException
-     */
-    private void requestPreProcessor(HttpRequest httpRequest) throws CarbonSecurityException {
-
-        if (httpRequest != null) {
-
-            HttpHeaders headers = httpRequest.headers();
-            if (headers != null) {
-                String authorizationHeader = headers.get(HttpHeaders.Names.AUTHORIZATION);
-
-                if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
-
-                    if (authorizationHeader.trim().startsWith(CarbonSecurityConstants
-                                                                      .HTTP_AUTHORIZATION_PREFIX_BEARER)) {
-
-                        String jwt = authorizationHeader.trim().split(" ")[1];
-
-                        if (jwt != null && !jwt.trim().isEmpty()) {
-                            try {
-                                signedJWT = SignedJWT.parse(jwt);
-                            } catch (ParseException e) {
-                                signedJWT = null;
-                                throw new CarbonSecurityException("Error while parsing the JWT token.", e);
-                            }
-                        } else {
-                            throw new CarbonSecurityException("JWT token cannot be found in the authorization header.");
-                        }
-                    } else {
-                        throw new CarbonSecurityException("Unsupported authorization header.");
-                    }
-                } else {
-                    throw new CarbonSecurityException("Authorization header cannot be found in the request.");
-                }
-            } else {
-                throw new CarbonSecurityException("HTTP headers cannot be found in the request.");
-            }
-        } else {
-            throw new CarbonSecurityException("HTTP request cannot be found.");
-        }
-    }
-
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
                            Map<String, ?> options) {
@@ -160,9 +86,8 @@ public class JWTLoginModule implements LoginModule {
     @Override
     public boolean login() throws LoginException {
 
-        Callback[] callbacks = new Callback[1];
-
-        callbacks[0] = new CarbonCallback();
+        CarbonCallback<SignedJWT> jwtCarbonCallback = new CarbonCallback<>(CarbonCallback.Type.JWT);
+        Callback[] callbacks = {jwtCarbonCallback};
 
         try {
             callbackHandler.handle(callbacks);
@@ -171,13 +96,7 @@ public class JWTLoginModule implements LoginModule {
             throw new LoginException("Error while handling callbacks.");
         }
 
-        if (!this.canHandle((CarbonCallback) callbacks[0])) {
-            if (log.isDebugEnabled()) {
-                log.debug("Unsupported callback.");
-            }
-            return false;
-        }
-
+        signedJWT = jwtCarbonCallback.getContent();
         if (verifySignature(signedJWT)) {
             succeeded = true;
         } else {

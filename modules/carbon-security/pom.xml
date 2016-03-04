@@ -30,6 +30,7 @@
     <artifactId>org.wso2.carbon.security.parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
+    <name>WSO2 Carbon Security - Parent</name>
 
     <scm>
         <url>https://github.com/wso2/product-mss.git</url>
@@ -114,9 +115,14 @@
                 <version>${json.smart.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.context</groupId>
+                <groupId>org.wso2.carbon.multitenancy</groupId>
                 <artifactId>org.wso2.carbon.context.api</artifactId>
                 <version>${org.wso2.carbon.context.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${org.snakeyaml.version}</version>
             </dependency>
 
             <dependency>
@@ -169,13 +175,13 @@
     <properties>
         <slf4j.api.version>1.7.12</slf4j.api.version>
         <carbon.security.version>1.0.0-SNAPSHOT</carbon.security.version>
+        <org.wso2.carbon.context.api.version>1.0.0-SNAPSHOT</org.wso2.carbon.context.api.version>
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
         <carbon.kernel.version>5.0.0</carbon.kernel.version>
         <osgi.api.version>6.0.0</osgi.api.version>
         <netty.version>4.0.30.Final</netty.version>
         <nimbus.version>2.26.1.wso2v3</nimbus.version>
         <json.smart.version>2.1.0.wso2v1</json.smart.version>
-        <org.wso2.carbon.context.api.version>5.0.0-SNAPSHOT</org.wso2.carbon.context.api.version>
 
         <!-- Equinox dependency versions -->
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
@@ -183,6 +189,7 @@
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <equinox.ds.version>1.4.200.v20131126-2331</equinox.ds.version>
         <equinox.common.version>3.6.200.v20130402-1505</equinox.common.version>
+        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
     </properties>
 
 </project>
