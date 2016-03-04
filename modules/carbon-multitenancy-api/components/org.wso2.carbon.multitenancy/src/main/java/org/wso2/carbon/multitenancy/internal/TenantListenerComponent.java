@@ -15,11 +15,20 @@
  */
 package org.wso2.carbon.multitenancy.internal;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.multitenancy.DefaultTenantStore;
+import org.wso2.carbon.multitenancy.TenantRuntime;
 import org.wso2.carbon.multitenancy.api.TenantListener;
+import org.wso2.carbon.multitenancy.api.TenantStore;
+import org.wso2.carbon.multitenancy.exception.TenantStoreException;
 
 /**
  * TenantManagement Declarative Services Component.
@@ -28,9 +37,21 @@ import org.wso2.carbon.multitenancy.api.TenantListener;
  */
 @Component(
         name = "org.wso2.carbon.multitenancy.internal.TenantListenerComponent",
-        immediate = true
+        immediate = true,
+        service = RequiredCapabilityListener.class,
+        property = {
+                "capability-name=org.wso2.carbon.multitenancy.api.TenantStore",
+                "component-key=carbon-tenant-listener"
+        }
 )
-public class TenantListenerComponent {
+public class TenantListenerComponent implements RequiredCapabilityListener {
+    private static final Logger logger = LoggerFactory.getLogger(TenantListenerComponent.class);
+    private TenantStore tenantStore = new DefaultTenantStore();
+
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+
+    }
 
     @Reference(
             service = TenantListener.class,
@@ -44,5 +65,32 @@ public class TenantListenerComponent {
 
     protected void removeListener(TenantListener tenantListener) {
         OSGiServiceHolder.getInstance().removeTenantListener(tenantListener);
+    }
+
+    @Reference(
+            service = TenantStore.class,
+            policy = ReferencePolicy.STATIC,
+            cardinality = ReferenceCardinality.MULTIPLE
+    )
+    protected void setTenantStore(TenantStore tenantStore) {
+        this.tenantStore = tenantStore;
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        TenantRuntime tenantRuntime;
+        try {
+            logger.debug("Initializing Tenant runtime with tenant store {}", tenantStore.getClass().getName());
+            tenantStore.init();
+            tenantRuntime = new TenantRuntime(tenantStore);
+        } catch (TenantStoreException e) {
+            logger.error("Error while initializing Tenant Runtime", e);
+            return;
+        }
+        OSGiServiceHolder.getInstance().setTenantRuntime(tenantRuntime);
+        final TenantRuntime finalTenantRuntime = tenantRuntime;
+        OSGiServiceHolder.getInstance().getBundleContext()
+                .ifPresent(bundleContext -> bundleContext.registerService(TenantRuntime.class,
+                        finalTenantRuntime, null));
     }
 }

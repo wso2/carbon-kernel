@@ -1,4 +1,3 @@
-package org.wso2.carbon.multitenancy.api;
 /*
  *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -14,22 +13,35 @@ package org.wso2.carbon.multitenancy.api;
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.wso2.carbon.multitenancy.api;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tenant is the entity which represent the concept of a tenant in the Carbon runtime.
+ * The entity which represent the concept of a tenant in the Carbon runtime.
  *
  * @since 1.0.0
  */
-public interface Tenant {
+public class Tenant {
+
+    private final String domain;
+    private Map<String, Object> properties = new HashMap<>();
+
+
+    public Tenant(String domain) {
+        this.domain = domain;
+    }
 
     /**
      * Returns the domain of the tenant.
      *
      * @return the tenant domain
      */
-    String getDomain();
+    public String getDomain() {
+        return domain;
+    }
 
     /**
      * Returns the value of the attribute <code>key</code>.
@@ -37,21 +49,18 @@ public interface Tenant {
      * @param key the attribute key
      * @return value of the specified attribute
      */
-    Object getProperty(String key);
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
 
     /**
      * Returns attributes of the tenant.
      *
      * @return a map of tenant attributes
      */
-    Map<String, Object> getProperties();
-
-    /**
-     * Sets the tenant domain.
-     *
-     * @param domain the tenant domain
-     */
-    void setDomain(String domain);
+    public Map<String, Object> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
 
     /**
      * Sets a tenant attribute
@@ -59,12 +68,17 @@ public interface Tenant {
      * @param key   the attribute name
      * @param value the attribute value
      */
-    void setProperty(String key, Object value);
+    public void setProperty(String key, Object value) {
+        this.properties.put(key, value);
+    }
 
     /**
      * Sets a map of the tenant attributes.
      *
      * @param props the maps of tenant attributes
      */
-    void setProperties(Map<String, Object> props);
+    public void setProperties(Map<String, Object> props) {
+        this.properties = props;
+    }
+
 }

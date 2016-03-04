@@ -115,6 +115,7 @@
         <maven.findbugs.plugin.version>3.0.3</maven.findbugs.plugin.version>
 
         <pax.logging.api.version>1.8.4</pax.logging.api.version>
+        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
     </properties>
 
 </project>

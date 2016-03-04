@@ -15,11 +15,13 @@
  */
 package org.wso2.carbon.multitenancy.internal;
 
+import org.osgi.framework.BundleContext;
 import org.wso2.carbon.multitenancy.TenantRuntime;
 import org.wso2.carbon.multitenancy.api.TenantListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * TODO
@@ -29,7 +31,8 @@ public class OSGiServiceHolder {
     private static OSGiServiceHolder serviceHolder = new OSGiServiceHolder();
 
     private List<TenantListener> tenantListeners = new ArrayList<>();
-    private TenantRuntime tenantRuntime;
+    private Optional<TenantRuntime> tenantRuntime;
+    private Optional<BundleContext> bundleContext;
 
     public static OSGiServiceHolder getInstance() {
         return serviceHolder;
@@ -52,12 +55,19 @@ public class OSGiServiceHolder {
     }
 
     public void setTenantRuntime(TenantRuntime tenantRuntime) {
-        this.tenantRuntime = tenantRuntime;
+        this.tenantRuntime = Optional.ofNullable(tenantRuntime);
     }
 
-    public TenantRuntime getTenantRuntime() {
+    public Optional<TenantRuntime> getTenantRuntime() {
         return tenantRuntime;
     }
 
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = Optional.ofNullable(bundleContext);
+    }
+
+    public Optional<BundleContext> getBundleContext() {
+        return bundleContext;
+    }
 }
 

@@ -18,7 +18,6 @@ package org.wso2.carbon.multitenancy.internal;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.multitenancy.TenantRuntime;
 import org.wso2.carbon.multitenancy.api.Tenant;
 
 import java.util.ArrayList;
@@ -43,35 +42,39 @@ public class TenantRuntimeCommandProvider implements CommandProvider {
     }
 
     public void _loadTenant(CommandInterpreter ci) throws Exception {
-        TenantRuntime tenantRuntime = OSGiServiceHolder.getInstance().getTenantRuntime();
-        String[] args = extractArgs(ci);
-        if (args.length == 1) {
-            try {
-                Tenant tenant = tenantRuntime.loadTenant(args[0]);
-                if (tenant == null) {
-                    System.out.println("Tenant with domain " + args[0] + " does not exists");
-                    return;
-                }
-                System.out.println("Tenant data");
-                System.out.println("Domain --> " + tenant.getDomain());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            throw new Exception("Unexpected number of input parameters");
-        }
+        OSGiServiceHolder.getInstance().getTenantRuntime()
+                .ifPresent(tenantRuntime -> {
+                            String[] args = extractArgs(ci);
+                            if (args.length == 1) {
+                                try {
+                                    Tenant tenant = tenantRuntime.loadTenant(args[0]);
+                                    if (tenant == null) {
+                                        System.out.println("Tenant with domain " + args[0] + " does not exists");
+                                        return;
+                                    }
+                                    System.out.println("Tenant data");
+                                    System.out.println("Domain --> " + tenant.getDomain());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                );
+
     }
 
     public void _getLoadedTenants(CommandInterpreter ci) throws Exception {
-        TenantRuntime tenantRuntime = OSGiServiceHolder.getInstance().getTenantRuntime();
-        try {
-            tenantRuntime.getLoadedTenants()
-                    .forEach(tenant ->
-                    System.out.println("Tenant Domain --> " + tenant.getDomain()));
+        OSGiServiceHolder.getInstance().getTenantRuntime()
+                .ifPresent(tenantRuntime -> {
+                    try {
+                        tenantRuntime.getLoadedTenants()
+                                .forEach(tenant ->
+                                        System.out.println("Tenant Domain --> " + tenant.getDomain()));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     private String[] extractArgs(CommandInterpreter ci) {

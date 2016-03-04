@@ -17,6 +17,8 @@ package org.wso2.carbon.multitenancy.api;
 
 /**
  * A listener to be invoked for tenant lifecycle events such as loaded, unloaded etc.
+ *
+ * @since 1.0.0
  */
 public interface TenantListener {
     /**

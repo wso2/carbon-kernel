@@ -18,7 +18,6 @@ package org.wso2.carbon.multitenancy.mgt;
 import org.wso2.carbon.multitenancy.api.Tenant;
 import org.wso2.carbon.multitenancy.api.TenantEvent;
 import org.wso2.carbon.multitenancy.api.TenantStore;
-import org.wso2.carbon.multitenancy.impl.CarbonTenant;
 import org.wso2.carbon.multitenancy.internal.OSGiServiceHolder;
 
 import java.util.Map;
@@ -27,9 +26,9 @@ import java.util.Map;
  * TODO
  */
 public class TenantManager {
-    private TenantStore<Tenant> tenantStore;
+    private TenantStore tenantStore;
 
-    public TenantManager(TenantStore<Tenant> tenantStore) {
+    public TenantManager(TenantStore tenantStore) {
         this.tenantStore = tenantStore;
     }
 
@@ -38,7 +37,7 @@ public class TenantManager {
     }
 
     public Tenant addTenant(String domain, Map<String, Object> props) throws Exception {
-        Tenant tenant = new CarbonTenant(domain);
+        Tenant tenant = new Tenant(domain);
         tenant.setProperties(props);
         return addTenantInternal(tenant);
     }
