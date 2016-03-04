@@ -16,9 +16,8 @@
 package org.wso2.carbon.context.api;
 
 import org.wso2.carbon.context.api.internal.CarbonContextHolder;
-import org.wso2.carbon.multitenancy.api.Tenant;
 
-import javax.security.auth.Subject;
+import java.security.Principal;
 
 /**
  * This CarbonContext provides users the ability to carry out privileged actions such as switching tenant flows,
@@ -42,14 +41,14 @@ public final class PrivilegedCarbonContext extends CarbonContext {
         getCurrentContext().getCarbonContextHolder().destroyCurrentCarbonContextHolder();
     }
 
-    public void setTenant(Tenant tenant) {
+    public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
         CarbonContextUtils.checkSecurity();
-        getCarbonContextHolder().setTenant(tenant);
+        getCarbonContextHolder().setTenant(tenantDomainSupplier);
     }
 
-    public void setSubject(Subject subject) {
+    public void setUserPrincipal(Principal userPrincipal) {
         CarbonContextUtils.checkSecurity();
-        getCarbonContextHolder().setSubject(subject);
+        getCarbonContextHolder().setUserPrincipal(userPrincipal);
     }
 
     public void setProperty(String name, Object value) {

@@ -18,7 +18,7 @@ package org.wso2.carbon.context.api;
 import org.wso2.carbon.context.api.internal.CarbonContextHolder;
 import org.wso2.carbon.multitenancy.api.Tenant;
 
-import javax.security.auth.Subject;
+import java.security.Principal;
 
 /**
  * This provides the API for sub-tenant programming around Carbon based products. Each CarbonContext will utilize an
@@ -42,8 +42,8 @@ public abstract class CarbonContext {
         return getCarbonContextHolder().getTenant();
     }
 
-    public Subject getSubject() {
-        return getCarbonContextHolder().getSubject();
+    public Principal getUserPrincipal() {
+        return getCarbonContextHolder().getUserPrincipal();
     }
 
     public Object getProperty(String name) {

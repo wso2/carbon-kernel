@@ -20,7 +20,6 @@ import org.wso2.carbon.multitenancy.api.TenantEvent;
 import org.wso2.carbon.multitenancy.api.TenantStore;
 import org.wso2.carbon.multitenancy.exception.TenantException;
 import org.wso2.carbon.multitenancy.exception.TenantStoreException;
-import org.wso2.carbon.multitenancy.impl.TenantStoreImpl;
 import org.wso2.carbon.multitenancy.internal.OSGiServiceHolder;
 
 import java.util.HashMap;
@@ -40,10 +39,8 @@ public class TenantRuntime {
 
     private Map<String, Tenant> loadedTenants = new HashMap<>();
 
-    public void init() throws Exception {
-        //TODO need a way to plug custom stores
-        tenantStore = new TenantStoreImpl();
-        tenantStore.init();
+    public TenantRuntime(TenantStore tenantStore) {
+        this.tenantStore = tenantStore;
     }
 
     public Tenant loadTenant(String tenantDomain) throws TenantException {

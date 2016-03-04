@@ -15,13 +15,14 @@
  */
 package org.wso2.carbon.context.api.internal;
 
-
+import org.wso2.carbon.context.api.CarbonContextUtils;
+import org.wso2.carbon.context.api.TenantDomainSupplier;
 import org.wso2.carbon.multitenancy.api.Tenant;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
-import javax.security.auth.Subject;
+import java.util.Optional;
 
 /**
  * This class will preserve an instance the current CarbonContext as a thread local variable. If a CarbonContext is
@@ -30,10 +31,10 @@ import javax.security.auth.Subject;
  * @since 5.0.0
  */
 
-public class CarbonContextHolder {
+public final class CarbonContextHolder {
 
     private Tenant tenant;
-    private Subject subject;
+    private Principal userPrincipal;
     private Map<String, Object> properties;
 
     private static ThreadLocal<CarbonContextHolder> currentContextHolder = new ThreadLocal<CarbonContextHolder>() {
@@ -43,43 +44,36 @@ public class CarbonContextHolder {
     };
 
     private CarbonContextHolder() {
+        Optional<String> optionalTenantDomain = CarbonContextUtils.getSystemTenantDomain();
+        optionalTenantDomain.ifPresent(tenantDomain -> this.tenant = new Tenant(tenantDomain));
     }
-
-    private static ThreadLocal<Stack<CarbonContextHolder>> carbonContextHolderStack = new ThreadLocal<>();
 
     public static CarbonContextHolder getCurrentContextHolder() {
         return currentContextHolder.get();
     }
 
-
     public void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
-        carbonContextHolderStack.remove();
     }
+
+
+    public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
+        if (!CarbonContextUtils.getSystemTenantDomain().isPresent()) {
+            String tenantDomain = tenantDomainSupplier.get();
+            if (tenant == null) {
+                tenant = new Tenant(tenantDomain);
+                return;
+            }
+            Optional.of(tenant.getDomain())
+                    .filter(currentTenantDomain -> currentTenantDomain.equals(tenantDomain))
+                    .orElseThrow(() -> new IllegalStateException("Trying to override the current tenant " +
+                            tenant.getDomain() + " to " + tenantDomain));
+        }
+    }
+
 
     public Tenant getTenant() {
         return tenant;
-    }
-
-    public void setTenant(Tenant tenant) {
-        if (this.tenant != null && this.tenant.getDomain() != null
-                && !this.tenant.getDomain().equals(tenant.getDomain())) {
-            throw new IllegalStateException("Trying to override the current tenant " + this.tenant.getDomain() +
-                    " to " + tenant.getDomain());
-        }
-        this.tenant = tenant;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        if (this.subject != null && !this.subject.equals(subject)) {
-            throw new IllegalStateException("Trying to override the already available subject " +
-                    this.subject.toString() + " to  " + subject.toString());
-        }
-        this.subject = subject;
     }
 
     /**
@@ -106,5 +100,17 @@ public class CarbonContextHolder {
             properties = new HashMap<>();
         }
         properties.put(name, value);
+    }
+
+    public Principal getUserPrincipal() {
+        return userPrincipal;
+    }
+
+    public void setUserPrincipal(Principal userPrincipal) {
+        if (this.userPrincipal != null && !this.userPrincipal.getName().equals(userPrincipal.getName())) {
+            throw new IllegalStateException("Trying to override the already available user principal from " +
+                    this.userPrincipal.toString() + " to " + userPrincipal.toString());
+        }
+        this.userPrincipal = userPrincipal;
     }
 }

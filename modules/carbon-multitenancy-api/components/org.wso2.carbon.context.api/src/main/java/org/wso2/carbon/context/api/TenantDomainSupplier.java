@@ -13,24 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.multitenancy.internal;
+package org.wso2.carbon.context.api;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import java.util.function.Supplier;
 
 /**
- * Bundle Activator of carbon multi tenancy component.
- *
- * @since 1.0.0
+ * TODO
  */
-public class Activator implements BundleActivator {
-    @Override
-    public void start(BundleContext bundleContext) throws Exception {
-        OSGiServiceHolder.getInstance().setBundleContext(bundleContext);
-    }
-
-    @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-        OSGiServiceHolder.getInstance().setBundleContext(null);
-    }
+@FunctionalInterface
+public interface TenantDomainSupplier extends Supplier<String> {
+    String get();
 }

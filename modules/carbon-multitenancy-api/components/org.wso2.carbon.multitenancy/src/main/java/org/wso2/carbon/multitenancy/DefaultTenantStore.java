@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.multitenancy.impl;
+package org.wso2.carbon.multitenancy;
 
 import org.wso2.carbon.kernel.utils.Utils;
 import org.wso2.carbon.multitenancy.api.Tenant;
@@ -44,7 +44,7 @@ import javax.xml.bind.Unmarshaller;
  *
  * @since 1.0.0
  */
-public class TenantStoreImpl implements TenantStore {
+public class DefaultTenantStore implements TenantStore {
 
     private TenantStoreConfig tenantStoreConfig;
     private JAXBContext jaxbContext;
@@ -105,7 +105,7 @@ public class TenantStoreImpl implements TenantStore {
     }
 
     private Tenant populateTenant(TenantConfig tenantConfig) {
-        return new CarbonTenant(tenantConfig.getDomain());
+        return new Tenant(tenantConfig.getDomain());
     }
 
     private TenantConfig populateTenantConfig(Tenant tenant) {
