@@ -17,6 +17,12 @@ package org.wso2.carbon.osgi.testing.utils;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
+import org.wso2.carbon.osgi.testing.CarbonOSGiTestEnvConfigs;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -34,7 +40,13 @@ public class CarbonOSGiConfigurationFactory implements ConfigurationFactory {
      */
     public Option[] createConfiguration() {
         //setting up the environment
-        CarbonOSGiTestUtils.setupOSGiTestEnvironment();
-        return CarbonOSGiTestUtils.getDefaultPaxOptions();
+        List<Option> customOptions = new ArrayList<>();
+        CarbonOSGiTestEnvConfigs configs = new CarbonOSGiTestEnvConfigs();
+
+        String currentDir = Paths.get("").toAbsolutePath().toString();
+        Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
+        configs.setCarbonHome(carbonHome.toString());
+
+        return CarbonOSGiTestUtils.getAllPaxOptions(configs, customOptions);
     }
 }
