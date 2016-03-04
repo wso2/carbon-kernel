@@ -30,6 +30,7 @@
 
     <modules>
         <module>test-artifacts</module>
+        <module>carbon-osgi-test-util</module>
         <module>osgi-tests</module>
     </modules>
 
