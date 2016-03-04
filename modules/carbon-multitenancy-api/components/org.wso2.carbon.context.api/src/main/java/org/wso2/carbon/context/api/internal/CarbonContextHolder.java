@@ -35,7 +35,7 @@ public final class CarbonContextHolder {
 
     private Tenant tenant;
     private Principal userPrincipal;
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = new HashMap<>();
 
     private static ThreadLocal<CarbonContextHolder> currentContextHolder = new ThreadLocal<CarbonContextHolder>() {
         protected CarbonContextHolder initialValue() {
@@ -83,9 +83,6 @@ public final class CarbonContextHolder {
      * @return the value of the property by the given name.
      */
     public Object getProperty(String name) {
-        if (properties == null) {
-            return null;
-        }
         return properties.get(name);
     }
 
@@ -96,9 +93,6 @@ public final class CarbonContextHolder {
      * @param value the value to be set to the property by the given name.
      */
     public void setProperty(String name, Object value) {
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
         properties.put(name, value);
     }
 
@@ -107,10 +101,13 @@ public final class CarbonContextHolder {
     }
 
     public void setUserPrincipal(Principal userPrincipal) {
-        if (this.userPrincipal != null && !this.userPrincipal.getName().equals(userPrincipal.getName())) {
-            throw new IllegalStateException("Trying to override the already available user principal from " +
-                    this.userPrincipal.toString() + " to " + userPrincipal.toString());
+        if (this.userPrincipal == null) {
+            this.userPrincipal = userPrincipal;
+            return;
         }
-        this.userPrincipal = userPrincipal;
+        Optional.ofNullable(this.userPrincipal.getName())
+                .filter(name -> userPrincipal.getName().equals(name))
+                .orElseThrow(() -> new IllegalStateException("Trying to override the already available user " +
+                        "principal from " + this.userPrincipal.toString() + " to " + userPrincipal.toString()));
     }
 }
