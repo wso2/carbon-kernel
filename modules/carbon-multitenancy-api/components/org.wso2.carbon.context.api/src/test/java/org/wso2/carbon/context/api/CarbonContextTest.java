@@ -44,7 +44,7 @@ public class CarbonContextTest {
     @Test(dependsOnMethods = "testCarbonContext")
     public void testPrivilegeCarbonContext() {
         Principal userPrincipal = () -> "test";
-        TenantDomainSupplier tenantDomainSupplier = () -> TENANT_DOMAIN;
+        TenantSupplier tenantSupplier = () -> new Tenant(TENANT_DOMAIN);
         String tenantPropertyValue = "testValue";
         Map<String, Object> properties = new HashMap<>();
         properties.put(TENANT_PROPERTY, tenantPropertyValue);
@@ -55,7 +55,7 @@ public class CarbonContextTest {
         Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
 
         try {
-            privilegedCarbonContext.setTenant(tenantDomainSupplier);
+            privilegedCarbonContext.setTenant(tenantSupplier);
             privilegedCarbonContext.setUserPrincipal(userPrincipal);
             privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(), TENANT_DOMAIN);
@@ -110,11 +110,11 @@ public class CarbonContextTest {
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
 
             Principal userPrincipal = () -> "test";
-            TenantDomainSupplier tenantDomainSupplier = () -> tenantDomain;
+            TenantSupplier tenantSupplier = () -> new Tenant(tenantDomain);
             Map<String, Object> properties = new HashMap<>();
             properties.put(tenantPropertyKey, tenantPropertyValue);
             try {
-                privilegedCarbonContext.setTenant(tenantDomainSupplier);
+                privilegedCarbonContext.setTenant(tenantSupplier);
                 privilegedCarbonContext.setUserPrincipal(userPrincipal);
                 privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
 
@@ -139,15 +139,15 @@ public class CarbonContextTest {
     public void testCarbonContextFaultyScenario1() {
         String tenantDomain1 = "tenant1";
         String tenantDomain2 = "tenant2";
-        TenantDomainSupplier tenantDomainSupplier1 = () -> tenantDomain1;
-        TenantDomainSupplier tenantDomainSupplier2 = () -> tenantDomain2;
+        TenantSupplier tenantSupplier1 = () -> new Tenant(tenantDomain1);
+        TenantSupplier tenantSupplier2 = () -> new Tenant(tenantDomain2);
         try {
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             try {
-                privilegedCarbonContext.setTenant(tenantDomainSupplier1);
+                privilegedCarbonContext.setTenant(tenantSupplier1);
                 Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(), tenantDomain1);
-                privilegedCarbonContext.setTenant(tenantDomainSupplier2);
+                privilegedCarbonContext.setTenant(tenantSupplier2);
             } catch (Exception e) {
                 Assert.assertTrue(e.getMessage().contains("Trying to override the current tenant " + tenantDomain1 +
                         " to " + tenantDomain2));
@@ -161,14 +161,14 @@ public class CarbonContextTest {
     public void testCarbonContextFaultyScenario2() {
         Principal userPrincipal1 = () -> "test1";
         Principal userPrincipal2 = () -> "test2";
-        TenantDomainSupplier tenantDomainSupplier1 = () -> TENANT_DOMAIN;
+        TenantSupplier tenantSupplier1 = () -> new Tenant(TENANT_DOMAIN);
 
         try {
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant(), null);
             try {
-                privilegedCarbonContext.setTenant(tenantDomainSupplier1);
+                privilegedCarbonContext.setTenant(tenantSupplier1);
                 privilegedCarbonContext.setUserPrincipal(userPrincipal1);
                 Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(),
                         TENANT_DOMAIN);
@@ -189,6 +189,12 @@ public class CarbonContextTest {
         System.setProperty(CarbonContextUtils.TENANT_DOMAIN, tenantDomain);
         CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
         Assert.assertEquals(carbonContext.getTenant().getDomain(), tenantDomain);
+        TenantSupplier tenantSupplier = () -> new Tenant(TENANT_DOMAIN);
+        PrivilegedCarbonContext privilegedCarbonContext =
+                (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
+        privilegedCarbonContext.setTenant(tenantSupplier);
+        Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getTenant().getDomain(), tenantDomain);
+
         System.clearProperty(CarbonContextUtils.TENANT_DOMAIN);
     }
 }

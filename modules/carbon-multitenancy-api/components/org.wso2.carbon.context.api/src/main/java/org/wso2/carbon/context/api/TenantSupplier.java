@@ -15,12 +15,14 @@
  */
 package org.wso2.carbon.context.api;
 
+import org.wso2.carbon.multitenancy.api.Tenant;
+
 import java.util.function.Supplier;
 
 /**
  * TODO
  */
 @FunctionalInterface
-public interface TenantDomainSupplier extends Supplier<String> {
-    String get();
+public interface TenantSupplier extends Supplier<Tenant> {
+    Tenant get();
 }
