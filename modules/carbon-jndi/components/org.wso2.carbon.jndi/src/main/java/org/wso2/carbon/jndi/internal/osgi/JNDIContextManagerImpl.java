@@ -21,8 +21,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.jndi.JNDIContextManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -114,7 +112,7 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
 
             //4) If not, throw an error.
             initialContextOptional.orElseThrow(() -> new NoInitialContextException(
-                    "Cannot find the InitialContextFactory " + userDefinedICFClassName));
+                    "Cannot find the InitialContextFactory " + userDefinedICFClassName + "."));
 
             //5) Returning the initialContext which is not null.
             return initialContextOptional;

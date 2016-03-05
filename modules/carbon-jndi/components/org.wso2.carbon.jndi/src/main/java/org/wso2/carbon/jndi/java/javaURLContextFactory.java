@@ -43,70 +43,24 @@ import org.wso2.carbon.jndi.internal.impl.NamingContext;
  * {@link javax.naming.spi.NamingManager#getURLContext(java.lang.String, java.util.Hashtable)}.</li>
  * </ul>
  */
-public class javaURLContextFactory implements ObjectFactory, InitialContextFactory {
+public class javaURLContextFactory implements ObjectFactory {
 
-    public static final String MAIN = "initialContext";
+    public static final String MAIN = "Java";
 
-
-    /**
-     * Initial context.
-     */
-    protected static volatile Context initialContext = null;
     protected static volatile Context javaInitialContext = null;
-
 
     /**
      * Create a new Context's instance.
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-                                    Hashtable<?, ?> environment)
-            throws NamingException {
-//        if ((ContextBindings.isThreadBound()) ||
-//                (ContextBindings.isClassLoaderBound())) {
-//        return new SelectorContext((Hashtable<String, Object>) environment);
-//        }
-//        return null;
+    public synchronized Object getObjectInstance(Object obj, Name name, Context nameCtx,
+                                                 Hashtable<?, ?> environment) throws NamingException {
 
         if (javaInitialContext == null) {
-            synchronized (javaURLContextFactory.class) {
-                if (javaInitialContext == null) {
-                    javaInitialContext = new NamingContext(
-                            (Hashtable<String, Object>) environment, "Java");
-                }
-            }
+            javaInitialContext = new NamingContext((Hashtable<String, Object>) environment, "Java");
         }
         return javaInitialContext;
     }
-
-
-    /**
-     * Get a new (writable) initial context.
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public  Context getInitialContext(Hashtable<?, ?> environment)
-            throws NamingException {
-//        if (ContextBindings.isThreadBound() ||
-//                (ContextBindings.isClassLoaderBound())) {
-        // Redirect the request to the bound initial context
-//        return new SelectorContext(
-//                (Hashtable<String, Object>) environment, true);
-//    }
-
-        //If the thread is not bound, return a shared writable context
-//        if (initialContext == null) {
-//            synchronized (javaURLContextFactory.class) {
-        if (initialContext == null) {
-            initialContext = new NamingContext(
-                    (Hashtable<String, Object>) environment, MAIN);
-        }
-//            }
-//        }
-        return initialContext;
-    }
-
-
 }
 

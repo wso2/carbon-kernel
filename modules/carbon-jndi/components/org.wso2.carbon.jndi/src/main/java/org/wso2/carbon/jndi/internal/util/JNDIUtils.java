@@ -79,7 +79,7 @@ public class JNDIUtils {
 
         return serviceRefCollection
                 .stream()
-                .sorted(new ServiceRankComparator())
+//                .sorted(new ServiceRankComparator())
                 .map(serviceReference -> getService(bundleContext, serviceReference))
                 .map(builderOptional -> getContextFactory(builderOptional, environment))
                 .flatMap(factoryOptional -> factoryOptional.map(Stream::of).orElseGet(Stream::empty))
@@ -102,10 +102,11 @@ public class JNDIUtils {
 
         return serviceRefCollection
                 .stream()
-                .sorted(new ServiceRankComparator())
+//                .sorted(new ServiceRankComparator())
                 .map(serviceReference -> getService(bundleContext, serviceReference))
                 .flatMap(factoryOptional -> factoryOptional.map(Stream::of).orElseGet(Stream::empty))
                 .map(rethrowFunction(contextFactory -> contextFactory.getInitialContext(environment)))
+                .filter(context -> context != null)
                 .findFirst();
     }
 
@@ -130,7 +131,7 @@ public class JNDIUtils {
 
     /**
      * @param serviceReference A reference to the service of type S.
-     * @param <S> Type of Service.
+     * @param <S>              Type of Service.
      * @return an {@code Optional} describing the service of type S.
      */
     public static <S> Optional<S> getService(BundleContext bundleContext,

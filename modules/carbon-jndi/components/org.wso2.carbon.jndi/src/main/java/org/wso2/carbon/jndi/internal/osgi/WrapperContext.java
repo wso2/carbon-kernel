@@ -719,9 +719,15 @@ public class WrapperContext implements Context {
     }
 
     private Context getBackingURLContext(String name) throws NamingException {
-        String scheme = name.substring(0, name.indexOf(":"));
+        String scheme = name.substring(0, name.indexOf(":")).trim();
 
-        Context urlContext = JNDIUtils.getServiceReferences(bundleContext,
+        Context urlContext = backingURLContextMap.get(scheme);
+
+        if (urlContext != null) {
+            return urlContext;
+        }
+
+        urlContext = JNDIUtils.getServiceReferences(bundleContext,
                 ObjectFactory.class, "(" + OSGi_JNDI_URL_SCHEME + "=" + scheme + ")")
                 .stream()
                 .map(serviceRef -> getService(bundleContext, serviceRef))
@@ -732,6 +738,7 @@ public class WrapperContext implements Context {
                 .findFirst()
                 .orElseGet(rethrowSupplier(this::getDefaultBackingContext));
 
+        backingURLContextMap.put(scheme, urlContext);
         return urlContext;
     }
 
