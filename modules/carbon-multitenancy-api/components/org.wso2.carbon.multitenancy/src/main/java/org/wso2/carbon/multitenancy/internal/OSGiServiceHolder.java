@@ -31,8 +31,8 @@ public class OSGiServiceHolder {
     private static OSGiServiceHolder serviceHolder = new OSGiServiceHolder();
 
     private List<TenantListener> tenantListeners = new ArrayList<>();
-    private Optional<TenantRuntime> tenantRuntime;
-    private Optional<BundleContext> bundleContext;
+    private Optional<TenantRuntime> tenantRuntime = Optional.empty();
+    private Optional<BundleContext> bundleContext = Optional.empty();
 
     public static OSGiServiceHolder getInstance() {
         return serviceHolder;

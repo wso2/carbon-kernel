@@ -16,7 +16,7 @@
 package org.wso2.carbon.context.api.internal;
 
 import org.wso2.carbon.context.api.CarbonContextUtils;
-import org.wso2.carbon.context.api.TenantDomainSupplier;
+import org.wso2.carbon.context.api.TenantSupplier;
 import org.wso2.carbon.multitenancy.api.Tenant;
 
 import java.security.Principal;
@@ -45,7 +45,7 @@ public final class CarbonContextHolder {
 
     private CarbonContextHolder() {
         Optional<String> optionalTenantDomain = CarbonContextUtils.getSystemTenantDomain();
-        optionalTenantDomain.ifPresent(tenantDomain -> this.tenant = new Tenant(tenantDomain));
+        optionalTenantDomain.ifPresent(tenantDomain -> tenant = new Tenant(tenantDomain));
     }
 
     public static CarbonContextHolder getCurrentContextHolder() {
@@ -57,17 +57,17 @@ public final class CarbonContextHolder {
     }
 
 
-    public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
+    public void setTenant(TenantSupplier tenantSupplier) {
         if (!CarbonContextUtils.getSystemTenantDomain().isPresent()) {
-            String tenantDomain = tenantDomainSupplier.get();
+            Tenant suppliedTenant = tenantSupplier.get();
             if (tenant == null) {
-                tenant = new Tenant(tenantDomain);
-                return;
+                tenant = suppliedTenant;
+            } else {
+                Optional.of(tenant.getDomain())
+                        .filter(currentTenantDomain -> currentTenantDomain.equals(suppliedTenant.getDomain()))
+                        .orElseThrow(() -> new IllegalStateException("Trying to override the current tenant " +
+                                tenant.getDomain() + " to " + suppliedTenant.getDomain()));
             }
-            Optional.of(tenant.getDomain())
-                    .filter(currentTenantDomain -> currentTenantDomain.equals(tenantDomain))
-                    .orElseThrow(() -> new IllegalStateException("Trying to override the current tenant " +
-                            tenant.getDomain() + " to " + tenantDomain));
         }
     }
 
