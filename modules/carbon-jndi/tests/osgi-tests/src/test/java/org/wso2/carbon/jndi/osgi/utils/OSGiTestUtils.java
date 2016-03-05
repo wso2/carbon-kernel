@@ -31,6 +31,9 @@ import java.util.stream.Stream;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.repositories;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.url;
+
 
 /**
  * This class contains Utility methods to configure PAX-EXAM container.
@@ -64,7 +67,61 @@ public class OSGiTestUtils {
     public static Option[] getDefaultPaxOptions() {
         return options(
                 repositories("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+                systemProperty("carbon.home").value(System.getProperty("carbon.home")),
+                systemProperty(Constants.START_TIME).value(System.getProperty(Constants.START_TIME)),
+                //must install the testng bundle
+                url(mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("pax-logging-api").groupId("org.ops4j.pax.logging").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("pax-logging-log4j2").groupId("org.ops4j.pax.logging").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator")
+                        .groupId("org.wso2.eclipse.equinox")
+                        .versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.apache.felix.gogo.command").groupId("org.apache.felix").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.apache.felix.gogo.runtime").groupId("org.apache.felix").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.apache.felix.gogo.shell").groupId("org.apache.felix").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.app").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.common").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.concurrent").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.console").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.ds").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.frameworkadmin").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.frameworkadmin.equinox").
+                        groupId("org.wso2.eclipse.equinox").versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.launcher").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.preferences").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.registry").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator.manipulator").
+                        groupId("org.wso2.eclipse.equinox").versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.util").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.eclipse.equinox.cm").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("snakeyaml").groupId("org.wso2.orbit.org.yaml").
+                        versionAsInProject().getURL()),
+                url(mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject()
+                        .getURL())
+        );
+    }
 
+    public static Option[] getDefaultPaxOptions1() {
+        return options(
+                repositories("http://maven.wso2.org/nexus/content/groups/wso2-public"),
                 //must install the testng bundle
                 mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi").
