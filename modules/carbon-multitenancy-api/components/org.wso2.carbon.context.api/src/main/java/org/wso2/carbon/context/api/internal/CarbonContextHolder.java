@@ -16,8 +16,10 @@
 package org.wso2.carbon.context.api.internal;
 
 import org.wso2.carbon.context.api.CarbonContextUtils;
-import org.wso2.carbon.context.api.TenantSupplier;
+import org.wso2.carbon.context.api.TenantDomainSupplier;
+import org.wso2.carbon.multitenancy.TenantRuntime;
 import org.wso2.carbon.multitenancy.api.Tenant;
+import org.wso2.carbon.multitenancy.exception.TenantException;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -44,8 +46,17 @@ public final class CarbonContextHolder {
     };
 
     private CarbonContextHolder() {
-        Optional<String> optionalTenantDomain = CarbonContextUtils.getSystemTenantDomain();
-        optionalTenantDomain.ifPresent(tenantDomain -> tenant = new Tenant(tenantDomain));
+        Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
+        CarbonContextUtils.getSystemTenantDomain()
+                .filter(tenantDomain -> tenantRuntimeOptional.isPresent())
+                .ifPresent(tenantDomain ->
+                {
+                    try {
+                        tenant = tenantRuntimeOptional.get().loadTenant(tenantDomain);
+                    } catch (TenantException e) {
+                        throw new RuntimeException("Error occurred while trying to load tenant for " + tenantDomain, e);
+                    }
+                });
     }
 
     public static CarbonContextHolder getCurrentContextHolder() {
@@ -57,20 +68,28 @@ public final class CarbonContextHolder {
     }
 
 
-    public void setTenant(TenantSupplier tenantSupplier) {
+    public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
         if (!CarbonContextUtils.getSystemTenantDomain().isPresent()) {
-            Tenant suppliedTenant = tenantSupplier.get();
+            String suppliedTenantDomain = tenantDomainSupplier.get();
+            Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
             if (tenant == null) {
-                tenant = suppliedTenant;
+                if (tenantRuntimeOptional.isPresent()) {
+                    try {
+                        tenant = tenantRuntimeOptional.get().loadTenant(suppliedTenantDomain);
+                    } catch (TenantException e) {
+                        throw new RuntimeException("Error occurred while trying to set tenant with domain : '" +
+                                suppliedTenantDomain + "'", e);
+                    }
+                }
+
             } else {
                 Optional.of(tenant.getDomain())
-                        .filter(currentTenantDomain -> currentTenantDomain.equals(suppliedTenant.getDomain()))
+                        .filter(currentTenantDomain -> currentTenantDomain.equals(suppliedTenantDomain))
                         .orElseThrow(() -> new IllegalStateException("Trying to override the current tenant " +
-                                tenant.getDomain() + " to " + suppliedTenant.getDomain()));
+                                tenant.getDomain() + " to " + suppliedTenantDomain));
             }
         }
     }
-
 
     public Tenant getTenant() {
         return tenant;
@@ -103,11 +122,12 @@ public final class CarbonContextHolder {
     public void setUserPrincipal(Principal userPrincipal) {
         if (this.userPrincipal == null) {
             this.userPrincipal = userPrincipal;
-            return;
+        } else {
+            Optional.ofNullable(this.userPrincipal.getName())
+                    .filter(name -> userPrincipal.getName().equals(name))
+                    .orElseThrow(() -> new IllegalStateException("Trying to override the already available user " +
+                            "principal from " + this.userPrincipal.toString() + " to " +
+                            userPrincipal.toString()));
         }
-        Optional.ofNullable(this.userPrincipal.getName())
-                .filter(name -> userPrincipal.getName().equals(name))
-                .orElseThrow(() -> new IllegalStateException("Trying to override the already available user " +
-                        "principal from " + this.userPrincipal.toString() + " to " + userPrincipal.toString()));
     }
 }

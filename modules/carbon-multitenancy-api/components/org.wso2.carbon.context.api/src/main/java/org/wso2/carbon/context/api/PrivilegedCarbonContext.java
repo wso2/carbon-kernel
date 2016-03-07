@@ -41,9 +41,9 @@ public final class PrivilegedCarbonContext extends CarbonContext {
         getCurrentContext().getCarbonContextHolder().destroyCurrentCarbonContextHolder();
     }
 
-    public void setTenant(TenantSupplier tenantSupplier) {
+    public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
         CarbonContextUtils.checkSecurity();
-        getCarbonContextHolder().setTenant(tenantSupplier);
+        getCarbonContextHolder().setTenant(tenantDomainSupplier);
     }
 
     public void setUserPrincipal(Principal userPrincipal) {
