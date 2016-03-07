@@ -914,6 +914,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void addAuthorization(String subject, String resourceId, String action,
                                  boolean authorized, boolean isRole) throws UserStoreException {
 
+        // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
+        if (resourceId != null) {
+            resourceId = resourceId.toLowerCase();
+        }
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class, boolean.class, boolean.class};
             callSecure("addAuthorization", new Object[]{subject, resourceId, action, authorized, isRole},
@@ -934,11 +939,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     private void addAuthorizationForRole(String roleName, String resourceId, String action,
                                          short allow, boolean updateCache) throws UserStoreException {
-
-        // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
-        if (resourceId != null) {
-            resourceId = resourceId.toLowerCase();
-        }
 
         // Need to clear tenant authz cache once role authorization is added, currently there is
         // no way to remove cache entry by role.
@@ -1048,11 +1048,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     private void addAuthorizationForUser(String userName, String resourceId, String action,
                                          short allow, boolean updateCache) throws UserStoreException {
-
-        // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
-        if (resourceId != null) {
-            resourceId = resourceId.toLowerCase();
-        }
 
         // Need to clear tenant authz cache once role authorization is removed, currently there is
         // no way to remove cache entry by role.
