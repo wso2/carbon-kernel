@@ -72,7 +72,7 @@ public class JDBCUserStoreConstants {
         setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
         setProperty(UserStoreConfigConstants.countRetrieverClass, "Count Implementation",
-                "org.wso2.carbon.user.mgt.user.store.metrics.jdbc.JDBCUserStoreCountRetriever",
+                "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
                 "Name of the class that implements the count functionality");
 
         //set Advanced properties
