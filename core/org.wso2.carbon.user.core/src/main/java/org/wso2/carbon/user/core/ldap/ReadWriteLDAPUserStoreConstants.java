@@ -104,7 +104,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.roleNameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty("UniqueID", "", "", "");
-        setProperty(UserStoreConfigConstants.countRetrieverClass, "Count Implementation", "",
+        setProperty("CountRetrieverClass", "Count Implementation", "",
                 "Name of the class that implements the count functionality");
 
     }

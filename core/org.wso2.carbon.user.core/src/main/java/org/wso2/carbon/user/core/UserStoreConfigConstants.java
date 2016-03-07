@@ -36,7 +36,6 @@ public class UserStoreConfigConstants {
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
-    public static final String countRetrieverClass = "CountRetrieverClass";
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";

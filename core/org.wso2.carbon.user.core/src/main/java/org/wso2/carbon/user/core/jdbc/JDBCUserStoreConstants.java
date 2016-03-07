@@ -71,7 +71,7 @@ public class JDBCUserStoreConstants {
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
         setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
-        setProperty(UserStoreConfigConstants.countRetrieverClass, "Count Implementation",
+        setProperty("CountRetrieverClass", "Count Implementation",
                 "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
                 "Name of the class that implements the count functionality");
 
