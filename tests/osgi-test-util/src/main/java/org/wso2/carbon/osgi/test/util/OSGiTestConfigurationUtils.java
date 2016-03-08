@@ -39,13 +39,6 @@ public class OSGiTestConfigurationUtils {
      * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
      * with Carbon Kernel.
      *
-     * @return a PAx Exam {@code Option} array.
-     */
-
-    /**
-     * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
-     * with Carbon Kernel.
-     *
      * @param customOptions {@code Option} list defined by the user. These options will be merged to default set of
      *                      options.
      * @param carbonHome    Value of the carbon.home system property required to boot up Carbon kernel.
