@@ -39,21 +39,16 @@ public class OSGiTestConfigurationUtils {
      * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
      * with Carbon Kernel.
      *
-     * @param customOptions {@code Option} list defined by the user. These options will be merged to default set of
-     *                      options.
-     * @param carbonHome    Value of the carbon.home system property required to boot up Carbon kernel.
-     * @param serverKey     ID of the Carbon server. Default value is carbon-kernel.
-     * @param serverName    Name of the Carbon server. Default value is WSO2 Carbon Kernel.
-     * @param serverVersion Version of the Carbon server. Default Value is 5.0.0
+     * @param customOptions        {@code Option} list defined by the user. These options will be merged to
+     *                                           default set of options.
+     * @param sysPropConfiguration Contains system properties required to boot up Carbon Kernel.
      * @return a PAX Exam {@code Option} array.
      */
     public static List<Option> getConfiguration(List<Option> customOptions,
-                                                String carbonHome,
-                                                String serverKey,
-                                                String serverName,
-                                                String serverVersion) {
+                                                CarbonSysPropConfiguration sysPropConfiguration) {
         List<Option> optionList = new ArrayList<>();
-        optionList.addAll(getBaseOptions(carbonHome, serverKey, serverName, serverVersion));
+        optionList.addAll(getBaseOptions(sysPropConfiguration.getCarbonHome(), sysPropConfiguration.getServerKey(),
+                sysPropConfiguration.getServerName(), sysPropConfiguration.getServerVersion()));
         optionList.addAll(customOptions);
         return optionList;
     }
