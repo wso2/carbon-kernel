@@ -58,15 +58,29 @@ public final class CarbonContextHolder {
         });
     }
 
+    /**
+     * Method to obtain the current thread local CarbonContextHolder instance.
+     *
+     * @return the thread local CarbonContextHolder instance.
+     */
     public static CarbonContextHolder getCurrentContextHolder() {
         return currentContextHolder.get();
     }
 
+    /**
+     * This method will destroy the current thread local CarbonContextHolder.
+     */
     public void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
     }
 
 
+    /**
+     * Method to set a tenant on this CarbonContext instance. This method accepts a supplier which should provide the
+     * tenant domain to load the tenant from tenant store.
+     *
+     * @param tenantDomainSupplier the supplier used to get the tenant domain.
+     */
     public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
         Optional<String> systemTenantDomainOptional = CarbonContextUtils.getSystemTenantDomain();
         Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
@@ -92,6 +106,11 @@ public final class CarbonContextHolder {
         }
     }
 
+    /**
+     * Method to obtain the current tenant from the CarbonContext instance.
+     *
+     * @return the tenant instance.
+     */
     public Tenant getTenant() {
         return tenant;
     }
@@ -116,10 +135,20 @@ public final class CarbonContextHolder {
         properties.put(name, value);
     }
 
+    /**
+     * Method to obtain the currently set user principal from the CarbonContext instance.
+     *
+     * @return current user principal instance.
+     */
     public Principal getUserPrincipal() {
         return userPrincipal;
     }
 
+    /**
+     * Checks and sets the given user principal to the current context.
+     *
+     * @param userPrincipal the user principal to be set
+     */
     public void setUserPrincipal(Principal userPrincipal) {
         if (this.userPrincipal == null) {
             this.userPrincipal = userPrincipal;
