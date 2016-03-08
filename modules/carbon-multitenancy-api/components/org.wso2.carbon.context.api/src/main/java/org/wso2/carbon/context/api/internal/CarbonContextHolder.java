@@ -47,16 +47,15 @@ public final class CarbonContextHolder {
 
     private CarbonContextHolder() {
         Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
-        CarbonContextUtils.getSystemTenantDomain()
-                .filter(tenantDomain -> tenantRuntimeOptional.isPresent())
-                .ifPresent(tenantDomain ->
-                {
-                    try {
-                        tenant = tenantRuntimeOptional.get().loadTenant(tenantDomain);
-                    } catch (TenantException e) {
-                        throw new RuntimeException("Error occurred while trying to load tenant for " + tenantDomain, e);
-                    }
-                });
+        Optional<String> systemTenantDomainOptional = tenantRuntimeOptional
+                .flatMap(tenantRuntime -> CarbonContextUtils.getSystemTenantDomain());
+        systemTenantDomainOptional.ifPresent(tenantDomain -> {
+            try {
+                tenant = tenantRuntimeOptional.get().loadTenant(tenantDomain);
+            } catch (TenantException e) {
+                throw new RuntimeException("Error occurred while trying to load tenant for " + tenantDomain, e);
+            }
+        });
     }
 
     public static CarbonContextHolder getCurrentContextHolder() {
@@ -69,24 +68,26 @@ public final class CarbonContextHolder {
 
 
     public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
-        if (!CarbonContextUtils.getSystemTenantDomain().isPresent()) {
-            String suppliedTenantDomain = tenantDomainSupplier.get();
-            Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
+        Optional<String> systemTenantDomainOptional = CarbonContextUtils.getSystemTenantDomain();
+        Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
+        String tenantDomain = tenantDomainSupplier.get();
+        //we don't set tenant if tenant domain is set at system level
+        if (!systemTenantDomainOptional.isPresent()) {
             if (tenant == null) {
-                if (tenantRuntimeOptional.isPresent()) {
-                    try {
-                        tenant = tenantRuntimeOptional.get().loadTenant(suppliedTenantDomain);
-                    } catch (TenantException e) {
-                        throw new RuntimeException("Error occurred while trying to set tenant with domain : '" +
-                                suppliedTenantDomain + "'", e);
-                    }
-                }
-
+                tenant = tenantRuntimeOptional
+                        .map(runtime -> {
+                            try {
+                                return runtime.loadTenant(tenantDomain);
+                            } catch (TenantException e) {
+                                throw new RuntimeException("Error occurred while trying to set tenant with domain : '" +
+                                        tenantDomain + "'", e);
+                            }
+                        }).get();
             } else {
                 Optional.of(tenant.getDomain())
-                        .filter(currentTenantDomain -> currentTenantDomain.equals(suppliedTenantDomain))
+                        .filter(currentTenantDomain -> currentTenantDomain.equals(tenantDomain))
                         .orElseThrow(() -> new IllegalStateException("Trying to override the current tenant " +
-                                tenant.getDomain() + " to " + suppliedTenantDomain));
+                                tenant.getDomain() + " to " + tenantDomain));
             }
         }
     }
