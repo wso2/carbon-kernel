@@ -80,8 +80,6 @@ public class ReadOnlyLDAPUserStoreConstants {
 
         setProperty("ReplaceEscapeCharactersAtUserLogin", "Enable Escape Characters at User Login", "true", "Whether replace escape character when user login");
         setProperty("UniqueID", "", "", "");
-        setProperty("CountRetrieverClass", "Count Implementation", "",
-                "Name of the class that implements the count functionality");
 
     }
 

@@ -896,6 +896,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
         setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
                 " authentication in case ldap read timed out.");
+        setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
+                "Name of the class that implements the count functionality");
     }
 
 
