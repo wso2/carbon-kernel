@@ -105,7 +105,6 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty("UniqueID", "", "", "");
 
-
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
