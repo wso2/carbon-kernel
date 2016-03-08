@@ -1,26 +1,24 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-package org.wso2.carbon.osgi.test.util.utils;
+*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+package org.wso2.carbon.osgi.test.util;
 
-import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.Constants;
-import org.wso2.carbon.osgi.test.util.CarbonOSGiTestEnvConfigs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,34 +28,59 @@ import static org.ops4j.pax.exam.CoreOptions.repositories;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 /**
- * This class contains Utility methods to configure PAX-EXAM container.
+ * This class contains utility methods to create PAX Exam options required to boot up a Carbon Kernel with user defined
+ * set of bundles and other options.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
-public class CarbonOSGiTestUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(CarbonOSGiTestUtils.class);
-
+public class OSGiTestConfigurationUtils {
 
     /**
-     * Setup the test environment.
-     * <p>
-     * Includes setting the carbon.home system property, setting the required system properties,
-     * setting the maven local repo directory, etc.
+     * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
+     * with Carbon Kernel.
+     *
+     * @param customOptions        {@code Option} list defined by the user. These options will be merged to
+     *                                           default set of options.
+     * @param sysPropConfiguration Contains system properties required to boot up Carbon Kernel.
+     * @return a PAX Exam {@code Option} array.
      */
-    private static void setupOSGiTestEnvironment(CarbonOSGiTestEnvConfigs configs, List<Option> optionList) {
-        setCarbonHome(configs, optionList);
-        setRequiredSystemProperties(configs, optionList);
-        setStartupTime(configs, optionList);
-//        copyCarbonYAML();
-//        copyLog4jXMLFile();
+    public static List<Option> getConfiguration(List<Option> customOptions,
+                                                CarbonSysPropConfiguration sysPropConfiguration) {
+        List<Option> optionList = new ArrayList<>();
+        optionList.addAll(getBaseOptions(sysPropConfiguration.getCarbonHome(), sysPropConfiguration.getServerKey(),
+                sysPropConfiguration.getServerName(), sysPropConfiguration.getServerVersion()));
+        optionList.addAll(customOptions);
+        return optionList;
     }
 
     /**
-     * Sets default PAX-EXAM options.
+     * Base PAX Exam options required to boot up Carbon Kernel.
      *
+     * @param carbonHome    Value of the carbon.home system property required to boot up Carbon kernel.
+     * @param serverKey     ID of the Carbon server. Default value is carbon-kernel.
+     * @param serverName    Name of the Carbon server. Default value is WSO2 Carbon Kernel.
+     * @param serverVersion Version of the Carbon server. Default Value is 5.0.0
+     * @return a list of PAX Exam options required to boot up Carbon Kernel.
      */
-    private static void setDefaultPaxOptions(CarbonOSGiTestEnvConfigs configs, List<Option> optionList) {
+    private static List<Option> getBaseOptions(String carbonHome,
+                                               String serverKey,
+                                               String serverName,
+                                               String serverVersion) {
+
+        List<Option> optionList = new ArrayList<>();
+
+        //Setting carbon.home system property.
+        optionList.add(systemProperty("carbon.home").value(carbonHome));
+
+        //Setting required system properties
+        optionList.add(systemProperty("server.key").value(serverKey != null ? serverKey : "carbon-kernel"));
+        optionList.add(systemProperty("server.name").value(serverName != null ? serverName : "WSO2 Carbon Kernel"));
+        optionList.add(systemProperty("server.version").value(serverVersion != null ? serverVersion : "5.0.0"));
+
+        //Setting server start time.
+        optionList.add(systemProperty(Constants.START_TIME).value(System.currentTimeMillis() + ""));
+
+        //Adding the set of bundles required to bootup Carbon kernel.
         optionList.add(repositories("http://maven.wso2.org/nexus/content/groups/wso2-public"));
         optionList.add(mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi")
@@ -104,40 +127,7 @@ public class CarbonOSGiTestUtils {
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon")
                 .versionAsInProject());
-    }
 
-    /**
-     * Set the carbon home for execute tests.
-     * Carbon home is set to the value specified in the CarbonOSGiTestEnvConfigs
-     */
-    private static void setCarbonHome(CarbonOSGiTestEnvConfigs configs, List<Option> optionList) {
-        optionList.add(systemProperty("carbon.home").value(configs.getCarbonHome()));
-    }
-
-    private static void setRequiredSystemProperties(CarbonOSGiTestEnvConfigs configs, List<Option> optionList) {
-        optionList.add(systemProperty("server.key").value(configs.getServerKey()));
-        optionList.add(systemProperty("server.name").value(configs.getServerName()));
-        optionList.add(systemProperty("server.version").value(configs.getServerVersion()));
-    }
-
-    /**
-     * Set the startup time to calculate the server startup time.
-     */
-    private static void setStartupTime(CarbonOSGiTestEnvConfigs configs, List<Option> optionList) {
-        if (systemProperty(Constants.START_TIME).getValue() == null) {
-            optionList.add(systemProperty(Constants.START_TIME).value(System.currentTimeMillis() + ""));
-        }
-    }
-
-    public static Option[] getAllPaxOptions(CarbonOSGiTestEnvConfigs configs, List<Option> customOptions) {
-        List<Option> allOptions = new ArrayList<>();
-        CarbonOSGiTestUtils.setupOSGiTestEnvironment(configs, allOptions);
-        CarbonOSGiTestUtils.setDefaultPaxOptions(configs, allOptions);
-        allOptions.addAll(customOptions);
-
-        Option[] options = CoreOptions.options(
-                allOptions.toArray(new Option[allOptions.size()])
-        );
-        return options;
+        return optionList;
     }
 }
