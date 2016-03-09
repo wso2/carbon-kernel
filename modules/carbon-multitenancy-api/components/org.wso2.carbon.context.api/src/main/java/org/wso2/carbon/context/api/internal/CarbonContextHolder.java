@@ -16,7 +16,6 @@
 package org.wso2.carbon.context.api.internal;
 
 import org.wso2.carbon.context.api.CarbonContextUtils;
-import org.wso2.carbon.context.api.TenantDomainSupplier;
 import org.wso2.carbon.multitenancy.TenantRuntime;
 import org.wso2.carbon.multitenancy.api.Tenant;
 import org.wso2.carbon.multitenancy.exception.TenantException;
@@ -49,13 +48,15 @@ public final class CarbonContextHolder {
         Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
         Optional<String> systemTenantDomainOptional = tenantRuntimeOptional
                 .flatMap(tenantRuntime -> CarbonContextUtils.getSystemTenantDomain());
-        systemTenantDomainOptional.ifPresent(tenantDomain -> {
-            try {
-                tenant = tenantRuntimeOptional.get().loadTenant(tenantDomain);
-            } catch (TenantException e) {
-                throw new RuntimeException("Error occurred while trying to load tenant for " + tenantDomain, e);
-            }
-        });
+        tenant = systemTenantDomainOptional
+                .map(tenantDomain -> {
+                    try {
+                        return tenantRuntimeOptional.get().loadTenant(tenantDomain);
+                    } catch (TenantException e) {
+                        throw new RuntimeException("Error occurred while trying to load tenant for " + tenantDomain, e);
+                    }
+                })
+                .orElseGet(() -> new Tenant(CarbonContextUtils.DEFAULT_TENANT));
     }
 
     /**
@@ -74,44 +75,12 @@ public final class CarbonContextHolder {
         currentContextHolder.remove();
     }
 
-
-    /**
-     * Method to set a tenant on this CarbonContext instance. This method accepts a supplier which should provide the
-     * tenant domain to load the tenant from tenant store.
-     *
-     * @param tenantDomainSupplier the supplier used to get the tenant domain.
-     */
-    public void setTenant(TenantDomainSupplier tenantDomainSupplier) {
-        Optional<String> systemTenantDomainOptional = CarbonContextUtils.getSystemTenantDomain();
-        Optional<TenantRuntime> tenantRuntimeOptional = OSGiServiceHolder.getInstance().getTenantRuntime();
-        String tenantDomain = tenantDomainSupplier.get();
-        //we don't set tenant if tenant domain is set at system level
-        if (!systemTenantDomainOptional.isPresent()) {
-            if (tenant == null) {
-                tenant = tenantRuntimeOptional
-                        .map(runtime -> {
-                            try {
-                                return runtime.loadTenant(tenantDomain);
-                            } catch (TenantException e) {
-                                throw new RuntimeException("Error occurred while trying to set tenant with domain : '" +
-                                        tenantDomain + "'", e);
-                            }
-                        }).get();
-            } else {
-                Optional.of(tenant.getDomain())
-                        .filter(currentTenantDomain -> currentTenantDomain.equals(tenantDomain))
-                        .orElseThrow(() -> new IllegalStateException("Trying to override the current tenant " +
-                                tenant.getDomain() + " to " + tenantDomain));
-            }
-        }
-    }
-
     /**
      * Method to obtain the current tenant from the CarbonContext instance.
      *
      * @return the tenant instance.
      */
-    public Tenant getTenant() {
+    public Tenant getServerTenant() {
         return tenant;
     }
 

@@ -27,6 +27,7 @@ public class CarbonContextUtils {
 
     //TODO move this constant to kernel
     public static final String TENANT_DOMAIN = "TENANT_DOMAIN";
+    public static final String DEFAULT_TENANT = "default.tenant";
 
     public static void checkSecurity() {
         Optional<SecurityManager> securityManager = Optional.ofNullable(System.getSecurityManager());

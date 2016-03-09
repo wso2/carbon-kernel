@@ -38,8 +38,8 @@ public abstract class CarbonContext {
         return carbonContextHolder;
     }
 
-    public Tenant getTenant() {
-        return getCarbonContextHolder().getTenant();
+    public Tenant getServerTenant() {
+        return getCarbonContextHolder().getServerTenant();
     }
 
     public Principal getUserPrincipal() {
