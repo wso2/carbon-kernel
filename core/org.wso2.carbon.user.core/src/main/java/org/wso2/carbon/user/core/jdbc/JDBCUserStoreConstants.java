@@ -99,6 +99,10 @@ public class JDBCUserStoreConstants {
                         "SQL SELECT statement that returns at least one row");
         setAdvancedProperty(VALIDATION_INTERVAL, "Validation Interval(time in milliseconds)", "", "Used to avoid " +
                 "excess validation, only run validation at most at this frequency");
+        setAdvancedProperty("CountRetrieverClass", "Count Implementation",
+                "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
+                "Name of the class that implements the count functionality");
+
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, "Select User SQL With " +
