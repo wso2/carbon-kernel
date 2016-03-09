@@ -49,6 +49,8 @@ public class PermissionTest extends BaseTestCase {
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         checkPermission();
+        checkCamelCasePermissionsForRole();
+        checkCamelCasePermissionsForRoleAfterClearAuthorization();
     }
 
     public void initRealmStuff() throws Exception {
@@ -127,7 +129,35 @@ public class PermissionTest extends BaseTestCase {
         assertFalse(authManager.isRoleAuthorized(EVERYONE_ROLE, "/top/wso2/bizzness", "read"));
         assertFalse(authManager.isUserAuthorized("dimuthu", "/top/wso2/bizzness", "read"));
     }
-    
-    
 
+    /**
+     * Check role authorization for permissions with camel case resource names.
+     * @throws Exception
+     */
+    public void checkCamelCasePermissionsForRole() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        userStoreManager.addRole("roleA", null, null);
+        authManager.authorizeRole("roleA", "/top/wso2/Bizzness", "read");
+
+        assertTrue(authManager.isRoleAuthorized("roleA", "/top/wso2/Bizzness", "read"));
+    }
+
+    /**
+     * Check role authorization after clearing the role authorization for permissions with camel case resource name.
+     * @throws Exception
+     */
+    public void checkCamelCasePermissionsForRoleAfterClearAuthorization() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        userStoreManager.addRole("roleB", null, null);
+        authManager.authorizeRole("roleB", "/top/wso2/Bizzness", "read");
+        authManager.clearRoleAuthorization("roleB", "/top/wso2/Bizzness" ,"read");
+
+        assertFalse(authManager.isRoleAuthorized("roleB", "/top/wso2/bizzness", "read"));
+    }
 }
