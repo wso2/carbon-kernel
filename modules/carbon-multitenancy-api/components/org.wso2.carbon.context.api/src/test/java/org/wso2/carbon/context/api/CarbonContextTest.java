@@ -38,7 +38,6 @@ import java.util.stream.IntStream;
  * @since 5.0.0
  */
 public class CarbonContextTest {
-    private static final String TENANT_DOMAIN = "test";
     private static final String TENANT_PROPERTY = "testProperty";
     private static final Path testDir = Paths.get("src", "test", "resources");
 
