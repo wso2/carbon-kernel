@@ -43,7 +43,8 @@
         <module>components/entitlement</module>
         <module>components/identity-core</module>
         <module>components/application-mgt</module>
-        <module>components/identity-mgt</module>
+        <!--<module>components/identity-mgt</module>-->
+        <module>components/identity-mgt-new</module>
         <module>components/notification-mgt</module>
         <module>components/provisioning</module>
         <module>components/user-mgt</module>
