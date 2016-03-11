@@ -38,7 +38,6 @@ import java.util.stream.IntStream;
  * @since 5.0.0
  */
 public class CarbonContextTest {
-    private static final String TENANT_DOMAIN = "test";
     private static final String TENANT_PROPERTY = "testProperty";
     private static final Path testDir = Paths.get("src", "test", "resources");
 
@@ -52,7 +51,8 @@ public class CarbonContextTest {
     @Test
     public void testCarbonContext() {
         CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
-        Assert.assertEquals(carbonContext.getServerTenant().getDomain(), CarbonContextUtils.DEFAULT_TENANT);
+        Assert.assertEquals(carbonContext.getServerTenant().getDomain(),
+                org.wso2.carbon.context.api.Constants.DEFAULT_TENANT);
         Assert.assertEquals(carbonContext.getUserPrincipal(), null);
         Assert.assertEquals(carbonContext.getProperty("someProperty"), null);
     }
@@ -68,15 +68,15 @@ public class CarbonContextTest {
         PrivilegedCarbonContext privilegedCarbonContext =
                 (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
         Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
-                CarbonContextUtils.DEFAULT_TENANT);
+                org.wso2.carbon.context.api.Constants.DEFAULT_TENANT);
 
         try {
             privilegedCarbonContext.setUserPrincipal(userPrincipal);
             privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
             Tenant tenant = PrivilegedCarbonContext.getCurrentContext().getServerTenant();
             tenant.setProperties(properties);
-            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getProperty(TENANT_PROPERTY),
-                    tenantPropertyValue);
+            Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().
+                            getProperty(TENANT_PROPERTY), tenantPropertyValue);
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal);
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getProperty(carbonContextPropertyKey),
                     carbonContextPropertyValue);
@@ -121,7 +121,7 @@ public class CarbonContextTest {
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
-                    CarbonContextUtils.DEFAULT_TENANT);
+                    org.wso2.carbon.context.api.Constants.DEFAULT_TENANT);
 
             Principal userPrincipal = () -> "test";
             Map<String, Object> properties = new HashMap<>();
@@ -133,7 +133,8 @@ public class CarbonContextTest {
                 CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
                 Tenant tenant = PrivilegedCarbonContext.getCurrentContext().getServerTenant();
                 tenant.setProperties(properties);
-                Assert.assertEquals(carbonContext.getServerTenant().getProperty(tenantPropertyKey), tenantPropertyValue);
+                Assert.assertEquals(carbonContext.getServerTenant().getProperty(tenantPropertyKey),
+                        tenantPropertyValue);
                 Assert.assertEquals(carbonContext.getUserPrincipal(), userPrincipal);
                 Assert.assertEquals(carbonContext.getProperty(carbonContextPropertyKey), carbonContextPropertyValue);
             } finally {
@@ -153,7 +154,7 @@ public class CarbonContextTest {
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
-                    CarbonContextUtils.DEFAULT_TENANT);
+                    org.wso2.carbon.context.api.Constants.DEFAULT_TENANT);
             try {
                 privilegedCarbonContext.setUserPrincipal(userPrincipal1);
                 Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal1);
@@ -170,11 +171,11 @@ public class CarbonContextTest {
     @Test(dependsOnMethods = "testCarbonContextFaultyScenario2")
     public void testSystemTenantDomainCarbonContextPopulation1() throws TenantStoreException {
         String tenantDomain = "test-sys-domain";
-        System.setProperty(CarbonContextUtils.TENANT_DOMAIN, tenantDomain);
+        System.setProperty(org.wso2.carbon.context.api.Constants.TENANT_DOMAIN, tenantDomain);
         CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
         Assert.assertEquals(carbonContext.getServerTenant().getDomain(), tenantDomain);
         Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(), tenantDomain);
 
-        System.clearProperty(CarbonContextUtils.TENANT_DOMAIN);
+        System.clearProperty(org.wso2.carbon.context.api.Constants.TENANT_DOMAIN);
     }
 }

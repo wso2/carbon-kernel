@@ -16,6 +16,7 @@
 package org.wso2.carbon.context.api.internal;
 
 import org.wso2.carbon.context.api.CarbonContextUtils;
+import org.wso2.carbon.context.api.Constants;
 import org.wso2.carbon.multitenancy.TenantRuntime;
 import org.wso2.carbon.multitenancy.api.Tenant;
 import org.wso2.carbon.multitenancy.exception.TenantException;
@@ -56,7 +57,7 @@ public final class CarbonContextHolder {
                         throw new RuntimeException("Error occurred while trying to load tenant for " + tenantDomain, e);
                     }
                 })
-                .orElseGet(() -> new Tenant(CarbonContextUtils.DEFAULT_TENANT));
+                .orElseGet(() -> new Tenant(Constants.DEFAULT_TENANT));
     }
 
     /**

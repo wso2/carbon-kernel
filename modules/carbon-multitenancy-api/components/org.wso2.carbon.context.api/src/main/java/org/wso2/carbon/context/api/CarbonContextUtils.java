@@ -25,10 +25,6 @@ import java.util.Optional;
  */
 public class CarbonContextUtils {
 
-    //TODO move this constant to kernel
-    public static final String TENANT_DOMAIN = "TENANT_DOMAIN";
-    public static final String DEFAULT_TENANT = "default.tenant";
-
     public static void checkSecurity() {
         Optional<SecurityManager> securityManager = Optional.ofNullable(System.getSecurityManager());
         securityManager.ifPresent(secMan -> secMan.checkPermission(new ManagementPermission("control")));
@@ -37,7 +33,7 @@ public class CarbonContextUtils {
     public static Optional<String> getSystemTenantDomain() {
         return Optional
                 .ofNullable(Optional
-                        .ofNullable(System.getProperty(TENANT_DOMAIN))
-                        .orElseGet(() -> System.getenv(TENANT_DOMAIN)));
+                        .ofNullable(System.getProperty(Constants.TENANT_DOMAIN))
+                        .orElseGet(() -> System.getenv(Constants.TENANT_DOMAIN)));
     }
 }
