@@ -21,6 +21,7 @@ import org.wso2.carbon.kernel.Constants;
 import java.lang.management.ManagementPermission;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,9 +120,20 @@ public class Utils {
      * methods being executed by unsigned code.
      */
     public static void checkSecurity() {
-        SecurityManager secMan = System.getSecurityManager();
-        if (secMan != null) {
-            secMan.checkPermission(new ManagementPermission("control"));
-        }
+        Optional<SecurityManager> securityManager = Optional.ofNullable(System.getSecurityManager());
+        securityManager.ifPresent(secMan -> secMan.checkPermission(new ManagementPermission("control")));
+    }
+
+    /**
+     * Method to obtain the tenant domain that is set either via a system property or as an environment variable.
+     * If both values are not present, this will return an empty Optional container.
+     *
+     * @return Optional value of the tenant domain property, empty if no value is set.
+     */
+    public static Optional<String> getServerTenantDomain() {
+        return Optional
+                .ofNullable(Optional
+                        .ofNullable(System.getProperty(Constants.TENANT_DOMAIN))
+                        .orElseGet(() -> System.getenv(Constants.TENANT_DOMAIN)));
     }
 }

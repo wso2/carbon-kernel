@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Tenants>
+    <Tenant>
+        <Domain>test</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenant1</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenant2</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>test-sys-domain</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain1</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain2</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain3</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain4</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain5</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain6</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain7</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain8</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain9</Domain>
+    </Tenant>
+</Tenants>

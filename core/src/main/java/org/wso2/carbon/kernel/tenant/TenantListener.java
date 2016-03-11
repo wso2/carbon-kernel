@@ -13,28 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.tenant;
 
 /**
- * Carbon Constants.
+ * A listener to be invoked for tenant lifecycle events such as loaded, unloaded etc.
  *
- * @since 5.0.0
+ * @since 1.0.0
  */
-public final class Constants {
-
-    public static final String CARBON_HOME = "carbon.home";
-    public static final String CARBON_HOME_ENV = "CARBON_HOME";
-    public static final String CARBON_CONFIG_YAML = "carbon.yml";
-
-    public static final String START_TIME = "carbon.start.time";
-
-    public static final String TENANT_DOMAIN = "TENANT_DOMAIN";
-    public static final String DEFAULT_TENANT = "default.tenant";
-
+public interface TenantListener {
     /**
-     * Remove default constructor and make it not available to initialize.
+     * The notification method which will be invoked by the tenant runtime for tenant lifecycle events.
+     *
+     * @param tenantEvent the TenantEvent.
      */
-    private Constants() {
-        throw new AssertionError("Trying to a instantiate a constant class");
-    }
+    void notify(TenantEvent tenantEvent);
 }

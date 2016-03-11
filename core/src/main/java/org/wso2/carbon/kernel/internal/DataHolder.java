@@ -18,6 +18,10 @@ package org.wso2.carbon.kernel.internal;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
+import org.wso2.carbon.kernel.tenant.TenantListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Carbon kernel DataHolder.
@@ -27,6 +31,7 @@ import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 public class DataHolder {
     private static DataHolder instance = new DataHolder();
     private BundleContext bundleContext;
+    private List<TenantListener> tenantListeners = new ArrayList<>();
 
     private RuntimeManager runtimeManager = null;
 
@@ -81,4 +86,18 @@ public class DataHolder {
     public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = carbonRuntime;
     }
+
+
+    public List<TenantListener> getTenantListeners() {
+        return tenantListeners;
+    }
+
+    public void addTenantListener(TenantListener tenantListener) {
+        tenantListeners.add(tenantListener);
+    }
+
+    public void removeTenantListener(TenantListener tenantListener) {
+        tenantListeners.remove(tenantListener);
+    }
+
 }

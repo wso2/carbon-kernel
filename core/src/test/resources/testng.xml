@@ -52,6 +52,7 @@ limitations under the License.
             <class name="org.wso2.carbon.kernel.internal.logging.LoggingConfigurationTest" />
             <class name="org.wso2.carbon.kernel.utils.UtilsTest"/>
             <class name="org.wso2.carbon.kernel.utils.manifest.ManifestElementTest"/>
+            <class name="org.wso2.carbon.kernel.context.CarbonContextTest"/>
         </classes>
     </test>
 </suite>

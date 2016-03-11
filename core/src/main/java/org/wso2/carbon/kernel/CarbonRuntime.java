@@ -16,13 +16,14 @@
 package org.wso2.carbon.kernel;
 
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 /**
  * CarbonRuntime represents the complete server space. In previous Carbon kernel versions, we used the term
  * “Super Tenant” for this space. But most of us believe that this term is bit confusing. Its more clearer
  * if we call it the “Server space”. Because its actually the server space. There are separate tenant spaces.
  * All the applications deployed in the server space are privileged applications which are capable of managing
- * the Carbon runtime as well tenants.
+ * the Carbon runtime as well tenant.
  * <p>
  * CarbonRuntime allows you to retrieve CarbonConfiguration instance, TenantRuntime instance etc.
  *
@@ -39,4 +40,12 @@ public interface CarbonRuntime {
      */
     public CarbonConfiguration getConfiguration();
 
+    /**
+     * Returns the TenantRuntime instance. It allows you to load, unload tenant in the runtime.
+     *
+     * @return the TenantRuntime instance
+     * @see org.wso2.carbon.kernel.tenant.Tenant
+     * @see TenantRuntime
+     */
+    public TenantRuntime getTenantRuntime();
 }

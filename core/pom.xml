@@ -128,7 +128,8 @@
             org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
+            javax.xml.bind.*;version="${javax.xml.bind.import.version.range}"
         </import.package>
         <provide.capability>
             osgi.service;effective:=active;
