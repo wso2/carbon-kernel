@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
+import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
+
 /**
  * CarbonConfiguration class holds static configuration parameters specified in the carbon.yml file.
  *
@@ -33,6 +35,8 @@ public class CarbonConfiguration {
     private DeploymentConfig deployment = new DeploymentConfig();
 
     private StartupResolverConfig startupResolver = new StartupResolverConfig();
+
+    private JMXConfiguration jmx = new JMXConfiguration();
 
     public String getId() {
         return id;
@@ -56,5 +60,9 @@ public class CarbonConfiguration {
 
     public StartupResolverConfig getStartupResolverConfig() {
         return startupResolver;
+    }
+
+    public JMXConfiguration getJmxConfiguration() {
+        return jmx;
     }
 }
