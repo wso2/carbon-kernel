@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class TenantRuntime {
 
-    private TenantStore tenantStore;
+    private TenantStore<Tenant> tenantStore;
 
     private Map<String, Tenant> loadedTenants = new HashMap<>();
 
@@ -42,7 +42,7 @@ public class TenantRuntime {
      *
      * @param tenantStore tenant store instance to use with this runtime.
      */
-    public TenantRuntime(TenantStore tenantStore) {
+    public TenantRuntime(TenantStore<Tenant> tenantStore) {
         this.tenantStore = tenantStore;
     }
 

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantListener;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 import org.wso2.carbon.kernel.tenant.TenantStore;
@@ -49,7 +50,7 @@ import java.util.Optional;
 )
 public class TenantListenerComponent implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(TenantListenerComponent.class);
-    private TenantStore tenantStore = new DefaultTenantStore();
+    private TenantStore<Tenant> tenantStore = new DefaultTenantStore();
 
     @Activate
     protected void activate(BundleContext bundleContext) {
@@ -75,7 +76,7 @@ public class TenantListenerComponent implements RequiredCapabilityListener {
             policy = ReferencePolicy.STATIC,
             cardinality = ReferenceCardinality.MULTIPLE
     )
-    protected void setTenantStore(TenantStore tenantStore) {
+    protected void setTenantStore(TenantStore<Tenant> tenantStore) {
         this.tenantStore = tenantStore;
     }
 

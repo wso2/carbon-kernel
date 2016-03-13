@@ -21,10 +21,12 @@ import org.wso2.carbon.kernel.tenant.exception.TenantStoreException;
  * TenantStore represents the storage of tenant. This class gives an abstract API to TenantRuntime to persist
  * tenant information.
  *
+ * @param <T> type of the tenants stored by this implementation
+ * @see Tenant
  * @since 1.0.0
  */
 
-public interface TenantStore {
+public interface TenantStore<T extends Tenant> {
 
     /**
      * Initializes the storage.
@@ -42,7 +44,7 @@ public interface TenantStore {
      * @return the loaded Tenant instance
      * @throws TenantStoreException if the tenant store fails to load the tenant
      */
-    Tenant loadTenant(String tenantDomain) throws TenantStoreException;
+    T loadTenant(String tenantDomain) throws TenantStoreException;
 
     /**
      * Add and persist the tenant in the underlying storage
@@ -50,7 +52,7 @@ public interface TenantStore {
      * @param tenant the Tenant instance to be added to the store
      * @throws TenantStoreException if the tenant store fails to persists the tenant
      */
-    void addTenant(Tenant tenant) throws TenantStoreException;
+    void addTenant(T tenant) throws TenantStoreException;
 
     /**
      * Deletes the tenant from the underlying storage
@@ -59,5 +61,5 @@ public interface TenantStore {
      * @return the deleted Tenant instance
      * @throws TenantStoreException if the tenant store fails to delete the tenant.
      */
-    Tenant deleteTenant(String tenantDomain) throws TenantStoreException;
+    T deleteTenant(String tenantDomain) throws TenantStoreException;
 }

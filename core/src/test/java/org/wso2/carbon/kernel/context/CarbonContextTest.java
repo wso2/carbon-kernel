@@ -48,7 +48,7 @@ public class CarbonContextTest {
 
     CarbonContextTest() throws Exception {
         System.setProperty(Constants.CARBON_HOME, Paths.get(testDir.toString(), "carbon-repo").toString());
-        TenantStore tenantStore = new DefaultTenantStore();
+        TenantStore<Tenant> tenantStore = new DefaultTenantStore();
         tenantStore.init();
         CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
         CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);

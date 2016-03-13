@@ -45,7 +45,7 @@ import javax.xml.bind.Unmarshaller;
  *
  * @since 1.0.0
  */
-public class DefaultTenantStore implements TenantStore {
+public class DefaultTenantStore implements TenantStore<Tenant> {
 
     private TenantStoreConfig tenantStoreConfig;
     private JAXBContext jaxbContext;
