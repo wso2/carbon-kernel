@@ -71,8 +71,7 @@ public class CustomDeployer implements Deployer {
     public String deploy(Artifact artifact) throws CarbonDeploymentException {
         logger.info("Deploying : " + artifact.getName());
         String key = null;
-        try {
-            FileInputStream fis = new FileInputStream(artifact.getFile());
+        try (FileInputStream fis = new FileInputStream(artifact.getFile())) {
             int x = fis.available();
             byte b[] = new byte[x];
             fis.read(b);
@@ -93,10 +92,9 @@ public class CustomDeployer implements Deployer {
                     "is not a String value");
         }
         logger.info("Undeploying : " + key);
-        try {
-            File fileToUndeploy = new File(testDir + File.separator + key);
-            logger.info("File to undeploy : " + fileToUndeploy.getAbsolutePath());
-            FileInputStream fis = new FileInputStream(fileToUndeploy);
+        File fileToUndeploy = new File(testDir + File.separator + key);
+        logger.info("File to undeploy : " + fileToUndeploy.getAbsolutePath());
+        try (FileInputStream fis = new FileInputStream(fileToUndeploy)) {
             int x = fis.available();
             byte b[] = new byte[x];
             fis.read(b);
