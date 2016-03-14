@@ -35,6 +35,9 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
  */
 public class OSGiTestConfigurationUtils {
 
+    private OSGiTestConfigurationUtils() {
+    }
+
     /**
      * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
      * with Carbon Kernel.

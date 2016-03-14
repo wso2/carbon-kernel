@@ -34,6 +34,9 @@ import static org.ops4j.pax.exam.CoreOptions.repositories;
  */
 public class OSGiTestUtils {
 
+    private OSGiTestUtils() {
+    }
+
     /**
      * Setup the test environment.
      *
