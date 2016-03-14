@@ -91,7 +91,7 @@ public class TenantListenerComponent implements RequiredCapabilityListener {
             logger.error("Error while initializing Tenant Runtime", e);
             return;
         }
-        Optional.ofNullable(DataHolder.getInstance().getCarbonRuntime().getTenantRuntime())
+        Optional.ofNullable(DataHolder.getInstance().getCarbonRuntime())
                 .map(carbonRuntime -> (PrivilegedCarbonRuntime) carbonRuntime)
                 .ifPresent(privilegedCarbonRuntime -> privilegedCarbonRuntime.setTenantRuntime(tenantRuntime));
     }
