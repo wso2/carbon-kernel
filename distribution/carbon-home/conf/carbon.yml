@@ -54,7 +54,7 @@ startupResolver:
 
 # JMX Configuration
 jmx:
- enabled: true
+ enabled: false
  hostName: "127.0.0.1"
  rmiServerPort: 11111
  rmiRegistryPort: 9999

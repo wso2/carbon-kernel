@@ -101,8 +101,8 @@ public class CarbonJMXComponent {
             environment.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,
                     singleAddressRMIServerSocketFactory);
 
-            jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL,
-                    environment, ManagementFactory.getPlatformMBeanServer());
+            jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment,
+                    ManagementFactory.getPlatformMBeanServer());
             jmxConnectorServer.start();
             logger.info("JMXServerManager JMX Service URL : " + jmxServiceURL.toString());
         } catch (Throwable throwable) {

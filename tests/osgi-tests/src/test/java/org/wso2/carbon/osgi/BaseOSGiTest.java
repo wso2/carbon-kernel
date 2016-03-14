@@ -15,16 +15,26 @@
  */
 package org.wso2.carbon.osgi;
 
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.inject.Inject;
 
 /**
@@ -35,6 +45,15 @@ import javax.inject.Inject;
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class BaseOSGiTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseOSGiTest.class);
+
+    @Configuration
+    public Option[] createConfiguration() {
+        OSGiTestUtils.setupOSGiTestEnvironment();
+        copyCarbonYAML();
+        return OSGiTestUtils.getDefaultPaxOptions();
+    }
 
     @Inject
     private BundleContext bundleContext;
@@ -59,5 +78,24 @@ public class BaseOSGiTest {
         }
         Assert.assertNotNull(coreBundle, "Carbon Core bundle not found");
         Assert.assertEquals(coreBundle.getState(), Bundle.ACTIVE, "Carbon Core Bundle is not activated");
+    }
+
+    /**
+     * Replace the existing carbon.yml file with populated carbon.yml file.
+     */
+    private static void copyCarbonYAML() {
+        Path carbonYmlFilePath;
+
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = Paths.get(".").toString();
+        }
+        try {
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf", "carbon.yml"),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Unable to copy the carbon.yml file", e);
+        }
     }
 }
