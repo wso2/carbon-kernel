@@ -59,7 +59,6 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 public class CarbonContextOSGiTest {
     private static final String TEST_TENANT_DOMAIN1 = "test.tenant.domain";
     private static final String TEST_TENANT_DOMAIN2 = "test.tenant.domain.2";
-    private static final String TEST_TENANT_PROPERTY_KEY = "testProperty";
 
     private static final Logger logger = LoggerFactory.getLogger(CarbonContextOSGiTest.class);
 
@@ -94,9 +93,10 @@ public class CarbonContextOSGiTest {
     @Test(dependsOnMethods = "testCarbonContext")
     public void testPrivilegeCarbonContext() throws TenantStoreException {
         Principal userPrincipal = () -> "test";
-        String tenantPropertyValue = "testValue";
+        String tenantPropertyTestKey = "testKey";
+        String tenantPropertyTestValue = "testValue";
         Map<String, Object> properties = new HashMap<>();
-        properties.put(TEST_TENANT_PROPERTY_KEY, tenantPropertyValue);
+        properties.put(tenantPropertyTestKey, tenantPropertyTestValue);
         String carbonContextPropertyKey = "KEY";
         Object carbonContextPropertyValue = "VALUE";
         PrivilegedCarbonContext privilegedCarbonContext =
@@ -110,7 +110,7 @@ public class CarbonContextOSGiTest {
             Tenant tenant = PrivilegedCarbonContext.getCurrentContext().getServerTenant();
             tenant.setProperties(properties);
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().
-                    getProperty(TEST_TENANT_PROPERTY_KEY), tenantPropertyValue);
+                    getProperty(tenantPropertyTestKey), tenantPropertyTestValue);
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal);
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getProperty(carbonContextPropertyKey),
                     carbonContextPropertyValue);
