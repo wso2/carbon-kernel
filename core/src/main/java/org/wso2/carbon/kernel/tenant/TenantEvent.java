@@ -18,16 +18,28 @@ package org.wso2.carbon.kernel.tenant;
 /**
  * An event used with the TenantListener for tenant lifecycle event notification.
  *
- * @since 1.0.0
+ * @since 5.1.0
  */
 public class TenantEvent {
 
+    /**
+     * Type for tenant added event
+     */
     public static final int ADDED = 0x00000001;
 
+    /**
+     * Type for tenant removed event
+     */
     public static final int REMOVED = 0x00000002;
 
+    /**
+     * Type for tenant loaded event
+     */
     public static final int LOADED = 0x00000003;
 
+    /**
+     * Type for tenant unloaded event
+     */
     public static final int UNLOADED = 0x00000004;
 
     private final int type;

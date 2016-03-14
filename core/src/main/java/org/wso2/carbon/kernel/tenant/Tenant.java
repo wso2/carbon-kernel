@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * The entity which represent the concept of a tenant in the Carbon runtime.
  *
- * @since 1.0.0
+ * @since 5.1.0
  */
 public class Tenant {
 
@@ -30,6 +30,11 @@ public class Tenant {
     private Map<String, Object> properties = new HashMap<>();
 
 
+    /**
+     * The constructor which takes the domain name as the argument to construct the tenant object.
+     *
+     * @param domain value of the tenant domain for this instance.
+     */
     public Tenant(String domain) {
         this.domain = domain;
     }

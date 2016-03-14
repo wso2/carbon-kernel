@@ -22,10 +22,11 @@ import org.wso2.carbon.kernel.utils.Utils;
 import java.security.Principal;
 
 /**
- * This CarbonContext provides users the ability to carry out privileged actions such as switching tenant flows,
- * setting domain, setting subject etc.
+ * This CarbonContext provides users the ability to carry out privileged actions such as setting user principal,
+ * properties which are needed at thread local level. It also exposes a privileged action to destroy the current
+ * context which is to remove the current carbon context instance stored at thread local space.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
 
 public final class PrivilegedCarbonContext extends CarbonContext {
@@ -34,20 +35,42 @@ public final class PrivilegedCarbonContext extends CarbonContext {
         super(carbonContextHolder);
     }
 
+    /**
+     * Returns the carbon context instance which is stored at current thread local space.
+     *
+     * @return the carbon context instance.
+     */
     public static CarbonContext getCurrentContext() {
         return new PrivilegedCarbonContext(CarbonContextHolder.getCurrentContextHolder());
     }
 
+    /**
+     * Destroys the current carbon context instance by removing it from thread local space.
+     */
     public static void destroyCurrentContext() {
         Utils.checkSecurity();
         getCurrentContext().getCarbonContextHolder().destroyCurrentCarbonContextHolder();
     }
 
+    /**
+     * Method to set the given JAAS principal object to current carbon context instance. This will throw a
+     * IllegalStateException if a thread is trying to override currently set principal instance with the different
+     * instance.
+     *
+     * @param userPrincipal the jaas principal object to be set.
+     */
     public void setUserPrincipal(Principal userPrincipal) {
         Utils.checkSecurity();
         getCarbonContextHolder().setUserPrincipal(userPrincipal);
     }
 
+    /**
+     * Method to set key, value pair as properties with carbon context instance. The stored properties can be
+     * replaced with new values by using the same property name.
+     *
+     * @param name the name of property to be set.
+     * @param value the value of the property to be set.
+     */
     public void setProperty(String name, Object value) {
         Utils.checkSecurity();
         getCarbonContextHolder().setProperty(name, value);

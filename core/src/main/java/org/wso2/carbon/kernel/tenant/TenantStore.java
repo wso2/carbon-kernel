@@ -23,7 +23,7 @@ import org.wso2.carbon.kernel.tenant.exception.TenantStoreException;
  *
  * @param <T> type of the tenants stored by this implementation
  * @see Tenant
- * @since 1.0.0
+ * @since 5.1.0
  */
 
 public interface TenantStore<T extends Tenant> {

@@ -29,8 +29,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This class will preserve an instance the current CarbonContext as a thread local variable. If a CarbonContext is
- * available on a thread-local-scope this class will do the required lookup and obtain the corresponding instance.
+ * This class will preserve an instance the current CarbonContextHolder as a thread local variable.
+ * If a CarbonContextHolder is available on a thread-local-scope this class will do the required lookup and obtain
+ * the corresponding instance.
  *
  * @since 5.0.0
  */
@@ -47,6 +48,11 @@ public final class CarbonContextHolder {
         }
     };
 
+    /**
+     * Private Constructor which gets invoked via the static variable above. This gets invoked only once and it
+     * populates the tenant variable by first checking whether the domain value is set via system/env property.
+     * If no value is set, then this falls back to the default tenant domain value.
+     */
     private CarbonContextHolder() {
         Optional<TenantRuntime> tenantRuntimeOptional = Optional.
                 ofNullable(DataHolder.getInstance().getCarbonRuntime().getTenantRuntime());

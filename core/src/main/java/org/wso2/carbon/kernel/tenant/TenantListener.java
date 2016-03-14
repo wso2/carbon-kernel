@@ -18,7 +18,7 @@ package org.wso2.carbon.kernel.tenant;
 /**
  * A listener to be invoked for tenant lifecycle events such as loaded, unloaded etc.
  *
- * @since 1.0.0
+ * @since 5.1.0
  */
 public interface TenantListener {
     /**

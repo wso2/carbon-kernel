@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * TenantRuntime represents the entity who manages the tenant. TenantRuntime allows you to add tenant, delete
  * tenant, get loaded tenant information, load tenant etc.
  *
- * @since 1.0.0
+ * @since 5.1.0
  */
 public class TenantRuntime {
 
