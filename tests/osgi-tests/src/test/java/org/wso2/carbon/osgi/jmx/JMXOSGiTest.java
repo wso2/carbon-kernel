@@ -28,7 +28,6 @@ import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,8 +61,8 @@ public class JMXOSGiTest {
         return OSGiTestUtils.getDefaultPaxOptions();
     }
 
-//    @Inject
-//    private CarbonServerInfo carbonServerInfo;
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testMBeanRegistration() throws Exception {
@@ -78,10 +77,7 @@ public class JMXOSGiTest {
     @Test(dependsOnMethods = {"testMBeanRegistration"})
     public void testAccessMBean() throws Exception {
 
-        String hostname = InetAddress.getLocalHost().getHostAddress();
-
         JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://127.0.0.1:11111/jndi/rmi://127.0.0.1:9999/jmxrmi");
-//        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://" + hostname + ":11111/jndi/rmi://" + hostname + ":9999/jmxrmi");
         Map<String, Object> environment = new HashMap<>();
         String[] credentials = {"admin", "password"};
         environment.put(JMXConnector.CREDENTIALS, credentials);
@@ -111,7 +107,7 @@ public class JMXOSGiTest {
             basedir = Paths.get(".").toString();
         }
         try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
             Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf", "carbon.yml"),
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
