@@ -44,7 +44,7 @@ import java.util.Optional;
         immediate = true,
         service = RequiredCapabilityListener.class,
         property = {
-                "capability-name=org.wso2.carbon.multitenancy.api.TenantStore",
+                "capability-name=org.wso2.carbon.kernel.tenant.TenantStore",
                 "component-key=carbon-tenant-listener"
         }
 )
@@ -73,11 +73,15 @@ public class TenantListenerComponent implements RequiredCapabilityListener {
 
     @Reference(
             service = TenantStore.class,
-            policy = ReferencePolicy.STATIC,
-            cardinality = ReferenceCardinality.MULTIPLE
+            policy = ReferencePolicy.DYNAMIC,
+            cardinality = ReferenceCardinality.OPTIONAL
     )
     protected void setTenantStore(TenantStore<Tenant> tenantStore) {
         this.tenantStore = tenantStore;
+    }
+
+    protected void unsetTenantStore(TenantStore<Tenant> tenantStore) {
+        //TODO - need to remove tenant store reference here
     }
 
     @Override

@@ -27,10 +27,12 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.context.test.CarbonContextInvoker;
+import org.wso2.carbon.context.test.InMemoryTenantStore;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.tenant.Tenant;
+import org.wso2.carbon.kernel.tenant.TenantStore;
 import org.wso2.carbon.kernel.tenant.exception.TenantStoreException;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.utils.OSGiTestUtils;
@@ -55,17 +57,21 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class CarbonContextOSGiTest {
-    private static final String TEST_TENANT_DOMAIN = "test.tenant.domain";
+    private static final String TEST_TENANT_DOMAIN1 = "test.tenant.domain";
+    private static final String TEST_TENANT_DOMAIN2 = "test.tenant.domain.2";
     private static final String TEST_TENANT_PROPERTY_KEY = "testProperty";
 
     private static final Logger logger = LoggerFactory.getLogger(CarbonContextOSGiTest.class);
+
+    @Inject
+    private TenantStore<Tenant> tenantStore;
 
     @Inject
     private CarbonServerInfo carbonServerInfo;
 
     @Configuration
     public Option[] createConfiguration() {
-        System.setProperty(Constants.TENANT_DOMAIN, TEST_TENANT_DOMAIN);
+        System.setProperty(Constants.TENANT_DOMAIN, TEST_TENANT_DOMAIN1);
         OSGiTestUtils.setupOSGiTestEnvironment();
         OSGiTestUtils.copyCarbonYAML();
         copyCarbonTenantXML();
@@ -80,12 +86,12 @@ public class CarbonContextOSGiTest {
     @Test
     public void testCarbonContext() {
         CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
-        Assert.assertEquals(carbonContext.getServerTenant().getDomain(), TEST_TENANT_DOMAIN);
+        Assert.assertEquals(carbonContext.getServerTenant().getDomain(), TEST_TENANT_DOMAIN1);
         Assert.assertEquals(carbonContext.getUserPrincipal(), null);
         Assert.assertEquals(carbonContext.getProperty("someProperty"), null);
     }
 
-    @Test (dependsOnMethods = "testCarbonContext")
+    @Test(dependsOnMethods = "testCarbonContext")
     public void testPrivilegeCarbonContext() throws TenantStoreException {
         Principal userPrincipal = () -> "test";
         String tenantPropertyValue = "testValue";
@@ -96,7 +102,7 @@ public class CarbonContextOSGiTest {
         PrivilegedCarbonContext privilegedCarbonContext =
                 (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
         Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
-                TEST_TENANT_DOMAIN);
+                TEST_TENANT_DOMAIN1);
 
         try {
             privilegedCarbonContext.setUserPrincipal(userPrincipal);
@@ -115,7 +121,7 @@ public class CarbonContextOSGiTest {
         Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getUserPrincipal(), null);
     }
 
-    @Test (dependsOnMethods = "testPrivilegeCarbonContext")
+    @Test(dependsOnMethods = "testPrivilegeCarbonContext")
     public void testCarbonContextFaultyScenario() {
         Principal userPrincipal1 = () -> "test1";
         Principal userPrincipal2 = () -> "test2";
@@ -124,7 +130,7 @@ public class CarbonContextOSGiTest {
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
-                    TEST_TENANT_DOMAIN);
+                    TEST_TENANT_DOMAIN1);
             try {
                 privilegedCarbonContext.setUserPrincipal(userPrincipal1);
                 Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal1);
@@ -139,7 +145,7 @@ public class CarbonContextOSGiTest {
     }
 
 
-    @Test (dependsOnMethods = "testCarbonContextFaultyScenario")
+    @Test(dependsOnMethods = "testCarbonContextFaultyScenario")
     public void testCustomBundle() {
         String tenantPropertyKey = "tenantPropertyKey";
         String tenantPropertyValue = "tenantPropertyValue";
@@ -156,6 +162,20 @@ public class CarbonContextOSGiTest {
         Assert.assertEquals(tenant.getProperty(tenantPropertyKey), tenantPropertyValue);
         Assert.assertEquals(carbonContext.getProperty(carbonContextPropertyKey), carbonContextPropertyValue);
         Assert.assertEquals(carbonContext.getUserPrincipal().getName(), userPrincipalName);
+    }
+
+    @Test(dependsOnMethods = "testCustomBundle")
+    public void testTenantStore() throws TenantStoreException {
+        String tenantPropertyKey = "tenantPropertyKey";
+        String tenantPropertyValue = "tenantPropertyValue";
+        Tenant tenant = new Tenant(TEST_TENANT_DOMAIN2);
+        tenant.setProperty(tenantPropertyKey, tenantPropertyValue);
+        InMemoryTenantStore inMemoryTenantStore = (InMemoryTenantStore) tenantStore;
+        inMemoryTenantStore.addTenant(tenant);
+        Tenant loadedTenant = inMemoryTenantStore.loadTenant(TEST_TENANT_DOMAIN2);
+        Assert.assertEquals(loadedTenant, tenant);
+        Assert.assertEquals(loadedTenant.getDomain(), TEST_TENANT_DOMAIN2);
+        Assert.assertEquals(loadedTenant.getProperty(tenantPropertyKey), tenantPropertyValue);
     }
 
     private static void copyCarbonTenantXML() {
