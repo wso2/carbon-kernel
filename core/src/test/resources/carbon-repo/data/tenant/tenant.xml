@@ -3,4 +3,34 @@
     <Tenant>
         <Domain>test-sys-domain</Domain>
     </Tenant>
+    <Tenant>
+        <Domain>tenantDomain1</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain2</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain3</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain4</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain5</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain6</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain7</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain8</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain9</Domain>
+    </Tenant>
+    <Tenant>
+        <Domain>tenantDomain10</Domain>
+    </Tenant>
 </Tenants>

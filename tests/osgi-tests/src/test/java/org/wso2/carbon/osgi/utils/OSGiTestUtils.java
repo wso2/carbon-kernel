@@ -165,4 +165,23 @@ public class OSGiTestUtils {
             logger.error("Unable to copy the carbon.yml file", e);
         }
     }
+
+    /**
+     * Replace the existing tenant.xml file with the file found at runtime resources directory.
+     */
+    public static void copyCarbonTenantXML() {
+        Path carbonYmlFilePath;
+
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = Paths.get(".").toString();
+        }
+        try {
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "tenant.xml");
+            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "data", "tenant",
+                    "tenant.xml"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Unable to copy the tenant.xml file", e);
+        }
+    }
 }

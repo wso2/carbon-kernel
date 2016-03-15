@@ -126,10 +126,12 @@ public class CarbonContextTest {
 
         @Override
         public void run() {
+            PrivilegedCarbonContext.destroyCurrentContext();
+            System.setProperty(Constants.TENANT_DOMAIN, tenantDomain);
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
-                    Constants.DEFAULT_TENANT);
+                    tenantDomain);
 
             Principal userPrincipal = () -> "test";
             Map<String, Object> properties = new HashMap<>();
@@ -147,6 +149,7 @@ public class CarbonContextTest {
                 Assert.assertEquals(carbonContext.getProperty(carbonContextPropertyKey), carbonContextPropertyValue);
             } finally {
                 PrivilegedCarbonContext.destroyCurrentContext();
+                System.clearProperty(Constants.TENANT_DOMAIN);
             }
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getUserPrincipal(), null);
         }
@@ -154,11 +157,13 @@ public class CarbonContextTest {
 
 
     @Test(dependsOnMethods = "testMultiThreadedCarbonContextInvocation")
-    public void testCarbonContextFaultyScenario2() {
+    public void testCarbonContextFaultyScenario() {
         Principal userPrincipal1 = () -> "test1";
         Principal userPrincipal2 = () -> "test2";
 
         try {
+            PrivilegedCarbonContext.destroyCurrentContext();
+            System.clearProperty(Constants.TENANT_DOMAIN);
             PrivilegedCarbonContext privilegedCarbonContext =
                     (PrivilegedCarbonContext) PrivilegedCarbonContext.getCurrentContext();
             Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(),
@@ -173,17 +178,17 @@ public class CarbonContextTest {
             }
         } finally {
             PrivilegedCarbonContext.destroyCurrentContext();
+            System.clearProperty(Constants.TENANT_DOMAIN);
         }
     }
 
-    @Test(dependsOnMethods = "testCarbonContextFaultyScenario2")
+    @Test(dependsOnMethods = "testCarbonContextFaultyScenario")
     public void testSystemTenantDomainCarbonContextPopulation1() throws TenantStoreException {
         String tenantDomain = "test-sys-domain";
         System.setProperty(Constants.TENANT_DOMAIN, tenantDomain);
         CarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
         Assert.assertEquals(carbonContext.getServerTenant().getDomain(), tenantDomain);
         Assert.assertEquals(PrivilegedCarbonContext.getCurrentContext().getServerTenant().getDomain(), tenantDomain);
-
         System.clearProperty(Constants.TENANT_DOMAIN);
     }
 }
