@@ -125,5 +125,4 @@ public class CarbonContextOSGiTest {
             System.clearProperty(Constants.TENANT_DOMAIN);
         }
     }
-
 }

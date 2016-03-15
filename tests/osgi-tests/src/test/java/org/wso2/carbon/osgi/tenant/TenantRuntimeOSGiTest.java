@@ -44,8 +44,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  */
 public class TenantRuntimeOSGiTest {
 
-    private static final String TEST_TENANT_DOMAIN1 = "test.tenant.domain";
-    private static final String TEST_TENANT_DOMAIN2 = "test.tenant.domain.2";
+    private static final String TEST_TENANT_DOMAIN = "test.tenant.domain";
 
     @Inject
     private TenantStore<Tenant> tenantStore;
@@ -98,16 +97,16 @@ public class TenantRuntimeOSGiTest {
     public void testTenantStore1() throws TenantStoreException {
         String tenantPropertyKey = "tenantPropertyKey";
         String tenantPropertyValue = "tenantPropertyValue";
-        Tenant tenant = new Tenant(TEST_TENANT_DOMAIN2);
+        Tenant tenant = new Tenant(TEST_TENANT_DOMAIN);
         tenant.setProperty(tenantPropertyKey, tenantPropertyValue);
         InMemoryTenantStore inMemoryTenantStore = (InMemoryTenantStore) tenantStore;
         inMemoryTenantStore.addTenant(tenant);
-        Tenant loadedTenant = inMemoryTenantStore.loadTenant(TEST_TENANT_DOMAIN2);
+        Tenant loadedTenant = inMemoryTenantStore.loadTenant(TEST_TENANT_DOMAIN);
         Assert.assertEquals(loadedTenant, tenant);
-        Assert.assertEquals(loadedTenant.getDomain(), TEST_TENANT_DOMAIN2);
+        Assert.assertEquals(loadedTenant.getDomain(), TEST_TENANT_DOMAIN);
         Assert.assertEquals(loadedTenant.getProperty(tenantPropertyKey), tenantPropertyValue);
-        inMemoryTenantStore.deleteTenant(TEST_TENANT_DOMAIN2);
-        Assert.assertEquals(inMemoryTenantStore.loadTenant(TEST_TENANT_DOMAIN2), null);
+        inMemoryTenantStore.deleteTenant(TEST_TENANT_DOMAIN);
+        Assert.assertEquals(inMemoryTenantStore.loadTenant(TEST_TENANT_DOMAIN), null);
     }
 
 
@@ -116,15 +115,15 @@ public class TenantRuntimeOSGiTest {
         try {
             String tenantPropertyKey = "tenantPropertyKey";
             String tenantPropertyValue = "tenantPropertyValue";
-            Tenant tenant = new Tenant(TEST_TENANT_DOMAIN2);
+            Tenant tenant = new Tenant(TEST_TENANT_DOMAIN);
             tenant.setProperty(tenantPropertyKey, tenantPropertyValue);
             InMemoryTenantStore inMemoryTenantStore = (InMemoryTenantStore) tenantStore;
             inMemoryTenantStore.addTenant(tenant);
 
             PrivilegedCarbonContext.destroyCurrentContext();
-            System.setProperty(Constants.TENANT_DOMAIN, TEST_TENANT_DOMAIN2);
+            System.setProperty(Constants.TENANT_DOMAIN, TEST_TENANT_DOMAIN);
             Tenant currentTenant = PrivilegedCarbonContext.getCurrentContext().getServerTenant();
-            Assert.assertEquals(currentTenant.getDomain(), TEST_TENANT_DOMAIN2);
+            Assert.assertEquals(currentTenant.getDomain(), TEST_TENANT_DOMAIN);
             Assert.assertEquals(currentTenant.getProperty(tenantPropertyKey), tenantPropertyValue);
         } finally {
             System.clearProperty(Constants.TENANT_DOMAIN);
