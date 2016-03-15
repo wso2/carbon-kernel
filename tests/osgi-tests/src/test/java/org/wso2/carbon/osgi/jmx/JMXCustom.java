@@ -16,12 +16,25 @@
 package org.wso2.carbon.osgi.jmx;
 
 /**
- * JMX Sample MBean to test Carbon JMX Authenticator OSGi Test Case
+ * JMX Sample to test JMX OSGi Test Case
  *
  * @since 5.1.0
  */
-public interface JMXSampleMBean {
-    public void reset();
-    public int getCount();
-    public void setCount(int count);
+public class JMXCustom implements JMXCustomMBean {
+    private int count;
+
+    @Override
+    public void reset() {
+        this.count = 0;
+    }
+
+    @Override
+    public int getCount() {
+        return this.count;
+    }
+
+    @Override
+    public void setCount(int count) {
+        this.count = count;
+    }
 }

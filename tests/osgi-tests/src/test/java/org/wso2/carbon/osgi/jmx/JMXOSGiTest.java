@@ -32,19 +32,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.Map;
 import javax.inject.Inject;
-import javax.management.JMX;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 
 /**
- * JMX test case
+ * JMXOSGiTest class is to test the CarbonJMX
  *
  * @since 5.1.0
  */
@@ -66,34 +59,12 @@ public class JMXOSGiTest {
 
     @Test
     public void testMBeanRegistration() throws Exception {
-        JMXSample test = new JMXSample();
-        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXSample");
+        JMXCustom test = new JMXCustom();
+        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXCustom");
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         mBeanServer.registerMBean(test, mbeanName);
 
         Assert.assertTrue(mBeanServer.isRegistered(mbeanName), "MBean is not registered");
-    }
-
-    @Test(dependsOnMethods = {"testMBeanRegistration"})
-    public void testAccessMBean() throws Exception {
-
-        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://127.0.0.1:11111/jndi/rmi://127.0.0.1:9999/jmxrmi");
-        Map<String, Object> environment = new HashMap<>();
-        String[] credentials = {"admin", "password"};
-        environment.put(JMXConnector.CREDENTIALS, credentials);
-        JMXConnector jmxc = JMXConnectorFactory.connect(url, environment);
-        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
-
-        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXSample");
-        JMXSampleMBean mbeanProxy = JMX.newMBeanProxy(mbsc, mbeanName, JMXSampleMBean.class, true);
-
-        Assert.assertEquals(mbeanProxy.getCount(), 0, "Count is not zero");
-
-        mbeanProxy.setCount(500);
-        Assert.assertEquals(mbeanProxy.getCount(), 500, "Count is not 500");
-
-        mbeanProxy.reset();
-        Assert.assertEquals(mbeanProxy.getCount(), 0, "Count is not reset");
     }
 
     /**

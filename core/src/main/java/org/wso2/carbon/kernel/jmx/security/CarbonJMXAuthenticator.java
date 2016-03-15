@@ -15,13 +15,18 @@
  */
 package org.wso2.carbon.kernel.jmx.security;
 
+import org.wso2.carbon.kernel.Constants;
+
 import java.util.Collections;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 /**
- * Carbon JMX Authenticator OSGi Test Case
+ * Implementation class for JMXAuthenticator
  *
  * @since 5.1.0
  */
@@ -37,20 +42,14 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
             throw new SecurityException("Credentials should be String[]");
         }
 
-        // TODO : Implement proper authentication
-        final String[] aCredentials = (String[]) credentials;
-        if (aCredentials.length < 2) {
-            throw new SecurityException("Credentials should have at least username & password");
-        }
-
-        String userName = aCredentials[0];
-        String password = aCredentials[1];
-
-        if ("admin".equals(userName) && "password".equals(password)) {
-            return new Subject(true, Collections.singleton(new JMXPrincipal(userName)),
+        CallbackHandler callbackHandler = new CarbonJMXCallbackHandler(credentials);
+        try {
+            LoginContext loginContext = new LoginContext(Constants.LOGIN_MODULE_ENTRY, callbackHandler);
+            loginContext.login();
+            return new Subject(true, Collections.singleton(new JMXPrincipal(((String[]) credentials)[0])),
                     Collections.EMPTY_SET, Collections.EMPTY_SET);
-        } else {
-            throw new SecurityException("Invalid credentials");
+        } catch (LoginException e) {
+            throw new SecurityException("Invalid credentials", e);
         }
     }
 }
