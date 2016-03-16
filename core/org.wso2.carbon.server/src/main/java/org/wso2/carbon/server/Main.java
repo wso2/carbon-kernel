@@ -69,14 +69,12 @@ public class Main {
 
 		}
         writePID(System.getProperty(LauncherConstants.CARBON_HOME));
-        //setting default WSO2CarbonProfile as the running Profile if no other Profile is given as an argument
-        if (System.getProperty(LauncherConstants.PROFILE_ID) == null){
-            System.setProperty(LauncherConstants.PROFILE_ID, LauncherConstants.DEFAULT_CARBON_PROFILE);
-        }
         processCmdLineArgs(args);
 
         // set WSO2CarbonProfile as worker if workerNode=true present
-        if ((System.getProperty(LauncherConstants.WORKER_NODE) != null) && (System.getProperty(LauncherConstants.WORKER_NODE).equals("true"))) {
+        if ((System.getProperty(LauncherConstants.WORKER_NODE) != null) && 
+            ("true".equals(System.getProperty(LauncherConstants.WORKER_NODE))) &&
+            System.getProperty(LauncherConstants.PROFILE) == null) {
             File profileDir = new File( Utils.getCarbonComponentRepo() + File.separator + LauncherConstants.WORKER_PROFILE);
                /*
                 *   Better check profile directory is present or not otherwise osgi will hang

@@ -24,7 +24,6 @@ import org.apache.http.protocol.HTTP;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.wso2.carbon.core.transports.CarbonHttpRequest;
 import org.wso2.carbon.core.transports.CarbonHttpResponse;
-import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 
@@ -186,9 +185,10 @@ public final class XsdUtil {
             }
             if (schema != null) {
                 //schema is there - pump it outs
-                schema.write(new OutputStreamWriter(outputStream, "UTF8"));
-                outputStream.flush();
-                outputStream.close();
+                try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "UTF8")) {
+                    schema.write(outputStreamWriter);
+                    outputStream.flush();
+                }
             } else if  (xsds.endsWith(".xsd") && xsds.indexOf("..") == -1){
                 InputStream in = axisService.getClassLoader()
                         .getResourceAsStream(DeploymentConstants.META_INF + "/" + xsds);

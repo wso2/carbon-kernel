@@ -26,4 +26,6 @@ public interface MapEntryListener {
     <X> void entryRemoved(X key);
 
     <X> void entryUpdated(X key);
+
+    void mapCleared();
 }

@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.1</version>
+        <version>4.4.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -68,6 +68,10 @@
             <artifactId>smackx</artifactId>
         </dependency>
         <dependency>
+            <groupId>xerces.wso2</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
@@ -113,6 +117,7 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>org.wso2.carbon.utils</Bundle-SymbolicName>
                         <Export-Package>
+                            !org.wso2.carbon.utils.resolver,
                             org.wso2.carbon,
                             org.wso2.carbon.utils.*,
                             org.wso2.carbon.context,
@@ -121,6 +126,7 @@
                         <Bundle-Activator>org.wso2.carbon.context.internal.CarbonContextActivator</Bundle-Activator>
                         <Private-Package>
                             org.wso2.carbon.context.internal,
+                            org.wso2.carbon.utils.resolver,
                         </Private-Package>
                         <Import-Package>
                             !org.wso2.carbon,

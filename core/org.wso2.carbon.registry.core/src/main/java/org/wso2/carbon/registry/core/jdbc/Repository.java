@@ -1725,7 +1725,7 @@ public class Repository {
                     }
                     // get the source and destination as absolute paths
                     source = RegistryUtils.getAbsoluteAssociationPath(source, path);
-                    if (destination.startsWith(
+                    if (destination != null && destination.startsWith(
                             DumpConstants.EXTERNAL_ASSOCIATION_DESTINATION_PREFIX)) {
                         destination =
                                 destination.substring(

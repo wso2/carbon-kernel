@@ -285,12 +285,13 @@ public abstract class AbstractCarbonUIAuthenticator implements CarbonUIAuthentic
             audit.info("User with null domain tried to login.");
             return;
         }
-        
+
+        String loggedInUser = userName;
 		if (session.getAttribute(CarbonConstants.LOGGED_USER) != null) {
-			userName = (String) session
+			loggedInUser = (String) session
 					.getAttribute(CarbonConstants.LOGGED_USER);
 		}
-		request.setAttribute(AbstractCarbonUIAuthenticator.USERNAME, userName);
+		request.setAttribute(AbstractCarbonUIAuthenticator.USERNAME, loggedInUser);
 
         String serverURL = getBackendUrl(request);
         if (serverURL == null) {

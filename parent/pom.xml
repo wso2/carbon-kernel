@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.1</version>
+    <version>4.4.6-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -154,7 +154,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.1</carbon.kernel.version>
+        <carbon.kernel.version>4.4.6-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
@@ -227,7 +227,7 @@
 
         <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
 
-        <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
+        <neethi.osgi.version>2.0.4.wso2v5</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4, 3.1.0)</neethi.osgi.version.range>
         <xmlsec.version>1.4.2-patched</xmlsec.version>
 
@@ -286,16 +286,16 @@
         <version.woden>1.0.0.M9-wso2v1</version.woden>
 
         <!-- Apache Neethi -->
-        <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
-        <exp.pkg.version.neethi>2.0.4.wso2v4</exp.pkg.version.neethi>
+        <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
+        <exp.pkg.version.neethi>2.0.4.wso2v5</exp.pkg.version.neethi>
         <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
 
         <!-- Apache Axiom -->
-        <orbit.version.axiom>1.2.11.wso2v6</orbit.version.axiom>
-        <imp.pkg.version.axiom>[1.2.11.wso2v6, 1.3.0)</imp.pkg.version.axiom>
-        <version.axiom>1.2.11-wso2v6</version.axiom>
-        <axiom.osgi.version>1.2.11.wso2v6</axiom.osgi.version>
-        <axiom.osgi.version.range>[1.2.11.wso2v6, 1.3.0)</axiom.osgi.version.range>
+        <orbit.version.axiom>1.2.11.wso2v10</orbit.version.axiom>
+        <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
+        <version.axiom>1.2.11-wso2v10</version.axiom>
+        <axiom.osgi.version>1.2.11.wso2v10</axiom.osgi.version>
+        <axiom.osgi.version.range>[1.2.11, 1.3.0)</axiom.osgi.version.range>
 
 
         <!-- Spring Framework -->
@@ -305,12 +305,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v14</version.axis2>
-        <imp.pkg.version.axis2>[1.6.1.wso2v14, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v14</version.addressing>
-        <orbit.version.axis2>1.6.1.wso2v14</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.1.wso2v14</axis2.client.osgi.version>
-        <version.axis2.json>1.6.1-wso2v14</version.axis2.json>
+        <version.axis2>1.6.1-wso2v17</version.axis2>
+        <imp.pkg.version.axis2>[1.6.1.wso2v15, 1.7.0)</imp.pkg.version.axis2>
+        <version.addressing>1.6.1-wso2v17</version.addressing>
+        <orbit.version.axis2>1.6.1.wso2v17</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v17</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v17</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
@@ -330,7 +330,7 @@
         <orbit.version.poi.scratchpad>3.9.0.wso2v1</orbit.version.poi.scratchpad>
         <orbit.version.poi.ooxml>3.9.0.wso2v3</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
-        <orbit.version.commons.collection>3.2.0.wso2v1</orbit.version.commons.collection>
+        <orbit.version.commons.collection>3.2.2.wso2v1</orbit.version.commons.collection>
         <orbit.version.commons.io>2.0.0.wso2v2</orbit.version.commons.io>
         <orbit.version.commons.dbcp>1.4.0.wso2v1</orbit.version.commons.dbcp>
         <orbit.version.smack>3.0.4.wso2v1</orbit.version.smack>
@@ -353,7 +353,7 @@
 
         <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.5.0.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.5.4.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
@@ -454,8 +454,8 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
-        <test.framework.version>4.4.2</test.framework.version>
-        <jacoco.agent.version>0.7.4.201502262128</jacoco.agent.version>
+        <test.framework.version>4.4.3</test.framework.version>
+        <jacoco.agent.version>0.7.5.201505241946</jacoco.agent.version>
         <testng.verson>6.1.1</testng.verson>
     </properties>
 
@@ -891,7 +891,7 @@
                 <version>${orbit.version.axiom}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.neethi.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
                 <version>${neethi.osgi.version}</version>
             </dependency>
@@ -991,7 +991,7 @@
                 <version>${version.geronimo.jta.spec}</version>
             </dependency>
             <dependency>
-                <groupId>commons-collections.wso2</groupId>
+                <groupId>org.wso2.orbit.commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${orbit.version.commons.collection}</version>
             </dependency>
@@ -1529,8 +1529,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-  <scm>
-    <tag>v4.4.1-RC2</tag>
-  </scm>
 </project>

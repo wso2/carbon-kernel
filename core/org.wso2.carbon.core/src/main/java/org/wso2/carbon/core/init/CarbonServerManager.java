@@ -439,9 +439,6 @@ public final class CarbonServerManager implements Controllable {
             // This is used inside the sever-admin component.
             serverConfigContext.setProperty(ServerConstants.CARBON_INSTANCE, this);
 
-            multitenantServerManager = new MultitenantServerManager();
-            multitenantServerManager.start(serverConfigContext);
-
             //TODO As a tempory solution this part is added here. But when ui bundle are seperated from the core bundles
             //TODO this should be fixed.
             ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
@@ -518,6 +515,9 @@ public final class CarbonServerManager implements Controllable {
                     new ConfigurationContextService(serverConfigContext,
                             clientConfigContext),
                     null);
+
+            multitenantServerManager = new MultitenantServerManager();
+            multitenantServerManager.start(serverConfigContext);
 
         } catch (Throwable e) {
             log.fatal("WSO2 Carbon initialization Failed", e);
@@ -764,6 +764,7 @@ public final class CarbonServerManager implements Controllable {
         }
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
         new JMXServerManager().stopJmxService();
+        CarbonCoreServiceComponent.restart();
 
         try {
             ServerStatus.setServerRestarting();

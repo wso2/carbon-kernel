@@ -64,10 +64,10 @@ public class ToolsAnyFileUploadExecutor extends AbstractFileUploadExecutor {
                     dir.mkdirs();
                 }
                 File uploadedFile = new File(dir, fileItem.getFileItem().getFieldName());
-                FileOutputStream fileOutStream = new FileOutputStream(uploadedFile);
-                fileItem.getDataHandler().writeTo(fileOutStream);
-                fileOutStream.flush();
-                fileOutStream.close();
+                try (FileOutputStream fileOutStream = new FileOutputStream(uploadedFile)) {
+                    fileItem.getDataHandler().writeTo(fileOutStream);
+                    fileOutStream.flush();
+                }
                 response.setContentType("text/plain; charset=utf-8");
                 //filePaths = filePaths + uploadedFile.getAbsolutePath() + ",";
                 fileResourceMap.put(uuid, uploadedFile.getAbsolutePath());

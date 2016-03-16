@@ -23,6 +23,8 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.registry.api.GhostResource;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -45,6 +47,7 @@ public class PermissionTree {
 
     private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
     private static final String PERMISSION_CACHE = "PERMISSION_CACHE";
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static Log log = LogFactory.getLog(PermissionTree.class);
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock read = readWriteLock.readLock();
@@ -89,6 +92,9 @@ public class PermissionTree {
     }
 
     void authorizeUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -113,6 +119,9 @@ public class PermissionTree {
     }
 
     void denyUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -249,6 +258,9 @@ public class PermissionTree {
      */
     SearchResult getUserPermission(String user, TreeNode.Permission permission, SearchResult sr,
                                    TreeNode node, List<String> pathParts) {
+        if (!isCaseSensitiveUsername(user, tenantId)) {
+            user = user.toLowerCase();
+        }
         read.lock();
         try {
             if (node == null) {
@@ -585,6 +597,9 @@ public class PermissionTree {
 
                 Map<String, BitSet> allowRoles = sr.getLastNode().getRoleAllowPermissions();
                 BitSet bs = allowRoles.get(roleName);
+                if (bs == null) {
+                    bs = allowRoles.get(modify(roleName));
+                }
                 if (bs != null) {
                     bs.clear(permission.ordinal());
                 }
@@ -607,6 +622,9 @@ public class PermissionTree {
     }
 
     void clearUserAuthorization(String userName, String resourceId, String action) throws UserStoreException {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -686,6 +704,9 @@ public class PermissionTree {
             Map<String, BitSet> bsAllowed = node.getRoleAllowPermissions();
             for (String role : roles) {
                 BitSet bs = bsAllowed.get(role);
+                if (bs == null) {
+                    bs = bsAllowed.get(modify(role));
+                }
                 if (bs != null && bs.get(permission.ordinal())) {
                     resources.add(currentPath);
                     break;
@@ -737,6 +758,9 @@ public class PermissionTree {
             Map<String, BitSet> denyRoles = node.getRoleDenyPermissions();
 
             BitSet bs = allowRoles.get(roleName);
+            if (bs == null) {
+                bs = allowRoles.get(modify(roleName));
+            }
             if (bs != null) {
                 bs.clear(permission.ordinal());
             }
@@ -773,13 +797,30 @@ public class PermissionTree {
             Map<String, BitSet> denyRoles = node.getRoleDenyPermissions();
 
             BitSet bs = allowRoles.get(roleName);
-            if (bs != null) {
-                allowRoles.remove(roleName);
+            boolean modified = false;
+            if (bs == null) {
+                bs = allowRoles.get(modify(roleName));
+                modified = true;
             }
-
-            bs = denyRoles.get(roleName);
             if (bs != null) {
-                denyRoles.remove(roleName);
+                if (modified) {
+                    allowRoles.remove(modify(roleName));
+                } else {
+                    allowRoles.remove(roleName);
+                }
+            }
+            modified = false;
+            bs = denyRoles.get(roleName);
+            if (bs == null) {
+                bs = denyRoles.get(modify(roleName));
+                modified = true;
+            }
+            if (bs != null) {
+                if (modified) {
+                    denyRoles.remove(modify(roleName));
+                } else {
+                    denyRoles.remove(roleName);
+                }
             }
 
             Map<String, TreeNode> childMap = node.getChildren();
@@ -799,16 +840,34 @@ public class PermissionTree {
         Map<String, BitSet> denyRoles = node.getRoleDenyPermissions();
         write.lock();
         try {
+            boolean modified = false;
             BitSet bs = allowRoles.get(roleName);
+            if (bs == null) {
+                bs = allowRoles.get(modify(roleName));
+                modified = true;
+            }
             if (bs != null) {
-                allowRoles.remove(roleName);
-                allowRoles.put(newRoleName, bs);
+                if (!modified) {
+                    allowRoles.remove(roleName);
+                } else {
+                    allowRoles.remove(modify(roleName));
+                }
+                allowRoles.put(modify(newRoleName), bs);
             }
 
+            modified = false;
             bs = denyRoles.get(roleName);
+            if (bs == null) {
+                bs = denyRoles.get(modify(roleName));
+                modified = true;
+            }
             if (bs != null) {
-                denyRoles.remove(roleName);
-                denyRoles.put(newRoleName, bs);
+                if (!modified) {
+                    denyRoles.remove(roleName);
+                } else {
+                    denyRoles.remove(modify(roleName));
+                }
+                denyRoles.put(modify(newRoleName), bs);
             }
 
             Map<String, TreeNode> childMap = node.getChildren();
@@ -825,6 +884,9 @@ public class PermissionTree {
 
 
     private void clearUserAuthorization(String userName, TreeNode node) {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             Map<String, BitSet> allowUsers = node.getUserAllowPermissions();
@@ -963,7 +1025,6 @@ public class PermissionTree {
                 String roleName = rs.getString(1);
                 String domain = rs.getString(5);
                 String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
-                roleWithDomain = roleWithDomain.toLowerCase();
 
                 if (allow == UserCoreConstants.ALLOW) {
                     tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
@@ -1040,4 +1101,37 @@ public class PermissionTree {
         return dbConnection;
     }
 
+    private boolean isCaseSensitiveUsername(String username, int tenantId) {
+
+        if (UserStoreMgtDSComponent.getRealmService() != null) {
+            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+            //as an example when running the unit tests.
+            try {
+                if (UserStoreMgtDSComponent.getRealmService().getTenantUserRealm(tenantId) != null) {
+                    UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                            .getTenantUserRealm(tenantId).getUserStoreManager();
+                    UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                            (UserCoreUtil.extractDomainFromName(username));
+                    String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                            .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+                }
+            }
+        }
+        return true;
+    }
+
+    private String modify(String name) {
+        if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            return name;
+        }
+        String domain = UserCoreUtil.extractDomainFromName(name);
+        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(name);
+        String modifiedName = UserCoreUtil.addDomainToName(nameWithoutDomain, domain);
+        return modifiedName;
+    }
 }

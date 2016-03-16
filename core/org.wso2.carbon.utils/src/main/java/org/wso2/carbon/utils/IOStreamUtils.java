@@ -42,10 +42,19 @@ public class IOStreamUtils {
     public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
         byte[] buf = new byte[BYTE_ARRAY_SIZE];
         int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
+        try {
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+            }
+            try {
+                out.close();
+            } catch (IOException e) {
+            }
         }
-        in.close();
-        out.close();
     }
 }

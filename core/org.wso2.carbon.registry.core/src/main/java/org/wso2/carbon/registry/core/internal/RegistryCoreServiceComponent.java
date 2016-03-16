@@ -61,6 +61,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementPermission;
 import java.util.LinkedList;
@@ -148,8 +149,7 @@ public class RegistryCoreServiceComponent {
     // Creates a queue service for logging events
     private void startLogWriter(RegistryService registryService) throws RegistryException {
 
-        Registry registry = registryService.getRegistry(
-                CarbonConstants.REGISTRY_SYSTEM_USERNAME);
+        Registry registry = registryService.getRegistry(CarbonConstants.REGISTRY_SYSTEM_USERNAME);
         final RegistryContext registryContext = registry.getRegistryContext();
         if (bundleContext != null) {
             bundleContext.registerService(LogQueue.class.getName(),
@@ -578,10 +578,21 @@ public class RegistryCoreServiceComponent {
     // Gets registry service for the Embedded Registry
     private RegistryService getEmbeddedRegistryService() throws Exception {
 
-        InputStream configInputStream = new FileInputStream(getConfigFile());
-        RegistryContext registryContext =
-                RegistryContext.getBaseInstance(configInputStream, realmService);
-        registryContext.setSetup(System.getProperty(RegistryConstants.SETUP_PROPERTY) != null);
+        InputStream configInputStream = null;
+        RegistryContext registryContext;
+        try {
+            configInputStream = new FileInputStream(getConfigFile());
+            registryContext = RegistryContext.getBaseInstance(configInputStream, realmService);
+            registryContext.setSetup(System.getProperty(RegistryConstants.SETUP_PROPERTY) != null);
+        } finally {
+            if (configInputStream != null) {
+                try {
+                    configInputStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream" ,e);
+                }
+            }
+        }
         return new EmbeddedRegistryService(registryContext);
     }
 

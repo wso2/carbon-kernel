@@ -3,7 +3,7 @@
     <parent>
         <artifactId>org.wso2.carbon.integration.tests.integration</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>4.4.1</version>
+        <version>4.4.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -373,6 +373,11 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.automationutils</groupId>
+            <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+            <version>4.4.1</version>
         </dependency>
     </dependencies>
 

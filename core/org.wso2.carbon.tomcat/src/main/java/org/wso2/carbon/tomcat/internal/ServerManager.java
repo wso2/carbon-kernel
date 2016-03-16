@@ -28,6 +28,7 @@ import org.wso2.securevault.SecurityConstants;
 import org.wso2.securevault.secret.SecretManager;
 import org.xml.sax.SAXException;
 
+import javax.naming.Context;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,6 +49,7 @@ public class ServerManager {
     private SecretResolver resolver;
     static ClassLoader bundleCtxtClassLoader;
     private static final String SVNS = "svns";
+    private static final String CARBON_URL_CONTEXT_FACTORY_PKG_PREFIX = "org.wso2.carbon.tomcat.jndi";
 
 
     /**
@@ -72,6 +74,17 @@ public class ServerManager {
             System.setProperty("catalina.base", System.getProperty("carbon.home") + File.separator +
                     "lib" + File.separator + "tomcat");
         }
+
+        String value = CARBON_URL_CONTEXT_FACTORY_PKG_PREFIX;
+        String oldValue = System.getProperty(Context.URL_PKG_PREFIXES);
+        if (oldValue != null) {
+            if (oldValue.contains(CARBON_URL_CONTEXT_FACTORY_PKG_PREFIX)) {
+                value = oldValue;
+            } else {
+                value = CARBON_URL_CONTEXT_FACTORY_PKG_PREFIX + ":" + oldValue;
+            }
+        }
+        System.setProperty(Context.URL_PKG_PREFIXES, value);
 
         tomcat = new CarbonTomcat();
 

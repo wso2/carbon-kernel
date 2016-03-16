@@ -434,8 +434,13 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             mainOutMsgContext.getAxisService().addSchema(tenantOutMsgContext.getAxisService().getSchema());
             mainOutMsgContext.setEnvelope(tenantOutMsgContext.getEnvelope());
 	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                  tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
-            AxisEngine.send(mainOutMsgContext);
+                                      tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
+            try {
+                AxisEngine.send(mainOutMsgContext);
+            } finally {
+                mainOutMsgContext.getAxisService().getSchema()
+                                 .removeAll(tenantOutMsgContext.getAxisService().getSchema());
+            }
         }
     }
 
@@ -550,7 +555,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 //RESTUtil.processURLRequest(tenantInMsgCtx, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_POST) ||
-                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PUT)) {
+                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PUT) ||
+                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PATCH)) {
                 //RESTUtil.processXMLRequest(tenantInMsgCtx, in, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else {

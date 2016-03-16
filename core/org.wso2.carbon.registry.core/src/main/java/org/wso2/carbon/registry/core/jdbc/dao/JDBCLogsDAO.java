@@ -386,8 +386,13 @@ public class JDBCLogsDAO implements LogsDAO {
         boolean queryStarted = false;
         sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action);
 
+        if ("ASC".equals(sortOrder)) {
+            descending = false;
+        }
         if (descending) {
             sql = sql + " ORDER BY REG_LOGGED_TIME DESC";
+        } else {
+            sql = sql + " ORDER BY REG_LOGGED_TIME ASC";
         }
         try {
             if (enableApiPagination == null || enableApiPagination.equals("true")) {

@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-service-stubs</artifactId>
-        <version>4.4.1</version>
+        <version>4.4.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -49,7 +49,7 @@
 				    <pathelement location="${settings.localRepository}/org/apache/ws/commons/axiom/wso2/axiom/${orbit.version.axiom}/axiom-${orbit.version.axiom}.jar" />
 				    <pathelement location="${settings.localRepository}/wsdl4j/wso2/wsdl4j/${orbit.version.wsdl4j}/wsdl4j-${orbit.version.wsdl4j}.jar" />
 				    <pathelement location="${settings.localRepository}/commons-logging/commons-logging/${version.commons.logging}/commons-logging-${version.commons.logging}.jar" />
-				    <pathelement location="${settings.localRepository}/org/apache/neethi/wso2/neethi/${orbit.version.neethi}/neethi-${orbit.version.neethi}.jar" />
+				    <pathelement location="${settings.localRepository}/org/wso2/orbit/org/apache/neethi/neethi/${orbit.version.neethi}/neethi-${orbit.version.neethi}.jar" />
 				    <pathelement location="${settings.localRepository}/org/apache/ws/commons/schema/wso2/XmlSchema/${orbit.version.xmlschema}/XmlSchema-${orbit.version.xmlschema}.jar" />
 
                                 </path>

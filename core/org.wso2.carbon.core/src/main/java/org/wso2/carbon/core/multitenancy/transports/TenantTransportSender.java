@@ -45,6 +45,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String SERVICE_PREFIX = "SERVICE_PREFIX";
     private static final String REQUEST_HOST_HEADER = "REQUEST_HOST_HEADER";
     private static final String HTTP_ETAG = "HTTP_ETAG";
+    private static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -202,6 +203,10 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         if (msgContext.getProperty(REQUEST_HOST_HEADER) != null) {
             superTenantOutMessageContext.setProperty(REQUEST_HOST_HEADER,
                                                      msgContext.getProperty(REQUEST_HOST_HEADER));
+        }
+
+        if (msgContext.getProperty(NO_ENTITY_BODY) != null) {
+            superTenantOutMessageContext.setProperty(NO_ENTITY_BODY, msgContext.getProperty(NO_ENTITY_BODY));
         }
 
         EndpointReference epr = getDestinationEPR(msgContext);

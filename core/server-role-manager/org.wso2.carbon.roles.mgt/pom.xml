@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>server-role-manager</artifactId>
-        <version>4.4.1</version>
+        <version>4.4.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

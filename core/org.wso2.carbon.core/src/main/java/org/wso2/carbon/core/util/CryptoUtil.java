@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.i18n.Messages;
@@ -46,8 +47,6 @@ public class CryptoUtil {
     private RegistryService registryService;
 
     private static CryptoUtil instance = null;
-
-
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -114,25 +113,31 @@ public class CryptoUtil {
      * @throws CryptoException On error during encryption
      */
     public byte[] encrypt(byte[] plainTextBytes) throws CryptoException {
+
+        byte[] encryptedKey;
+        SymmetricEncryption encryption = SymmetricEncryption.getInstance();
+
         try {
+            if (Boolean.valueOf(encryption.getSymmetricKeyEncryptEnabled())) {
+                encryptedKey = encryption.encryptWithSymmetricKey(plainTextBytes);
+            } else {
+                KeyStoreManager keyMan = KeyStoreManager.getInstance(
+                        MultitenantConstants.SUPER_TENANT_ID,
+                        this.getServerConfigService(),
+                        this.getRegistryService());
+                KeyStore keyStore = keyMan.getPrimaryKeyStore();
 
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(
-                    MultitenantConstants.SUPER_TENANT_ID,
-                    this.getServerConfigService(),
-                    this.getRegistryService());
-            KeyStore keyStore = keyMan.getPrimaryKeyStore();
+                Certificate[] certs = keyStore.getCertificateChain(keyAlias);
+                Cipher cipher = Cipher.getInstance("RSA", "BC");
+                cipher.init(Cipher.ENCRYPT_MODE, certs[0].getPublicKey());
 
-            Certificate[] certs = keyStore.getCertificateChain(keyAlias);
-            Cipher cipher = Cipher.getInstance("RSA", "BC");
-            cipher.init(Cipher.ENCRYPT_MODE, certs[0].getPublicKey());
-
-            return cipher.doFinal(plainTextBytes);
-
+                encryptedKey = cipher.doFinal(plainTextBytes);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new
                     CryptoException(Messages.getMessage("erorDuringEncryption"), e);
         }
+        return encryptedKey;
     }
 
     /**
@@ -156,25 +161,31 @@ public class CryptoUtil {
      * @throws CryptoException On an error during decryption
      */
     public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
+
+        byte[] decyptedValue;
+        SymmetricEncryption encryption = SymmetricEncryption.getInstance();
+
         try {
+            if (Boolean.valueOf(encryption.getSymmetricKeyEncryptEnabled())) {
+                decyptedValue = encryption.decryptWithSymmetricKey(cipherTextBytes);
+            } else {
+                KeyStoreManager keyMan = KeyStoreManager.getInstance(
+                        MultitenantConstants.SUPER_TENANT_ID,
+                        this.getServerConfigService(),
+                        this.getRegistryService());
+                KeyStore keyStore = keyMan.getPrimaryKeyStore();
+                PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias,
+                        keyPass.toCharArray());
 
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(
-                    MultitenantConstants.SUPER_TENANT_ID,
-                    this.getServerConfigService(),
-                    this.getRegistryService());
-            KeyStore keyStore = keyMan.getPrimaryKeyStore();
-            PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias,
-                    keyPass.toCharArray());
+                Cipher cipher = Cipher.getInstance("RSA", "BC");
+                cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-            Cipher cipher = Cipher.getInstance("RSA", "BC");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-
-            return cipher.doFinal(cipherTextBytes);
-
+                decyptedValue = cipher.doFinal(cipherTextBytes);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new CryptoException("errorDuringDecryption", e);
         }
+        return decyptedValue;
     }
 
     /**

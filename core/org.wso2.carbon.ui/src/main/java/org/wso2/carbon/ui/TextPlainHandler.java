@@ -27,15 +27,14 @@ import java.net.URLConnection;
 public class TextPlainHandler extends ContentHandler {
 
     public Object getContent(URLConnection conn) throws IOException {
-        InputStream in = conn.getInputStream();
-        InputStreamReader r = new InputStreamReader(in);
         StringBuffer sb = new StringBuffer();
-        int c;
-        while ((c = r.read()) >= 0) {
-            sb.append((char) c);
+        try (InputStream in = conn.getInputStream();
+             InputStreamReader r = new InputStreamReader(in)) {
+            int c;
+            while ((c = r.read()) >= 0) {
+                sb.append((char) c);
+            }
         }
-        r.close();
-        in.close();
         return sb.toString();
     }
 }

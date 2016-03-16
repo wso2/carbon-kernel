@@ -18,10 +18,9 @@ package org.wso2.carbon.user.core.authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -38,6 +37,7 @@ import javax.cache.Caching;
 public class AuthorizationCache {
     public static final String AUTHORIZATION_CACHE_MANAGER = "AUTHORIZATION_CACHE_MANAGER";
     public static final String AUTHORIZATION_CACHE_NAME = "AUTHORIZATION_CACHE";
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static Log log = LogFactory.getLog(AuthorizationCache.class);
     private static Boolean isEnable = true;
 
@@ -107,6 +107,9 @@ public class AuthorizationCache {
     public void addToCache(String serverId, int tenantId, String userName,
                            String resourceId, String action, boolean isAuthorized) {
 
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         // Element already in the cache. Remove it first
         clearCacheEntry(serverId, tenantId, userName, resourceId, action);
 
@@ -144,7 +147,9 @@ public class AuthorizationCache {
             throw new AuthorizationCacheException(
                     "Authorization information not found in the cache.");
         }
-
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         AuthorizationKey key = new AuthorizationKey(serverId, tenantId,
                 userName, resourceId, action);
         if (!cache.containsKey(key)) {
@@ -189,6 +194,9 @@ public class AuthorizationCache {
         if (isCacheNull(cache)) {
             return;
         }
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
 
         AuthorizationKey key = new AuthorizationKey(serverId, tenantId,
                 userName, resourceId, action);
@@ -208,6 +216,9 @@ public class AuthorizationCache {
         // check for null
         if (isCacheNull(cache)) {
             return;
+        }
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
         }
         for (Cache.Entry<AuthorizationKey, AuthorizeCacheEntry> entry : cache) {
             AuthorizationKey authorizationKey = entry.getKey();
@@ -309,5 +320,29 @@ public class AuthorizationCache {
      */
     public void disableCache() {
         isEnable = false;
+    }
+
+    private boolean isCaseSensitiveUsername(String username, int tenantId) {
+
+        if (UserStoreMgtDSComponent.getRealmService() != null) {
+            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+            //as an example when running the unit tests.
+            try {
+                if (UserStoreMgtDSComponent.getRealmService().getTenantUserRealm(tenantId) != null) {
+                    UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                            .getTenantUserRealm(tenantId).getUserStoreManager();
+                    UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                            (UserCoreUtil.extractDomainFromName(username));
+                    String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                            .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+                }
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+                }
+            }
+        }
+        return true;
     }
 }

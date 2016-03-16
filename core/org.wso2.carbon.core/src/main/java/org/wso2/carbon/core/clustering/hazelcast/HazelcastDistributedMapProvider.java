@@ -103,7 +103,9 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
 
                     @Override
                     public void mapCleared(MapEvent mapEvent) {
-                        map.clear();
+                        if (!mapEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
+                            entryListener.mapCleared();
+                        }
                     }
                 }, false);
             }

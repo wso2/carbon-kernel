@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.user.core.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -44,6 +45,8 @@ public class DatabaseUtil {
     private static final int DEFAULT_MAX_IDLE = 6;
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
     private static DataSource dataSource = null;
+    private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -153,6 +156,14 @@ public class DatabaseUtil {
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
             poolProperties.setValidationQuery(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.VALIDATION_QUERY));
+            poolProperties.setTestOnBorrow(true);
+        }
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL)) &&
+            StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
+            poolProperties.setValidationInterval(Long.parseLong(realmConfig.getUserStoreProperty(
+                    VALIDATION_INTERVAL)));
+        } else {
+            poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
@@ -298,7 +309,7 @@ public class DatabaseUtil {
                 String name = rs.getString(1);
                 String domain = rs.getString(2);
                 if (domain != null) {
-                    UserCoreUtil.addDomainToName(name, domain);
+                    name = UserCoreUtil.addDomainToName(name, domain);
                 }
                 lst.add(name);
             }
@@ -538,11 +549,7 @@ public class DatabaseUtil {
                     }
                 }
             }
-            int count = prepStmt.executeUpdate();
-            /*if (log.isDebugEnabled()) {
-                log.debug("Executed Query is " + sqlStmt + " and number of updated rows :: "
-                        + count);
-            }*/
+            prepStmt.executeUpdate();
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {

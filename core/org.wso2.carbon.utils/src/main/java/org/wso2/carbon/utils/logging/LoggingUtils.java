@@ -69,7 +69,8 @@ public class LoggingUtils {
         tenantAwareLoggingEvent = new TenantAwareLoggingEvent(loggingEvent.fqnOfCategoryClass,
                                                               logger, loggingEvent.timeStamp,
                                                               loggingEvent.getLevel(),
-                                                              loggingEvent.getMessage(), throwable);
+                                                              loggingEvent.getMessage(),
+                                                              throwable);
         tenantAwareLoggingEvent.setTenantId(Integer.toString(tenantId));
         tenantAwareLoggingEvent.setServiceName(serviceName);
         return tenantAwareLoggingEvent;
@@ -99,4 +100,5 @@ public class LoggingUtils {
             return Level.TRACE;
         }
     }
+
 }

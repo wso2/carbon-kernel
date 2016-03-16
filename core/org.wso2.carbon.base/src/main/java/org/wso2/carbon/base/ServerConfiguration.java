@@ -304,6 +304,9 @@ public class ServerConfiguration implements ServerConfigurationService {
 			String sysProp = text.substring(indexOfStartingChars + 2,
 					indexOfClosingBrace);
 			String propValue = System.getProperty(sysProp);
+			if (propValue == null) {
+				propValue = System.getenv(sysProp);
+			}
 			if (propValue != null) {
 				text = text.substring(0, indexOfStartingChars) + propValue
 						+ text.substring(indexOfClosingBrace + 1);
