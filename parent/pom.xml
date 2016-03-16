@@ -443,7 +443,7 @@
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <maven.archetype.version>2.4</maven.archetype.version>
 
-        <!-- Following property should be removed once CARBON-15810 is fixed-->
+        <!-- TODO: Following property should be removed once CARBON-15810 is fixed-->
         <maven.bundle.plugin.version>2.5.4</maven.bundle.plugin.version>
 
         <!--Pax Exam Versions-->
