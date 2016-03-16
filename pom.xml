@@ -31,9 +31,9 @@
     </parent>
 
     <scm>
-        <url>https://github.com/wso2/carbon-identity.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/carbon-identity.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/carbon-identity.git</connection>
+        <url>https://github.com/wso2/identity-framework..git</url>
+        <developerConnection>scm:git:https://github.com/wso2/identity-framework.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/identity-framework.git</connection>
         <tag>HEAD</tag>
     </scm>
 
