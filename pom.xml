@@ -43,10 +43,10 @@
         <module>components/entitlement</module>
         <module>components/identity-core</module>
         <module>components/application-mgt</module>
+        <module>components/user-mgt</module>
         <module>components/identity-mgt</module>
         <module>components/notification-mgt</module>
         <module>components/provisioning</module>
-        <module>components/user-mgt</module>
         <module>components/user-store</module>
         <module>components/idp-mgt</module>
         <module>components/claim-mgt</module>
@@ -58,6 +58,7 @@
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
+        <module>features/user-mgt</module>
         <module>features/identity-mgt</module>
         <module>features/xacml</module>
         <module>features/authentication-framework</module>
@@ -66,7 +67,6 @@
         <module>features/notification-mgt</module>
         <module>features/idp-mgt</module>
         <module>features/directory-server-manager</module>
-        <module>features/user-mgt</module>
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
@@ -1076,6 +1076,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
@@ -1245,6 +1250,7 @@
                 <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
+
 
             <!--Feature Dependencies Ends-->
 
