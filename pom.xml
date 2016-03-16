@@ -18,7 +18,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.identity</groupId>
-    <artifactId>carbon-identity</artifactId>
+    <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
     <version>5.0.9-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
@@ -54,6 +54,7 @@
         <module>components/security-mgt</module>
         <module>components/workflow-mgt</module>
         <module>components/policy-editor</module>
+        <module>components/carbon-authenticators</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -68,6 +69,7 @@
         <module>features/user-mgt</module>
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
+        <module>features/carbon-authenticators</module>
     </modules>
 
     <repositories>
