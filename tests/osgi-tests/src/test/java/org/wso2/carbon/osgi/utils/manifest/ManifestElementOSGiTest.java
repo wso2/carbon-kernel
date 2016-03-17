@@ -16,7 +16,6 @@
 package org.wso2.carbon.osgi.utils.manifest;
 
 import org.ops4j.pax.exam.Configuration;
-import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -28,8 +27,9 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
-import org.wso2.carbon.osgi.utils.OSGiTestUtils;
+import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,14 +52,13 @@ public class ManifestElementOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        OSGiTestUtils.setupOSGiTestEnvironment();
 
-        Option[] options = CoreOptions.options(
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId(
-                        "org.wso2.carbon").versionAsInProject()
-        );
+        List<Option> optionList = new ArrayList<>();
+        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+                .versionAsInProject());
 
-        return OSGiTestUtils.getDefaultPaxOptions(options);
+        optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
+        return optionList.toArray(new Option[optionList.size()]);
     }
 
     @Test
