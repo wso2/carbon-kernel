@@ -39,6 +39,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1708,7 +1709,7 @@ public class RemoteRegistry implements Registry {
     // the implementation for dump
     private void restore(String path, Reader reader, AbderaClient abderaClient)
             throws RegistryException {
-        InputStream is = new ReaderInputStream(reader);
+        InputStream is = new ReaderInputStream(reader, StandardCharsets.UTF_8);
         ClientResponse resp = abderaClient.post(baseURI + APPConstants.ATOM +
                 encodeURL(path +
                         RegistryConstants.URL_SEPARATOR +

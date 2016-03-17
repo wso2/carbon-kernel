@@ -36,6 +36,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.*;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -194,7 +195,7 @@ public class CheckInCommand {
         try {
             ZipInputStream zis = new ZipInputStream(new FileInputStream(inputFile));
             zis.getNextEntry();
-            Reader reader = new InputStreamReader(zis);
+            Reader reader = new InputStreamReader(zis, StandardCharsets.UTF_8);
             registry.restore(checkInPath, reader);
         } catch (FileNotFoundException e) {
             throw new SynchronizationException(MessageCode.FILE_DOES_NOT_EXIST, e,
