@@ -31,7 +31,7 @@
     </parent>
 
     <scm>
-        <url>https://github.com/wso2/identity-framework..git</url>
+        <url>https://github.com/wso2/identity-framework.git</url>
         <developerConnection>scm:git:https://github.com/wso2/identity-framework.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/identity-framework.git</connection>
         <tag>HEAD</tag>
