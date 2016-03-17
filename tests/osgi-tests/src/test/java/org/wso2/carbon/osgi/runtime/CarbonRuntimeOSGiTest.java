@@ -64,8 +64,8 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        copyCarbonYAML();
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        copyCarbonYAML();
         return optionList.toArray(new Option[optionList.size()]);
     }
 
