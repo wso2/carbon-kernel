@@ -17,7 +17,9 @@ package org.wso2.carbon.osgi;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.osgi.utils.OSGiTestUtils;
+import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+
+import java.util.List;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -35,7 +37,7 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
      */
     public Option[] createConfiguration() {
         //setting up the environment
-        OSGiTestUtils.setupOSGiTestEnvironment();
-        return OSGiTestUtils.getDefaultPaxOptions();
+        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        return optionList.toArray(new Option[optionList.size()]);
     }
 }
