@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,15 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.osgi;
+package org.wso2.carbon.osgi.jmx;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.testng.listener.PaxExam;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -31,54 +27,44 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import javax.inject.Inject;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /**
- * Base OSGi class to test the OSGi status of the org.wso2.carbon.core bundle.
+ * JMXOSGiTest class is to test the CarbonJMX
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
-@Listeners(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
-public class BaseOSGiTest {
+@Listeners(org.ops4j.pax.exam.testng.listener.PaxExam.class)
+@ExamReactorStrategy(org.ops4j.pax.exam.spi.reactors.PerClass.class)
+public class JMXOSGiTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseOSGiTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(JMXOSGiTest.class);
 
     @Configuration
     public Option[] createConfiguration() {
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
         copyCarbonYAML();
-        return optionList.toArray(new Option[optionList.size()]);
-    }
-
-    @Inject
-    private BundleContext bundleContext;
+        return optionList.toArray(new Option[optionList.size()]);    }
 
     @Inject
     private CarbonServerInfo carbonServerInfo;
 
     @Test
-    public void testBundleContextStatus() {
-        Assert.assertNotNull(bundleContext, "Bundle Context is null");
-    }
+    public void testMBeanRegistration() throws Exception {
+        JMXCustom test = new JMXCustom();
+        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXCustom");
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        mBeanServer.registerMBean(test, mbeanName);
 
-    @Test
-    public void testCarbonCoreBundleStatus() {
-
-        Bundle coreBundle = null;
-        for (Bundle bundle : bundleContext.getBundles()) {
-            if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {
-                coreBundle = bundle;
-                break;
-            }
-        }
-        Assert.assertNotNull(coreBundle, "Carbon Core bundle not found");
-        Assert.assertEquals(coreBundle.getState(), Bundle.ACTIVE, "Carbon Core Bundle is not activated");
+        Assert.assertTrue(mBeanServer.isRegistered(mbeanName), "MBean is not registered");
     }
 
     /**
@@ -92,7 +78,7 @@ public class BaseOSGiTest {
             basedir = Paths.get(".").toString();
         }
         try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
             Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf", "carbon.yml"),
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
