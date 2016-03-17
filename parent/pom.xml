@@ -464,8 +464,8 @@
         <equinox.osgi.compatibility.statre.version>1.0.1.v20140709-1414</equinox.osgi.compatibility.statre.version>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>1.8.5</pax.logging.api.version>
-        <pax.logging.log4j2.version>1.8.5</pax.logging.log4j2.version>
+        <pax.logging.api.version>1.8.4</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.8.4</pax.logging.log4j2.version>
         <org.eclipse.equinox.cm.version>1.1.0.v20131021-1936</org.eclipse.equinox.cm.version>
 
         <!--Maven Plugins -->
