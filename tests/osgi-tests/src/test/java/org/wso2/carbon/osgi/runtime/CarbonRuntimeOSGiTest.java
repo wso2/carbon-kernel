@@ -31,13 +31,14 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.utils.OSGiTestUtils;
+import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -63,9 +64,9 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        OSGiTestUtils.setupOSGiTestEnvironment();
+        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
         copyCarbonYAML();
-        return OSGiTestUtils.getDefaultPaxOptions();
+        return optionList.toArray(new Option[optionList.size()]);
     }
 
     @Test

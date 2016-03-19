@@ -14,9 +14,9 @@
 #   limitations under the License.
 ################################################################################
 
-id: carbon-kernel
-name: WSO2 Carbon Kernel
-version: 5.0.0
+id: ${server.key}
+name: ${server.name}
+version: ${server.version}
 
 # Ports used by this server
 ports:
@@ -40,22 +40,21 @@ deployment:
 # executions.
  updateInterval: 15
 
-
 # StartupOrderResolver related configurations
 startupResolver:
 # Configuration for the timer task which checks for satisfiable RequiredCapabilityListeners periodically
  capabilityListenerTimer:
-  delay: 200
-  period: 200
+  delay: 20
+  period: 20
 
 # Configuration for the timer task which checks for pending Capabilities
  pendingCapabilityTimer:
-  delay: 60000
+  delay: 30000
   period: 30000
 
 # JMX Configuration
 jmx:
- enabled: false
+ enabled: true
  hostName: "127.0.0.1"
  rmiServerPort: 11111
  rmiRegistryPort: 9999

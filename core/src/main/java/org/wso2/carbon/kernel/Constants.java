@@ -28,6 +28,8 @@ public final class Constants {
 
     public static final String START_TIME = "carbon.start.time";
 
+    public static final String LOGIN_MODULE_ENTRY = "CarbonSecurityConfig";
+
     /**
      * Remove default constructor and make it not available to initialize.
      */
