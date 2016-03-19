@@ -54,14 +54,14 @@ public class LoggingConfigurationTest {
 
     @Test(dependsOnMethods = "testRegisterNullManagedService")
     public void testRegisterReadingLog4J2Config() throws FileNotFoundException, ConfigurationException {
-        System.setProperty(CARBON_HOME, getTestResourceFile("xsd").getAbsolutePath());
+        System.setProperty(CARBON_HOME, getTestResourceFile("carbon-home").getAbsolutePath());
         loggingConfiguration.register(new CustomManagedService());
         System.clearProperty(CARBON_HOME);
     }
 
     @Test(dependsOnMethods = "testRegisterReadingLog4J2Config")
     public void testRegisterReadingNonExistingfile() throws ConfigurationException {
-        System.setProperty(CARBON_HOME, getTestResourceFile("carbon-repo").getAbsolutePath());
+        System.setProperty(CARBON_HOME, getTestResourceFile("fake-carbon-home").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());
         } catch (IllegalStateException e) {

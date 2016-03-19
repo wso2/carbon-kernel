@@ -77,7 +77,7 @@ public class LoggingConfiguration {
         }
         File configDir = getCarbonConfigHome().toFile();
         if (!configDir.exists()) {
-            return;
+            throw new IllegalStateException("Carbon configuration directory is not found.");
         }
         File loggingConfigFile = new File(configDir, LOG4J2_CONFIG_FILE_NAME);
         if (loggingConfigFile.exists() && loggingConfigFile.isFile()) {
@@ -99,7 +99,7 @@ public class LoggingConfiguration {
      *
      * @return returns the Carbon Configuration directory path
      */
-    public static Path getCarbonConfigHome() {
+    private Path getCarbonConfigHome() {
         String carbonHome = System.getProperty(CARBON_HOME);
         if (carbonHome == null) {
             carbonHome = System.getenv(CARBON_HOME_ENV);
