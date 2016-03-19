@@ -13,29 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.logging;
+package org.wso2.carbon.logging;
 
+import org.osgi.service.cm.ConfigurationException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
-import org.wso2.carbon.kernel.deployment.BaseTest;
+import org.wso2.carbon.logging.internal.LoggingConfiguration;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Unit testing class for org.wso2.carbon.kernel.internal.logging.LoggingConfiguration.
  *
  * @since 5.0.0
  */
-public class LoggingConfigurationTest extends BaseTest {
+public class LoggingConfigurationTest {
     LoggingConfiguration loggingConfiguration = null;
 
-    /**
-     * @param testName
-     */
-    public LoggingConfigurationTest(String testName) {
-        super(testName);
-    }
+    private static final String CARBON_HOME = "carbon.home";
+
+    protected Path testDir = Paths.get(new File(".").getAbsolutePath(), "src", "test");
+
 
     @Test
     public void testGetInstance() {
@@ -44,23 +45,23 @@ public class LoggingConfigurationTest extends BaseTest {
     }
 
     @Test(dependsOnMethods = "testGetInstance", expectedExceptions = IllegalStateException.class,
-            expectedExceptionsMessageRegExp = "Configuration admin service is not available.")
-    public void testRegisterNullManagedService() throws FileNotFoundException {
+            expectedExceptionsMessageRegExp = "Configuration admin managed service is not available.")
+    public void testRegisterNullManagedService() throws FileNotFoundException, ConfigurationException {
         loggingConfiguration.register(null);
         Assert.assertTrue(false, "Logger register method did not throw an exception when passing null as the " +
                 "MangedService");
     }
 
     @Test(dependsOnMethods = "testRegisterNullManagedService")
-    public void testRegisterReadingLog4J2Config() throws FileNotFoundException {
-        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("xsd").getAbsolutePath());
+    public void testRegisterReadingLog4J2Config() throws FileNotFoundException, ConfigurationException {
+        System.setProperty(CARBON_HOME, getTestResourceFile("xsd").getAbsolutePath());
         loggingConfiguration.register(new CustomManagedService());
-        System.clearProperty(Constants.CARBON_HOME);
+        System.clearProperty(CARBON_HOME);
     }
 
     @Test(dependsOnMethods = "testRegisterReadingLog4J2Config")
-    public void testRegisterReadingNonExistingfile() {
-        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("carbon-repo").getAbsolutePath());
+    public void testRegisterReadingNonExistingfile() throws ConfigurationException {
+        System.setProperty(CARBON_HOME, getTestResourceFile("carbon-repo").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());
         } catch (IllegalStateException e) {
@@ -68,7 +69,11 @@ public class LoggingConfigurationTest extends BaseTest {
         } catch (FileNotFoundException e) {
             Assert.assertTrue(true);
         }
-        System.clearProperty(Constants.CARBON_HOME);
+        System.clearProperty(CARBON_HOME);
+    }
+
+    private File getTestResourceFile(String relativePath) {
+        return Paths.get(testDir.toString(), "resources", relativePath).toFile();
     }
 
 }
