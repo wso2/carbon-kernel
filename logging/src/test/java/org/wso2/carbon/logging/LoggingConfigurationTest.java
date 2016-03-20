@@ -59,8 +59,15 @@ public class LoggingConfigurationTest {
         System.clearProperty(CARBON_HOME);
     }
 
-    @Test(dependsOnMethods = "testRegisterReadingLog4J2Config")
-    public void testRegisterReadingNonExistingfile() throws ConfigurationException {
+    @Test(dependsOnMethods = "testRegisterNullManagedService", expectedExceptions = IllegalStateException.class,
+            expectedExceptionsMessageRegExp = "Carbon configuration directory is not found.")
+    public void testRegisterReadingNonExistingConfigDirectory() throws FileNotFoundException, ConfigurationException {
+        System.clearProperty(CARBON_HOME);
+        loggingConfiguration.register(new CustomManagedService());
+    }
+
+    @Test(dependsOnMethods = "testRegisterReadingNonExistingConfigDirectory")
+    public void testRegisterReadingNonExistingFile() throws ConfigurationException {
         System.setProperty(CARBON_HOME, getTestResourceFile("fake-carbon-home").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());

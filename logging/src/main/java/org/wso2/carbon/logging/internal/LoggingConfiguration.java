@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.Optional;
@@ -75,7 +74,7 @@ public class LoggingConfiguration {
         if (managedService == null) {
             throw new IllegalStateException("Configuration admin managed service is not available.");
         }
-        File configDir = getCarbonConfigHome().toFile();
+        File configDir = getCarbonConfigHome();
         if (!configDir.exists()) {
             throw new IllegalStateException("Carbon configuration directory is not found.");
         }
@@ -99,13 +98,16 @@ public class LoggingConfiguration {
      *
      * @return returns the Carbon Configuration directory path
      */
-    private Path getCarbonConfigHome() {
-        String carbonHome = Optional.ofNullable(System.getProperty(CARBON_HOME))
-                .orElseGet(() -> {
-                    String carbonHomeEnvVar = System.getenv(CARBON_HOME_ENV);
-                    System.setProperty(CARBON_HOME, carbonHomeEnvVar);
-                    return carbonHomeEnvVar;
-                });
-        return Paths.get(carbonHome, "conf");
+    private File getCarbonConfigHome() {
+        Optional<String> carbonHomeOptional = Optional.ofNullable(Optional
+                .ofNullable(System.getProperty(CARBON_HOME))
+                .orElseGet(() -> System.getenv(CARBON_HOME_ENV)));
+
+        return carbonHomeOptional
+                .map(carbonHome -> {
+                    System.setProperty(CARBON_HOME, carbonHome);
+                    return Paths.get(carbonHome, "conf").toFile();
+                })
+                .orElse(new File(""));
     }
 }
