@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
+import java.util.Optional;
 
 /**
  * This class creates and initializes the logging configurations based on log4j2 for pax logging framework.
@@ -62,16 +63,15 @@ public class LoggingConfiguration {
     /**
      * This method will configure the logging framework with the log4j2 configuration. It uses the ManagedService
      * to update the loggingConfigFile location that is looked up by the pax logging framework.
+     * An IllegalStateException will be thrown in the absence of managedService instance.
      *
-     * @param managedService managed service
-     * @throws IllegalStateException         this is thrown if the managedService instance is not set
+     * @param managedService managed service instance to configure pax logging
      * @throws java.io.FileNotFoundException this is thrown if the log4j2 config file is not found at the carbon default
      *                                       conf location
      * @throws ConfigurationException        this is thrown if any error occurred while update of config admin service
      *                                       properties for pax-logging is being invoked.
      */
-    public void register(ManagedService managedService)
-            throws IllegalStateException, FileNotFoundException, ConfigurationException {
+    public void register(ManagedService managedService) throws FileNotFoundException, ConfigurationException {
         if (managedService == null) {
             throw new IllegalStateException("Configuration admin managed service is not available.");
         }
@@ -100,11 +100,12 @@ public class LoggingConfiguration {
      * @return returns the Carbon Configuration directory path
      */
     private Path getCarbonConfigHome() {
-        String carbonHome = System.getProperty(CARBON_HOME);
-        if (carbonHome == null) {
-            carbonHome = System.getenv(CARBON_HOME_ENV);
-            System.setProperty(CARBON_HOME, carbonHome);
-        }
+        String carbonHome = Optional.ofNullable(System.getProperty(CARBON_HOME))
+                .orElseGet(() -> {
+                    String carbonHomeEnvVar = System.getenv(CARBON_HOME_ENV);
+                    System.setProperty(CARBON_HOME, carbonHomeEnvVar);
+                    return carbonHomeEnvVar;
+                });
         return Paths.get(carbonHome, "conf");
     }
 }

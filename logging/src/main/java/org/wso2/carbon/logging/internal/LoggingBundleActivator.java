@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LoggingBundleActivator implements BundleActivator {
     private static final Logger logger = LoggerFactory.getLogger(LoggingBundleActivator.class);
-    private LoggingConfiguration loggingConfiguration = LoggingConfiguration.getInstance();
 
     /**
      * The activate method which called when the bundle is started. This will check for the presence of
@@ -44,12 +43,12 @@ public class LoggingBundleActivator implements BundleActivator {
         if (reference != null) {
             //configuring logging using the managed config admin service
             ManagedService managedService = (ManagedService) bundleContext.getService(reference);
-            loggingConfiguration.register(managedService);
+            LoggingConfiguration.getInstance().register(managedService);
             if (logger.isDebugEnabled()) {
                 logger.debug("LoggingBundleActivator started successfully");
             }
         } else {
-            //configuration admin service is a must to configure logging and to start carbon.
+            //configuration managed admin service is a must to configure logging and to start carbon.
             throw new IllegalStateException("Cannot start carbon core bundle since configuration " +
                     "admin service is not available");
         }
