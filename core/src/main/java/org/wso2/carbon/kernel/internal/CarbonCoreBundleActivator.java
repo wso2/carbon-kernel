@@ -17,15 +17,12 @@ package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
-import org.wso2.carbon.kernel.internal.logging.LoggingConfiguration;
 
 /**
  * Activator class for carbon core.
@@ -34,22 +31,11 @@ import org.wso2.carbon.kernel.internal.logging.LoggingConfiguration;
  */
 public class CarbonCoreBundleActivator implements BundleActivator {
     private static final Logger logger = LoggerFactory.getLogger(CarbonCoreBundleActivator.class);
-    private LoggingConfiguration loggingConfiguration = LoggingConfiguration.getInstance();
-    private ManagedService configAdminService;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         DataHolder.getInstance().setBundleContext(bundleContext);
-        ServiceReference reference = bundleContext.getServiceReference(ManagedService.class);
-        if (reference != null) {
-            //configuring logging using the config admin service
-            configAdminService = (ManagedService) bundleContext.getService(reference);
-            loggingConfiguration.register(configAdminService);
-        } else {
-            //Configuration admin service is a must to start carbon core.
-            throw new IllegalStateException("Cannot start carbon core bundle since configuration " +
-                    "admin service is not available");
-        }
+
         // 1) Find to initialize the Carbon configuration provider
         CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
 
@@ -65,9 +51,6 @@ public class CarbonCoreBundleActivator implements BundleActivator {
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-        if (configAdminService != null) {
-            loggingConfiguration.unregister(configAdminService);
-        }
         logger.debug("Carbon core bundle is stopped successfully");
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,18 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.logging;
+package org.wso2.carbon.logging.internal;
 
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.internal.Constants;
-import org.wso2.carbon.kernel.utils.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Paths;
 import java.util.Hashtable;
+import java.util.Optional;
 
 /**
  * This class creates and initializes the logging configurations based on log4j2 for pax logging framework.
@@ -37,6 +37,11 @@ public class LoggingConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
     private static LoggingConfiguration instance = new LoggingConfiguration();
+
+    private static final String CARBON_HOME = "carbon.home";
+    private static final String CARBON_HOME_ENV = "CARBON_HOME";
+    private static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";
+    private static final String LOG4J2_CONFIG_FILE_NAME = "log4j2.xml";
 
     /**
      * Singleton LoggingConfiguration class.
@@ -57,33 +62,27 @@ public class LoggingConfiguration {
     /**
      * This method will configure the logging framework with the log4j2 configuration. It uses the ManagedService
      * to update the loggingConfigFile location that is looked up by the pax logging framework.
+     * An IllegalStateException will be thrown in the absence of managedService instance.
      *
-     * @param managedService managed service
-     * @throws IllegalStateException this is thrown if the managedService instance is not set
-     * @throws FileNotFoundException this is thrown if the log4j2 config file is not found at the carbon default
-     *                               conf location
+     * @param managedService managed service instance to configure pax logging
+     * @throws java.io.FileNotFoundException this is thrown if the log4j2 config file is not found at the carbon default
+     *                                       conf location
+     * @throws ConfigurationException        this is thrown if any error occurred while update of config admin service
+     *                                       properties for pax-logging is being invoked.
      */
-    public void register(ManagedService managedService)
-            throws IllegalStateException, FileNotFoundException {
+    public void register(ManagedService managedService) throws FileNotFoundException, ConfigurationException {
         if (managedService == null) {
-            throw new IllegalStateException("Configuration admin service is not available.");
+            throw new IllegalStateException("Configuration admin managed service is not available.");
         }
-        File configDir = Utils.getCarbonConfigHome().toFile();
+        File configDir = getCarbonConfigHome();
         if (!configDir.exists()) {
-            return;
+            throw new IllegalStateException("Carbon configuration directory is not found.");
         }
-        File loggingConfigFile = new File(configDir, Constants.LOG4J2_CONFIG_FILE_NAME);
+        File loggingConfigFile = new File(configDir, LOG4J2_CONFIG_FILE_NAME);
         if (loggingConfigFile.exists() && loggingConfigFile.isFile()) {
             Hashtable<String, String> prop = new Hashtable<>();
-            synchronized (this) {
-                prop.put(Constants.LOG4J2_CONFIG_FILE_KEY, loggingConfigFile.getAbsolutePath());
-                try {
-                    managedService.updated(prop);
-                } catch (ConfigurationException e) {
-                    logger.error("Fail to read Log4J2 configurations from file [" + loggingConfigFile.getAbsolutePath()
-                            + "]", e);
-                }
-            }
+            prop.put(LOG4J2_CONFIG_FILE_KEY, loggingConfigFile.getAbsolutePath());
+            managedService.updated(prop);
             logger.debug("Logging configuration registration completed using config file : {}",
                     loggingConfigFile.getAbsolutePath());
         } else {
@@ -93,19 +92,22 @@ public class LoggingConfiguration {
     }
 
     /**
-     * This is the method remove the ManagedService instance to LoggingConfiguration to be used for configuring the
-     * logging framework  with log4j2.xml config file.
+     * This method will return the carbon configuration directory path.
+     * i.e ${carbon.home}/conf. If {@code carbon.home} system property is not found, gets the
+     * {@code CARBON_HOME_ENV} system property value and sets to the carbon home.
      *
-     * @param managedService managed service
+     * @return returns the Carbon Configuration directory path
      */
-    public void unregister(ManagedService managedService) {
-        try {
-            managedService.updated(new Hashtable<>());
-            if (logger.isDebugEnabled()) {
-                logger.debug("Logging configuration updated to default");
-            }
-        } catch (ConfigurationException e) {
-            logger.error("Error while trying to update Logging Configuration Service with default configuration", e);
-        }
+    private File getCarbonConfigHome() {
+        Optional<String> carbonHomeOptional = Optional.ofNullable(Optional
+                .ofNullable(System.getProperty(CARBON_HOME))
+                .orElseGet(() -> System.getenv(CARBON_HOME_ENV)));
+
+        return carbonHomeOptional
+                .map(carbonHome -> {
+                    System.setProperty(CARBON_HOME, carbonHome);
+                    return Paths.get(carbonHome, "conf").toFile();
+                })
+                .orElse(new File(""));
     }
 }

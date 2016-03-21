@@ -35,6 +35,10 @@
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
@@ -67,6 +71,10 @@
                             <bundles>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.core</symbolicName>
+                                    <version>${carbon.kernel.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.logging</symbolicName>
                                     <version>${carbon.kernel.version}</version>
                                 </bundle>
                                 <bundle>
