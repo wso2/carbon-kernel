@@ -53,6 +53,7 @@
                 <module>features</module>
                 <module>tools</module>
                 <module>distribution</module>
+                <module>carbon-spi</module>
             </modules>
         </profile>
     </profiles>

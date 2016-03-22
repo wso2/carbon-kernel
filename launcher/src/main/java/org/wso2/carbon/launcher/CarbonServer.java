@@ -200,7 +200,7 @@ public class CarbonServer {
 
         URL exten = null;
         try {
-            exten = new URL("file:///home/mirage/WSO2/carbon-kernel/carbon-spi/target/carbon-spi-5.1.0-SNAPSHOT.jar");
+            exten = new URL("file:///home/mirage/WSO2/carbon-kernel/carbon-spi/carbon-spi-hook/target/carbon-spi-hook-5.1.0-SNAPSHOT.jar");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

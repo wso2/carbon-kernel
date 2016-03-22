@@ -8,7 +8,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleWiring;
-import org.wso2.osgi.spi.internal.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;

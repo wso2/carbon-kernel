@@ -10,7 +10,7 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
-import org.wso2.osgi.spi.internal.Constants;
+import org.wso2.osgi.spi.Constants;
 import org.wso2.osgi.spi.processor.asm.ConsumerClassVisitor;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class ConsumerProcessor implements WeavingHook {
             classReader.accept(consumerClassVisitor, ClassReader.SKIP_FRAMES);
             if (consumerClassVisitor.isModified()) {
                 wovenClass.setBytes(classWriter.toByteArray());
-                wovenClass.getDynamicImports().add(DynamicInject.class.getPackage().getName());
+                wovenClass.getDynamicImports().add(Constants.DYNAMIC_INJECT_PACKAGE_NAME);
             }
 
         }

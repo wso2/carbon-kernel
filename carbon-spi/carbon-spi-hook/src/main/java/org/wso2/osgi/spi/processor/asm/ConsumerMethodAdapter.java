@@ -6,11 +6,11 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import org.wso2.osgi.spi.processor.DynamicInject;
+import org.wso2.osgi.spi.Constants;
 
 public class ConsumerMethodAdapter extends GeneratorAdapter implements Opcodes {
 
-    private final Type DYNAMIC_INJECT_TYPE = Type.getType(DynamicInject.class);
+    private final Type DYNAMIC_INJECT_TYPE = Type.getType(Constants.DYNAMIC_INJECT_CLASS_NAME);
     private final Type CLASS_TYPE = Type.getType(Class.class);
     private final Type CLASSLOADER_TYPE = Type.getType(ClassLoader.class);
     private final ConsumerClassVisitor consumerClassVisitor;

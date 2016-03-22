@@ -9,7 +9,6 @@ import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.util.tracker.BundleTracker;
 import org.wso2.osgi.spi.junk.MediatorReady;
 import org.wso2.osgi.spi.junk.Ready;
-import org.wso2.osgi.spi.processor.ConsumerProcessor;
 import org.wso2.osgi.spi.registrar.ServiceRegistrar;
 
 public class ServiceLoaderActivator implements BundleActivator {
