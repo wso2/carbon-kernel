@@ -18,9 +18,55 @@
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>5.0.4</version>
         </dependency>
     </dependencies>
-    <properties>
-        <fragment.host>org.eclipse.osgi;bundle-version="3.7.1"</fragment.host>
-    </properties>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.0.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Activator>org.wso2.osgi.spi.internal.ServiceLoaderActivator</Bundle-Activator>
+                        <Import-Package>
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            org.wso2.osgi.spi*;version=${project.version},
+                        </Export-Package>
+                        <Private-Package>
+                            org.wso2.osgi.hook
+                        </Private-Package>
+                        <Embed-Dependency>asm-all;scope=compile;inline=true</Embed-Dependency>
+                        <Provide-Capability>
+                            osgi.extender;
+                            osgi.extender=osgi.serviceloader.registrar;
+                            version:Version=1.0,
+
+                            osgi.extender;
+                            osgi.extender=osgi.serviceloader.processor;
+                            version:Version=1.0
+                        </Provide-Capability>
+
+                        <Bundle-SymbolicName>zzz-spi</Bundle-SymbolicName>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <!--<properties>-->
+    <!--<fragment.host>org.eclipse.osgi;bundle-version="3.7.1"</fragment.host>-->
+    <!--</properties>-->
 </project>
