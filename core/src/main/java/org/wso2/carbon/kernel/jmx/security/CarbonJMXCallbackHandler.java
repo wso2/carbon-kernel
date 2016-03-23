@@ -23,7 +23,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * CarbonJMXCallbackHandler is the implementation class for CallbackHandler
+ * CarbonJMXCallbackHandler is the implementation class for CallbackHandler.
  *
  * @since 5.1.0
  */

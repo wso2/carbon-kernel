@@ -40,7 +40,8 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 
 /**
- * CarbonJMXComponent
+ * This service component is responsible for initializing and starting the JMXConnectorServer which enables remote
+ * JMX monitors to connect to the Platform JMX Server.
  *
  * @since 5.1.0
  */

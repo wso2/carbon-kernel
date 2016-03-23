@@ -16,7 +16,7 @@
 package org.wso2.carbon.osgi.jmx;
 
 /**
- * JMX MBean to test JMX OSGi Test Case
+ * JMX MBean to test JMX OSGi Test Case.
  *
  * @since 5.1.0
  */
