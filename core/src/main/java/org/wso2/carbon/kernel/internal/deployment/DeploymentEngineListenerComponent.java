@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.DeploymentService;
+import org.wso2.carbon.kernel.deployment.LifecycleListener;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.kernel.internal.DataHolder;
@@ -115,6 +116,33 @@ public class DeploymentEngineListenerComponent implements RequiredCapabilityList
         } catch (DeploymentEngineException e) {
             logger.error("Error while removing deployer from deployment engine", e);
         }
+    }
+
+    /**
+     * The is a dependency of DeploymentEngineComponent for deployment listener registrations from other bundles.
+     * This is the bind method that gets called for deployment listener instance registrations that satisfy the policy.
+     *
+     * @param listener the deployer instances that are registered as services.
+     */
+    @Reference(
+            name = "carbon.deployment.listener.service",
+            service = LifecycleListener.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterDeploymentListener"
+    )
+    protected void registerDeploymentListener(LifecycleListener listener) {
+        logger.debug("Received LifecycleListener {} " + listener.getClass().getName());
+        deploymentEngine.registerDeploymentLifecycleListener(listener);
+    }
+
+    /**
+     * This is the unbind method for the above reference that gets called for deployer instance un-registrations.
+     *
+     * @param listener the deployer instances that are un-registered.
+     */
+    protected void unregisterDeploymentListener(LifecycleListener listener) {
+        deploymentEngine.unregisterDeploymentLifecycleListener(listener);
     }
     
     @Override

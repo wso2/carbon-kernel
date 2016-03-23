@@ -24,6 +24,12 @@ package org.wso2.carbon.kernel.deployment;
 public class ArtifactType<T> {
     private T type;
 
+    /**
+     *
+     * @param type the artifact type. If the type is
+     *             represented by a class other than String,
+     *             then make sure to over-ride #toString
+     */
     public ArtifactType(T type) {
         this.type = type;
     }

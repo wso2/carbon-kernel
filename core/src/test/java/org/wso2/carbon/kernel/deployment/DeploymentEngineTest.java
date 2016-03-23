@@ -24,6 +24,7 @@ import org.wso2.carbon.kernel.deployment.deployers.FaultyDeployer2;
 import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.kernel.deployment.listeners.CustomLifecycleListener;
 import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
 import org.wso2.carbon.kernel.internal.deployment.RepositoryScanner;
 
@@ -113,7 +114,13 @@ public class DeploymentEngineTest extends BaseTest {
         Assert.assertTrue(CustomDeployer.sample1Deployed);
     }
 
-    @Test(dependsOnMethods = {"testAddDeployer"})
+    @Test(dependsOnMethods = {"testRepositoryScanner"})
+    public void testAddLifecycleListener() {
+        LifecycleListener listener = new CustomLifecycleListener();
+        deploymentEngine.registerDeploymentLifecycleListener(listener);
+    }
+
+    @Test(dependsOnMethods = {"testAddLifecycleListener"})
     public void testDeployArtifacts() {
         deploymentEngine.deployArtifacts(artifactsList);
         Assert.assertTrue(CustomDeployer.sample1Deployed);

@@ -21,12 +21,19 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.deployment.Artifact;
 import org.wso2.carbon.kernel.deployment.ArtifactType;
 import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.Lifecycle;
+import org.wso2.carbon.kernel.deployment.LifecycleEvent;
+import org.wso2.carbon.kernel.deployment.LifecycleListener;
 import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.kernel.internal.DataHolder;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +65,12 @@ public class DeploymentEngine {
      * The map which holds the set of registered deployers with this engine.
      */
     private Map<ArtifactType, Deployer> deployerMap = new ConcurrentHashMap<>();
+
+    /**
+     * The list which holds the set of registered lifecycle listeners with this engine.
+     * todo need to keep an index to order the listeners?
+     */
+    private List<LifecycleListener> lifecycleListeners = new ArrayList<>();
 
     /**
      * A map to hold all currently deployed artifacts.
@@ -188,6 +201,19 @@ public class DeploymentEngine {
         return this.deployerMap;
     }
 
+    public void registerDeploymentLifecycleListener(LifecycleListener lifecycleListener) {
+        logger.debug("Registering deployment listener instance {} with deployment engine",
+                lifecycleListener.getClass().getName());
+
+        lifecycleListeners.add(lifecycleListener);
+    }
+
+    public void unregisterDeploymentLifecycleListener(LifecycleListener lifecycleListener) {
+        logger.debug("Un-registering deployment listener instance {} from deployment engine",
+                lifecycleListener.getClass().getName());
+
+        lifecycleListeners.remove(lifecycleListener);
+    }
 
     /**
      * Returns the repository directory that the deployment engine is registered with.
@@ -225,12 +251,15 @@ public class DeploymentEngine {
     }
 
     /**
-     * Deploy the artifacts found in the artifacts to be deployed list.
+     * Deploy the artifacts found in the artifacts to deploy list.
      *
      * @param artifactsToDeploy list of artifacts to deploy
      */
     public void deployArtifacts(List<Artifact> artifactsToDeploy) {
         artifactsToDeploy.forEach(artifactToDeploy -> {
+            Lifecycle lifecycle = new Lifecycle(artifactToDeploy, new Date());
+            lifecycle.setTimestamp(new Date());
+            fireLifecycleEvent(lifecycle, LifecycleEvent.BEFORE_START_EVENT);
             try {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
                 if (deployer != null) {
@@ -248,11 +277,26 @@ public class DeploymentEngine {
                     throw new CarbonDeploymentException("Deployer instance cannot be found for the type : " +
                             artifactToDeploy.getType());
                 }
+
             } catch (CarbonDeploymentException e) {
                 logger.error("Error while deploying artifacts", e);
                 addToFaultyArtifacts(artifactToDeploy);
+
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+                lifecycle.setMessage("Error while deploying artifact. \n" + sw.toString());
+                lifecycle.setDeploymentState(Lifecycle.STATE.FAILED);
             }
+
+            fireLifecycleEvent(lifecycle, LifecycleEvent.AFTER_START_EVENT);
         });
+    }
+
+    private void fireLifecycleEvent(Lifecycle lifecycle, String lcState) {
+
+        logger.debug("Triggering lifecycle event {} for artifact - {}", lcState, lifecycle.getArtifact().getName());
+        LifecycleEvent event = new LifecycleEvent(lifecycle, lcState);
+        lifecycleListeners.forEach(lifecycleListener -> lifecycleListener.lifecycleEvent(event));
     }
 
     /**
@@ -310,6 +354,9 @@ public class DeploymentEngine {
      */
     public void undeployArtifacts(List<Artifact> artifactsToUndeploy) {
         artifactsToUndeploy.forEach(artifactToUnDeploy -> {
+            Lifecycle lifecycle = new Lifecycle(artifactToUnDeploy, new Date());
+            fireLifecycleEvent(lifecycle, LifecycleEvent.BEFORE_STOP_EVENT);
+
             try {
                 Deployer deployer = getDeployer(artifactToUnDeploy.getType());
                 if (deployer != null) {
@@ -324,7 +371,14 @@ public class DeploymentEngine {
             } catch (CarbonDeploymentException e) {
                 logger.error("Error while undeploying artifacts", e);
                 addToFaultyArtifacts(artifactToUnDeploy);
+
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+                lifecycle.setMessage("Error while undeploying artifact. \n" + sw.toString());
+                lifecycle.setDeploymentState(Lifecycle.STATE.FAILED);
             }
+
+            fireLifecycleEvent(lifecycle, LifecycleEvent.AFTER_STOP_EVENT);
         });
     }
 
