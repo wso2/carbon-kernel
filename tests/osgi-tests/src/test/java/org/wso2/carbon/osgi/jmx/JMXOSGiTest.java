@@ -38,7 +38,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 /**
- * JMXOSGiTest class is to test the CarbonJMX
+ * JMXOSGiTest class is to test the CarbonJMX.
  *
  * @since 5.1.0
  */

@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.rmi.server.RMIServerSocketFactory;
 
 /**
- * SingleAddressRMIServerSocketFactory
+ * SingleAddressRMIServerSocketFactory is the implementation class for RMIServerSocketFactory.
  */
 public class SingleAddressRMIServerSocketFactory implements RMIServerSocketFactory {
     private final InetAddress inetAddress;

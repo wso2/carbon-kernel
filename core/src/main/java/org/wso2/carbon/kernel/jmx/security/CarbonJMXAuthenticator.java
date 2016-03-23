@@ -26,7 +26,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 /**
- * Implementation class for JMXAuthenticator
+ * Implementation class for JMXAuthenticator.
  *
  * @since 5.1.0
  */
