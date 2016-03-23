@@ -60,6 +60,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>maven-buildnumber-plugin</artifactId>
+                <configuration>
+                    <format>{0,date,dd MMM yyyy}</format>
+                    <items>
+                        <item>timestamp</item>
+                    </items>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <inherited>false</inherited>

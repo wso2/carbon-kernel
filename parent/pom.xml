@@ -132,6 +132,11 @@
                     <artifactId>carbon-feature-plugin</artifactId>
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>maven-buildnumber-plugin</artifactId>
+                    <version>${maven.buildnumber.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -493,6 +498,7 @@
 
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
+        <maven.buildnumber.plugin.version>0.9.4</maven.buildnumber.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
