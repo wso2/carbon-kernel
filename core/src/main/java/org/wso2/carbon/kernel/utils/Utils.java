@@ -30,8 +30,7 @@ import java.util.regex.Pattern;
  * @since 5.0.0
  */
 public class Utils {
-    private static final String VAR_REGEXP = "\\$\\{[^}]*}";
-    private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
+    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     /**
      * Remove default constructor and make it not available to initialize.
@@ -75,22 +74,24 @@ public class Utils {
      * @return String substituted string
      */
     public static String substituteVariables(String value) {
-        String newValue = value;
-
         Matcher matcher = varPattern.matcher(value);
-        while (matcher.find()) {
-            String sysPropKey = value.substring(matcher.start() + 2, matcher.end() - 1);
+        boolean found = matcher.find();
+        if (!found) {
+            return value;
+        }
+        StringBuffer sb = new StringBuffer();
+        do {
+            String sysPropKey = matcher.group(1);
             String sysPropValue = getSystemVariableValue(sysPropKey, null);
             if (sysPropValue == null || sysPropValue.length() == 0) {
                 throw new RuntimeException("System property " + sysPropKey + " is not specified");
             }
-
             // Due to reported bug under CARBON-14746
             sysPropValue = sysPropValue.replace("\\", "\\\\");
-            newValue = newValue.replaceFirst(VAR_REGEXP, sysPropValue);
-        }
-
-        return newValue;
+            matcher.appendReplacement(sb, sysPropValue);
+        } while (matcher.find());
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
     /**
