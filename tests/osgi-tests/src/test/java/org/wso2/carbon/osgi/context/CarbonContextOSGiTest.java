@@ -20,6 +20,8 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -29,10 +31,16 @@ import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.exception.TenantStoreException;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.utils.OSGiTestUtils;
+import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
@@ -44,6 +52,7 @@ import javax.inject.Inject;
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class CarbonContextOSGiTest {
+    private static final Logger logger = LoggerFactory.getLogger(CarbonContextOSGiTest.class);
     private static final String TEST_TENANT_DOMAIN = "test.tenant.domain";
 
     @Inject
@@ -52,10 +61,9 @@ public class CarbonContextOSGiTest {
     @Configuration
     public Option[] createConfiguration() {
         System.setProperty(Constants.TENANT_DOMAIN, TEST_TENANT_DOMAIN);
-        OSGiTestUtils.setupOSGiTestEnvironment();
-        OSGiTestUtils.copyCarbonYAML();
-        OSGiTestUtils.copyCarbonTenantXML();
-        return OSGiTestUtils.getDefaultPaxOptions();
+        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        copyConfigFiles();
+        return optionList.toArray(new Option[optionList.size()]);
     }
 
     @Test
@@ -123,6 +131,29 @@ public class CarbonContextOSGiTest {
         } finally {
             PrivilegedCarbonContext.destroyCurrentContext();
             System.clearProperty(Constants.TENANT_DOMAIN);
+        }
+    }
+
+    /**
+     * Replace the existing tenant.xml file with the file found at runtime resources directory.
+     */
+    private void copyConfigFiles() {
+        Path carbonYmlFilePath;
+        Path tenantXMLFilePath;
+
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = Paths.get(".").toString();
+        }
+        try {
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            tenantXMLFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "tenant.xml");
+            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
+                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(tenantXMLFilePath, Paths.get(System.getProperty("carbon.home"), "data", "tenant",
+                    "tenant.xml"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Unable to copy the tenant.xml file", e);
         }
     }
 }
