@@ -31,9 +31,14 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.utils.OSGiTestUtils;
+import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -59,9 +64,9 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        OSGiTestUtils.setupOSGiTestEnvironment();
-        OSGiTestUtils.copyCarbonYAML();
-        return OSGiTestUtils.getDefaultPaxOptions();
+        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        copyCarbonYAML();
+        return optionList.toArray(new Option[optionList.size()]);
     }
 
     @Test
@@ -100,4 +105,22 @@ public class CarbonRuntimeOSGiTest {
         return carbonRuntime.getConfiguration();
     }
 
+    /**
+     * Replace the existing carbon.yml file with populated carbon.yml file.
+     */
+    private static void copyCarbonYAML() {
+        Path carbonYmlFilePath;
+
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = Paths.get(".").toString();
+        }
+        try {
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
+                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Unable to copy the carbon.yml file", e);
+        }
+    }
 }

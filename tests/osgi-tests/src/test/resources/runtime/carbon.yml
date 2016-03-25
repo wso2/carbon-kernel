@@ -52,3 +52,10 @@ startupResolver:
  pendingCapabilityTimer:
   delay: 60000
   period: 30000
+
+# JMX Configuration
+jmx:
+ enabled: false
+ hostName: "127.0.0.1"
+ rmiServerPort: 11111
+ rmiRegistryPort: 9999

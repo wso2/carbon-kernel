@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,21 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.logging;
-
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
-
-import java.util.Dictionary;
+package org.wso2.carbon.osgi.jmx;
 
 /**
- * Custom implementation of ManagedService interface for unit testing purposes.
+ * JMX MBean to test JMX OSGi Test Case.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
-public class CustomManagedService implements ManagedService {
-    @Override
-    public void updated(Dictionary<String, ?> dictionary) throws ConfigurationException {
-
-    }
+public interface JMXCustomMBean {
+    public void reset();
+    public int getCount();
+    public void setCount(int count);
 }

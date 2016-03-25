@@ -18,8 +18,8 @@
 package org.wso2.carbon.osgi.test.util;
 
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.kernel.Constants;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +35,22 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
  */
 public class OSGiTestConfigurationUtils {
 
+    static {
+        String currentDir = Paths.get("").toAbsolutePath().toString();
+        String carbonHome = Paths.get(currentDir, "target", "carbon-home").toString();
+        System.setProperty("carbon.home", carbonHome);
+    }
+
+    /**
+     * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
+     * with Carbon Kernel.
+     *
+     * @return a PAX Exam {@code Option} array.
+     */
+    public static List<Option> getConfiguration() {
+        return getBaseOptions(System.getProperty("carbon.home"), null, null, null);
+    }
+
     /**
      * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
      * with Carbon Kernel.
@@ -47,8 +63,13 @@ public class OSGiTestConfigurationUtils {
     public static List<Option> getConfiguration(List<Option> customOptions,
                                                 CarbonSysPropConfiguration sysPropConfiguration) {
         List<Option> optionList = new ArrayList<>();
-        optionList.addAll(getBaseOptions(sysPropConfiguration.getCarbonHome(), sysPropConfiguration.getServerKey(),
-                sysPropConfiguration.getServerName(), sysPropConfiguration.getServerVersion()));
+        if (sysPropConfiguration != null) {
+            optionList.addAll(getBaseOptions(sysPropConfiguration.getCarbonHome(), sysPropConfiguration.getServerKey(),
+                    sysPropConfiguration.getServerName(), sysPropConfiguration.getServerVersion()));
+        } else {
+            optionList.addAll(getConfiguration());
+        }
+
         optionList.addAll(customOptions);
         return optionList;
     }
@@ -78,7 +99,32 @@ public class OSGiTestConfigurationUtils {
         optionList.add(systemProperty("server.version").value(serverVersion != null ? serverVersion : "5.0.0"));
 
         //Setting server start time.
-        optionList.add(systemProperty(Constants.START_TIME).value(System.currentTimeMillis() + ""));
+        optionList.add(systemProperty(org.wso2.carbon.kernel.Constants.START_TIME)
+                .value(System.currentTimeMillis() + ""));
+
+        //Setting Pax test bundles if pax.exam.system is set to default
+        if (System.getProperty(Constants.PAX_EXAM_SYSTEM, Constants.PAX_EXAM_SYSTEM_TEST).equals(Constants
+                .PAX_EXAM_SYSTEM_DEFAULT)) {
+            optionList.add(mavenBundle().artifactId("pax-exam").groupId("org.ops4j.pax.exam").versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-exam-inject").groupId("org.ops4j.pax.exam")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-exam-extender-service").groupId("org.ops4j.pax.exam")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("org.osgi.compendium").groupId("org.osgi").versionAsInProject());
+            optionList.add(mavenBundle().artifactId("ops4j-base").groupId("org.ops4j.base").versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-swissbox-core").groupId("org.ops4j.pax.swissbox")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-swissbox-extender").groupId("org.ops4j.pax.swissbox")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-swissbox-framework").groupId("org.ops4j.pax.swissbox")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-swissbox-lifecycle").groupId("org.ops4j.pax.swissbox")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("pax-swissbox-tracker").groupId("org.ops4j.pax.swissbox")
+                    .versionAsInProject());
+            optionList.add(mavenBundle().artifactId("geronimo-atinject_1.0_spec").groupId("org.apache.geronimo.specs")
+                    .versionAsInProject());
+        }
 
         //Adding the set of bundles required to bootup Carbon kernel.
         optionList.add(repositories("http://maven.wso2.org/nexus/content/groups/wso2-public"));

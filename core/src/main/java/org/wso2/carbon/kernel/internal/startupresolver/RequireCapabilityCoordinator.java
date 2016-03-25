@@ -257,7 +257,7 @@ public class RequireCapabilityCoordinator {
                 .filter(capabilityName -> capabilityComponentKeyMap.get(capabilityName).contains(componentKey))
                 .mapToInt(capabilityProviderCounter::get)
                 .sum();
-        logger.debug("Capability provider count for ComponentKey : {} is : {}", componentKey, i);
+        logger.trace("Capability provider count for ComponentKey : {} is : {}", componentKey, i);
         return i;
     }
 
