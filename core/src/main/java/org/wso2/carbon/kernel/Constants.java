@@ -27,7 +27,8 @@ public final class Constants {
     public static final String CARBON_CONFIG_YAML = "carbon.yml";
 
     public static final String START_TIME = "carbon.start.time";
-
+    public static final String TENANT_DOMAIN = "TENANT_DOMAIN";
+    public static final String DEFAULT_TENANT = "default.tenant";
     public static final String LOGIN_MODULE_ENTRY = "CarbonSecurityConfig";
 
     /**

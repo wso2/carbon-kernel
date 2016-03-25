@@ -43,6 +43,8 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.startupresolver.MultipleCapabilitiesForCapabilityListenerOSGiTest"/>
             <!--keep this test as the last since there is a issue in windows intermittently-->
             <class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>
+            <class name="org.wso2.carbon.osgi.context.CarbonContextOSGiTest"/>
+            <class name="org.wso2.carbon.osgi.tenant.TenantRuntimeOSGiTest"/>
         </classes>
     </test>
 </suite>

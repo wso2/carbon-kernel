@@ -16,6 +16,7 @@
 package org.wso2.carbon.kernel;
 
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 /**
  * PrivilegedCarbonRuntime represents the server runtime. This class contains setter methods to set
@@ -32,5 +33,12 @@ public interface PrivilegedCarbonRuntime extends CarbonRuntime {
      * @param carbonConfiguration the CarbonConfiguration instance
      */
     public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration);
+
+    /**
+     * Accepts an instance of the TenantRuntime class.
+     *
+     * @param tenantRuntime the TenantRuntime instance
+     */
+    public void setTenantRuntime(TenantRuntime tenantRuntime);
 
 }

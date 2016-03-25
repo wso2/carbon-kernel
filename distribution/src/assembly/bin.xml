@@ -110,6 +110,12 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>carbon-home/data/tenant/tenant.xml</source>
+            <outputDirectory>data/tenant</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>carbon-home/bin/kernel-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>

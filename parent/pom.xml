@@ -418,6 +418,11 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>carbon-context-test-artifact</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.java.version}</version>
@@ -506,5 +511,6 @@
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
         <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
+        <javax.xml.bind.import.version.range>[0.0.0, 1.0.0)</javax.xml.bind.import.version.range>
     </properties>
 </project>
