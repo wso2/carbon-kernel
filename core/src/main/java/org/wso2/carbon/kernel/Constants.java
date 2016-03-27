@@ -30,6 +30,8 @@ public final class Constants {
 
     public static final String LOGIN_MODULE_ENTRY = "CarbonSecurityConfig";
 
+    public static final String DEFAULT_TENANT = "default";
+
     /**
      * Remove default constructor and make it not available to initialize.
      */
