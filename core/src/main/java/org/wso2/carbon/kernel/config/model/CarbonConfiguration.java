@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
+import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 
 /**
@@ -29,6 +30,8 @@ public class CarbonConfiguration {
     private String name = "WSO2 Carbon Kernel";
 
     private String version = "5.0.0";
+
+    private String tenant = Constants.DEFAULT_TENANT;
 
     private PortsConfig ports = new PortsConfig();
 
@@ -48,6 +51,10 @@ public class CarbonConfiguration {
 
     public String getVersion() {
         return version;
+    }
+
+    public String getTenant() {
+        return tenant;
     }
 
     public PortsConfig getPortsConfig() {

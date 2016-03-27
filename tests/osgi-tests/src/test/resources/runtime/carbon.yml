@@ -17,6 +17,7 @@
 id: carbon-kernel
 name: WSO2 Carbon Kernel
 version: 5.0.0
+tenant: default
 
 # Ports used by this server
 ports:
