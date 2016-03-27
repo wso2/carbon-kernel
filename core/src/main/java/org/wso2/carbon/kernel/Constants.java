@@ -32,6 +32,8 @@ public final class Constants {
 
     public static final String DEFAULT_TENANT = "default";
 
+    public static final String TENANT_NAME = "tenant.name";
+
     /**
      * Remove default constructor and make it not available to initialize.
      */

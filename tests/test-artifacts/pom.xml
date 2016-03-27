@@ -30,6 +30,7 @@
     <modules>
         <module>startup-coordination</module>
         <module>tool-test-artifact</module>
+        <module>carbon-context-test-artifact</module>
     </modules>
 
 </project>

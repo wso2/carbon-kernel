@@ -35,7 +35,6 @@ import java.util.stream.IntStream;
  * @since 5.0.0
  */
 public class CarbonContextTest {
-    private static final String TENANT_NAME = "tenant.name";
     private static final Path testDir = Paths.get("src", "test", "resources");
 
     @Test
@@ -151,14 +150,14 @@ public class CarbonContextTest {
 
     private void clearSystemProperties() {
         PrivilegedCarbonContext.destroyCurrentContext();
-        System.clearProperty(TENANT_NAME);
+        System.clearProperty(Constants.TENANT_NAME);
         System.clearProperty(Constants.CARBON_HOME);
     }
 
 
     private void setupCarbonConfig(String tenantName) throws Exception {
         System.setProperty(Constants.CARBON_HOME, Paths.get(testDir.toString(), "carbon-context").toString());
-        System.setProperty(TENANT_NAME, tenantName);
+        System.setProperty(Constants.TENANT_NAME, tenantName);
         CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
         CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
         DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
