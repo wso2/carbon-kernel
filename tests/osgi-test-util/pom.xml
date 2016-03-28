@@ -77,10 +77,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.app</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
@@ -106,10 +102,6 @@
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.registry</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
