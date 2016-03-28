@@ -252,11 +252,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.app</artifactId>
-                <version>${equinox.app.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.concurrent</artifactId>
                 <version>${equinox.concurrent.version}</version>
             </dependency>
@@ -274,11 +269,6 @@
                 <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.preferences</artifactId>
                 <version>${equinox.preferences.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.registry</artifactId>
-                <version>${equinox.registry.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.eclipse.equinox</groupId>
