@@ -21,6 +21,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.CarbonServer;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -47,8 +49,7 @@ public class CarbonSeverLoggerTest extends BaseTest {
     @BeforeSuite
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
-        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "carbon.log");
+        logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
         logger = BootstrapLogger.getCarbonLogger(CarbonServer.class.getName());
     }
 

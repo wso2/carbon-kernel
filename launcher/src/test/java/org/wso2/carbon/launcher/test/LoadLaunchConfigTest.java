@@ -65,8 +65,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     @BeforeClass
     public void init() {
         setupCarbonHome();
-        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "carbon.log");
+        logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
         logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {

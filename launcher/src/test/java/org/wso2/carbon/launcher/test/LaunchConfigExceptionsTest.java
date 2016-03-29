@@ -3,6 +3,7 @@ package org.wso2.carbon.launcher.test;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -36,8 +37,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     @BeforeClass
     public void init() {
         setupCarbonHome();
-        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "carbon.log");
+        logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
