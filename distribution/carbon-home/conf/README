@@ -16,7 +16,10 @@ Usage of the sub-directories of relevant configurations are as follows.
 4. osgi-debug.options
     This file contains the debug options for WSO2 Carbon osgi runtime.
 
-5. README.txt
+5. logging.properties
+    The java.util.logging configuration file used by WSO2 Carbon.
+
+6. README.txt
     This file.
 
 

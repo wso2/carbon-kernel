@@ -74,6 +74,12 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>carbon-home/conf/logging.properties</source>
+            <outputDirectory>conf</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>carbon-home/conf/osgi/launch.properties</source>
             <outputDirectory>conf/osgi</outputDirectory>
             <fileMode>644</fileMode>
