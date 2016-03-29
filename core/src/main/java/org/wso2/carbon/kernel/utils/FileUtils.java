@@ -31,6 +31,9 @@ import java.nio.file.StandardCopyOption;
 public class FileUtils {
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
+    private FileUtils() {
+    }
+
     /**
      * Deletes all files and subdirectories under dir.
      * Returns true if all deletions were successful.

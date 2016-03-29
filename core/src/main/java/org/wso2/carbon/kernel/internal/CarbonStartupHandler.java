@@ -30,6 +30,9 @@ import java.text.DecimalFormat;
 public class CarbonStartupHandler {
     private static final Logger logger = LoggerFactory.getLogger(CarbonStartupHandler.class);
 
+    private CarbonStartupHandler() {
+    }
+
     /**
      * Log the server start up time.
      */
