@@ -24,6 +24,8 @@
 <%@page import="java.text.MessageFormat"%>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Map" %>
 <%
     String forwardTo = null;
     String serviceName = (String) session.getAttribute("serviceName");
@@ -53,21 +55,31 @@
         } else {
 
             String policyPath = request.getParameter("policyPath");
-            String[] userGroups = request.getParameterValues("userGroups");
+            ArrayList<String> userGroupsList = new ArrayList<String>();
+
+            Map<String, Boolean> checkBoxMap = (Map<String, Boolean>) session.getAttribute("checkedRolesMap");
+
+            for (Map.Entry<String, Boolean> entry : checkBoxMap.entrySet()) {
+                if (entry.getValue().equals(Boolean.TRUE)) {
+                    userGroupsList.add(entry.getKey());
+                }
+            }
+            String[] userGroups = new String[userGroupsList.size()];
+            userGroups = userGroupsList.toArray(userGroups);
             String privateStore = request.getParameter("privateStore");
             String[] trustedStores = request.getParameterValues("trustStore");
             client.applySecurity(serviceName, scenarioId, policyPath, trustedStores, privateStore, userGroups);
 
         }
-        
+
         String message = resourceBundle.getString("security.add");
         forwardTo = "../service-mgt/service_info.jsp?serviceName=" + serviceName;
-        
+
         if (specificPath!=null && specificPath.trim().length()>0){
         	forwardTo = specificPath +"?serviceName=" + Encode.forUriComponent(serviceName);
         	session.removeAttribute("returToPath");
         }
-        
+
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
     } catch (Exception e) {
 	    String message = MessageFormat.format(resourceBundle.getString("security.cannot.add"),
@@ -75,7 +87,7 @@
         forwardTo = "index.jsp?ordinal=2&serviceName=" + Encode.forUriComponent(serviceName);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
-    
+
 %>
 <script type="text/javascript">
     function forward() {
