@@ -24,6 +24,9 @@ import org.wso2.carbon.kernel.Constants;
  */
 public class Utils {
 
+    private Utils() {
+    }
+
     /**
      * Returns the carbon.yml location.
      *

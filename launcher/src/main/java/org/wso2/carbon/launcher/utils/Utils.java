@@ -40,6 +40,9 @@ public class Utils {
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
+    private Utils() {
+    }
+
     /**
      * Replace system property holders in the property values.
      * e.g Replace ${carbon.home} with value of the carbon.home system property.

@@ -26,6 +26,9 @@ import java.io.File;
  */
 public class Utils {
 
+    private Utils() {
+    }
+
     /**
      * Checks if a file has been modified by comparing the last update date of
      * both files and Artifact. If they are different, the file is assumed to have
