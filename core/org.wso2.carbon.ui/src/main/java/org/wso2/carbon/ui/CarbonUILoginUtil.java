@@ -337,6 +337,7 @@ public final class CarbonUILoginUtil {
         Cookie rmeCookie = new Cookie(CarbonConstants.REMEMBER_ME_COOKE_NAME, null);
         rmeCookie.setPath("/");
         rmeCookie.setSecure(true);
+        rmeCookie.setHttpOnly(true);
         rmeCookie.setMaxAge(0);
         response.addCookie(rmeCookie);
         response.sendRedirect(contextPath + indexPageURL);
@@ -424,6 +425,7 @@ public final class CarbonUILoginUtil {
                             rememberMeCookieValue);
                     rmeCookie.setPath("/");
                     rmeCookie.setSecure(true);
+                    rmeCookie.setHttpOnly(true);
                     rmeCookie.setMaxAge(age);
                     response.addCookie(rmeCookie);
                 }
