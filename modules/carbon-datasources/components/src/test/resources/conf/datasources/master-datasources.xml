@@ -1,0 +1,61 @@
+<datasources-configuration>
+
+    <providers>
+        <provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>
+        <!--<provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceReader</provider>-->
+    </providers>
+
+    <datasources>
+        <datasource>
+            <name>WSO2_CARBON_DB</name>
+            <description>The datasource used for registry and user manager</description>
+            <jndiConfig>
+                <name>jdbc/WSO2CarbonDB/test</name>
+                 <useJndiReference>true</useJndiReference>
+                <environment>
+                    <property name="java.naming.factory.initial">org.wso2.carbon.datasource.core.jndi.CustomContextFactory</property>
+                </environment>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/test</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <defaultAutoCommit>false</defaultAutoCommit>
+                </configuration>
+            </definition>
+        </datasource>
+        <datasource>
+            <name>WSO2_CARBON_DB_2</name>
+            <description>The datasource used for registry and user manager</description>
+            <jndiConfig>
+                <name>jdbc/WSO2CarbonDB/testDb2</name>
+                <useJndiReference>true</useJndiReference>
+                <environment>
+                    <property name="java.naming.factory.initial">org.wso2.carbon.datasource.core.jndi.CustomContextFactory</property>
+                </environment>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/test</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <defaultAutoCommit>false</defaultAutoCommit>
+                </configuration>
+            </definition>
+        </datasource>
+    </datasources>
+
+</datasources-configuration>

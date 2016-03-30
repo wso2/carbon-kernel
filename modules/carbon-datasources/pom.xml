@@ -16,7 +16,7 @@
     </parent>
 
     <modules>
-        <module>component</module>
+        <module>components</module>
         <module>feature</module>
         <module>distribution</module>
     </modules>
@@ -102,11 +102,7 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.java.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${hikaricp.version}</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -165,6 +161,16 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <properties>
@@ -184,6 +190,6 @@
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <mysql.connector.java.version>5.1.6</mysql.connector.java.version>
-        <hikaricp.version>2.4.1</hikaricp.version>
+
     </properties>
 </project>

@@ -1,17 +1,11 @@
 <datasources-configuration>
 
-    <providers>
-        <provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>
-        <!--<provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceReader</provider>-->
-    </providers>
-
     <datasources>
-
         <datasource>
             <name>WSO2_CARBON_DB</name>
             <description>The datasource used for registry and user manager</description>
             <jndiConfig>
-                <name>jdbc</name>
+                <name>jdbc/WSO2CarbonDB/test</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
