@@ -1453,7 +1453,7 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.wso2.version>1.6.1.wso2v17</rampart.wso2.version>
+        <rampart.wso2.version>1.6.1.wso2v20-SNAPSHOT</rampart.wso2.version>
         <rampart.wso2.osgi.version.range>[1.6.1,2.0.0)</rampart.wso2.osgi.version.range>
         <rampart.mar.version>1.6.1.wso2v17</rampart.mar.version>
 
