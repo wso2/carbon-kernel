@@ -324,25 +324,44 @@ public class POXSecurityHandler implements Handler {
 
     private String getScenarioId(MessageContext msgCtx, AxisService service) throws SecurityConfigException {
         String scenarioID = null;
+        boolean scenarioIDSet = false;
         try {
+            scenarioIDSet = (Boolean) service.getParameterValue(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME);
             scenarioID = (String) service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
         } catch (Exception e) {
         }//ignore
 
-        if (scenarioID == null) {
+        if (!scenarioIDSet) {
+            SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.getConfigurationContext()
+                    .getAxisConfiguration());
+            SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
             synchronized (this) {
-                SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.
-                        getConfigurationContext().getAxisConfiguration());
-                SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
-                if (data != null) {
-                    scenarioID = data.getScenarioId();
+                if (!scenarioIDSet) {
+                    if (data != null) {
+                        scenarioID = data.getScenarioId();
+                        try {
+                            Parameter param = new Parameter();
+                            param.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
+                            param.setValue(scenarioID);
+                            service.addParameter(param);
+                            if (log.isDebugEnabled()) {
+                                log.debug(SecurityConstants.SCENARIO_ID_PARAM_NAME + " parameter is added to axis " +
+                                        "service: " + service.getName());
+                            }
+                        } catch (AxisFault axisFault) {
+                            log.error("Error while adding Scenario ID parameter", axisFault);
+                        }
+                    }
                     try {
-                        Parameter param = new Parameter();
-                        param.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
-                        param.setValue(scenarioID);
-                        service.addParameter(param);
+                        Parameter scenarioIDSetParam = new Parameter(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME,
+                                true);
+                        service.addParameter(scenarioIDSetParam);
+                        if (log.isDebugEnabled()) {
+                            log.debug(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME + " parameter is added to axis " +
+                                    "service: " + service.getName());
+                        }
                     } catch (AxisFault axisFault) {
-                        log.error("Error while adding Scenario ID parameter", axisFault);
+                        log.error("Error while adding Scenario ID Set parameter", axisFault);
                     }
                 }
             }

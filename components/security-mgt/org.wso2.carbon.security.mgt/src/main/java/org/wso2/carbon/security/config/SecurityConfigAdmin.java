@@ -300,6 +300,18 @@ public class SecurityConfigAdmin {
             Parameter scenarioIDParam = service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME);
             if (scenarioIDParam != null) {
                 service.removeParameter(scenarioIDParam);
+                if (log.isDebugEnabled()) {
+                    log.debug(SecurityConstants.SCENARIO_ID_PARAM_NAME + " parameter is removed from axis service: "
+                            + service.getName());
+                }
+            }
+            Parameter scenarioIDSetParam = service.getParameter(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME);
+            if (scenarioIDSetParam != null) {
+                service.removeParameter(scenarioIDSetParam);
+                if (log.isDebugEnabled()) {
+                    log.debug(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME + " parameter is removed from axis " +
+                            "service: " + service.getName());
+                }
             }
         } catch (AxisFault axisFault) {
             throw new SecurityConfigException("Error while removing parameters from service on disable security ",
@@ -350,6 +362,18 @@ public class SecurityConfigAdmin {
             Parameter scenarioIDParam = service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME);
             if (scenarioIDParam != null) {
                 service.removeParameter(scenarioIDParam);
+                if (log.isDebugEnabled()) {
+                    log.debug(SecurityConstants.SCENARIO_ID_PARAM_NAME + " parameter is removed from axis service: "
+                            + service.getName());
+                }
+            }
+            Parameter scenarioIDSetParam = service.getParameter(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME);
+            if (scenarioIDSetParam != null) {
+                service.removeParameter(scenarioIDSetParam);
+                if (log.isDebugEnabled()) {
+                    log.debug(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME + " parameter is removed from axis " +
+                            "service: " + service.getName());
+                }
             }
 
             SecurityServiceAdmin admin = new SecurityServiceAdmin(axisConfig, registry);
@@ -629,8 +653,23 @@ public class SecurityConfigAdmin {
                 params.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
                 params.setValue(securityScenario.getScenarioId());
                 service.addParameter(params);
+                if (log.isDebugEnabled()) {
+                    log.debug(SecurityConstants.SCENARIO_ID_PARAM_NAME + " parameter is added to axis service: " +
+                            service.getName());
+                }
             } catch (AxisFault axisFault) {
                 log.error("Error while adding Scenario ID parameter", axisFault);
+            }
+            try {
+                Parameter scenarioIDSetParam = new Parameter(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME, true);
+                service.addParameter(scenarioIDSetParam);
+                if (log.isDebugEnabled()) {
+                    log.debug(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME + " parameter is added to axis " +
+                            "service: " + service.getName());
+                }
+            } catch (AxisFault axisFault) {
+                //ignore. If this parameter is not set in here POXSecurityHandler will read the configurations and
+                // find the scenario ID.
             }
             SecurityServiceAdmin admin = new SecurityServiceAdmin(axisConfig, registry);
             admin.addSecurityPolicyToAllBindings(service, policy);
