@@ -28,6 +28,9 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
  */
 public class CarbonRuntimeFactory {
 
+    private CarbonRuntimeFactory() {
+    }
+
     public static CarbonRuntime createCarbonRuntime(CarbonConfigProvider carbonConfigProvider) throws Exception {
 
         //TODO Remove hardcoded implementations.

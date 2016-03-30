@@ -20,7 +20,7 @@ import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import java.security.Principal;
 
 /**
- * An example class to test the carbon context API invocation
+ * An example class to test the carbon context API invocation.
  *
  * @since 5.1.0
  */
