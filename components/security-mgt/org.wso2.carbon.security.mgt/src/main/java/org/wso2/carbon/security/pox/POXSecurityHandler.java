@@ -325,13 +325,18 @@ public class POXSecurityHandler implements Handler {
     private String getScenarioId(MessageContext msgCtx, AxisService service) throws SecurityConfigException {
         String scenarioID = null;
         boolean scenarioIDSet = false;
-        try {
-            scenarioIDSet = (Boolean) service.getParameterValue(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME);
-            scenarioID = (String) service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
-        } catch (Exception e) {
-        }//ignore
+        Parameter parameter;
+        parameter = service.getParameter(SecurityConstants.SCENARIO_ID_SET_PARAM_NAME);
+        if (parameter != null) {
+            scenarioIDSet = (Boolean) parameter.getValue();
+        }
 
-        if (!scenarioIDSet) {
+        if (scenarioIDSet) {
+            parameter = service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME);
+            if (parameter != null) {
+                scenarioID = (String) parameter.getValue();
+            }
+        } else {
             SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.getConfigurationContext()
                     .getAxisConfiguration());
             SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
