@@ -40,6 +40,7 @@
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <link href="../../styles/main.css" rel="stylesheet" type="text/css" media="all"/>
