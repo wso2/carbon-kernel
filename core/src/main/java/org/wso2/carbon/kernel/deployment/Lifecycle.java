@@ -26,6 +26,8 @@ import java.util.Properties;
  * as part of the lifecycle event into the lifecycle listeners.
  *
  * @since 5.1.0
+ *
+ * todo merge this class with LifecycleEvent
  */
 public class Lifecycle {
 
@@ -45,9 +47,9 @@ public class Lifecycle {
 
     private Date timestamp;
     private STATE deploymentState;
-    private String message;
+    private String traceContent;
 
-    public Properties properties;
+    public Properties properties = new Properties();
 
     public Lifecycle(Artifact artifact, Date date) {
         this.artifact = artifact;
@@ -81,12 +83,12 @@ public class Lifecycle {
         this.deploymentState = deploymentState;
     }
 
-    public String getMessage() {
-        return message;
+    public String getTraceContent() {
+        return traceContent;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setTraceContent(String traceContent) {
+        this.traceContent = traceContent;
     }
 
     public Properties getProperties() {

@@ -118,6 +118,9 @@ public class DeploymentEngineTest extends BaseTest {
     public void testAddLifecycleListener() {
         LifecycleListener listener = new CustomLifecycleListener();
         deploymentEngine.registerDeploymentLifecycleListener(listener);
+
+        listener = new DeploymentNotifierLifecycleListener();
+        deploymentEngine.registerDeploymentLifecycleListener(listener);
     }
 
     @Test(dependsOnMethods = {"testAddLifecycleListener"})

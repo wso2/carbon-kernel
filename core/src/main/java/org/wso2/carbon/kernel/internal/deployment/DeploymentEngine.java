@@ -258,7 +258,6 @@ public class DeploymentEngine {
     public void deployArtifacts(List<Artifact> artifactsToDeploy) {
         artifactsToDeploy.forEach(artifactToDeploy -> {
             Lifecycle lifecycle = new Lifecycle(artifactToDeploy, new Date());
-            lifecycle.setTimestamp(new Date());
             fireLifecycleEvent(lifecycle, LifecycleEvent.BEFORE_START_EVENT);
             try {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
@@ -284,7 +283,7 @@ public class DeploymentEngine {
 
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
-                lifecycle.setMessage("Error while deploying artifact. \n" + sw.toString());
+                lifecycle.setTraceContent("Error while deploying artifact. \n" + sw.toString());
                 lifecycle.setDeploymentState(Lifecycle.STATE.FAILED);
             }
 
@@ -374,7 +373,7 @@ public class DeploymentEngine {
 
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
-                lifecycle.setMessage("Error while undeploying artifact. \n" + sw.toString());
+                lifecycle.setTraceContent("Error while undeploying artifact. \n" + sw.toString());
                 lifecycle.setDeploymentState(Lifecycle.STATE.FAILED);
             }
 
