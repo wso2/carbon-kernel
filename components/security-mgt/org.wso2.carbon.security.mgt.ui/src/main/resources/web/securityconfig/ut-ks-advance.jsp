@@ -327,7 +327,7 @@
     }
 %>
 <form method="post" action="add-security.jsp" name="dataForm"
-      onsubmit="return (doValidation(<%= isPolicyFromRegistry%>, <%=kerberosScenario%>) && doSubmit());">
+      onsubmit="return doValidation(<%= isPolicyFromRegistry%>, <%=kerberosScenario%>)">
 <input type="hidden" name="scenarioId" id="scenarioId"
        value="<%= Encode.forHtmlAttribute(scenId)%>"/>
 <input type="hidden" name="policyPath" id="policyPath"
@@ -600,43 +600,6 @@
             if (!$(this).is(":disabled")) {
                 unselectedRolesStr += $(this).val();
                 if (index != $("input[type='checkbox']:checked").length - 1) {
-                    unselectedRolesStr += ":";
-                }
-            }
-        });
-        var unselectedRolesElem = document.createElement("input");
-        unselectedRolesElem.setAttribute("type", "hidden");
-        unselectedRolesElem.setAttribute("name", "unselectedRoles");
-        unselectedRolesElem.setAttribute("value", unselectedRolesStr);
-        form.appendChild(unselectedRolesElem);
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-    function doSubmit() {
-        var form = document.createElement("form");
-        form.setAttribute("method", "POST");
-        form.setAttribute("action", "ut-ks-advance-finish.jsp");
-        var selectedRolesStr = "";
-        $("input[type='checkbox']:checked").each(function (index) {
-            if (!$(this).is(":disabled")) {
-                selectedRolesStr += $(this).val();
-                if (index != $("input[type='checkbox']:checked").length - 1) {
-                    selectedRolesStr += ":";
-                }
-            }
-        });
-        var selectedRolesElem = document.createElement("input");
-        selectedRolesElem.setAttribute("type", "hidden");
-        selectedRolesElem.setAttribute("name", "selectedRoles");
-        selectedRolesElem.setAttribute("value", selectedRolesStr);
-        form.appendChild(selectedRolesElem);
-        var unselectedRolesStr = "";
-
-        $("input[type='checkbox']:not(:checked)").each(function (index) {
-            if (!$(this).is(":disabled")) {
-                unselectedRolesStr += $(this).val();
-                if (index != $("input[type='checkbox']:not(:checked)").length - 1) {
                     unselectedRolesStr += ":";
                 }
             }
