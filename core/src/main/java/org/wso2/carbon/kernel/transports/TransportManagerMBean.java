@@ -19,7 +19,7 @@ package org.wso2.carbon.kernel.transports;
 import java.util.Map;
 
 /**
- * MBean interface for exposing TransportManager functionalities
+ * MBean interface for exposing TransportManager functionalities.
  *
  * @since 5.1.0
  */

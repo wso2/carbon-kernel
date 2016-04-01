@@ -18,7 +18,7 @@ package org.wso2.carbon.kernel.internal.runtime;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 
 /**
- * MBean interface for exposing CarbonRuntimeService functionalities
+ * MBean interface for exposing CarbonRuntimeService functionalities.
  *
  * @since 5.1.0
  */
