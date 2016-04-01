@@ -23,12 +23,7 @@ limitations under the License.
             <class name="org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProviderTest" />
             <class name="org.wso2.carbon.kernel.context.CarbonContextTest" />
 
-            <class name="org.wso2.carbon.kernel.deployment.ArtifactTest" />
-            <class name="org.wso2.carbon.kernel.deployment.BaseTest" />
-            <class name="org.wso2.carbon.kernel.deployment.DeployerTest" />
-            <class name="org.wso2.carbon.kernel.deployment.DeploymentEngineTest" />
-            <class name="org.wso2.carbon.kernel.deployment.DeploymentServiceTest" />
-
+            <class name="org.wso2.carbon.kernel.BaseTest" />
 
             <class name="org.wso2.carbon.kernel.internal.runtime.RuntimeManagerTest"/>
             <class name="org.wso2.carbon.kernel.internal.startupresolver.MultiCounterTest"/>
@@ -44,9 +39,6 @@ limitations under the License.
 
             <class name="org.wso2.carbon.kernel.utils.FileUtilsTest" />
             <class name="org.wso2.carbon.kernel.internal.DataHolderTest" />
-
-            <class name="org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationExceptionTest" />
-            <class name="org.wso2.carbon.kernel.deployment.exception.DeploymentEngineExceptionTest" />
 
             <class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntimeTest" />
             <class name="org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactoryTest" />
