@@ -51,6 +51,8 @@ public class Constants {
     //Constants relevant to log level.
     public static final String LOG_LEVEL_WARN = "WARN";
 
+    public static final String CARBON_LOG_FILE_NAME = "carbon.log";
+
     /**
      * Prevent instantiating the Constants class.
      */

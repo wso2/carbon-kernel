@@ -21,6 +21,7 @@ limitations under the License.
     <test name="carbon-core-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProviderTest" />
+            <class name="org.wso2.carbon.kernel.context.CarbonContextTest" />
 
             <class name="org.wso2.carbon.kernel.deployment.ArtifactTest" />
             <class name="org.wso2.carbon.kernel.deployment.BaseTest" />
@@ -49,7 +50,6 @@ limitations under the License.
 
             <class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntimeTest" />
             <class name="org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactoryTest" />
-            <class name="org.wso2.carbon.kernel.internal.logging.LoggingConfigurationTest" />
             <class name="org.wso2.carbon.kernel.utils.UtilsTest"/>
             <class name="org.wso2.carbon.kernel.utils.manifest.ManifestElementTest"/>
         </classes>

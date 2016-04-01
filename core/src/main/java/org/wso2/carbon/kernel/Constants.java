@@ -28,6 +28,12 @@ public final class Constants {
 
     public static final String START_TIME = "carbon.start.time";
 
+    public static final String LOGIN_MODULE_ENTRY = "CarbonSecurityConfig";
+
+    public static final String DEFAULT_TENANT = "default";
+
+    public static final String TENANT_NAME = "tenant.name";
+
     /**
      * Remove default constructor and make it not available to initialize.
      */

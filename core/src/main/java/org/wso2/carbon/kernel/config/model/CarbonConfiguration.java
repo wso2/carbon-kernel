@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
+import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
+
 /**
  * CarbonConfiguration class holds static configuration parameters specified in the carbon.yml file.
  *
@@ -28,11 +31,15 @@ public class CarbonConfiguration {
 
     private String version = "5.0.0";
 
+    private String tenant = Constants.DEFAULT_TENANT;
+
     private PortsConfig ports = new PortsConfig();
 
     private DeploymentConfig deployment = new DeploymentConfig();
 
     private StartupResolverConfig startupResolver = new StartupResolverConfig();
+
+    private JMXConfiguration jmx = new JMXConfiguration();
 
     public String getId() {
         return id;
@@ -46,6 +53,10 @@ public class CarbonConfiguration {
         return version;
     }
 
+    public String getTenant() {
+        return tenant;
+    }
+
     public PortsConfig getPortsConfig() {
         return ports;
     }
@@ -56,5 +67,9 @@ public class CarbonConfiguration {
 
     public StartupResolverConfig getStartupResolverConfig() {
         return startupResolver;
+    }
+
+    public JMXConfiguration getJmxConfiguration() {
+        return jmx;
     }
 }

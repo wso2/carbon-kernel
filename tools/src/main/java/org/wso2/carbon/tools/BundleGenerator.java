@@ -36,6 +36,9 @@ public class BundleGenerator {
 
     private static final Logger logger = Logger.getLogger(BundleGenerator.class.getName());
 
+    private BundleGenerator() {
+    }
+
     /**
      * Application executor of the JAR to OSGi bundle conversion tool.
      *
