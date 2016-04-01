@@ -19,6 +19,7 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -28,6 +29,7 @@ import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
+import org.wso2.carbon.kernel.utils.MBeanRegistrator;
 
 import java.util.Map;
 
@@ -55,6 +57,11 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
 
     }
 
+    @Deactivate
+    public void stop(BundleContext bundleContext) throws Exception {
+        
+    }
+
     @Reference(
             name = "carbon.transport",
             service = CarbonTransport.class,
@@ -79,6 +86,8 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
 
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         bundleContext.registerService(TransportManager.class, transportManager, null);
+        MBeanRegistrator.registerMBean(transportManager);
+
         // Registering transport management command provider implementation. This allows users to manage
         // transports via the OSGi console.
         bundleContext.registerService(CommandProvider.class.getName(),

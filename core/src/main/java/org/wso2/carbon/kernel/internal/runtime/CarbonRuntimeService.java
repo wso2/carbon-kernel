@@ -31,7 +31,7 @@ import java.util.List;
  * @since 5.0.0
  */
 
-public class CarbonRuntimeService implements RuntimeService {
+public class CarbonRuntimeService implements RuntimeService, CarbonRuntimeServiceMBean {
     private static Logger logger = LoggerFactory.getLogger(CarbonRuntimeService.class);
     RuntimeManager runtimeManager;
 

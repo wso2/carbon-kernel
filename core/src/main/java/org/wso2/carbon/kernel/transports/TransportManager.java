@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @since 5.0.0
  */
-public class TransportManager {
+public class TransportManager implements TransportManagerMBean {
 
     private Map<String, CarbonTransport> transports = new HashMap<>();
 

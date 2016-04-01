@@ -34,6 +34,8 @@ public final class Constants {
 
     public static final String TENANT_NAME = "tenant.name";
 
+    public static final String SERVER_PACKAGE = "org.wso2.carbon";
+
     /**
      * Remove default constructor and make it not available to initialize.
      */
