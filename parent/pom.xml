@@ -408,6 +408,11 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jms_1.1_spec</artifactId>
+                <version>${geronimo.jms.spec.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>carbon-context-test-artifact</artifactId>
                 <version>${carbon.kernel.version}</version>
@@ -418,7 +423,7 @@
                 <version>${mysql.connector.java.version}</version>
             </dependency>
         </dependencies>
-    </dependencyManagement>
+   </dependencyManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -500,6 +505,7 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
         <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>

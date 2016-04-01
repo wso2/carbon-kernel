@@ -19,11 +19,11 @@ package org.wso2.carbon.kernel.internal.config;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.BaseTest;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentConfig;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
-import org.wso2.carbon.kernel.deployment.BaseTest;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProvider class.
