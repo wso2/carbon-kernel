@@ -72,7 +72,6 @@
 
             if(groupsInPage != null && groupsInPage.size() != 0) {
                 for (Map.Entry<String, Boolean> entry : groupsInPage.entrySet()) {
-                    System.out.println("entry " + entry.getKey() + " " + entry.getValue());
                     checkBoxMap.put(entry.getKey(), entry.getValue());
                 }
             }
