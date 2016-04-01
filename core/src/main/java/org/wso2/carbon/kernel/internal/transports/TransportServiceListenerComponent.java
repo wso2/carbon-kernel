@@ -57,11 +57,6 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
 
     }
 
-    @Deactivate
-    public void stop(BundleContext bundleContext) throws Exception {
-        
-    }
-
     @Reference(
             name = "carbon.transport",
             service = CarbonTransport.class,
