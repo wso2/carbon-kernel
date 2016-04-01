@@ -82,12 +82,12 @@ public class MBeanRegistrator {
      */
     public static void unregisterAllMBeans() {
         MBeanServer mBeanServer = MBeanManagementFactory.getMBeanServer();
-        for (ObjectName name : mBeans) {
+        mBeans.forEach(mBean -> {
             try {
-                mBeanServer.unregisterMBean(name);
+                mBeanServer.unregisterMBean(mBean);
             } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-                logger.error("Cannot unregister MBean " + name.getCanonicalName(), e);
+                logger.error("Cannot unregister MBean " + mBean.getCanonicalName(), e);
             }
-        }
+        });
     }
 }
