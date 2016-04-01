@@ -26,6 +26,7 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.List" %>
 <%
     String forwardTo = null;
     String serviceName = (String) session.getAttribute("serviceName");
@@ -55,9 +56,25 @@
         } else {
 
             String policyPath = request.getParameter("policyPath");
-            ArrayList<String> userGroupsList = new ArrayList<String>();
+            List<String> userGroupsList = new ArrayList<String>();
 
             Map<String, Boolean> checkBoxMap = (Map<String, Boolean>) session.getAttribute("checkedRolesMap");
+
+            String[] userGroupsWithNoPagination = request.getParameterValues("userGroups");
+            Map<String, Boolean> groupsInPage = (Map<String, Boolean>) session.getAttribute("groupsInPage");
+
+            if(userGroupsWithNoPagination != null && userGroupsWithNoPagination.length != 0 && groupsInPage != null
+                    && groupsInPage.size() != 0) {
+                for(String groupName : userGroupsWithNoPagination) {
+                    groupsInPage.put(groupName.toLowerCase(), true);
+                }
+            }
+
+            if(groupsInPage != null && groupsInPage.size() != 0) {
+                for (Map.Entry<String, Boolean> entry : groupsInPage.entrySet()) {
+                    checkBoxMap.put(entry.getKey(), entry.getValue());
+                }
+            }
 
             for (Map.Entry<String, Boolean> entry : checkBoxMap.entrySet()) {
                 if (entry.getValue().equals(Boolean.TRUE)) {
