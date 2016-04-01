@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <artifactId>org.wso2.carbon.base</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
@@ -74,7 +74,7 @@
                                     <version>${carbon.kernel.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>org.wso2.carbon.logging</symbolicName>
+                                    <symbolicName>org.wso2.carbon.base</symbolicName>
                                     <version>${carbon.kernel.version}</version>
                                 </bundle>
                                 <bundle>

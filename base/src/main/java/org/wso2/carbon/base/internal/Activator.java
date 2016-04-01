@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.logging.internal;
+package org.wso2.carbon.base.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.base.logging.LoggingConfiguration;
 
 /**
  * The logging bundle which bootstrap pax-logging with the log4j2 config file. This bundle is added to the initial
@@ -28,8 +29,8 @@ import org.slf4j.LoggerFactory;
  *
  * @since 5.1.0
  */
-public class LoggingBundleActivator implements BundleActivator {
-    private static final Logger logger = LoggerFactory.getLogger(LoggingBundleActivator.class);
+public class Activator implements BundleActivator {
+    private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
     /**
      * The activate method which called when the bundle is started. This will check for the presence of
