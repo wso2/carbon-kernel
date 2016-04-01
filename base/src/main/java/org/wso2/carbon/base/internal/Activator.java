@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.logging.LoggingConfiguration;
 
 /**
- * The logging bundle which bootstrap pax-logging with the log4j2 config file. This bundle is added to the initial
+ * The base bundle which bootstrap pax-logging with the log4j2 config file. This bundle is added to the initial
  * bundle list for bootstrap logging before other bundles are provisioned.
  *
  * @since 5.1.0
@@ -46,7 +46,7 @@ public class Activator implements BundleActivator {
             ManagedService managedService = (ManagedService) bundleContext.getService(reference);
             LoggingConfiguration.getInstance().register(managedService);
             if (logger.isDebugEnabled()) {
-                logger.debug("LoggingBundleActivator started successfully");
+                logger.debug("Carbon base bundle activator is started successfully");
             }
         } else {
             //configuration managed admin service is a must to configure logging and to start carbon.
@@ -63,7 +63,7 @@ public class Activator implements BundleActivator {
      */
     public void stop(BundleContext bundleContext) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("LoggingBundleActivator stopped successfully");
+            logger.debug("Carbon base bundle activator stopped successfully");
         }
     }
 }
