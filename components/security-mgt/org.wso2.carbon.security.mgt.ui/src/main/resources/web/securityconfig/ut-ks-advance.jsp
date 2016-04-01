@@ -347,8 +347,15 @@
             <table class="normal">
                 <%
                     if (groupData != null) {
+                        if(session.getAttribute("groupsInPage") != null) {
+                            session.removeAttribute("groupsInPage");
+                        }
+                        Map<String, Boolean> groupsInPage = new HashMap<String, Boolean>();
+
                         for (FlaggedName data : groupData) {
                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
+
+                                groupsInPage.put(data.getItemName().toLowerCase(), false);
 
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
                                     continue;
@@ -370,6 +377,7 @@
                 <%
                             }
                         }
+                        session.setAttribute("groupsInPage", groupsInPage);
                     }
                 %>
             </table>
