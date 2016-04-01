@@ -44,7 +44,7 @@
                 <module>parent</module>
                 <module>archetypes</module>
                 <module>launcher</module>
-                <module>logging</module>
+                <module>base</module>
                 <module>core</module>
                 <module>tests</module>
                 <module>features</module>

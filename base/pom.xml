@@ -23,10 +23,10 @@
         <version>5.1.0-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
-    <artifactId>org.wso2.carbon.logging</artifactId>
+    <artifactId>org.wso2.carbon.base</artifactId>
     <version>5.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Kernel - Logging Bootstrap Bundle</name>
+    <name>WSO2 Carbon Kernel - Base Initial Bundle</name>
     <url>http://wso2.com</url>
 
     <dependencies>
@@ -69,8 +69,12 @@
 
 
     <properties>
-        <bundle.activator>org.wso2.carbon.logging.internal.LoggingBundleActivator</bundle.activator>
-        <private.package>org.wso2.carbon.logging.internal</private.package>
+        <bundle.activator>org.wso2.carbon.base.internal.Activator</bundle.activator>
+        <private.package>org.wso2.carbon.base.internal</private.package>
+        <export.package>
+            !org.wso2.carbon.base.internal,
+            org.wso2.carbon.base.*;version="${carbon.kernel.package.export.version}"
+        </export.package>
         <import.package>
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",

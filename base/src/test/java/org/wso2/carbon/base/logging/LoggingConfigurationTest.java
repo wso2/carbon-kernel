@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.logging;
+package org.wso2.carbon.base.logging;
 
 import org.osgi.service.cm.ConfigurationException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.logging.internal.LoggingConfiguration;
+import org.wso2.carbon.base.Constants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,8 +32,6 @@ import java.nio.file.Paths;
  */
 public class LoggingConfigurationTest {
     LoggingConfiguration loggingConfiguration = null;
-
-    private static final String CARBON_HOME = "carbon.home";
 
     protected Path testDir = Paths.get(new File(".").getAbsolutePath(), "src", "test");
 
@@ -54,29 +52,28 @@ public class LoggingConfigurationTest {
 
     @Test(dependsOnMethods = "testRegisterNullManagedService")
     public void testRegisterReadingLog4J2Config() throws FileNotFoundException, ConfigurationException {
-        System.setProperty(CARBON_HOME, getTestResourceFile("carbon-home").getAbsolutePath());
+        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("carbon-home").getAbsolutePath());
         loggingConfiguration.register(new CustomManagedService());
-        System.clearProperty(CARBON_HOME);
+        System.clearProperty(Constants.CARBON_HOME);
     }
 
     @Test(dependsOnMethods = "testRegisterNullManagedService", expectedExceptions = IllegalStateException.class,
-            expectedExceptionsMessageRegExp = "Carbon configuration directory is not found.")
+            expectedExceptionsMessageRegExp = "CARBON_HOME system property is not set")
     public void testRegisterReadingNonExistingConfigDirectory() throws FileNotFoundException, ConfigurationException {
-        System.clearProperty(CARBON_HOME);
+        System.clearProperty(Constants.CARBON_HOME);
         loggingConfiguration.register(new CustomManagedService());
     }
 
-    @Test(dependsOnMethods = "testRegisterReadingNonExistingConfigDirectory")
-    public void testRegisterReadingNonExistingFile() throws ConfigurationException {
-        System.setProperty(CARBON_HOME, getTestResourceFile("fake-carbon-home").getAbsolutePath());
+    @Test(dependsOnMethods = "testRegisterReadingNonExistingConfigDirectory",
+            expectedExceptions = FileNotFoundException.class,
+            expectedExceptionsMessageRegExp = "Logging properties file is not found.*")
+    public void testRegisterReadingNonExistingFile() throws ConfigurationException, FileNotFoundException {
+        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("fake-carbon-home").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());
-        } catch (IllegalStateException e) {
-            Assert.assertTrue(false, "IllegalStateException thrown when expected is FileNotFoundException");
-        } catch (FileNotFoundException e) {
-            Assert.assertTrue(true);
+        } finally {
+            System.clearProperty(Constants.CARBON_HOME);
         }
-        System.clearProperty(CARBON_HOME);
     }
 
     private File getTestResourceFile(String relativePath) {
