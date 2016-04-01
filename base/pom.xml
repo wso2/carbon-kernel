@@ -69,9 +69,13 @@
 
     <properties>
         <bundle.activator>org.wso2.carbon.base.internal.Activator</bundle.activator>
-        <private.package>org.wso2.carbon.base.internal</private.package>
+        <private.package>
+            org.wso2.carbon.base.internal,
+            org.wso2.carbon.base.logging
+        </private.package>
         <export.package>
             !org.wso2.carbon.base.internal,
+            !org.wso2.carbon.base.logging,
             org.wso2.carbon.base.*;version="${carbon.kernel.package.export.version}"
         </export.package>
         <import.package>
