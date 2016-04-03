@@ -99,6 +99,7 @@ public class SecurityConstants {
     public static final int CACHING_PAGE_SIZE = 5;
     //AxisService parameter names
     public static final String SCENARIO_ID_PARAM_NAME = "ScenarioID";
+    public static final String SCENARIO_ID_SET_PARAM_NAME = "ScenarioIDSet";
     public static final String ROLE_ADMIN = RegistryResources.SecurityManagement.ADMIN_ROLE;
     public static final String ROLE_GENERAL = "General User";
 
