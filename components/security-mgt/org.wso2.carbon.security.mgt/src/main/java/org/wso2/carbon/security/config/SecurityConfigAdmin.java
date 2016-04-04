@@ -852,7 +852,7 @@ public class SecurityConfigAdmin {
 
 
     private String getArrayAsString(String[] userGroups) {
-        StringBuffer groups = new StringBuffer();
+        StringBuilder groups = new StringBuilder();
         boolean isFirst = true;
         for (String group : userGroups) {
             if (isFirst) {

@@ -216,10 +216,10 @@ public class ServerCrypto implements Crypto {
      */
     public byte[] getCertificateData(boolean reverse, X509Certificate[] certs)
             throws WSSecurityException {
-        Vector list = new Vector();
+        List list = new ArrayList();
         for (int i = 0; i < certs.length; i++) {
             if (reverse) {
-                list.insertElementAt(certs[i], 0);
+                list.add(0, certs[i]);
             } else {
                 list.add(certs[i]);
             }
@@ -634,7 +634,7 @@ public class ServerCrypto implements Crypto {
     public String[] getAliasesForDN(String subjectDN) throws WSSecurityException {
 
         // Store the aliases found
-        Vector aliases = new Vector();
+        List aliases = new Vector();
         Certificate cert;
 
         // The DN to search the keystore for
@@ -667,7 +667,7 @@ public class ServerCrypto implements Crypto {
         // Convert the vector into an array
         String[] result = new String[aliases.size()];
         for (int i = 0; i < aliases.size(); i++) {
-            result[i] = (String) aliases.elementAt(i);
+            result[i] = (String) aliases.get(i);
         }
         return result;
 
