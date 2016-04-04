@@ -28,10 +28,13 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.DefaultClaimManager;
+import org.wso2.carbon.user.core.claim.InMemoryClaimManager;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.profile.builder.ProfileBuilderException;
@@ -83,7 +86,15 @@ public class DefaultRealm implements UserRealm {
         this.tenantId = tenantId;
         dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
-        claimMan = new DefaultClaimManager(claimMappings, dataSource, tenantId);
+        if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
+            if (UserStoreMgtDSComponent.getClaimManagerFactory() != null) {
+                claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().getClaimManager(tenantId);
+            } else {
+                claimMan = new InMemoryClaimManager();
+            }
+        } else {
+            claimMan = new DefaultClaimManager(claimMappings, dataSource, tenantId);
+        }
         initializeObjects();
     }
 
@@ -102,9 +113,17 @@ public class DefaultRealm implements UserRealm {
 
         Map<String, ClaimMapping> claimMappings = new HashMap<String, ClaimMapping>();
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
-        populateProfileAndClaimMaps(claimMappings, profileConfigs);
 
-        claimMan = new DefaultClaimManager(claimMappings, dataSource, tenantId);
+        if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
+            if (UserStoreMgtDSComponent.getClaimManagerFactory() != null) {
+                claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().getClaimManager(tenantId);
+            } else {
+                claimMan = new InMemoryClaimManager();
+            }
+        } else {
+            populateProfileAndClaimMaps(claimMappings, profileConfigs);
+            claimMan = new DefaultClaimManager(claimMappings, dataSource, tenantId);
+        }
         initializeObjects();
     }
 
@@ -460,6 +479,14 @@ public class DefaultRealm implements UserRealm {
             return false;
         }
 
+    }
+
+    private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
+        if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
+            this.claimMan = claimManager;
+        } else {
+            throw new IllegalAccessException("Set claim manager is not allowed");
+        }
     }
 
 }
