@@ -17,6 +17,7 @@ package org.wso2.carbon.launcher.bootstrap.logging;
 
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -38,7 +39,7 @@ public class BootstrapLogger extends Logger {
      * @throws java.util.MissingResourceException if the ResourceBundleName is non-null and
      *                                            no corresponding resource can be found.
      */
-    protected BootstrapLogger(String name) {
+    public BootstrapLogger(String name) {
         //Parsing null as resource Bundle as none of the messages require localization.
         super(name, null);
     }
@@ -50,12 +51,20 @@ public class BootstrapLogger extends Logger {
      * @return Logger Carbon logger instance
      */
     public static Logger getCarbonLogger(String name) {
-        Logger logger = new BootstrapLogger(name);
-        try {
-            logger.addHandler(FileLogHandler.getInstance());
-            logger.addHandler(ConsoleLogHandler.getInstance());
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error while adding handler to bootstrap logger");
+        LogManager manager = LogManager.getLogManager();
+        Logger namedLogger = manager.getLogger(name);
+        BootstrapLogger logger;
+        if (namedLogger == null) {
+            logger = new BootstrapLogger(name);
+            try {
+                logger.addHandler(FileLogHandler.getInstance());
+                logger.addHandler(ConsoleLogHandler.getInstance());
+                manager.addLogger(logger);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error while adding handler to bootstrap logger");
+            }
+        } else {
+            logger = (BootstrapLogger) namedLogger;
         }
         return logger;
     }

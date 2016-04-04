@@ -29,7 +29,7 @@ import java.util.logging.LogRecord;
  */
 public class ConsoleLogHandler extends ConsoleHandler {
 
-    private ConsoleLogHandler() {
+    public ConsoleLogHandler() {
         super();
         // Setting the log4j.properties format.
         this.setFormatter(new LoggingFormatter());
