@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,20 +17,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>carbon-kernel-test-artifacts</artifactId>
         <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel-parent</artifactId>
         <version>5.1.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
-    <artifactId>carbon-context-test-artifact</artifactId>
+    <artifactId>org.wso2.carbon.base</artifactId>
+    <version>5.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Kernel - Carbon Context Test Artifact</name>
+    <name>WSO2 Carbon Kernel - Base Initial Bundle</name>
     <url>http://wso2.com</url>
 
     <dependencies>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
@@ -46,18 +44,44 @@
             <artifactId>pax-logging-api</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <classifier>runtime</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+
     <properties>
-        <private.package>org.wso2.carbon.context.test.internal</private.package>
+        <bundle.activator>org.wso2.carbon.base.internal.Activator</bundle.activator>
+        <private.package>
+            org.wso2.carbon.base.internal,
+            org.wso2.carbon.base.logging
+        </private.package>
         <export.package>
-            !org.wso2.carbon.context.test.internal,
-            org.wso2.carbon.context.test.*;version="${carbon.kernel.package.export.version}"
+            !org.wso2.carbon.base.internal,
+            !org.wso2.carbon.base.logging,
+            org.wso2.carbon.base.*;version="${carbon.kernel.package.export.version}"
         </export.package>
         <import.package>
-            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-            org.wso2.carbon.kernel.*;version="${carbon.kernel.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
         </import.package>
     </properties>
 

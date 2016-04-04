@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,33 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.base;
 
 /**
- * Carbon Constants.
+ * Base Constants class.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
 public final class Constants {
 
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
-    public static final String CARBON_CONFIG_YAML = "carbon.yml";
+    public static final String PAX_LOGGING_PROPERTIES_FILE = "pax-logging.properties";
 
-    public static final String START_TIME = "carbon.start.time";
-
-    public static final String LOGIN_MODULE_ENTRY = "CarbonSecurityConfig";
-
-    public static final String DEFAULT_TENANT = "default";
-
-    public static final String TENANT_NAME = "tenant.name";
-
-    public static final String SERVER_PACKAGE = "org.wso2.carbon";
-
-    /**
-     * Remove default constructor and make it not available to initialize.
-     */
     private Constants() {
-        throw new AssertionError("Trying to a instantiate a constant class");
+
     }
 }

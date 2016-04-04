@@ -28,6 +28,7 @@ import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
+import org.wso2.carbon.kernel.utils.MBeanRegistrator;
 
 import java.util.Map;
 
@@ -79,6 +80,8 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
 
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         bundleContext.registerService(TransportManager.class, transportManager, null);
+        MBeanRegistrator.registerMBean(transportManager);
+
         // Registering transport management command provider implementation. This allows users to manage
         // transports via the OSGi console.
         bundleContext.registerService(CommandProvider.class.getName(),

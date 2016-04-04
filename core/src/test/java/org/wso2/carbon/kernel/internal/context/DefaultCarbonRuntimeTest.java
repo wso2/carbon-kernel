@@ -19,8 +19,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
-import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 
 /**
  * Unit testing class for org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntime.
@@ -32,7 +30,7 @@ public class DefaultCarbonRuntimeTest {
     private CarbonConfiguration carbonConfiguration;
 
     @BeforeTest
-    public void setup() throws DeploymentEngineException, DeployerRegistrationException {
+    public void setup() {
         carbonRuntime = new DefaultCarbonRuntime();
         carbonConfiguration = new CarbonConfiguration();
     }

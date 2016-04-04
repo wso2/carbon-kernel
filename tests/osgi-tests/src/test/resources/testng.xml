@@ -23,8 +23,6 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>
             <class name="org.wso2.carbon.osgi.BaseOSGiTest"/>
 
-            <class name="org.wso2.carbon.osgi.deployment.CarbonDeploymentEngineOSGiTest"/>
-
             <class name="org.wso2.carbon.osgi.logging.LoggingConfigurationOSGiTest"/>
             <!--<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>-->
 

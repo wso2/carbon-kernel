@@ -68,6 +68,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+        </dependency>
+
+        <!-- todo use for tests/delete -->
+        <dependency>
+            <groupId>org.wso2.andes.wso2</groupId>
+            <artifactId>andes-client</artifactId>
+            <version>3.1.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>commons-io.wso2</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
@@ -133,9 +146,6 @@
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
         </import.package>
         <provide.capability>
-            osgi.service;effective:=active;
-            objectClass="org.wso2.carbon.kernel.deployment.DeploymentService";
-            dependent-component-key="carbon-transport-mgt",
             osgi.service;effective:=active;
             objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";
             dependent-component-key="carbon-deployment-service",
