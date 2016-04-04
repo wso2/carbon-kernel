@@ -7,7 +7,10 @@ Usage of the sub-directories of relevant configurations are as follows.
 2. etc <directory>
 
      - pax-logging.properties
-     This file contains the configuration properties required for intializing the pax-logging framework.
+     This file contains the configuration properties required for initializing the pax-logging framework.
+
+     - java.util.logging.properties
+     This is the java.util.logging configuration used by WSO2 Carbon.
 
 3. osgi <directory>
 
@@ -22,10 +25,7 @@ Usage of the sub-directories of relevant configurations are as follows.
     The log4j2 configuration file used by WSO2 Carbon.
 
 
-5. logging.properties
-    The java.util.logging configuration file used by WSO2 Carbon.
-
-6. README.txt
+5. README.txt
     This file.
 
 
