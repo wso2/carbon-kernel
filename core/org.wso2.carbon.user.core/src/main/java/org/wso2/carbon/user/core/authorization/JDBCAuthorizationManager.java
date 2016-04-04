@@ -67,6 +67,8 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private String cacheIdentifier;
     private int tenantId;
     private String isCascadeDeleteEnabled;
+    private static final String DELETE_ROLE_PERMISSIONS = "DeleteRolePermissions";
+    private static final String DELETE_USER_PERMISSIONS = "DeleteUserPermissions";
     private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
@@ -91,6 +93,16 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
         if ("true".equals(realmConfig.getAuthorizationManagerProperty(GET_ALL_ROLES_OF_USER_ENABLED))) {
             verifyByRetrievingAllUserRoles = true;
+        }
+
+        if (!realmConfig.getAuthzProperties().containsKey(DELETE_ROLE_PERMISSIONS)) {
+            realmConfig.getAuthzProperties().put(DELETE_ROLE_PERMISSIONS, DBConstants
+                    .ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL);
+        }
+
+        if (!realmConfig.getAuthzProperties().containsKey(DELETE_USER_PERMISSIONS)) {
+            realmConfig.getAuthzProperties().put(DELETE_USER_PERMISSIONS, DBConstants
+                    .ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL);
         }
 
         String userCoreCacheIdentifier = realmConfig.getUserStoreProperty(UserCoreConstants.
@@ -606,10 +618,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         try {
             dbConnection = getDBConnection();
             if(isCascadeDeleteEnabled == null || !Boolean.parseBoolean(isCascadeDeleteEnabled)) {
-                DatabaseUtil.updateDatabase(dbConnection,
-                        DBConstants.ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL, resourceId, tenantId);
-                DatabaseUtil.updateDatabase(dbConnection,
-                        DBConstants.ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL, resourceId, tenantId);
+                DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get(
+                        DELETE_ROLE_PERMISSIONS), resourceId, tenantId);
+                DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get(
+                        DELETE_USER_PERMISSIONS), resourceId, tenantId);
             }
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_PERMISSION_SQL,
                     resourceId, tenantId);
