@@ -337,13 +337,6 @@ public class JDBCCommentsVersionDAO extends JDBCCommentsDAO implements CommentsD
                             "WHERE C.REG_ID=RC.REG_COMMENT_ID AND RC.REG_VERSION = ? " +
                             "AND C.REG_TENANT_ID=? AND RC.REG_TENANT_ID=?";
 
-            // Fix for CARBON-15838 - removing unused code blocks.
-            //            if(paginated){
-            //                if(!"".equals(sortBy) && !"".equals(sortOrder)){
-            //                    sql = sql +" ORDER BY " + sortBy +" "+ sortOrder;
-            //
-            //                }
-            //            }
             
             if (enableApiPagination == null || enableApiPagination.equals("true")) {
                 // TYPE_SCROLL_INSENSITIVE and CONCUR_UPDATABLE should be set to move the cursor through the resultSet

@@ -653,14 +653,6 @@ public class JDBCTagsVersionDAO extends JDBCTagsDAO implements TagsDAO {
                             "T.REG_TENANT_ID=? AND RT.REG_TENANT_ID=? " +
                             "GROUP BY T.REG_TAG_NAME";
 
-            // Fix for CARBON-15838 - removing unused code blocks.
-            //            if(paginated){
-            //                if (!"".equals(sortBy) && !"".equals(sortOrder)) {
-            //                    sql = sql + " ORDER BY " + sortBy + " " + sortOrder;
-            //
-            //                }
-            //            }
-
             if (enableApiPagination == null || enableApiPagination.equals("true")) {
                 // TYPE_SCROLL_INSENSITIVE and CONCUR_UPDATABLE should be set to move the cursor through the resultSet
                 ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
