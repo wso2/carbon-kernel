@@ -74,8 +74,14 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/conf/logging.properties</source>
-            <outputDirectory>conf</outputDirectory>
+            <source>carbon-home/conf/etc/pax-logging.properties</source>
+            <outputDirectory>conf/etc</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>carbon-home/conf/etc/java.util.logging.properties</source>
+            <outputDirectory>conf/etc</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
