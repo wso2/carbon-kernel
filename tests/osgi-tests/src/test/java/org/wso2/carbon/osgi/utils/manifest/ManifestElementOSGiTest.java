@@ -54,7 +54,9 @@ public class ManifestElementOSGiTest {
     public Option[] createConfiguration() {
 
         List<Option> optionList = new ArrayList<>();
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
+                .versionAsInProject());
+        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
                 .versionAsInProject());
 
         optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
@@ -65,24 +67,25 @@ public class ManifestElementOSGiTest {
     public void testParseHeader() {
         Bundle carbonCoreBundle = Arrays.asList(bundleContext.getBundles())
                 .stream()
-                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.sample.transport.mgt"))
+                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.sample.deployer.mgt"))
                 .findFirst()
                 .get();
 
-        String key = carbonCoreBundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY);
+        String headerValue = carbonCoreBundle.getHeaders().get(PROVIDE_CAPABILITY);
         try {
-            ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, key);
-            Assert.assertTrue(elements.length > 0);
+            List<ManifestElement> elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, headerValue,
+                    bundleContext.getBundle());
+            Assert.assertTrue(elements.size() > 0);
 
-            ManifestElement firstElement = elements[0];
+            ManifestElement firstElement = elements.get(0);
             String value = firstElement.getValue();
             String strRepresentation = firstElement.toString();
             String[] elementsInManifest = strRepresentation.split(";");
             List<String> keys = Collections.list(firstElement.getKeys());
 
             Assert.assertEquals("osgi.service", value);
-            Assert.assertEquals(elementsInManifest.length, 5);
-            Assert.assertEquals(keys.size(), 3);
+            Assert.assertEquals(elementsInManifest.length, 4);
+            Assert.assertEquals(keys.size(), 2);
         } catch (ManifestElementParserException e) {
             Assert.assertTrue(false);
         }
@@ -91,8 +94,9 @@ public class ManifestElementOSGiTest {
     @Test
     public void testParseHeaderEmptyValueTest() {
         try {
-            ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, null);
-            Assert.assertEquals(0, elements.length);
+            List<ManifestElement> elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, null,
+                    bundleContext.getBundle());
+            Assert.assertEquals(0, elements.size());
         } catch (ManifestElementParserException e) {
             Assert.assertTrue(false);
         }

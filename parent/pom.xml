@@ -14,13 +14,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
         <version>3</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -156,6 +157,17 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>${maven.bundle.plugin.extensions}</extensions>
+                <configuration>
+                    <obrRepository>NONE</obrRepository>
+                    <instructions>
+                        <Startup-Component>${startup.component}</Startup-Component>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
@@ -482,9 +494,6 @@
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <maven.archetype.version>2.4</maven.archetype.version>
-
-        <!-- TODO: Following property should be removed once CARBON-15810 is fixed-->
-        <maven.bundle.plugin.version>2.5.4</maven.bundle.plugin.version>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.8.0</pax.exam.version>
