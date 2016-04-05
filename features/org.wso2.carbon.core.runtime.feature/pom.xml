@@ -67,10 +67,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.app</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.concurrent</artifactId>
         </dependency>
         <dependency>
@@ -112,10 +108,6 @@
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.registry</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
@@ -179,10 +171,6 @@
                                     <version>${equinox.osgi.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>org.eclipse.equinox.app</symbolicName>
-                                    <version>${equinox.app.version}</version>
-                                </bundle>
-                                <bundle>
                                     <symbolicName>org.eclipse.equinox.concurrent</symbolicName>
                                     <version>${equinox.concurrent.version}</version>
                                 </bundle>
@@ -197,10 +185,6 @@
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.preferences</symbolicName>
                                     <version>${equinox.preferences.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.equinox.registry</symbolicName>
-                                    <version>${equinox.registry.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.simpleconfigurator.manipulator</symbolicName>

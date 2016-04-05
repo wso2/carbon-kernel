@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.launcher.bootstrap.logging;
 
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.BufferedOutputStream;
@@ -34,14 +35,13 @@ import java.util.logging.StreamHandler;
  * @since 5.0.0
  */
 public class FileLogHandler extends StreamHandler {
-    private static final String CARBON_LOG_FILE_NAME = "carbon.log";
 
     /**
      * Set a log formatter and append to a named file.
      *
      * @throws IOException
      */
-    private FileLogHandler() throws IOException {
+    public FileLogHandler() throws IOException {
         this.setFormatter(new LoggingFormatter());
         openLogFile();
     }
@@ -63,8 +63,8 @@ public class FileLogHandler extends StreamHandler {
      * @throws IOException
      */
     private void openLogFile() throws IOException {
-        String logFilename = Paths.get(Utils.getCarbonHomeDirectory().toString(),
-                "logs", CARBON_LOG_FILE_NAME).toString();
+        String logFilename = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs",
+                Constants.CARBON_LOG_FILE_NAME).toString();
         File logfile = new File(logFilename);
         if (!logfile.getParentFile().exists()) {
             try {

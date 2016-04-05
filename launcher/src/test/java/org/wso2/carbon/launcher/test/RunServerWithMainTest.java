@@ -34,8 +34,7 @@ public class RunServerWithMainTest extends BaseTest {
     @BeforeClass
     public void init() {
         setupCarbonHome();
-        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "carbon.log");
+        logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
         logger = BootstrapLogger.getCarbonLogger(CarbonServerStartTest.class.getName());
 
         String profileName = System.getProperty(PROFILE);

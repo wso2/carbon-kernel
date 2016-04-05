@@ -50,6 +50,9 @@ public class BundleGeneratorUtils {
 
     private static final Logger logger = Logger.getLogger(BundleGeneratorUtils.class.getName());
 
+    private BundleGeneratorUtils() {
+    }
+
     /**
      * Converts a specified non-OSGi JAR file to an OSGi bundle at the specified destination.
      *

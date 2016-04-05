@@ -91,11 +91,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.app</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
             <scope>test</scope>
         </dependency>
@@ -132,11 +127,6 @@
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.registry</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -315,6 +305,11 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>carbon-context-test-artifact</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>osgi-test-util</artifactId>
         </dependency>
     </dependencies>
@@ -376,6 +371,7 @@
                                 <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}</org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
                                 <pax.exam.system>default</pax.exam.system>
+                                <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>

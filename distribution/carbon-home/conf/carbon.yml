@@ -14,9 +14,10 @@
 #   limitations under the License.
 ################################################################################
 
-id: ${server.key}
-name: ${server.name}
-version: ${server.version}
+id: ${server.key}           #Value to uniquely identify a server
+name: ${server.name}        #Server Name
+version: ${server.version}  #Server Version
+tenant: ${tenant.name}      #Tenant Name
 
 # Ports used by this server
 ports:
@@ -44,17 +45,17 @@ deployment:
 startupResolver:
 # Configuration for the timer task which checks for satisfiable RequiredCapabilityListeners periodically
  capabilityListenerTimer:
-  delay: 20
-  period: 20
+  delay: 20   #delay in milliseconds before task is to be executed
+  period: 20  #time in milliseconds between successive task executions
 
 # Configuration for the timer task which checks for pending Capabilities
  pendingCapabilityTimer:
-  delay: 30000
-  period: 30000
+  delay: 30000    #delay in milliseconds before task is to be executed
+  period: 30000   #time in milliseconds between successive task executions
 
 # JMX Configuration
 jmx:
- enabled: false
- hostName: "127.0.0.1"
- rmiServerPort: 11111
- rmiRegistryPort: 9999
+ enabled: false         #To enable JMX Monitoring, change this value to true
+ hostName: "127.0.0.1"  #Server HostName
+ rmiServerPort: 11111   #The port RMI server should be exposed
+ rmiRegistryPort: 9999  #The port RMI registry is exposed

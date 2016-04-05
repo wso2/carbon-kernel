@@ -23,6 +23,7 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
+import org.wso2.carbon.kernel.utils.MBeanRegistrator;
 
 /**
  * Activator class for carbon core.
@@ -51,6 +52,7 @@ public class CarbonCoreBundleActivator implements BundleActivator {
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
+        MBeanRegistrator.unregisterAllMBeans();
         logger.debug("Carbon core bundle is stopped successfully");
     }
 }

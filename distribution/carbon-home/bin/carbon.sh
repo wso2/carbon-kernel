@@ -168,7 +168,7 @@ if [ "$CMD" = "--debug" ]; then
   echo "Please start the remote debugging client to continue..."
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
-    if  ps -p $PID >&- ; then
+    if  ps -p $PID > /dev/null ; then
       echo "Process is already running"
       exit 0
     fi
@@ -271,6 +271,7 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
+    -Djava.util.logging.config.file="$CARBON_HOME/conf/etc/java.util.logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     org.wso2.carbon.launcher.Main $*

@@ -143,8 +143,6 @@ public class OSGiTestConfigurationUtils {
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.apache.felix.gogo.shell").groupId("org.apache.felix")
                 .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.eclipse.equinox.app").groupId("org.wso2.eclipse.equinox")
-                .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.eclipse.equinox.common").groupId("org.wso2.eclipse.equinox")
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.eclipse.equinox.concurrent").groupId("org.wso2.eclipse.equinox")
@@ -160,8 +158,6 @@ public class OSGiTestConfigurationUtils {
         optionList.add(mavenBundle().artifactId("org.eclipse.equinox.launcher").groupId("org.wso2.eclipse.equinox")
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.eclipse.equinox.preferences").groupId("org.wso2.eclipse.equinox")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.eclipse.equinox.registry").groupId("org.wso2.eclipse.equinox")
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator.manipulator")
                 .groupId("org.wso2.eclipse.equinox").versionAsInProject());

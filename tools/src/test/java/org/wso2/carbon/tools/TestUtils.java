@@ -29,6 +29,9 @@ import java.util.List;
  */
 public class TestUtils {
 
+    private TestUtils() {
+    }
+
     protected static boolean createDirectory(Path directory) {
         try {
             if (!Files.exists(directory)) {

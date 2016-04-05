@@ -17,6 +17,7 @@
 id: ${server.key}
 name: ${server.name}
 version: ${server.version}
+tenant: default
 
 # Ports used by this server
 ports:
