@@ -4,16 +4,21 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
+import org.wso2.carbon.launcher.bootstrap.logging.ConsoleLogHandler;
+import org.wso2.carbon.launcher.bootstrap.logging.FileLogHandler;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import static org.wso2.carbon.launcher.Constants.DEFAULT_PROFILE;
 import static org.wso2.carbon.launcher.Constants.LAUNCH_PROPERTIES_FILE;
@@ -29,15 +34,25 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
 public class LaunchConfigExceptionsTest extends BaseTest {
 
     private File logFile;
+    Logger logger;
 
     public LaunchConfigExceptionsTest() {
         super();
     }
 
     @BeforeClass
-    public void init() {
+    public void init() throws IOException {
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
+        setupCarbonHome();
+        logger = LogManager.getLogManager().getLogger(CarbonLaunchConfig.class.getName());
+        if (logger != null && logger.getHandlers().length == 0) {
+            //handlers of the CarbonLaunchConfig may have reset while reconfiguring LogManager.
+            //hence adding handles again to CarbonLaunchConfig logger if handlers are not set.
+            logger.addHandler(FileLogHandler.getInstance());
+            logger.addHandler(ConsoleLogHandler.getInstance());
+        }
+
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);

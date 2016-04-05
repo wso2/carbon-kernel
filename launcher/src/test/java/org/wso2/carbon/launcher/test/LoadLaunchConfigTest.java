@@ -54,7 +54,7 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
  * @since 5.0.0
  */
 public class LoadLaunchConfigTest extends BaseTest {
-    private Logger logger;
+    private static Logger logger;
     private CarbonLaunchConfig launchConfig;
     private File logFile;
 
@@ -63,10 +63,10 @@ public class LoadLaunchConfigTest extends BaseTest {
     }
 
     @BeforeClass
-    public void init() {
+    public void init() throws IOException {
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
-        logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
+        logger = BootstrapLogger.getCarbonLogger(LoadLaunchConfigTest.class.getName());
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
@@ -92,13 +92,13 @@ public class LoadLaunchConfigTest extends BaseTest {
         Assert.assertTrue(launchPropFile.exists(), "launch.properties file does not exists");
     }
 
-    @Test
+    @Test (dependsOnMethods = "loadCarbonLaunchConfigFromFileTestCase")
     public void loadCarbonLaunchConfigTestCase() {
         launchConfig = new CarbonLaunchConfig();
 
     }
 
-    @Test
+    @Test (dependsOnMethods = "loadCarbonLaunchConfigTestCase")
     public void loadCarbonLaunchConfigFromURLTestCase() throws MalformedURLException {
         String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
                 LAUNCH_PROPERTIES_FILE).toString();

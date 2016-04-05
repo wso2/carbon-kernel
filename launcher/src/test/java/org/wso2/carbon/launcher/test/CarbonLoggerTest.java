@@ -17,7 +17,7 @@ package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.bootstrap.logging.LoggingFormatter;
@@ -46,7 +46,7 @@ public class CarbonLoggerTest extends BaseTest {
         super();
     }
 
-    @BeforeSuite
+    @BeforeClass
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
         logger = BootstrapLogger.getCarbonLogger(CarbonLoggerTest.class.getName());
