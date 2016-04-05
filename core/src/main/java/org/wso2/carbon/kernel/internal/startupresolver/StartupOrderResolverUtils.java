@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME_SPLIT_CHAR;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_KEY;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS_LIST_STRING;
@@ -274,9 +275,15 @@ class StartupOrderResolverUtils {
                 OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(capabilityName,
                         Capability.CapabilityType.OSGi_SERVICE, manifestElement.getBundle());
 
-                // Check whether a dependent-component-key property is specified.
+                // Check whether a dependent-component-key or dependent-component-name property is specified.
                 String dependentComponentName = getManifestElementAttribute(
-                        DEPENDENT_COMPONENT_NAME, manifestElement, false);
+                        DEPENDENT_COMPONENT_KEY, manifestElement, false);
+
+                if (dependentComponentName == null || dependentComponentName.equals("")) {
+                    dependentComponentName = getManifestElementAttribute(
+                            DEPENDENT_COMPONENT_NAME, manifestElement, false);
+                }
+
                 if (dependentComponentName != null && !dependentComponentName.equals("")) {
                     osgiServiceCapability.setDependentComponentName(dependentComponentName.trim());
                 }

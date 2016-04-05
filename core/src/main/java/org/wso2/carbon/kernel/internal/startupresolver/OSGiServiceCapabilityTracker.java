@@ -40,7 +40,6 @@ import java.util.stream.IntStream;
 
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
 
 /**
@@ -170,9 +169,9 @@ class OSGiServiceCapabilityTracker {
 
             } else {
                 // this has to be a capability service
-                logger.debug("Adding OSGi Service Capability. Service id: {}. Service implementation class: {}. " +
-                                "dependent-component-key: {}", serviceInterfaceClassName, serviceImplClassName,
-                        reference.getProperty(DEPENDENT_COMPONENT_NAME));
+                logger.debug("Adding OSGi Service Capability. Service id: {}. Service implementation class: {}. ",
+                        serviceInterfaceClassName,
+                        serviceImplClassName);
 
                 OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(serviceInterfaceClassName,
                         Capability.CapabilityType.OSGi_SERVICE, bundle);

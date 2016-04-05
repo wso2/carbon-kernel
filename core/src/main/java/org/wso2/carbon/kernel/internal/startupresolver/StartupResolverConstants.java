@@ -29,7 +29,8 @@ class StartupResolverConstants {
     static final String CAPABILITY_NAME = "capability-name";
     static final String COMPONENT_NAME = "component-key";
     static final String OSGI_SERVICE = "osgi.service";
-    static final String DEPENDENT_COMPONENT_NAME = "dependent-component-key";
+    static final String DEPENDENT_COMPONENT_KEY = "dependent-component-key";
+    static final String DEPENDENT_COMPONENT_NAME = "dependent-component-name";
     static final String OBJECT_CLASS = "objectClass";
     static final String OBJECT_CLASS_LIST_STRING = "objectClass:List<String>";
     static final String CAPABILITY_NAME_SPLIT_CHAR = ",";
