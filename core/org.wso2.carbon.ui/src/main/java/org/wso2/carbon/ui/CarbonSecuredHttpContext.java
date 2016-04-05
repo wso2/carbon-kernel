@@ -42,6 +42,7 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
     public static final String LOGGED_USER = CarbonConstants.LOGGED_USER;
     public static final String CARBON_AUTHNETICATOR = "CarbonAuthenticator";
+    private static final String CARBON_WEB_XML_PATH_PATTERN = "/carbon/WEB-INF/*";
 
     private static final Log log = LogFactory.getLog(CarbonSecuredHttpContext.class);
     private Bundle bundle = null;
@@ -103,6 +104,10 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         String context = request.getContextPath();
         if ("/".equals(context)) {
             context = "";
+        }
+
+        if (isWebXMLPath(context, requestedURI)) {
+            return false;
         }
 
         // We eliminate the /tenant/{tenant-domain} from authentications
@@ -501,4 +506,20 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         return depthOfContext;
     }
 
+    /**
+     * Check whether a direct access to the carbon/WEB-INF/web.xml file
+     *
+     * @param webContextRoot web context root path
+     * @param requestURI     requested URI path
+     * @return boolean true if requested url matches the web xml path pattern
+     */
+    private boolean isWebXMLPath(String webContextRoot, String requestURI) {
+        //add the web context root path to the carbon web xml path
+        String pattern = webContextRoot + CARBON_WEB_XML_PATH_PATTERN;
+
+        if (requestURI.startsWith(pattern)) {
+            return true;
+        }
+        return false;
+    }
 }
