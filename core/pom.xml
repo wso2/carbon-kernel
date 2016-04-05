@@ -15,7 +15,8 @@
  limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -134,15 +135,21 @@
         </import.package>
         <provide.capability>
             osgi.service;effective:=active;
-            objectClass="org.wso2.carbon.kernel.deployment.DeploymentService";
-            dependent-component-key="carbon-transport-mgt",
+            objectClass:List&lt;String&gt;="org.wso2.carbon.kernel.deployment.DeploymentService";
+            dependent-component-key=carbon-transport-mgt,
             osgi.service;effective:=active;
-            objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";
-            dependent-component-key="carbon-deployment-service",
+            objectClass:List&lt;String&gt;="org.wso2.carbon.kernel.runtime.RuntimeService";
+            dependent-component-key=carbon-deployment-service,
             osgi.service;effective:=active;
-            objectClass="org.wso2.carbon.kernel.CarbonRuntime";
-            dependent-component-key="carbon-deployment-service"
+            objectClass:List&lt;String&gt;="org.wso2.carbon.kernel.CarbonRuntime";
+            dependent-component-key=carbon-deployment-service,
         </provide.capability>
+        <startup.component>
+            carbon-transport-mgt;required-service="org.wso2.carbon.kernel.transports.CarbonTransport",
+            carbon-runtime-mgt;required-service="org.wso2.carbon.kernel.runtime.Runtime",
+            carbon-deployment-service;required-service="org.wso2.carbon.kernel.deployment.Deployer"
+        </startup.component>
+
     </properties>
 
 </project>
