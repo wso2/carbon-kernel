@@ -3,10 +3,8 @@ package org.wso2.carbon.launcher.test;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.CarbonServer;
 import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
-import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
@@ -26,8 +24,6 @@ import java.util.logging.Logger;
 public class JavaUtilLoggingTest extends BaseTest {
 
     private Logger logger;
-    private CarbonLaunchConfig launchConfig;
-    private CarbonServer carbonServer;
     private File logFile;
     private String defaultConfigFile;
 
