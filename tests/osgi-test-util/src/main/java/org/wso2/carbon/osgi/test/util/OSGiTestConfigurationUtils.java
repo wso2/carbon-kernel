@@ -97,7 +97,6 @@ public class OSGiTestConfigurationUtils {
         optionList.add(systemProperty("server.key").value(serverKey != null ? serverKey : "carbon-kernel"));
         optionList.add(systemProperty("server.name").value(serverName != null ? serverName : "WSO2 Carbon Kernel"));
         optionList.add(systemProperty("server.version").value(serverVersion != null ? serverVersion : "5.0.0"));
-        optionList.add(systemProperty("tenant.name").value("default"));
 
         //Setting server start time.
         optionList.add(systemProperty(org.wso2.carbon.kernel.Constants.START_TIME)

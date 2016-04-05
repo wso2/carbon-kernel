@@ -17,7 +17,7 @@
 id: ${server.key}           #Value to uniquely identify a server
 name: ${server.name}        #Server Name
 version: ${server.version}  #Server Version
-tenant: ${tenant.name}      #Tenant Name
+tenant: default      #Tenant Name
 
 # Ports used by this server
 ports:
