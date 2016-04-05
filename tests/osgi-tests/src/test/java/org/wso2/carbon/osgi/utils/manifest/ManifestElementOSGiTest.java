@@ -56,6 +56,8 @@ public class ManifestElementOSGiTest {
         List<Option> optionList = new ArrayList<>();
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
                 .versionAsInProject());
+        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                .versionAsInProject());
 
         optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
         return optionList.toArray(new Option[optionList.size()]);

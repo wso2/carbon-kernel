@@ -153,8 +153,7 @@
         </provide.capability>
         <startup.component>
             carbon-transport-mgt;required-service="org.wso2.carbon.kernel.transports.CarbonTransport",
-            carbon-runtime-mgt;required-service="org.wso2.carbon.kernel.runtime.Runtime",
-            carbon-deployment-service;required-service="org.wso2.carbon.kernel.deployment.Deployer"
+            carbon-runtime-mgt;required-service="org.wso2.carbon.kernel.runtime.Runtime"
         </startup.component>
 
     </properties>
