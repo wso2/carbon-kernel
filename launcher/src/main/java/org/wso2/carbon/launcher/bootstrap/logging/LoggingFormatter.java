@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.launcher.bootstrap.logging;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +43,20 @@ public class LoggingFormatter extends Formatter {
         builder.append("[").append(df.format(new Date(record.getMillis()))).append("] ");
         builder.append(record.getLevel());
         builder.append(" {").append(record.getSourceClassName()).append("} - ");
-        builder.append(formatMessage(record)).append("\n");
+        builder.append(formatMessage(record));
+
+        //get any throwable associated with the log record.
+        //This will be the exception object if the log record involved in an exception.
+        String throwable = "";
+        if (record.getThrown() != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            pw.println();
+            record.getThrown().printStackTrace(pw);
+            pw.close();
+            throwable = sw.toString();
+        }
+        builder.append(throwable).append("\n");
         return builder.toString();
     }
 
