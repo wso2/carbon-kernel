@@ -10,10 +10,12 @@ import org.wso2.carbon.launcher.utils.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.LogManager;
 
 import static org.wso2.carbon.launcher.Constants.DEFAULT_PROFILE;
 import static org.wso2.carbon.launcher.Constants.LAUNCH_PROPERTIES_FILE;
@@ -35,9 +37,11 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     }
 
     @BeforeClass
-    public void init() {
+    public void init() throws IOException {
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
+        LogManager.getLogManager().getLogger(CarbonLaunchConfig.class.getName()).
+                addHandler(new CarbonLoggerTest.CarbonLogHandler(logFile));
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
@@ -77,7 +81,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromURLTestCase"})
     public void verifyRuntimeExceptionErrorLogsTestCase() throws FileNotFoundException {
 
-        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
+        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig loadConfigurationFromUrl} - "
                 + "Error loading the launch.properties";
         ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to carbon.log
@@ -106,7 +110,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFaultFileTestCase"})
     public void verifyErrorLogsLoadingPropertiesTestCase() throws FileNotFoundException {
 
-        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
+        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig resolvePath} - "
                 + "The property osgi.install.area must not be null or empty";
         ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to carbon.log

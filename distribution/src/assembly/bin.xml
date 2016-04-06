@@ -80,8 +80,8 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/conf/etc/java.util.logging.properties</source>
-            <outputDirectory>conf/etc</outputDirectory>
+            <source>carbon-home/bin/bootstrap/launcher-logging.properties</source>
+            <outputDirectory>bin/bootstrap</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
