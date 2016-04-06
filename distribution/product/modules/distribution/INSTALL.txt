@@ -59,7 +59,7 @@ Installing  WSO2 Carbon ${carbon.version}
 Hardware and Software Requirements
 -------------------
 For more details see
-https://docs.wso2.com/display/Carbon445/Installing+the+Product
+https://docs.wso2.com/display/Carbon446/Installing+the+Product
 
 
 
