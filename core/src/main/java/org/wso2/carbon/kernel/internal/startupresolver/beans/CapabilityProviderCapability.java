@@ -20,7 +20,7 @@ package org.wso2.carbon.kernel.internal.startupresolver.beans;
 import org.osgi.framework.Bundle;
 
 /**
- * Represents a {@code CapabilityProvider}
+ * Represents a {@code CapabilityProvider}.
  *
  * @since 5.1.0
  */

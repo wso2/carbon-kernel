@@ -146,7 +146,7 @@ class StartupOrderResolverUtils {
     }
 
     /**
-     * Extracts the "objectClass" manifest element attribute from the give {@code ManifestElement}
+     * Extracts the "objectClass" manifest element attribute from the give {@code ManifestElement}.
      *
      * @param manifestElement {@code ManifestElement} from which the "objectClass" is to be extracted.
      * @return the value of the "objectClass" attribut.
