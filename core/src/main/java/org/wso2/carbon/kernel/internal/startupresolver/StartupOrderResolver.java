@@ -56,7 +56,7 @@ import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverCon
 
 
 /**
- * {@code StartupOrderResolver} handles carbon component startup complexities. Here are two such cases
+ * {@code StartupOrderResolver} handles carbon component startup complexities. Here are two such cases.
  * <p>
  * 1) In a Carbon base product, certain components must be initialized first before certain other components.
  * <p>
@@ -104,6 +104,9 @@ public class StartupOrderResolver {
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
         try {
+
+            logger.debug("Initialize - Startup Order Resolver.");
+
             // 1) Process OSGi manifest headers to calculate the expected list required capabilities.
             processManifestHeaders(Arrays.asList(bundleContext.getBundles()), supportedManifestHeaders);
 
@@ -127,7 +130,7 @@ public class StartupOrderResolver {
             schedulePendingCapabilityTimerTask();
 
         } catch (Throwable e) {
-            logger.error("Failed to initialize startup order resolver. ", e);
+            logger.error("Error occurred in Startup Order Resolver.", e);
         }
     }
 
@@ -190,12 +193,16 @@ public class StartupOrderResolver {
             public void run() {
                 if (startupComponentManager.getPendingComponents().size() == 0) {
                     notifySatisfiableComponents();
-                    logger.info("All the StartupComponents are notified, " +
-                            "therefore cancelling the capabilityListenerTimer");
+
+                    logger.debug("All the StartupComponents are satisfied. Cancelling the capabilityListenerTimer");
+
                     CarbonStartupHandler.logServerStartupTime();
                     CarbonStartupHandler.registerCarbonServerInfoService();
+
                     capabilityListenerTimer.cancel();
                     osgiServiceTracker.closeTracker();
+
+                    logger.debug("Complete - Startup Order Resolver.");
                     return;
                 }
 
@@ -345,7 +352,7 @@ public class StartupOrderResolver {
 
     /**
      * Create a list of StartupComponents from RequiredCapabilityLister elements and
-     * add the list to the {@code StartupComponentManager}
+     * add the list to the {@code StartupComponentManager}.
      * <p>
      * This is to support backward compatibility.
      *
@@ -402,11 +409,13 @@ public class StartupOrderResolver {
                         startupComponentManager.removeSatisfiedComponent(startupComponent);
                         RequiredCapabilityListener capabilityListener = startupComponent.getListener();
 
-                        logger.info("Notifying RequiredCapabilityListener of component {} from bundle({}:{}) " +
-                                        "since all the required capabilities are available",
-                                componentName,
-                                startupComponent.getBundle().getSymbolicName(),
-                                startupComponent.getBundle().getVersion());
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Notifying RequiredCapabilityListener of component {} from bundle({}:{}) " +
+                                            "since all the required capabilities are available",
+                                    componentName,
+                                    startupComponent.getBundle().getSymbolicName(),
+                                    startupComponent.getBundle().getVersion());
+                        }
 
                         capabilityListener.onAllRequiredCapabilitiesAvailable();
                     }
