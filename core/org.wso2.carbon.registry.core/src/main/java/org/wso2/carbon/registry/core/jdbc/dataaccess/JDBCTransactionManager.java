@@ -94,7 +94,7 @@ public class JDBCTransactionManager implements TransactionManager {
         } catch (SQLException e) {
             String msg = "Failed to start new registry transaction.";
             log.error(msg, e);
-            if(conn!=null){
+            if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException e1) {
