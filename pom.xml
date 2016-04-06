@@ -14,7 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.identity</groupId>
@@ -249,7 +250,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.neethi.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
                 <version>${neethi.osgi.version}</version>
             </dependency>
@@ -305,12 +306,6 @@
                 <groupId>org.wso2.charon</groupId>
                 <artifactId>org.wso2.charon.utils</artifactId>
                 <version>${charon.wso2.version.identity}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>opensaml.wso2</groupId>
-                <artifactId>opensaml</artifactId>
-                <version>${opensaml.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -519,8 +514,8 @@
             </dependency>
 
             <dependency>
-                <groupId>opensaml.wso2</groupId>
-                <artifactId>opensaml2</artifactId>
+                <groupId>org.wso2.orbit.org.opensaml</groupId>
+                <artifactId>opensaml</artifactId>
                 <version>${opensaml2.wso2.version}</version>
             </dependency>
 
@@ -1345,7 +1340,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.4.3</carbon.kernel.version>
+        <carbon.kernel.version>4.4.5</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
 
@@ -1355,7 +1350,7 @@
         <osgi.util.tracker.imp.pkg.version.range>[1.5.1, 2.0.0)</osgi.util.tracker.imp.pkg.version.range>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.4.8</carbon.commons.version>
+        <carbon.commons.version>4.5.2</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.4.0, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
@@ -1374,14 +1369,14 @@
         <axis2.wso2.version>1.6.1.wso2v12</axis2.wso2.version>
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-        <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
+        <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
         <axis2-transports.version>1.1.0-wso2v13</axis2-transports.version>
         <axis2-transports.version.range>[1.1.0-wso2v13,2.0.0)</axis2-transports.version.range>
         <org.apache.axis2.transport.mail.version.range>[0.0.0,1.0.0)</org.apache.axis2.transport.mail.version.range>
 
         <!-- Axiom Version -->
-        <axiom.version>1.2.11-wso2v9</axiom.version>
-        <axiom.wso2.version>1.2.11.wso2v9</axiom.wso2.version>
+        <axiom.version>1.2.11-wso2v10</axiom.version>
+        <axiom.wso2.version>1.2.11.wso2v10</axiom.wso2.version>
         <axiom.osgi.version.range>[1.2.11, 2.0.0)</axiom.osgi.version.range>
         <axiom.javax.mail.imp.pkg.version.range>[1.4.0, 2.0.0)</axiom.javax.mail.imp.pkg.version.range>
         <axiom.org.jaxen.imp.pkg.version.range>[1.1.1, 2.0.0)</axiom.org.jaxen.imp.pkg.version.range>
@@ -1453,9 +1448,10 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
+        <rampart.wso2.version>1.6.1.wso2v19</rampart.wso2.version>
         <rampart.wso2.version>1.6.1.wso2v20-SNAPSHOT</rampart.wso2.version>
         <rampart.wso2.osgi.version.range>[1.6.1,2.0.0)</rampart.wso2.osgi.version.range>
-        <rampart.mar.version>1.6.1.wso2v17</rampart.mar.version>
+        <rampart.mar.version>1.6.1.wso2v19</rampart.mar.version>
 
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20130513-1956</version.equinox.osgi.services>
@@ -1481,15 +1477,16 @@
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
         <commons-collections.wso2.osgi.version.range>[3.2.0,4.0.0)</commons-collections.wso2.osgi.version.range>
 
-        <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
+        <neethi.osgi.version>2.0.4.wso2v5</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4,3.0.0)</neethi.osgi.version.range>
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
-        <libthrift.wso2.osgi.version.range>[0.8.0.wso2v1,1.0.0)</libthrift.wso2.osgi.version.range>
+        <!--Change major version to minor version which is 0.9.0 due to 0.8.x and 0.9.x incompatibility-->
+        <libthrift.wso2.osgi.version.range>[0.8.0.wso2v1,0.9.0)</libthrift.wso2.osgi.version.range>
         <log4j.version>1.2.13</log4j.version>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
-        <opensaml.version>2.4.1</opensaml.version>
-        <opensaml2.wso2.version>2.4.1.wso2v1</opensaml2.wso2.version>
-        <opensaml2.wso2.osgi.version.range>[2.4.1.wso2v1,3.0.0)</opensaml2.wso2.osgi.version.range>
+        <opensaml.version>2.6.4</opensaml.version>
+        <opensaml2.wso2.version>2.6.4.wso2v1</opensaml2.wso2.version>
+        <opensaml2.wso2.osgi.version.range>[2.6.0,3.0.0)</opensaml2.wso2.osgi.version.range>
         <commons-codec.version>1.4.0.wso2v1</commons-codec.version>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
 
@@ -1512,8 +1509,6 @@
         <openid4java.version>1.0.0</openid4java.version>
         <openid4java.wso2.version>1.0.0.wso2v2</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
-        <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
-        <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.2</balana.version>
         <balana.imp.pkg.version.range>[1.0.1,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
@@ -1559,6 +1554,8 @@
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
 
+        <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
+
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
 
@@ -1585,6 +1582,26 @@
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>
+                        <instructions>
+                            <SCM-Revision>${buildNumber}</SCM-Revision>
+                        </instructions>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>${maven.buildnumber.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <doCheck>false</doCheck>
+                        <doUpdate>false</doUpdate>
                     </configuration>
                 </plugin>
             </plugins>
@@ -1612,6 +1629,10 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
