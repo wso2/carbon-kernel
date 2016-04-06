@@ -70,28 +70,7 @@ class StartupComponentManager {
     void addComponents(List<StartupComponent> startupComponentList) {
         startupComponentList
                 .stream()
-                .forEach(startupComponent -> {
-                    String componentName = startupComponent.getName();
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Adding startup component {} from bundle({}:{})",
-                                componentName,
-                                startupComponent.getBundle().getSymbolicName(),
-                                startupComponent.getBundle().getVersion());
-                    }
-
-                    startupComponentMap.put(componentName, startupComponent);
-                    pendingCapabilityMap.put(componentName, new ArrayList<>());
-
-                    // Iterate through the list of required OSGi service capabilities in a StartupComponent and update
-                    // capabilityToComponentMap.
-                    startupComponent.getRequiredServiceList()
-                            .forEach(requiredCapabilityName -> {
-                                logger.debug("Startup component {} depends on OSGi Service capability {}",
-                                        startupComponent.getName(), requiredCapabilityName);
-                                updateCapabilityToComponentMap(startupComponent, requiredCapabilityName);
-                            });
-                });
+                .forEach(this::addComponentInternal);
     }
 
     /**
@@ -103,12 +82,14 @@ class StartupComponentManager {
     void addRequiredOSGiServiceCapabilityToComponent(String componentName, String capabilityName) {
         StartupComponent startupComponent = startupComponentMap.get(componentName);
         if (startupComponent == null) {
-            logger.warn("Specified startup component is not available, component-name: " + componentName);
+            logger.warn("Adding a required OSGi service capability to component, but specified startup component is " +
+                    "not available, component-name: {} and capability-name: {}.", componentName, capabilityName);
             return;
         }
 
         logger.debug("Updating the required OSGi Service list of startup component {}. capabilityName: {} ",
                 componentName, capabilityName);
+
         startupComponent.getRequiredServiceList().add(capabilityName);
         updateCapabilityToComponentMap(startupComponent, capabilityName);
     }
@@ -123,14 +104,28 @@ class StartupComponentManager {
      * @param bundle        the bundle from which this listener service is registered.
      */
     void addRequiredCapabilityListener(RequiredCapabilityListener listener, String componentName, Bundle bundle) {
+        StartupComponent startupComponent = startupComponentMap.get(componentName);
+        if (startupComponent == null) {
+            logger.warn("Adding a RequiredCapabilityListener from bundle({}:{}), but specified startup component is " +
+                    "not available, component-name: {}", bundle.getSymbolicName(), bundle.getVersion(), componentName);
+            return;
+        }
+
+        if (startupComponent.getListener() != null) {
+            logger.warn("Duplicate RequiredCapabilityListener detected. Existing RequiredCapabilityListener for " +
+                            "startup component {}. New RequiredCapabilityListener from bundle({}:{}).",
+                    componentName,
+                    bundle.getSymbolicName(),
+                    bundle.getVersion());
+            return;
+        }
+
         if (logger.isDebugEnabled()) {
             logger.debug("Adding available RequiredCapabilityListener with the componentName {} from bundle({}:{})",
                     componentName, bundle.getSymbolicName(), bundle.getVersion());
         }
+        startupComponent.setListener(listener);
 
-        if (startupComponentMap.containsKey(componentName)) {
-            startupComponentMap.get(componentName).setRequiredCapabilityListener(listener);
-        }
     }
 
     /**
@@ -251,7 +246,7 @@ class StartupComponentManager {
     }
 
     /**
-     * Returns a list of pending {@code StartupComponent}s
+     * Returns a list of pending {@code StartupComponent}s.
      * <p>
      * A {@code StartupComponents} becomes pending if either of the following conditions met.
      * 1) If there are pending capability registrations,
@@ -307,7 +302,7 @@ class StartupComponentManager {
     }
 
     /**
-     * Returns the pending OSGi Service of type {@code RequiredCapabilityListener}
+     * Returns the pending OSGi Service of type {@code RequiredCapabilityListener}.
      *
      * @return a list of pending {@code RequiredCapabilityListener}s
      */
@@ -319,7 +314,7 @@ class StartupComponentManager {
     }
 
     /**
-     * Returns the pending OSGi Service of type {@code CapabilityProvider}
+     * Returns the pending OSGi Service of type {@code CapabilityProvider}.
      *
      * @return a list of pending {@code CapabilityProvider}s
      */
@@ -335,11 +330,47 @@ class StartupComponentManager {
      * Returns all the pending capabilities of a given startup component.
      *
      * @param componentName name of the startup component.
-     * @return  a list of pending {@code Capability} instances of the give statup component.
+     * @return a list of pending {@code Capability} instances of the give statup component.
      */
     List<Capability> getPendingProvideCapabilityList(String componentName) {
         return pendingCapabilityMap.get(componentName);
 
+    }
+
+    private void addComponentInternal(StartupComponent startupComponent) {
+        String componentName = startupComponent.getName();
+
+        if (startupComponentMap.get(componentName) != null) {
+            StartupComponent existingComponent = startupComponentMap.get(componentName);
+            logger.warn("Duplicate Startup-Component detected. Existing Startup-Component {} " +
+                            "from bundle({}:{}). New Startup-Component {} from bundle({}:{}).",
+                    existingComponent.getName(),
+                    existingComponent.getBundle().getSymbolicName(),
+                    existingComponent.getBundle().getVersion(),
+                    startupComponent.getName(),
+                    startupComponent.getBundle().getSymbolicName(),
+                    startupComponent.getBundle().getVersion());
+            return;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding startup component {} from bundle({}:{})",
+                    componentName,
+                    startupComponent.getBundle().getSymbolicName(),
+                    startupComponent.getBundle().getVersion());
+        }
+
+        startupComponentMap.put(componentName, startupComponent);
+        pendingCapabilityMap.put(componentName, new ArrayList<>());
+
+        // Iterate through the list of required OSGi service capabilities in a StartupComponent and update
+        // capabilityToComponentMap.
+        startupComponent.getRequiredServiceList()
+                .forEach(requiredCapabilityName -> {
+                    logger.debug("Startup component {} depends on OSGi Service capability {}",
+                            startupComponent.getName(), requiredCapabilityName);
+                    updateCapabilityToComponentMap(startupComponent, requiredCapabilityName);
+                });
     }
 
     private List<CapabilityProviderCapability> getPendingCapabilityProviderList(String componentName) {
