@@ -58,7 +58,7 @@ class OSGiServiceCapabilityTracker {
     }
 
     /**
-     * Starts the ServiceTracker
+     * Starts the ServiceTracker.
      */
     void startTracker() {
         Filter orFilter = getORFilter(getRequiredServiceList(startupComponentManager));
@@ -69,7 +69,7 @@ class OSGiServiceCapabilityTracker {
     }
 
     /**
-     * Closes the ServiceTracker
+     * Closes the ServiceTracker.
      */
     void closeTracker() {
         capabilityServiceTracker.close();
@@ -117,7 +117,7 @@ class OSGiServiceCapabilityTracker {
         try {
             return bundleContext.createFilter(orFilterBuilder.toString());
         } catch (InvalidSyntaxException e) {
-            throw new RuntimeException(e);
+            throw new StartOrderResolverException(e.getMessage(), e);
         }
     }
 
@@ -139,8 +139,8 @@ class OSGiServiceCapabilityTracker {
 
                 String componentKey = (String) reference.getProperty(COMPONENT_NAME);
                 if (componentKey == null || componentKey.equals("")) {
-                    throw new RuntimeException(COMPONENT_NAME + " value is missing in the services registered " +
-                            "with the key " + serviceInterfaceClassName + ", implementation class name is "
+                    throw new StartOrderResolverException(COMPONENT_NAME + " value is missing in the services " +
+                            "registered with the key " + serviceInterfaceClassName + ", implementation class name is "
                             + serviceImplClassName);
                 }
 
@@ -152,8 +152,8 @@ class OSGiServiceCapabilityTracker {
 
                 String capabilityName = (String) reference.getProperty(CAPABILITY_NAME);
                 if (capabilityName == null || capabilityName.equals("")) {
-                    throw new RuntimeException(CAPABILITY_NAME + " value is missing in the services registered " +
-                            "with the key " + serviceInterfaceClassName + ", implementation class name is "
+                    throw new StartOrderResolverException(CAPABILITY_NAME + " value is missing in the services " +
+                            "registered with the key " + serviceInterfaceClassName + ", implementation class name is "
                             + serviceImplClassName);
                 }
 

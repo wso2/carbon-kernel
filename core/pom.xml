@@ -149,7 +149,7 @@
         <provide.capability>
             osgi.service;effective:=active;
             objectClass:List&lt;String&gt;="org.wso2.carbon.kernel.runtime.RuntimeService";
-            dependent-component-name=carbon-transport-service,
+            dependent-component-name=carbon-transport-mgt,
         </provide.capability>
         <startup.component>
             carbon-transport-mgt;required-service="org.wso2.carbon.kernel.transports.CarbonTransport",
