@@ -50,8 +50,8 @@ startupResolver:
 
 # Configuration for the timer task which checks for pending Capabilities
  pendingCapabilityTimer:
-  delay: 30000    #delay in milliseconds before task is to be executed
-  period: 30000   #time in milliseconds between successive task executions
+  delay: 5000    #delay in milliseconds before task is to be executed
+  period: 5000   #time in milliseconds between successive task executions
 
 # JMX Configuration
 jmx:
