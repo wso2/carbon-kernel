@@ -61,7 +61,7 @@ public class StartupComponent {
         return listener;
     }
 
-    public void setRequiredCapabilityListener(RequiredCapabilityListener listener) {
+    public void setListener(RequiredCapabilityListener listener) {
         this.listener = listener;
     }
 

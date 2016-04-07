@@ -34,6 +34,8 @@ class StartupResolverConstants {
     static final String OBJECT_CLASS = "objectClass";
     static final String OBJECT_CLASS_LIST_STRING = "objectClass:List<String>";
     static final String CAPABILITY_NAME_SPLIT_CHAR = ",";
+    static final String REQUIRED_SERVICE = "required-service";
+
 
     private StartupResolverConstants() {
         throw new AssertionError("Trying to a instantiate a constant class");

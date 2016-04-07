@@ -46,12 +46,19 @@ import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverCon
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS_LIST_STRING;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OSGI_SERVICE;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.REQUIRED_SERVICE;
 
 /**
  * @since 5.1.0
  */
 class StartupOrderResolverUtils {
     private static final Logger logger = LoggerFactory.getLogger(StartupOrderResolverUtils.class);
+
+    private StartupOrderResolverUtils() {
+        throw new AssertionError("Instantiating utility class...");
+
+    }
+
 
     /**
      * Checks whether the given bundle contains at least one of the support manifest headers.
@@ -77,8 +84,8 @@ class StartupOrderResolverUtils {
      * @return the created {@code StartupComponent}.
      */
     static StartupComponent getStartupComponentBean(ManifestElement manifestElement) {
-        String componentName = manifestElement.getValue();
-        String requiredServices = getManifestElementAttribute("required-service", manifestElement, true);
+        String componentName = manifestElement.getValue().trim();
+        String requiredServices = getManifestElementAttribute(REQUIRED_SERVICE, manifestElement, true);
         String[] requiredServiceArray = requiredServices != null ?
                 requiredServices.split(CAPABILITY_NAME_SPLIT_CHAR) : new String[0];
         List<String> requiredServicesList = Arrays.asList(requiredServiceArray)
@@ -121,14 +128,14 @@ class StartupOrderResolverUtils {
      * @param attributeKey    key of the manifest element attribute
      * @param manifestElement {@code ManifestElement} object from which we lookup for attributes
      * @param mandatory       states whether this is a required attribute or not. If a required attribute value is null,
-     *                        then this method throws a {@code RuntimeException}
+     *                        then this method throws a {@code StartOrderResolverException}
      * @return requested attribute value
      */
     private static String getManifestElementAttribute(String attributeKey,
                                                       ManifestElement manifestElement, boolean mandatory) {
         String value = manifestElement.getAttribute(attributeKey);
         if ((value == null || value.equals("")) && mandatory) {
-            throw new RuntimeException(attributeKey + " attribute value is missing in " +
+            throw new StartOrderResolverException(attributeKey + " attribute value is missing in " +
                     manifestElement.getManifestHeaderName() + " header of bundle(" +
                     manifestElement.getBundle().getSymbolicName() + ":" +
                     manifestElement.getBundle().getVersion() + ")");
@@ -139,7 +146,7 @@ class StartupOrderResolverUtils {
     }
 
     /**
-     * Extracts the "objectClass" manifest element attribute from the give {@code ManifestElement}
+     * Extracts the "objectClass" manifest element attribute from the give {@code ManifestElement}.
      *
      * @param manifestElement {@code ManifestElement} from which the "objectClass" is to be extracted.
      * @return the value of the "objectClass" attribut.
@@ -151,7 +158,7 @@ class StartupOrderResolverUtils {
         }
 
         if (className == null || className.equals("")) {
-            throw new RuntimeException("objectClass cannot be empty. Bundle-SymbolicName: " +
+            throw new StartOrderResolverException("objectClass cannot be empty. Bundle-SymbolicName: " +
                     manifestElement.getBundle().getSymbolicName());
         }
 
@@ -164,12 +171,11 @@ class StartupOrderResolverUtils {
         } catch (ManifestElementParserException e) {
             String message = "Error occurred while parsing the " + headerName + " header in bundle(" +
                     bundle.getSymbolicName() + ":" + bundle.getVersion() + "). " + "Header value: " + headerValue;
-            throw new RuntimeException(message);
+            throw new StartOrderResolverException(message, e);
         }
     }
 
-    static class RequireCapabilityListenerProcessor implements
-            Function<ManifestElement, Optional<Capability>> {
+    static class RequireCapabilityListenerProcessor implements Function<ManifestElement, Optional<Capability>> {
 
         @Override
         public Optional<Capability> apply(ManifestElement manifestElement) {
