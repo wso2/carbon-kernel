@@ -80,7 +80,7 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/bin/bootstrap/launcher-logging.properties</source>
+            <source>carbon-home/bin/bootstrap/logging.properties</source>
             <outputDirectory>bin/bootstrap</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
