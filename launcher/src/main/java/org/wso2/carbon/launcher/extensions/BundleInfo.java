@@ -62,4 +62,19 @@ public class BundleInfo {
         return bundleSymbolicName + "," + bundleVersion + "," + bundlePath + "," + startLevel + "," +
                 Boolean.toString(!isFragment);
     }
+
+    public boolean equals(Object object) {
+        if (object instanceof BundleInfo) {
+            BundleInfo other = (BundleInfo) object;
+            if ((bundleSymbolicName == null) || (bundleVersion == null) || (other.bundleSymbolicName == null) || (
+                    other.bundleVersion == null)) {
+                return false;
+            } else {
+                return ((bundleSymbolicName.equals(other.bundleSymbolicName)) && (bundleVersion.
+                        equals(other.bundleVersion)));
+            }
+        } else {
+            return false;
+        }
+    }
 }

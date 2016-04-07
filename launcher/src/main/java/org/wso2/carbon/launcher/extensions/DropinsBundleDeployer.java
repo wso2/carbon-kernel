@@ -77,8 +77,12 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                         "org.eclipse.equinox.simpleconfigurator", "bundles.info");
 
         List<BundleInfo> newBundleInfo = getNewBundlesInfo(dropinsDirectoryPath);
-        List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundleInfo, bundlesInfoFilePath);
-        updateDropinsBundleFile(effectiveNewBundleInfo, bundlesInfoFilePath);
+        if(hasToUpdateBundlesInfoFile(newBundleInfo, bundlesInfoFilePath)) {
+            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundleInfo, bundlesInfoFilePath);
+            updateDropinsBundleFile(effectiveNewBundleInfo, bundlesInfoFilePath);
+        } else {
+            logger.log(Level.INFO, "No changes detected in the dropins directory, skipping the bundles.info update");
+        }
     }
 
     /**
@@ -155,6 +159,21 @@ public class DropinsBundleDeployer implements CarbonServerListener {
             }
         } else {
             throw new IOException("Invalid OSGi bundle path");
+        }
+    }
+
+    private static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundleInfo, Path existingBundleInfoFile)
+            throws IOException {
+        if ((existingBundleInfoFile != null) && (Files.exists(existingBundleInfoFile))) {
+            List<BundleInfo> existingBundlesInfo = new ArrayList<>();
+            Files.readAllLines(existingBundleInfoFile).stream().filter(line -> !line.startsWith("#")).
+                    map(BundleInfo::getInstance).
+                    filter(BundleInfo::isFromDropins).forEach(existingBundlesInfo::add);
+
+            return Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).stream().filter(
+                    info -> existingBundlesInfo.stream().filter(existingInfo -> existingInfo.equals(info)).count() > 0).count() > 0;
+        } else {
+            throw new IOException("Invalid file path specified " + existingBundleInfoFile);
         }
     }
 
