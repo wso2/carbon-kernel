@@ -16,9 +16,9 @@
 package org.wso2.carbon.launcher.extensions;
 
 /**
- * A Java class which defines an instance holding an OSGi bundle's information.
+ * A Java class which models a holder for information of an OSGi bundle.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
 public class BundleInfo {
     private String bundleSymbolicName;
@@ -38,30 +38,20 @@ public class BundleInfo {
         this.isFromDropins = bundlePath.contains("dropins/");
     }
 
-    public String getBundleSymbolicName() {
-        return bundleSymbolicName;
-    }
-
-    public String getBundleVersion() {
-        return bundleVersion;
-    }
-
-    public String getBundlePath() {
-        return bundlePath;
-    }
-
-    public boolean isFragment() {
-        return isFragment;
-    }
-
     public boolean isFromDropins() {
         return isFromDropins;
     }
 
-    public static BundleInfo getInstance(String bundleInfoLineStr) throws Exception {
-        String[] parts = bundleInfoLineStr.split(",");
+    /**
+     * Constructs a {@code BundleInfo} instance from the {@code bundleInfoLineString} specified.
+     *
+     * @param bundleInfoLineString the {@link String} from which the {@link BundleInfo} is to be constructed
+     * @return the generated {@link BundleInfo} instance
+     */
+    public static BundleInfo getInstance(String bundleInfoLineString) {
+        String[] parts = bundleInfoLineString.split(",");
         if (parts.length != 5) {
-            throw new RuntimeException("Invalid line in the bundles.info file: " + bundleInfoLineStr);
+            throw new RuntimeException("Invalid line in the bundles.info file: " + bundleInfoLineString);
         }
 
         return new BundleInfo(parts[0].trim(), parts[1].trim(), parts[2].trim(), Integer.parseInt(parts[3].trim()),
@@ -69,7 +59,7 @@ public class BundleInfo {
     }
 
     public String toString() {
-        return bundleSymbolicName + "," + bundleVersion + "," +
-                bundlePath + "," + startLevel + "," + Boolean.toString(!isFragment);
+        return bundleSymbolicName + "," + bundleVersion + "," + bundlePath + "," + startLevel + "," +
+                Boolean.toString(!isFragment);
     }
 }
