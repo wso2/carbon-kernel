@@ -3,12 +3,6 @@ package org.wso2.osgi.spi.internal;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.hooks.weaving.WeavingHook;
-import org.osgi.util.tracker.BundleTracker;
-import org.wso2.osgi.spi.junk.MediatorReady;
-import org.wso2.osgi.spi.junk.Ready;
 import org.wso2.osgi.spi.registrar.ServiceRegistrar;
 
 public class ServiceLoaderActivator implements BundleActivator {
@@ -16,7 +10,6 @@ public class ServiceLoaderActivator implements BundleActivator {
     private static ServiceLoaderActivator instance = null;
 
     private ServiceBundleTracker serviceBundleTracker = null;
-    private ServiceRegistration weavingHookService = null;
 
     private long bundleId;
 
@@ -35,7 +28,6 @@ public class ServiceLoaderActivator implements BundleActivator {
 
     public void stop(BundleContext context) throws Exception {
         serviceBundleTracker.close();
-        weavingHookService.unregister();
         ServiceRegistrar.unregisterAll();
         System.out.println("Mediator Bundle Stopped");
     }

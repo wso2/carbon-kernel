@@ -19,11 +19,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
+import org.wso2.osgi.spi.processor.ConsumerProcessor;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -160,6 +162,14 @@ public class CarbonServer {
 
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Started the OSGi framework.");
+        }
+
+        BundleContext bundleContext = framework.getBundleContext();
+        ConsumerProcessor consumerProcessor = new ConsumerProcessor();
+        bundleContext.registerService(WeavingHook.class, consumerProcessor, null);
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "SPI class processor service registered successfully.");
         }
     }
 
