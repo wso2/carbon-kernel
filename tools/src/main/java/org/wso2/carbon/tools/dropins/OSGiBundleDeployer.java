@@ -21,5 +21,4 @@ package org.wso2.carbon.tools.dropins;
  * @since 5.1.0
  */
 public class OSGiBundleDeployer {
-
 }

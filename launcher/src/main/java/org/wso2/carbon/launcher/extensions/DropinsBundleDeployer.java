@@ -43,7 +43,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                     get(Utils.getCarbonHomeDirectory().toString(), "osgi", Constants.DEFAULT_PROFILE,
                             "configuration", "org.eclipse.equinox.simpleconfigurator", "bundles.info");
             try {
-                BundleDeployer.executeDropinsCapability(defaultProfileBundlesInfo);
+                BundleDeployerUtils.executeDropinsCapability(defaultProfileBundlesInfo);
             } catch (IOException e) {
                 logger.log(Level.SEVERE,
                         "An error has occurred when updating the bundles.info using the OSGi bundle information", e);

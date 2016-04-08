@@ -35,8 +35,8 @@ import java.util.stream.Stream;
  *
  * @since 5.1.0
  */
-public class BundleDeployer {
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(BundleDeployer.class.getName());
+public class BundleDeployerUtils {
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(BundleDeployerUtils.class.getName());
     private static final String dropinsDirectory = "dropins";
 
     /**
@@ -163,9 +163,19 @@ public class BundleDeployer {
                     map(BundleInfo::getInstance).
                     filter(BundleInfo::isFromDropins).forEach(existingBundlesInfo::add);
 
-            return Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).stream().filter(info ->
-                    existingBundlesInfo.stream().filter(existingInfo -> existingInfo.equals(info)).count() > 0).count()
-                    > 0;
+            long newBundleInfoCount = Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).size();
+            if (existingBundlesInfo.size() == newBundleInfoCount) {
+                long nonMatchingBundleInfoCount = Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).stream().
+                        filter(info -> existingBundlesInfo.stream().filter(existingInfo -> existingInfo.equals(info)).
+                                count() == 0).count();
+                if (nonMatchingBundleInfoCount > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
         } else {
             throw new IOException("Invalid file path specified " + existingBundleInfoFile);
         }
