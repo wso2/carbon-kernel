@@ -18,11 +18,10 @@ package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.CarbonServer;
 import org.wso2.carbon.launcher.Constants;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
@@ -46,18 +45,19 @@ public class CarbonSeverLoggerTest extends BaseTest {
         super();
     }
 
-    @BeforeSuite
+    @BeforeClass
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
-        logger = BootstrapLogger.getCarbonLogger(CarbonServer.class.getName());
+        logger = Logger.getLogger(CarbonServer.class.getName());
+        logger.addHandler(new CarbonLoggerTest.CarbonLogHandler(logFile));
     }
 
     @Test
     public void testCarbonLogAppendTestCase() throws IOException {
         String sampleMessage = "Sample message-test logging with class CarbonServer";
-        String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonSeverLoggerTest} - " +
-                "Sample message-test logging with class CarbonServer";
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonSeverLoggerTest testCarbonLogAppendTestCase} " +
+                "- Sample message-test logging with class CarbonServer";
 
         logger.info(sampleMessage);
         ArrayList<String> logRecords =

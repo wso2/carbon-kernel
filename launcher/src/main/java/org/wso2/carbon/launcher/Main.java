@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.launcher;
 
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -48,7 +47,7 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
  */
 public class Main {
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(Main.class.getName());
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     /**
      * @param args arguments
