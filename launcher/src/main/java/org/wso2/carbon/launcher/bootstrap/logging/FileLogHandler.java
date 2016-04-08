@@ -41,7 +41,7 @@ public class FileLogHandler extends StreamHandler {
      *
      * @throws IOException
      */
-    private FileLogHandler() throws IOException {
+    public FileLogHandler() throws IOException {
         this.setFormatter(new LoggingFormatter());
         openLogFile();
     }

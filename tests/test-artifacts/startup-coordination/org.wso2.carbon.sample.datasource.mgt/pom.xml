@@ -58,8 +58,7 @@
         <export.package>org.wso2.carbon.sample.datasource.mgt</export.package>
         <provide.capability>
             osgi.service;effective:=active;objectClass="org.wso2.carbon.kernel.startupresolver.
-            RequiredCapabilityListener";capability-name="org.wso2.carbon.sample.datasource.mgt.DataSource";
-            component-key="carbon-sample-datasource-mgt"
+            RequiredCapabilityListener";component-key="carbon-sample-datasource-mgt"
         </provide.capability>
     </properties>
 

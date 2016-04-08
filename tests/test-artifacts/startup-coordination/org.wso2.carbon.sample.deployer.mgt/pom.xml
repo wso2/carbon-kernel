@@ -60,6 +60,9 @@
             osgi.service;effective:=active;
             objectClass="org.wso2.carbon.sample.deployer.mgt.DeployerManager";
             dependent-component-key="carbon-sample-transport-mgt",
+            osgi.service;effective:=active;objectClass="org.wso2.carbon.kernel.startupresolver.
+            RequiredCapabilityListener";capability-name="org.wso2.carbon.sample.deployer.mgt.Deployer";
+            component-key="carbon-sample-deployment-engine"
         </provide.capability>
     </properties>
 

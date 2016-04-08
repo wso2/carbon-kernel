@@ -53,6 +53,10 @@
     <properties>
         <export.package>org.wso2.carbon.sample.transport.jms</export.package>
         <import.package>*</import.package>
+        <provide.capability>
+            osgi.service;effective:=active;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
+            capability-name="org.wso2.carbon.sample.transport.mgt.Transport"
+        </provide.capability>
     </properties>
 
 </project>
