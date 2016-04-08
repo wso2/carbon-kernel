@@ -41,6 +41,7 @@ public final class PrivilegedCarbonContext extends CarbonContext {
      * @return the carbon context instance.
      */
     public static PrivilegedCarbonContext getCurrentContext() {
+        Utils.checkSecurity();
         return new PrivilegedCarbonContext(CarbonContextHolder.getCurrentContextHolder());
     }
 
