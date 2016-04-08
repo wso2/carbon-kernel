@@ -18,7 +18,6 @@ package org.wso2.carbon.launcher.extensions;
 import org.wso2.carbon.launcher.CarbonServerEvent;
 import org.wso2.carbon.launcher.CarbonServerListener;
 import org.wso2.carbon.launcher.Constants;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
@@ -52,7 +51,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     private static final String FRAGMENT_HOST = "Fragment-Host";
     private static final int DEFAULT_BUNDLE_START_LEVEL = 4;
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(DropinsBundleDeployer.class.getName());
+    private static final Logger logger = Logger.getLogger(DropinsBundleDeployer.class.getName());
 
     /**
      * Receives notification of a CarbonServerEvent.

@@ -19,17 +19,20 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
-import org.wso2.carbon.launcher.bootstrap.logging.LoggingFormatter;
+import org.wso2.carbon.launcher.Constants;
+import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
 /**
@@ -38,7 +41,7 @@ import java.util.logging.StreamHandler;
  * @since 5.0.0
  */
 public class CarbonLoggerTest extends BaseTest {
-    private static final String LOGS = "logs" + File.separator + "test.logs";
+    private File logFile;
     Logger logger;
     CarbonLogHandler carbonLogHandler;
 
@@ -49,26 +52,33 @@ public class CarbonLoggerTest extends BaseTest {
     @BeforeSuite
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
-        logger = BootstrapLogger.getCarbonLogger(CarbonLoggerTest.class.getName());
-        carbonLogHandler = new CarbonLogHandler(new File(getTestResourceFile(LOGS).getAbsolutePath()));
-        carbonLogHandler.setFormatter(new LoggingFormatter());
+        logFile = new File(Paths.get(Utils.getCarbonHomeDirectory().toString(),
+                "logs", Constants.CARBON_LOG_FILE_NAME).toString());
+        String loggingConfigFile = Paths.get("src", "test", "resources", "logging", "logging.properties").toString();
+        System.setProperty("java.util.logging.config.file", loggingConfigFile);
+        //reload configurations of java.util.logging to set the required pattern for formatter.
+        LogManager.getLogManager().readConfiguration();
+        logger = Logger.getLogger(CarbonLoggerTest.class.getName());
+        carbonLogHandler = new CarbonLogHandler(logFile);
+        carbonLogHandler.setFormatter(new SimpleFormatter());
         logger.addHandler(carbonLogHandler);
     }
 
     @Test
     public void testCarbonLogAppend() throws IOException {
         String sampleMessage = "Sample message-01";
-        String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01";
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest testCarbonLogAppend} -" +
+                " Sample message-01";
 
         logger.info(sampleMessage);
         ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(new File(getTestResourceFile(LOGS).getAbsolutePath())));
-        Assert.assertTrue(logRecords.get(0).contains(resultLog));
+                getLogsFromTestResource(new FileInputStream(logFile));
+        Assert.assertTrue(containsLogRecord(logRecords, resultLog));
     }
 
     @AfterTest
     public void cleanupLogfile() throws IOException {
-        FileOutputStream writer = new FileOutputStream(new File(getTestResourceFile(LOGS).getAbsolutePath()));
+        FileOutputStream writer = new FileOutputStream(logFile);
         writer.write((new String()).getBytes());
         writer.close();
     }
@@ -79,9 +89,9 @@ public class CarbonLoggerTest extends BaseTest {
      * to a named file.  Should be able to use this for bootstrap logging
      * via java.util.logging prior to startup of pax logging.
      */
-    private static class CarbonLogHandler extends StreamHandler {
+    public static class CarbonLogHandler extends StreamHandler {
 
-        private CarbonLogHandler(File file) throws IOException {
+        public CarbonLogHandler(File file) throws IOException {
             open(file, true);
         }
 
@@ -106,5 +116,4 @@ public class CarbonLoggerTest extends BaseTest {
             flush();
         }
     }
-
 }

@@ -2,11 +2,10 @@ package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.CarbonServer;
 import org.wso2.carbon.launcher.ServerStatus;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -30,10 +29,10 @@ public class CarbonServerStartTest extends BaseTest {
     private CarbonLaunchConfig launchConfig;
     private CarbonServer carbonServer;
 
-    @BeforeClass
+    @BeforeSuite
     public void init() {
         setupCarbonHome();
-        logger = BootstrapLogger.getCarbonLogger(CarbonServerStartTest.class.getName());
+        logger = Logger.getLogger(CarbonServerStartTest.class.getName());
 
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
