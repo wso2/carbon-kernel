@@ -69,7 +69,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.wso2.carbon.tools.BundleGenerator</mainClass>
+                            <mainClass>org.wso2.carbon.tools.CarbonToolManager</mainClass>
                         </manifest>
                     </archive>
                     <finalName>${project.artifactId}.${project.version}</finalName>
@@ -128,5 +128,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

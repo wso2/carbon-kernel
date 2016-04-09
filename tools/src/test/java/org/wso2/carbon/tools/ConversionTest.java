@@ -17,8 +17,9 @@ package org.wso2.carbon.tools;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.exceptions.JarToBundleConverterException;
-import org.wso2.carbon.tools.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.converter.BundleGenerator;
+import org.wso2.carbon.tools.exceptions.CarbonToolException;
+import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,8 +40,8 @@ public class ConversionTest {
 
     private static final Path SAMPLE_TEXT_FILE = Paths.get(System.getProperty("java.io.tmpdir"), "sample.txt");
 
-    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
-    public void destinationIsAFileUtilsTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
+    public void destinationIsAFileUtilsTest() throws IOException, CarbonToolException {
         //  OSGi bundle destination path refers to a file - must refer to a directory
         BundleGeneratorUtils
                 .convertFromJarToBundle(TestConstants.SAMPLE_JAR_FILE, SAMPLE_TEXT_FILE, new Manifest(), "");
@@ -95,15 +96,15 @@ public class ConversionTest {
         }
     }
 
-    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
-    public void createBundleWithNoManifestTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
+    public void createBundleWithNoManifestTest() throws IOException, CarbonToolException {
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         //  no manifest file for the OSGi bundle to be created - invalid argument
         BundleGeneratorUtils.createBundle(TestConstants.SAMPLE_JAR_FILE, destination, null);
     }
 
-    @Test(expectedExceptions = JarToBundleConverterException.class)
-    public void createBundleWithRootElement() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = CarbonToolException.class)
+    public void createBundleWithRootElement() throws IOException, CarbonToolException {
         Path source = Paths.get(File.separator);
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"), "temp.jar");
         BundleGeneratorUtils.createBundle(source, destination, new Manifest());
@@ -124,8 +125,8 @@ public class ConversionTest {
         }
     }
 
-    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
-    public void convertTextFileTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
+    public void convertTextFileTest() throws IOException, CarbonToolException {
         //  the source file path refers to a text file
         Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
@@ -134,7 +135,7 @@ public class ConversionTest {
     }
 
     @Test
-    public void convertFromJarToBundleWithNoManifestTest() throws IOException, JarToBundleConverterException {
+    public void convertFromJarToBundleWithNoManifestTest() throws IOException, CarbonToolException {
         Path destination = Paths.get(TestConstants.TARGET_FOLDER);
         BundleGeneratorUtils.convertFromJarToBundle(TestConstants.SAMPLE_JAR_FILE, destination, null, "");
 
@@ -150,15 +151,15 @@ public class ConversionTest {
         }
     }
 
-    @Test(expectedExceptions = JarToBundleConverterException.class)
-    public void convertJarPathWithNoElementsTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = CarbonToolException.class)
+    public void convertJarPathWithNoElementsTest() throws IOException, CarbonToolException {
         Path jarFile = Paths.get(File.separator);
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         BundleGeneratorUtils.convertFromJarToBundle(jarFile, destination, null, "");
     }
 
     @Test
-    public void convertJarFileToBundleTest() throws IOException, JarToBundleConverterException {
+    public void convertJarFileToBundleTest() throws IOException, CarbonToolException {
         Path destination = Paths.get(TestConstants.TARGET_FOLDER);
         executeConversion(TestConstants.SAMPLE_JAR_FILE, destination);
 
@@ -175,7 +176,7 @@ public class ConversionTest {
     }
 
     @Test
-    public void convertDirectoryContentToBundlesTest() throws IOException, JarToBundleConverterException {
+    public void convertDirectoryContentToBundlesTest() throws IOException, CarbonToolException {
         Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
@@ -193,7 +194,7 @@ public class ConversionTest {
     }
 
     @Test
-    public void convertToExistingBundleTest() throws IOException, JarToBundleConverterException {
+    public void convertToExistingBundleTest() throws IOException, CarbonToolException {
         Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
@@ -234,7 +235,7 @@ public class ConversionTest {
     }
 
     private boolean isOSGiBundle(Path bundlePath, String bundleSymbolicName)
-            throws IOException, JarToBundleConverterException {
+            throws IOException, CarbonToolException {
         if (Files.exists(bundlePath)) {
             boolean validSymbolicName, exportPackageAttributeCheck, importPackageAttributeCheck;
             try (FileSystem zipFileSystem = BundleGeneratorUtils.createZipFileSystem(bundlePath, false)) {

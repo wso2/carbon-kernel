@@ -227,19 +227,13 @@ public class DropinsBundleDeployerUtils {
 
     /**
      * Returns a list of WSO2 Carbon Profile names.
-     * <p>
-     * The reason behind the need to specify the WSO2 Carbon Home explicitly is the need to make this function usable
-     * without starting the Carbon Server.
      *
      * @param carbonHome the WSO2 Carbon home
      * @return a list of WSO2 Carbon Profile names
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
-        String homeDirectory = Optional.ofNullable(carbonHome).orElse(Utils.getCarbonHomeDirectory().toString());
-        Optional.ofNullable(homeDirectory).orElseThrow(() -> new RuntimeException("No CARBON_HOME specified"));
-
-        Path carbonProfilesHome = Paths.get(Utils.getCarbonHomeDirectory().toString(), "osgi", "profiles");
+        Path carbonProfilesHome = Paths.get(carbonHome, "osgi", "profiles");
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
@@ -253,5 +247,15 @@ public class DropinsBundleDeployerUtils {
         } else {
             throw new IOException("The <CARBON_HOME>/osgi/profiles directory does not exist");
         }
+    }
+
+    /**
+     * Returns a list of WSO2 Carbon Profile names.
+     *
+     * @return a list of WSO2 Carbon Profile names
+     * @throws IOException if an I/O error occurs
+     */
+    public static List<String> getCarbonProfiles() throws IOException {
+        return getCarbonProfiles(Utils.getCarbonHomeDirectory().toString());
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,19 +16,16 @@
 package org.wso2.carbon.tools.exceptions;
 
 /**
- * A custom Java {@code Exception} class used for the tool specific exception handling.
+ * A custom Java {@code Exception} class used for the Carbon tool specific exception handling.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
-public class JarToBundleConverterException extends Exception {
-
-    /**
-     * Constructs a new exception with the specified detail message.
-     *
-     * @param message the detail message of the exception
-     */
-    public JarToBundleConverterException(String message) {
+public class CarbonToolException extends Exception {
+    public CarbonToolException(String message) {
         super(message);
     }
 
+    public CarbonToolException(String message, Throwable rootCause) {
+        super(message, rootCause);
+    }
 }

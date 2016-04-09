@@ -43,8 +43,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             try {
-                //  Carbon home need not be specified, since it is available as a system property
-                List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles(null);
+                List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles();
                 for (String profileName : profileNames) {
                     Path bundlesInfoFile = Paths.
                             get(Utils.getCarbonHomeDirectory().toString(), "osgi", "profiles", profileName,

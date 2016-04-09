@@ -17,7 +17,7 @@ package org.wso2.carbon.tools;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;

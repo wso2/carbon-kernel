@@ -16,7 +16,6 @@
 package org.wso2.carbon.tools.dropins;
 
 import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
-import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,20 +29,28 @@ import java.util.stream.IntStream;
  *
  * @since 5.1.0
  */
-public class DeployerUtils {
+public class DropinsDeployerUtils {
+    /**
+     * Executes the dropins capability on the specified WSO2 Carbon Profile specified.
+     *
+     * @param carbonHome  the {@link String} value of carbon.home
+     * @param profileName the name of the Carbon Profile
+     * @throws IOException if an I/O error occurs
+     */
     protected static void executeDropinsCapability(String carbonHome, String profileName) throws IOException {
-        String homeDirectory = Optional.ofNullable(carbonHome).orElse(Utils.getCarbonHomeDirectory().toString());
-        Optional.ofNullable(homeDirectory).orElseThrow(() -> new RuntimeException("No CARBON_HOME specified"));
-
         Path bundlesInfoFile = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
                 "org.eclipse.equinox.simpleconfigurator", "bundles.info");
         DropinsBundleDeployerUtils.executeDropinsCapability(bundlesInfoFile);
     }
 
+    /**
+     * Generates a user interface message specifying the available Carbon Profiles.
+     *
+     * @param carbonHome the {@link String} value of carbon.home
+     * @return a user interface message specifying the available Carbon Profiles
+     * @throws IOException if an I/O error occurs
+     */
     protected static StringBuilder getProfileString(String carbonHome) throws IOException {
-        String homeDirectory = Optional.ofNullable(carbonHome).orElse(Utils.getCarbonHomeDirectory().toString());
-        Optional.ofNullable(homeDirectory).orElseThrow(() -> new RuntimeException("No CARBON_HOME specified"));
-
         final StringBuilder userProfiles = new StringBuilder("WSO2 CARBON PROFILES\n");
         List<String> profiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
         IntStream.range(0, profiles.size()).forEach(
@@ -53,6 +60,15 @@ public class DeployerUtils {
         return userProfiles;
     }
 
+    /**
+     * Returns the user's choice of WSO2 Carbon Profile based on the index provided.
+     *
+     * @param carbonHome the {@link String} value of carbon.home
+     * @param userChoice the user's choice in integer form based on the profile numbering specified on the
+     *                   user interface
+     * @return the user's choice of WSO2 Carbon Profile based on the index provided
+     * @throws IOException if an I/O error occurs
+     */
     protected static Optional<String> getUserChoice(String carbonHome, int userChoice) throws IOException {
         List<String> profiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
 

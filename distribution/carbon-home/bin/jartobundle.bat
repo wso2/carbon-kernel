@@ -68,7 +68,7 @@ goto runTool
 cd %CARBON_HOME%\bin
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
 echo CARBON_HOME environment variable is set to %CARBON_HOME%
-java -cp ".\*;..\bin\bootstrap\tools\*" org.wso2.carbon.tools.BundleGenerator "%1" "%2"
+java -cp ".\*;..\bin\bootstrap\tools\*" org.wso2.carbon.tools.converter.BundleGenerator "%1" "%2"
 
 :end
 goto endlocal

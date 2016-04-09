@@ -16,8 +16,8 @@
 package org.wso2.carbon.tools;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.exceptions.JarToBundleConverterException;
-import org.wso2.carbon.tools.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exceptions.CarbonToolException;
+import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,20 +31,20 @@ import java.nio.file.Paths;
  */
 public class ListZipFileContentTest {
 
-    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
-    public void listZipFileContentOfTextFileTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
+    public void listZipFileContentOfTextFileTest() throws IOException, CarbonToolException {
         Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.listZipFileContent(textFilePath);
     }
 
-    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
-    public void listZipFileContentOfNonExistingFileTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
+    public void listZipFileContentOfNonExistingFileTest() throws IOException, CarbonToolException {
         BundleGeneratorUtils.listZipFileContent(Paths.get(System.getProperty("java.io.tmpdir"), "temp.zip"));
     }
 
-    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
-    public void listZipFileContentOfDirectoryTest() throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
+    public void listZipFileContentOfDirectoryTest() throws IOException, CarbonToolException {
         BundleGeneratorUtils.listZipFileContent(Paths.get(System.getProperty("java.io.tmpdir")));
     }
 
