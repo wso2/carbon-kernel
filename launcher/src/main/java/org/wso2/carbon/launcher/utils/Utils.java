@@ -16,7 +16,6 @@
 package org.wso2.carbon.launcher.utils;
 
 import org.wso2.carbon.launcher.Constants;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +34,7 @@ import java.util.regex.Pattern;
  */
 public class Utils {
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(Utils.class.getName());
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);

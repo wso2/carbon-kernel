@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.launcher.extensions;
 
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -37,7 +36,7 @@ import java.util.stream.Stream;
  * @since 5.1.0
  */
 public class DropinsBundleDeployerUtils {
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(DropinsBundleDeployerUtils.class.getName());
+    private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
     private static final String dropinsDirectory = "dropins";
 
     /**

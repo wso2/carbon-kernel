@@ -22,7 +22,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.CarbonServerListener;
 import org.wso2.carbon.launcher.Constants;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.extensions.DropinsBundleDeployer;
@@ -63,10 +62,11 @@ public class LoadLaunchConfigTest extends BaseTest {
     }
 
     @BeforeClass
-    public void init() {
+    public void init() throws IOException {
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
-        logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
+        logger = Logger.getLogger(CarbonLaunchConfig.class.getName());
+        logger.addHandler(new CarbonLoggerTest.CarbonLogHandler(logFile));
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
@@ -141,7 +141,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void carbonLogAppendTestCase() throws FileNotFoundException {
         String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
-        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - " +
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest carbonLogAppendTestCase} - " +
                 "Sample message-test logging with class CarbonLaunchConfig";
         logger.info(sampleMessage);
         ArrayList<String> logRecords =
