@@ -16,6 +16,7 @@
 package org.wso2.carbon.launcher.extensions;
 
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
+import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
@@ -35,14 +36,16 @@ import java.util.stream.Stream;
  *
  * @since 5.1.0
  */
-public class BundleDeployerUtils {
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(BundleDeployerUtils.class.getName());
+public class DropinsBundleDeployerUtils {
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(DropinsBundleDeployerUtils.class.getName());
     private static final String dropinsDirectory = "dropins";
 
     /**
-     * Revamps the bundles.info file based on the OSGi bundles deployed in the dropins directory.
+     * Updates the bundles.info file based on the OSGi bundles deployed in the dropins directory.
+     * The OSGi bundle information in the bundles.info file in a Carbon profile is used to install and start the
+     * bundles at the server startup for the particular profile.
      * <p>
-     * The mechanism used in revamping the bundles.info file is as follows:
+     * The mechanism used in updating the bundles.info file is as follows:
      * 1. The new OSGi bundle information from the bundles currently existing within the dropins folder are obtained.
      * 2. The existing OSGi dropins bundle information are compared with the newly retrieved bundle information and
      * the bundles.info file is updated only if the new bundle information are different from the existing.
@@ -73,7 +76,7 @@ public class BundleDeployerUtils {
      * @return the constructed {@link BundleInfo} instances list
      * @throws IOException if an I/O error occurs or if the {@code sourceDirectory} is invalid
      */
-    private static List<BundleInfo> getNewBundlesInfo(Path sourceDirectory) throws IOException {
+    public static List<BundleInfo> getNewBundlesInfo(Path sourceDirectory) throws IOException {
         List<BundleInfo> newBundleInfoLines = new ArrayList<>();
         if ((sourceDirectory != null) && (Files.exists(sourceDirectory))) {
             Stream<Path> children = Files.list(sourceDirectory);
@@ -148,14 +151,14 @@ public class BundleDeployerUtils {
      * <p>
      * The OSGi bundle information specified are compared with the OSGi bundle information specified in the
      * existing bundles.info file, specified. If the OSGi bundle information of dropins bundles are matching,
-     * there is no requirement to update the bundles.info file.
+     * there is no requirement to update the bundles.info file, again.
      *
      * @param newBundleInfo          the new OSGi bundle information
      * @param existingBundleInfoFile the existing bundles.info file to be checked
      * @return true if the specified bundles.info file requires to be updated, else false
      * @throws IOException if an I/O error occurs
      */
-    private static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundleInfo, Path existingBundleInfoFile)
+    public static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundleInfo, Path existingBundleInfoFile)
             throws IOException {
         if ((existingBundleInfoFile != null) && (Files.exists(existingBundleInfoFile))) {
             List<BundleInfo> existingBundlesInfo = new ArrayList<>();
@@ -168,11 +171,7 @@ public class BundleDeployerUtils {
                 long nonMatchingBundleInfoCount = Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).stream().
                         filter(info -> existingBundlesInfo.stream().filter(existingInfo -> existingInfo.equals(info)).
                                 count() == 0).count();
-                if (nonMatchingBundleInfoCount > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return nonMatchingBundleInfoCount > 0;
             } else {
                 return true;
             }
@@ -191,7 +190,7 @@ public class BundleDeployerUtils {
      * @return the effective group of OSGi bundle information
      * @throws IOException if an I/O error occurs or if the dropins directory does not exist
      */
-    private static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundleInfo, Path bundlesInfoFilePath)
+    public static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundleInfo, Path bundlesInfoFilePath)
             throws IOException {
         if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
             List<BundleInfo> effectiveBundleInfo = new ArrayList<>();
@@ -207,7 +206,7 @@ public class BundleDeployerUtils {
     }
 
     /**
-     * Updates the bundles.info file with the specified OSGi bundle information.
+     * Updates the specified bundles.info file with the specified OSGi bundle information.
      *
      * @param info                the OSGi bundle information instances
      * @param bundlesInfoFilePath the bundles.info file path, to be updated
@@ -223,6 +222,36 @@ public class BundleDeployerUtils {
             }
         } else {
             throw new IOException("Invalid file path " + bundlesInfoFilePath);
+        }
+    }
+
+    /**
+     * Returns a list of WSO2 Carbon Profile names.
+     * <p>
+     * The reason behind the need to specify the WSO2 Carbon Home explicitly is the need to make this function usable
+     * without starting the Carbon Server.
+     *
+     * @param carbonHome the WSO2 Carbon home
+     * @return a list of WSO2 Carbon Profile names
+     * @throws IOException if an I/O error occurs
+     */
+    public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
+        String homeDirectory = Optional.ofNullable(carbonHome).orElse(Utils.getCarbonHomeDirectory().toString());
+        Optional.ofNullable(homeDirectory).orElseThrow(() -> new RuntimeException("No CARBON_HOME specified"));
+
+        Path carbonProfilesHome = Paths.get(Utils.getCarbonHomeDirectory().toString(), "osgi", "profiles");
+        if (Files.exists(carbonProfilesHome)) {
+            Stream<Path> profiles = Files.list(carbonProfilesHome);
+            List<String> profileNames = new ArrayList<>();
+
+            profiles.parallel().forEach(profile -> {
+                Path profileName = profile.getFileName();
+                Optional.ofNullable(profileName).ifPresent(name -> profileNames.add(name.toString()));
+            });
+
+            return profileNames;
+        } else {
+            throw new IOException("The <CARBON_HOME>/osgi/profiles directory does not exist");
         }
     }
 }

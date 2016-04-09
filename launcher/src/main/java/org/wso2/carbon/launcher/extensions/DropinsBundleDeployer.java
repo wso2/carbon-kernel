@@ -17,19 +17,22 @@ package org.wso2.carbon.launcher.extensions;
 
 import org.wso2.carbon.launcher.CarbonServerEvent;
 import org.wso2.carbon.launcher.CarbonServerListener;
-import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DropinsBundleDeployer deploys the OSGi bundles in CARBON_HOME/osgi/dropins folder by writing
- * the OSGi bundle information to the bundles.info file.
+ * This class deploys the OSGi bundles in CARBON_HOME/osgi/dropins directory in the Carbon Server.
+ * <p>
+ * For this purpose, the OSGi bundle information retrieved from the dropins directory bundles are updated in
+ * the bundles.info file of each and every, existing Carbon profile, along with the bundle startup information
+ * for each bundle.
  *
  * @since 5.1.0
  */
@@ -39,11 +42,15 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     @Override
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
-            Path defaultProfileBundlesInfo = Paths.
-                    get(Utils.getCarbonHomeDirectory().toString(), "osgi", Constants.DEFAULT_PROFILE,
-                            "configuration", "org.eclipse.equinox.simpleconfigurator", "bundles.info");
             try {
-                BundleDeployerUtils.executeDropinsCapability(defaultProfileBundlesInfo);
+                //  Carbon home need not be specified, since it is available as a system property
+                List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles(null);
+                for (String profileName : profileNames) {
+                    Path bundlesInfoFile = Paths.
+                            get(Utils.getCarbonHomeDirectory().toString(), "osgi", "profiles", profileName,
+                                    "configuration", "org.eclipse.equinox.simpleconfigurator", "bundles.info");
+                    DropinsBundleDeployerUtils.executeDropinsCapability(bundlesInfoFile);
+                }
             } catch (IOException e) {
                 logger.log(Level.SEVERE,
                         "An error has occurred when updating the bundles.info using the OSGi bundle information", e);

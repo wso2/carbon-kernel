@@ -15,10 +15,43 @@
  */
 package org.wso2.carbon.tools.dropins;
 
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
+
+import java.io.IOException;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * This class defines a tool which can deploy the OSGi bundles added to CARBON_HOME/osgi/dropins directory.
  *
  * @since 5.1.0
  */
 public class OSGiBundleDeployer {
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(OSGiBundleDeployer.class.getName());
+
+    public static void executeDropinsBundleDeployment(String[] args) throws IOException {
+        if ((args != null) && (args.length == 1)) {
+            String carbonHome = args[0];
+            if (carbonHome != null) {
+                execute(carbonHome);
+            } else {
+                throw new RuntimeException("Invalid CARBON_HOME specified");
+            }
+        }
+    }
+
+    private static void execute(String carbonHome) throws IOException {
+        StringBuilder message = DeployerUtils.getProfileString(carbonHome);
+        logger.log(Level.INFO, message.toString());
+
+        String userChoice = new Scanner(System.in).nextLine();
+        Optional<String> profileName = DeployerUtils.getUserChoice(carbonHome, Integer.parseInt(userChoice));
+        if (profileName.isPresent()) {
+            DeployerUtils.executeDropinsCapability(carbonHome, profileName.get());
+        } else {
+            logger.log(Level.INFO, "Invalid WSO2 Carbon profile name");
+        }
+    }
 }

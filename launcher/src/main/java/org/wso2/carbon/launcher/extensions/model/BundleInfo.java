@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.launcher.extensions;
+package org.wso2.carbon.launcher.extensions.model;
 
 /**
  * A Java class which models a holder for information of an OSGi bundle.
@@ -66,13 +66,9 @@ public class BundleInfo {
     public boolean equals(Object object) {
         if (object instanceof BundleInfo) {
             BundleInfo other = (BundleInfo) object;
-            if ((bundleSymbolicName == null) || (bundleVersion == null) || (other.bundleSymbolicName == null) || (
-                    other.bundleVersion == null)) {
-                return false;
-            } else {
-                return ((bundleSymbolicName.equals(other.bundleSymbolicName)) && (bundleVersion.
-                        equals(other.bundleVersion)));
-            }
+            return !((bundleSymbolicName == null) || (bundleVersion == null) || (other.bundleSymbolicName == null) || (
+                    other.bundleVersion == null)) && ((bundleSymbolicName.equals(other.bundleSymbolicName))
+                    && (bundleVersion.equals(other.bundleVersion)));
         } else {
             return false;
         }
