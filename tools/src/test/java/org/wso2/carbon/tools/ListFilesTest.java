@@ -30,15 +30,14 @@ import java.util.List;
  * @since 5.0.0
  */
 public class ListFilesTest {
-
     private static final Path DIRECTORY = Paths.get(TestConstants.TEST_DIRECTORY_ONE);
 
     static {
         TestUtils.createDirectoryWithChildren(DIRECTORY);
     }
 
-    @Test
-    public void listFilesTest() throws IOException {
+    @Test(description = "Attempts to list the content of the specified directory")
+    public void testListingFiles() throws IOException {
         List<Object> expected = new ArrayList<>();
         expectedPaths().forEach(expected::add);
         List<Object> actual = new ArrayList<>();
@@ -52,5 +51,4 @@ public class ListFilesTest {
 
         return paths;
     }
-
 }

@@ -16,8 +16,8 @@
 package org.wso2.carbon.tools.converter;
 
 import org.wso2.carbon.tools.CarbonTool;
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
 import java.nio.file.Files;

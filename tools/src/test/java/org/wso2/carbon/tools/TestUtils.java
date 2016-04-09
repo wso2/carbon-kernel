@@ -28,7 +28,6 @@ import java.util.List;
  * @since 5.0.0
  */
 public class TestUtils {
-
     private TestUtils() {
     }
 
@@ -96,5 +95,4 @@ public class TestUtils {
         }
         return true;
     }
-
 }

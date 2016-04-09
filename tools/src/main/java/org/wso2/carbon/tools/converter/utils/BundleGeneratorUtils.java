@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.tools.converter.utils;
 
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -219,12 +219,10 @@ public class BundleGeneratorUtils {
                     delete(manifestFile);
                 }
             } else {
-                String message = "Manifest cannot refer to null.";
-                throw new CarbonToolException(message);
+                throw new CarbonToolException("Manifest cannot refer to null");
             }
         } else {
-            String message = "Path representing the JAR file name has zero elements.";
-            throw new CarbonToolException(message);
+            throw new CarbonToolException("Path representing the JAR file name has zero elements");
         }
     }
 
@@ -335,12 +333,12 @@ public class BundleGeneratorUtils {
                         });
                     }
                 } else {
-                    String message = "Path zipFilePath may not exist or may not refer to a .zip or .jar file.";
+                    String message = "Path zipFilePath may not exist or may not refer to a .zip or .jar file";
                     throw new CarbonToolException(message);
                 }
             }
         } else {
-            String message = "Path represented by the zipFilePath does not exist.";
+            String message = "Path represented by the zipFilePath does not exist";
             throw new CarbonToolException(message);
         }
         return zipFileContent;

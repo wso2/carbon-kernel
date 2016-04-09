@@ -17,7 +17,7 @@ package org.wso2.carbon.tools;
 
 import org.wso2.carbon.tools.converter.BundleGenerator;
 import org.wso2.carbon.tools.dropins.DropinsDeployer;
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.util.Optional;
 import java.util.logging.Level;

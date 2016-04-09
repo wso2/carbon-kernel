@@ -17,8 +17,8 @@ package org.wso2.carbon.tools;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,33 +33,33 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class CreateZipFileSystemTest {
-
-    @Test
-    public void createZipFileSystemFromExistingTest() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to create a zip file system from an existing Java Archive (JAR) file")
+    public void testCreatingZipFileSystemFromExisting() throws IOException, CarbonToolException {
         FileSystem fileSystem = BundleGeneratorUtils.createZipFileSystem(TestConstants.SAMPLE_JAR_FILE, false);
         Assert.assertNotNull(fileSystem);
         fileSystem.close();
     }
 
-    @Test
-    public void createZipFileSystemFromNonExistingTest() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to create a zip file system from a non-existing zip file")
+    public void testCreatingZipFileSystemFromNonExisting() throws IOException, CarbonToolException {
         Path zipFilePath = Paths.get(System.getProperty("java.io.tmpdir"), "temp.zip");
         BundleGeneratorUtils.createZipFileSystem(zipFilePath, true);
         assert Files.exists(zipFilePath);
         Files.deleteIfExists(zipFilePath);
     }
 
-    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
-    public void createZipFileSystemFromTextTest() throws CarbonToolException, IOException {
+    @Test(description = "Attempts to create a zip file system from a text file", expectedExceptions = {
+            CarbonToolException.class })
+    public void testCreatingZipFileSystemFromText() throws CarbonToolException, IOException {
         Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.createZipFileSystem(textFilePath, false);
     }
 
-    @Test(expectedExceptions = CarbonToolException.class)
-    public void createZipFileSystemFromRoot() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to create a zip file system from the root",
+            expectedExceptions = CarbonToolException.class)
+    public void testCreatingZipFileSystemFromRoot() throws IOException, CarbonToolException {
         Path root = Paths.get(File.separator);
         BundleGeneratorUtils.createZipFileSystem(root, false);
     }
-
 }

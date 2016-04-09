@@ -16,8 +16,8 @@
 package org.wso2.carbon.tools;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,9 +29,8 @@ import java.util.List;
  * @since 5.0.0
  */
 public class ListPackagesTest {
-
-    @Test
-    public void listPackagesFromJarTest() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to list the java packages defined within a Java Archive (JAR) file")
+    public void testListingPackagesFromJar() throws IOException, CarbonToolException {
         List<Object> actual = new ArrayList<>();
         BundleGeneratorUtils.listPackages(TestConstants.SAMPLE_JAR_FILE).forEach(actual::add);
         List<Object> expected = new ArrayList<>();
@@ -47,5 +46,4 @@ public class ListPackagesTest {
 
         return packages;
     }
-
 }

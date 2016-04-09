@@ -16,7 +16,7 @@
 package org.wso2.carbon.tools.dropins;
 
 import org.wso2.carbon.tools.CarbonTool;
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -62,7 +62,7 @@ public class DropinsDeployer implements CarbonTool {
             StringBuilder message = DropinsDeployerUtils.getProfileString(carbonHome);
             logger.log(Level.INFO, message.toString());
 
-            String userChoice = new Scanner(System.in).nextLine();
+            String userChoice = new Scanner(System.in, "UTF-8").nextLine();
             Optional<String> profileName = DropinsDeployerUtils.getUserChoice(carbonHome, Integer.parseInt(userChoice));
             if (profileName.isPresent()) {
                 DropinsDeployerUtils.executeDropinsCapability(carbonHome, profileName.get());

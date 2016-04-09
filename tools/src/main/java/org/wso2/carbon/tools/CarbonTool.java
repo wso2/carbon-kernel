@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.tools;
 
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 /**
  * This is a Java interface which has to be implemented by any WSO2 Carbon optional tool.

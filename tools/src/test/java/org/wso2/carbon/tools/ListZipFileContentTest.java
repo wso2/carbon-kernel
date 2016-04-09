@@ -16,8 +16,8 @@
 package org.wso2.carbon.tools;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.exceptions.CarbonToolException;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,22 +30,23 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class ListZipFileContentTest {
-
-    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
-    public void listZipFileContentOfTextFileTest() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to list zip file content of a text file", expectedExceptions = {
+            CarbonToolException.class })
+    public void testListingZipFileContentOfTextFile() throws IOException, CarbonToolException {
         Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.listZipFileContent(textFilePath);
     }
 
-    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
-    public void listZipFileContentOfNonExistingFileTest() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to list zip file content of a non-existing file", expectedExceptions = {
+            CarbonToolException.class })
+    public void testListingZipFileContentOfNonExistingFile() throws IOException, CarbonToolException {
         BundleGeneratorUtils.listZipFileContent(Paths.get(System.getProperty("java.io.tmpdir"), "temp.zip"));
     }
 
-    @Test(expectedExceptions = { IOException.class, CarbonToolException.class })
-    public void listZipFileContentOfDirectoryTest() throws IOException, CarbonToolException {
+    @Test(description = "Attempts to list zip file content of a directory", expectedExceptions = {
+            CarbonToolException.class })
+    public void testListingZipFileContentOfDirectory() throws IOException, CarbonToolException {
         BundleGeneratorUtils.listZipFileContent(Paths.get(System.getProperty("java.io.tmpdir")));
     }
-
 }

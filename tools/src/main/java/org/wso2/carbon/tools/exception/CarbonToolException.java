@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.exceptions;
+package org.wso2.carbon.tools.exception;
 
 /**
  * A custom Java {@code Exception} class used for the Carbon tool specific exception handling.

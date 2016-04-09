@@ -44,8 +44,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>carbon-context-test-artifact</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -117,10 +117,11 @@
                                     <destFileName>tool-test-artifact.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>mysql</groupId>
-                                    <artifactId>mysql-connector-java</artifactId>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>carbon-context-test-artifact</artifactId>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
+                                    <destFileName>carbon-context-test-artifact.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

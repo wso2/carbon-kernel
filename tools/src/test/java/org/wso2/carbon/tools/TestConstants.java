@@ -24,7 +24,6 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class TestConstants {
-
     protected static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
     protected static final String TEST_DIRECTORY_TWO = "testDirectoryTwo";
     protected static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
@@ -44,5 +43,4 @@ public class TestConstants {
      */
     private TestConstants() {
     }
-
 }
