@@ -284,11 +284,12 @@ public class DropinsBundleDeployer implements CarbonServerListener {
             throw new Exception("java.io.tmpdir property is null. Cannot proceed.");
         }
 
-        Path tempBundlesInfoDirectory = Paths.get(tempDirectory, "bundles_info_" + UUID.randomUUID().toString());
-        Path tempBundlesInfoFilePath = Paths.get(tempBundlesInfoDirectory.toString(), "bundles.info");
-        if (!Files.exists(tempBundlesInfoDirectory)) {
-            Files.createDirectories(tempBundlesInfoDirectory);
-        }
+        Path tempBundlesInfoDirectory = Files.
+                createTempDirectory(Paths.get(tempDirectory), "bundles_info_" + UUID.randomUUID().toString());
+        tempBundlesInfoDirectory.toFile().deleteOnExit();
+        Path tempBundlesInfoFilePath = Files.
+                createTempFile(Paths.get(tempBundlesInfoDirectory.toString()), "bundles", "info");
+        tempBundlesInfoFilePath.toFile().deleteOnExit();
 
         if (Files.exists(tempBundlesInfoDirectory)) {
             String[] keyArray = bundleInfoLineMap.keySet().toArray(new String[bundleInfoLineMap.keySet().size()]);
