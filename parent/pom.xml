@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>3</version>
+        <version>4</version>
         <relativePath/>
     </parent>
 
@@ -133,41 +133,15 @@
                     <artifactId>carbon-feature-plugin</artifactId>
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>maven-buildnumber-plugin</artifactId>
-                    <version>${maven.buildnumber.plugin.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven.checkstyleplugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${maven.findbugsplugin.version}</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>${maven.bundle.plugin.extensions}</extensions>
-                <configuration>
-                    <obrRepository>NONE</obrRepository>
-                    <instructions>
-                        <Startup-Component>${startup.component}</Startup-Component>
-                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
@@ -507,7 +481,6 @@
 
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
-        <maven.buildnumber.plugin.version>0.9.4</maven.buildnumber.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
