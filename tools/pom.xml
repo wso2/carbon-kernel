@@ -45,7 +45,17 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>carbon-context-test-artifact</artifactId>
+            <artifactId>org.wso2.carbon.sample.datasource.mgt</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.sample.dbs.deployer</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.sample.deployer.mgt</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -91,6 +101,9 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemProperties>
+                        <carbon.kernel.version>${carbon.kernel.version}</carbon.kernel.version>
+                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>
@@ -113,15 +126,38 @@
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>tool-test-artifact</artifactId>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/converter
+                                    </outputDirectory>
                                     <destFileName>tool-test-artifact.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>carbon-context-test-artifact</artifactId>
+                                    <artifactId>org.wso2.carbon.sample.datasource.mgt</artifactId>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
-                                    <destFileName>carbon-context-test-artifact.jar</destFileName>
+                                    <outputDirectory>${project.build.directory}/test-resources/converter
+                                    </outputDirectory>
+                                    <destFileName>org.wso2.carbon.sample.datasource.mgt.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>org.wso2.carbon.sample.datasource.mgt</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>org.wso2.carbon.sample.datasource.mgt.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>org.wso2.carbon.sample.dbs.deployer</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>org.wso2.carbon.sample.dbs.deployer.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>org.wso2.carbon.sample.deployer.mgt</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>org.wso2.carbon.sample.deployer.mgt.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

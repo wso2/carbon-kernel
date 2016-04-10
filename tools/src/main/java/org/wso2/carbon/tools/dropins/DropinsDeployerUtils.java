@@ -37,10 +37,10 @@ public class DropinsDeployerUtils {
      * @param profileName the name of the Carbon Profile
      * @throws IOException if an I/O error occurs
      */
-    protected static void executeDropinsCapability(String carbonHome, String profileName) throws IOException {
+    public static void executeDropinsCapability(String carbonHome, String profileName) throws IOException {
         Path bundlesInfoFile = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
                 "org.eclipse.equinox.simpleconfigurator", "bundles.info");
-        DropinsBundleDeployerUtils.executeDropinsCapability(bundlesInfoFile);
+        DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome, bundlesInfoFile);
     }
 
     /**
@@ -50,12 +50,16 @@ public class DropinsDeployerUtils {
      * @return a user interface message specifying the available Carbon Profiles
      * @throws IOException if an I/O error occurs
      */
-    protected static StringBuilder getProfileString(String carbonHome) throws IOException {
+    public static StringBuilder getProfileString(String carbonHome) throws IOException {
         final StringBuilder userProfiles = new StringBuilder("WSO2 CARBON PROFILES\n");
         List<String> profiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
-        IntStream.range(0, profiles.size()).forEach(
-                (index) -> userProfiles.append(index + 1).append(". ").append(profiles.get(index)).append("\n"));
-        userProfiles.append("Choose the appropriate profile number: \n");
+        if (profiles.size() > 0) {
+            IntStream.range(0, profiles.size()).forEach(
+                    (index) -> userProfiles.append(index + 1).append(". ").append(profiles.get(index)).append("\n"));
+            userProfiles.append("Choose the appropriate profile number: \n");
+        } else {
+            userProfiles.append("No profiles available");
+        }
 
         return userProfiles;
     }
@@ -69,11 +73,11 @@ public class DropinsDeployerUtils {
      * @return the user's choice of WSO2 Carbon Profile based on the index provided
      * @throws IOException if an I/O error occurs
      */
-    protected static Optional<String> getUserChoice(String carbonHome, int userChoice) throws IOException {
+    public static Optional<String> getUserChoice(String carbonHome, int userChoice) throws IOException {
         List<String> profiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
 
-        if ((userChoice > 0) && (userChoice < profiles.size())) {
-            return Optional.ofNullable(profiles.get(userChoice));
+        if ((userChoice > 0) && (userChoice <= profiles.size())) {
+            return Optional.ofNullable(profiles.get(userChoice - 1));
         } else {
             return Optional.empty();
         }

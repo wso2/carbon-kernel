@@ -13,10 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools;
+package org.wso2.carbon.tools.converter;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.tools.converter.BundleGenerator;
+import org.wso2.carbon.tools.CarbonTool;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
@@ -145,7 +145,7 @@ public class ConversionTest {
     @Test(description = "Attempts to convert the contents of a source directory containing an OSGi bundle",
             expectedExceptions = { CarbonToolException.class }, priority = 1)
     public void testConvertingDirectoryContainingOSGiBundle() throws IOException, CarbonToolException {
-        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
+        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources", "converter");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
     }
@@ -153,8 +153,8 @@ public class ConversionTest {
     @Test(description = "Attempts to convert the contents of a source directory that does not contain any OSGi bundles",
             priority = 2)
     public void testConvertingDirectoryNotContainingOSGiBundle() throws IOException, CarbonToolException {
-        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
-        Files.deleteIfExists(Paths.get(source.toString(), "carbon-context-test-artifact.jar"));
+        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources", "converter");
+        Files.deleteIfExists(Paths.get(source.toString(), "org.wso2.carbon.sample.datasource.mgt.jar"));
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
 
@@ -173,7 +173,7 @@ public class ConversionTest {
     @Test(description = "Attempts to convert a JAR to an OSGi bundle to a destination where it has already " +
             "been converted to", priority = 3)
     public void testConvertingExistingBundle() throws IOException, CarbonToolException {
-        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
+        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources", "converter");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
         executeConversion(source, destination);

@@ -53,11 +53,12 @@ public class DropinsBundleDeployerUtils {
      * OSGi bundle information are merged together.
      * 4. Updates the bundles.info file with the OSGi bundle information retrieved in step 3.
      *
+     * @param carbonHome     the {@link String} representation of carbon.home
      * @param bundleInfoFile the bundles.info file to be updated
      * @throws IOException if an I/O error occurs
      */
-    public static void executeDropinsCapability(Path bundleInfoFile) throws IOException {
-        Path dropinsDirectoryPath = Paths.get(Utils.getCarbonHomeDirectory().toString(), "osgi", dropinsDirectory);
+    public static void executeDropinsCapability(String carbonHome, Path bundleInfoFile) throws IOException {
+        Path dropinsDirectoryPath = Paths.get(carbonHome, "osgi", dropinsDirectory);
 
         List<BundleInfo> newBundleInfo = getNewBundlesInfo(dropinsDirectoryPath);
         if (hasToUpdateBundlesInfoFile(newBundleInfo, bundleInfoFile)) {

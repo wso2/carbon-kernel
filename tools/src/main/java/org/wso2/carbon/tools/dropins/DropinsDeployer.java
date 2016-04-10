@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.tools.dropins;
 
+import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
 import org.wso2.carbon.tools.CarbonTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
@@ -59,15 +60,21 @@ public class DropinsDeployer implements CarbonTool {
      */
     private static void executeTool(String carbonHome) throws CarbonToolException {
         try {
-            StringBuilder message = DropinsDeployerUtils.getProfileString(carbonHome);
-            logger.log(Level.INFO, message.toString());
+            if (DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome).size() > 0) {
+                StringBuilder message = DropinsDeployerUtils.getProfileString(carbonHome);
+                logger.log(Level.INFO, message.toString());
 
-            String userChoice = new Scanner(System.in, "UTF-8").nextLine();
-            Optional<String> profileName = DropinsDeployerUtils.getUserChoice(carbonHome, Integer.parseInt(userChoice));
-            if (profileName.isPresent()) {
-                DropinsDeployerUtils.executeDropinsCapability(carbonHome, profileName.get());
+                String userChoice = new Scanner(System.in, "UTF-8").nextLine();
+                Optional<String> profileName = DropinsDeployerUtils.
+                        getUserChoice(carbonHome, Integer.parseInt(userChoice));
+                if (profileName.isPresent()) {
+                    DropinsDeployerUtils.executeDropinsCapability(carbonHome, profileName.get());
+                } else {
+                    throw new CarbonToolException("Invalid WSO2 Carbon Profile name specified");
+                }
             } else {
-                throw new CarbonToolException("Invalid WSO2 Carbon Profile name specified");
+                StringBuilder message = DropinsDeployerUtils.getProfileString(carbonHome);
+                logger.log(Level.INFO, message.toString());
             }
         } catch (IOException e) {
             throw new CarbonToolException("An I/O error occurred when executing the dropins deployer tool", e);

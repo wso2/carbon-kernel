@@ -43,11 +43,12 @@ public class DropinsBundleDeployer implements CarbonServerListener {
         if (event.getType() == CarbonServerEvent.STARTING) {
             try {
                 List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles();
+                Path carbonHome = Utils.getCarbonHomeDirectory();
                 for (String profileName : profileNames) {
                     Path bundlesInfoFile = Paths.
                             get(Utils.getCarbonHomeDirectory().toString(), "osgi", "profiles", profileName,
                                     "configuration", "org.eclipse.equinox.simpleconfigurator", "bundles.info");
-                    DropinsBundleDeployerUtils.executeDropinsCapability(bundlesInfoFile);
+                    DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), bundlesInfoFile);
                 }
             } catch (IOException e) {
                 logger.log(Level.SEVERE,

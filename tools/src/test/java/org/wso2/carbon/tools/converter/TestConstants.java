@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools;
+package org.wso2.carbon.tools.converter;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * A Java class which defines constants used in test classes.
+ * A Java class which defines constants used in JAR-to-OSGi converter tool test classes.
  *
  * @since 5.0.0
  */
@@ -35,8 +35,8 @@ public class TestConstants {
     protected static final String EXPORT_PACKAGE = "Export-Package";
     protected static final String IMPORT_PACKAGE = "DynamicImport-Package";
 
-    protected static final Path SAMPLE_JAR_FILE = Paths
-                .get(TARGET_FOLDER, "test-resources", "tool-test-artifact.jar");
+    protected static final Path SAMPLE_JAR_FILE = Paths.
+            get(TARGET_FOLDER, "test-resources", "converter", "tool-test-artifact.jar");
 
     /**
      * A constructor which prevents instantiating the TestConstants class.
