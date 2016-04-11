@@ -38,11 +38,12 @@ import java.util.stream.Stream;
 public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
     private static final String dropinsDirectory = "dropins";
+    private static final String addOnsDirectory = "osgi";
 
     /**
-     * Updates the bundles.info file based on the OSGi bundles deployed in the dropins directory.
-     * The OSGi bundle information in the bundles.info file in a Carbon profile is used to install and start the
-     * bundles at the server startup for the particular profile.
+     * Updates the specified Carbon profile's bundles.info file based on the OSGi bundles deployed in the dropins
+     * directory. The OSGi bundle information in the bundles.info file in a Carbon profile is used to install and
+     * start the bundles at the server startup for the particular profile.
      * <p>
      * The mechanism used in updating the bundles.info file is as follows:
      * 1. The new OSGi bundle information from the bundles currently existing within the dropins folder are obtained.
@@ -53,17 +54,20 @@ public class DropinsBundleDeployerUtils {
      * OSGi bundle information are merged together.
      * 4. Updates the bundles.info file with the OSGi bundle information retrieved in step 3.
      *
-     * @param carbonHome     the {@link String} representation of carbon.home
-     * @param bundleInfoFile the bundles.info file to be updated
+     * @param carbonHome    the {@link String} representation of carbon.home
+     * @param carbonProfile the bundles.info file to be updated
      * @throws IOException if an I/O error occurs
      */
-    public static void executeDropinsCapability(String carbonHome, Path bundleInfoFile) throws IOException {
-        Path dropinsDirectoryPath = Paths.get(carbonHome, "osgi", dropinsDirectory);
+    public static void executeDropinsCapability(String carbonHome, String carbonProfile) throws IOException {
+        Path dropinsDirectoryPath = Paths.get(carbonHome, addOnsDirectory, dropinsDirectory);
+        Path bundlesInfoFile = Paths.get(carbonHome, "osgi", "profiles", carbonProfile, "configuration",
+                "org.eclipse.equinox.simpleconfigurator", "bundles.info");
 
         List<BundleInfo> newBundleInfo = getNewBundlesInfo(dropinsDirectoryPath);
-        if (hasToUpdateBundlesInfoFile(newBundleInfo, bundleInfoFile)) {
-            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundleInfo, bundleInfoFile);
-            updateBundlesInfo(effectiveNewBundleInfo, bundleInfoFile);
+        if (hasToUpdateBundlesInfoFile(newBundleInfo, bundlesInfoFile)) {
+            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundleInfo, bundlesInfoFile);
+            updateBundlesInfo(effectiveNewBundleInfo, bundlesInfoFile);
+            logger.log(Level.INFO, "Successfully updated the " + carbonProfile + "'s bundles.info file");
         } else {
             logger.log(Level.INFO, "No changes detected in the dropins directory, skipping the bundles.info update");
         }
@@ -123,6 +127,7 @@ public class DropinsBundleDeployerUtils {
                             if (bundleSymbolicName == null || bundleVersion == null) {
                                 logger.log(Level.WARNING,
                                         "Required bundle manifest headers do not exists: " + jarFile.toString());
+                                return Optional.empty();
                             } else {
                                 if (bundleSymbolicName.contains(";")) {
                                     bundleSymbolicName = bundleSymbolicName.split(";")[0];
@@ -233,7 +238,7 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
-        Path carbonProfilesHome = Paths.get(carbonHome, "osgi", "profiles");
+        Path carbonProfilesHome = Paths.get(carbonHome, addOnsDirectory, "profiles");
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
@@ -245,12 +250,14 @@ public class DropinsBundleDeployerUtils {
 
             return profileNames;
         } else {
-            throw new IOException("The <CARBON_HOME>/osgi/profiles directory does not exist");
+            throw new IOException("The " + carbonHome + "/" + addOnsDirectory + "/profiles directory does not exist");
         }
     }
 
     /**
      * Returns a list of WSO2 Carbon Profile names.
+     * <p>
+     * This method can be used when the Carbon server is running along with the carbon.home system property set.
      *
      * @return a list of WSO2 Carbon Profile names
      * @throws IOException if an I/O error occurs

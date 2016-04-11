@@ -21,8 +21,8 @@ import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * <p>
  * For this purpose, the OSGi bundle information retrieved from the dropins directory bundles are updated in
  * the bundles.info file of each and every, existing Carbon profile, along with the bundle startup information
- * for each bundle.
+ * of each bundle.
  *
  * @since 5.1.0
  */
@@ -41,14 +41,16 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     @Override
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
+            Path carbonHome = Utils.getCarbonHomeDirectory();
             try {
-                List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles();
-                Path carbonHome = Utils.getCarbonHomeDirectory();
-                for (String profileName : profileNames) {
-                    Path bundlesInfoFile = Paths.
-                            get(Utils.getCarbonHomeDirectory().toString(), "osgi", "profiles", profileName,
-                                    "configuration", "org.eclipse.equinox.simpleconfigurator", "bundles.info");
-                    DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), bundlesInfoFile);
+                Optional<String> carbonProfile = Optional.ofNullable(System.getProperty("carbon.profile"));
+                if (carbonProfile.isPresent()) {
+                    DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), carbonProfile.get());
+                } else {
+                    List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles();
+                    for (String profileName : profileNames) {
+                        DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
+                    }
                 }
             } catch (IOException e) {
                 logger.log(Level.SEVERE,

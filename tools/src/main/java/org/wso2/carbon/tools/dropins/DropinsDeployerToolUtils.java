@@ -16,12 +16,14 @@
 package org.wso2.carbon.tools.dropins;
 
 import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 /**
@@ -29,18 +31,44 @@ import java.util.stream.IntStream;
  *
  * @since 5.1.0
  */
-public class DropinsDeployerUtils {
+public class DropinsDeployerToolUtils {
+    private static final Logger logger = Logger.getLogger(DropinsDeployerTool.class.getName());
+
     /**
-     * Executes the dropins capability on the specified WSO2 Carbon Profile specified.
+     * Executes the WSO2 Carbon dropins deployer tool.
      *
-     * @param carbonHome  the {@link String} value of carbon.home
-     * @param profileName the name of the Carbon Profile
-     * @throws IOException if an I/O error occurs
+     * @param carbonHome the {@link String} value of carbon.home
+     * @throws CarbonToolException if an error occurred when executing the tool
      */
-    public static void executeDropinsCapability(String carbonHome, String profileName) throws IOException {
-        Path bundlesInfoFile = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
-                "org.eclipse.equinox.simpleconfigurator", "bundles.info");
-        DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome, bundlesInfoFile);
+    public static void executeTool(String carbonHome) throws CarbonToolException {
+        try {
+            List<String> carbonProfiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+            if (carbonProfiles.size() > 0) {
+                StringBuilder message = getProfileString(carbonHome);
+                logger.log(Level.INFO, message.toString());
+
+                String userChoice = new Scanner(System.in, "UTF-8").nextLine();
+
+                Optional<String> profileName = getUserChoice(carbonHome, Integer.parseInt(userChoice));
+                if (profileName.isPresent()) {
+                    String name = profileName.get();
+                    if (name.equals("All")) {
+                        for (String profile : carbonProfiles) {
+                            DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome, profile);
+                        }
+                    } else {
+                        DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome, name);
+                    }
+                } else {
+                    throw new CarbonToolException("Invalid WSO2 Carbon Profile name specified");
+                }
+            } else {
+                StringBuilder message = getProfileString(carbonHome);
+                logger.log(Level.INFO, message.toString());
+            }
+        } catch (IOException e) {
+            throw new CarbonToolException("An I/O error occurred when executing the dropins deployer tool", e);
+        }
     }
 
     /**
@@ -56,7 +84,8 @@ public class DropinsDeployerUtils {
         if (profiles.size() > 0) {
             IntStream.range(0, profiles.size()).forEach(
                     (index) -> userProfiles.append(index + 1).append(". ").append(profiles.get(index)).append("\n"));
-            userProfiles.append("Choose the appropriate profile number: \n");
+            userProfiles.append(profiles.size() + 1).append(". All\n");
+            userProfiles.append("Choose the appropriate profile number: ");
         } else {
             userProfiles.append("No profiles available");
         }
@@ -75,8 +104,9 @@ public class DropinsDeployerUtils {
      */
     public static Optional<String> getUserChoice(String carbonHome, int userChoice) throws IOException {
         List<String> profiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+        profiles.add("All");
 
-        if ((userChoice > 0) && (userChoice <= profiles.size())) {
+        if ((userChoice > 0) && (userChoice <= (profiles.size() + 1))) {
             return Optional.ofNullable(profiles.get(userChoice - 1));
         } else {
             return Optional.empty();

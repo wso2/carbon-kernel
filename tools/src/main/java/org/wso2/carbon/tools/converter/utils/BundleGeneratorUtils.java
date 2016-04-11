@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.tools.converter.utils;
 
+import org.wso2.carbon.tools.Constants;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;

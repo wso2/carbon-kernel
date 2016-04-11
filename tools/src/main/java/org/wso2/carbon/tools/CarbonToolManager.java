@@ -15,8 +15,8 @@
  */
 package org.wso2.carbon.tools;
 
-import org.wso2.carbon.tools.converter.BundleGenerator;
-import org.wso2.carbon.tools.dropins.DropinsDeployer;
+import org.wso2.carbon.tools.converter.BundleGeneratorTool;
+import org.wso2.carbon.tools.dropins.DropinsDeployerTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.util.Optional;
@@ -53,7 +53,7 @@ public class CarbonToolManager {
     }
 
     /**
-     * Executes the relevant Carbon tool specified along with the arguments specified.
+     * Executes the appropriate Carbon tool along with the arguments specified.
      *
      * @param toolIdentifier the identifier of the tool to be executed
      * @param toolArgs       the arguments needed for the functioning of the tool
@@ -67,10 +67,10 @@ public class CarbonToolManager {
         CarbonTool carbonTool;
         switch (toolIdentifier) {
         case "jar-to-bundle-converter":
-            carbonTool = new BundleGenerator();
+            carbonTool = new BundleGeneratorTool();
             break;
         case "dropins-deployer":
-            carbonTool = new DropinsDeployer();
+            carbonTool = new DropinsDeployerTool();
             break;
         default:
             carbonTool = null;
@@ -79,7 +79,7 @@ public class CarbonToolManager {
         if (carbonTool != null) {
             carbonTool.execute(toolArgs);
         } else {
-            throw new CarbonToolException("Unidentified WSO2 Carbon tool");
+            throw new CarbonToolException("Invalid tool identifier " + toolIdentifier);
         }
     }
 }

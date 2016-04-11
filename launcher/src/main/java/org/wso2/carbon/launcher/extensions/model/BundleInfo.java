@@ -18,7 +18,7 @@ package org.wso2.carbon.launcher.extensions.model;
 /**
  * A Java class which models a holder for information of an OSGi bundle.
  *
- * @since 5.1.0
+ * @since 5.0.0
  */
 public class BundleInfo {
     private String bundleSymbolicName;
@@ -58,11 +58,28 @@ public class BundleInfo {
                 !Boolean.parseBoolean(parts[4].trim()));
     }
 
+    /**
+     * Returns a {@code String} representation of the OSGi bundle information of this instance.
+     * <p>
+     * Overrides the toString() method of the {@link Object} class.
+     *
+     * @return a {@link String} representation of the OSGi bundle information of this instance
+     */
+    @Override
     public String toString() {
         return bundleSymbolicName + "," + bundleVersion + "," + bundlePath + "," + startLevel + "," +
                 Boolean.toString(!isFragment);
     }
 
+    /**
+     * Returns if the specified {@code object} is equal to this instance in terms of OSGi bundle version and bundle
+     * symbolic name.
+     *
+     * @param object the {@link Object} to compare this instance with
+     * @return true if the specified {@code object} is equal to this instance in terms of OSGi bundle version and bundle
+     * symbolic name, else false
+     */
+    @Override
     public boolean equals(Object object) {
         if (object instanceof BundleInfo) {
             BundleInfo other = (BundleInfo) object;
@@ -74,6 +91,7 @@ public class BundleInfo {
         }
     }
 
+    @Override
     public int hashCode() {
         assert false : "hashCode not designed";
         return 52;

@@ -140,6 +140,14 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>tool-test-artifact</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins
+                                    </outputDirectory>
+                                    <destFileName>tool-test-artifact.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
                                     <artifactId>org.wso2.carbon.sample.datasource.mgt</artifactId>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>

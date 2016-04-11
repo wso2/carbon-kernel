@@ -27,7 +27,7 @@ limitations under the License.
             <class name="org.wso2.carbon.tools.converter.ListPackagesTest"/>
             <class name="org.wso2.carbon.tools.converter.ConversionTest"/>
 
-            <class name="org.wso2.carbon.tools.dropins.DropinsDeployerUtilsTest"/>
+            <class name="org.wso2.carbon.tools.dropins.DropinsDeployerToolTest"/>
         </classes>
     </test>
 </suite>

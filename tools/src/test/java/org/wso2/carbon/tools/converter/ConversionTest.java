@@ -31,7 +31,7 @@ import java.util.jar.Manifest;
 
 /**
  * A Java class which tests the convertFromJarToBundle and createBundle methods of BundleGeneratorUtils.java class
- * and BundleGenerator.java.
+ * and BundleGeneratorTool.java.
  *
  * @since 5.0.0
  */
@@ -209,7 +209,7 @@ public class ConversionTest {
             arguments[0] = "";
             arguments[1] = "";
         }
-        CarbonTool converter = new BundleGenerator();
+        CarbonTool converter = new BundleGeneratorTool();
         converter.execute(arguments);
     }
 

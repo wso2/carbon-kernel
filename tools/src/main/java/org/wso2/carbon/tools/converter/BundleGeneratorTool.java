@@ -32,7 +32,7 @@ import java.util.jar.Manifest;
  *
  * @since 5.0.0
  */
-public class BundleGenerator implements CarbonTool {
+public class BundleGeneratorTool implements CarbonTool {
     /**
      * Executes the JAR to OSGi bundle conversion process.
      *
