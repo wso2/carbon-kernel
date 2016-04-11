@@ -123,8 +123,6 @@
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.launcher:jar</include>
                 <include>org.osgi:org.osgi.core:jar</include>
-                <include>org.wso2.carbon:carbon-spi-hook:jar</include>
-                <include>org.ow2.asm:asm-all:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

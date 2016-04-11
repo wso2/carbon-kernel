@@ -26,9 +26,6 @@
     <artifactId>carbon-kernel</artifactId>
     <packaging>pom</packaging>
     <version>5.1.0-SNAPSHOT</version>
-    <modules>
-        <module>carbon-spi</module>
-    </modules>
     <name>WSO2 Carbon Kernel - Aggregate Pom</name>
     <description>WSO2 Carbon Kernel Aggregate Pom</description>
     <url>http://wso2.com</url>
@@ -53,7 +50,6 @@
                 <module>features</module>
                 <module>tools</module>
                 <module>distribution</module>
-                <module>carbon-spi</module>
             </modules>
         </profile>
     </profiles>
