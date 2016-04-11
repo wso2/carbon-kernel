@@ -480,7 +480,7 @@
         <geronimo.atinject.spec.version>1.0</geronimo.atinject.spec.version>
 
         <!--Other dependency versions -->
-        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
+        <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
