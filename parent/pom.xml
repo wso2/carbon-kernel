@@ -144,6 +144,26 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <!-- Remove after fixing CARBON-15861 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <revisionOnScmFailure>${maven.build.timestamp}</revisionOnScmFailure>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
