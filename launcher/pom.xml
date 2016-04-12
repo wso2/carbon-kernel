@@ -80,6 +80,17 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <equinox.osgi.version>${equinox.osgi.version}</equinox.osgi.version>
+                        <equinox.simpleconfigurator.version>${equinox.simpleconfigurator.version}</equinox.simpleconfigurator.version>
+                        <equinox.util.version>${equinox.util.version}</equinox.util.version>
+                        <equinox.launcher.version>${equinox.launcher.version}</equinox.launcher.version>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
@@ -118,7 +129,7 @@
                                     <type>jar</type>
                                     <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
-                                    <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
+                                    <destFileName>org.eclipse.osgi.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.eclipse.equinox</groupId>
@@ -128,7 +139,7 @@
                                     <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
                                     <destFileName>
-                                        org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
+                                        org.eclipse.equinox.simpleconfigurator.jar
                                     </destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -138,7 +149,7 @@
                                     <type>jar</type>
                                     <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
-                                    <destFileName>org.eclipse.equinox.util_${equinox.util.version}.jar</destFileName>
+                                    <destFileName>org.eclipse.equinox.util.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.eclipse.equinox</groupId>
@@ -147,7 +158,7 @@
                                     <type>jar</type>
                                     <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
-                                    <destFileName>org.eclipse.equinox.launcher_${equinox.launcher.version}.jar
+                                    <destFileName>org.eclipse.equinox.launcher.jar
                                     </destFileName>
                                 </artifactItem>
                                 <!-- artifacts for dropins tests -->

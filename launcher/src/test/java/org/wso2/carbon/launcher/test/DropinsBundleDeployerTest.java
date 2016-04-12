@@ -1,0 +1,203 @@
+/*
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.wso2.carbon.launcher.test;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.CarbonServerEvent;
+import org.wso2.carbon.launcher.extensions.DropinsBundleDeployer;
+import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
+import org.wso2.carbon.launcher.extensions.model.BundleInfo;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This Java class defines the unit tests for dropins OSGi bundle deployment.
+ *
+ * @since 5.1.0
+ */
+public class DropinsBundleDeployerTest extends BaseTest {
+    private static final List<String> profileNames = new ArrayList<>();
+
+    @BeforeClass
+    public void initTestClass() throws IOException {
+        setupCarbonHome();
+    }
+
+    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent", priority = 0,
+            expectedExceptions = { IOException.class })
+    public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+        DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+    }
+
+    @Test(description = "Attempts to execute dropins capability with all available Carbon Profiles", priority = 1)
+    public void testExecutingDropinsCapabilityWithAllProfiles() throws IOException {
+        createProfiles();
+        String carbonHome = System.getProperty("carbon.home");
+
+        DropinsBundleDeployer deployer = new DropinsBundleDeployer();
+        deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
+
+        List<BundleInfo> expected = getExpectedBundleInfo();
+        List<BundleInfo> actual;
+        for (String profileName : profileNames) {
+            Path bundlesInfo = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
+                    "org.eclipse.equinox.simpleconfigurator", "bundles.info");
+            actual = getActualBundleInfo(bundlesInfo);
+            boolean matching = compareBundleInfo(expected, actual);
+            if (!matching) {
+                Assert.fail();
+            }
+        }
+        Assert.assertTrue(true);
+    }
+
+    @Test(description = "Attempts to execute dropins capability with a selected Carbon Profile", priority = 2)
+    public void testExecutingDropinsCapabilityWithSelectedProfile() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+
+        String profileName = "app-manager";
+        Path profile = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
+                "org.eclipse.equinox.simpleconfigurator");
+        createDirectories(profile);
+        Path bundlesInfo = null;
+        if (Files.exists(profile)) {
+            bundlesInfo = Files.createFile(Paths.get(profile.toString(), "bundles.info"));
+        }
+
+        System.setProperty("carbon.profile", "app-manager");
+        DropinsBundleDeployer deployer = new DropinsBundleDeployer();
+        deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
+
+        List<BundleInfo> expected = getExpectedBundleInfo();
+        List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
+        boolean matching = compareBundleInfo(expected, actual);
+        Assert.assertTrue(matching);
+    }
+
+    @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
+            + "formats", priority = 3)
+    public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+
+        Path dropins = Paths.get(carbonHome, "osgi", "dropins");
+        Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
+
+        List<BundleInfo> expected = getExpectedBundleInfo();
+        List<BundleInfo> actual = DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
+        Assert.assertTrue(compareBundleInfo(expected, actual));
+    }
+
+    @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 4,
+            expectedExceptions = { IOException.class })
+    public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+        Path dropins = Paths.get(carbonHome, "dropins");
+        DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
+    }
+
+    @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 5,
+            expectedExceptions = { IOException.class })
+    public void testUpdatingBundlesInfoCheckForNonExistingFile() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+        Path bundlesInfo = Paths.get(carbonHome, "dropins", "bundles.info");
+        DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, bundlesInfo);
+    }
+
+    @Test(description = "Attempts to check whether to update a null file", priority = 4,
+            expectedExceptions = { IOException.class })
+    public void testUpdatingBundlesInfoCheckForInvalidFile() throws IOException {
+        DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, null);
+    }
+
+    @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 5,
+            expectedExceptions = { IOException.class })
+    public void testMergingDropinsBundlesInfoWithNonExistingFile() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+        Path bundlesInfo = Paths.get(carbonHome, "dropins", "bundles.info");
+        DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, bundlesInfo);
+    }
+
+    @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 5,
+            expectedExceptions = { IOException.class })
+    public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
+        DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
+    }
+
+    private static void createProfiles() throws IOException {
+        String carbonHome = System.getProperty("carbon.home");
+
+        profileNames.add("default");
+        profileNames.add("mss");
+        profileNames.add("as");
+
+        for (String profileName : profileNames) {
+            Path profile = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
+                    "org.eclipse.equinox.simpleconfigurator");
+            createDirectories(profile);
+            if (Files.exists(profile)) {
+                Files.createFile(Paths.get(profile.toString(), "bundles.info"));
+            }
+        }
+    }
+
+    private static void createDirectories(Path directory) throws IOException {
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
+        }
+    }
+
+    private static List<BundleInfo> getExpectedBundleInfo() {
+        List<BundleInfo> bundleInfo = new ArrayList<>();
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," +
+                System.getProperty("equinox.osgi.version") + ",../../dropins/org.eclipse.osgi.jar,4,true"));
+        bundleInfo.add(BundleInfo.getInstance(
+                "org.eclipse.equinox.simpleconfigurator," + System.getProperty("equinox.simpleconfigurator.version")
+                        + ",../../dropins/org.eclipse.equinox.simpleconfigurator.jar,4,true"));
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.util," + System.getProperty("equinox.util.version")
+                + ",../../dropins/org.eclipse.equinox.util.jar,4,true"));
+        bundleInfo.add(BundleInfo.getInstance(
+                "org.eclipse.equinox.launcher," + System.getProperty("equinox.launcher.version")
+                        + ",../../dropins/org.eclipse.equinox.launcher.jar,4,true"));
+
+        return bundleInfo;
+    }
+
+    private static List<BundleInfo> getActualBundleInfo(Path bundleInfoFile) throws IOException {
+        if ((bundleInfoFile != null) && (Files.exists(bundleInfoFile))) {
+            List<String> bundleInfoLines = Files.readAllLines(bundleInfoFile);
+            List<BundleInfo> bundleInfo = new ArrayList<>();
+            bundleInfoLines.stream().forEach(line -> bundleInfo.add(BundleInfo.getInstance(line)));
+
+            return bundleInfo;
+        } else {
+            throw new IOException("Invalid bundles.info file specified");
+        }
+    }
+
+    private static boolean compareBundleInfo(List<BundleInfo> expected, List<BundleInfo> actual) {
+        return (expected.size() == actual.size()) && ((expected.stream().filter(bundleInfo ->
+                actual.stream().filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1).count())
+                == expected.size());
+    }
+}
