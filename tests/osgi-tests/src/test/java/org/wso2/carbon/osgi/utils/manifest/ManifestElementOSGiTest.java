@@ -25,6 +25,7 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
@@ -49,6 +50,9 @@ public class ManifestElementOSGiTest {
 
     @Inject
     BundleContext bundleContext;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Configuration
     public Option[] createConfiguration() {

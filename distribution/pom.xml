@@ -61,7 +61,7 @@
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>maven-buildnumber-plugin</artifactId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
                 <configuration>
                     <format>{0,date,dd MMM yyyy}</format>
                     <items>
