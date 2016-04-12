@@ -9,9 +9,6 @@ Usage of the sub-directories of relevant configurations are as follows.
      - pax-logging.properties
      This file contains the configuration properties required for initializing the pax-logging framework.
 
-     - java.util.logging.properties
-     This is the java.util.logging configuration used by WSO2 Carbon.
-
 3. osgi <directory>
 
 	 - launch.properties

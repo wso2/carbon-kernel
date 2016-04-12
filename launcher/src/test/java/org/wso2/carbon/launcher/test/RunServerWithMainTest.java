@@ -5,7 +5,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.Main;
-import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.BufferedReader;
@@ -35,7 +34,7 @@ public class RunServerWithMainTest extends BaseTest {
     public void init() {
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
-        logger = BootstrapLogger.getCarbonLogger(CarbonServerStartTest.class.getName());
+        logger = Logger.getLogger(CarbonServerStartTest.class.getName());
 
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
