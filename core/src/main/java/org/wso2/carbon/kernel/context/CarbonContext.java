@@ -26,16 +26,43 @@ import java.security.Principal;
  *
  * @since 5.1.0
  */
-public abstract class CarbonContext {
+public class CarbonContext {
     private CarbonContextHolder carbonContextHolder = null;
 
-    protected CarbonContext(CarbonContextHolder carbonContextHolder) {
+    /**
+     * Making this private so that it will not be instantiated.
+     */
+    private CarbonContext() {
+    }
+
+    /**
+     * Package local level constructor using a {@link CarbonContextHolder} instance in constructing this
+     * CarbonContext instance.
+     *
+     * @param carbonContextHolder the carbonContextHolder instance to be used in creating a CarbonContext instance.
+     */
+    CarbonContext(CarbonContextHolder carbonContextHolder) {
         this.carbonContextHolder = carbonContextHolder;
     }
 
-    protected CarbonContextHolder getCarbonContextHolder() {
+    /**
+     * Returns the current carbon context holder associated with this CarbonContext instance.
+     *
+     * @return the carbon context holder instance.
+     */
+    CarbonContextHolder getCarbonContextHolder() {
         return carbonContextHolder;
     }
+
+    /**
+     * Returns the carbon context instance which is stored at current thread local space.
+     *
+     * @return the carbon context instance.
+     */
+    public static CarbonContext getCurrentContext() {
+        return new CarbonContext(CarbonContextHolder.getCurrentContextHolder());
+    }
+
 
     /**
      * Method to get the currently executing tenant in the server space. The tenant domain in which the server is bound
