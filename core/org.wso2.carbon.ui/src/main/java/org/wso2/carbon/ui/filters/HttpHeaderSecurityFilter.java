@@ -63,6 +63,11 @@ public class HttpHeaderSecurityFilter extends FilterBase {
     private static final String XSS_PROTECTION_HEADER_VALUE = "1; mode=block";
     private boolean xssProtectionEnabled = true;
 
+    // Content security policy
+    private static final String[] CONTENT_SECURITY_POLICY_HEADER_NAMES = new String[] {"Content-Security-Policy","X-Content-Security-Policy","X-WebKit-CSP"};
+    private String contentSecurityPolicyHeaderValue = "";
+    private boolean contentSecurityPolicyEnabled = true;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
@@ -82,10 +87,26 @@ public class HttpHeaderSecurityFilter extends FilterBase {
             cjValue.append(antiClickJackingUri);
         }
         antiClickJackingHeaderValue = cjValue.toString();
+
+        // reflected-xss is the successor to "X-XSS-Protection"
+        // therefore set equivalent CSP value if xss protection is enabled
+        if(xssProtectionEnabled && !contentSecurityPolicyHeaderValue.contains("reflected-xss")) {
+            contentSecurityPolicyHeaderValue += "reflected-xss 'block';";
+        }
+
+        // frame-ancestors is the successor to "X-Frame-Options"
+        // therefore set equivalent CSP value if X-Frame-Option deny is set
+        if(antiClickJackingOption == XFrameOption.DENY && !contentSecurityPolicyHeaderValue.contains("frame-ancestors")) {
+            contentSecurityPolicyHeaderValue += "frame-ancestors 'none';";
+        }
+
+        // Disable content security policy if no directive is set
+        if(contentSecurityPolicyHeaderValue.length() == 0) {
+            contentSecurityPolicyEnabled = false;
+        }
     }
 
 
-    @Override
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
 
@@ -115,6 +136,13 @@ public class HttpHeaderSecurityFilter extends FilterBase {
             // cross-site scripting filter protection
             if (xssProtectionEnabled) {
                 httpResponse.setHeader(XSS_PROTECTION_HEADER_NAME, XSS_PROTECTION_HEADER_VALUE);
+            }
+
+            // content security policy
+            if (contentSecurityPolicyEnabled) {
+                for(String contentSecurityPolicyHeaderName : CONTENT_SECURITY_POLICY_HEADER_NAMES) {
+                    httpResponse.setHeader(contentSecurityPolicyHeaderName, contentSecurityPolicyHeaderValue);
+                }
             }
         }
 
@@ -233,6 +261,22 @@ public class HttpHeaderSecurityFilter extends FilterBase {
 
     public void setXssProtectionEnabled(boolean xssProtectionEnabled) {
         this.xssProtectionEnabled = xssProtectionEnabled;
+    }
+
+    public boolean isContentSecurityPolicyEnabled() {
+        return xssProtectionEnabled;
+    }
+
+    public void setContentSecurityPolicyEnabled(boolean xssProtectionEnabled) {
+        this.xssProtectionEnabled = xssProtectionEnabled;
+    }
+
+    public String getContentSecurityPolicyHeaderValue() {
+        return contentSecurityPolicyHeaderValue;
+    }
+
+    public void setContentSecurityPolicyHeaderValue(String contentSecurityPolicyHeaderValue) {
+        this.contentSecurityPolicyHeaderValue = contentSecurityPolicyHeaderValue;
     }
 
     private static enum XFrameOption {
