@@ -69,19 +69,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_1.1_spec</artifactId>
-        </dependency>
-
-        <!-- todo use for tests/delete -->
-        <dependency>
-            <groupId>org.wso2.andes.wso2</groupId>
-            <artifactId>andes-client</artifactId>
-            <version>3.1.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>commons-io.wso2</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
