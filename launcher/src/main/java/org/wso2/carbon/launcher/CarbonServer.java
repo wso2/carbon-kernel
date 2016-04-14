@@ -25,7 +25,6 @@ import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ServiceLoader;
@@ -46,7 +45,6 @@ public class CarbonServer {
     private CarbonLaunchConfig config;
     private Framework framework;
     private ServerStatus serverStatus;
-
     /**
      * Constructor.
      *
@@ -169,9 +167,6 @@ public class CarbonServer {
         frameworkStartupHookLoader.forEach((frameworkStartupHook)
                 -> frameworkStartupHook.systemBundleStarted(framework.getBundleContext()));
 
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "SPI class processor service registered successfully.");
-        }
     }
 
     /**
@@ -209,15 +204,8 @@ public class CarbonServer {
             logger.log(Level.FINE, "Creating OSGi framework class loader.");
         }
 
-        URL exten = null;
-        try {
-            exten = new URL("file:///home/mirage/WSO2/carbon-kernel/carbon-spi/carbon-spi-hook/target/carbon-spi-hook-5.1.0-SNAPSHOT.jar");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
         URL fwkBundleURL = config.getCarbonOSGiFramework();
-        return new URLClassLoader(new URL[]{fwkBundleURL, exten});
+        return new URLClassLoader(new URL[]{fwkBundleURL});
     }
 
     /**
