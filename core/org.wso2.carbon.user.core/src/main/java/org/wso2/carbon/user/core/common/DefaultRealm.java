@@ -28,7 +28,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.DefaultClaimManager;
-import org.wso2.carbon.user.core.claim.InMemoryClaimManager;
+import org.wso2.carbon.user.core.claim.inmemory.InMemoryClaimManager;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
