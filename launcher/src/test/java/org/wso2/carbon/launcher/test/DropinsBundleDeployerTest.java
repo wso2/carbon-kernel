@@ -24,6 +24,7 @@ import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,10 +42,11 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @BeforeClass
     public void initTestClass() throws IOException {
         setupCarbonHome();
+        delete(Paths.get(System.getProperty("carbon.home"), "osgi", "profiles"));
     }
 
-    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent", priority = 0,
-            expectedExceptions = { IOException.class })
+    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
+            expectedExceptions = {IOException.class})
     public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
         String carbonHome = System.getProperty("carbon.home");
         DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
@@ -109,7 +111,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 4,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
         String carbonHome = System.getProperty("carbon.home");
         Path dropins = Paths.get(carbonHome, "dropins");
@@ -117,7 +119,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 5,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testUpdatingBundlesInfoCheckForNonExistingFile() throws IOException {
         String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfo = Paths.get(carbonHome, "dropins", "bundles.info");
@@ -125,13 +127,13 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     @Test(description = "Attempts to check whether to update a null file", priority = 4,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testUpdatingBundlesInfoCheckForInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, null);
     }
 
     @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 5,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testMergingDropinsBundlesInfoWithNonExistingFile() throws IOException {
         String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfo = Paths.get(carbonHome, "dropins", "bundles.info");
@@ -139,7 +141,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 5,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
     }
@@ -199,5 +201,25 @@ public class DropinsBundleDeployerTest extends BaseTest {
         return (expected.size() == actual.size()) && ((expected.stream().filter(bundleInfo ->
                 actual.stream().filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1).count())
                 == expected.size());
+    }
+
+    private static boolean delete(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            List<Path> children = listFiles(path);
+            if (children.size() > 0) {
+                for (Path aChild : children) {
+                    delete(aChild);
+                }
+            }
+        }
+        return Files.deleteIfExists(path);
+    }
+
+    private static List<Path> listFiles(Path directory) throws IOException {
+        List<Path> files = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
+            directoryStream.forEach(files::add);
+        }
+        return files;
     }
 }
