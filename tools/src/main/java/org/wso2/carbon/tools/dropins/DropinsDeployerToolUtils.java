@@ -106,7 +106,7 @@ public class DropinsDeployerToolUtils {
         List<String> profiles = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
         profiles.add("All");
 
-        if ((userChoice > 0) && (userChoice <= (profiles.size() + 1))) {
+        if ((userChoice > 0) && (userChoice <= profiles.size())) {
             return Optional.ofNullable(profiles.get(userChoice - 1));
         } else {
             return Optional.empty();

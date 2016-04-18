@@ -21,7 +21,6 @@ import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,14 +46,16 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                 if (carbonProfile.isPresent()) {
                     DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), carbonProfile.get());
                 } else {
-                    List<String> profileNames = DropinsBundleDeployerUtils.getCarbonProfiles();
-                    for (String profileName : profileNames) {
-                        DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
-                    }
+                    DropinsBundleDeployerUtils.getCarbonProfiles().parallelStream().forEach(profileName -> {
+                        try {
+                            DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
+                        } catch (IOException e) {
+                            logger.log(Level.SEVERE, "Failed to update the Carbon Profile : " + carbonProfile, e);
+                        }
+                    });
                 }
             } catch (IOException e) {
-                logger.log(Level.SEVERE,
-                        "An error has occurred when updating the bundles.info using the OSGi bundle information", e);
+                logger.log(Level.SEVERE, "Failed to update the specified Carbon Profile", e);
             }
         }
     }

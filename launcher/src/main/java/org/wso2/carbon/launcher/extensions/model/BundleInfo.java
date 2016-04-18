@@ -29,7 +29,7 @@ public class BundleInfo {
     private boolean isFromDropins;
 
     public BundleInfo(String bundleSymbolicName, String bundleVersion, String bundlePath, int startLevel,
-            boolean isFragment) {
+                      boolean isFragment) {
         this.bundleSymbolicName = bundleSymbolicName;
         this.bundleVersion = bundleVersion;
         this.bundlePath = bundlePath;

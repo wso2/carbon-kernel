@@ -24,6 +24,7 @@ import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,23 +38,24 @@ import java.util.List;
  */
 public class DropinsBundleDeployerTest extends BaseTest {
     private static final List<String> profileNames = new ArrayList<>();
+    private static String carbonHome;
 
     @BeforeClass
     public void initTestClass() throws IOException {
         setupCarbonHome();
+        carbonHome = System.getProperty("carbon.home");
+        delete(Paths.get(System.getProperty("carbon.home"), "osgi", "profiles"));
     }
 
-    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent", priority = 0,
-            expectedExceptions = { IOException.class })
+    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
+            expectedExceptions = {IOException.class})
     public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
         DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
     }
 
     @Test(description = "Attempts to execute dropins capability with all available Carbon Profiles", priority = 1)
-    public void testExecutingDropinsCapabilityWithAllProfiles() throws IOException {
+    public void testExecutingDropinsCapabilityForAllProfiles() throws IOException {
         createProfiles();
-        String carbonHome = System.getProperty("carbon.home");
 
         DropinsBundleDeployer deployer = new DropinsBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
@@ -72,10 +74,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Assert.assertTrue(true);
     }
 
-    @Test(description = "Attempts to execute dropins capability with a selected Carbon Profile", priority = 2)
-    public void testExecutingDropinsCapabilityWithSelectedProfile() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
-
+    @Test(description = "Attempts to execute dropins capability for a selected Carbon Profile", priority = 2)
+    public void testExecutingDropinsCapabilityForSelectedProfile() throws IOException {
         String profileName = "app-manager";
         Path profile = Paths.get(carbonHome, "osgi", "profiles", profileName, "configuration",
                 "org.eclipse.equinox.simpleconfigurator");
@@ -98,8 +98,6 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
-
         Path dropins = Paths.get(carbonHome, "osgi", "dropins");
         Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
 
@@ -109,44 +107,45 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 4,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
         Path dropins = Paths.get(carbonHome, "dropins");
         DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
     }
 
+    @Test(description = "Attempts to load OSGi bundle information from a null folder path", priority = 4,
+            expectedExceptions = {IOException.class})
+    public void testGettingNewBundlesInfoFromInvalidFolder() throws IOException {
+        DropinsBundleDeployerUtils.getNewBundlesInfo(null);
+    }
+
     @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 5,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testUpdatingBundlesInfoCheckForNonExistingFile() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfo = Paths.get(carbonHome, "dropins", "bundles.info");
         DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, bundlesInfo);
     }
 
     @Test(description = "Attempts to check whether to update a null file", priority = 4,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testUpdatingBundlesInfoCheckForInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, null);
     }
 
     @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 5,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testMergingDropinsBundlesInfoWithNonExistingFile() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfo = Paths.get(carbonHome, "dropins", "bundles.info");
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, bundlesInfo);
     }
 
     @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 5,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = {IOException.class})
     public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
     }
 
     private static void createProfiles() throws IOException {
-        String carbonHome = System.getProperty("carbon.home");
-
         profileNames.add("default");
         profileNames.add("mss");
         profileNames.add("as");
@@ -199,5 +198,25 @@ public class DropinsBundleDeployerTest extends BaseTest {
         return (expected.size() == actual.size()) && ((expected.stream().filter(bundleInfo ->
                 actual.stream().filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1).count())
                 == expected.size());
+    }
+
+    private static boolean delete(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            List<Path> children = listFiles(path);
+            if (children.size() > 0) {
+                for (Path aChild : children) {
+                    delete(aChild);
+                }
+            }
+        }
+        return Files.deleteIfExists(path);
+    }
+
+    private static List<Path> listFiles(Path directory) throws IOException {
+        List<Path> files = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
+            directoryStream.forEach(files::add);
+        }
+        return files;
     }
 }

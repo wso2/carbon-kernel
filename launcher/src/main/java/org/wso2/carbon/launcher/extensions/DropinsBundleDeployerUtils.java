@@ -262,7 +262,7 @@ public class DropinsBundleDeployerUtils {
      * @return a list of WSO2 Carbon Profile names
      * @throws IOException if an I/O error occurs
      */
-    public static List<String> getCarbonProfiles() throws IOException {
+    static List<String> getCarbonProfiles() throws IOException {
         return getCarbonProfiles(Utils.getCarbonHomeDirectory().toString());
     }
 }
