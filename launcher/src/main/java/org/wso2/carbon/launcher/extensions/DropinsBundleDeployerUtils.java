@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -37,8 +38,11 @@ import java.util.stream.Stream;
  */
 public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
-    private static final String dropinsDirectory = "dropins";
     private static final String addOnsDirectory = "osgi";
+    private static final String dropinsDirectory = "dropins";
+    private static final String profilesDirectory = "profiles";
+
+    private static List<BundleInfo> newBundlesInfo;
 
     /**
      * Updates the specified Carbon profile's bundles.info file based on the OSGi bundles deployed in the dropins
@@ -47,6 +51,7 @@ public class DropinsBundleDeployerUtils {
      * <p>
      * The mechanism used in updating the bundles.info file is as follows:
      * 1. The new OSGi bundle information from the bundles currently existing within the dropins folder are obtained.
+     * The new OSGi bundle information are read only once for updating one or more Carbon profiles.
      * 2. The existing OSGi dropins bundle information are compared with the newly retrieved bundle information and
      * the bundles.info file is updated only if the new bundle information are different from the existing.
      * 3. The new OSGi bundle information replace the existing dropins bundle information from the bundles.info file.
@@ -60,16 +65,23 @@ public class DropinsBundleDeployerUtils {
      */
     public static void executeDropinsCapability(String carbonHome, String carbonProfile) throws IOException {
         Path dropinsDirectoryPath = Paths.get(carbonHome, addOnsDirectory, dropinsDirectory);
-        Path bundlesInfoFile = Paths.get(carbonHome, "osgi", "profiles", carbonProfile, "configuration",
+        Path bundlesInfoFile = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, carbonProfile, "configuration",
                 "org.eclipse.equinox.simpleconfigurator", "bundles.info");
 
-        List<BundleInfo> newBundleInfo = getNewBundlesInfo(dropinsDirectoryPath);
-        if (hasToUpdateBundlesInfoFile(newBundleInfo, bundlesInfoFile)) {
-            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundleInfo, bundlesInfoFile);
+        newBundlesInfo = Optional.ofNullable(newBundlesInfo).orElse(getNewBundlesInfo(dropinsDirectoryPath));
+
+        if (hasToUpdateBundlesInfoFile(newBundlesInfo, bundlesInfoFile)) {
+            logger.log(Level.INFO, "New file changes detected in " + dropinsDirectory);
+
+            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundlesInfo, bundlesInfoFile);
+
+            logger.log(Level.INFO, "Updating the OSGi bundle information of Carbon Profile: " + carbonProfile + "...");
             updateBundlesInfo(effectiveNewBundleInfo, bundlesInfoFile);
-            logger.log(Level.INFO, "Successfully updated the " + carbonProfile + "'s bundles.info file");
+            logger.log(Level.INFO,
+                    "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
         } else {
-            logger.log(Level.INFO, "No changes detected in the dropins directory, skipping the bundles.info update");
+            logger.log(Level.INFO, "No changes detected in the dropins directory, skipped the OSGi bundle information "
+                    + "update for Carbon Profile: " + carbonProfile);
         }
     }
 
@@ -86,12 +98,11 @@ public class DropinsBundleDeployerUtils {
             Stream<Path> children = Files.list(sourceDirectory);
             children.parallel().forEach(child -> {
                 try {
-                    Optional<BundleInfo> newBundleInfo = getNewBundleInfo(child);
-                    if (newBundleInfo.isPresent()) {
-                        newBundleInfoLines.add(newBundleInfo.get());
-                    }
+                    logger.log(Level.FINE, "Loading OSGi bundle information from " + child);
+                    getNewBundleInfo(child).ifPresent(newBundleInfoLines::add);
+                    logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
                 } catch (IOException e) {
-                    logger.log(Level.WARNING, "Error when loading OSGi bundle info from " + child.toString(), e);
+                    throw new RuntimeException("Error when loading the OSGi bundle information from " + child, e);
                 }
             });
         } else {
@@ -103,6 +114,9 @@ public class DropinsBundleDeployerUtils {
 
     /**
      * Constructs a {@code BundleInfo} instance out of the OSGi bundle file path specified.
+     * <p>
+     * If the specified file path refers to a non-Java Archive (JAR) file, no {@code BundleInfo} instance will be
+     * created.
      *
      * @param bundlePath path to the OSGi bundle from which the {@link BundleInfo} is to be generated
      * @return a {@link BundleInfo} instance
@@ -112,30 +126,30 @@ public class DropinsBundleDeployerUtils {
         if ((bundlePath != null) && (Files.exists(bundlePath))) {
             Path bundleFileName = bundlePath.getFileName();
             if (bundleFileName == null) {
-                return Optional.empty();
+                throw new IOException("Specified OSGi bundle file name is null: " + bundlePath);
             } else {
                 String fileName = bundleFileName.toString();
                 if (fileName.endsWith(".jar")) {
                     try (JarFile jarFile = new JarFile(bundlePath.toString())) {
-                        if ((jarFile.getManifest() == null) || (jarFile.getManifest().getMainAttributes() == null)) {
-                            throw new IOException("Invalid bundle found in the " + dropinsDirectory + " directory: " +
-                                    jarFile.toString());
+                        Manifest manifest = jarFile.getManifest();
+                        if ((manifest == null) || (manifest.getMainAttributes() == null)) {
+                            throw new IOException("Invalid OSGi bundle found in the " + dropinsDirectory +
+                                    " directory: " + jarFile.toString());
                         } else {
-                            String bundleSymbolicName = jarFile.getManifest().getMainAttributes().
-                                    getValue("Bundle-SymbolicName");
-                            String bundleVersion = jarFile.getManifest().getMainAttributes().getValue("Bundle-Version");
+                            String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+                            String bundleVersion = manifest.getMainAttributes().getValue("Bundle-Version");
+
                             if (bundleSymbolicName == null || bundleVersion == null) {
-                                logger.log(Level.WARNING,
-                                        "Required bundle manifest headers do not exists: " + jarFile.toString());
-                                return Optional.empty();
+                                throw new IOException(
+                                        "Required bundle manifest headers do not exist in " + jarFile.toString());
                             } else {
                                 if (bundleSymbolicName.contains(";")) {
                                     bundleSymbolicName = bundleSymbolicName.split(";")[0];
                                 }
                             }
+
                             //  checks whether this bundle is a fragment or not
-                            boolean isFragment = (jarFile.getManifest().getMainAttributes().getValue("Fragment-Host")
-                                    != null);
+                            boolean isFragment = (manifest.getMainAttributes().getValue("Fragment-Host") != null);
                             int defaultBundleStartLevel = 4;
                             BundleInfo generated = new BundleInfo(bundleSymbolicName, bundleVersion,
                                     "../../" + dropinsDirectory + "/" + fileName, defaultBundleStartLevel, isFragment);
@@ -173,7 +187,8 @@ public class DropinsBundleDeployerUtils {
 
             long newBundleInfoCount = Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).size();
             if (existingBundlesInfo.size() == newBundleInfoCount) {
-                long nonMatchingBundleInfoCount = Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).stream().
+                long nonMatchingBundleInfoCount = Optional.ofNullable(newBundleInfo).
+                        orElse(new ArrayList<>()).stream().
                         filter(info -> existingBundlesInfo.stream().filter(existingInfo -> existingInfo.equals(info)).
                                 count() == 0).count();
                 return nonMatchingBundleInfoCount > 0;
@@ -181,7 +196,7 @@ public class DropinsBundleDeployerUtils {
                 return true;
             }
         } else {
-            throw new IOException("Invalid file path specified " + existingBundleInfoFile);
+            throw new IOException("Invalid bundles.info file path specified: " + existingBundleInfoFile);
         }
     }
 
@@ -206,7 +221,7 @@ public class DropinsBundleDeployerUtils {
 
             return effectiveBundleInfo;
         } else {
-            throw new IOException("Dropins directory does not exist");
+            throw new IOException("Specified bundles.info file does not exist: " + bundlesInfoFilePath);
         }
     }
 
@@ -238,19 +253,18 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
-        Path carbonProfilesHome = Paths.get(carbonHome, addOnsDirectory, "profiles");
+        Path carbonProfilesHome = Paths.get(carbonHome, addOnsDirectory, profilesDirectory);
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
 
-            profiles.parallel().forEach(profile -> {
-                Path profileName = profile.getFileName();
-                Optional.ofNullable(profileName).ifPresent(name -> profileNames.add(name.toString()));
-            });
+            profiles.parallel().forEach(profile -> Optional.ofNullable(profile.getFileName()).
+                    ifPresent(name -> profileNames.add(name.toString())));
 
             return profileNames;
         } else {
-            throw new IOException("The " + carbonHome + "/" + addOnsDirectory + "/profiles directory does not exist");
+            throw new IOException("The " + carbonHome + "/" + addOnsDirectory + "/" + profilesDirectory +
+                    " directory does not exist");
         }
     }
 

@@ -41,8 +41,10 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
+            String carbonProfilePropertyValue = System.getProperty("carbon.profile");
+
             try {
-                Optional<String> carbonProfile = Optional.ofNullable(System.getProperty("carbon.profile"));
+                Optional<String> carbonProfile = Optional.ofNullable(carbonProfilePropertyValue);
                 if (carbonProfile.isPresent()) {
                     DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), carbonProfile.get());
                 } else {
@@ -50,12 +52,16 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                         try {
                             DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
                         } catch (IOException e) {
-                            logger.log(Level.SEVERE, "Failed to update the Carbon Profile : " + carbonProfile, e);
+                            logger.log(Level.SEVERE,
+                                    "Failed to update the OSGi bundle information of Carbon Profile: " + carbonProfile,
+                                    e);
                         }
                     });
                 }
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to update the specified Carbon Profile", e);
+                logger.log(Level.SEVERE,
+                        "Failed to update the OSGi bundle information of Carbon Profile: " + carbonProfilePropertyValue,
+                        e);
             }
         }
     }
