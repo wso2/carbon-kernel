@@ -17,7 +17,7 @@ package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.utils.Utils;
@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -49,15 +48,11 @@ public class CarbonLoggerTest extends BaseTest {
         super();
     }
 
-    @BeforeSuite
+    @BeforeClass
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
         logFile = new File(Paths.get(Utils.getCarbonHomeDirectory().toString(),
                 "logs", Constants.CARBON_LOG_FILE_NAME).toString());
-        String loggingConfigFile = Paths.get("src", "test", "resources", "logging", "logging.properties").toString();
-        System.setProperty("java.util.logging.config.file", loggingConfigFile);
-        //reload configurations of java.util.logging to set the required pattern for formatter.
-        LogManager.getLogManager().readConfiguration();
         logger = Logger.getLogger(CarbonLoggerTest.class.getName());
         carbonLogHandler = new CarbonLogHandler(logFile);
         carbonLogHandler.setFormatter(new SimpleFormatter());
