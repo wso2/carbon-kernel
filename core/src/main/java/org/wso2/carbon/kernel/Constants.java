@@ -42,4 +42,13 @@ public final class Constants {
     private Constants() {
         throw new AssertionError("Trying to a instantiate a constant class");
     }
+
+    /**
+     * Default value if it is not set in sys prop/env.
+     */
+    public static class PlaceHolders {
+        public static final String SERVER_KEY = "carbon-kernel";
+        public static final String SERVER_NAME = "WSO2 Carbon Kernel";
+        public static final String SERVER_VERSION = "5";
+    }
 }
