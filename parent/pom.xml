@@ -14,14 +14,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>3</version>
-        <relativePath/>
+        <version>4</version>
+        <relativePath />
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -133,24 +132,9 @@
                     <artifactId>carbon-feature-plugin</artifactId>
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>maven-buildnumber-plugin</artifactId>
-                    <version>${maven.buildnumber.plugin.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven.checkstyleplugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${maven.findbugsplugin.version}</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -159,17 +143,26 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <!-- Remove after fixing CARBON-15861 -->
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>${maven.bundle.plugin.extensions}</extensions>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <obrRepository>NONE</obrRepository>
-                    <instructions>
-                        <Startup-Component>${startup.component}</Startup-Component>
-                    </instructions>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <revisionOnScmFailure>${maven.build.timestamp}</revisionOnScmFailure>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
@@ -420,11 +413,6 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jms_1.1_spec</artifactId>
-                <version>${geronimo.jms.spec.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>carbon-context-test-artifact</artifactId>
                 <version>${carbon.kernel.version}</version>
@@ -516,8 +504,7 @@
         <geronimo.atinject.spec.version>1.0</geronimo.atinject.spec.version>
 
         <!--Other dependency versions -->
-        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
-        <maven.buildnumber.plugin.version>0.9.4</maven.buildnumber.plugin.version>
+        <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
