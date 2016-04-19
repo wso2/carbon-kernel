@@ -342,8 +342,8 @@
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
-        <version.tomcat>7.0.59</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v3</orbit.version.tomcat>
+        <version.tomcat>7.0.69</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1
         </orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
