@@ -17,6 +17,7 @@ package org.wso2.carbon.launcher.extensions;
 
 import org.wso2.carbon.launcher.CarbonServerEvent;
 import org.wso2.carbon.launcher.CarbonServerListener;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
@@ -41,27 +42,12 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            String carbonProfilePropertyValue = System.getProperty("carbon.profile");
-
+            String profileName = Optional.ofNullable(System.getProperty(Constants.PROFILE)).orElse("default");
             try {
-                Optional<String> carbonProfile = Optional.ofNullable(carbonProfilePropertyValue);
-                if (carbonProfile.isPresent()) {
-                    DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), carbonProfile.get());
-                } else {
-                    DropinsBundleDeployerUtils.getCarbonProfiles().parallelStream().forEach(profileName -> {
-                        try {
-                            DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
-                        } catch (IOException e) {
-                            logger.log(Level.SEVERE,
-                                    "Failed to update the OSGi bundle information of Carbon Profile: " + carbonProfile,
-                                    e);
-                        }
-                    });
-                }
+                DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
             } catch (IOException e) {
                 logger.log(Level.SEVERE,
-                        "Failed to update the OSGi bundle information of Carbon Profile: " + carbonProfilePropertyValue,
-                        e);
+                        "Failed to update the OSGi bundle information of Carbon Profile: " + profileName, e);
             }
         }
     }

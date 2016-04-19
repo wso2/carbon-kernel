@@ -29,6 +29,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -213,10 +214,10 @@ public class DropinsBundleDeployerUtils {
     public static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundleInfo, Path bundlesInfoFilePath)
             throws IOException {
         if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
-            List<BundleInfo> effectiveBundleInfo = new ArrayList<>();
-            Files.readAllLines(bundlesInfoFilePath).stream().filter(line -> !line.startsWith("#")).
-                    map(BundleInfo::getInstance).
-                    filter(info -> !info.isFromDropins()).forEach(effectiveBundleInfo::add);
+            List<BundleInfo> effectiveBundleInfo = Files.readAllLines(bundlesInfoFilePath).stream().
+                    filter(line -> !line.startsWith("#")).
+                            map(BundleInfo::getInstance).
+                            filter(info -> !info.isFromDropins()).collect(Collectors.toList());
             newBundleInfo.stream().forEach(effectiveBundleInfo::add);
 
             return effectiveBundleInfo;

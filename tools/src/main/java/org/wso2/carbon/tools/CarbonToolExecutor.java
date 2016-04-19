@@ -29,12 +29,12 @@ import java.util.logging.Logger;
  * <p>
  * The user will be able to execute the desired tool using the relevant .sh/.bat file available in the
  * distribution. The ability to identify the appropriate tool to execute and performing the execution is
- * done by the {@code CarbonToolManager}.
+ * done by the {@code CarbonToolExecutor}.
  *
  * @since 5.1.0
  */
-public class CarbonToolManager {
-    private static final Logger logger = Logger.getLogger(CarbonToolManager.class.getName());
+public class CarbonToolExecutor {
+    private static final Logger logger = Logger.getLogger(CarbonToolExecutor.class.getName());
 
     /**
      * Application executor for the WSO2 Carbon Tool manager.

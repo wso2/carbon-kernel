@@ -19,7 +19,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
-import org.wso2.carbon.tools.CarbonToolManager;
+import org.wso2.carbon.tools.CarbonToolExecutor;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.ByteArrayInputStream;
@@ -80,7 +80,7 @@ public class DropinsDeployerToolTest {
 
         System.setProperty("wso2.carbon.tool", "dropins-deployer");
         String[] args = { carbonHome.toString() };
-        CarbonToolManager.main(args);
+        CarbonToolExecutor.main(args);
 
         for (String profileName : profileNames) {
             Path bundlesInfo = Paths.get(carbonHome.toString(), "osgi", "profiles", profileName, "configuration",
@@ -104,7 +104,7 @@ public class DropinsDeployerToolTest {
 
         System.setProperty("wso2.carbon.tool", "dropins-deployer");
         String[] args = { carbonHome.toString() };
-        CarbonToolManager.main(args);
+        CarbonToolExecutor.main(args);
 
         Path bundlesInfo = Paths.get(carbonHome.toString(), "osgi", "profiles", "AS", "configuration",
                 "org.eclipse.equinox.simpleconfigurator", "bundles.info");

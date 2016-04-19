@@ -19,6 +19,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.CarbonServerEvent;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.extensions.DropinsBundleDeployer;
 import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
@@ -37,10 +38,12 @@ import java.util.List;
  * @since 5.1.0
  */
 public class DropinsBundleDeployerTest extends BaseTest {
-    private static final List<String> profileNames = new ArrayList<>();
+    //  dropins deployer unit-test constants
     private static final String addOnsDirectory = "osgi";
     private static final String dropinsDirectory = "dropins";
     private static final String profilesDirectory = "profiles";
+    private static final String profileDefault = "default";
+    private static final String profileMSS = "mss";
     private static final String bundlesInfoFile = "bundles.info";
 
     private static String carbonHome;
@@ -49,6 +52,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
     public void initTestClass() throws IOException {
         setupCarbonHome();
         carbonHome = System.getProperty("carbon.home");
+        //  deletes the profiles directory, if present
         delete(Paths.get(System.getProperty("carbon.home"), addOnsDirectory, profilesDirectory));
     }
 
@@ -58,49 +62,37 @@ public class DropinsBundleDeployerTest extends BaseTest {
         DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
     }
 
-    @Test(description = "Attempts to execute dropins capability with all available Carbon Profiles", priority = 1)
-    public void testExecutingDropinsCapabilityForAllProfiles() throws IOException {
+    /*@Test(description = "Attempts to execute dropins capability with profile system property not explicitly set",
+            priority = 1)
+    public void testExecutingDropinsCapabilityForDefaultProfile() throws IOException {
         createProfiles();
 
         DropinsBundleDeployer deployer = new DropinsBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        List<BundleInfo> actual;
-        for (String profileName : profileNames) {
-            Path bundlesInfo = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileName, "configuration",
-                    "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
-            actual = getActualBundleInfo(bundlesInfo);
-            boolean matching = compareBundleInfo(expected, actual);
-            if (!matching) {
-                Assert.fail();
-            }
-        }
-        Assert.assertTrue(true);
-    }
+        Path bundlesInfo = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileDefault, "configuration",
+                "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+        List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
+        Assert.assertTrue(compareBundleInfo(expected, actual));
+    }*/
 
-    @Test(description = "Attempts to execute dropins capability for a selected Carbon Profile", priority = 2)
+    @Test(description = "Attempts to execute dropins capability for a chosen Carbon Profile", priority = 2)
     public void testExecutingDropinsCapabilityForSelectedProfile() throws IOException {
-        String profileName = "app-manager";
-        Path profile = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileName, "configuration",
-                "org.eclipse.equinox.simpleconfigurator");
-        createDirectories(profile);
-        Path bundlesInfo = null;
-        if (Files.exists(profile)) {
-            bundlesInfo = Files.createFile(Paths.get(profile.toString(), bundlesInfoFile));
-        }
+        createProfiles();
 
-        System.setProperty("carbon.profile", "app-manager");
+        System.setProperty(Constants.PROFILE, profileMSS);
         DropinsBundleDeployer deployer = new DropinsBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
+        Path bundlesInfo = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileMSS, "configuration",
+                "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
-        boolean matching = compareBundleInfo(expected, actual);
-        Assert.assertTrue(matching);
+        Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
+    /*@Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
         Path dropins = Paths.get(carbonHome, addOnsDirectory, dropinsDirectory);
@@ -148,12 +140,12 @@ public class DropinsBundleDeployerTest extends BaseTest {
             expectedExceptions = { IOException.class })
     public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
-    }
+    }*/
 
     private static void createProfiles() throws IOException {
-        profileNames.add("default");
-        profileNames.add("mss");
-        profileNames.add("as");
+        List<String> profileNames = new ArrayList<>();
+        profileNames.add(profileDefault);
+        profileNames.add(profileMSS);
 
         for (String profileName : profileNames) {
             Path profile = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileName, "configuration",
@@ -173,18 +165,23 @@ public class DropinsBundleDeployerTest extends BaseTest {
 
     private static List<BundleInfo> getExpectedBundleInfo() {
         List<BundleInfo> bundleInfo = new ArrayList<>();
+        String equinoxOSGiVersion = System.getProperty("equinox.osgi.version");
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + equinoxOSGiVersion + ",../../" +
+                dropinsDirectory + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
+
+        String equinoxSimpleConfiguratorVersion = System.getProperty("equinox.simpleconfigurator.version");
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
+                equinoxSimpleConfiguratorVersion + ",../../" + dropinsDirectory +
+                "/org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar,4,true"));
+
+        String equinoxUtilVersion = System.getProperty("equinox.util.version");
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.util," + equinoxUtilVersion + ",../../" +
+                dropinsDirectory + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
+
+        String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.osgi," + System.getProperty("equinox.osgi.version") + ",../../" + dropinsDirectory
-                        + "/org.eclipse.osgi.jar,4,true"));
-        bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.simpleconfigurator," + System.getProperty("equinox.simpleconfigurator.version")
-                        + ",../../" + dropinsDirectory + "/org.eclipse.equinox.simpleconfigurator.jar,4,true"));
-        bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.util," + System.getProperty("equinox.util.version") + ",../../" + dropinsDirectory
-                        + "/org.eclipse.equinox.util.jar,4,true"));
-        bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + System.getProperty("equinox.launcher.version") + ",../../"
-                        + dropinsDirectory + "/org.eclipse.equinox.launcher.jar,4,true"));
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + dropinsDirectory
+                        + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true"));
 
         return bundleInfo;
     }
