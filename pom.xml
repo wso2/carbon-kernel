@@ -46,10 +46,10 @@
                 <module>launcher</module>
                 <module>base</module>
                 <module>core</module>
-                <module>tests</module>
-                <module>features</module>
                 <module>tools</module>
+                <module>features</module>
                 <module>distribution</module>
+                <module>tests</module>
             </modules>
         </profile>
     </profiles>
