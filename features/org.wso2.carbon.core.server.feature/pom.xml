@@ -42,9 +42,95 @@
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.tools</artifactId>
+        </dependency>
     </dependencies>
+
     <build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>org.wso2.carbon.launcher</artifactId>
+                                    <outputDirectory>${project.build.directory}/lib/launcher</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.osgi</groupId>
+                                    <artifactId>org.osgi.core</artifactId>
+                                    <outputDirectory>${project.build.directory}/lib/launcher</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>org.wso2.carbon.tools</artifactId>
+                                    <outputDirectory>${project.build.directory}/lib/tools</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prefilter-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>src/main/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>resources</directory>
+                                    <includes>
+                                        <include>bin/**</include>
+                                        <include>conf/**</include>
+                                        <include>deployment/**</include>
+                                        <include>logs/**</include>
+                                        <include>osgi/**</include>
+                                        <include>tmp/**</include>
+                                        <include>p2.inf</include>
+                                        <include>build.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.wso2.carbon.maven</groupId>
                 <artifactId>carbon-feature-plugin</artifactId>
@@ -56,7 +142,6 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-
                             <propertyFile>../etc/feature.properties</propertyFile>
                             <adviceFileContents>
                                 <advice>
@@ -65,7 +150,7 @@
                                 </advice>
                                 <advice>
                                     <name>org.eclipse.equinox.p2.type.group</name>
-                                    <value>false</value>
+                                    <value>true</value>
                                 </advice>
                             </adviceFileContents>
                             <bundles>
@@ -83,6 +168,27 @@
                                 </bundle>
                             </bundles>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean_target</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="src/main/resources" />
+                                <delete dir="src/main" />
+                                <delete dir="src" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

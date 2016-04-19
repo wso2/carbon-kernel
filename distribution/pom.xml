@@ -155,8 +155,7 @@
                             <productConfigurationFile>${basedir}/carbon.product
                             </productConfigurationFile>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-
-                            <targetPath>file:${basedir}/target/WSO2Carbon</targetPath>
+                            <targetPath>file:${basedir}/target/WSO2Carbon/osgi</targetPath>
                             <profile>profiles/default</profile>
                         </configuration>
                     </execution>
@@ -169,8 +168,7 @@
                         <configuration>
                             <profile>profiles/default</profile>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-
-                            <destination>${basedir}/target/WSO2Carbon</destination>
+                            <destination>${basedir}/target/WSO2Carbon/osgi</destination>
                             <deleteOldProfileFiles>true</deleteOldProfileFiles>
                             <features>
                                 <feature>
