@@ -1,12 +1,12 @@
 instructions.configure = \
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/lib/launcher/,target:${installFolder}/../../../bin/bootstrap/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/lib/tools/,target:${installFolder}/../../../bin/bootstrap/tools/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/conf,target:${installFolder}/../../../conf/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/bin,target:${installFolder}/../../../bin/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/deployment,target:${installFolder}/../../../deployment/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/logs,target:${installFolder}/../../../logs/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/osgi,target:${installFolder}/../../../osgi/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.core.server_${feature.version}/tmp,target:${installFolder}/../../../tmp/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/lib/launcher/,target:${installFolder}/../../../bin/bootstrap/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/lib/tools/,target:${installFolder}/../../../bin/bootstrap/tools/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/conf,target:${installFolder}/../../../conf/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/bin,target:${installFolder}/../../../bin/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/deployment,target:${installFolder}/../../../deployment/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/logs,target:${installFolder}/../../../logs/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/osgi,target:${installFolder}/../../../osgi/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/tmp,target:${installFolder}/../../../tmp/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:carbon.sh,permissions:755);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:jartobundle.sh,permissions:755);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../conf,targetFile:log4j2.xml,permissions:644);\

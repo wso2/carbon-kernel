@@ -23,9 +23,9 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.core.server.feature</artifactId>
+    <artifactId>org.wso2.carbon.kernel.feature</artifactId>
     <packaging>carbon-feature</packaging>
-    <name>WSO2 Carbon Kernel - Carbon Server Feature</name>
+    <name>WSO2 Carbon - Kernel Feature</name>
     <url>http://wso2.com</url>
     <description>This feature contains the carbon core bundle and its dependents</description>
 
