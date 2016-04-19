@@ -50,7 +50,7 @@ public class DropinsDeployerTest extends BaseTest {
 
     @Test
     public void readBundlesInfoToEmptyFile() {
-        String carbonHome = System.getProperty("carbon.home");
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Path bundlesInfoParent = Paths
                 .get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
@@ -78,7 +78,7 @@ public class DropinsDeployerTest extends BaseTest {
 
     @Test
     public void readBundlesInfoToNonEmptyFile() {
-        String carbonHome = System.getProperty("carbon.home");
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Path bundlesInfoParent = Paths
                 .get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
@@ -113,7 +113,7 @@ public class DropinsDeployerTest extends BaseTest {
     }
 
     private void setupDropinsFolderStructure() {
-        String carbonHome = System.getProperty("carbon.home");
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
         try {
             Path dropinsFolderPath = Paths.get(carbonHome, "osgi", "dropins");
             Files.createDirectories(dropinsFolderPath);
@@ -123,7 +123,7 @@ public class DropinsDeployerTest extends BaseTest {
     }
 
     private void setupBundlesInfoFile() {
-        String carbonHome = System.getProperty("carbon.home");
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Path bundlesInfoParent = Paths
                 .get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
@@ -163,7 +163,7 @@ public class DropinsDeployerTest extends BaseTest {
 
     @AfterClass
     public void cleanUp() {
-        String carbonHome = System.getProperty("carbon.home");
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
         List<Path> deletePaths = new ArrayList<>();
         Path bundlesInfoParent = Paths.get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE,
                 "org.eclipse.equinox.simpleconfigurator");
