@@ -15,8 +15,6 @@
  */
 package org.wso2.carbon.tools;
 
-import org.wso2.carbon.tools.exception.CarbonToolException;
-
 /**
  * This is a Java interface which has to be implemented by any WSO2 Carbon optional tool.
  *
@@ -27,7 +25,6 @@ public interface CarbonTool {
      * Executes the tool based on the arguments provided.
      *
      * @param toolArgs the arguments needed for the tool to function (optional)
-     * @throws CarbonToolException if an error occurs when executing the tool
      */
-    void execute(String... toolArgs) throws CarbonToolException;
+    void execute(String... toolArgs);
 }

@@ -79,7 +79,7 @@ public class CarbonToolExecutor {
         if (carbonTool != null) {
             carbonTool.execute(toolArgs);
         } else {
-            throw new CarbonToolException("Invalid tool identifier " + toolIdentifier);
+            throw new CarbonToolException("Carbon tool executor failed to identify the tool for execution");
         }
     }
 }

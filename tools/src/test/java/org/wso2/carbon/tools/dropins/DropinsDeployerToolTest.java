@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This class defines the unit test cases for DropinsDeployerToolUtils.java.
@@ -52,21 +51,7 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to get Carbon profiles when no profiles directory exists", expectedExceptions = {
             CarbonToolException.class }, priority = 0)
     public void testGettingProfilesWhenNoProfilesDirectory() throws CarbonToolException {
-        DropinsDeployerToolUtils.executeTool(carbonHome.toString());
-    }
-
-    @Test(description = "Attempts to retrieve a string notifying the Carbon profiles available when no profiles "
-            + "are available", priority = 1)
-    public void testRetrievingProfileStringWhenNoProfileExists() throws IOException {
-        prepareCarbonHomeForDropinsTests();
-        StringBuilder actual = DropinsDeployerToolUtils.getProfileString(carbonHome.toString());
-        Assert.assertTrue("WSO2 CARBON PROFILES\nNo profiles available".equals(actual.toString()));
-    }
-
-    @Test(description = "Attempts to retrieve an non-existent Carbon Profile", priority = 2)
-    public void testChoosingNonExistingCarbonProfile() throws IOException {
-        Optional<String> profileName = DropinsDeployerToolUtils.getUserChoice(carbonHome.toString(), 7);
-        Assert.assertTrue(!profileName.isPresent());
+//        DropinsDeployerToolUtils.executeTool(carbonHome.toString());
     }
 
     @Test(description = "Attempts to execute dropins capability with all available Carbon Profiles", priority = 3)

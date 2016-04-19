@@ -39,10 +39,8 @@ import java.util.List;
  */
 public class DropinsBundleDeployerTest extends BaseTest {
     //  dropins deployer unit-test constants
-    private static final String addOnsDirectory = "osgi";
+    private static final List<String> profileNames = new ArrayList<>();
     private static final String dropinsDirectory = "dropins";
-    private static final String profilesDirectory = "profiles";
-    private static final String profileDefault = "default";
     private static final String profileMSS = "mss";
     private static final String bundlesInfoFile = "bundles.info";
 
@@ -51,9 +49,9 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @BeforeClass
     public void initTestClass() throws IOException {
         setupCarbonHome();
-        carbonHome = System.getProperty("carbon.home");
+        carbonHome = System.getProperty(Constants.CARBON_HOME);
         //  deletes the profiles directory, if present
-        delete(Paths.get(System.getProperty("carbon.home"), addOnsDirectory, profilesDirectory));
+        delete(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES));
     }
 
     @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
@@ -62,7 +60,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
     }
 
-    /*@Test(description = "Attempts to execute dropins capability with profile system property not explicitly set",
+    @Test(description = "Attempts to execute dropins capability with profile system property not explicitly set",
             priority = 1)
     public void testExecutingDropinsCapabilityForDefaultProfile() throws IOException {
         createProfiles();
@@ -71,31 +69,30 @@ public class DropinsBundleDeployerTest extends BaseTest {
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path bundlesInfo = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileDefault, "configuration",
-                "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+        Path bundlesInfo = Paths
+                .get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES, Constants.DEFAULT_PROFILE,
+                        "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
-    }*/
+    }
 
     @Test(description = "Attempts to execute dropins capability for a chosen Carbon Profile", priority = 2)
     public void testExecutingDropinsCapabilityForSelectedProfile() throws IOException {
-        createProfiles();
-
         System.setProperty(Constants.PROFILE, profileMSS);
         DropinsBundleDeployer deployer = new DropinsBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path bundlesInfo = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileMSS, "configuration",
-                "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+        Path bundlesInfo = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES,
+                profileMSS, "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    /*@Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
+    @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
-        Path dropins = Paths.get(carbonHome, addOnsDirectory, dropinsDirectory);
+        Path dropins = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
         Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
@@ -103,53 +100,65 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 4,
+    @Test(description = "Attempt loading the Carbon profile names", priority = 3)
+    public void testLoadingCarbonProfiles() throws IOException {
+        List<String> actual = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+        boolean matching = ((profileNames.stream().
+                filter(expectedName -> actual.stream().
+                        filter(expectedName::equals).count() == 1)).count() == profileNames.size());
+        Assert.assertTrue(matching);
+    }
+
+    @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 3,
             expectedExceptions = { IOException.class })
     public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
         Path dropins = Paths.get(carbonHome, dropinsDirectory);
         DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
     }
 
-    @Test(description = "Attempts to load OSGi bundle information from a null folder path", priority = 4,
+    @Test(description = "Attempts to load OSGi bundle information from a null folder path", priority = 3,
             expectedExceptions = { IOException.class })
     public void testGettingNewBundlesInfoFromInvalidFolder() throws IOException {
         DropinsBundleDeployerUtils.getNewBundlesInfo(null);
     }
 
-    @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 5,
+    @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 3,
             expectedExceptions = { IOException.class })
     public void testUpdatingBundlesInfoCheckForNonExistingFile() throws IOException {
         Path bundlesInfo = Paths.get(carbonHome, dropinsDirectory, bundlesInfoFile);
         DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, bundlesInfo);
     }
 
-    @Test(description = "Attempts to check whether to update a null file", priority = 4,
+    @Test(description = "Attempts to check whether to update a null file", priority = 3,
             expectedExceptions = { IOException.class })
     public void testUpdatingBundlesInfoCheckForInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, null);
     }
 
-    @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 5,
+    @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 3,
             expectedExceptions = { IOException.class })
     public void testMergingDropinsBundlesInfoWithNonExistingFile() throws IOException {
         Path bundlesInfo = Paths.get(carbonHome, dropinsDirectory, bundlesInfoFile);
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, bundlesInfo);
     }
 
-    @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 5,
+    @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 3,
             expectedExceptions = { IOException.class })
     public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
-    }*/
+    }
+
+    /**
+     * Utility functions for dropins unit-tests.
+     */
 
     private static void createProfiles() throws IOException {
-        List<String> profileNames = new ArrayList<>();
-        profileNames.add(profileDefault);
+        profileNames.add(Constants.DEFAULT_PROFILE);
         profileNames.add(profileMSS);
 
         for (String profileName : profileNames) {
-            Path profile = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, profileName, "configuration",
-                    "org.eclipse.equinox.simpleconfigurator");
+            Path profile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES,
+                    profileName, "configuration", "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {
                 Files.createFile(Paths.get(profile.toString(), bundlesInfoFile));

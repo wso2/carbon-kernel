@@ -26,6 +26,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The Java class which defines the tool for Jar-to-OSGi-Bundle conversion.
@@ -33,14 +35,15 @@ import java.util.jar.Manifest;
  * @since 5.0.0
  */
 public class BundleGeneratorTool implements CarbonTool {
+    private static final Logger logger = Logger.getLogger(BundleGeneratorTool.class.getName());
+
     /**
      * Executes the JAR to OSGi bundle conversion process.
      *
      * @param toolArgs a {@link String} array providing the source and destination {@link String} path values
-     * @throws CarbonToolException if an error occurs when executing the tool
      */
     @Override
-    public void execute(String[] toolArgs) throws CarbonToolException {
+    public void execute(String[] toolArgs) {
         int sourceIndex = 0;
         int destinationIndex = 1;
 
@@ -58,27 +61,28 @@ public class BundleGeneratorTool implements CarbonTool {
                             List<Path> directoryContent = BundleGeneratorUtils.listFiles(source.get());
                             for (Path aDirectoryItem : directoryContent) {
                                 if (aDirectoryItem.toString().endsWith(".jar")) {
-                                    BundleGeneratorUtils.convertFromJarToBundle(aDirectoryItem, destination.get(),
-                                            new Manifest(), "");
+                                    BundleGeneratorUtils
+                                            .convertFromJarToBundle(aDirectoryItem, destination.get(), new Manifest(),
+                                                    "");
                                 }
                             }
                         }
-                    } catch (IOException e) {
-                        throw new CarbonToolException(
+                    } catch (IOException | CarbonToolException e) {
+                        logger.log(Level.SEVERE,
                                 "An error occurred when making the JAR (Java Archive) to OSGi bundle conversion", e);
                     }
                 } else {
-                    String message = "The source location and/or bundle destination does not have appropriate " +
-                            "read/write permissions.";
-                    throw new CarbonToolException(message);
+                    String message = "The source location and/or bundle destination does not have appropriate "
+                            + "read/write permissions.";
+                    logger.log(Level.WARNING, message);
                 }
             } else {
-                throw new CarbonToolException("Invalid file path(s)");
+                logger.log(Level.WARNING, "Invalid file path(s)");
             }
         } else {
-            String message = "Improper usage detected. Usage: jartobundle.sh/.bat [source] [destination], both " +
-                    "arguments source and destination are compulsory";
-            throw new CarbonToolException(message);
+            String message = "Improper usage detected. Usage: jartobundle.sh/.bat [source] [destination], both "
+                    + "arguments source and destination are compulsory";
+            logger.log(Level.INFO, message);
         }
     }
 

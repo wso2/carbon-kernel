@@ -15,8 +15,8 @@
  */
 package org.wso2.carbon.launcher.extensions;
 
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
-import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,9 +39,7 @@ import java.util.stream.Stream;
  */
 public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
-    private static final String addOnsDirectory = "osgi";
     private static final String dropinsDirectory = "dropins";
-    private static final String profilesDirectory = "profiles";
 
     private static List<BundleInfo> newBundlesInfo;
 
@@ -64,12 +62,16 @@ public class DropinsBundleDeployerUtils {
      * @param carbonProfile the bundles.info file to be updated
      * @throws IOException if an I/O error occurs
      */
-    public static void executeDropinsCapability(String carbonHome, String carbonProfile) throws IOException {
-        Path dropinsDirectoryPath = Paths.get(carbonHome, addOnsDirectory, dropinsDirectory);
-        Path bundlesInfoFile = Paths.get(carbonHome, addOnsDirectory, profilesDirectory, carbonProfile, "configuration",
-                "org.eclipse.equinox.simpleconfigurator", "bundles.info");
+    public static synchronized void executeDropinsCapability(String carbonHome, String carbonProfile)
+            throws IOException {
+        Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
+        Path bundlesInfoFile = Paths.
+                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES, carbonProfile, "configuration",
+                        "org.eclipse.equinox.simpleconfigurator", "bundles.info");
 
-        newBundlesInfo = Optional.ofNullable(newBundlesInfo).orElse(getNewBundlesInfo(dropinsDirectoryPath));
+        if (newBundlesInfo == null) {
+            newBundlesInfo = getNewBundlesInfo(dropinsDirectoryPath);
+        }
 
         if (hasToUpdateBundlesInfoFile(newBundlesInfo, bundlesInfoFile)) {
             logger.log(Level.INFO, "New file changes detected in " + dropinsDirectory);
@@ -216,8 +218,8 @@ public class DropinsBundleDeployerUtils {
         if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
             List<BundleInfo> effectiveBundleInfo = Files.readAllLines(bundlesInfoFilePath).stream().
                     filter(line -> !line.startsWith("#")).
-                            map(BundleInfo::getInstance).
-                            filter(info -> !info.isFromDropins()).collect(Collectors.toList());
+                    map(BundleInfo::getInstance).
+                    filter(info -> !info.isFromDropins()).collect(Collectors.toList());
             newBundleInfo.stream().forEach(effectiveBundleInfo::add);
 
             return effectiveBundleInfo;
@@ -254,7 +256,7 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
-        Path carbonProfilesHome = Paths.get(carbonHome, addOnsDirectory, profilesDirectory);
+        Path carbonProfilesHome = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES);
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
@@ -264,20 +266,8 @@ public class DropinsBundleDeployerUtils {
 
             return profileNames;
         } else {
-            throw new IOException("The " + carbonHome + "/" + addOnsDirectory + "/" + profilesDirectory +
+            throw new IOException("The " + carbonHome + "/" + Constants.OSGI_REPOSITORY + "/" + Constants.PROFILES +
                     " directory does not exist");
         }
-    }
-
-    /**
-     * Returns a list of WSO2 Carbon Profile names.
-     * <p>
-     * This method can be used when the Carbon server is running along with the carbon.home system property set.
-     *
-     * @return a list of WSO2 Carbon Profile names
-     * @throws IOException if an I/O error occurs
-     */
-    static List<String> getCarbonProfiles() throws IOException {
-        return getCarbonProfiles(Utils.getCarbonHomeDirectory().toString());
     }
 }

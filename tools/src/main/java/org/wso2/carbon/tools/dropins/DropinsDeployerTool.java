@@ -18,6 +18,10 @@ package org.wso2.carbon.tools.dropins;
 import org.wso2.carbon.tools.CarbonTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * This class defines a tool which can deploy the OSGi bundles added to CARBON_HOME/osgi/dropins directory
  * in WSO2 Carbon Server.
@@ -25,21 +29,32 @@ import org.wso2.carbon.tools.exception.CarbonToolException;
  * @since 5.1.0
  */
 public class DropinsDeployerTool implements CarbonTool {
+    private static final Logger logger = Logger.getLogger(DropinsDeployerTool.class.getName());
+
     /**
      * Executes the WSO2 Carbon dropins deployer tool based on the specified arguments.
      *
      * @param toolArgs the {@link String} argument specifying the CARBON_HOME
-     * @throws CarbonToolException if an error occurs when executing the tool
      */
     @Override
-    public void execute(String... toolArgs) throws CarbonToolException {
-        if ((toolArgs != null) && (toolArgs.length == 1)) {
-            String carbonHome = toolArgs[0];
-            if (carbonHome != null) {
-                DropinsDeployerToolUtils.executeTool(carbonHome);
+    public void execute(String... toolArgs) {
+        try {
+            if (toolArgs != null) {
+                if (toolArgs.length >= 2) {
+                    String carbonHome = toolArgs[0];
+                    String carbonProfile = toolArgs[1];
+                    DropinsDeployerToolUtils.executeTool(carbonHome, carbonProfile);
+                } else if (toolArgs.length == 1) {
+                    String carbonHome = toolArgs[0];
+                    DropinsDeployerToolUtils.executeTool(carbonHome, null);
+                } else {
+                    DropinsDeployerToolUtils.executeTool(null, null);
+                }
             } else {
-                throw new CarbonToolException("The carbon.home cannot be null");
+                DropinsDeployerToolUtils.executeTool(null, null);
             }
+        } catch (CarbonToolException | IOException e) {
+            logger.log(Level.SEVERE, "Error when executing the dropins deployer tool", e);
         }
     }
 }

@@ -17,6 +17,7 @@ package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.utils.Utils;
 
 /**
@@ -29,7 +30,7 @@ import org.wso2.carbon.launcher.utils.Utils;
 public class UtilsTest extends BaseTest {
 
     public void substituteVarsTest() {
-        System.setProperty("profile", "default");
+        System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
         String inputStr = "file:${profile}";
         String expectedOutputStr = "file:default";
 
@@ -38,8 +39,8 @@ public class UtilsTest extends BaseTest {
     }
 
     public void substituteVarsTest2() {
-        System.setProperty("profile", "default");
-        System.setProperty("carbon.home", "/home/user/wso2carbon-kernel-5.0.0");
+        System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
+        System.setProperty(Constants.CARBON_HOME, "/home/user/wso2carbon-kernel-5.0.0");
         String inputStr = "file:${carbon.home}/osgi/${profile}";
         String expectedOutputStr = "file:/home/user/wso2carbon-kernel-5.0.0/osgi/default";
 
@@ -49,7 +50,7 @@ public class UtilsTest extends BaseTest {
     }
 
     public void substituteVarsTest3() {
-        System.setProperty("profile", "default");
+        System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
         String inputStr = "${profile}";
         String expectedOutputStr = "default";
 

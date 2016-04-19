@@ -42,12 +42,13 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            String profileName = Optional.ofNullable(System.getProperty(Constants.PROFILE)).orElse("default");
+            String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE)).
+                    orElse(Constants.DEFAULT_PROFILE);
             try {
-                DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profileName);
+                DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profile);
             } catch (IOException e) {
-                logger.log(Level.SEVERE,
-                        "Failed to update the OSGi bundle information of Carbon Profile: " + profileName, e);
+                logger.log(Level.SEVERE, "Failed to update the OSGi bundle information of Carbon Profile: " + profile,
+                        e);
             }
         }
     }
