@@ -51,7 +51,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         setupCarbonHome();
         carbonHome = System.getProperty(Constants.CARBON_HOME);
         //  deletes the profiles directory, if present
-        delete(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES_PATH));
+        delete(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH));
     }
 
     @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
@@ -70,7 +70,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
 
         List<BundleInfo> expected = getExpectedBundleInfo();
         Path bundlesInfo = Paths
-                .get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE,
+                .get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
                         "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
@@ -83,7 +83,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path bundlesInfo = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES_PATH,
+        Path bundlesInfo = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
                 profileMSS, "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
@@ -157,7 +157,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         profileNames.add(profileMSS);
 
         for (String profileName : profileNames) {
-            Path profile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES_PATH,
+            Path profile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
                     profileName, "configuration", "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {

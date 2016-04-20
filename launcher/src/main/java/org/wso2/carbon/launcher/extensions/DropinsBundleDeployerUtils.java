@@ -66,7 +66,7 @@ public class DropinsBundleDeployerUtils {
             throws IOException {
         Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
         Path bundlesInfoFile = Paths.
-                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES_PATH, carbonProfile, "configuration",
+                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, carbonProfile, "configuration",
                         "org.eclipse.equinox.simpleconfigurator", "bundles.info");
 
         if (newBundlesInfo == null) {
@@ -256,7 +256,7 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
-        Path carbonProfilesHome = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILES_PATH);
+        Path carbonProfilesHome = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH);
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
@@ -267,7 +267,7 @@ public class DropinsBundleDeployerUtils {
             return profileNames;
         } else {
             throw new IOException(
-                    "The " + carbonHome + "/" + Constants.OSGI_REPOSITORY + "/" + Constants.PROFILES_PATH +
+                    "The " + carbonHome + "/" + Constants.OSGI_REPOSITORY + "/" + Constants.PROFILE_PATH +
                             " directory does not exist");
         }
     }

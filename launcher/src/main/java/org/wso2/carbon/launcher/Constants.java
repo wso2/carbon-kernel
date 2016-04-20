@@ -27,7 +27,7 @@ public class Constants {
     public static final String CARBON_START_TIME = "carbon.start.time";
 
     public static final String PROFILE = "profile";
-    public static final String PROFILES_PATH = "profiles";
+    public static final String PROFILE_PATH = "profiles";
     public static final String DEFAULT_PROFILE = "default";
     public static final String OSGI_REPOSITORY = "osgi";
 
