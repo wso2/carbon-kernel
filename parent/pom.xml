@@ -417,21 +417,6 @@
                 <artifactId>carbon-context-test-artifact</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.sample.datasource.mgt</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.sample.dbs.deployer</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.sample.deployer.mgt</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
         </dependencies>
    </dependencyManagement>
 
