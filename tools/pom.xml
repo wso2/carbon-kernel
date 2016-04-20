@@ -33,6 +33,6 @@
 
     <modules>
         <module>tool-test-artifact</module>
-        <module>org.wso2.carbon.tools.core</module>
+        <module>tools-core</module>
     </modules>
 </project>

@@ -19,7 +19,6 @@ package org.wso2.carbon.osgi.test.util;
 
 import org.ops4j.pax.exam.Option;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +33,6 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
  * @since 5.1.0
  */
 public class OSGiTestConfigurationUtils {
-
-    static {
-        String currentDir = Paths.get("").toAbsolutePath().toString();
-        String carbonHome = Paths.get(currentDir, "target", "carbon-home").toString();
-        System.setProperty("carbon.home", carbonHome);
-    }
 
     /**
      * Returns an array of PAX Exam configuration options which are required to boot up a PAX Exam OSGi environment
