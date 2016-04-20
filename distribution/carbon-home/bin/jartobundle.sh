@@ -119,4 +119,4 @@ echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME/bin/";
 
-java -cp "../bin/bootstrap/tools/org.wso2.carbon.tools*.jar:../bin/bootstrap/tools/*" org.wso2.carbon.tools.BundleGenerator "$1" "$2"
+java -cp "../bin/bootstrap/tools/*" org.wso2.carbon.tools.BundleGenerator "$1" "$2"

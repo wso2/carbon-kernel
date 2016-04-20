@@ -14,9 +14,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>carbon-kernel-test-artifacts</artifactId>
+        <artifactId>org.wso2.carbon.tools</artifactId>
         <groupId>org.wso2.carbon</groupId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
@@ -25,22 +26,7 @@
     <artifactId>tool-test-artifact</artifactId>
     <packaging>jar</packaging>
     <name>WSO2 Carbon Kernel - Test Artifacts for Tools</name>
-    <description>
-        A sample test artifact Maven module for testing org.wso2.carbon.tools Maven module
-    </description>
+    <description>A sample test artifact for testing org.wso2.carbon.tools.core module</description>
     <url>http://wso2.com</url>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
+    
 </project>
