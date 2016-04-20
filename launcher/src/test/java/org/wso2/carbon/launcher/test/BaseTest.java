@@ -17,6 +17,7 @@ package org.wso2.carbon.launcher.test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.launcher.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -104,7 +105,7 @@ public class BaseTest {
     public void setupCarbonHome() {
         String currentDir = Paths.get("").toAbsolutePath().toString();
         Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
-        System.setProperty("carbon.home", carbonHome.toString());
+        System.setProperty(Constants.CARBON_HOME, carbonHome.toString());
         try {
             Path launchPropertyFileLocation = Paths.get(testResourceDir, "launch.properties");
             Path osgiConfLocation = Paths.get(carbonHome.toString(), "conf", "osgi");
