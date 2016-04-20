@@ -57,7 +57,7 @@ public class CarbonToolExecutor {
      *
      * @param toolIdentifier the identifier of the tool to be executed
      * @param toolArgs       the arguments needed for the functioning of the tool
-     * @throws CarbonToolException if an error occurs when executing the tool or if the tool is unidentified
+     * @throws CarbonToolException if the tool cannot be identified for execution
      */
     private static void executeTool(String toolIdentifier, String... toolArgs) throws CarbonToolException {
         if (toolIdentifier == null) {
@@ -79,7 +79,8 @@ public class CarbonToolExecutor {
         if (carbonTool != null) {
             carbonTool.execute(toolArgs);
         } else {
-            throw new CarbonToolException("Carbon tool executor failed to identify the tool for execution");
+            throw new CarbonToolException(
+                    "Carbon tool executor failed to identify the tool for execution: " + toolIdentifier);
         }
     }
 }

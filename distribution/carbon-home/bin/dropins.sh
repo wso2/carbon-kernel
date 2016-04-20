@@ -119,4 +119,4 @@ echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME/bin/";
 
-java -cp "../bin/bootstrap/tools/*:../bin/bootstrap/*" -Dwso2.carbon.tool="dropins-deployer" org.wso2.carbon.tools.CarbonToolExecutor "$CARBON_HOME"
+java -cp "../bin/bootstrap/tools/*:../bin/bootstrap/*" -Dwso2.carbon.tool="dropins-deployer" org.wso2.carbon.tools.CarbonToolExecutor "$1" "$CARBON_HOME"

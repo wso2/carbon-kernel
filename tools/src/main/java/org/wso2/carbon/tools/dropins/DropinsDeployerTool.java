@@ -38,23 +38,21 @@ public class DropinsDeployerTool implements CarbonTool {
      */
     @Override
     public void execute(String... toolArgs) {
-        try {
-            if (toolArgs != null) {
-                if (toolArgs.length >= 2) {
-                    String carbonHome = toolArgs[0];
-                    String carbonProfile = toolArgs[1];
-                    DropinsDeployerToolUtils.executeTool(carbonHome, carbonProfile);
-                } else if (toolArgs.length == 1) {
-                    String carbonHome = toolArgs[0];
-                    DropinsDeployerToolUtils.executeTool(carbonHome, null);
-                } else {
-                    DropinsDeployerToolUtils.executeTool(null, null);
-                }
-            } else {
-                DropinsDeployerToolUtils.executeTool(null, null);
+        if ((toolArgs != null) && (toolArgs.length == 2)) {
+            String carbonProfile = toolArgs[0];
+            String carbonHome = toolArgs[1];
+            if (carbonProfile.isEmpty()) {
+                logger.log(Level.INFO, DropinsDeployerToolUtils.getHelpMessage());
+                return;
             }
-        } catch (CarbonToolException | IOException e) {
-            logger.log(Level.SEVERE, "Error when executing the dropins deployer tool", e);
+
+            try {
+                DropinsDeployerToolUtils.executeTool(carbonHome, carbonProfile);
+            } catch (CarbonToolException | IOException e) {
+                logger.log(Level.SEVERE, "Error when executing the dropins deployer tool", e);
+            }
+        } else {
+            logger.log(Level.INFO, DropinsDeployerToolUtils.getHelpMessage());
         }
     }
 }

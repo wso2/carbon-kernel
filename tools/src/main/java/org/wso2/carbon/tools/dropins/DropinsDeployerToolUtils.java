@@ -43,9 +43,7 @@ public class DropinsDeployerToolUtils {
             throw new CarbonToolException("Invalid Carbon home specified: " + carbonHome);
         }
 
-        if (profile == null) {
-            logger.log(Level.INFO, getHelpMessage());
-        } else {
+        if (profile != null) {
             if (profile.equals("ALL")) {
                 DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome).forEach(carbonProfile -> {
                     try {
@@ -71,9 +69,10 @@ public class DropinsDeployerToolUtils {
      *
      * @return a help message for the dropins tool usage
      */
-    private static String getHelpMessage() {
-        return "Incorrect usage of the dropins deployer tool.\n" + "Instructions: sh dropins.sh $profile\n"
-                + "$profile\tname of the Carbon Profile to be updated\n" + "Keyword options for $profile:\n"
-                + "ALL\tUpdate dropins OSGi bundle information of all Carbon Profiles (ex: sh dropins.sh ALL)\n";
+    static String getHelpMessage() {
+        return "Incorrect usage of the dropins deployer tool.\n\n" +
+                "Instructions: sh dropins.sh [profile]\n" + "profile - name of the Carbon Profile to be updated\n\n" +
+                "Keyword option for profile:\n" +
+                "ALL\tUpdate dropins OSGi bundle information of all Carbon Profiles (ex: sh dropins.sh ALL)\n";
     }
 }
