@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.tomcat.internal;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.WebappServiceLoader;
 import org.apache.commons.logging.Log;
@@ -44,14 +45,13 @@ public class SCIRegistrarContextConfig extends ContextConfig {
     }
 
     @Override
-    protected void processServletContainerInitializers(ServletContext servletContext) {
+    protected void processServletContainerInitializers() {
         //Scan JARs for ServletContainerInitializer implementations.
         // Code below is from {@link org.apache.catalina.startup.ContextConfig}
         List<ServletContainerInitializer> detectedScis;
         try {
             WebappServiceLoader<ServletContainerInitializer> loader =
-                    new WebappServiceLoader<ServletContainerInitializer>(
-                            servletContext, context.getContainerSciFilter());
+                    new WebappServiceLoader<ServletContainerInitializer>(context);
             detectedScis = loader.load(ServletContainerInitializer.class);
         } catch (IOException e) {
             log.error(sm.getString("contextConfig.servletContainerInitializerFail", context.getName()), e);//prints the full stack trace
