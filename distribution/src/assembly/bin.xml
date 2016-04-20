@@ -140,7 +140,7 @@
         <dependencySet>
             <outputDirectory>bin/bootstrap/tools</outputDirectory>
             <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.tools:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.tools.core:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
