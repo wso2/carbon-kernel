@@ -67,7 +67,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                 if (Files.exists(dropinsDirectory)) {
                     List<BundleInfo> newBundleInfoLines = getNewBundleInfoLines(dropinsDirectory);
                     Path bundleInfoDirectory = Paths.
-                            get(Utils.getCarbonHomeDirectory().toString(), "osgi", Constants.PROFILES, profileName,
+                            get(Utils.getCarbonHomeDirectory().toString(), "osgi", Constants.PROFILES_PATH, profileName,
                                     "configuration", "org.eclipse.equinox.simpleconfigurator");
                     Path bundleInfoFile = Paths.get(bundleInfoDirectory.toString(), "bundles.info");
                     Map<String, List<BundleInfo>> bundleInfoLineMap = processBundleInfoFile(bundleInfoFile,

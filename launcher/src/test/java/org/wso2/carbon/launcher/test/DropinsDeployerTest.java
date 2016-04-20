@@ -52,7 +52,7 @@ public class DropinsDeployerTest extends BaseTest {
     public void readBundlesInfoToEmptyFile() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration",
+                .get(carbonHome, "osgi", Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE, "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         boolean matching = false;
         try {
@@ -80,7 +80,7 @@ public class DropinsDeployerTest extends BaseTest {
     public void readBundlesInfoToNonEmptyFile() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration",
+                .get(carbonHome, "osgi", Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE, "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         boolean matching = false;
         try {
@@ -125,7 +125,7 @@ public class DropinsDeployerTest extends BaseTest {
     private void setupBundlesInfoFile() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration",
+                .get(carbonHome, "osgi", Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE, "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         try {
             Files.createDirectories(bundlesInfoParent);
@@ -165,11 +165,12 @@ public class DropinsDeployerTest extends BaseTest {
     public void cleanUp() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         List<Path> deletePaths = new ArrayList<>();
-        Path bundlesInfoParent = Paths.get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE,
+        Path bundlesInfoParent = Paths.get(carbonHome, "osgi", Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE,
                 "org.eclipse.equinox.simpleconfigurator");
         deletePaths.add(bundlesInfoParent);
-        deletePaths.add(Paths.get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE, "configuration"));
-        deletePaths.add(Paths.get(carbonHome, "osgi", Constants.PROFILES, Constants.DEFAULT_PROFILE));
+        deletePaths.add(Paths
+                .get(carbonHome, "osgi", Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE, "configuration"));
+        deletePaths.add(Paths.get(carbonHome, "osgi", Constants.PROFILES_PATH, Constants.DEFAULT_PROFILE));
 
         deletePaths.forEach(deletePath -> {
             try {

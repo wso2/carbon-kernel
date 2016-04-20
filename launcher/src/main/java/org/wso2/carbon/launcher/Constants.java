@@ -21,14 +21,13 @@ package org.wso2.carbon.launcher;
  * @since 5.0.0
  */
 public class Constants {
-
     public static final String LAUNCH_PROPERTIES_FILE = "launch.properties";
 
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_START_TIME = "carbon.start.time";
 
     public static final String PROFILE = "profile";
-    public static final String PROFILES = "profiles";
+    public static final String PROFILES_PATH = "profiles";
     public static final String DEFAULT_PROFILE = "default";
 
     public static final String CARBON_OSGI_REPOSITORY = "carbon.osgi.repository";
