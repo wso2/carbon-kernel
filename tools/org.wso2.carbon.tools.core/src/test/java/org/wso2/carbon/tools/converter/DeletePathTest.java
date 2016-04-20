@@ -31,20 +31,20 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class DeletePathTest {
-    private static final Path DIRECTORY = Paths.get(TestConstants.TEST_DIRECTORY_TWO);
-    private static final Path DIRECTORY_WITH_CHILDREN = Paths.get(TestConstants.TEST_DIRECTORY_ONE);
+    private static final Path directory = Paths.get("testDirectoryTwo");
+    private static final Path directoryWithChildren = Paths.get(TestConstants.TEST_DIRECTORY_ONE);
 
     static {
-        TestUtils.createDirectoryWithChildren(DIRECTORY_WITH_CHILDREN);
-        TestUtils.createDirectory(DIRECTORY);
+        TestUtils.createDirectoryWithChildren(directoryWithChildren);
+        TestUtils.createDirectory(directory);
     }
 
     @Test(description = "Attempts to delete a directory with no content")
     public void testDeletingChildlessDirectory() {
         boolean deleted;
-        if (Files.exists(DIRECTORY)) {
+        if (Files.exists(directory)) {
             try {
-                deleted = BundleGeneratorUtils.delete(DIRECTORY);
+                deleted = BundleGeneratorUtils.delete(directory);
             } catch (IOException e) {
                 deleted = false;
             }
@@ -57,9 +57,9 @@ public class DeletePathTest {
     @Test(description = "Attempts to delete a directory with child content")
     public void deleteDirectoryWithChildrenTest() {
         boolean deleted;
-        if (Files.exists(DIRECTORY_WITH_CHILDREN)) {
+        if (Files.exists(directoryWithChildren)) {
             try {
-                deleted = BundleGeneratorUtils.delete(DIRECTORY_WITH_CHILDREN);
+                deleted = BundleGeneratorUtils.delete(directoryWithChildren);
             } catch (IOException e) {
                 deleted = false;
             }

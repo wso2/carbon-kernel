@@ -35,7 +35,7 @@ import java.nio.file.Paths;
  */
 public class CreateZipFileSystemTest {
     private static final Path sampleJARFile = Paths.
-            get(TestConstants.TARGET_FOLDER, "test-resources", "converter", "tool-test-artifact.jar");
+            get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, "converter", TestConstants.ARTIFACT_FIVE);
 
     @Test(description = "Attempts to create a zip file system from an existing Java Archive (JAR) file")
     public void testCreatingZipFileSystemFromExisting() throws IOException, CarbonToolException {
@@ -46,7 +46,7 @@ public class CreateZipFileSystemTest {
 
     @Test(description = "Attempts to create a zip file system from a non-existing zip file")
     public void testCreatingZipFileSystemFromNonExisting() throws IOException, CarbonToolException {
-        Path zipFilePath = Paths.get(System.getProperty("java.io.tmpdir"), "temp.zip");
+        Path zipFilePath = Paths.get(TestConstants.TEMP_DIRECTORY, "temp.zip");
         BundleGeneratorUtils.createZipFileSystem(zipFilePath, true);
         assert Files.exists(zipFilePath);
         Files.deleteIfExists(zipFilePath);
@@ -55,7 +55,8 @@ public class CreateZipFileSystemTest {
     @Test(description = "Attempts to create a zip file system from a text file", expectedExceptions = {
             CarbonToolException.class })
     public void testCreatingZipFileSystemFromText() throws CarbonToolException, IOException {
-        Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
+        Path textFilePath = Files.
+                createTempFile(Paths.get(TestConstants.TEMP_DIRECTORY), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.createZipFileSystem(textFilePath, false);
     }

@@ -21,16 +21,26 @@ package org.wso2.carbon.tools;
  * @since 5.0.0
  */
 public class TestConstants {
-    public static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
-    public static final String TEST_DIRECTORY_TWO = "testDirectoryTwo";
-    public static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
-    public static final String CHILD_TEST_FILE_TWO = "sampleTwo.txt";
-    public static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
-    public static final String TARGET_FOLDER = "target";
+    public static final String TARGET_FOLDER = System.getProperty("target.directory");
+    public static final String TEST_RESOURCES = "test-resources";
+    public static final String TEMP_DIRECTORY = System.getProperty("java.io.tmpdir");
 
-    public static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
-    public static final String EXPORT_PACKAGE = "Export-Package";
-    public static final String IMPORT_PACKAGE = "DynamicImport-Package";
+    public static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
+    public static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
+
+    public static final String EQUINOX_OSGI_VERSION = System.getProperty("equinox.osgi.version");
+    public static final String EQUINOX_SMP_CONFIGURATOR_VERSION = System.
+            getProperty("equinox.simpleconfigurator.version");
+    public static final String EQUINOX_UTIL_VERSION = System.getProperty("equinox.util.version");
+    public static final String EQUINOX_LAUNCHER_VERSION = System.getProperty("equinox.launcher.version");
+    public static final String KERNEL_VERSION = System.getProperty("carbon.kernel.version");
+
+    public static final String ARTIFACT_ONE = "org.eclipse.osgi_" + EQUINOX_OSGI_VERSION + ".jar";
+    public static final String ARTIFACT_TWO =
+            "org.eclipse.equinox.simpleconfigurator_" + EQUINOX_SMP_CONFIGURATOR_VERSION + ".jar";
+    public static final String ARTIFACT_THREE = "org.eclipse.equinox.util_" + EQUINOX_UTIL_VERSION + ".jar";
+    public static final String ARTIFACT_FOUR = "org.eclipse.equinox.launcher_" + EQUINOX_LAUNCHER_VERSION + ".jar";
+    public static final String ARTIFACT_FIVE = "tool-test-artifact-" + KERNEL_VERSION + ".jar";
 
     /**
      * A constructor which prevents instantiating the TestConstants class.

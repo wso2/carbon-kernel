@@ -47,7 +47,7 @@ public class BundleGeneratorTool implements CarbonTool {
         int sourceIndex = 0;
         int destinationIndex = 1;
 
-        if (toolArgs.length == 2 && toolArgs[0].length() > 0 && toolArgs[1].length() > 0) {
+        if ((toolArgs.length == 2) && (!toolArgs[0].isEmpty()) && (!toolArgs[1].isEmpty())) {
             Optional<Path> source = getPath(toolArgs[sourceIndex]);
             Optional<Path> destination = getPath(toolArgs[destinationIndex]);
 

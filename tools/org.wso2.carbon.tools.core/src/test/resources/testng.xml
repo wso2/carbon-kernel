@@ -17,12 +17,12 @@ limitations under the License.
 <suite name="Carbon-Kernel-Tools_Test-Suite">
     <test name="carbon-tools-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <!--<class name="org.wso2.carbon.tools.converter.CreateZipFileSystemTest"/>
+            <class name="org.wso2.carbon.tools.converter.CreateZipFileSystemTest"/>
             <class name="org.wso2.carbon.tools.converter.ListZipFileContentTest"/>
             <class name="org.wso2.carbon.tools.converter.ListFilesTest"/>
             <class name="org.wso2.carbon.tools.converter.DeletePathTest"/>
             <class name="org.wso2.carbon.tools.converter.ListPackagesTest"/>
-            <class name="org.wso2.carbon.tools.converter.ConversionTest"/>-->
+            <class name="org.wso2.carbon.tools.converter.ConversionTest"/>
             <class name="org.wso2.carbon.tools.dropins.DropinsDeployerToolTest"/>
         </classes>
     </test>

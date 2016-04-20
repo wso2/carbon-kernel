@@ -62,8 +62,8 @@ public class TestUtils {
     }
 
     protected static List<Path> getChildPaths(Path parentDirectory) {
-        Path sampleFileOne = Paths.get(parentDirectory.toString(), TestConstants.CHILD_TEST_FILE_ONE);
-        Path sampleFileTwo = Paths.get(parentDirectory.toString(), TestConstants.CHILD_TEST_FILE_TWO);
+        Path sampleFileOne = Paths.get(parentDirectory.toString(), "sampleOne.txt");
+        Path sampleFileTwo = Paths.get(parentDirectory.toString(), "sampleTwo.txt");
         Path sampleDirectoryOne = Paths.get(parentDirectory.toString(), TestConstants.CHILD_TEST_DIRECTORY_ONE);
 
         List<Path> paths = new ArrayList<>();

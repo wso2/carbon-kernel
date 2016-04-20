@@ -42,7 +42,7 @@ public class CarbonToolExecutor {
      * @param args the arguments to be used within the tool
      */
     public static void main(String[] args) {
-        String toolIdentifier = System.getProperty("wso2.carbon.tool");
+        String toolIdentifier = System.getProperty(Constants.CARBON_TOOL_SYSTEM_PROPERTY);
         Optional.ofNullable(toolIdentifier).ifPresent(identifier -> {
             try {
                 executeTool(identifier, args);

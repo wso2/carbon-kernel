@@ -21,6 +21,9 @@ package org.wso2.carbon.tools;
  * @since 5.0.0
  */
 public class Constants {
+    //  Carbon tool constants
+    public static final String CARBON_TOOL_SYSTEM_PROPERTY = "wso2.carbon.tool";
+
     //  OSGi Bundle manifest constants
     public static final String MANIFEST_VERSION = "Manifest-Version";
     public static final String BUNDLE_MANIFEST_VERSION = "Bundle-ManifestVersion";
@@ -31,7 +34,7 @@ public class Constants {
     public static final String BUNDLE_CLASSPATH = "Bundle-ClassPath";
     public static final String DYNAMIC_IMPORT_PACKAGE = "DynamicImport-Package";
 
-    //  File path name and extension constants
+    //  file path name and extension constants
     public static final String JAR_TO_BUNDLE_TEMP_DIRECTORY_NAME = "temp";
     public static final String JAR_MANIFEST_FOLDER = "META-INF";
     public static final String MANIFEST_FILE_NAME = "MANIFEST.MF";
@@ -40,7 +43,7 @@ public class Constants {
     public static final String JAR_FILE_EXTENSION = ".jar";
     public static final String ZIP_FILE_EXTENSION = ".zip";
 
-    //  Create zip file system properties
+    //  create zip file system properties
     public static final String CREATE_NEW_ZIP_FILE_PROPERTY = "create";
     public static final String ENCODING_TYPE_PROPERTY = "encoding";
 

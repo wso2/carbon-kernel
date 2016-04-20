@@ -16,6 +16,7 @@
 package org.wso2.carbon.tools.converter;
 
 import org.testng.annotations.Test;
+import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
@@ -33,7 +34,7 @@ public class ListZipFileContentTest {
     @Test(description = "Attempts to list zip file content of a text file", expectedExceptions = {
             CarbonToolException.class })
     public void testListingZipFileContentOfTextFile() throws IOException, CarbonToolException {
-        Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
+        Path textFilePath = Files.createTempFile(Paths.get(TestConstants.TEMP_DIRECTORY), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.listZipFileContent(textFilePath);
     }
@@ -41,12 +42,12 @@ public class ListZipFileContentTest {
     @Test(description = "Attempts to list zip file content of a non-existing file", expectedExceptions = {
             CarbonToolException.class })
     public void testListingZipFileContentOfNonExistingFile() throws IOException, CarbonToolException {
-        BundleGeneratorUtils.listZipFileContent(Paths.get(System.getProperty("java.io.tmpdir"), "temp.zip"));
+        BundleGeneratorUtils.listZipFileContent(Paths.get(TestConstants.TEMP_DIRECTORY, "temp.zip"));
     }
 
     @Test(description = "Attempts to list zip file content of a directory", expectedExceptions = {
             CarbonToolException.class })
     public void testListingZipFileContentOfDirectory() throws IOException, CarbonToolException {
-        BundleGeneratorUtils.listZipFileContent(Paths.get(System.getProperty("java.io.tmpdir")));
+        BundleGeneratorUtils.listZipFileContent(Paths.get(TestConstants.TEMP_DIRECTORY));
     }
 }

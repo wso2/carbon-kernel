@@ -110,6 +110,7 @@
                         </equinox.simpleconfigurator.version>
                         <equinox.util.version>${equinox.util.version}</equinox.util.version>
                         <equinox.launcher.version>${equinox.launcher.version}</equinox.launcher.version>
+                        <target.directory>${project.build.directory}</target.directory>
                     </systemProperties>
                 </configuration>
             </plugin>

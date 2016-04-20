@@ -31,10 +31,10 @@ import java.util.List;
  * @since 5.0.0
  */
 public class ListFilesTest {
-    private static final Path DIRECTORY = Paths.get(TestConstants.TEST_DIRECTORY_ONE);
+    private static final Path directory = Paths.get(TestConstants.TEST_DIRECTORY_ONE);
 
     static {
-        TestUtils.createDirectoryWithChildren(DIRECTORY);
+        TestUtils.createDirectoryWithChildren(directory);
     }
 
     @Test(description = "Attempts to list the content of the specified directory")
@@ -42,13 +42,13 @@ public class ListFilesTest {
         List<Object> expected = new ArrayList<>();
         expectedPaths().forEach(expected::add);
         List<Object> actual = new ArrayList<>();
-        BundleGeneratorUtils.listFiles(DIRECTORY).forEach(actual::add);
+        BundleGeneratorUtils.listFiles(directory).forEach(actual::add);
         assert TestUtils.isMatching(expected, actual);
     }
 
     private List<Path> expectedPaths() {
         List<Path> paths = new ArrayList<>();
-        paths.addAll(TestUtils.getChildPaths(DIRECTORY));
+        paths.addAll(TestUtils.getChildPaths(directory));
 
         return paths;
     }

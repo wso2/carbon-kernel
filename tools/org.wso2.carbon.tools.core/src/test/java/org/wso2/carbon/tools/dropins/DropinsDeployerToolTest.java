@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.tools.CarbonToolExecutor;
+import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
@@ -31,51 +32,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class defines the unit test cases for DropinsDeployerToolUtils.java.
+ * This class defines the unit test cases for Carbon dropins tool.
  *
  * @since 5.1.0
  */
 public class DropinsDeployerToolTest {
-    private static final String equinoxOSGiVersion = System.getProperty("equinox.osgi.version");
-    private static final String equinoxSimpleConfiguratorVersion = System.
-            getProperty("equinox.simpleconfigurator.version");
-    private static final String equinoxUtilVersion = System.getProperty("equinox.util.version");
-    private static final String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
-    private static final String carbonKernelVersion = System.getProperty("carbon.kernel.version");
+    private static final String appManagerProfile = "App-Manager";
+    private static final String allCarbonProfiles = "ALL";
+    private static final String bundlesInfo = "bundles.info";
+    private static final String dropinsFolder = "dropins";
 
-    private static final String artifactOne = "org.eclipse.osgi_" + equinoxOSGiVersion + ".jar";
-    private static final String artifactTwo =
-            "org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar";
-    private static final String artifactThree = "org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar";
-    private static final String artifactFour = "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar";
-    private static final String artifactFive = "tool-test-artifact-" + carbonKernelVersion + ".jar";
-
-    private static final String dropinsDirectory = "dropins";
-    private static final String allProfilesIndicator = "ALL";
-    private static final Path carbonHome = Paths.get("target", "carbon-home");
+    private static final Path carbonHome = Paths.get(TestConstants.TARGET_FOLDER, "carbon-home");
     private static final List<String> profileNames = new ArrayList<>();
 
     @BeforeClass
     public static void initTestClass() throws IOException {
-        createDirectories(Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory));
+        createDirectories(Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder));
     }
 
     @Test(description = "Attempts to execute dropins tool when no profiles directory exists", expectedExceptions = {
             IOException.class }, priority = 0)
     public void testExecutingToolWhenNoProfilesDirectory() throws CarbonToolException, IOException {
-        DropinsDeployerToolUtils.executeTool(carbonHome.toString(), allProfilesIndicator);
+        DropinsDeployerToolUtils.executeTool(carbonHome.toString(), allCarbonProfiles);
     }
 
     @Test(description = "Attempts to execute dropins tool with null Carbon home", expectedExceptions = {
             CarbonToolException.class }, priority = 0)
     public void testExecutingToolWithInvalidCarbonHome() throws CarbonToolException, IOException {
-        DropinsDeployerToolUtils.executeTool(null, allProfilesIndicator);
+        DropinsDeployerToolUtils.executeTool(null, allCarbonProfiles);
     }
 
     @Test(description = "Attempts to execute dropins tool with empty Carbon home", expectedExceptions = {
             CarbonToolException.class }, priority = 0)
     public void testExecutingToolWithEmptyCarbonHome() throws CarbonToolException, IOException {
-        DropinsDeployerToolUtils.executeTool("", allProfilesIndicator);
+        DropinsDeployerToolUtils.executeTool("", allCarbonProfiles);
     }
 
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile "
@@ -86,28 +76,27 @@ public class DropinsDeployerToolTest {
         createDirectories(profile);
 
         if (Files.exists(profile)) {
-            Files.createFile(Paths.get(profile.toString(), "bundles.info"));
+            Files.createFile(Paths.get(profile.toString(), bundlesInfo));
         }
         profileNames.add(Constants.DEFAULT_PROFILE);
         prepareCarbonHomeForDropinsTests();
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
+        System.setProperty(org.wso2.carbon.tools.Constants.CARBON_TOOL_SYSTEM_PROPERTY, "dropins-deployer");
         String[] args = { Constants.DEFAULT_PROFILE, carbonHome.toString() };
         CarbonToolExecutor.main(args);
     }
 
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile", priority = 2)
     public void testExecutingDropinsCapabilityWithASingleProfile() throws CarbonToolException, IOException {
-        Files.deleteIfExists(
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory, artifactFive));
+        Files.deleteIfExists(Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
+                TestConstants.ARTIFACT_FIVE));
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
         String[] args = { Constants.DEFAULT_PROFILE, carbonHome.toString() };
         CarbonToolExecutor.main(args);
 
         List<BundleInfo> expected = getExpectedBundleInfo();
         Path defaultBundleInfo = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
-                Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator", "bundles.info");
+                Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfo);
 
         List<BundleInfo> actual = getActualBundleInfo(defaultBundleInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
@@ -120,13 +109,14 @@ public class DropinsDeployerToolTest {
         List<BundleInfo> expected = getExpectedBundleInfo();
         List<BundleInfo> actual;
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
-        String[] args = { allProfilesIndicator, carbonHome.toString() };
+        String[] args = { allCarbonProfiles, carbonHome.toString() };
         CarbonToolExecutor.main(args);
 
         for (String profileName : profileNames) {
-            Path bundlesInfo = Paths.get(carbonHome.toString(), "osgi", "profiles", profileName, "configuration",
-                    "org.eclipse.equinox.simpleconfigurator", "bundles.info");
+            Path bundlesInfo = Paths.
+                    get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
+                            "configuration", "org.eclipse.equinox.simpleconfigurator",
+                            DropinsDeployerToolTest.bundlesInfo);
             actual = getActualBundleInfo(bundlesInfo);
             boolean matching = compareBundleInfo(expected, actual);
             if (!matching) {
@@ -138,68 +128,63 @@ public class DropinsDeployerToolTest {
 
     @Test(description = "Attempts to execute dropins capability with an empty Carbon Profile name", priority = 4)
     public void testExecutingDropinsCapabilityForEmptyProfile() throws IOException {
-        String profileName = "App-Manager";
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
-                "configuration", "org.eclipse.simpleconfigurator");
+        Path profile = Paths
+                .get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, appManagerProfile,
+                        "configuration", "org.eclipse.simpleconfigurator");
         createDirectories(profile);
 
         if (Files.exists(profile)) {
-            Files.createFile(Paths.get(profile.toString(), "bundles.info"));
+            Files.createFile(Paths.get(profile.toString(), bundlesInfo));
         }
-        profileNames.add(profileName);
+        profileNames.add(appManagerProfile);
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
         String[] args = { "", carbonHome.toString() };
         CarbonToolExecutor.main(args);
 
         List<BundleInfo> expected = new ArrayList<>();
-        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), "bundles.info"));
+        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), bundlesInfo));
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
     @Test(description = "Attempts to execute dropins capability with null tool arguments", priority = 5)
     public void testExecutingDropinsCapabilityForInvalidToolArgs() throws IOException {
-        String profileName = "App-Manager";
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
-                "configuration", "org.eclipse.simpleconfigurator");
+        Path profile = Paths
+                .get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, appManagerProfile,
+                        "configuration", "org.eclipse.simpleconfigurator");
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
         CarbonToolExecutor.main(null);
-
         List<BundleInfo> expected = new ArrayList<>();
-        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), "bundles.info"));
+        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), bundlesInfo));
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
     @Test(description = "Attempts to execute dropins capability for an invalidly structured Profile bundles.info file "
             + "path. Dropins capability executed on a single Profile.", priority = 6)
     public void testExecutingDropinsCapabilityForInvalidBundlesInfoPath() throws IOException {
-        String profileName = "App-Manager";
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
-                "configuration", "org.eclipse.simpleconfigurator");
+        Path profile = Paths
+                .get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, appManagerProfile,
+                        "configuration", "org.eclipse.simpleconfigurator");
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
-        String[] args = { profileName, carbonHome.toString() };
+        String[] args = { appManagerProfile, carbonHome.toString() };
         CarbonToolExecutor.main(args);
 
         List<BundleInfo> expected = new ArrayList<>();
-        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), "bundles.info"));
+        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), bundlesInfo));
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
     @Test(description = "Attempts to execute dropins capability for an invalidly structured Profile bundles.info file "
             + "path. Dropins capability executed on multiple Profiles.", priority = 6)
     public void testExecutingDropinsCapabilityForMultipleProfilesWithInvalidBundlesInfoPath() throws IOException {
-        String profileName = "App-Manager";
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
-                "configuration", "org.eclipse.simpleconfigurator");
+        Path profile = Paths
+                .get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, appManagerProfile,
+                        "configuration", "org.eclipse.simpleconfigurator");
 
-        System.setProperty("wso2.carbon.tool", "dropins-deployer");
-        String[] args = { allProfilesIndicator, carbonHome.toString() };
+        String[] args = { allCarbonProfiles, carbonHome.toString() };
         CarbonToolExecutor.main(args);
 
         List<BundleInfo> expected = new ArrayList<>();
-        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), "bundles.info"));
+        List<BundleInfo> actual = getActualBundleInfo(Paths.get(profile.toString(), bundlesInfo));
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
@@ -214,11 +199,12 @@ public class DropinsDeployerToolTest {
         profileNames.add("AS");
 
         for (String profileName : profileNames) {
-            Path profile = Paths.get(carbonHome.toString(), "osgi", "profiles", profileName, "configuration",
-                    "org.eclipse.equinox.simpleconfigurator");
+            Path profile = Paths.
+                    get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
+                            "configuration", "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {
-                Path bundlesInfo = Paths.get(profile.toString(), "bundles.info");
+                Path bundlesInfo = Paths.get(profile.toString(), DropinsDeployerToolTest.bundlesInfo);
                 if (!Files.exists(bundlesInfo)) {
                     Files.createFile(bundlesInfo);
                 }
@@ -227,30 +213,39 @@ public class DropinsDeployerToolTest {
     }
 
     private static void prepareCarbonHomeForDropinsTests() throws IOException {
-        Files.copy(Paths.get("target", "test-resources", "dropins", artifactOne),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory, artifactOne));
-        Files.copy(Paths.get("target", "test-resources", "dropins", artifactTwo),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory, artifactTwo));
-        Files.copy(Paths.get("target", "test-resources", "dropins", artifactThree),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory, artifactThree));
-        Files.copy(Paths.get("target", "test-resources", "dropins", artifactFour),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory, artifactFour));
-        Files.copy(Paths.get("target", "test-resources", "dropins", artifactFive),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsDirectory, artifactFive));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                        TestConstants.ARTIFACT_ONE),
+                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder, TestConstants.ARTIFACT_ONE));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                        TestConstants.ARTIFACT_TWO),
+                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder, TestConstants.ARTIFACT_TWO));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                        TestConstants.ARTIFACT_THREE),
+                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
+                        TestConstants.ARTIFACT_THREE));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                        TestConstants.ARTIFACT_FOUR),
+                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
+                        TestConstants.ARTIFACT_FOUR));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                        TestConstants.ARTIFACT_FIVE),
+                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
+                        TestConstants.ARTIFACT_FIVE));
     }
 
     private static List<BundleInfo> getExpectedBundleInfo() {
         List<BundleInfo> bundleInfo = new ArrayList<>();
-        bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + equinoxOSGiVersion + ",../../" +
-                dropinsDirectory + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + TestConstants.EQUINOX_OSGI_VERSION + ",../../" +
+                dropinsFolder + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
-                equinoxSimpleConfiguratorVersion + ",../../" + dropinsDirectory +
-                "/org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar,4,true"));
-        bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.util," + equinoxUtilVersion + ",../../" +
-                dropinsDirectory + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
+                TestConstants.EQUINOX_SMP_CONFIGURATOR_VERSION + ",../../" + dropinsFolder +
+                "/" + TestConstants.ARTIFACT_TWO + ",4,true"));
+        bundleInfo.add(BundleInfo
+                .getInstance("org.eclipse.equinox.util," + TestConstants.EQUINOX_UTIL_VERSION + ",../../" +
+                        dropinsFolder + "/" + TestConstants.ARTIFACT_THREE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + dropinsDirectory
-                        + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true"));
+                "org.eclipse.equinox.launcher," + TestConstants.EQUINOX_LAUNCHER_VERSION + ",../../" + dropinsFolder
+                        + "/" + TestConstants.ARTIFACT_FOUR + ",4,true"));
 
         return bundleInfo;
     }
