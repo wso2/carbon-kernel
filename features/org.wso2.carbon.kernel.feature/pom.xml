@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.tools</artifactId>
+            <artifactId>org.wso2.carbon.tools.core</artifactId>
         </dependency>
     </dependencies>
 
@@ -91,7 +91,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>org.wso2.carbon.tools</artifactId>
+                                    <artifactId>org.wso2.carbon.tools.core</artifactId>
                                     <outputDirectory>${project.build.directory}/lib/tools</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
