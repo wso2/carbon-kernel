@@ -204,6 +204,7 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>osgi-test-util</artifactId>
                 <version>${carbon.kernel.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -416,6 +417,7 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>carbon-context-test-artifact</artifactId>
                 <version>${carbon.kernel.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>
@@ -427,6 +429,7 @@
                 <artifactId>wso2carbon-kernel</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>zip</type>
+                <scope>test</scope>
             </dependency>
         </dependencies>
    </dependencyManagement>
