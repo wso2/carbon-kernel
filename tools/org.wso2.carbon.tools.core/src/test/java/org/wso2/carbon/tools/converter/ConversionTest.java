@@ -17,6 +17,7 @@ package org.wso2.carbon.tools.converter;
 
 import org.testng.annotations.Test;
 import org.wso2.carbon.tools.CarbonTool;
+import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
@@ -36,22 +37,24 @@ import java.util.jar.Manifest;
  * @since 5.0.0
  */
 public class ConversionTest {
-    private static final Path SAMPLE_TEXT_FILE = Paths.get(System.getProperty("java.io.tmpdir"), "sample.txt");
+    private static final Path sampleJARFile = Paths.
+            get(TestConstants.TARGET_FOLDER, "test-resources", "converter", "tool-test-artifact.jar");
+    private static final Path sampleTextFile = Paths.get(System.getProperty("java.io.tmpdir"), "sample.txt");
 
     @Test(description = "Tests the conversion process with a text file as the destination", expectedExceptions = {
             CarbonToolException.class })
     public void testConversionWhenDestinationIsAFile() throws IOException, CarbonToolException {
         //  OSGi bundle destination path refers to a file - must refer to a directory
         BundleGeneratorUtils.
-                convertFromJarToBundle(TestConstants.SAMPLE_JAR_FILE, SAMPLE_TEXT_FILE, new Manifest(), "");
+                convertFromJarToBundle(sampleJARFile, sampleTextFile, new Manifest(), "");
     }
 
     @Test(description = "Tests the conversion process with a text file as the destination by calling the CarbonTool "
             + "execute() method", expectedExceptions = { CarbonToolException.class })
     public void testConversionWhenDestinationIsAFileWithExecutor() throws CarbonToolException, IOException {
         //  OSGi bundle destination path refers to a file - must refer to a directory
-        TestUtils.createFile(SAMPLE_TEXT_FILE);
-        executeConversion(TestConstants.SAMPLE_JAR_FILE, SAMPLE_TEXT_FILE);
+        TestUtils.createFile(sampleTextFile);
+        executeConversion(sampleJARFile, sampleTextFile);
     }
 
     @Test(description = "Tests the conversion with invalid source argument", expectedExceptions = {
@@ -64,7 +67,7 @@ public class ConversionTest {
     @Test(description = "Tests the conversion with invalid destination argument", expectedExceptions = {
             CarbonToolException.class })
     public void testInvalidDestinationArgumentWithExecutor() throws CarbonToolException {
-        executeConversion(TestConstants.SAMPLE_JAR_FILE, null);
+        executeConversion(sampleJARFile, null);
     }
 
     @Test(description = "Attempts to create an OSGi bundle with no manifest", expectedExceptions = {
@@ -72,7 +75,7 @@ public class ConversionTest {
     public void testCreatingBundleWithNoManifest() throws IOException, CarbonToolException {
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         //  no manifest file for the OSGi bundle to be created - invalid argument
-        BundleGeneratorUtils.createBundle(TestConstants.SAMPLE_JAR_FILE, destination, null);
+        BundleGeneratorUtils.createBundle(sampleJARFile, destination, null);
     }
 
     @Test(description = "Attempts to create an OSGi bundle from a directory",
@@ -87,7 +90,7 @@ public class ConversionTest {
             expectedExceptions = { CarbonToolException.class })
     public void testCreatingBundleAtNonExistentDestination() throws CarbonToolException {
         Path destination = Paths.get(TestConstants.TARGET_FOLDER, TestConstants.CHILD_TEST_DIRECTORY_ONE);
-        executeConversion(TestConstants.SAMPLE_JAR_FILE, destination);
+        executeConversion(sampleJARFile, destination);
     }
 
     @Test(description = "Attempts to convert a text file to an OSGi bundle", expectedExceptions = {
@@ -103,9 +106,9 @@ public class ConversionTest {
     @Test(description = "Attempts to convert a JAR to an OSGi bundle with no manifest provided")
     public void testConversionFromJarToBundleWithNoManifest() throws IOException, CarbonToolException {
         Path destination = Paths.get(TestConstants.TARGET_FOLDER);
-        BundleGeneratorUtils.convertFromJarToBundle(TestConstants.SAMPLE_JAR_FILE, destination, null, "");
+        BundleGeneratorUtils.convertFromJarToBundle(sampleJARFile, destination, null, "");
 
-        Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
+        Path jarFilePath = sampleJARFile.getFileName();
         if (jarFilePath != null) {
             String jarFileName = getBundleSymbolicName(jarFilePath);
             String bundleName = jarFileName + "_1.0.0.jar";
@@ -128,9 +131,9 @@ public class ConversionTest {
     @Test(description = "Attempts to convert a JAR file to an OSGi bundle by calling the CarbonTool execute() method")
     public void testConvertingJarFileToBundle() throws IOException, CarbonToolException {
         Path destination = Paths.get(TestConstants.TARGET_FOLDER);
-        executeConversion(TestConstants.SAMPLE_JAR_FILE, destination);
+        executeConversion(sampleJARFile, destination);
 
-        Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
+        Path jarFilePath = sampleJARFile.getFileName();
         if (jarFilePath != null) {
             String jarFileName = getBundleSymbolicName(jarFilePath);
             String bundleName = jarFileName + "_1.0.0.jar";
@@ -158,7 +161,7 @@ public class ConversionTest {
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
 
-        Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
+        Path jarFilePath = sampleJARFile.getFileName();
         if (jarFilePath != null) {
             String jarFileName = getBundleSymbolicName(jarFilePath);
             String bundleName = jarFileName + "_1.0.0.jar";
@@ -170,15 +173,15 @@ public class ConversionTest {
         }
     }
 
-    @Test(description = "Attempts to convert a JAR to an OSGi bundle to a destination where it has already " +
-            "been converted to", priority = 3)
+    @Test(description = "Attempts to convert a JAR to an OSGi bundle to a destination where it has already "
+            + "been converted to", priority = 3)
     public void testConvertingExistingBundle() throws IOException, CarbonToolException {
         Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources", "converter");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
         executeConversion(source, destination);
 
-        Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
+        Path jarFilePath = sampleJARFile.getFileName();
         if (jarFilePath != null) {
             String jarFileName = getBundleSymbolicName(jarFilePath);
             String bundleName = jarFileName + "_1.0.0.jar";

@@ -16,10 +16,13 @@
 package org.wso2.carbon.tools.converter;
 
 import org.testng.annotations.Test;
+import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +32,13 @@ import java.util.List;
  * @since 5.0.0
  */
 public class ListPackagesTest {
+    private static final Path sampleJARFile = Paths.
+            get(TestConstants.TARGET_FOLDER, "test-resources", "converter", "tool-test-artifact.jar");
+
     @Test(description = "Attempts to list the java packages defined within a Java Archive (JAR) file")
     public void testListingPackagesFromJar() throws IOException, CarbonToolException {
         List<Object> actual = new ArrayList<>();
-        BundleGeneratorUtils.listPackages(TestConstants.SAMPLE_JAR_FILE).forEach(actual::add);
+        BundleGeneratorUtils.listPackages(sampleJARFile).forEach(actual::add);
         List<Object> expected = new ArrayList<>();
         expectedPackageList().forEach(expected::add);
 

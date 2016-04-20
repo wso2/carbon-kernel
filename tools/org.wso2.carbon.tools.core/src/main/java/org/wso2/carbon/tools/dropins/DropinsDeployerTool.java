@@ -34,7 +34,7 @@ public class DropinsDeployerTool implements CarbonTool {
     /**
      * Executes the WSO2 Carbon dropins deployer tool based on the specified arguments.
      *
-     * @param toolArgs the {@link String} argument specifying the CARBON_HOME
+     * @param toolArgs the {@link String} argument specifying the Carbon Profile and CARBON_HOME
      */
     @Override
     public void execute(String... toolArgs) {

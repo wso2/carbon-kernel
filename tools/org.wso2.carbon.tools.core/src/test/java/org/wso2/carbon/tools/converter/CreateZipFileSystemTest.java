@@ -17,6 +17,7 @@ package org.wso2.carbon.tools.converter;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
@@ -33,9 +34,12 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class CreateZipFileSystemTest {
+    private static final Path sampleJARFile = Paths.
+            get(TestConstants.TARGET_FOLDER, "test-resources", "converter", "tool-test-artifact.jar");
+
     @Test(description = "Attempts to create a zip file system from an existing Java Archive (JAR) file")
     public void testCreatingZipFileSystemFromExisting() throws IOException, CarbonToolException {
-        FileSystem fileSystem = BundleGeneratorUtils.createZipFileSystem(TestConstants.SAMPLE_JAR_FILE, false);
+        FileSystem fileSystem = BundleGeneratorUtils.createZipFileSystem(sampleJARFile, false);
         Assert.assertNotNull(fileSystem);
         fileSystem.close();
     }

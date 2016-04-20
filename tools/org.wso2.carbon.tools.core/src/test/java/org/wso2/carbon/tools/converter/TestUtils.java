@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.tools.converter;
 
+import org.wso2.carbon.tools.TestConstants;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

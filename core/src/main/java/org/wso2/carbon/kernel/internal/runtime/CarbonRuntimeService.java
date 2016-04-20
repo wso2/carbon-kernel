@@ -50,6 +50,7 @@ public class CarbonRuntimeService implements RuntimeService, CarbonRuntimeServic
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
             if (runtime.getState() == RuntimeState.INACTIVE) {
+                runtime.init();
                 runtime.start();
             } else if (runtime.getState() == RuntimeState.PENDING) {
                 throw new RuntimeServiceException("Runtime not initialized." + runtime.getClass().getName());

@@ -13,10 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.converter;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+package org.wso2.carbon.tools;
 
 /**
  * A Java class which defines constants used in JAR-to-OSGi converter tool test classes.
@@ -24,19 +21,16 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class TestConstants {
-    protected static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
-    protected static final String TEST_DIRECTORY_TWO = "testDirectoryTwo";
-    protected static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
-    protected static final String CHILD_TEST_FILE_TWO = "sampleTwo.txt";
-    protected static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
-    protected static final String TARGET_FOLDER = "target";
+    public static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
+    public static final String TEST_DIRECTORY_TWO = "testDirectoryTwo";
+    public static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
+    public static final String CHILD_TEST_FILE_TWO = "sampleTwo.txt";
+    public static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
+    public static final String TARGET_FOLDER = "target";
 
-    protected static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
-    protected static final String EXPORT_PACKAGE = "Export-Package";
-    protected static final String IMPORT_PACKAGE = "DynamicImport-Package";
-
-    protected static final Path SAMPLE_JAR_FILE = Paths.
-            get(TARGET_FOLDER, "test-resources", "converter", "tool-test-artifact.jar");
+    public static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
+    public static final String EXPORT_PACKAGE = "Export-Package";
+    public static final String IMPORT_PACKAGE = "DynamicImport-Package";
 
     /**
      * A constructor which prevents instantiating the TestConstants class.

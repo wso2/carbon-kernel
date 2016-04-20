@@ -266,9 +266,8 @@ public class DropinsBundleDeployerUtils {
 
             return profileNames;
         } else {
-            throw new IOException(
-                    "The " + carbonHome + "/" + Constants.OSGI_REPOSITORY + "/" + Constants.PROFILE_PATH +
-                            " directory does not exist");
+            throw new IOException("The " + carbonHome + "/" + Constants.OSGI_REPOSITORY + "/" + Constants.PROFILE_PATH +
+                    " directory does not exist");
         }
     }
 }
