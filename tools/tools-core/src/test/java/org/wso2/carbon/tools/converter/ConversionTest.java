@@ -18,6 +18,7 @@ package org.wso2.carbon.tools.converter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.tools.CarbonTool;
+import org.wso2.carbon.tools.CarbonToolExecutor;
 import org.wso2.carbon.tools.Constants;
 import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
@@ -39,12 +40,13 @@ import java.util.jar.Manifest;
  * @since 5.0.0
  */
 public class ConversionTest {
-    private static final Path sampleJARFile = Paths.
-            get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, "converter", TestConstants.ARTIFACT_FIVE);
+    private static final Path converterTestResources = Paths.get(TestConstants.TARGET_FOLDER,
+            TestConstants.TEST_RESOURCES, TestConstants.CONVERTER_TEST_RESOURCES);
+    private static final Path sampleJARFile = Paths.get(converterTestResources.toString(), TestConstants.ARTIFACT_FIVE);
     private static final Path sampleTextFile = Paths.get(TestConstants.TEMP_DIRECTORY, "sample.txt");
 
     @Test(description = "Tests the conversion process with a text file as the destination", expectedExceptions = {
-            CarbonToolException.class })
+            CarbonToolException.class})
     public void testConversionWhenDestinationIsAFile() throws IOException, CarbonToolException {
         //  OSGi bundle destination path refers to a file - must refer to a directory
         BundleGeneratorUtils.convertFromJarToBundle(sampleJARFile, sampleTextFile, new Manifest(), "");
@@ -75,7 +77,7 @@ public class ConversionTest {
     }
 
     @Test(description = "Attempts to create an OSGi bundle with no manifest", expectedExceptions = {
-            CarbonToolException.class })
+            CarbonToolException.class})
     public void testCreatingBundleWithNoManifest() throws IOException, CarbonToolException {
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
         //  no manifest file for the OSGi bundle to be created - invalid argument
@@ -103,7 +105,7 @@ public class ConversionTest {
     }
 
     @Test(description = "Attempts to convert a text file to an OSGi bundle", expectedExceptions = {
-            CarbonToolException.class })
+            CarbonToolException.class})
     public void testConvertingTextFile() throws IOException, CarbonToolException {
         //  the source file path refers to a text file
         Path textFilePath = Files.createTempFile(Paths.get(TestConstants.TEMP_DIRECTORY), "sample", ".txt");
@@ -154,21 +156,15 @@ public class ConversionTest {
         }
     }
 
-    @Test(description = "Attempts to convert the contents of a source directory containing an OSGi bundle",
-            expectedExceptions = { CarbonToolException.class }, priority = 1)
-    public void testConvertingDirectoryContainingOSGiBundle() throws IOException, CarbonToolException {
-        Path source = Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, "converter");
-        Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
-        BundleGeneratorUtils.convertFromJarToBundle(source, destination, new Manifest(), "");
-    }
-
     @Test(description = "Attempts to convert the contents of a source directory that does not contain any OSGi bundles",
             priority = 2)
     public void testConvertingDirectoryNotContainingOSGiBundle() throws IOException, CarbonToolException {
-        Path source = Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, "converter");
-        Files.deleteIfExists(Paths.get(source.toString(), TestConstants.ARTIFACT_ONE));
+        Files.deleteIfExists(Paths.get(converterTestResources.toString(), TestConstants.ARTIFACT_ONE));
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
-        executeConversion(source, destination);
+        System.setProperty(Constants.CARBON_TOOL_SYSTEM_PROPERTY, "jar-to-bundle-converter");
+        CarbonToolExecutor.main(new String[]{
+                converterTestResources.toString(), destination.toString()
+        });
 
         Path jarFilePath = sampleJARFile.getFileName();
         if (jarFilePath != null) {
@@ -185,10 +181,14 @@ public class ConversionTest {
     @Test(description = "Attempts to convert a JAR to an OSGi bundle to a destination where it has already "
             + "been converted to", priority = 3)
     public void testConvertingExistingBundle() throws IOException, CarbonToolException {
-        Path source = Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, "converter");
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
-        executeConversion(source, destination);
-        executeConversion(source, destination);
+        //  executes twice
+        CarbonToolExecutor.main(new String[]{
+                converterTestResources.toString(), destination.toString()
+        });
+        CarbonToolExecutor.main(new String[]{
+                converterTestResources.toString(), destination.toString()
+        });
 
         Path jarFilePath = sampleJARFile.getFileName();
         if (jarFilePath != null) {
@@ -197,6 +197,7 @@ public class ConversionTest {
             Path bundlePath = Paths.get(destination.toString(), bundleName);
             assert isOSGiBundle(bundlePath, jarFileName);
             BundleGeneratorUtils.delete(bundlePath);
+            System.clearProperty(Constants.CARBON_TOOL_SYSTEM_PROPERTY);
         } else {
             assert false;
         }
@@ -229,7 +230,7 @@ public class ConversionTest {
         if (Files.exists(bundlePath)) {
             boolean validSymbolicName, exportPackageAttributeCheck, importPackageAttributeCheck;
             try (FileSystem zipFileSystem = BundleGeneratorUtils.createZipFileSystem(bundlePath, false)) {
-                Path manifestPath = zipFileSystem.getPath("META-INF", "MANIFEST.MF");
+                Path manifestPath = zipFileSystem.getPath(Constants.JAR_MANIFEST_FOLDER, Constants.MANIFEST_FILE_NAME);
                 Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
 
                 Attributes attributes = manifest.getMainAttributes();

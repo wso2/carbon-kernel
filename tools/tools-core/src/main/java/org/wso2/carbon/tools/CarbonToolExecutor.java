@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This Java class defines the WSO2 Carbon-kernel tool manager, which manages the execution of numerous
+ * This Java class defines the WSO2 Carbon-kernel tool executor, which manages the execution of numerous
  * optional tools available along with the Carbon-kernel based on the user's choice of execution.
  * <p>
  * The user will be able to execute the desired tool using the relevant .sh/.bat file available in the
@@ -37,7 +37,7 @@ public class CarbonToolExecutor {
     private static final Logger logger = Logger.getLogger(CarbonToolExecutor.class.getName());
 
     /**
-     * Application executor for the WSO2 Carbon Tool manager.
+     * Application executor for the WSO2 Carbon Tool executor.
      *
      * @param args the arguments to be used within the tool
      */
@@ -66,21 +66,18 @@ public class CarbonToolExecutor {
 
         CarbonTool carbonTool;
         switch (toolIdentifier) {
-        case "jar-to-bundle-converter":
-            carbonTool = new BundleGeneratorTool();
-            break;
-        case "dropins-deployer":
-            carbonTool = new DropinsDeployerTool();
-            break;
-        default:
-            carbonTool = null;
+            case "jar-to-bundle-converter":
+                carbonTool = new BundleGeneratorTool();
+                break;
+            case "dropins-deployer":
+                carbonTool = new DropinsDeployerTool();
+                break;
+            default:
+                carbonTool = null;
         }
 
         if (carbonTool != null) {
             carbonTool.execute(toolArgs);
-        } else {
-            throw new CarbonToolException(
-                    "Carbon tool executor failed to identify the tool for execution: " + toolIdentifier);
         }
     }
 }

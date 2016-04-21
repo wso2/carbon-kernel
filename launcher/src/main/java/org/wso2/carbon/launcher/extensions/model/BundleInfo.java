@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.launcher.extensions.model;
 
+import org.wso2.carbon.launcher.Constants;
+
 /**
  * A Java class which models a holder for information of an OSGi bundle.
  *
@@ -35,7 +37,7 @@ public class BundleInfo {
         this.bundlePath = bundlePath;
         this.startLevel = startLevel;
         this.isFragment = isFragment;
-        this.isFromDropins = bundlePath.contains("dropins/");
+        this.isFromDropins = bundlePath.contains(Constants.DROPINS + "/");
     }
 
     public boolean isFromDropins() {

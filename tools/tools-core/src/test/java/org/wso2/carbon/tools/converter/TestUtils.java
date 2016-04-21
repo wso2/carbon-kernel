@@ -29,11 +29,11 @@ import java.util.List;
  *
  * @since 5.0.0
  */
-public class TestUtils {
+class TestUtils {
     private TestUtils() {
     }
 
-    protected static boolean createDirectory(Path directory) {
+    static boolean createDirectory(Path directory) {
         try {
             if (!Files.exists(directory)) {
                 Files.createDirectories(directory);
@@ -44,7 +44,7 @@ public class TestUtils {
         }
     }
 
-    protected static boolean createFile(Path file) {
+    static boolean createFile(Path file) {
         try {
             if (!Files.exists(file)) {
                 Files.createFile(file);
@@ -55,13 +55,13 @@ public class TestUtils {
         }
     }
 
-    protected static boolean createDirectoryWithChildren(Path parentDirectory) {
+    static boolean createDirectoryWithChildren(Path parentDirectory) {
         List<Path> children = getChildPaths(parentDirectory);
         return ((TestUtils.createDirectory(parentDirectory)) && (TestUtils.createFile(children.get(0))) && TestUtils
                 .createFile(children.get(1)) && (TestUtils.createDirectory(children.get(2))));
     }
 
-    protected static List<Path> getChildPaths(Path parentDirectory) {
+    static List<Path> getChildPaths(Path parentDirectory) {
         Path sampleFileOne = Paths.get(parentDirectory.toString(), "sampleOne.txt");
         Path sampleFileTwo = Paths.get(parentDirectory.toString(), "sampleTwo.txt");
         Path sampleDirectoryOne = Paths.get(parentDirectory.toString(), TestConstants.CHILD_TEST_DIRECTORY_ONE);
@@ -74,7 +74,7 @@ public class TestUtils {
         return paths;
     }
 
-    protected static boolean isMatching(List<Object> expected, List<Object> actual) {
+    static boolean isMatching(List<Object> expected, List<Object> actual) {
         if ((expected != null) && (actual != null)) {
             if (expected.size() == actual.size()) {
                 for (Object actualObject : actual) {

@@ -23,6 +23,7 @@ package org.wso2.carbon.tools;
 public class TestConstants {
     public static final String TARGET_FOLDER = System.getProperty("target.directory");
     public static final String TEST_RESOURCES = "test-resources";
+    public static final String CONVERTER_TEST_RESOURCES = "converter";
     public static final String TEMP_DIRECTORY = System.getProperty("java.io.tmpdir");
 
     public static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
@@ -33,7 +34,7 @@ public class TestConstants {
             getProperty("equinox.simpleconfigurator.version");
     public static final String EQUINOX_UTIL_VERSION = System.getProperty("equinox.util.version");
     public static final String EQUINOX_LAUNCHER_VERSION = System.getProperty("equinox.launcher.version");
-    public static final String KERNEL_VERSION = System.getProperty("carbon.kernel.version");
+    private static final String KERNEL_VERSION = System.getProperty("carbon.kernel.version");
 
     public static final String ARTIFACT_ONE = "org.eclipse.osgi_" + EQUINOX_OSGI_VERSION + ".jar";
     public static final String ARTIFACT_TWO =

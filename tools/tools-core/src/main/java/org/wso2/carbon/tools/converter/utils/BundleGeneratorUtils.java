@@ -68,10 +68,10 @@ public class BundleGeneratorUtils {
      *                             error occurs when generating the bundle
      */
     public static void convertFromJarToBundle(Path jarFile, Path targetDirectory, Manifest manifest,
-            String extensionPrefix) throws IOException, CarbonToolException {
+                                              String extensionPrefix) throws IOException, CarbonToolException {
         //  checks for validity of the arguments
         if (!Files.isDirectory(targetDirectory)) {
-            String message = "Path target directory does not point to a directory.";
+            String message = "Path target directory does not point to a directory";
             throw new CarbonToolException(message);
         }
 
@@ -80,8 +80,8 @@ public class BundleGeneratorUtils {
             String fileName = tempJarFilePathHolder.toString();
             if (fileName.endsWith(Constants.JAR_FILE_EXTENSION)) {
                 if (BundleGeneratorUtils.isOSGiBundle(jarFile)) {
-                    String message = "Path jarFile refers to an OSGi bundle.";
-                    throw new CarbonToolException(message);
+                    logger.log(Level.WARNING, "Path " + jarFile.toString() + " refers to an OSGi bundle");
+                    return;
                 }
 
                 if (manifest == null) {
@@ -95,7 +95,7 @@ public class BundleGeneratorUtils {
                 String pluginName = extensionPrefix + fileName + "_1.0.0" + Constants.JAR_FILE_EXTENSION;
                 Path extensionBundle = Paths.get(targetDirectory.toString(), pluginName);
 
-                logger.log(Level.FINEST, "Setting Manifest attributes.");
+                logger.log(Level.FINEST, "Setting Manifest attributes");
                 Attributes attributes = manifest.getMainAttributes();
                 attributes.putValue(Constants.MANIFEST_VERSION, "1.0");
                 attributes.putValue(Constants.BUNDLE_MANIFEST_VERSION, "2");
@@ -112,18 +112,18 @@ public class BundleGeneratorUtils {
                             ", at target directory " + extensionBundle.toString() + ".");
                     BundleGeneratorUtils.createBundle(jarFile, extensionBundle, manifest);
                     logger.log(Level.FINE, "Created an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
-                            ", at target directory " + extensionBundle.toString() + ".");
+                            ", at target directory " + extensionBundle.toString());
                     logger.log(Level.INFO, "Created the OSGi bundle " + pluginName + " for JAR file " +
                             jarFile.toString());
                 } else {
-                    logger.log(Level.INFO, "OSGi bundle " + pluginName + " already exists in the target directory.");
+                    logger.log(Level.INFO, "OSGi bundle " + pluginName + " already exists in the target directory");
                 }
             } else {
-                String message = "Path jarFile does not point to a JAR file.";
+                String message = "Path jarFile does not point to a JAR file";
                 throw new CarbonToolException(message);
             }
         } else {
-            String message = "Path representing the JAR file name has zero elements.";
+            String message = "Path representing the JAR file name has zero elements";
             throw new CarbonToolException(message);
         }
     }
@@ -193,8 +193,8 @@ public class BundleGeneratorUtils {
                 p2InfFile.toFile().deleteOnExit();
 
                 try (OutputStream manifestOutputStream = Files.newOutputStream(manifestFile);
-                        OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
-                        FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
+                     OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
+                     FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
                     manifest.write(manifestOutputStream);
                     logger.log(Level.FINE,
                             "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " + jarFile.toString());
@@ -373,11 +373,11 @@ public class BundleGeneratorUtils {
                 URI zipFileIURI = URI.create("jar:file:" + zipFilePath.toUri().getPath());
                 return FileSystems.newFileSystem(zipFileIURI, bundleJarProperties);
             } else {
-                String message = "Path zipFilePath does not refer to a .zip or .jar file.";
+                String message = "Path zipFilePath does not refer to a .zip or .jar file";
                 throw new CarbonToolException(message);
             }
         } else {
-            String message = "Path representing the zip file name has zero elements.";
+            String message = "Path representing the zip file name has zero elements";
             throw new CarbonToolException(message);
         }
     }

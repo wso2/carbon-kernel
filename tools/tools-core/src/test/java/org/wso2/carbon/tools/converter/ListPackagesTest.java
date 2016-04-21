@@ -32,8 +32,8 @@ import java.util.List;
  * @since 5.0.0
  */
 public class ListPackagesTest {
-    private static final Path sampleJARFile = Paths.
-            get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, "converter", TestConstants.ARTIFACT_FIVE);
+    private static final Path sampleJARFile = Paths.get(TestConstants.TARGET_FOLDER,
+            TestConstants.TEST_RESOURCES, TestConstants.CONVERTER_TEST_RESOURCES, TestConstants.ARTIFACT_FIVE);
 
     @Test(description = "Attempts to list the java packages defined within a Java Archive (JAR) file")
     public void testListingPackagesFromJar() throws IOException, CarbonToolException {

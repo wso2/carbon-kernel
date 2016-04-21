@@ -39,7 +39,6 @@ import java.util.stream.Stream;
  */
 public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
-    private static final String dropinsDirectory = "dropins";
 
     private static List<BundleInfo> newBundlesInfo;
 
@@ -64,17 +63,23 @@ public class DropinsBundleDeployerUtils {
      */
     public static synchronized void executeDropinsCapability(String carbonHome, String carbonProfile)
             throws IOException {
-        Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
+        Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.DROPINS);
         Path bundlesInfoFile = Paths.
                 get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, carbonProfile, "configuration",
-                        "org.eclipse.equinox.simpleconfigurator", "bundles.info");
+                        "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
 
         if (newBundlesInfo == null) {
+            logger.log(Level.FINE, "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
             newBundlesInfo = getNewBundlesInfo(dropinsDirectoryPath);
+            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
+                    " folder");
+        } else {
+            logger.log(Level.FINE, "The OSGi bundle information from " + Constants.DROPINS + " folder are " +
+                    "already loaded");
         }
 
         if (hasToUpdateBundlesInfoFile(newBundlesInfo, bundlesInfoFile)) {
-            logger.log(Level.INFO, "New file changes detected in " + dropinsDirectory);
+            logger.log(Level.INFO, "New file changes detected in " + Constants.DROPINS + " folder");
 
             List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundlesInfo, bundlesInfoFile);
 
@@ -101,7 +106,7 @@ public class DropinsBundleDeployerUtils {
             Stream<Path> children = Files.list(sourceDirectory);
             children.parallel().forEach(child -> {
                 try {
-                    logger.log(Level.FINE, "Loading OSGi bundle information from " + child);
+                    logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
                     getNewBundleInfo(child).ifPresent(newBundleInfoLines::add);
                     logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
                 } catch (IOException e) {
@@ -109,7 +114,7 @@ public class DropinsBundleDeployerUtils {
                 }
             });
         } else {
-            throw new IOException("Invalid OSGi bundle source directory: " + sourceDirectory);
+            throw new IOException("Invalid or non-existent OSGi bundle source directory: " + sourceDirectory);
         }
 
         return newBundleInfoLines;
@@ -136,7 +141,7 @@ public class DropinsBundleDeployerUtils {
                     try (JarFile jarFile = new JarFile(bundlePath.toString())) {
                         Manifest manifest = jarFile.getManifest();
                         if ((manifest == null) || (manifest.getMainAttributes() == null)) {
-                            throw new IOException("Invalid OSGi bundle found in the " + dropinsDirectory +
+                            throw new IOException("Invalid OSGi bundle found in the " + Constants.DROPINS +
                                     " directory: " + jarFile.toString());
                         } else {
                             String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
@@ -155,7 +160,7 @@ public class DropinsBundleDeployerUtils {
                             boolean isFragment = (manifest.getMainAttributes().getValue("Fragment-Host") != null);
                             int defaultBundleStartLevel = 4;
                             BundleInfo generated = new BundleInfo(bundleSymbolicName, bundleVersion,
-                                    "../../" + dropinsDirectory + "/" + fileName, defaultBundleStartLevel, isFragment);
+                                    "../../" + Constants.DROPINS + "/" + fileName, defaultBundleStartLevel, isFragment);
                             return Optional.of(generated);
                         }
                     }
@@ -164,7 +169,7 @@ public class DropinsBundleDeployerUtils {
                 }
             }
         } else {
-            throw new IOException("Invalid OSGi bundle path: " + bundlePath);
+            throw new IOException("Invalid or non-existent OSGi bundle path: " + bundlePath);
         }
     }
 
@@ -175,16 +180,17 @@ public class DropinsBundleDeployerUtils {
      * existing bundles.info file, specified. If the OSGi bundle information of dropins bundles are matching,
      * there is no requirement to update the bundles.info file, again.
      *
-     * @param newBundleInfo          the new OSGi bundle information
-     * @param existingBundleInfoFile the existing bundles.info file to be checked
+     * @param newBundleInfo           the new OSGi bundle information
+     * @param existingBundlesInfoFile the existing bundles.info file to be checked
      * @return true if the specified bundles.info file requires to be updated, else false
      * @throws IOException if an I/O error occurs
      */
-    public static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundleInfo, Path existingBundleInfoFile)
+    public static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundleInfo, Path existingBundlesInfoFile)
             throws IOException {
-        if ((existingBundleInfoFile != null) && (Files.exists(existingBundleInfoFile))) {
+        if ((existingBundlesInfoFile != null) && (Files.exists(existingBundlesInfoFile))) {
             List<BundleInfo> existingBundlesInfo = new ArrayList<>();
-            Files.readAllLines(existingBundleInfoFile).stream().filter(line -> !line.startsWith("#")).
+            Files.readAllLines(existingBundlesInfoFile).stream().
+                    filter(line -> !line.startsWith("#")).
                     map(BundleInfo::getInstance).
                     filter(BundleInfo::isFromDropins).forEach(existingBundlesInfo::add);
 
@@ -199,7 +205,7 @@ public class DropinsBundleDeployerUtils {
                 return true;
             }
         } else {
-            throw new IOException("Invalid bundles.info file path specified: " + existingBundleInfoFile);
+            throw new IOException("Invalid or non-existent file path: " + existingBundlesInfoFile);
         }
     }
 
@@ -224,7 +230,7 @@ public class DropinsBundleDeployerUtils {
 
             return effectiveBundleInfo;
         } else {
-            throw new IOException("Specified bundles.info file does not exist: " + bundlesInfoFilePath);
+            throw new IOException("Invalid or non-existing file path: " + bundlesInfoFilePath);
         }
     }
 
@@ -244,7 +250,7 @@ public class DropinsBundleDeployerUtils {
                 Files.write(bundlesInfoFilePath, bundleInfoLines);
             }
         } else {
-            throw new IOException("Invalid file path " + bundlesInfoFilePath);
+            throw new IOException("Invalid or non-existing file path: " + bundlesInfoFilePath);
         }
     }
 
