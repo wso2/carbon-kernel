@@ -105,7 +105,6 @@
                                 </bundleDef>
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
-                                <bundleDef>org.wso2.commons.wso2:authenticator:${version.authenticator}</bundleDef>
                                 <bundleDef>commons-lang.wso2:commons-lang:${orbit.version.commons.lang}</bundleDef>
                                 <bundleDef>
                                     org.apache.geronimo.specs.wso2:geronimo-saaj_1.3_spec:${version.geronimo.saaj.spec}
