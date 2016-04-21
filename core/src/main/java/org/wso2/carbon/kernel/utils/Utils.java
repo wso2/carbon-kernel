@@ -106,6 +106,21 @@ public class Utils {
      * @return value of the system/environment variable
      */
     public static String getSystemVariableValue(String variableName, String defaultValue) {
+        return getSystemVariableValue(variableName, defaultValue, Constants.PlaceHolders.class);
+    }
+
+    /**
+     * A utility which allows reading variables from the environment or System properties.
+     * If the variable in available in the environment as well as a System property, the System property takes
+     * precedence.
+     *
+     * @param variableName System/environment variable name
+     * @param defaultValue default value to be returned if the specified system variable is not specified.
+     * @param constantClass Class from which the Predefined value should be retrieved if system variable and default
+     *                      value is not specified.
+     * @return value of the system/environment variable
+     */
+    public static String getSystemVariableValue(String variableName, String defaultValue, Class constantClass) {
         String value = null;
         if (System.getProperty(variableName) != null) {
             value = System.getProperty(variableName);
@@ -114,7 +129,7 @@ public class Utils {
         } else {
             try {
                 String constant = variableName.replaceAll("\\.", "_").toUpperCase(Locale.getDefault());
-                Field field = Constants.PlaceHolders.class.getField(constant);
+                Field field = constantClass.getField(constant);
                 value = (String) field.get(constant);
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 //Nothing to do
