@@ -73,6 +73,7 @@ public class DropinsDeployerToolUtils {
         return "Incorrect usage of the dropins deployer tool.\n\n" +
                 "Instructions: sh dropins.sh [profile]\n" + "profile - name of the Carbon Profile to be updated\n\n" +
                 "Keyword option for profile:\n" +
-                "ALL\tUpdate dropins OSGi bundle information of all Carbon Profiles (ex: sh dropins.sh ALL)\n";
+                "ALL\tUpdate dropins OSGi bundle information of all Carbon Profiles " +
+                "(ex: sh dropins.sh ALL/dropins.bat ALL)\n";
     }
 }
