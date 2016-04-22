@@ -95,7 +95,12 @@ public class RuntimeServiceListenerComponent implements RequiredCapabilityListen
             logger.debug("Registering RuntimeService as an OSGi service");
         }
         RuntimeService runtimeService = new CarbonRuntimeService(runtimeManager);
-        bundleContext.registerService(RuntimeService.class, runtimeService, null);
-        MBeanRegistrator.registerMBean(runtimeService);
+        try {
+            runtimeService.startRuntimes();
+            bundleContext.registerService(RuntimeService.class, runtimeService, null);
+            MBeanRegistrator.registerMBean(runtimeService);
+        } catch (Exception e) {
+            logger.error("Error while starting runtime from Runtime manager", e);
+        }
     }
 }

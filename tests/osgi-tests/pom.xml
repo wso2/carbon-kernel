@@ -324,31 +324,28 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <!--copying distribution/carbon-home directory to the target folder-->
-                                <id>copy-resources</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/carbon-home</outputDirectory>
-                                    <overwrite>true</overwrite>
-                                    <resources>
-                                        <resource>
-                                            <directory>../../distribution/carbon-home</directory>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
+                            <execution>
+                                <id>unpack-distribution</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wso2.carbon</groupId>
+                                            <artifactId>wso2carbon-kernel</artifactId>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                            </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+
                             <execution>
                                 <id>copy-jacoco-dependencies</id>
                                 <phase>compile</phase>
@@ -373,6 +370,12 @@
                                 <pax.exam.system>default</pax.exam.system>
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
+                            <systemProperties>
+                                <property>
+                                    <name>carbon.home</name>
+                                    <value>${basedir}/target/wso2carbon-kernel-${project.version}</value>
+                                </property>
+                            </systemProperties>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>

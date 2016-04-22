@@ -14,14 +14,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
         <version>4</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -186,18 +185,18 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.tools</artifactId>
+                <artifactId>org.wso2.carbon.tools.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.kernel.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
+                <artifactId>org.wso2.carbon.runtime.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>zip</type>
             </dependency>
@@ -205,6 +204,7 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>osgi-test-util</artifactId>
                 <version>${carbon.kernel.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -417,11 +417,19 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>carbon-context-test-artifact</artifactId>
                 <version>${carbon.kernel.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>wso2carbon-kernel</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+                <scope>test</scope>
             </dependency>
         </dependencies>
    </dependencyManagement>

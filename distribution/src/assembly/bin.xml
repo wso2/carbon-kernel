@@ -25,35 +25,8 @@
 
     <fileSets>
         <fileSet>
-            <directory>carbon-home</directory>
-            <outputDirectory></outputDirectory>
-            <excludes>
-                <exclude>**/*.sh</exclude>
-                <exclude>**/*.properties</exclude>
-                <exclude>**/native/*</exclude>
-                <exclude>**/kernel-version.txt</exclude>
-                <exclude>**/carbon.yml</exclude>
-                <exclude>**/log4j2.xml</exclude>
-                <exclude>INSTALL.txt</exclude>
-                <exclude>README.txt</exclude>
-                <exclude>LICENSE.txt</exclude>
-                <exclude>release-notes.html</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>carbon-home</directory>
-            <outputDirectory></outputDirectory>
-            <includes>
-                <include>**/*.sh</include>
-                <include>**/native/*</include>
-            </includes>
-            <fileMode>755</fileMode>
-        </fileSet>
-
-        <!-- Copying p2 profile and osgi bundles-->
-        <fileSet>
             <directory>target/WSO2Carbon</directory>
-            <outputDirectory>osgi</outputDirectory>
+            <outputDirectory></outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
                 <exclude>**/eclipse.ini</exclude>
@@ -62,35 +35,66 @@
                 <exclude>**/.settings</exclude>
                 <exclude>libcairo-swt.so</exclude>
                 <exclude>eclipse</exclude>
+                <exclude>**/*.sh</exclude>
+                <exclude>**/native/*</exclude>
             </excludes>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/WSO2Carbon</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>**/*.sh</include>
+                <include>**/native/*</include>
+            </includes>
+            <fileMode>755</fileMode>
         </fileSet>
     </fileSets>
 
     <files>
         <file>
-            <source>carbon-home/conf/log4j2.xml</source>
+            <source>target/WSO2Carbon/conf/log4j2.xml</source>
             <outputDirectory>conf</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/conf/etc/pax-logging.properties</source>
+            <source>target/WSO2Carbon/conf/etc/pax-logging.properties</source>
             <outputDirectory>conf/etc</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/bin/bootstrap/logging.properties</source>
+            <source>target/WSO2Carbon/bin/bootstrap/logging.properties</source>
             <outputDirectory>bin/bootstrap</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/conf/osgi/launch.properties</source>
+            <source>target/WSO2Carbon/conf/osgi/launch.properties</source>
             <outputDirectory>conf/osgi</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>target/WSO2Carbon/conf/carbon.yml</source>
+            <outputDirectory>conf/</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>target/WSO2Carbon/bin/kernel-version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/WSO2Carbon/bin/README.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+
         <file>
             <source>carbon-home/README.txt</source>
             <outputDirectory></outputDirectory>
@@ -115,33 +119,6 @@
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
-        <file>
-            <source>carbon-home/conf/carbon.yml</source>
-            <outputDirectory>conf/</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/bin/kernel-version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>bin/bootstrap</outputDirectory>
-            <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.launcher:jar</include>
-                <include>org.osgi:org.osgi.core:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>bin/bootstrap/tools</outputDirectory>
-            <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.tools:jar</include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
 </assembly>
