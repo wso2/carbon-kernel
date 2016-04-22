@@ -90,6 +90,9 @@
                         <equinox.util.version>${equinox.util.version}</equinox.util.version>
                         <equinox.launcher.version>${equinox.launcher.version}</equinox.launcher.version>
                     </systemProperties>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                 </configuration>
             </plugin>
             <plugin>
