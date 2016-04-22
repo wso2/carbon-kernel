@@ -74,14 +74,20 @@ public class CarbonServer {
             framework = fwkFactory.newFramework(config.getProperties());
 
             setServerCurrentStatus(ServerStatus.STARTING);
-            // Notify Carbon server start.
+            // Notify Carbon server starting.
             dispatchEvent(CarbonServerEvent.STARTING);
 
             // Initialize and start OSGi framework.
             initAndStartOSGiFramework(framework);
 
+            // Notify before installing initial bundles.
+            dispatchEvent(CarbonServerEvent.BEFORE_LOADING_INITIAL_BUNDLES);
+
             // Loads initial bundles listed in the launch.properties file.
             loadInitialBundles(framework.getBundleContext());
+
+            // Notify after installing initial bundles.
+            dispatchEvent(CarbonServerEvent.AFTER_LOADING_INITIAL_BUNDLES);
 
             setServerCurrentStatus(ServerStatus.STARTED);
             // This thread waits until the OSGi framework comes to a complete shutdown.
@@ -160,13 +166,6 @@ public class CarbonServer {
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Started the OSGi framework.");
         }
-
-        ServiceLoader<FrameworkStartupHook> frameworkStartupHookLoader
-                = ServiceLoader.load(FrameworkStartupHook.class);
-
-        frameworkStartupHookLoader.forEach((frameworkStartupHook)
-                -> frameworkStartupHook.systemBundleStarted(framework.getBundleContext()));
-
     }
 
     /**
@@ -285,6 +284,7 @@ public class CarbonServer {
      */
     private void dispatchEvent(int event) {
         CarbonServerEvent carbonServerEvent = new CarbonServerEvent(event, config);
+        carbonServerEvent.setSystemBundleContext(framework.getBundleContext());
         config.getCarbonServerListeners().forEach(listener -> {
             if (logger.isLoggable(Level.FINE)) {
                 String eventName = (event == CarbonServerEvent.STARTING) ? "STARTING" : "STOPPING";

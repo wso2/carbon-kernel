@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -365,6 +366,11 @@ public class CarbonLaunchConfig {
      * @param serverListenersList comma separated server listeners
      */
     private void loadCarbonServerListeners(String serverListenersList) {
+
+        ServiceLoader<CarbonServerListener> carbonServerListenerLoader
+                = ServiceLoader.load(CarbonServerListener.class);
+        carbonServerListenerLoader.forEach(carbonServerListeners::add);
+
         if (Utils.isNullOrEmpty(serverListenersList)) {
             return;
         }
