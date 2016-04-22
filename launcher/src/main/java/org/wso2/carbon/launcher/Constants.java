@@ -24,11 +24,14 @@ public class Constants {
     public static final String LAUNCH_PROPERTIES_FILE = "launch.properties";
 
     public static final String CARBON_HOME = "carbon.home";
-    public static final String CARBON_START_TIME = "carbon.start.time";
+    static final String CARBON_START_TIME = "carbon.start.time";
 
+    public static final String OSGI_REPOSITORY = "osgi";
     public static final String PROFILE = "profile";
     public static final String PROFILE_PATH = "profiles";
     public static final String DEFAULT_PROFILE = "default";
+    public static final String DROPINS = "dropins";
+    public static final String BUNDLES_INFO = "bundles.info";
 
     public static final String CARBON_OSGI_REPOSITORY = "carbon.osgi.repository";
     public static final String CARBON_OSGI_FRAMEWORK = "carbon.osgi.framework";
@@ -41,14 +44,14 @@ public class Constants {
     public static final String ECLIPSE_P2_DATA_AREA = "eclipse.p2.data.area";
 
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
-    public static final String PAX_LOG_SERVICE_RANKING_LEVEL = "org.ops4j.pax.logging.ranking";
+    static final String PAX_LOG_SERVICE_RANKING_LEVEL = "org.ops4j.pax.logging.ranking";
 
-    public static final String EQUINOX_SIMPLE_CONFIGURATOR_EXCLUSIVE_INSTALLATION =
+    static final String EQUINOX_SIMPLE_CONFIGURATOR_EXCLUSIVE_INSTALLATION =
             "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
 
-    public static final String START_TIME = "carbon.start.time";
+    static final String START_TIME = "carbon.start.time";
 
-    //Constants relevant to log level.
+    //  Constants relevant to log level.
     public static final String LOG_LEVEL_WARN = "WARN";
 
     public static final String CARBON_LOG_FILE_NAME = "carbon.log";
@@ -62,9 +65,9 @@ public class Constants {
     /**
      * Carbon server process exit codes.
      */
-    public static class ExitCodes {
-        public static final int SUCCESSFUL_TERMINATION = 0;
-        public static final int UNSUCCESSFUL_TERMINATION = -1;
-        public static final int RESTART_ACTION = 121;
+    static class ExitCodes {
+        static final int SUCCESSFUL_TERMINATION = 0;
+        static final int UNSUCCESSFUL_TERMINATION = -1;
+        static final int RESTART_ACTION = 121;
     }
 }

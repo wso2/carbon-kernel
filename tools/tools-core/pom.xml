@@ -33,12 +33,31 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>tool-test-artifact</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.launcher</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -63,7 +82,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.wso2.carbon.org.wso2.carbon.tools.BundleGenerator</mainClass>
+                            <mainClass>org.wso2.carbon.tools.CarbonToolExecutor</mainClass>
                         </manifest>
                     </archive>
                     <finalName>${project.artifactId}.${project.version}</finalName>
@@ -84,6 +103,15 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemProperties>
+                        <carbon.kernel.version>${carbon.kernel.version}</carbon.kernel.version>
+                        <equinox.osgi.version>${equinox.osgi.version}</equinox.osgi.version>
+                        <equinox.simpleconfigurator.version>${equinox.simpleconfigurator.version}
+                        </equinox.simpleconfigurator.version>
+                        <equinox.util.version>${equinox.util.version}</equinox.util.version>
+                        <equinox.launcher.version>${equinox.launcher.version}</equinox.launcher.version>
+                        <target.directory>${project.build.directory}</target.directory>
+                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>
@@ -106,14 +134,60 @@
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>tool-test-artifact</artifactId>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
-                                    <destFileName>tool-test-artifact.jar</destFileName>
+                                    <outputDirectory>${project.build.directory}/test-resources/converter
+                                    </outputDirectory>
+                                    <destFileName>tool-test-artifact-${carbon.kernel.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>mysql</groupId>
-                                    <artifactId>mysql-connector-java</artifactId>
+                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <artifactId>org.eclipse.osgi</artifactId>
+                                    <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/converter
+                                    </outputDirectory>
+                                    <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>tool-test-artifact</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>tool-test-artifact-${carbon.kernel.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <artifactId>org.eclipse.osgi</artifactId>
+                                    <version>${equinox.osgi.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+                                    <version>${equinox.simpleconfigurator.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>
+                                        org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.util</artifactId>
+                                    <version>${equinox.util.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>org.eclipse.equinox.util_${equinox.util.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.launcher</artifactId>
+                                    <version>${equinox.launcher.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <destFileName>org.eclipse.equinox.launcher_${equinox.launcher.version}.jar
+                                    </destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

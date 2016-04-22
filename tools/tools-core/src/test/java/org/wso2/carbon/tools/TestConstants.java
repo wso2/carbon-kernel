@@ -15,34 +15,37 @@
  */
 package org.wso2.carbon.tools;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
- * A Java class which defines constants used in test classes.
+ * A Java class which defines constants used in JAR-to-OSGi converter tool test classes.
  *
  * @since 5.0.0
  */
 public class TestConstants {
+    public static final String TARGET_FOLDER = System.getProperty("target.directory");
+    public static final String TEST_RESOURCES = "test-resources";
+    public static final String CONVERTER_TEST_RESOURCES = "converter";
+    public static final String TEMP_DIRECTORY = System.getProperty("java.io.tmpdir");
 
-    protected static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
-    protected static final String TEST_DIRECTORY_TWO = "testDirectoryTwo";
-    protected static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
-    protected static final String CHILD_TEST_FILE_TWO = "sampleTwo.txt";
-    protected static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
-    protected static final String TARGET_FOLDER = "target";
+    public static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
+    public static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
 
-    protected static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
-    protected static final String EXPORT_PACKAGE = "Export-Package";
-    protected static final String IMPORT_PACKAGE = "DynamicImport-Package";
+    public static final String EQUINOX_OSGI_VERSION = System.getProperty("equinox.osgi.version");
+    public static final String EQUINOX_SMP_CONFIGURATOR_VERSION = System.
+            getProperty("equinox.simpleconfigurator.version");
+    public static final String EQUINOX_UTIL_VERSION = System.getProperty("equinox.util.version");
+    public static final String EQUINOX_LAUNCHER_VERSION = System.getProperty("equinox.launcher.version");
+    private static final String KERNEL_VERSION = System.getProperty("carbon.kernel.version");
 
-    protected static final Path SAMPLE_JAR_FILE = Paths
-                .get(TARGET_FOLDER, "test-resources", "tool-test-artifact.jar");
+    public static final String ARTIFACT_ONE = "org.eclipse.osgi_" + EQUINOX_OSGI_VERSION + ".jar";
+    public static final String ARTIFACT_TWO =
+            "org.eclipse.equinox.simpleconfigurator_" + EQUINOX_SMP_CONFIGURATOR_VERSION + ".jar";
+    public static final String ARTIFACT_THREE = "org.eclipse.equinox.util_" + EQUINOX_UTIL_VERSION + ".jar";
+    public static final String ARTIFACT_FOUR = "org.eclipse.equinox.launcher_" + EQUINOX_LAUNCHER_VERSION + ".jar";
+    public static final String ARTIFACT_FIVE = "tool-test-artifact-" + KERNEL_VERSION + ".jar";
 
     /**
      * A constructor which prevents instantiating the TestConstants class.
      */
     private TestConstants() {
     }
-
 }

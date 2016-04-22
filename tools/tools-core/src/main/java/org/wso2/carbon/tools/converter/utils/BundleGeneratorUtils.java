@@ -13,9 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.utils;
+package org.wso2.carbon.tools.converter.utils;
 
-import org.wso2.carbon.tools.exceptions.JarToBundleConverterException;
+import org.wso2.carbon.tools.Constants;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,15 +42,17 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 /**
- * A Java class which contains utility methods utilized during the process of
- * converting a JAR file to an OSGi bundle.
+ * A Java class which contains utility methods utilized during the process of converting a JAR file
+ * to an OSGi bundle.
  *
  * @since 5.0.0
  */
 public class BundleGeneratorUtils {
-
     private static final Logger logger = Logger.getLogger(BundleGeneratorUtils.class.getName());
 
+    /**
+     * Prevents instantiating this class.
+     */
     private BundleGeneratorUtils() {
     }
 
@@ -60,16 +63,16 @@ public class BundleGeneratorUtils {
      * @param targetDirectory the directory into which the created OSGi bundle needs to be placed
      * @param manifest        the OSGi bundle manifest file
      * @param extensionPrefix prefix, if any, for the bundle
-     * @throws IOException                   if an I/O error occurs while reading the JAR or generating the bundle
-     * @throws JarToBundleConverterException if the {@link Path} representing the JAR file has no elements or if an
-     *                                       error occurs when generating the bundle
+     * @throws IOException         if an I/O error occurs while reading the JAR or generating the bundle
+     * @throws CarbonToolException if the {@link Path} representing the JAR file has no elements or if an
+     *                             error occurs when generating the bundle
      */
     public static void convertFromJarToBundle(Path jarFile, Path targetDirectory, Manifest manifest,
-            String extensionPrefix) throws IOException, JarToBundleConverterException {
+                                              String extensionPrefix) throws IOException, CarbonToolException {
         //  checks for validity of the arguments
         if (!Files.isDirectory(targetDirectory)) {
-            String message = "Path target directory does not point to a directory.";
-            throw new JarToBundleConverterException(message);
+            String message = "Path target directory does not point to a directory";
+            throw new CarbonToolException(message);
         }
 
         Path tempJarFilePathHolder = jarFile.getFileName();
@@ -77,8 +80,8 @@ public class BundleGeneratorUtils {
             String fileName = tempJarFilePathHolder.toString();
             if (fileName.endsWith(Constants.JAR_FILE_EXTENSION)) {
                 if (BundleGeneratorUtils.isOSGiBundle(jarFile)) {
-                    String message = "Path jarFile refers to an OSGi bundle.";
-                    throw new JarToBundleConverterException(message);
+                    logger.log(Level.WARNING, "Path " + jarFile.toString() + " refers to an OSGi bundle");
+                    return;
                 }
 
                 if (manifest == null) {
@@ -92,7 +95,7 @@ public class BundleGeneratorUtils {
                 String pluginName = extensionPrefix + fileName + "_1.0.0" + Constants.JAR_FILE_EXTENSION;
                 Path extensionBundle = Paths.get(targetDirectory.toString(), pluginName);
 
-                logger.log(Level.FINEST, "Setting Manifest attributes.");
+                logger.log(Level.FINEST, "Setting Manifest attributes");
                 Attributes attributes = manifest.getMainAttributes();
                 attributes.putValue(Constants.MANIFEST_VERSION, "1.0");
                 attributes.putValue(Constants.BUNDLE_MANIFEST_VERSION, "2");
@@ -109,19 +112,19 @@ public class BundleGeneratorUtils {
                             ", at target directory " + extensionBundle.toString() + ".");
                     BundleGeneratorUtils.createBundle(jarFile, extensionBundle, manifest);
                     logger.log(Level.FINE, "Created an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
-                            ", at target directory " + extensionBundle.toString() + ".");
+                            ", at target directory " + extensionBundle.toString());
                     logger.log(Level.INFO, "Created the OSGi bundle " + pluginName + " for JAR file " +
                             jarFile.toString());
                 } else {
-                    logger.log(Level.INFO, "OSGi bundle " + pluginName + " already exists in the target directory.");
+                    logger.log(Level.INFO, "OSGi bundle " + pluginName + " already exists in the target directory");
                 }
             } else {
-                String message = "Path jarFile does not point to a JAR file.";
-                throw new JarToBundleConverterException(message);
+                String message = "Path jarFile does not point to a JAR file";
+                throw new CarbonToolException(message);
             }
         } else {
-            String message = "Path representing the JAR file name has zero elements.";
-            throw new JarToBundleConverterException(message);
+            String message = "Path representing the JAR file name has zero elements";
+            throw new CarbonToolException(message);
         }
     }
 
@@ -149,11 +152,11 @@ public class BundleGeneratorUtils {
      *
      * @param jaFilePath the {@link Path} instance to be checked if it is an OSGi bundle
      * @return true if the {@code jarFilePath} refers to an OSGi bundle, else false.
-     * @throws IOException                   if an I/O error occurs
-     * @throws JarToBundleConverterException if {@link Path} {@code zipFilePath} does not refer to a .jar file or if
-     *                                       {@link Path} {@code zipFilePath} has zero elements
+     * @throws IOException         if an I/O error occurs
+     * @throws CarbonToolException if {@link Path} {@code zipFilePath} does not refer to a .jar file or if
+     *                             {@link Path} {@code zipFilePath} has zero elements
      */
-    private static boolean isOSGiBundle(Path jaFilePath) throws IOException, JarToBundleConverterException {
+    private static boolean isOSGiBundle(Path jaFilePath) throws IOException, CarbonToolException {
         boolean hasSymbolicName, hasVersion;
         try (FileSystem zipFileSystem = BundleGeneratorUtils.createZipFileSystem(jaFilePath, false)) {
             Path manifestPath = zipFileSystem.getPath(Constants.JAR_MANIFEST_FOLDER, Constants.MANIFEST_FILE_NAME);
@@ -171,12 +174,12 @@ public class BundleGeneratorUtils {
      * @param jarFile    the JAR file to be bundled
      * @param bundlePath the directory into which the created OSGi bundlePath needs to be placed into
      * @param manifest   the OSGi bundlePath manifest file
-     * @throws IOException                   if an I/O error occurs while reading the JAR or generating the bundlePath
-     * @throws JarToBundleConverterException if JAR file cannot be copied to the temporary directory or if an error
-     *                                       occurs when archiving the final bundlePath directory
+     * @throws IOException         if an I/O error occurs while reading the JAR or generating the bundlePath
+     * @throws CarbonToolException if JAR file cannot be copied to the temporary directory or if an error
+     *                             occurs when archiving the final bundlePath directory
      */
     public static void createBundle(Path jarFile, Path bundlePath, Manifest manifest)
-            throws IOException, JarToBundleConverterException {
+            throws IOException, CarbonToolException {
         Path tempJarFilePathHolder = jarFile.getFileName();
         if (tempJarFilePathHolder != null) {
             if (manifest != null) {
@@ -190,8 +193,8 @@ public class BundleGeneratorUtils {
                 p2InfFile.toFile().deleteOnExit();
 
                 try (OutputStream manifestOutputStream = Files.newOutputStream(manifestFile);
-                        OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
-                        FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
+                     OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
+                     FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
                     manifest.write(manifestOutputStream);
                     logger.log(Level.FINE,
                             "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " + jarFile.toString());
@@ -217,12 +220,10 @@ public class BundleGeneratorUtils {
                     delete(manifestFile);
                 }
             } else {
-                String message = "Manifest cannot refer to null.";
-                throw new JarToBundleConverterException(message);
+                throw new CarbonToolException("Manifest cannot refer to null");
             }
         } else {
-            String message = "Path representing the JAR file name has zero elements.";
-            throw new JarToBundleConverterException(message);
+            throw new CarbonToolException("Path representing the JAR file name has zero elements");
         }
     }
 
@@ -270,10 +271,10 @@ public class BundleGeneratorUtils {
      *
      * @param jarFile the JAR file of which the package name list is to be returned
      * @return a {@link List} of {@link String} Java package names within the JAR file
-     * @throws IOException                   if an I/O error occurs
-     * @throws JarToBundleConverterException if an error occurs when retrieving child content from the {@code jarFile}
+     * @throws IOException         if an I/O error occurs
+     * @throws CarbonToolException if an error occurs when retrieving child content from the {@code jarFile}
      */
-    public static List<String> listPackages(Path jarFile) throws IOException, JarToBundleConverterException {
+    public static List<String> listPackages(Path jarFile) throws IOException, CarbonToolException {
         List<String> exportedPackagesList = new ArrayList<>();
         List<Path> content = BundleGeneratorUtils.listZipFileContent(jarFile);
         content.forEach(zipChild -> {
@@ -301,12 +302,12 @@ public class BundleGeneratorUtils {
      *
      * @param zipFilePath the {@link Path} to the .zip or .jar file
      * @return a list of content in the .zip or .jar file in the form of a {@link List} of {@link Path} instances
-     * @throws IOException                   if an I/O error occurs
-     * @throws JarToBundleConverterException if a non-existent {@link Path} instance or a {@link Path} instance of
-     *                                       invalid file format is given or if the {@link Path} representing the zip
-     *                                       file name has zero elements
+     * @throws IOException         if an I/O error occurs
+     * @throws CarbonToolException if a non-existent {@link Path} instance or a {@link Path} instance of
+     *                             invalid file format is given or if the {@link Path} representing the zip
+     *                             file name has zero elements
      */
-    public static List<Path> listZipFileContent(Path zipFilePath) throws IOException, JarToBundleConverterException {
+    public static List<Path> listZipFileContent(Path zipFilePath) throws IOException, CarbonToolException {
         List<Path> zipFileContent = new ArrayList<>();
         if (Files.exists(zipFilePath)) {
             Path zipFileName = zipFilePath.getFileName();
@@ -333,13 +334,13 @@ public class BundleGeneratorUtils {
                         });
                     }
                 } else {
-                    String message = "Path zipFilePath may not exist or may not refer to a .zip or .jar file.";
-                    throw new JarToBundleConverterException(message);
+                    String message = "Path zipFilePath may not exist or may not refer to a .zip or .jar file";
+                    throw new CarbonToolException(message);
                 }
             }
         } else {
-            String message = "Path represented by the zipFilePath does not exist.";
-            throw new JarToBundleConverterException(message);
+            String message = "Path represented by the zipFilePath does not exist";
+            throw new CarbonToolException(message);
         }
         return zipFileContent;
     }
@@ -351,12 +352,12 @@ public class BundleGeneratorUtils {
      *                    instance is to be created
      * @param create      true if a .zip or .jar file is to be created at the specified {@link Path}, else false
      * @return the new {@code FileSystem} instance for the .zip or .jar file specified
-     * @throws IOException                   if an I/O error occurs, when creating the file system
-     * @throws JarToBundleConverterException if the specified {@link Path} file format is not .zip or .jar or
-     *                                       if the {@link Path} representing the zip file name has zero elements
+     * @throws IOException         if an I/O error occurs, when creating the file system
+     * @throws CarbonToolException if the specified {@link Path} file format is not .zip or .jar or
+     *                             if the {@link Path} representing the zip file name has zero elements
      */
     public static FileSystem createZipFileSystem(Path zipFilePath, boolean create)
-            throws IOException, JarToBundleConverterException {
+            throws IOException, CarbonToolException {
         Path zipFileName = zipFilePath.getFileName();
         if (zipFileName != null) {
             if ((zipFileName.toString().endsWith(Constants.ZIP_FILE_EXTENSION)) || (zipFileName.toString().
@@ -372,13 +373,12 @@ public class BundleGeneratorUtils {
                 URI zipFileIURI = URI.create("jar:file:" + zipFilePath.toUri().getPath());
                 return FileSystems.newFileSystem(zipFileIURI, bundleJarProperties);
             } else {
-                String message = "Path zipFilePath does not refer to a .zip or .jar file.";
-                throw new JarToBundleConverterException(message);
+                String message = "Path zipFilePath does not refer to a .zip or .jar file";
+                throw new CarbonToolException(message);
             }
         } else {
-            String message = "Path representing the zip file name has zero elements.";
-            throw new JarToBundleConverterException(message);
+            String message = "Path representing the zip file name has zero elements";
+            throw new CarbonToolException(message);
         }
     }
-
 }

@@ -25,8 +25,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tool-test-artifact</artifactId>
     <packaging>jar</packaging>
-    <name>WSO2 Carbon Kernel - Test Artifacts for Tools</name>
+    <name>WSO2 Carbon Kernel - Tools - Test Artifacts</name>
     <description>A sample test artifact for testing org.wso2.carbon.tools.core module</description>
     <url>http://wso2.com</url>
-    
+   
 </project>

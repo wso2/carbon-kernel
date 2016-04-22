@@ -15,7 +15,8 @@
  limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -80,6 +81,18 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <equinox.osgi.version>${equinox.osgi.version}</equinox.osgi.version>
+                        <equinox.simpleconfigurator.version>${equinox.simpleconfigurator.version}
+                        </equinox.simpleconfigurator.version>
+                        <equinox.util.version>${equinox.util.version}</equinox.util.version>
+                        <equinox.launcher.version>${equinox.launcher.version}</equinox.launcher.version>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
@@ -88,7 +101,7 @@
                 <executions>
                     <execution>
                         <id>copy-plugins</id>
-                        <phase>compile</phase>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>copy</goal>
                         </goals>
@@ -108,7 +121,9 @@
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
                                     <outputDirectory>${basedir}/target/carbon-home/osgi/plugins</outputDirectory>
-                                    <destFileName>org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar</destFileName>
+                                    <destFileName>
+                                        org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
+                                    </destFileName>
                                 </artifactItem>
                                 <!-- artifacts for dropins tests -->
                                 <artifactItem>

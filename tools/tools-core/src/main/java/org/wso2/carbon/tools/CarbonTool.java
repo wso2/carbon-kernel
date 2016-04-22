@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,18 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.test.implementation;
-
-import org.wso2.carbon.test.interfaces.Greeting;
+package org.wso2.carbon.tools;
 
 /**
- * A Java class implementing the Greeting.java interface.
+ * This is a Java interface which has to be implemented by any WSO2 Carbon optional tool.
  *
- * @since 5.0.0
+ * @since 5.1.0
  */
-public class HelloWorld implements Greeting {
-    @Override
-    public String welcome(String greeting) {
-        return greeting + " my friend!!!";
-    }
+public interface CarbonTool {
+    /**
+     * Executes the tool based on the arguments provided.
+     *
+     * @param toolArgs the arguments needed for the tool to function (optional)
+     */
+    void execute(String... toolArgs);
 }
