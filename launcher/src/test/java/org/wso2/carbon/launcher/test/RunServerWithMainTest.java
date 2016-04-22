@@ -28,10 +28,12 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
 public class RunServerWithMainTest extends BaseTest {
     private Logger logger;
     private File logFile;
+    private String os;
 
 
     @BeforeClass
     public void init() {
+        os = System.getProperty("os.name");
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
         logger = Logger.getLogger(CarbonServerStartTest.class.getName());
@@ -47,32 +49,36 @@ public class RunServerWithMainTest extends BaseTest {
 
     @Test(dependsOnMethods = {"stopMainThreadTestCase"})
     public void startCarbonServerTestCase() {
-        new Thread() {
-            public void run() {
-                Main.main(new String[]{});
-            }
-        }.start();
+        if (!os.toLowerCase().contains("windows")) {
+            new Thread() {
+                public void run() {
+                    Main.main(new String[]{});
+                }
+            }.start();
+        }
     }
 
     @Test
     public void stopMainThreadTestCase() {
-        new Thread() {
-            public void run() {
-                try {
-                    while (readPID() == null) {
-                        sleep(100);
+        if (!os.toLowerCase().contains("windows")) {
+            new Thread() {
+                public void run() {
+                    try {
+                        while (readPID() == null) {
+                            sleep(100);
+                        }
+                        String pid = readPID();
+                        Assert.assertNotNull(pid);
+                        String cmd = "taskkill /F /PID " + pid;
+                        Runtime.getRuntime().exec(cmd);
+                    } catch (InterruptedException e) {
+                        logger.warning("Error while calling thread.sleep");
+                    } catch (IOException e) {
+                        //Issue in terminating task with pid
                     }
-                    String pid = readPID();
-                    Assert.assertNotNull(pid);
-                    String cmd = "taskkill /F /PID " + pid;
-                    Runtime.getRuntime().exec(cmd);
-                } catch (InterruptedException e) {
-                    logger.warning("Error while calling thread.sleep");
-                } catch (IOException e) {
-                    //Issue in terminating task with pid
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
 
     private String readPID() {
