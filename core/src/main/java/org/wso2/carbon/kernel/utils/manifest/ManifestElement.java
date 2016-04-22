@@ -347,8 +347,8 @@ public class ManifestElement {
         while (true) {
             String next = tokenizer.getString(";,");
             if (next == null) {
-                throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                        header + "Value: " + value);
+                throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header : " +
+                        header + ", Value: " + value);
             }
             StringBuilder headerValue = new StringBuilder(next);
 
@@ -361,7 +361,7 @@ public class ManifestElement {
                 next = tokenizer.getString(";,=:");
                 if (next == null) {
                     throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                            header + "Value: " + value);
+                            header + ", Value: " + value);
                 }
                 c = tokenizer.getChar();
                 while (c == ':') { // may not really be a :=
@@ -370,7 +370,7 @@ public class ManifestElement {
                         String restOfNext = tokenizer.getToken(";,=:");
                         if (restOfNext == null) {
                             throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                                    header + "Value: " +
+                                    header + ", Value: " +
                                     value);
                         }
                         next = next.concat(":" + c + restOfNext);
@@ -395,7 +395,7 @@ public class ManifestElement {
                         String restOfNext = tokenizer.getToken("=:");
                         if (restOfNext == null) {
                             throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                                    header + "Value: " +
+                                    header + ", Value: " +
                                     value);
                         }
                         next = next.concat(":" + c + restOfNext);
@@ -420,7 +420,7 @@ public class ManifestElement {
                 String val = tokenizer.getString(";,", preserveEscapes);
                 if (val == null) {
                     throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                            header + "Value: " + value);
+                            header + ", Value: " + value);
                 }
 
                 logger.debug(";" + next + "=" + val);
@@ -433,14 +433,14 @@ public class ManifestElement {
                     directive = false;
                 } catch (Exception e) {
                     throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                            header + "Value: " + value);
+                            header + ", Value: " + value);
                 }
                 c = tokenizer.getChar();
                 if (c == ';') /* more */ {
                     next = tokenizer.getToken("=:");
                     if (next == null) {
                         throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                                header + "Value: " +
+                                header + ", Value: " +
                                 value);
                     }
                     c = tokenizer.getChar();
@@ -454,7 +454,7 @@ public class ManifestElement {
                 break;
             }
             throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
-                    header + "Value: " + value);
+                    header + ", Value: " + value);
         }
         int size = headerElements.size();
         if (size == 0) {
