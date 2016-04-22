@@ -133,7 +133,7 @@
                         <Bundle-Activator>org.wso2.carbon.user.core.internal.Activator
                         </Bundle-Activator>
                         <Private-Package>org.wso2.carbon.user.core.internal, org.wso2.carbon.user.core.jdbc.caseinsensitive,
-                            org.wso2.carbon.user.core.constants</Private-Package>
+                            org.wso2.carbon.user.core.constants, org.wso2.carbon.user.core.claim.inmemory</Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.user.core.internal,
                             !org.wso2.carbon.user.core.jdbc.caseinsensitive,

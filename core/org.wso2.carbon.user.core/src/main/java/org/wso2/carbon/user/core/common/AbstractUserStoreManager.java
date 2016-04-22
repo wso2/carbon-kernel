@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
@@ -120,6 +121,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return Boolean.FALSE;
         }
     };
+
+    private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
+        if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
+            this.claimManager = claimManager;
+        } else {
+            throw new IllegalAccessException("Set claim manager is not allowed");
+        }
+    }
 
     /**
      * This method is used by the APIs' in the AbstractUserStoreManager
