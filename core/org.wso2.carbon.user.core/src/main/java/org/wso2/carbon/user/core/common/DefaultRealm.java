@@ -88,7 +88,7 @@ public class DefaultRealm implements UserRealm {
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
             if (UserStoreMgtDSComponent.getClaimManagerFactory() != null) {
-                claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().getClaimManager(tenantId);
+                claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().createClaimManager(tenantId);
             } else {
                 claimMan = new InMemoryClaimManager();
             }
@@ -116,7 +116,7 @@ public class DefaultRealm implements UserRealm {
 
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
             if (UserStoreMgtDSComponent.getClaimManagerFactory() != null) {
-                claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().getClaimManager(tenantId);
+                claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().createClaimManager(tenantId);
             } else {
                 claimMan = new InMemoryClaimManager();
             }

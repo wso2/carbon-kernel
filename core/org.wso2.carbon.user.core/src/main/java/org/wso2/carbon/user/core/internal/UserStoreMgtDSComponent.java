@@ -128,8 +128,8 @@ public class UserStoreMgtDSComponent {
     protected void setClaimManagerFactory(ClaimManagerFactory claimManagerFactory) {
         this.claimManagerFactory = claimManagerFactory;
         try {
-            if (claimManagerFactory.getClaimManager(MultitenantConstants.SUPER_TENANT_ID) != null) {
-                ClaimManager claimManager = claimManagerFactory.getClaimManager(MultitenantConstants.SUPER_TENANT_ID);
+            if (claimManagerFactory.createClaimManager(MultitenantConstants.SUPER_TENANT_ID) != null) {
+                ClaimManager claimManager = claimManagerFactory.createClaimManager(MultitenantConstants.SUPER_TENANT_ID);
                 setClaimManager(realmService.getBootstrapRealm(), claimManager);
                 setClaimManager(realmService.getBootstrapRealm().getUserStoreManager(), claimManager);
                 RealmConfiguration secondaryRealmConfiguration = realmService.getBootstrapRealm()

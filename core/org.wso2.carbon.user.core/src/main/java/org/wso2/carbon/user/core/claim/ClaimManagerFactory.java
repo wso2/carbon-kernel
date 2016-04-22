@@ -26,6 +26,6 @@ public interface ClaimManagerFactory {
      * @param tenantId
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    ClaimManager getClaimManager(int tenantId);
+    ClaimManager createClaimManager(int tenantId);
 
 }
