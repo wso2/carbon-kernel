@@ -107,7 +107,11 @@ public class DropinsBundleDeployerUtils {
             children.parallel().forEach(child -> {
                 try {
                     logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
-                    getNewBundleInfo(child).ifPresent(newBundleInfoLines::add);
+                    getNewBundleInfo(child).ifPresent(bundleInfo -> {
+                        if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
+                            newBundleInfoLines.add(bundleInfo);
+                        }
+                    });
                     logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
                 } catch (IOException e) {
                     throw new RuntimeException("Error when loading the OSGi bundle information from " + child, e);
@@ -180,26 +184,27 @@ public class DropinsBundleDeployerUtils {
      * existing bundles.info file, specified. If the OSGi bundle information of dropins bundles are matching,
      * there is no requirement to update the bundles.info file, again.
      *
-     * @param newBundleInfo           the new OSGi bundle information
+     * @param newBundlesInfo          the new OSGi bundle information
      * @param existingBundlesInfoFile the existing bundles.info file to be checked
      * @return true if the specified bundles.info file requires to be updated, else false
      * @throws IOException if an I/O error occurs
      */
-    public static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundleInfo, Path existingBundlesInfoFile)
+    public static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundlesInfo, Path existingBundlesInfoFile)
             throws IOException {
         if ((existingBundlesInfoFile != null) && (Files.exists(existingBundlesInfoFile))) {
-            List<BundleInfo> existingBundlesInfo = new ArrayList<>();
-            Files.readAllLines(existingBundlesInfoFile).stream().
-                    filter(line -> !line.startsWith("#")).
-                    map(BundleInfo::getInstance).
-                    filter(BundleInfo::isFromDropins).forEach(existingBundlesInfo::add);
+            List<BundleInfo> existingDropinsBundleInfo = Files.readAllLines(existingBundlesInfoFile)
+                    .stream()
+                    .filter(line -> !line.startsWith("#"))
+                    .map(BundleInfo::getInstance)
+                    .filter(BundleInfo::isFromDropins)
+                    .collect(Collectors.toList());
 
-            long newBundleInfoCount = Optional.ofNullable(newBundleInfo).orElse(new ArrayList<>()).size();
-            if (existingBundlesInfo.size() == newBundleInfoCount) {
-                long nonMatchingBundleInfoCount = Optional.ofNullable(newBundleInfo).
-                        orElse(new ArrayList<>()).stream().
-                        filter(info -> existingBundlesInfo.stream().filter(existingInfo -> existingInfo.equals(info)).
-                                count() == 0).count();
+            List<BundleInfo> newBundleInfoList = Optional.ofNullable(newBundlesInfo).orElse(new ArrayList<>());
+            if (existingDropinsBundleInfo.size() == newBundleInfoList.size()) {
+                long nonMatchingBundleInfoCount = newBundleInfoList
+                        .stream()
+                        .filter(bundleInfo -> !bundleInfoExists(bundleInfo, existingDropinsBundleInfo))
+                        .count();
                 return nonMatchingBundleInfoCount > 0;
             } else {
                 return true;
@@ -211,6 +216,9 @@ public class DropinsBundleDeployerUtils {
 
     /**
      * Merges the information on the current set of OSGi bundle(s) that may reside within the dropins folder.
+     * <p>
+     * Each new OSGi bundle is checked if it is already defined within the specified, existing bundles.info
+     * file from any other bundle locations (non-dropins)
      *
      * @param newBundleInfo       the OSGi bundle information on the current set of bundles that reside within the
      *                            dropins folder
@@ -222,11 +230,19 @@ public class DropinsBundleDeployerUtils {
     public static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundleInfo, Path bundlesInfoFilePath)
             throws IOException {
         if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
-            List<BundleInfo> effectiveBundleInfo = Files.readAllLines(bundlesInfoFilePath).stream().
-                    filter(line -> !line.startsWith("#")).
-                    map(BundleInfo::getInstance).
-                    filter(info -> !info.isFromDropins()).collect(Collectors.toList());
-            newBundleInfo.stream().forEach(effectiveBundleInfo::add);
+            List<BundleInfo> effectiveBundleInfo = Files.readAllLines(bundlesInfoFilePath)
+                    .stream()
+                    .filter(line -> !line.startsWith("#"))
+                    .map(BundleInfo::getInstance)
+                    //  filter all non-dropins, OSGi bundle information
+                    .filter(info -> !info.isFromDropins())
+                    .collect(Collectors.toList());
+
+            newBundleInfo
+                    .stream()
+                    //  filter OSGi bundles of dropins directory, which are not equal to any non-dropins, OSGi bundles
+                    .filter(bundle -> !bundleInfoExists(bundle, effectiveBundleInfo))
+                    .forEach(effectiveBundleInfo::add);
 
             return effectiveBundleInfo;
         } else {
@@ -246,12 +262,29 @@ public class DropinsBundleDeployerUtils {
             Files.delete(bundlesInfoFilePath);
             if (info != null) {
                 List<String> bundleInfoLines = new ArrayList<>();
-                info.stream().forEach(information -> bundleInfoLines.add(information.toString()));
+                info.stream()
+                        .forEach(information -> bundleInfoLines.add(information.toString()));
                 Files.write(bundlesInfoFilePath, bundleInfoLines);
             }
         } else {
             throw new IOException("Invalid or non-existing file path: " + bundlesInfoFilePath);
         }
+    }
+
+    /**
+     * Returns whether the specified OSGi bundle information matches with any of the OSGi bundle information
+     * within the specified list.
+     *
+     * @param bundleInfo  the OSGi bundle of which the information are to be compared
+     * @param bundlesInfo a list of OSGi bundle information
+     * @return true if the specified OSGi bundle information matches with any of the OSGi bundle information
+     * within the specified list, else false
+     */
+    private static boolean bundleInfoExists(BundleInfo bundleInfo, List<BundleInfo> bundlesInfo) {
+        return (bundleInfo != null) &&
+                Optional.ofNullable(bundlesInfo).orElse(new ArrayList<>())
+                        .stream()
+                        .anyMatch(bundle -> (bundleInfo.equals(bundle)));
     }
 
     /**
@@ -267,8 +300,9 @@ public class DropinsBundleDeployerUtils {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
 
-            profiles.parallel().forEach(profile -> Optional.ofNullable(profile.getFileName()).
-                    ifPresent(name -> profileNames.add(name.toString())));
+            profiles.parallel()
+                    .forEach(profile -> Optional.ofNullable(profile.getFileName())
+                            .ifPresent(name -> profileNames.add(name.toString())));
 
             return profileNames;
         } else {
