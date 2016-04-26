@@ -88,8 +88,8 @@ public class DropinsBundleDeployerUtils {
             logger.log(Level.INFO,
                     "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
         } else {
-            logger.log(Level.INFO, "No changes detected in the dropins directory, skipped the OSGi bundle information "
-                    + "update for Carbon Profile: " + carbonProfile);
+            logger.log(Level.INFO, "No changes detected in the dropins directory in comparison with the profile, " +
+                    "skipped the OSGi bundle information update for Carbon Profile: " + carbonProfile);
         }
     }
 
@@ -280,7 +280,7 @@ public class DropinsBundleDeployerUtils {
      * @return true if the specified OSGi bundle information matches with any of the OSGi bundle information
      * within the specified list, else false
      */
-    private static boolean bundleInfoExists(BundleInfo bundleInfo, List<BundleInfo> bundlesInfo) {
+    public static boolean bundleInfoExists(BundleInfo bundleInfo, List<BundleInfo> bundlesInfo) {
         return (bundleInfo != null) &&
                 Optional.ofNullable(bundlesInfo).orElse(new ArrayList<>())
                         .stream()

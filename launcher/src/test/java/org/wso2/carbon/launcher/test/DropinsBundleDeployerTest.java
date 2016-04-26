@@ -69,8 +69,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path bundlesInfo = Paths
-                .get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
+        Path bundlesInfo = Paths.
+                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
                         "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
@@ -103,9 +103,13 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempt loading the Carbon profile names", priority = 3)
     public void testLoadingCarbonProfiles() throws IOException {
         List<String> actual = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
-        boolean matching = ((profileNames.stream().
-                filter(expectedName -> actual.stream().
-                        filter(expectedName::equals).count() == 1)).count() == profileNames.size());
+        boolean matching = ((profileNames
+                .stream()
+                .filter(expectedName -> actual
+                        .stream()
+                        .filter(expectedName::equals)
+                        .count() == 1))
+                .count() == profileNames.size());
         Assert.assertTrue(matching);
     }
 
@@ -148,6 +152,11 @@ public class DropinsBundleDeployerTest extends BaseTest {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
     }
 
+    @Test(description = "Attempts to check the existence of null BundleInfo instance", priority = 3)
+    public void testCheckingBundlesInfoExistenceForInvalidBundle() {
+        Assert.assertFalse(DropinsBundleDeployerUtils.bundleInfoExists(null, new ArrayList<>()));
+    }
+
     /**
      * Utility functions for dropins unit-tests.
      */
@@ -156,12 +165,16 @@ public class DropinsBundleDeployerTest extends BaseTest {
         profileNames.add(Constants.DEFAULT_PROFILE);
         profileNames.add(profileMSS);
 
+        List<String> defaultBundlesInfoContent = new ArrayList<>();
+        defaultBundlesInfoContent.add("#version=1");
+
         for (String profileName : profileNames) {
-            Path profile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
-                    profileName, "configuration", "org.eclipse.equinox.simpleconfigurator");
+            Path profile = Paths.
+                    get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName, "configuration",
+                            "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {
-                Files.createFile(Paths.get(profile.toString(), bundlesInfoFile));
+                Files.write(Paths.get(profile.toString(), bundlesInfoFile), defaultBundlesInfoContent);
             }
         }
     }
@@ -199,7 +212,9 @@ public class DropinsBundleDeployerTest extends BaseTest {
         if ((bundleInfoFile != null) && (Files.exists(bundleInfoFile))) {
             List<String> bundleInfoLines = Files.readAllLines(bundleInfoFile);
             List<BundleInfo> bundleInfo = new ArrayList<>();
-            bundleInfoLines.stream().forEach(line -> bundleInfo.add(BundleInfo.getInstance(line)));
+            bundleInfoLines
+                    .stream()
+                    .forEach(line -> bundleInfo.add(BundleInfo.getInstance(line)));
 
             return bundleInfo;
         } else {
@@ -208,9 +223,13 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     private static boolean compareBundleInfo(List<BundleInfo> expected, List<BundleInfo> actual) {
-        return (expected.size() == actual.size()) && ((expected.stream().filter(bundleInfo ->
-                actual.stream().filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1).count())
-                == expected.size());
+        return (expected.size() == actual.size()) &&
+                ((expected
+                        .stream()
+                        .filter(bundleInfo -> actual
+                                .stream()
+                                .filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1)
+                        .count()) == expected.size());
     }
 
     private static boolean delete(Path path) throws IOException {
