@@ -24,6 +24,9 @@
 <%@page import="java.text.MessageFormat"%>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.List" %>
 <%
     String forwardTo = null;
     String serviceName = (String) session.getAttribute("serviceName");
@@ -53,21 +56,47 @@
         } else {
 
             String policyPath = request.getParameter("policyPath");
-            String[] userGroups = request.getParameterValues("userGroups");
+            List<String> userGroupsList = new ArrayList<String>();
+
+            Map<String, Boolean> checkBoxMap = (Map<String, Boolean>) session.getAttribute("checkedRolesMap");
+
+            String[] userGroupsWithNoPagination = request.getParameterValues("userGroups");
+            Map<String, Boolean> groupsInPage = (Map<String, Boolean>) session.getAttribute("groupsInPage");
+
+            if(userGroupsWithNoPagination != null && userGroupsWithNoPagination.length != 0 && groupsInPage != null
+                    && groupsInPage.size() != 0) {
+                for(String groupName : userGroupsWithNoPagination) {
+                    groupsInPage.put(groupName.toLowerCase(), true);
+                }
+            }
+
+            if(groupsInPage != null && groupsInPage.size() != 0) {
+                for (Map.Entry<String, Boolean> entry : groupsInPage.entrySet()) {
+                    checkBoxMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            for (Map.Entry<String, Boolean> entry : checkBoxMap.entrySet()) {
+                if (entry.getValue().equals(Boolean.TRUE)) {
+                    userGroupsList.add(entry.getKey());
+                }
+            }
+            String[] userGroups = new String[userGroupsList.size()];
+            userGroups = userGroupsList.toArray(userGroups);
             String privateStore = request.getParameter("privateStore");
             String[] trustedStores = request.getParameterValues("trustStore");
             client.applySecurity(serviceName, scenarioId, policyPath, trustedStores, privateStore, userGroups);
 
         }
-        
+
         String message = resourceBundle.getString("security.add");
         forwardTo = "../service-mgt/service_info.jsp?serviceName=" + serviceName;
-        
+
         if (specificPath!=null && specificPath.trim().length()>0){
         	forwardTo = specificPath +"?serviceName=" + Encode.forUriComponent(serviceName);
         	session.removeAttribute("returToPath");
         }
-        
+
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
     } catch (Exception e) {
 	    String message = MessageFormat.format(resourceBundle.getString("security.cannot.add"),
@@ -75,7 +104,7 @@
         forwardTo = "index.jsp?ordinal=2&serviceName=" + Encode.forUriComponent(serviceName);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
-    
+
 %>
 <script type="text/javascript">
     function forward() {
