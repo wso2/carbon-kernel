@@ -342,8 +342,8 @@
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
-        <version.tomcat>7.0.59</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v3</orbit.version.tomcat>
+        <version.tomcat>7.0.69</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1
         </orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
@@ -426,7 +426,6 @@
         <version.xml.resolver>1.2</version.xml.resolver>
         <version.jsr311.api>1.0</version.jsr311.api>
         <version.javax.el>2.2.0.v201108011116</version.javax.el>
-        <version.authenticator>0.7.0.wso2v1</version.authenticator>
         <javasysmon.version>0.3.3.wso2v1</javasysmon.version>
         <zookeeper.version>3.3.5.wso2v1</zookeeper.version>
         <wagon.ssh.version>2.1</wagon.ssh.version>
@@ -979,11 +978,6 @@
                 <groupId>net.sf.ehcache.wso2</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${version.ehcache}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.commons.wso2</groupId>
-                <artifactId>authenticator</artifactId>
-                <version>version.authenticator</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
