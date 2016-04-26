@@ -87,8 +87,8 @@ public class BundleGeneratorUtils {
                 if (manifest == null) {
                     manifest = new Manifest();
                 }
-                String exportedPackages = BundleGeneratorUtils
-                        .generateExportPackageList(BundleGeneratorUtils.listPackages(jarFile));
+                String exportedPackages = BundleGeneratorUtils.
+                        generateExportPackageList(BundleGeneratorUtils.listPackages(jarFile));
                 fileName = fileName.replaceAll("-", "_");
                 fileName = fileName.substring(0, fileName.length() - 4);
                 String symbolicName = extensionPrefix + fileName;
