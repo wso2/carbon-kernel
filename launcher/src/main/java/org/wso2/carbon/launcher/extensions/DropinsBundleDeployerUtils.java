@@ -104,19 +104,22 @@ public class DropinsBundleDeployerUtils {
         List<BundleInfo> newBundleInfoLines = new ArrayList<>();
         if ((sourceDirectory != null) && (Files.exists(sourceDirectory))) {
             Stream<Path> children = Files.list(sourceDirectory);
-            children.parallel().forEach(child -> {
-                try {
-                    logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
-                    getNewBundleInfo(child).ifPresent(bundleInfo -> {
-                        if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
-                            newBundleInfoLines.add(bundleInfo);
+            children
+                    .parallel()
+                    .forEach(child -> {
+                        try {
+                            logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
+                            getNewBundleInfo(child).ifPresent(bundleInfo -> {
+                                if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
+                                    newBundleInfoLines.add(bundleInfo);
+                                }
+                            });
+                            logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
+                        } catch (IOException e) {
+                            logger.log(Level.WARNING, "Error when loading the OSGi bundle information from " + child,
+                                    e);
                         }
                     });
-                    logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
-                } catch (IOException e) {
-                    throw new RuntimeException("Error when loading the OSGi bundle information from " + child, e);
-                }
-            });
         } else {
             throw new IOException("Invalid or non-existent OSGi bundle source directory: " + sourceDirectory);
         }
@@ -145,15 +148,13 @@ public class DropinsBundleDeployerUtils {
                     try (JarFile jarFile = new JarFile(bundlePath.toString())) {
                         Manifest manifest = jarFile.getManifest();
                         if ((manifest == null) || (manifest.getMainAttributes() == null)) {
-                            throw new IOException("Invalid OSGi bundle found in the " + Constants.DROPINS +
-                                    " directory: " + jarFile.toString());
+                            throw new IOException("Invalid OSGi bundle found in the " + Constants.DROPINS + " folder");
                         } else {
                             String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
                             String bundleVersion = manifest.getMainAttributes().getValue("Bundle-Version");
 
                             if (bundleSymbolicName == null || bundleVersion == null) {
-                                throw new IOException(
-                                        "Required bundle manifest headers do not exist in " + jarFile.toString());
+                                throw new IOException("Required bundle manifest headers do not exist");
                             } else {
                                 if (bundleSymbolicName.contains(";")) {
                                     bundleSymbolicName = bundleSymbolicName.split(";")[0];
@@ -300,7 +301,8 @@ public class DropinsBundleDeployerUtils {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
 
-            profiles.parallel()
+            profiles
+                    .parallel()
                     .forEach(profile -> Optional.ofNullable(profile.getFileName())
                             .ifPresent(name -> profileNames.add(name.toString())));
 

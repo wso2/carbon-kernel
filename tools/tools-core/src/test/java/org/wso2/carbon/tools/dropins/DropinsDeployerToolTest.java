@@ -67,7 +67,7 @@ public class DropinsDeployerToolTest {
     }
 
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile "
-            + "with a non-OSGi bundle in dropins", priority = 1, expectedExceptions = {RuntimeException.class})
+            + "with a non-OSGi bundle in dropins", priority = 1)
     public void testExecutingDropinsCapabilityWithANonOSGiJAR() throws CarbonToolException, IOException {
         Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
                 Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator");
@@ -82,6 +82,14 @@ public class DropinsDeployerToolTest {
         System.setProperty(org.wso2.carbon.tools.Constants.CARBON_TOOL_SYSTEM_PROPERTY, "dropins-deployer");
         String[] args = {Constants.DEFAULT_PROFILE, carbonHome.toString()};
         CarbonToolExecutor.main(args);
+
+        List<BundleInfo> expected = getExpectedBundleInfo();
+        Path defaultBundleInfo = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+                Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator",
+                Constants.BUNDLES_INFO);
+
+        List<BundleInfo> actual = getActualBundleInfo(defaultBundleInfo);
+        Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile", priority = 2)
