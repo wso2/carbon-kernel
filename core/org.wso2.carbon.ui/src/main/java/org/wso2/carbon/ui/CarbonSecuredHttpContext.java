@@ -42,7 +42,7 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
     public static final String LOGGED_USER = CarbonConstants.LOGGED_USER;
     public static final String CARBON_AUTHNETICATOR = "CarbonAuthenticator";
-    private static final String CARBON_WEB_XML_PATH_PATTERN = "/carbon/WEB-INF/*";
+    private static final String CARBON_WEB_XML_PATH_PATTERN = "/carbon/WEB-INF";
 
     private static final Log log = LogFactory.getLog(CarbonSecuredHttpContext.class);
     private Bundle bundle = null;
