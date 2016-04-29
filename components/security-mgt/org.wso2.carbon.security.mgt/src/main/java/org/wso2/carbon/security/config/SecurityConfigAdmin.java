@@ -842,7 +842,7 @@ public class SecurityConfigAdmin {
             }
             carbonSecElement.addChild(kerberosElement);
         }
-        if (StringUtils.isNotEmpty(policyPath)) {
+        if (IdentityUtil.isNotBlank(policyPath)) {
             OMText policyPathValue = factory.createOMText(policyPathElement, policyPath);
             policyPathElement.addChild(policyPathValue);
             carbonSecElement.addChild(policyPathElement);
