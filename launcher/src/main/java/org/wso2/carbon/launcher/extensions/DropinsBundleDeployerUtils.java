@@ -200,7 +200,8 @@ public class DropinsBundleDeployerUtils {
                     .filter(BundleInfo::isFromDropins)
                     .collect(Collectors.toList());
 
-            List<BundleInfo> newBundleInfoList = Optional.ofNullable(newBundlesInfo).orElse(new ArrayList<>());
+            List<BundleInfo> newBundleInfoList = Optional.ofNullable(newBundlesInfo)
+                    .orElse(new ArrayList<>());
             if (existingDropinsBundleInfo.size() == newBundleInfoList.size()) {
                 long nonMatchingBundleInfoCount = newBundleInfoList
                         .stream()
@@ -283,7 +284,8 @@ public class DropinsBundleDeployerUtils {
      */
     public static boolean bundleInfoExists(BundleInfo bundleInfo, List<BundleInfo> bundlesInfo) {
         return (bundleInfo != null) &&
-                Optional.ofNullable(bundlesInfo).orElse(new ArrayList<>())
+                Optional.ofNullable(bundlesInfo)
+                        .orElse(new ArrayList<>())
                         .stream()
                         .anyMatch(bundle -> (bundleInfo.equals(bundle)));
     }
