@@ -161,6 +161,19 @@
         scenId = (String) session.getAttribute("scenarioId");
     }
 
+    /**
+     *  FIX for https://wso2.org/jira/browse/IDENTITY-4550
+     *  When securing a service using a policy from registry we select the policyPath by browsing the registry,
+     *  but once we try to select roles by searching in the next step, the page gets refreshed and the set policyPath
+     *  is lost. Therefore we need to put the policyPath in the session and retrieve from it.
+     */
+    if (registryPolicyPath != null) {
+        session.setAttribute("policyPath", registryPolicyPath);
+    } else {
+        registryPolicyPath = (String) session.getAttribute("policyPath");
+    }
+
+
     boolean kerberosScenario = false;
     KerberosConfigData kerberosConfigData = null;
 
