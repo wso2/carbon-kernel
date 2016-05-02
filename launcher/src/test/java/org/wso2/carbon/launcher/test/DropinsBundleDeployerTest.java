@@ -247,7 +247,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
     private static List<Path> listFiles(Path directory) throws IOException {
         List<Path> files = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-            directoryStream.forEach(files::add);
+            directoryStream
+                    .forEach(files::add);
         }
         return files;
     }

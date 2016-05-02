@@ -109,11 +109,12 @@ public class DropinsBundleDeployerUtils {
                     .forEach(child -> {
                         try {
                             logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
-                            getNewBundleInfo(child).ifPresent(bundleInfo -> {
-                                if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
-                                    newBundleInfoLines.add(bundleInfo);
-                                }
-                            });
+                            getNewBundleInfo(child)
+                                    .ifPresent(bundleInfo -> {
+                                        if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
+                                            newBundleInfoLines.add(bundleInfo);
+                                        }
+                                    });
                             logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
                         } catch (IOException e) {
                             logger.log(Level.WARNING, "Error when loading the OSGi bundle information from " + child,
@@ -121,7 +122,8 @@ public class DropinsBundleDeployerUtils {
                         }
                     });
         } else {
-            throw new IOException("Invalid or non-existent OSGi bundle source directory: " + sourceDirectory);
+            throw new IOException("Invalid OSGi bundle source directory. The specified path may not exist or " +
+                    "user may not have required file permissions for the specified path: " + sourceDirectory);
         }
 
         return newBundleInfoLines;
@@ -174,7 +176,8 @@ public class DropinsBundleDeployerUtils {
                 }
             }
         } else {
-            throw new IOException("Invalid or non-existent OSGi bundle path: " + bundlePath);
+            throw new IOException("Invalid OSGi bundle path. The specified path may not exist or " +
+                    "user may not have required file permissions for the specified path: " + bundlePath);
         }
     }
 
@@ -212,7 +215,8 @@ public class DropinsBundleDeployerUtils {
                 return true;
             }
         } else {
-            throw new IOException("Invalid or non-existent file path: " + existingBundlesInfoFile);
+            throw new IOException("Invalid file path. The specified path may not exist or " +
+                    "user may not have required file permissions for the specified path: " + existingBundlesInfoFile);
         }
     }
 
@@ -248,7 +252,8 @@ public class DropinsBundleDeployerUtils {
 
             return effectiveBundleInfo;
         } else {
-            throw new IOException("Invalid or non-existing file path: " + bundlesInfoFilePath);
+            throw new IOException("Invalid file path. The specified path may not exist or " +
+                    "user may not have required file permissions for the specified path: " + bundlesInfoFilePath);
         }
     }
 
@@ -269,7 +274,8 @@ public class DropinsBundleDeployerUtils {
                 Files.write(bundlesInfoFilePath, bundleInfoLines);
             }
         } else {
-            throw new IOException("Invalid or non-existing file path: " + bundlesInfoFilePath);
+            throw new IOException("Invalid file path. The specified path may not exist or " +
+                    "user may not have required file permissions for the specified path: " + bundlesInfoFilePath);
         }
     }
 

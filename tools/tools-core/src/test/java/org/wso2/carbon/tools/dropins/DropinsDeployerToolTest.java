@@ -167,9 +167,8 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability for an invalidly structured Profile bundles.info file "
             + "path. Dropins capability executed on a single Profile.", priority = 6)
     public void testExecutingDropinsCapabilityForInvalidBundlesInfoPath() throws IOException {
-        Path profile = Paths
-                .get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, appManagerProfile,
-                        "configuration", "org.eclipse.simpleconfigurator");
+        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+                appManagerProfile, "configuration", "org.eclipse.simpleconfigurator");
 
         String[] args = {appManagerProfile, carbonHome.toString()};
         CarbonToolExecutor.main(args);
@@ -182,9 +181,8 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability for an invalidly structured Profile bundles.info file "
             + "path. Dropins capability executed on multiple Profiles.", priority = 6)
     public void testExecutingDropinsCapabilityForMultipleProfilesWithInvalidBundlesInfoPath() throws IOException {
-        Path profile = Paths
-                .get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, appManagerProfile,
-                        "configuration", "org.eclipse.simpleconfigurator");
+        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+                appManagerProfile, "configuration", "org.eclipse.simpleconfigurator");
 
         String[] args = {allCarbonProfiles, carbonHome.toString()};
         CarbonToolExecutor.main(args);
