@@ -42,8 +42,8 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE)).
-                    orElse(Constants.DEFAULT_PROFILE);
+            String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE))
+                    .orElse(Constants.DEFAULT_PROFILE);
             try {
                 DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profile);
             } catch (IOException e) {
