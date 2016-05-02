@@ -37,6 +37,10 @@ public final class HazelcastConstants {
 
     public static final String CLUSTER_COORDINATOR_LOCK = "$coordinator#@lock";
 
+    public static final String CONFIG_XML_PATH_PROP = "hazelcast.config";
+
+    public static final String CONFIG_XML_NAME = "hazelcast.xml";
+
     private HazelcastConstants() {
     }
 }

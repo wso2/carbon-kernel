@@ -49,13 +49,18 @@ import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.SocketException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -69,6 +74,13 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
     private static final String MEMBERSHIP_SCHEME_CLASS_NAME = "membershipSchemeClassName";
     public static final String DEFAULT_SUB_DOMAIN = "__$default";
+
+    private static final int CONFIG_MODE_FILE = 0;
+    private static final int CONFIG_MODE_SYSPROP = 1;
+    private static final int CONFIG_MODE_AXIS2 = 2;
+
+    private static final Path DEFAULT_CONFIG_FILE_PATH = Paths.get(CarbonUtils.getCarbonHome(), "repository", "conf",
+            "etc", HazelcastConstants.CONFIG_XML_NAME);
 
     private Config primaryHazelcastConfig;
     private HazelcastInstance primaryHazelcastInstance;
@@ -104,61 +116,24 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     public void init() throws ClusteringFault {
         MemberUtils.init(parameters, configurationContext);
 
-        primaryHazelcastConfig = new Config();
-        setHazelcastProperties();
-
-        Parameter managementCenterURL = getParameter(HazelcastConstants.MGT_CENTER_URL);
-        if (managementCenterURL != null) {
-            primaryHazelcastConfig.getManagementCenterConfig().setEnabled(true).setUrl((String) managementCenterURL.getValue());
-        }
-
-        Parameter licenseKey = getParameter(HazelcastConstants.LICENSE_KEY);
-        if (licenseKey != null) {
-            primaryHazelcastConfig.setLicenseKey((String) licenseKey.getValue());
-        }
-
         primaryDomain = getClusterDomain();
-        primaryHazelcastConfig.setInstanceName(primaryDomain + ".instance");
         log.info("Cluster domain: " + primaryDomain);
-        GroupConfig groupConfig = primaryHazelcastConfig.getGroupConfig();
-        groupConfig.setName(primaryDomain);
-        Parameter memberPassword = getParameter(HazelcastConstants.GROUP_PASSWORD);
-        if (memberPassword != null) {
-            groupConfig.setPassword((String) memberPassword.getValue());
-        }
 
-        NetworkConfig nwConfig = primaryHazelcastConfig.getNetworkConfig();
-        Parameter localMemberHostParam = getParameter(HazelcastConstants.LOCAL_MEMBER_HOST);
-        String localMemberHost = "";
-        if (localMemberHostParam != null) {
-            localMemberHost = ((String) localMemberHostParam.getValue()).trim();
-            if ("127.0.0.1".equals(localMemberHost) || "localhost".equals(localMemberHost)) {
-                log.warn("localMemberHost is configured to use the loopback address. " +
-                        "Hazelcast Clustering needs ip addresses for localMemberHost and well-known members.");
-            }
-        } else {
+        int configMode = getHazelcastConfigMode();
+
+        if (configMode == CONFIG_MODE_FILE) {
             try {
-                localMemberHost = Utils.getIpAddress();
-            } catch (SocketException e) {
-                log.error("Could not set local member host", e);
+                primaryHazelcastConfig = (new XmlConfigBuilder(DEFAULT_CONFIG_FILE_PATH.toFile().getPath())).build();
+            } catch (FileNotFoundException e) {
+                String msg = "Error while building config from " + DEFAULT_CONFIG_FILE_PATH;
+                log.error(msg, e);
+                throw new ClusteringFault(msg);
             }
+        } else if (configMode == CONFIG_MODE_SYSPROP) {
+            primaryHazelcastConfig = null;
+        } else if (configMode == CONFIG_MODE_AXIS2) {
+            primaryHazelcastConfig = createConfigForAxis2Mode();
         }
-        nwConfig.setPublicAddress(localMemberHost);
-        int localMemberPort = 4000;
-        Parameter localMemberPortParam = getParameter(HazelcastConstants.LOCAL_MEMBER_PORT);
-        if (localMemberPortParam != null) {
-            localMemberPort = Integer.parseInt(((String) localMemberPortParam.getValue()).trim());
-        }
-        nwConfig.setPort(localMemberPort);
-
-        configureMembershipScheme(nwConfig);
-        MapConfig mapConfig = new MapConfig("carbon-map-config");
-        mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
-        if (licenseKey != null) {
-            mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        }
-        primaryHazelcastConfig.addMapConfig(mapConfig);
-        loadCustomHazelcastSerializers();
 
         if (clusterManagementMode) {
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
@@ -175,9 +150,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         log.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
         HazelcastCarbonClusterImpl hazelcastCarbonCluster = new HazelcastCarbonClusterImpl(primaryHazelcastInstance);
 
-        membershipScheme.setPrimaryHazelcastInstance(primaryHazelcastInstance);
-        membershipScheme.setCarbonCluster(hazelcastCarbonCluster);
-
         clusteringMessageTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
         clusteringMessageTopic.addMessageListener(new HazelcastClusterMessageListener(configurationContext,
                                                                                       recdMsgsBuffer, sentMsgsBuffer));
@@ -187,8 +159,14 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         controlCommandTopic.addMessageListener(new HazelcastControlCommandListener(configurationContext));
 
         Member localMember = primaryHazelcastInstance.getCluster().getLocalMember();
-        membershipScheme.setLocalMember(localMember);
-        membershipScheme.joinGroup();
+
+        if(configMode == CONFIG_MODE_AXIS2) {
+            membershipScheme.setPrimaryHazelcastInstance(primaryHazelcastInstance);
+            membershipScheme.setCarbonCluster(hazelcastCarbonCluster);
+            membershipScheme.setLocalMember(localMember);
+            membershipScheme.joinGroup();
+        }
+
         localMember = primaryHazelcastInstance.getCluster().getLocalMember();
         localMember.getInetSocketAddress().getPort();
         final org.apache.axis2.clustering.Member carbonLocalMember =
@@ -265,6 +243,85 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         log.info("Cluster initialization completed");
     }
 
+    /**
+     * Initialize Hazelcast configuration using axis2 clustering config.
+     */
+    private Config createConfigForAxis2Mode() throws ClusteringFault {
+        Config primaryHazelcastConfig = new Config();
+        setHazelcastProperties(primaryHazelcastConfig);
+
+        Parameter managementCenterURL = getParameter(HazelcastConstants.MGT_CENTER_URL);
+        if (managementCenterURL != null) {
+            primaryHazelcastConfig.getManagementCenterConfig().setEnabled(true).setUrl((String) managementCenterURL.getValue());
+        }
+
+        Parameter licenseKey = getParameter(HazelcastConstants.LICENSE_KEY);
+        if (licenseKey != null) {
+            primaryHazelcastConfig.setLicenseKey((String) licenseKey.getValue());
+        }
+
+        primaryHazelcastConfig.setInstanceName(primaryDomain + ".instance");
+        GroupConfig groupConfig = primaryHazelcastConfig.getGroupConfig();
+        groupConfig.setName(primaryDomain);
+        Parameter memberPassword = getParameter(HazelcastConstants.GROUP_PASSWORD);
+        if (memberPassword != null) {
+            groupConfig.setPassword((String) memberPassword.getValue());
+        }
+
+        NetworkConfig nwConfig = primaryHazelcastConfig.getNetworkConfig();
+        Parameter localMemberHostParam = getParameter(HazelcastConstants.LOCAL_MEMBER_HOST);
+        String localMemberHost = "";
+        if (localMemberHostParam != null) {
+            localMemberHost = ((String) localMemberHostParam.getValue()).trim();
+            if ("127.0.0.1".equals(localMemberHost) || "localhost".equals(localMemberHost)) {
+                log.warn("localMemberHost is configured to use the loopback address. " +
+                        "Hazelcast Clustering needs ip addresses for localMemberHost and well-known members.");
+            }
+        } else {
+            try {
+                localMemberHost = Utils.getIpAddress();
+            } catch (SocketException e) {
+                log.error("Could not set local member host", e);
+            }
+        }
+        nwConfig.setPublicAddress(localMemberHost);
+        int localMemberPort = 4000;
+        Parameter localMemberPortParam = getParameter(HazelcastConstants.LOCAL_MEMBER_PORT);
+        if (localMemberPortParam != null) {
+            localMemberPort = Integer.parseInt(((String) localMemberPortParam.getValue()).trim());
+        }
+        nwConfig.setPort(localMemberPort);
+
+        configureMembershipScheme(nwConfig, primaryHazelcastConfig);
+
+        MapConfig mapConfig = new MapConfig("carbon-map-config");
+        mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
+        if (licenseKey != null) {
+            mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        }
+        primaryHazelcastConfig.addMapConfig(mapConfig);
+
+        loadCustomHazelcastSerializers(primaryHazelcastConfig);
+
+        return primaryHazelcastConfig;
+    }
+
+    /**
+     * Identify the mode which Hazelcast configuration should be loaded.
+     */
+    private int getHazelcastConfigMode() {
+        if (Files.exists(DEFAULT_CONFIG_FILE_PATH)) {
+            return CONFIG_MODE_FILE;
+        } else {
+            String configPath = System.getProperty(HazelcastConstants.CONFIG_XML_PATH_PROP);
+            if(configPath != null && Files.exists(Paths.get(configPath))){
+                return CONFIG_MODE_SYSPROP;
+            }else{
+                return CONFIG_MODE_AXIS2;
+            }
+        }
+    }
+
     private void electCoordinatorNode() {
         isCoordinator = true;
         log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
@@ -292,7 +349,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
      *  &lt;serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer&lt;/serializer&gt;
      * &lt;/parameter&gt;
      */
-    private void loadCustomHazelcastSerializers() {
+    private void loadCustomHazelcastSerializers(Config primaryHazelcastConfig) {
         Parameter hazelcastSerializers = getParameter("hazelcastSerializers");
         if (hazelcastSerializers == null) {
             return;
@@ -330,7 +387,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
     }
 
-    private void setHazelcastProperties() {
+    private void setHazelcastProperties(Config primaryHazelcastConfig) {
         String hazelcastPropsFileName =
                 System.getProperty("carbon.home") + File.separator + "repository" +
                 File.separator + "conf" + File.separator + "hazelcast.properties";
@@ -376,7 +433,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         return domain;
     }
 
-    private void configureMembershipScheme(NetworkConfig nwConfig) throws ClusteringFault {
+    private void configureMembershipScheme(NetworkConfig nwConfig, Config primaryHazelcastConfig) throws ClusteringFault {
         String scheme = getMembershipScheme();
         log.info("Using " + scheme + " based membership management scheme");
         if (scheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
