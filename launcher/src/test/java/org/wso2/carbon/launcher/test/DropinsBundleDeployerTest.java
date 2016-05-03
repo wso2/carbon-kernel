@@ -96,7 +96,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        List<BundleInfo> actual = DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
+        List<BundleInfo> actual = DropinsBundleDeployerUtils.getBundlesInfo(dropins);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
@@ -117,13 +117,13 @@ public class DropinsBundleDeployerTest extends BaseTest {
             expectedExceptions = { IOException.class })
     public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
         Path dropins = Paths.get(carbonHome, dropinsDirectory);
-        DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
+        DropinsBundleDeployerUtils.getBundlesInfo(dropins);
     }
 
     @Test(description = "Attempts to load OSGi bundle information from a null folder path", priority = 3,
             expectedExceptions = { IOException.class })
     public void testGettingNewBundlesInfoFromInvalidFolder() throws IOException {
-        DropinsBundleDeployerUtils.getNewBundlesInfo(null);
+        DropinsBundleDeployerUtils.getBundlesInfo(null);
     }
 
     @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 3,

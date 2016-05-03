@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
 
-    private static List<BundleInfo> newBundlesInfo;
+    //  TODO: update comments
 
     /**
      * Updates the specified Carbon profile's bundles.info file based on the OSGi bundles deployed in the dropins
@@ -61,34 +61,36 @@ public class DropinsBundleDeployerUtils {
      * @param carbonProfile the bundles.info file to be updated
      * @throws IOException if an I/O error occurs
      */
-    public static synchronized void executeDropinsCapability(String carbonHome, String carbonProfile)
-            throws IOException {
-        Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.DROPINS);
-        Path bundlesInfoFile = Paths.
-                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, carbonProfile, "configuration",
-                        "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
-
-        if (newBundlesInfo == null) {
-            logger.log(Level.FINE, "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
-            newBundlesInfo = getNewBundlesInfo(dropinsDirectoryPath);
-            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
-                    " folder");
-        } else {
-            logger.log(Level.FINE, "The OSGi bundle information from " + Constants.DROPINS + " folder are " +
-                    "already loaded");
+    public static synchronized void installDropins(String carbonHome, String carbonProfile,
+            List<BundleInfo> bundlesInfo) throws IOException {
+        //  validate the arguments provided
+        if ((carbonHome == null) || (carbonHome.isEmpty())) {
+            throw new IllegalArgumentException("Carbon home specified is invalid");
         }
 
-        if (hasToUpdateBundlesInfoFile(newBundlesInfo, bundlesInfoFile)) {
-            logger.log(Level.INFO, "New file changes detected in " + Constants.DROPINS + " folder");
+        if ((carbonProfile == null) || (carbonProfile.isEmpty())) {
+            throw new IllegalArgumentException("Carbon Profile specified is invalid");
+        }
 
-            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundlesInfo, bundlesInfoFile);
+        if (bundlesInfo == null) {
+            throw new IllegalArgumentException("No new OSGi bundle information specified, for updating the " +
+                    "Carbon Profile: " + carbonProfile);
+        }
 
-            logger.log(Level.INFO, "Updating the OSGi bundle information of Carbon Profile: " + carbonProfile + "...");
+        Path bundlesInfoFile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+                carbonProfile, "configuration", "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
+
+        if (hasToUpdateBundlesInfoFile(bundlesInfo, bundlesInfoFile)) {
+            logger.log(Level.FINE, "New file changes detected in " + Constants.DROPINS + " folder");
+
+            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(bundlesInfo, bundlesInfoFile);
+
+            logger.log(Level.FINE, "Updating the OSGi bundle information of Carbon Profile: " + carbonProfile + "...");
             updateBundlesInfo(effectiveNewBundleInfo, bundlesInfoFile);
             logger.log(Level.INFO,
                     "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
         } else {
-            logger.log(Level.INFO, "No changes detected in the dropins directory in comparison with the profile, " +
+            logger.log(Level.FINE, "No changes detected in the dropins directory in comparison with the profile, " +
                     "skipped the OSGi bundle information update for Carbon Profile: " + carbonProfile);
         }
     }
@@ -100,7 +102,7 @@ public class DropinsBundleDeployerUtils {
      * @return the constructed {@link BundleInfo} instances list
      * @throws IOException if an I/O error occurs or if the {@code sourceDirectory} is invalid
      */
-    public static List<BundleInfo> getNewBundlesInfo(Path sourceDirectory) throws IOException {
+    public static List<BundleInfo> getBundlesInfo(Path sourceDirectory) throws IOException {
         List<BundleInfo> newBundleInfoLines = new ArrayList<>();
         if ((sourceDirectory != null) && (Files.exists(sourceDirectory))) {
             Stream<Path> children = Files.list(sourceDirectory);
@@ -109,7 +111,7 @@ public class DropinsBundleDeployerUtils {
                     .forEach(child -> {
                         try {
                             logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
-                            getNewBundleInfo(child)
+                            getBundleInfo(child)
                                     .ifPresent(bundleInfo -> {
                                         if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
                                             newBundleInfoLines.add(bundleInfo);
@@ -139,7 +141,7 @@ public class DropinsBundleDeployerUtils {
      * @return a {@link BundleInfo} instance
      * @throws IOException if an I/O error occurs or if an invalid {@code bundlePath} is found
      */
-    private static Optional<BundleInfo> getNewBundleInfo(Path bundlePath) throws IOException {
+    private static Optional<BundleInfo> getBundleInfo(Path bundlePath) throws IOException {
         if ((bundlePath != null) && (Files.exists(bundlePath))) {
             Path bundleFileName = bundlePath.getFileName();
             if (bundleFileName == null) {
