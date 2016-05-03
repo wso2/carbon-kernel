@@ -44,6 +44,7 @@ import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
+import org.wso2.carbon.core.clustering.hazelcast.general.GeneralMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
@@ -119,21 +120,8 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         primaryDomain = getClusterDomain();
         log.info("Cluster domain: " + primaryDomain);
 
-        int configMode = getHazelcastConfigMode();
-
-        if (configMode == CONFIG_MODE_FILE) {
-            try {
-                primaryHazelcastConfig = (new XmlConfigBuilder(DEFAULT_CONFIG_FILE_PATH.toFile().getPath())).build();
-            } catch (FileNotFoundException e) {
-                String msg = "Error while building config from " + DEFAULT_CONFIG_FILE_PATH;
-                log.error(msg, e);
-                throw new ClusteringFault(msg);
-            }
-        } else if (configMode == CONFIG_MODE_SYSPROP) {
-            primaryHazelcastConfig = null;
-        } else if (configMode == CONFIG_MODE_AXIS2) {
-            primaryHazelcastConfig = createConfigForAxis2Mode();
-        }
+        int configMode = getConfigMode();
+        primaryHazelcastConfig = loadHazelcastConfig(configMode);
 
         if (clusterManagementMode) {
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
@@ -164,6 +152,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             membershipScheme.setPrimaryHazelcastInstance(primaryHazelcastInstance);
             membershipScheme.setCarbonCluster(hazelcastCarbonCluster);
             membershipScheme.setLocalMember(localMember);
+            membershipScheme.joinGroup();
+        } else {
+            membershipScheme = new GeneralMembershipScheme(primaryDomain, sentMsgsBuffer);
+            membershipScheme.setPrimaryHazelcastInstance(primaryHazelcastInstance);
+            membershipScheme.setCarbonCluster(hazelcastCarbonCluster);
             membershipScheme.joinGroup();
         }
 
@@ -301,20 +294,56 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
         primaryHazelcastConfig.addMapConfig(mapConfig);
 
-        loadCustomHazelcastSerializers(primaryHazelcastConfig);
-
         return primaryHazelcastConfig;
     }
 
     /**
-     * Identify the mode which Hazelcast configuration should be loaded.
+     * Identify the mode which Hazelcast configuration should be loaded and load the configuration.
      */
-    private int getHazelcastConfigMode() {
+    private Config loadHazelcastConfig(int configMode) throws ClusteringFault {
+        Config primaryHazelcastConfig;
+        if (configMode == CONFIG_MODE_FILE) {
+            log.info("Loading hazelcast configuration from default path: " + DEFAULT_CONFIG_FILE_PATH);
+            try {
+                primaryHazelcastConfig = (new XmlConfigBuilder(DEFAULT_CONFIG_FILE_PATH.toFile().getPath())).build();
+            } catch (FileNotFoundException e) {
+                // file will always be available
+                throw new ClusteringFault("File not found");
+            } catch (HazelcastException e) {
+                String msg = "Error while loading config";
+                log.error(msg, e);
+                throw new ClusteringFault(msg);
+            }
+        } else {
+            if (configMode == CONFIG_MODE_SYSPROP) {
+                String configPath = System.getProperty(HazelcastConstants.CONFIG_XML_PATH_PROP);
+                log.info("Loading hazelcast configuration from system property, path: " + configPath);
+                try {
+                    primaryHazelcastConfig = (new XmlConfigBuilder(configPath).build());
+                } catch (FileNotFoundException e) {
+                    String msg = "Error while building config from " + configPath;
+                    log.error(msg, e);
+                    throw new ClusteringFault(msg);
+                } catch (HazelcastException e) {
+                    String msg = "Error while loading config";
+                    log.error(msg, e);
+                    throw new ClusteringFault(msg);
+                }
+            } else {
+                log.info("Loading hazelcast configuration from axis2 clustering configuration");
+                primaryHazelcastConfig = createConfigForAxis2Mode();
+            }
+        }
+        loadCustomHazelcastSerializers(primaryHazelcastConfig);
+        return primaryHazelcastConfig;
+    }
+
+    private int getConfigMode() {
         if (Files.exists(DEFAULT_CONFIG_FILE_PATH)) {
             return CONFIG_MODE_FILE;
         } else {
             String configPath = System.getProperty(HazelcastConstants.CONFIG_XML_PATH_PROP);
-            if(configPath != null && Files.exists(Paths.get(configPath))){
+            if (configPath != null) {
                 return CONFIG_MODE_SYSPROP;
             }else{
                 return CONFIG_MODE_AXIS2;
