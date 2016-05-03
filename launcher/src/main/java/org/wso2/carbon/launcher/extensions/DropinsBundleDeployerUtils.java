@@ -142,44 +142,50 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs or if an invalid {@code bundlePath} is found
      */
     private static Optional<BundleInfo> getBundleInfo(Path bundlePath) throws IOException {
-        if ((bundlePath != null) && (Files.exists(bundlePath))) {
-            Path bundleFileName = bundlePath.getFileName();
-            if (bundleFileName == null) {
-                throw new IOException("Specified OSGi bundle file name is null: " + bundlePath);
-            } else {
-                String fileName = bundleFileName.toString();
-                if (fileName.endsWith(".jar")) {
-                    try (JarFile jarFile = new JarFile(bundlePath.toString())) {
-                        Manifest manifest = jarFile.getManifest();
-                        if ((manifest == null) || (manifest.getMainAttributes() == null)) {
-                            throw new IOException("Invalid OSGi bundle found in the " + Constants.DROPINS + " folder");
-                        } else {
-                            String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
-                            String bundleVersion = manifest.getMainAttributes().getValue("Bundle-Version");
+        if ((bundlePath == null) || (!Files.exists(bundlePath))) {
+            throw new IOException("Invalid OSGi bundle path. The specified path may not exist or "
+                    + "user may not have required file permissions for the specified path");
+        }
 
-                            if (bundleSymbolicName == null || bundleVersion == null) {
-                                throw new IOException("Required bundle manifest headers do not exist");
-                            } else {
-                                if (bundleSymbolicName.contains(";")) {
-                                    bundleSymbolicName = bundleSymbolicName.split(";")[0];
-                                }
-                            }
+        Path bundleFileName = bundlePath.getFileName();
+        if (bundleFileName == null) {
+            throw new IOException("Specified OSGi bundle file name is null: " + bundlePath);
+        }
 
-                            //  checks whether this bundle is a fragment or not
-                            boolean isFragment = (manifest.getMainAttributes().getValue("Fragment-Host") != null);
-                            int defaultBundleStartLevel = 4;
-                            BundleInfo generated = new BundleInfo(bundleSymbolicName, bundleVersion,
-                                    "../../" + Constants.DROPINS + "/" + fileName, defaultBundleStartLevel, isFragment);
-                            return Optional.of(generated);
-                        }
-                    }
-                } else {
-                    return Optional.empty();
-                }
+        String fileName = bundleFileName.toString();
+        if (!fileName.endsWith(".jar")) {
+            return Optional.empty();
+        }
+
+        try (JarFile jarFile = new JarFile(bundlePath.toString())) {
+            Manifest manifest = jarFile.getManifest();
+
+            if ((manifest == null) || (manifest.getMainAttributes() == null)) {
+                throw new IOException("Invalid OSGi bundle found in the " + Constants.DROPINS + " folder");
             }
-        } else {
-            throw new IOException("Invalid OSGi bundle path. The specified path may not exist or " +
-                    "user may not have required file permissions for the specified path: " + bundlePath);
+
+            String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+            String bundleVersion = manifest.getMainAttributes().getValue("Bundle-Version");
+
+            if (bundleSymbolicName == null || bundleVersion == null) {
+                throw new IOException("Required bundle manifest headers do not exist");
+            }
+
+            logger.log(Level.FINE,
+                    "Loading information from OSGi bundle: " + bundleSymbolicName + ":" + bundleVersion + "...");
+
+            if (bundleSymbolicName.contains(";")) {
+                bundleSymbolicName = bundleSymbolicName.split(";")[0];
+            }
+
+            //  checks whether this bundle is a fragment or not
+            boolean isFragment = (manifest.getMainAttributes().getValue("Fragment-Host") != null);
+            int defaultBundleStartLevel = 4;
+            BundleInfo generated = new BundleInfo(bundleSymbolicName, bundleVersion,
+                    "../../" + Constants.DROPINS + "/" + fileName, defaultBundleStartLevel, isFragment);
+            logger.log(Level.FINE,
+                    "Successfully loaded information from OSGi bundle: " + bundleSymbolicName + ":" + bundleVersion);
+            return Optional.of(generated);
         }
     }
 
