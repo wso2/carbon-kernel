@@ -7,6 +7,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.core.clustering.api.CarbonCluster;
+import org.wso2.carbon.core.clustering.api.ClusterMember;
+import org.wso2.carbon.core.clustering.api.ClusterMembershipListener;
+
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -14,11 +20,13 @@ import org.osgi.framework.ServiceReference;
  */
 public class HazelCastWriter {
 
-    private static final String MAP_NAME = "$hazelcast_test_topic";
+    private static final String MAP_NAME = "$hfde579okyfcfrtuikjgfdt";
     private static final String MAP_KEY_VALUE = "nbxe58ojhfs23tfxfhmhd4367gfdr43ehjjczwe6ijnhd5";
-    private static final String CACHE_KEY_VALUE = "nbxe58ojhfs23tfxfhmhd4367gfdr43ehjjczwe6ijnhd5";
+    private static final String DST_MAP_NAME = "$9754sfyuolmbcry767ijg6iojfxs";
+    private static final String DST_MAP_KEY_VALUE = "khfdr47855dt646fdyikj7532sfy86ugd5742svhk865";
 
     private BundleContext bundleContext;
+    private ServiceReference dstMapProviderRef;
 
     private static final Log log = LogFactory.getLog(HazelCastWriter.class);
 
@@ -44,6 +52,13 @@ public class HazelCastWriter {
                             HazelcastInstance hazelcastInstance = (HazelcastInstance) service;
                             log.info("Hazelcast instance was resolved");
                             useTopic(hazelcastInstance);
+                        } else if (service instanceof CarbonCluster) {
+                            CarbonCluster carbonCluster = (CarbonCluster) service;
+                            log.info("CarbonCluster instance was resolved");
+                            useCarbonCluster(carbonCluster);
+                        } else if (service instanceof DistributedMapProvider) {
+                            log.info("DistributedMapProvider instance was resolved");
+                            dstMapProviderRef = sr;
                         }
                     }
                 }
@@ -63,6 +78,42 @@ public class HazelCastWriter {
         } else {
             log.info("Hazelcast instance is null");
         }
+    }
+
+    private void useCarbonCluster(CarbonCluster carbonCluster) {
+        carbonCluster.addMembershipListener(new ClusterMembershipListener() {
+            @Override
+            public void memberAdded(ClusterMember member) {
+                log.info("Member added: " + member.getId());
+                long startTime = System.currentTimeMillis();
+                while (System.currentTimeMillis() - startTime < TimeUnit.MINUTES.toMillis(1)) {
+                    if (isDstMapWriteOk()) {
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void memberRemoved(ClusterMember member) {
+            }
+        });
+    }
+
+    private boolean isDstMapWriteOk() {
+        if (dstMapProviderRef == null) {
+            log.info("DistributedMapProvider instance reference is null");
+            return false;
+        }
+        DistributedMapProvider distributedMapProvider =
+                bundleContext.<DistributedMapProvider>getService(dstMapProviderRef);
+        if (distributedMapProvider == null) {
+            log.info("DistributedMapProvider instance is null");
+            return false;
+        }
+        log.info("DST Map key value added to hazelcast instance " +
+                DST_MAP_NAME + ":" + DST_MAP_KEY_VALUE + ":" + DST_MAP_KEY_VALUE);
+        distributedMapProvider.getMap(DST_MAP_NAME, null).put(DST_MAP_KEY_VALUE, DST_MAP_KEY_VALUE);
+        return true;
     }
 
 }
