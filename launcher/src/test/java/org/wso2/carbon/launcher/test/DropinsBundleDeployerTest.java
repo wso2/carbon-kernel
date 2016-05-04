@@ -113,7 +113,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Assert.assertTrue(matching);
     }
 
-    @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 3,
+    /*@Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 3,
             expectedExceptions = { IOException.class })
     public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
         Path dropins = Paths.get(carbonHome, dropinsDirectory);
@@ -130,7 +130,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
             expectedExceptions = { IllegalArgumentException.class })
     public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
-    }
+    }*/
 
     /**
      * Utility functions for dropins unit-tests.

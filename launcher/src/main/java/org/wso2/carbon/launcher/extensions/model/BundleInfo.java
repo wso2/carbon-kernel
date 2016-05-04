@@ -40,6 +40,14 @@ public class BundleInfo {
         this.isFromDropins = bundlePath.contains(Constants.DROPINS + "/");
     }
 
+    public String getBundleSymbolicName() {
+        return bundleSymbolicName;
+    }
+
+    public String getBundleVersion() {
+        return bundleVersion;
+    }
+
     public boolean isFromDropins() {
         return isFromDropins;
     }
