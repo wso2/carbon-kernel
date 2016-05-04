@@ -32,7 +32,7 @@
             <!-- <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> -->
             <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
             <class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastConfigTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastAxis2ConfigTestCase"/>
+            <!--<class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastAxis2ConfigTestCase"/>-->
         </classes>
     </test>
 
