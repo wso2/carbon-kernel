@@ -26,9 +26,9 @@ import java.util.concurrent.TimeUnit;
  * Providing the support to configure HazelCast clustering directly through HazelCast xml instead of through axis2.xml.
  * This test case is for the above improvement.
  */
-public class CARBON0172HazelcastConfigTestCase extends CarbonIntegrationBaseTest {
+public class CARBON15878HazelcastConfigTestCase extends CarbonIntegrationBaseTest {
 
-    private static final Log log = LogFactory.getLog(CARBON0172HazelcastConfigTestCase.class);
+    private static final Log log = LogFactory.getLog(CARBON15878HazelcastConfigTestCase.class);
     private static final String OUT_FILE_PATH_SYS_PROP = "hazelcastTesterPath";
     private static final String SERVER_STARTUP_MESSAGE = "Mgt Console URL";
     private static final String SUCCESS_OUT_MSG = "SUCCESS";

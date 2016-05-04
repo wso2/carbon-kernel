@@ -31,8 +31,8 @@
             <!-- TODO: https://wso2.org/jira/browse/CARBON-15314 -->
             <!-- <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> -->
             <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.patching.CARBON0172HazelcastConfigTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.patching.CARBON0172HazelcastAxis2ConfigTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastConfigTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastAxis2ConfigTestCase"/>
         </classes>
     </test>
 
