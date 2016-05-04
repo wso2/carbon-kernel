@@ -29,7 +29,7 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Integration</name>
     <modules>
-        <module>artifacts</module>
+        <!--<module>artifacts</module>-->
         <module>security-verifier</module>
         <module>axis2-sample-service</module>
         <module>sample-servlet</module>
