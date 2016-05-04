@@ -126,35 +126,10 @@ public class DropinsBundleDeployerTest extends BaseTest {
         DropinsBundleDeployerUtils.getBundlesInfo(null);
     }
 
-    @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testUpdatingBundlesInfoCheckForNonExistingFile() throws IOException {
-        Path bundlesInfo = Paths.get(carbonHome, dropinsDirectory, bundlesInfoFile);
-        DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, bundlesInfo);
-    }
-
-    @Test(description = "Attempts to check whether to update a null file", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testUpdatingBundlesInfoCheckForInvalidFile() throws IOException {
-        DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, null);
-    }
-
-    @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testMergingDropinsBundlesInfoWithNonExistingFile() throws IOException {
-        Path bundlesInfo = Paths.get(carbonHome, dropinsDirectory, bundlesInfoFile);
-        DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, bundlesInfo);
-    }
-
     @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 3,
-            expectedExceptions = { IOException.class })
+            expectedExceptions = { IllegalArgumentException.class })
     public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
         DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
-    }
-
-    @Test(description = "Attempts to check the existence of null BundleInfo instance", priority = 3)
-    public void testCheckingBundlesInfoExistenceForInvalidBundle() {
-        Assert.assertFalse(DropinsBundleDeployerUtils.bundleInfoExists(null, new ArrayList<>()));
     }
 
     /**

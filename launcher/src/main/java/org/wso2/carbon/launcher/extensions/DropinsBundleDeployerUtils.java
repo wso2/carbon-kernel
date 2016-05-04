@@ -23,7 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -79,11 +82,20 @@ public class DropinsBundleDeployerUtils {
 
         Path bundlesInfoFile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
                 carbonProfile, "configuration", "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
+        //  retrieves the OSGi bundle information defined in the existing bundles.info file
+        List<BundleInfo> existingBundlesInfo = Files.readAllLines(bundlesInfoFile)
+                .stream()
+                .filter(line -> !line.startsWith("#"))
+                .map(BundleInfo::getInstance)
+                .collect(Collectors.toList());
 
-        if (hasToUpdateBundlesInfoFile(bundlesInfo, bundlesInfoFile)) {
+
+        Map<BundleInfo, Boolean> updatableBundles = getUpdatableBundles(bundlesInfo, existingBundlesInfo);
+
+        if (updatableBundles.size() > 0) {
             logger.log(Level.FINE, "New file changes detected in " + Constants.DROPINS + " folder");
 
-            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(bundlesInfo, bundlesInfoFile);
+            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(updatableBundles, existingBundlesInfo);
 
             logger.log(Level.FINE, "Updating the OSGi bundle information of Carbon Profile: " + carbonProfile + "...");
             updateBundlesInfo(effectiveNewBundleInfo, bundlesInfoFile);
@@ -103,39 +115,31 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs or if the {@code sourceDirectory} is invalid
      */
     public static List<BundleInfo> getBundlesInfo(Path sourceDirectory) throws IOException {
-        List<BundleInfo> newBundleInfoLines = new ArrayList<>();
-        if ((sourceDirectory != null) && (Files.exists(sourceDirectory))) {
-            Stream<Path> children = Files.list(sourceDirectory);
-            children
-                    .parallel()
-                    .forEach(child -> {
-                        try {
-                            logger.log(Level.FINE, "Loading OSGi bundle information from " + child + "...");
-                            getBundleInfo(child)
-                                    .ifPresent(bundleInfo -> {
-                                        if (!bundleInfoExists(bundleInfo, newBundleInfoLines)) {
-                                            newBundleInfoLines.add(bundleInfo);
-                                        }
-                                    });
-                            logger.log(Level.FINE, "Successfully loaded OSGi bundle information from " + child);
-                        } catch (IOException e) {
-                            logger.log(Level.WARNING, "Error when loading the OSGi bundle information from " + child,
-                                    e);
-                        }
-                    });
-        } else {
+        if ((sourceDirectory == null) || (!Files.exists(sourceDirectory))) {
             throw new IOException("Invalid OSGi bundle source directory. The specified path may not exist or " +
                     "user may not have required file permissions for the specified path: " + sourceDirectory);
         }
 
-        return newBundleInfoLines;
+        return Files.list(sourceDirectory)
+                .map(child -> {
+                    BundleInfo bundleInfo = null;
+                    try {
+                        bundleInfo = getBundleInfo(child).orElse(null);
+                    } catch (IOException e) {
+                        logger.log(Level.WARNING, "Error when loading the OSGi bundle information from " + child, e);
+                    }
+                    return bundleInfo;
+                })
+                .distinct()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     /**
      * Constructs a {@code BundleInfo} instance out of the OSGi bundle file path specified.
      * <p>
-     * If the specified file path refers to a non-Java Archive (JAR) file, no {@code BundleInfo} instance will be
-     * created.
+     * If the specified file path does not satisfy the requirements of an OSGi bundle, no {@code BundleInfo} instance
+     * will be created.
      *
      * @param bundlePath path to the OSGi bundle from which the {@link BundleInfo} is to be generated
      * @return a {@link BundleInfo} instance
@@ -143,8 +147,8 @@ public class DropinsBundleDeployerUtils {
      */
     private static Optional<BundleInfo> getBundleInfo(Path bundlePath) throws IOException {
         if ((bundlePath == null) || (!Files.exists(bundlePath))) {
-            throw new IOException("Invalid OSGi bundle path. The specified path may not exist or "
-                    + "user may not have required file permissions for the specified path");
+            throw new IOException("Invalid OSGi bundle path. The specified path may not exist or " +
+                    "user may not have required file permissions for the specified path");
         }
 
         Path bundleFileName = bundlePath.getFileName();
@@ -190,79 +194,70 @@ public class DropinsBundleDeployerUtils {
     }
 
     /**
-     * Returns true if the specified bundles.info file requires to be updated, else false.
+     * Returns the OSGi bundles information which are to be either added or removed from the existing set of bundle
+     * information, in order to bring the existing bundle information up-to-date with new bundle information.
      * <p>
-     * The OSGi bundle information specified are compared with the OSGi bundle information specified in the
-     * existing bundles.info file, specified. If the OSGi bundle information of dropins bundles are matching,
-     * there is no requirement to update the bundles.info file, again.
+     * This method returns a group of key-value pairs - the key indicates the OSGi bundle and the corresponding value
+     * indicates whether to add (true) or remove (false) the bundle information.
      *
-     * @param newBundlesInfo          the new OSGi bundle information
-     * @param existingBundlesInfoFile the existing bundles.info file to be checked
-     * @return true if the specified bundles.info file requires to be updated, else false
-     * @throws IOException if an I/O error occurs
+     * @param newBundlesInfo     the new OSGi bundle information
+     * @param existingBundleInfo the existing OSGi bundle information
+     * @return a group of key-value pairs - the key indicates the updatable OSGi bundle and the corresponding value
+     * indicates whether to add (true) or remove (false) the bundle information
      */
-    public static boolean hasToUpdateBundlesInfoFile(List<BundleInfo> newBundlesInfo, Path existingBundlesInfoFile)
-            throws IOException {
-        if ((existingBundlesInfoFile != null) && (Files.exists(existingBundlesInfoFile))) {
-            List<BundleInfo> existingDropinsBundleInfo = Files.readAllLines(existingBundlesInfoFile)
-                    .stream()
-                    .filter(line -> !line.startsWith("#"))
-                    .map(BundleInfo::getInstance)
-                    .filter(BundleInfo::isFromDropins)
-                    .collect(Collectors.toList());
-
-            List<BundleInfo> newBundleInfoList = Optional.ofNullable(newBundlesInfo)
-                    .orElse(new ArrayList<>());
-            if (existingDropinsBundleInfo.size() == newBundleInfoList.size()) {
-                long nonMatchingBundleInfoCount = newBundleInfoList
-                        .stream()
-                        .filter(bundleInfo -> !bundleInfoExists(bundleInfo, existingDropinsBundleInfo))
-                        .count();
-                return nonMatchingBundleInfoCount > 0;
-            } else {
-                return true;
-            }
-        } else {
-            throw new IOException("Invalid file path. The specified path may not exist or " +
-                    "user may not have required file permissions for the specified path: " + existingBundlesInfoFile);
+    public static Map<BundleInfo, Boolean> getUpdatableBundles(List<BundleInfo> newBundlesInfo,
+            List<BundleInfo> existingBundleInfo) {
+        if ((newBundlesInfo == null) || (existingBundleInfo == null)) {
+            throw new IllegalArgumentException("The list of OSGi bundle information cannot be null");
         }
+
+        Map<BundleInfo, Boolean> updatableBundles = new HashMap<>();
+
+        //  gets existing dropins OSGi bundle information
+        List<BundleInfo> existingDropinsBundleInfo = existingBundleInfo
+                .stream()
+                .filter(BundleInfo::isFromDropins)
+                .collect(Collectors.toList());
+
+        //  retrieves new OSGi bundle information absent in the existing bundles.info file
+        newBundlesInfo
+                .stream()
+                .filter(bundleInfo -> !existingBundleInfo.contains(bundleInfo))
+                .forEach(bundleInfo -> updatableBundles.put(bundleInfo, true));
+
+        //  retrieves the information of OSGi bundles to be removed from the bundles.info file
+        existingDropinsBundleInfo
+                .stream()
+                .filter(bundleInfo -> !newBundlesInfo.contains(bundleInfo))
+                .forEach(bundleInfo -> updatableBundles.put(bundleInfo, false));
+
+        return updatableBundles;
     }
 
-    /**
-     * Merges the information on the current set of OSGi bundle(s) that may reside within the dropins folder.
-     * <p>
-     * Each new OSGi bundle is checked if it is already defined within the specified, existing bundles.info
-     * file from any other bundle locations (non-dropins)
-     *
-     * @param newBundleInfo       the OSGi bundle information on the current set of bundles that reside within the
-     *                            dropins folder
-     * @param bundlesInfoFilePath the bundles.info file path from which existing OSGi bundle information are to be
-     *                            loaded
-     * @return the effective group of OSGi bundle information
-     * @throws IOException if an I/O error occurs or if the dropins directory does not exist
-     */
-    public static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundleInfo, Path bundlesInfoFilePath)
-            throws IOException {
-        if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
-            List<BundleInfo> effectiveBundleInfo = Files.readAllLines(bundlesInfoFilePath)
-                    .stream()
-                    .filter(line -> !line.startsWith("#"))
-                    .map(BundleInfo::getInstance)
-                    //  filter all non-dropins, OSGi bundle information
-                    .filter(info -> !info.isFromDropins())
-                    .collect(Collectors.toList());
-
-            newBundleInfo
-                    .stream()
-                    //  filter OSGi bundles of dropins directory, which are not equal to any non-dropins, OSGi bundles
-                    .filter(bundle -> !bundleInfoExists(bundle, effectiveBundleInfo))
-                    .forEach(effectiveBundleInfo::add);
-
-            return effectiveBundleInfo;
-        } else {
-            throw new IOException("Invalid file path. The specified path may not exist or " +
-                    "user may not have required file permissions for the specified path: " + bundlesInfoFilePath);
+    //  TODO: update the Javadoc comments
+    public static List<BundleInfo> mergeDropinsBundleInfo(Map<BundleInfo, Boolean> updatableBundleInfo,
+            List<BundleInfo> existingBundleInfo) throws IOException {
+        if ((updatableBundleInfo == null) || (existingBundleInfo == null)) {
+            throw new IllegalArgumentException("The list of updatable OSGi bundle information cannot be null");
         }
+
+        //  adds the newly added OSGi bundle information
+        List<BundleInfo> effectiveBundlesInfo = updatableBundleInfo.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().equals(true))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        //  removes the existing OSGi bundle information of bundles which have been removed
+        updatableBundleInfo.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().equals(false))
+                .map(Map.Entry::getKey)
+                .forEach(existingBundleInfo::remove);
+
+        effectiveBundlesInfo.addAll(existingBundleInfo);
+
+        return effectiveBundlesInfo;
     }
 
     /**
@@ -285,23 +280,6 @@ public class DropinsBundleDeployerUtils {
             throw new IOException("Invalid file path. The specified path may not exist or " +
                     "user may not have required file permissions for the specified path: " + bundlesInfoFilePath);
         }
-    }
-
-    /**
-     * Returns whether the specified OSGi bundle information matches with any of the OSGi bundle information
-     * within the specified list.
-     *
-     * @param bundleInfo  the OSGi bundle of which the information are to be compared
-     * @param bundlesInfo a list of OSGi bundle information
-     * @return true if the specified OSGi bundle information matches with any of the OSGi bundle information
-     * within the specified list, else false
-     */
-    public static boolean bundleInfoExists(BundleInfo bundleInfo, List<BundleInfo> bundlesInfo) {
-        return (bundleInfo != null) &&
-                Optional.ofNullable(bundlesInfo)
-                        .orElse(new ArrayList<>())
-                        .stream()
-                        .anyMatch(bundle -> (bundleInfo.equals(bundle)));
     }
 
     /**
