@@ -28,7 +28,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>hazelcast-writer-bundle</artifactId>
-    <version>1.0</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Sample OSGi Bundle</name>
     <url>http://wso2.com</url>
