@@ -99,7 +99,9 @@ public class Utils {
         } else {
             //if ST request getting the appName from the contex
             appName = request.getContext().getName();
-            if(!appName.equals("/")) {
+            if ("".equals(appName)) {
+                return appName;
+            } else if(!appName.equals("/")) {
                 return appName.substring(1);
             } else {
                 return null;
