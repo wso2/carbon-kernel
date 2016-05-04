@@ -59,6 +59,7 @@ import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -581,7 +582,7 @@ public class SecurityConfigAdmin {
                             UserCoreConstants.INVOKE_SERVICE_PERMISSION);
                 }
             }
-            if (policyPath != null &&
+            if (IdentityUtil.isNotBlank(policyPath) &&
                     scenarioId.equals(SecurityConstants.POLICY_FROM_REG_SCENARIO)) {
                 Parameter pathParam = new Parameter(SecurityConstants.SECURITY_POLICY_PATH,
                         policyPath);
@@ -739,7 +740,7 @@ public class SecurityConfigAdmin {
                                         String[] userGroups, KerberosConfigData kerberosConfigData,
                                         boolean isTrusEnabled, String policyPath) throws SecurityConfigException {
 
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Adding user parameters to policy element : " + policyElement);
         }
         OMFactory factory = OMAbstractFactory.getOMFactory();
@@ -750,7 +751,7 @@ public class SecurityConfigAdmin {
         OMElement trustElement = null;
 
         if ((trustedStores != null || privateStore != null) && isTrusEnabled) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Adding trust element to policy");
             }
 
@@ -841,7 +842,7 @@ public class SecurityConfigAdmin {
             }
             carbonSecElement.addChild(kerberosElement);
         }
-        if(StringUtils.isNotEmpty(policyPath)){
+        if (IdentityUtil.isNotBlank(policyPath)) {
             OMText policyPathValue = factory.createOMText(policyPathElement, policyPath);
             policyPathElement.addChild(policyPathValue);
             carbonSecElement.addChild(policyPathElement);
@@ -871,7 +872,7 @@ public class SecurityConfigAdmin {
         try {
             Registry registryToLoad = registry;
             String resourceUri = SecurityConstants.SECURITY_POLICY + "/" + scenarioId;
-            if (policyPath != null &&
+            if (IdentityUtil.isNotBlank(policyPath) &&
                     scenarioId.equals(SecurityConstants.POLICY_FROM_REG_SCENARIO)) {
                 resourceUri = policyPath.substring(policyPath.lastIndexOf(':') + 1);
                 String regIdentifier = policyPath.substring(0, policyPath.lastIndexOf(':'));
@@ -889,7 +890,7 @@ public class SecurityConfigAdmin {
             StAXOMBuilder builder = new StAXOMBuilder(parser);
             OMElement policyElement = builder.getDocumentElement();
 
-            if (policyPath != null &&
+            if (IdentityUtil.isNotBlank(policyPath) &&
                     scenarioId.equals(SecurityConstants.POLICY_FROM_REG_SCENARIO)) {
                 OMAttribute att = policyElement.getAttribute(SecurityConstants.POLICY_ID_QNAME);
                 if (att != null) {
@@ -1235,6 +1236,7 @@ public class SecurityConfigAdmin {
     /**
      * This will return the policy path which is taken from registry. ie the original policy. It will be retrieved
      * from the policy which is attached to the service
+     *
      * @param serviceName name of the service.
      * @return Registry path to policy.
      */
