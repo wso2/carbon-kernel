@@ -45,7 +45,7 @@ public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
 
     /**
-     * Updates the specified Carbon profile's bundles.info file based on the OSGi bundles deployed in the dropins
+     * Updates the bundles.info file of the specified Carbon Profile based on the OSGi bundles deployed in the dropins
      * directory. The OSGi bundle information in the bundles.info file in a Carbon profile is used to install and
      * start the bundles at the server startup for the particular profile.
      * <p>
@@ -54,7 +54,7 @@ public class DropinsBundleDeployerUtils {
      * 2. The new OSGi bundle information are compared with the above mentioned existing OSGi bundle information
      * and a map of new, installable OSGi bundle information and the OSGi bundle information removable from existing
      * bundle information are obtained.
-     * 3. If the number of installable and removable OSGi bundles are both zero, then no Profile update is made. Else,
+     * 3. If the number of both installable and removable OSGi bundles are zero, then no Profile update is made. Else,
      * the Profile is updated.
      * 4. During Profile update, the existing, non-dropins OSGi bundle information are merged with the new OSGi bundle
      * information.
@@ -92,8 +92,8 @@ public class DropinsBundleDeployerUtils {
         Map<BundleInstallStatus, List<BundleInfo>> updatableBundles =
                 getUpdatableBundles(newBundlesInfo, existingBundlesInfo.get(true));
 
-        if ((updatableBundles.get(BundleInstallStatus.INSTALLABLE).size() > 0) || (
-                updatableBundles.get(BundleInstallStatus.REMOVABLE).size() > 0)) {
+        if ((updatableBundles.get(BundleInstallStatus.TO_BE_INSTALLED).size() > 0) || (
+                updatableBundles.get(BundleInstallStatus.TO_BE_REMOVED).size() > 0)) {
             logger.log(Level.FINE, getBundleInstallationSummary(updatableBundles));
             List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundlesInfo, existingBundlesInfo);
             updateBundlesInfo(effectiveNewBundleInfo, bundlesInfoFile);
@@ -207,23 +207,23 @@ public class DropinsBundleDeployerUtils {
             List<BundleInfo> existingBundleInfo) {
         Map<BundleInstallStatus, List<BundleInfo>> updatableBundles = new HashMap<>();
         //  initializes the list for newly installable OSGi bundles
-        updatableBundles.put(BundleInstallStatus.INSTALLABLE, new ArrayList<>());
+        updatableBundles.put(BundleInstallStatus.TO_BE_INSTALLED, new ArrayList<>());
         //  initializes the list for OSGi bundles to be uninstalled
-        updatableBundles.put(BundleInstallStatus.REMOVABLE, new ArrayList<>());
+        updatableBundles.put(BundleInstallStatus.TO_BE_REMOVED, new ArrayList<>());
 
         //  retrieves the newly installable OSGi bundle information
         Optional.ofNullable(newBundlesInfo).orElse(new ArrayList<>())
                 .stream()
                 .filter(bundleInfo -> !Optional.ofNullable(existingBundleInfo).orElse(new ArrayList<>())
                         .contains(bundleInfo))
-                .forEach(bundleInfo -> updatableBundles.get(BundleInstallStatus.INSTALLABLE).add(bundleInfo));
+                .forEach(bundleInfo -> updatableBundles.get(BundleInstallStatus.TO_BE_INSTALLED).add(bundleInfo));
 
         //  retrieves the OSGi bundle information to be uninstalled
         Optional.ofNullable(existingBundleInfo).orElse(new ArrayList<>())
                 .stream()
                 .filter(bundleInfo -> !Optional.ofNullable(newBundlesInfo).orElse(new ArrayList<>())
                         .contains(bundleInfo))
-                .forEach(bundleInfo -> updatableBundles.get(BundleInstallStatus.REMOVABLE).add(bundleInfo));
+                .forEach(bundleInfo -> updatableBundles.get(BundleInstallStatus.TO_BE_REMOVED).add(bundleInfo));
 
         return updatableBundles;
     }
@@ -235,7 +235,7 @@ public class DropinsBundleDeployerUtils {
      * @param existingBundleInfo the existing OSGi bundle information
      * @return merged result of the existing OSGi bundle information with the newly retrieved OSGi bundle information
      */
-    public static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundlesInfo,
+    private static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundlesInfo,
             Map<Boolean, List<BundleInfo>> existingBundleInfo) {
         //  initializes the final group of OSGi bundles with the existing non-dropins OSGi bundles
         List<BundleInfo> effectiveBundlesInfo = existingBundleInfo.get(false);
@@ -307,27 +307,28 @@ public class DropinsBundleDeployerUtils {
      * @return a message depicting the OSGi bundle installation/removal summary information
      */
     private static String getBundleInstallationSummary(Map<BundleInstallStatus, List<BundleInfo>> updatableBundleInfo) {
-        StringBuilder message = new StringBuilder("Installation/Removal Summary of OSGi bundles from dropins\n");
+        StringBuilder message = new StringBuilder("\nInstallation/Removal Summary of OSGi bundles from dropins\n");
 
-        Optional.ofNullable(updatableBundleInfo.get(BundleInstallStatus.INSTALLABLE))
+        Optional.ofNullable(updatableBundleInfo.get(BundleInstallStatus.TO_BE_INSTALLED))
                 .ifPresent(list -> {
                     if (list.size() > 0) {
-                        message.append("OSGi bundles freshly installed:\n");
+                        message.append("\nOSGi bundles to be newly installed:\n");
                         list
                                 .stream()
-                                .forEach(bundleInfo -> message.append(bundleInfo.getBundleSymbolicName()).append(" : ")
+                                .forEach(bundleInfo -> message.append("Symbolic-name: ")
+                                        .append(bundleInfo.getBundleSymbolicName()).append(" --> ").append("Version: ")
                                         .append(bundleInfo.getBundleVersion()).append("\n"));
                     }
                 });
 
-        Optional.ofNullable(updatableBundleInfo.get(BundleInstallStatus.REMOVABLE))
+        Optional.ofNullable(updatableBundleInfo.get(BundleInstallStatus.TO_BE_REMOVED))
                 .ifPresent(list -> {
                     if (list.size() > 0) {
-                        message.append("OSGi bundles removed:\n");
+                        message.append("\nOSGi bundles to be removed:\n");
                         list
                                 .stream()
-                                .forEach(
-                                bundleInfo -> message.append(bundleInfo.getBundleSymbolicName()).append(" : ")
+                                .forEach(bundleInfo -> message.append("Symbolic-name: ")
+                                        .append(bundleInfo.getBundleSymbolicName()).append(" --> ").append("Version: ")
                                         .append(bundleInfo.getBundleVersion()).append("\n"));
                     }
                 });

@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * the bundles.info file of each and every, existing Carbon profile, along with the bundle startup information
  * of each bundle.
  *
- * @since 5.1.0
+ * @since 5.0.0
  */
 public class DropinsBundleDeployer implements CarbonServerListener {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployer.class.getName());

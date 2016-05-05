@@ -16,11 +16,11 @@
 package org.wso2.carbon.launcher.extensions.model;
 
 /**
- * This enum type indicates whether an OSGi bundle is installable or removable.
+ * This enum type indicates whether an OSGi bundle is install/removal status.
  *
  * @since 5.1.0
  */
 public enum BundleInstallStatus {
-    INSTALLABLE,
-    REMOVABLE
+    TO_BE_INSTALLED,
+    TO_BE_REMOVED
 }

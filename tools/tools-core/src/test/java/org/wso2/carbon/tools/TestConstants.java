@@ -43,6 +43,9 @@ public class TestConstants {
     public static final String ARTIFACT_FOUR = "org.eclipse.equinox.launcher_" + EQUINOX_LAUNCHER_VERSION + ".jar";
     public static final String ARTIFACT_FIVE = "tool-test-artifact-" + KERNEL_VERSION + ".jar";
 
+    public static final String APP_MANAGER_PROFILE = "App-Manager";
+    public static final String ALL_CARBON_PROFILES = "ALL";
+
     /**
      * A constructor which prevents instantiating the TestConstants class.
      */
