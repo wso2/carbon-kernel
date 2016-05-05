@@ -28,12 +28,19 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 
 /**
@@ -95,5 +102,23 @@ public class LoggingConfigurationOSGiTest {
 
         //updated log level is "DEBUG"
         Assert.assertEquals(logger.isDebugEnabled(), true);
+    }
+
+    @Test (dependsOnMethods = "testLog4j2ConfigUpdate")
+    public void testAuditLog() throws IOException, ConfigurationException {
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
+        Principal principal = () -> "Banda";
+        carbonContext.setUserPrincipal(principal);
+
+        Logger audit = Constants.AUDIT;
+        audit.info("Attempting to test the audit logs.");
+
+        Path auditLog = Paths.get(System.getProperty("carbon.home"), "logs", "audit.log");
+
+        Assert.assertTrue(Files.exists(auditLog), "audit.log does not exist.");
+        try (Stream<String> stream = Files.lines(auditLog)) {
+            Optional<String> match = stream.filter(line -> line.contains("user-name=Banda")).findAny();
+            Assert.assertTrue(match.isPresent(), "user-name=Banda is not found in the audit.log");
+        }
     }
 }
