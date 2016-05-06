@@ -3,7 +3,6 @@ package org.wso2.carbon.sample.transport.jms;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.sample.transport.mgt.Transport;
 
 import java.util.stream.IntStream;
@@ -15,11 +14,10 @@ import java.util.stream.IntStream;
  * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.sample.transport.jms.JMSTransportServiceCapabilityProvider",
-        immediate = true,
-        property = "capability-name=org.wso2.carbon.sample.transport.mgt.Transport"
+        name = "org.wso2.carbon.sample.transport.jms.JMSTransportComponent",
+        immediate = true
 )
-public class JMSTransportServiceCapabilityProvider implements CapabilityProvider {
+public class JMSTransportServiceComponent {
     private static final int jmsTransportServiceCount = 2;
 
     @Activate
@@ -27,10 +25,5 @@ public class JMSTransportServiceCapabilityProvider implements CapabilityProvider
         IntStream.range(0, jmsTransportServiceCount).forEach(
                 count -> bundleContext.registerService(Transport.class, new JMSTransport(), null)
         );
-    }
-
-    @Override
-    public int getCount() {
-        return jmsTransportServiceCount;
     }
 }

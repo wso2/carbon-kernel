@@ -43,8 +43,7 @@ import java.util.Map;
         name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
         immediate = true,
         property = {
-                "capability-name=org.wso2.carbon.kernel.transports.CarbonTransport",
-                "component-key=carbon-transport-mgt"
+                "componentName=carbon-transport-mgt"
         }
 )
 public class TransportServiceListenerComponent implements RequiredCapabilityListener {

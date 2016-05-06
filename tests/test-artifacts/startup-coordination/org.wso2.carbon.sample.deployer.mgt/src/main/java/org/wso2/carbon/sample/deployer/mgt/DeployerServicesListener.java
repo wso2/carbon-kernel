@@ -34,7 +34,7 @@ import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
         immediate = true,
         service = RequiredCapabilityListener.class,
         property = {
-                "component-key=carbon-sample-deployment-engine"
+                "componentName=carbon-sample-deployment-engine"
         }
 )
 public class DeployerServicesListener implements RequiredCapabilityListener {
