@@ -18,10 +18,13 @@ package org.wso2.carbon.launcher.extensions;
 import org.wso2.carbon.launcher.CarbonServerEvent;
 import org.wso2.carbon.launcher.CarbonServerListener;
 import org.wso2.carbon.launcher.Constants;
+import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +36,7 @@ import java.util.logging.Logger;
  * the bundles.info file of each and every, existing Carbon profile, along with the bundle startup information
  * of each bundle.
  *
- * @since 5.1.0
+ * @since 5.0.0
  */
 public class DropinsBundleDeployer implements CarbonServerListener {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployer.class.getName());
@@ -42,10 +45,18 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE)).
-                    orElse(Constants.DEFAULT_PROFILE);
+            Path dropinsDirectoryPath = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.DROPINS);
+            String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE))
+                    .orElse(Constants.DEFAULT_PROFILE);
+
             try {
-                DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome.toString(), profile);
+                logger.log(Level.FINE,
+                        "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
+                List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(dropinsDirectoryPath);
+                logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
+                        " folder");
+
+                DropinsBundleDeployerUtils.updateDropins(carbonHome.toString(), profile, newBundlesInfo);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed to update the OSGi bundle information of Carbon Profile: " + profile,
                         e);

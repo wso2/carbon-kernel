@@ -69,8 +69,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path bundlesInfo = Paths
-                .get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
+        Path bundlesInfo = Paths.
+                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
                         "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
@@ -86,6 +86,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Path bundlesInfo = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
                 profileMSS, "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
+        System.clearProperty(Constants.PROFILE);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
@@ -96,56 +97,67 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        List<BundleInfo> actual = DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
+        List<BundleInfo> actual = DropinsBundleDeployerUtils.getBundlesInfo(dropins);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempt loading the Carbon profile names", priority = 3)
+    @Test(description = "Attempts loading the Carbon profile names", priority = 3)
     public void testLoadingCarbonProfiles() throws IOException {
         List<String> actual = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
-        boolean matching = ((profileNames.stream().
-                filter(expectedName -> actual.stream().
-                        filter(expectedName::equals).count() == 1)).count() == profileNames.size());
+        boolean matching = ((profileNames
+                .stream()
+                .filter(expectedName -> actual
+                        .stream()
+                        .filter(expectedName::equals)
+                        .count() == 1))
+                .count() == profileNames.size());
         Assert.assertTrue(matching);
     }
 
-    @Test(description = "Attempts to load OSGi bundle information from a non existing source directory", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testGettingNewBundlesInfoFromNonExistingFolder() throws IOException {
-        Path dropins = Paths.get(carbonHome, dropinsDirectory);
-        DropinsBundleDeployerUtils.getNewBundlesInfo(dropins);
+    @Test(description = "Attempts to load OSGi bundle information from a source directory with an existing "
+            + "bundle removed", priority = 4)
+    public void testRemovingExistingBundle() throws IOException {
+        String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
+        BundleInfo bundleInfoRemoved = BundleInfo.getInstance(
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + dropinsDirectory
+                        + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true");
+
+        Path dropins = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
+        Files.deleteIfExists(
+                Paths.get(dropins.toString(), "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar"));
+
+        List<BundleInfo> expected = getExpectedBundleInfo();
+        expected.remove(bundleInfoRemoved);
+
+        DropinsBundleDeployer deployer = new DropinsBundleDeployer();
+        deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
+
+        Path bundlesInfo = Paths.
+                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
+                        "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+        List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
+        Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to load OSGi bundle information from a null folder path", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testGettingNewBundlesInfoFromInvalidFolder() throws IOException {
-        DropinsBundleDeployerUtils.getNewBundlesInfo(null);
+    @Test(description = "Attempts to install new OSGi bundles with invalid Carbon Profile name",
+            priority = 5,
+            expectedExceptions = { IllegalArgumentException.class })
+    public void testInstallingNewBundlesWithInvalidCarbonProfile() throws IOException {
+        DropinsBundleDeployerUtils.updateDropins(carbonHome, null, new ArrayList<>());
     }
 
-    @Test(description = "Attempts to check whether to update a non-existing bundles.info file", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testUpdatingBundlesInfoCheckForNonExistingFile() throws IOException {
-        Path bundlesInfo = Paths.get(carbonHome, dropinsDirectory, bundlesInfoFile);
-        DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, bundlesInfo);
+    @Test(description = "Attempts to install new OSGi bundles with invalid list of new OSGi bundles",
+            priority = 5,
+            expectedExceptions = { IllegalArgumentException.class })
+    public void testInstallingNewBundlesWithInvalidBundlesInfo() throws IOException {
+        DropinsBundleDeployerUtils.updateDropins(carbonHome, Constants.DEFAULT_PROFILE, null);
     }
 
-    @Test(description = "Attempts to check whether to update a null file", priority = 3,
+    @Test(description = "Attempts to load the new OSGi bundle information from a non existing folder",
+            priority = 5,
             expectedExceptions = { IOException.class })
-    public void testUpdatingBundlesInfoCheckForInvalidFile() throws IOException {
-        DropinsBundleDeployerUtils.hasToUpdateBundlesInfoFile(null, null);
-    }
-
-    @Test(description = "Attempts to merge dropins bundle info of a non-existing bundles.info file", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testMergingDropinsBundlesInfoWithNonExistingFile() throws IOException {
-        Path bundlesInfo = Paths.get(carbonHome, dropinsDirectory, bundlesInfoFile);
-        DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, bundlesInfo);
-    }
-
-    @Test(description = "Attempts to dropins bundle info merger with a null file", priority = 3,
-            expectedExceptions = { IOException.class })
-    public void testMergingDropinsBundlesInfoWithInvalidFile() throws IOException {
-        DropinsBundleDeployerUtils.mergeDropinsBundleInfo(null, null);
+    public void testLoadingNewBundleInfoFromNonExistingFolder() throws IOException {
+        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, dropinsDirectory));
     }
 
     /**
@@ -156,12 +168,16 @@ public class DropinsBundleDeployerTest extends BaseTest {
         profileNames.add(Constants.DEFAULT_PROFILE);
         profileNames.add(profileMSS);
 
+        List<String> defaultBundlesInfoContent = new ArrayList<>();
+        defaultBundlesInfoContent.add("#version=1");
+
         for (String profileName : profileNames) {
-            Path profile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
-                    profileName, "configuration", "org.eclipse.equinox.simpleconfigurator");
+            Path profile = Paths.
+                    get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName, "configuration",
+                            "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {
-                Files.createFile(Paths.get(profile.toString(), bundlesInfoFile));
+                Files.write(Paths.get(profile.toString(), bundlesInfoFile), defaultBundlesInfoContent);
             }
         }
     }
@@ -199,7 +215,9 @@ public class DropinsBundleDeployerTest extends BaseTest {
         if ((bundleInfoFile != null) && (Files.exists(bundleInfoFile))) {
             List<String> bundleInfoLines = Files.readAllLines(bundleInfoFile);
             List<BundleInfo> bundleInfo = new ArrayList<>();
-            bundleInfoLines.stream().forEach(line -> bundleInfo.add(BundleInfo.getInstance(line)));
+            bundleInfoLines
+                    .stream()
+                    .forEach(line -> bundleInfo.add(BundleInfo.getInstance(line)));
 
             return bundleInfo;
         } else {
@@ -208,9 +226,13 @@ public class DropinsBundleDeployerTest extends BaseTest {
     }
 
     private static boolean compareBundleInfo(List<BundleInfo> expected, List<BundleInfo> actual) {
-        return (expected.size() == actual.size()) && ((expected.stream().filter(bundleInfo ->
-                actual.stream().filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1).count())
-                == expected.size());
+        return (expected.size() == actual.size()) &&
+                ((expected
+                        .stream()
+                        .filter(bundleInfo -> actual
+                                .stream()
+                                .filter(actualBundleInfo -> actualBundleInfo.equals(bundleInfo)).count() == 1)
+                        .count()) == expected.size());
     }
 
     private static boolean delete(Path path) throws IOException {
@@ -228,7 +250,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
     private static List<Path> listFiles(Path directory) throws IOException {
         List<Path> files = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-            directoryStream.forEach(files::add);
+            directoryStream
+                    .forEach(files::add);
         }
         return files;
     }

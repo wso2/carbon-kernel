@@ -61,9 +61,8 @@ public class BundleGeneratorTool implements CarbonTool {
                             List<Path> directoryContent = BundleGeneratorUtils.listFiles(source.get());
                             for (Path aDirectoryItem : directoryContent) {
                                 if (aDirectoryItem.toString().endsWith(".jar")) {
-                                    BundleGeneratorUtils
-                                            .convertFromJarToBundle(aDirectoryItem, destination.get(), new Manifest(),
-                                                    "");
+                                    BundleGeneratorUtils.convertFromJarToBundle(
+                                            aDirectoryItem, destination.get(), new Manifest(), "");
                                 }
                             }
                         }
@@ -72,16 +71,17 @@ public class BundleGeneratorTool implements CarbonTool {
                                 "An error occurred when making the JAR (Java Archive) to OSGi bundle conversion", e);
                     }
                 } else {
-                    String message = "The source location and/or bundle destination does not have appropriate "
-                            + "read/write permissions.";
+                    String message = "The source location and/or bundle destination does not have appropriate " +
+                            "read/write permissions.";
                     logger.log(Level.WARNING, message);
                 }
             } else {
                 logger.log(Level.WARNING, "Invalid file path(s)");
             }
         } else {
-            String message = "Improper usage detected. Usage: jartobundle.sh/.bat [source] [destination], both "
-                    + "arguments source and destination are compulsory";
+            String message = "Improper usage detected. " +
+                    "Usage: jartobundle.sh/.bat [source file/directory] [destination folder], both " +
+                    "arguments source and destination are compulsory";
             logger.log(Level.INFO, message);
         }
     }

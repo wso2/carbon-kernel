@@ -38,9 +38,11 @@ public class ListPackagesTest {
     @Test(description = "Attempts to list the java packages defined within a Java Archive (JAR) file")
     public void testListingPackagesFromJar() throws IOException, CarbonToolException {
         List<Object> actual = new ArrayList<>();
-        BundleGeneratorUtils.listPackages(sampleJARFile).forEach(actual::add);
+        BundleGeneratorUtils.listPackages(sampleJARFile)
+                .forEach(actual::add);
         List<Object> expected = new ArrayList<>();
-        expectedPackageList().forEach(expected::add);
+        expectedPackageList()
+                .forEach(expected::add);
 
         assert TestUtils.isMatching(expected, actual);
     }

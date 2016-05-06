@@ -87,8 +87,8 @@ public class BundleGeneratorUtils {
                 if (manifest == null) {
                     manifest = new Manifest();
                 }
-                String exportedPackages = BundleGeneratorUtils
-                        .generateExportPackageList(BundleGeneratorUtils.listPackages(jarFile));
+                String exportedPackages = BundleGeneratorUtils.
+                        generateExportPackageList(BundleGeneratorUtils.listPackages(jarFile));
                 fileName = fileName.replaceAll("-", "_");
                 fileName = fileName.substring(0, fileName.length() - 4);
                 String symbolicName = extensionPrefix + fileName;
@@ -137,12 +137,14 @@ public class BundleGeneratorUtils {
     private static String generateExportPackageList(List<String> packageNames) {
         StringBuilder exportedPackages = new StringBuilder();
         if (packageNames != null) {
-            IntStream.range(0, packageNames.size()).forEach(packageCount -> {
-                exportedPackages.append(packageNames.get(packageCount));
-                if (packageCount != (packageNames.size() - 1)) {
-                    exportedPackages.append(",");
-                }
-            });
+            IntStream
+                    .range(0, packageNames.size())
+                    .forEach(packageCount -> {
+                        exportedPackages.append(packageNames.get(packageCount));
+                        if (packageCount != (packageNames.size() - 1)) {
+                            exportedPackages.append(",");
+                        }
+                    });
         }
         return exportedPackages.toString();
     }
@@ -238,13 +240,14 @@ public class BundleGeneratorUtils {
         if (Files.isDirectory(path)) {
             List<Path> children = listFiles(path);
             if (children.size() > 0) {
-                children.forEach(aChild -> {
-                    try {
-                        delete(aChild);
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                });
+                children
+                        .forEach(aChild -> {
+                            try {
+                                delete(aChild);
+                            } catch (IOException e) {
+                                logger.log(Level.SEVERE, e.getMessage(), e);
+                            }
+                        });
             }
         }
         logger.log(Level.FINE, "Deleting " + path + ".");
@@ -261,7 +264,8 @@ public class BundleGeneratorUtils {
     public static List<Path> listFiles(Path directory) throws IOException {
         List<Path> files = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-            directoryStream.forEach(files::add);
+            directoryStream
+                    .forEach(files::add);
         }
         return files;
     }
@@ -277,20 +281,21 @@ public class BundleGeneratorUtils {
     public static List<String> listPackages(Path jarFile) throws IOException, CarbonToolException {
         List<String> exportedPackagesList = new ArrayList<>();
         List<Path> content = BundleGeneratorUtils.listZipFileContent(jarFile);
-        content.forEach(zipChild -> {
-            String path = zipChild.toString();
-            if (!path.endsWith("/") && path.endsWith(".class")) {
-                //  This is package that contains classes. Thus, exportedPackagesList
-                int index = path.lastIndexOf('/');
-                if (index != -1) {
-                    path = path.substring(1, index);
-                    path = path.replaceAll("/", ".");
-                    if (!exportedPackagesList.contains(path)) {
-                        exportedPackagesList.add(path);
+        content
+                .forEach(zipChild -> {
+                    String path = zipChild.toString();
+                    if (!path.endsWith("/") && path.endsWith(".class")) {
+                        //  This is package that contains classes. Thus, exportedPackagesList
+                        int index = path.lastIndexOf('/');
+                        if (index != -1) {
+                            path = path.substring(1, index);
+                            path = path.replaceAll("/", ".");
+                            if (!exportedPackagesList.contains(path)) {
+                                exportedPackagesList.add(path);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
 
         logger.log(Level.FINE, "Returning a List<String> of packages from the JAR file " + jarFile.toString());
         return exportedPackagesList;
