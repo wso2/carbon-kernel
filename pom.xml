@@ -44,9 +44,9 @@
         <module>components/entitlement</module>
         <module>components/identity-core</module>
         <module>components/application-mgt</module>
-        <!--<module>components/identity-mgt</module>-->
+        <module>components/identity-mgt</module>
         <module>components/identity-event</module>
-        <!--<module>components/notification-mgt</module>-->
+        <module>components/notification-mgt</module>
         <module>components/provisioning</module>
         <module>components/user-mgt</module>
         <module>components/user-store</module>
@@ -61,11 +61,12 @@
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
         <module>features/identity-event</module>
+        <module>features/identity-mgt</module>
         <module>features/xacml</module>
         <module>features/authentication-framework</module>
         <module>features/application-mgt</module>
         <module>features/provisioning</module>
-        <!--<module>features/notification-mgt</module>-->
+        <module>features/notification-mgt</module>
         <module>features/idp-mgt</module>
         <module>features/directory-server-manager</module>
         <module>features/user-mgt</module>
@@ -744,7 +745,6 @@
                 <artifactId>org.wso2.carbon.identity.application.authenticator.basicauth.server.feature</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
@@ -1094,6 +1094,17 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.mgt</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.mgt.server.feature</artifactId>
+                <version>${identity.framework.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.ui.feature</artifactId>
                 <version>${identity.framework.version}</version>
                 <type>zip</type>
@@ -1104,6 +1115,7 @@
                 <artifactId>org.wso2.carbon.identity.mgt.ui</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
+
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
