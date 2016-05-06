@@ -265,13 +265,19 @@ public class DropinsBundleDeployerUtils {
      */
     private static void updateBundlesInfoFile(List<BundleInfo> info, Path bundlesInfoFilePath) throws IOException {
         if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
-            Files.deleteIfExists(bundlesInfoFilePath);
             if (info != null) {
                 List<String> bundleInfoLines = new ArrayList<>();
                 info
                         .stream()
                         .forEach(information -> bundleInfoLines.add(information.toString()));
-                Files.write(bundlesInfoFilePath, bundleInfoLines);
+
+                Path parent = bundlesInfoFilePath.getParent();
+                if (parent != null) {
+                    Path newBundlesInfoFile = Paths.get(parent.toString(), "new.info");
+                    Files.write(newBundlesInfoFile, bundleInfoLines);
+                    Files.deleteIfExists(bundlesInfoFilePath);
+                    Files.move(newBundlesInfoFile, newBundlesInfoFile.resolveSibling("bundles.info"));
+                }
             }
         } else {
             throw new IOException("Invalid file path. The specified path may not exist or " +
