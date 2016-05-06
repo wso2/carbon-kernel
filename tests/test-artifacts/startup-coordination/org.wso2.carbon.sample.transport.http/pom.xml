@@ -53,6 +53,9 @@
     <properties>
         <export.package>org.wso2.carbon.sample.transport.http</export.package>
         <import.package>*</import.package>
+        <carbon.component>
+            osgi.service;objectClass="org.wso2.carbon.sample.transport.mgt.Transport"
+        </carbon.component>
     </properties>
 
 </project>

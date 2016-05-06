@@ -53,6 +53,9 @@
     <properties>
         <export.package>org.wso2.carbon.sample.runtime.mss</export.package>
         <import.package>*</import.package>
+        <carbon.component>
+            osgi.service;objectClass="org.wso2.carbon.sample.runtime.mgt.Runtime"
+        </carbon.component>
     </properties>
 
 </project>
