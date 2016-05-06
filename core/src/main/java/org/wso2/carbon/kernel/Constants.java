@@ -43,7 +43,7 @@ public final class Constants {
      * The logger that needs to be used for auditing purposes.
      *
      */
-    public static final Logger AUDIT = LoggerFactory.getLogger("AUDIT_LOG");
+    public static final Logger AUDIT_LOG = LoggerFactory.getLogger("AUDIT_LOG");
 
     /**
      * Remove default constructor and make it not available to initialize.

@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
@@ -110,7 +109,7 @@ public class LoggingConfigurationOSGiTest {
         Principal principal = () -> "Banda";
         carbonContext.setUserPrincipal(principal);
 
-        Logger audit = Constants.AUDIT;
+        Logger audit = org.wso2.carbon.kernel.Constants.AUDIT_LOG;
         audit.info("Attempting to test the audit logs.");
 
         Path auditLog = Paths.get(System.getProperty("carbon.home"), "logs", "audit.log");
