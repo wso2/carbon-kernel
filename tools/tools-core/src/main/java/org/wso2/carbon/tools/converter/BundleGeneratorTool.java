@@ -79,9 +79,9 @@ public class BundleGeneratorTool implements CarbonTool {
                 logger.log(Level.WARNING, "Invalid file path(s)");
             }
         } else {
-            String message =
-                    "Improper usage detected. Usage: jartobundle.sh/.bat [source file] [destination folder], both " +
-                            "arguments source and destination are compulsory";
+            String message = "Improper usage detected. " +
+                    "Usage: jartobundle.sh/.bat [source file/directory] [destination folder], both " +
+                    "arguments source and destination are compulsory";
             logger.log(Level.INFO, message);
         }
     }
