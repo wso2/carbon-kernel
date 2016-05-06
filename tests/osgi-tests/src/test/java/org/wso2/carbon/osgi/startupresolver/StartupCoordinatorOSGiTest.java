@@ -83,6 +83,8 @@ public class StartupCoordinatorOSGiTest {
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
                 .versionAsInProject());
+        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.jms").groupId("org.wso2.carbon")
+                .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
                 .versionAsInProject());
 
@@ -103,7 +105,7 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithOneService() {
         Assert.assertNotNull(transportManager, "TransportManager Service is null");
 
-        int expectedTransportCount = 1;
+        int expectedTransportCount = 3;
         int actualTransportCount = transportManager.getTransportCount();
         Assert.assertEquals(actualTransportCount, expectedTransportCount, "Transport count is not correct");
     }

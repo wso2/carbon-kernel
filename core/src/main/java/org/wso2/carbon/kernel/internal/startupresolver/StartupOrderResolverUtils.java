@@ -18,15 +18,7 @@
 package org.wso2.carbon.kernel.internal.startupresolver;
 
 import org.osgi.framework.Bundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.Capability;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.CapabilityProviderCapability;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.OSGiServiceCapability;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.RequiredCapabilityListenerCapability;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
-import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
-import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
 
@@ -34,25 +26,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME_SPLIT_CHAR;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_KEY;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS_LIST_STRING;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OSGI_SERVICE;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.REQUIRED_SERVICE;
 
 /**
  * @since 5.1.0
  */
 class StartupOrderResolverUtils {
-    private static final Logger logger = LoggerFactory.getLogger(StartupOrderResolverUtils.class);
 
     private StartupOrderResolverUtils() {
         throw new AssertionError("Instantiating utility class...");
@@ -84,7 +68,7 @@ class StartupOrderResolverUtils {
      * @return the created {@code StartupComponent}.
      */
     static StartupComponent getStartupComponentBean(ManifestElement manifestElement) {
-        String componentName = manifestElement.getValue().trim();
+        String componentName = getManifestElementAttribute(COMPONENT_NAME, manifestElement, true);
         String requiredServices = getManifestElementAttribute(REQUIRED_SERVICE, manifestElement, true);
         String[] requiredServiceArray = requiredServices != null ?
                 requiredServices.split(CAPABILITY_NAME_SPLIT_CHAR) : new String[0];
@@ -131,7 +115,7 @@ class StartupOrderResolverUtils {
      *                        then this method throws a {@code StartOrderResolverException}
      * @return requested attribute value
      */
-    private static String getManifestElementAttribute(String attributeKey,
+    public static String getManifestElementAttribute(String attributeKey,
                                                       ManifestElement manifestElement, boolean mandatory) {
         String value = manifestElement.getAttribute(attributeKey);
         if ((value == null || value.equals("")) && mandatory) {
@@ -151,11 +135,8 @@ class StartupOrderResolverUtils {
      * @param manifestElement {@code ManifestElement} from which the "objectClass" is to be extracted.
      * @return the value of the "objectClass" attribut.
      */
-    private static String getObjectClassName(ManifestElement manifestElement) {
+    public static String getObjectClassName(ManifestElement manifestElement) {
         String className = manifestElement.getAttribute(OBJECT_CLASS);
-        if (className == null) {
-            className = manifestElement.getAttribute(OBJECT_CLASS_LIST_STRING);
-        }
 
         if (className == null || className.equals("")) {
             throw new StartOrderResolverException("objectClass cannot be empty. Bundle-SymbolicName: " +
@@ -172,132 +153,6 @@ class StartupOrderResolverUtils {
             String message = "Error occurred while parsing the " + headerName + " header in bundle(" +
                     bundle.getSymbolicName() + ":" + bundle.getVersion() + "). " + "Header value: " + headerValue;
             throw new StartOrderResolverException(message, e);
-        }
-    }
-
-    static class RequireCapabilityListenerProcessor implements Function<ManifestElement, Optional<Capability>> {
-
-        @Override
-        public Optional<Capability> apply(ManifestElement manifestElement) {
-            String capabilityType = manifestElement.getValue();
-
-            if (OSGI_SERVICE.equals(capabilityType) &&
-                    RequiredCapabilityListener.class.getName().equals(getObjectClassName(manifestElement))) {
-
-                // Processing RequiredCapabilityListener capability for backward compatibility
-                String capabilityNames = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, false);
-
-                // This check is required due to https://github.com/bndtools/bnd/issues/1364. Once this issue is
-                // we can get-rid of the following check and make the capability-name compulsory.
-                if (capabilityNames == null) {
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Discarding manifest element with RequiredCapabilityListener from bundle({}:{}) " +
-                                        "due to missing capability-name property.",
-                                manifestElement.getBundle().getSymbolicName(),
-                                manifestElement.getBundle().getVersion());
-                    }
-
-                    return Optional.empty();
-
-                } else {
-                    String componentName = getManifestElementAttribute(COMPONENT_NAME, manifestElement, true);
-                    String[] requiredServiceArray = capabilityNames.split(CAPABILITY_NAME_SPLIT_CHAR);
-                    List<String> requiredServicesList = Arrays.asList(requiredServiceArray)
-                            .stream()
-                            .map(String::trim)
-                            .collect(Collectors.toList());
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Creating a RequiredCapabilityListenerCapability from manifest element in " +
-                                        "bundle({}:{}), with the componentName - {} and CapabilityNames - {}. ",
-                                manifestElement.getBundle().getSymbolicName(),
-                                manifestElement.getBundle().getVersion(), componentName, capabilityNames);
-                    }
-
-                    return Optional.of(new RequiredCapabilityListenerCapability(getObjectClassName(manifestElement),
-                            Capability.CapabilityType.OSGi_SERVICE, componentName, requiredServicesList,
-                            manifestElement.getBundle()));
-                }
-
-            } else {
-                return Optional.empty();
-            }
-        }
-    }
-
-    static class CapabilityProviderProcessor implements Function<ManifestElement, Optional<Capability>> {
-
-        @Override
-        public Optional<Capability> apply(ManifestElement manifestElement) {
-            String capabilityType = manifestElement.getValue();
-            if (OSGI_SERVICE.equals(capabilityType) &&
-                    CapabilityProvider.class.getName().equals(getObjectClassName(manifestElement))) {
-
-                // Processing CapabilityProvider capability
-                String providedCapabilityName = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, false);
-                // This check is required due to https://github.com/bndtools/bnd/issues/1364. Once this issue is
-                // we can get-rid of the following check and make the capability-name compulsory.
-                if (providedCapabilityName == null) {
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Discarding manifest element with CapabilityProvider from bundle({}:{}) " +
-                                        "due to missing capability-name property.",
-                                manifestElement.getBundle().getSymbolicName(),
-                                manifestElement.getBundle().getVersion());
-                    }
-
-                    return Optional.empty();
-
-                } else {
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Creating a CapabilityProviderCapability from manifest element in " +
-                                        "bundle({}:{}), with CapabilityName - {}. ",
-                                manifestElement.getBundle().getSymbolicName(),
-                                manifestElement.getBundle().getVersion(),
-                                providedCapabilityName);
-                    }
-
-                    return Optional.of(new CapabilityProviderCapability(getObjectClassName(manifestElement),
-                            Capability.CapabilityType.OSGi_SERVICE, providedCapabilityName,
-                            manifestElement.getBundle()));
-                }
-            } else {
-                return Optional.empty();
-            }
-        }
-    }
-
-    static class OSGiServiceCapabilityProcessor implements Function<ManifestElement, Optional<Capability>> {
-
-        @Override
-        public Optional<Capability> apply(ManifestElement manifestElement) {
-            String capabilityType = manifestElement.getValue();
-            if (OSGI_SERVICE.equals(capabilityType)) {
-                // Process rest of the OSGi service capabilities.
-                String capabilityName = getObjectClassName(manifestElement);
-
-                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(capabilityName,
-                        Capability.CapabilityType.OSGi_SERVICE, manifestElement.getBundle());
-
-                // Check whether a dependent-component-key or dependent-component-name property is specified.
-                String dependentComponentName = getManifestElementAttribute(
-                        DEPENDENT_COMPONENT_KEY, manifestElement, false);
-
-                if (dependentComponentName == null || dependentComponentName.equals("")) {
-                    dependentComponentName = getManifestElementAttribute(
-                            DEPENDENT_COMPONENT_NAME, manifestElement, false);
-                }
-
-                if (dependentComponentName != null && !dependentComponentName.equals("")) {
-                    osgiServiceCapability.setDependentComponentName(dependentComponentName.trim());
-                }
-
-                return Optional.of(osgiServiceCapability);
-            } else {
-                return Optional.empty();
-            }
         }
     }
 }

@@ -46,7 +46,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class ManifestElementOSGiTest {
-    private static final String PROVIDE_CAPABILITY = "Provide-Capability";
+    private static final String CARBON_COMPONENT = "Carbon-Component";
 
     @Inject
     BundleContext bundleContext;
@@ -75,9 +75,9 @@ public class ManifestElementOSGiTest {
                 .findFirst()
                 .get();
 
-        String headerValue = carbonCoreBundle.getHeaders().get(PROVIDE_CAPABILITY);
+        String headerValue = carbonCoreBundle.getHeaders().get(CARBON_COMPONENT);
         try {
-            List<ManifestElement> elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, headerValue,
+            List<ManifestElement> elements = ManifestElement.parseHeader(CARBON_COMPONENT, headerValue,
                     bundleContext.getBundle());
             Assert.assertTrue(elements.size() > 0);
 
@@ -87,8 +87,8 @@ public class ManifestElementOSGiTest {
             String[] elementsInManifest = strRepresentation.split(";");
             List<String> keys = Collections.list(firstElement.getKeys());
 
-            Assert.assertEquals("osgi.service", value);
-            Assert.assertEquals(elementsInManifest.length, 4);
+            Assert.assertEquals("startup.listener", value);
+            Assert.assertEquals(elementsInManifest.length, 3);
             Assert.assertEquals(keys.size(), 2);
         } catch (ManifestElementParserException e) {
             Assert.assertTrue(false);
@@ -98,7 +98,7 @@ public class ManifestElementOSGiTest {
     @Test
     public void testParseHeaderEmptyValueTest() {
         try {
-            List<ManifestElement> elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, null,
+            List<ManifestElement> elements = ManifestElement.parseHeader(CARBON_COMPONENT, null,
                     bundleContext.getBundle());
             Assert.assertEquals(0, elements.size());
         } catch (ManifestElementParserException e) {

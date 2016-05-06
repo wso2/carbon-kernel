@@ -117,7 +117,7 @@ class OSGiServiceCapabilityTracker {
         try {
             return bundleContext.createFilter(orFilterBuilder.toString());
         } catch (InvalidSyntaxException e) {
-            throw new StartOrderResolverException(e.getMessage(), e);
+            throw new StartOrderResolverException("Error occurred while creating the service filter", e);
         }
     }
 

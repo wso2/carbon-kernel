@@ -28,8 +28,8 @@ import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.Capability;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.CapabilityProviderCapability;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.OSGiServiceCapability;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.RequiredCapabilityListenerCapability;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
+import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 
@@ -39,20 +39,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.CapabilityProviderProcessor;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.OSGiServiceCapabilityProcessor;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
-        RequireCapabilityListenerProcessor;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.extractManifestElements;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.getManifestElementAttribute;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.getObjectClassName;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.isSupportedManifestHeaderExists;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.PROVIDE_CAPABILITY_HEADER;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.STARTUP_COMPONENT_HEADER;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CARBON_COMPONENT_HEADER;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_NAME;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OSGI_SERVICE_COMPONENT;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.SERVICE_COUNT;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.STARTUP_LISTENER_COMPONENT;
 
 
 /**
@@ -80,8 +81,7 @@ public class StartupOrderResolver {
     private static final List<String> supportedManifestHeaders = new ArrayList<>();
 
     static {
-        supportedManifestHeaders.add(PROVIDE_CAPABILITY_HEADER);
-        supportedManifestHeaders.add(STARTUP_COMPONENT_HEADER);
+        supportedManifestHeaders.add(CARBON_COMPONENT_HEADER);
     }
 
     private StartupComponentManager startupComponentManager = new StartupComponentManager();
@@ -161,10 +161,18 @@ public class StartupOrderResolver {
                 // Process filtered manifest headers and get a list of ManifestElements.
                 .flatMap(bundle -> extractManifestElements(bundle, supportedManifestHeaders).stream())
                 // Partition all the ManifestElements with the manifest header name.
-                .collect(Collectors.groupingBy(ManifestElement::getManifestHeaderName));
+                .collect(Collectors.groupingBy(ManifestElement::getValue));
 
-        processStartupComponents(groupedManifestElements.get(STARTUP_COMPONENT_HEADER));
-        processProvidedCapabilities(groupedManifestElements);
+        if (groupedManifestElements.get(STARTUP_LISTENER_COMPONENT) != null) {
+            processStartupComponents(groupedManifestElements.get(STARTUP_LISTENER_COMPONENT));
+        }
+
+        if (groupedManifestElements.get(OSGI_SERVICE_COMPONENT) != null) {
+            processOSGiServiceCapabilities(groupedManifestElements.get(OSGI_SERVICE_COMPONENT));
+        }
+
+        // You can add logic to handle other types of provide capabilities here.
+        // e.g. custom manifest headers, config files etc.
     }
 
     /**
@@ -284,17 +292,12 @@ public class StartupOrderResolver {
      * @param manifestElementList a list of {@code ManifestElement} whose header name is Startup-Component.
      */
     private void processStartupComponents(List<ManifestElement> manifestElementList) {
-        if (manifestElementList == null) {
-            return;
-        }
-
         // Create StartupComponents from the manifest elements.
         List<StartupComponent> startupComponentList = manifestElementList
                 .stream()
                 .map(StartupOrderResolverUtils::getStartupComponentBean)
                 .collect(Collectors.toList());
         startupComponentManager.addComponents(startupComponentList);
-
     }
 
     /**
@@ -302,102 +305,91 @@ public class StartupOrderResolver {
      * <p>
      * At the moment this methods process manifest elements with the namespace osgi.service.
      *
-     * @param groupedManifestElements partitioned manifest elements by the header name.
+     * @param manifestElementList partitioned manifest elements by the header name.
      */
-    private void processProvidedCapabilities(Map<String, List<ManifestElement>> groupedManifestElements) {
+    private void processOSGiServiceCapabilities(List<ManifestElement> manifestElementList) {
+        // Handle CapabilityProvider OSGi services
+        processCapabilityProviders(manifestElementList);
 
-        // Create StartupComponents from the RequiredCapabilityListeners. To achieve backward compatibility.
-        List<Capability> providedCapabilityList = processProvideCapabilitiesInternal(
-                groupedManifestElements.get(PROVIDE_CAPABILITY_HEADER), new RequireCapabilityListenerProcessor());
-        processRequiredCapabilityListeners(providedCapabilityList);
-
-        // Handle CapabilityProviderBeans
-        providedCapabilityList = processProvideCapabilitiesInternal(
-                groupedManifestElements.get(PROVIDE_CAPABILITY_HEADER), new CapabilityProviderProcessor());
-        processCapabilityProviders(providedCapabilityList);
-
-        // Handle OSGiServiceCapabilities
-        providedCapabilityList = processProvideCapabilitiesInternal(
-                groupedManifestElements.get(PROVIDE_CAPABILITY_HEADER), new OSGiServiceCapabilityProcessor());
-        processOSGiServiceCapabilities(providedCapabilityList);
-
-        // You can add logic to handle other types of provide capabilities here.
-        // e.g. custom manifest headers, config files etc.
-    }
-
-    /**
-     * Generic method which process a given list of {@code ManifestElement}s and
-     * returns a list of {@code ProvidedCapability} instances.
-     *
-     * @param manifestElementList        list of ManifestElements to be processed.
-     * @param provideCapabilityProcessor A function which maps a ManifestElement to a ProvidedCapability.
-     * @return a list of ProvidedCapability instances
-     */
-    private List<Capability> processProvideCapabilitiesInternal(
-            List<ManifestElement> manifestElementList,
-            Function<ManifestElement, Optional<Capability>> provideCapabilityProcessor) {
-
-        // Create ProvideCapability objects from the manifest elements.
-        return manifestElementList
+        // Handle other OSGi service capabilities
+        manifestElementList
                 .stream()
-                // Create a ProvideCapabilityBean from the manifest element.
-                .map(provideCapabilityProcessor)
-                // Filter out all the non-empty Optionals.
-                .filter(Optional::isPresent)
-                // Get the ProvideCapability from the Optional wrapper.
-                .map(Optional::get)
-                // Group all ProvideCapability objects based on the class name.
-                .collect(Collectors.toList());
-    }
+                .filter(manifestElement -> !CapabilityProvider.class.getName().equals(
+                        getObjectClassName(manifestElement)) &&
+                        !RequiredCapabilityListener.class.getName().equals(getObjectClassName(manifestElement)))
+                // Creating a Capability from the manifestElement
+                .flatMap(manifestElement -> {
+                    String capabilityName = getObjectClassName(manifestElement);
 
-    /**
-     * Create a list of StartupComponents from RequiredCapabilityLister elements and
-     * add the list to the {@code StartupComponentManager}.
-     * <p>
-     * This is to support backward compatibility.
-     *
-     * @param requiredCapabilityListenerList list of RequiredCapabilityLister capabilities
-     */
-    private void processRequiredCapabilityListeners(List<Capability> requiredCapabilityListenerList) {
-        if (requiredCapabilityListenerList == null) {
-            return;
-        }
+                    String serviceCountStr = getManifestElementAttribute(SERVICE_COUNT, manifestElement, false);
 
-        List<StartupComponent> startupComponentList = requiredCapabilityListenerList
-                .stream()
-                .map(provideCapability -> (RequiredCapabilityListenerCapability) provideCapability)
-                .map(capabilityListener -> {
-                    StartupComponent startupComponent = new StartupComponent(
-                            capabilityListener.getComponentName(), capabilityListener.getBundle());
-                    startupComponent.setRequiredServiceList(capabilityListener.getRequiredServiceList());
-                    return startupComponent;
-                })
-                .collect(Collectors.toList());
-
-        startupComponentManager.addComponents(startupComponentList);
-    }
-
-    private void processCapabilityProviders(List<Capability> capabilityProviderList) {
-        if (capabilityProviderList != null) {
-            capabilityProviderList
-                    .forEach(ProvideCapability -> startupComponentManager.addExpectedCapabilityProvider(
-                            (CapabilityProviderCapability) ProvideCapability));
-        }
-    }
-
-    private void processOSGiServiceCapabilities(List<Capability> providedCapabilityList) {
-        if (providedCapabilityList != null) {
-            providedCapabilityList
-                    .stream()
-                    .map(provideCapability -> (OSGiServiceCapability) provideCapability)
-                    .forEach(osgiServiceCapability -> {
-                        if (osgiServiceCapability.getDependentComponentName() != null) {
-                            startupComponentManager.addRequiredOSGiServiceCapabilityToComponent(
-                                    osgiServiceCapability.getDependentComponentName(), osgiServiceCapability.getName());
+                    int serviceCount = 1;
+                    if (serviceCountStr != null) {
+                        try {
+                            serviceCount = Integer.parseInt(serviceCountStr.trim());
+                        } catch (NumberFormatException e) {
+                            throw new StartOrderResolverException("Invalid value for serviceCount manifest attribute " +
+                                    "in bundle(" + manifestElement.getBundle().getSymbolicName() + ":" +
+                                    manifestElement.getBundle().getVersion() + ")", e);
                         }
-                        startupComponentManager.addExpectedRequiredCapability(osgiServiceCapability);
-                    });
-        }
+                    }
+
+                    // Create specifed  number of OSGi service components and adding them to a list.
+                    List<OSGiServiceCapability> osgiServiceCapabilityList = new ArrayList<>(serviceCount);
+                    IntStream.range(0, serviceCount)
+                            .forEach(count -> {
+                                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(capabilityName,
+                                        Capability.CapabilityType.OSGi_SERVICE, manifestElement.getBundle());
+
+                                // Check whether a dependent-component-key or dependent-component-name
+                                // property is specified.
+                                String dependentComponentName = getManifestElementAttribute(
+                                        DEPENDENT_COMPONENT_NAME, manifestElement, false);
+
+                                if (dependentComponentName != null && !dependentComponentName.equals("")) {
+                                    osgiServiceCapability.setDependentComponentName(dependentComponentName.trim());
+                                }
+                                osgiServiceCapabilityList.add(osgiServiceCapability);
+                            });
+
+                    return osgiServiceCapabilityList.stream();
+                })
+                .forEach(capability -> {
+                    if (capability.getDependentComponentName() != null) {
+                        startupComponentManager.addRequiredOSGiServiceCapabilityToComponent(
+                                capability.getDependentComponentName(), capability.getName());
+                    }
+                    startupComponentManager.addExpectedRequiredCapability(capability);
+                });
+
+
+    }
+
+    private void processCapabilityProviders(List<ManifestElement> manifestElementList) {
+
+        manifestElementList
+                .stream()
+                .filter(manifestElement -> CapabilityProvider.class.getName().equals(
+                        getObjectClassName(manifestElement)))
+                .map(manifestElement -> {
+                    // Processing CapabilityProvider OSGi service
+                    String providedCapabilityName = getManifestElementAttribute(
+                            CAPABILITY_NAME, manifestElement, false);
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Creating a CapabilityProviderCapability from manifest element in " +
+                                        "bundle({}:{}), with CapabilityName - {}. ",
+                                manifestElement.getBundle().getSymbolicName(),
+                                manifestElement.getBundle().getVersion(),
+                                providedCapabilityName);
+                    }
+
+                    return new CapabilityProviderCapability(getObjectClassName(manifestElement),
+                            Capability.CapabilityType.OSGi_SERVICE, providedCapabilityName,
+                            manifestElement.getBundle());
+                })
+                .forEach(capability -> startupComponentManager.addExpectedCapabilityProvider(capability));
+
     }
 
     private void notifySatisfiableComponents() {
