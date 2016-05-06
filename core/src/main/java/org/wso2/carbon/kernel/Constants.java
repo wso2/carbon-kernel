@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.kernel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Carbon Constants.
  *
@@ -35,6 +38,12 @@ public final class Constants {
     public static final String TENANT_NAME = "tenant.name";
 
     public static final String SERVER_PACKAGE = "org.wso2.carbon";
+
+    /**
+     * The logger that needs to be used for auditing purposes.
+     *
+     */
+    public static final Logger AUDIT = LoggerFactory.getLogger("AUDIT_LOG");
 
     /**
      * Remove default constructor and make it not available to initialize.

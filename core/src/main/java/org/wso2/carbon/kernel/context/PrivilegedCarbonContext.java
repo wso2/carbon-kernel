@@ -15,11 +15,12 @@
  */
 package org.wso2.carbon.kernel.context;
 
-
+import org.slf4j.MDC;
 import org.wso2.carbon.kernel.internal.context.CarbonContextHolder;
 import org.wso2.carbon.kernel.utils.Utils;
 
 import java.security.Principal;
+
 
 /**
  * This CarbonContext provides users the ability to carry out privileged actions such as setting user principal,
@@ -63,6 +64,9 @@ public final class PrivilegedCarbonContext extends CarbonContext {
     public void setUserPrincipal(Principal userPrincipal) {
         Utils.checkSecurity();
         getCarbonContextHolder().setUserPrincipal(userPrincipal);
+
+        //for auditing
+        MDC.put("user-name", userPrincipal.getName());
     }
 
     /**

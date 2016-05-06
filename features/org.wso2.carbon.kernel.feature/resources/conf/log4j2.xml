@@ -27,12 +27,22 @@
                 <TimeBasedTriggeringPolicy/>
             </Policies>
         </RollingFile>
+        <RollingFile name="AUDIT_LOGFILE" fileName="${sys:carbon.home}/logs/audit.log"
+                     filePattern="${sys:carbon.home}/logs/audit-%d{MM-dd-yyyy}.log">
+            <PatternLayout pattern="[%d] %5p %X %m%ex%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Root level="info">
             <AppenderRef ref="CARBON_CONSOLE"/>
             <AppenderRef ref="CARBON_LOGFILE"/>
         </Root>
+        <Logger name="AUDIT_LOG" level="info" additivity="false">
+            <AppenderRef ref="AUDIT_LOGFILE"/>
+        </Logger>
         <!--<Logger name="org.wso2.carbon.kernel" level="debug"/>-->
     </Loggers>
 </Configuration>
