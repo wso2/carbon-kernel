@@ -60,7 +60,7 @@ class DropinsDeployerToolUtils {
                 DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome)
                         .forEach(carbonProfile -> {
                             try {
-                                DropinsBundleDeployerUtils.installDropins(carbonHome, carbonProfile, newBundlesInfo);
+                                DropinsBundleDeployerUtils.updateDropins(carbonHome, carbonProfile, newBundlesInfo);
                             } catch (IOException e) {
                                 logger.log(Level.SEVERE,
                                         "Failed to update the OSGi bundle information of Carbon Profile: "
@@ -69,7 +69,7 @@ class DropinsDeployerToolUtils {
                         });
             } else {
                 try {
-                    DropinsBundleDeployerUtils.installDropins(carbonHome, profile, newBundlesInfo);
+                    DropinsBundleDeployerUtils.updateDropins(carbonHome, profile, newBundlesInfo);
                 } catch (IOException e) {
                     logger.log(Level.SEVERE,
                             "Failed to update the OSGi bundle information of Carbon Profile: " + profile, e);

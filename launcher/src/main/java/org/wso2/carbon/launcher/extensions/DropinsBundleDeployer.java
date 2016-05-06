@@ -56,7 +56,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                 logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
                         " folder");
 
-                DropinsBundleDeployerUtils.installDropins(carbonHome.toString(), profile, newBundlesInfo);
+                DropinsBundleDeployerUtils.updateDropins(carbonHome.toString(), profile, newBundlesInfo);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed to update the OSGi bundle information of Carbon Profile: " + profile,
                         e);

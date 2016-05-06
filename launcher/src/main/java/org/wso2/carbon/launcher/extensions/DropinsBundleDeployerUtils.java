@@ -18,6 +18,7 @@ package org.wso2.carbon.launcher.extensions;
 import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.launcher.extensions.model.BundleInstallStatus;
+import org.wso2.carbon.launcher.extensions.model.BundleLocation;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,9 +65,9 @@ public class DropinsBundleDeployerUtils {
      * @param newBundlesInfo the new OSGi bundle information
      * @throws IOException if an I/O error occurs
      */
-    public static synchronized void installDropins(String carbonHome, String carbonProfile,
+    public static synchronized void updateDropins(String carbonHome, String carbonProfile,
             List<BundleInfo> newBundlesInfo) throws IOException {
-        //  validate the arguments provided
+        //  validates the arguments provided
         if ((carbonHome == null) || (carbonHome.isEmpty())) {
             throw new IllegalArgumentException("Carbon home specified is invalid");
         }
@@ -83,20 +84,24 @@ public class DropinsBundleDeployerUtils {
         Path bundlesInfoFile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
                 carbonProfile, "configuration", "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
         //  retrieves the OSGi bundle information defined in the existing bundles.info file
-        Map<Boolean, List<BundleInfo>> existingBundlesInfo = Files.readAllLines(bundlesInfoFile)
+        Map<BundleLocation, List<BundleInfo>> existingBundlesInfo = Files.readAllLines(bundlesInfoFile)
                 .stream()
                 .filter(line -> !line.startsWith("#"))
                 .map(BundleInfo::getInstance)
                 .collect(Collectors.groupingBy(BundleInfo::isFromDropins));
 
         Map<BundleInstallStatus, List<BundleInfo>> updatableBundles =
-                getUpdatableBundles(newBundlesInfo, existingBundlesInfo.get(true));
+                getUpdatableBundles(newBundlesInfo, existingBundlesInfo.get(BundleLocation.DROPINS_BUNDLE));
 
         if ((updatableBundles.get(BundleInstallStatus.TO_BE_INSTALLED).size() > 0) || (
                 updatableBundles.get(BundleInstallStatus.TO_BE_REMOVED).size() > 0)) {
+
             logger.log(Level.FINE, getBundleInstallationSummary(updatableBundles));
-            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsBundleInfo(newBundlesInfo, existingBundlesInfo);
-            updateBundlesInfo(effectiveNewBundleInfo, bundlesInfoFile);
+
+            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsWithExistingBundlesInfo(newBundlesInfo,
+                    existingBundlesInfo);
+
+            updateBundlesInfoFile(effectiveNewBundleInfo, bundlesInfoFile);
             logger.log(Level.INFO,
                     "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
         } else {
@@ -235,10 +240,9 @@ public class DropinsBundleDeployerUtils {
      * @param existingBundleInfo the existing OSGi bundle information
      * @return merged result of the existing OSGi bundle information with the newly retrieved OSGi bundle information
      */
-    private static List<BundleInfo> mergeDropinsBundleInfo(List<BundleInfo> newBundlesInfo,
-            Map<Boolean, List<BundleInfo>> existingBundleInfo) {
-        //  initializes the final group of OSGi bundles with the existing non-dropins OSGi bundles
-        List<BundleInfo> effectiveBundlesInfo = existingBundleInfo.get(false);
+    private static List<BundleInfo> mergeDropinsWithExistingBundlesInfo(List<BundleInfo> newBundlesInfo,
+            Map<BundleLocation, List<BundleInfo>> existingBundleInfo) {
+        List<BundleInfo> effectiveBundlesInfo = existingBundleInfo.get(BundleLocation.NON_DROPINS_BUNDLE);
 
         if (effectiveBundlesInfo != null) {
             effectiveBundlesInfo.addAll(newBundlesInfo);
@@ -259,7 +263,7 @@ public class DropinsBundleDeployerUtils {
      * @param bundlesInfoFilePath the bundles.info file path, to be updated
      * @throws IOException if an I/O error occurs
      */
-    private static void updateBundlesInfo(List<BundleInfo> info, Path bundlesInfoFilePath) throws IOException {
+    private static void updateBundlesInfoFile(List<BundleInfo> info, Path bundlesInfoFilePath) throws IOException {
         if ((bundlesInfoFilePath != null) && (Files.exists(bundlesInfoFilePath))) {
             Files.deleteIfExists(bundlesInfoFilePath);
             if (info != null) {

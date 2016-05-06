@@ -143,14 +143,14 @@ public class DropinsBundleDeployerTest extends BaseTest {
             priority = 5,
             expectedExceptions = { IllegalArgumentException.class })
     public void testInstallingNewBundlesWithInvalidCarbonProfile() throws IOException {
-        DropinsBundleDeployerUtils.installDropins(carbonHome, null, new ArrayList<>());
+        DropinsBundleDeployerUtils.updateDropins(carbonHome, null, new ArrayList<>());
     }
 
     @Test(description = "Attempts to install new OSGi bundles with invalid list of new OSGi bundles",
             priority = 5,
             expectedExceptions = { IllegalArgumentException.class })
     public void testInstallingNewBundlesWithInvalidBundlesInfo() throws IOException {
-        DropinsBundleDeployerUtils.installDropins(carbonHome, Constants.DEFAULT_PROFILE, null);
+        DropinsBundleDeployerUtils.updateDropins(carbonHome, Constants.DEFAULT_PROFILE, null);
     }
 
     @Test(description = "Attempts to load the new OSGi bundle information from a non existing folder",
