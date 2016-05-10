@@ -305,9 +305,9 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v17</version.axis2>
+        <version.axis2>1.6.1-wso2v18-SNAPSHOT</version.axis2>
         <imp.pkg.version.axis2>[1.6.1.wso2v15, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v17</version.addressing>
+        <version.addressing>1.6.1-wso2v18-SNAPSHOT</version.addressing>
         <orbit.version.axis2>1.6.1.wso2v17</orbit.version.axis2>
         <axis2.client.osgi.version>1.6.1.wso2v17</axis2.client.osgi.version>
         <version.axis2.json>1.6.1-wso2v17</version.axis2.json>
@@ -326,12 +326,9 @@
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
-        <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
-        <orbit.version.poi.scratchpad>3.9.0.wso2v1</orbit.version.poi.scratchpad>
-        <orbit.version.poi.ooxml>3.9.0.wso2v3</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.2.wso2v1</orbit.version.commons.collection>
-        <orbit.version.commons.io>2.0.0.wso2v2</orbit.version.commons.io>
+        <orbit.version.commons.io>2.4.0.wso2v1</orbit.version.commons.io>
         <orbit.version.commons.dbcp>1.4.0.wso2v1</orbit.version.commons.dbcp>
         <orbit.version.smack>3.0.4.wso2v1</orbit.version.smack>
         <orbit.version.apacheds>1.5.7-wso2v1</orbit.version.apacheds>
@@ -360,8 +357,8 @@
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>1.49.0.wso2v2</bouncycastle.version>
-        <imp.pkg.version.bcp>[1.49.0.wso2v2, 1.50.0)</imp.pkg.version.bcp>
+        <bouncycastle.version>1.52.0.wso2v1</bouncycastle.version>
+        <imp.pkg.version.bcp>[1.52.0.wso2v1, 1.60.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -380,27 +377,25 @@
         <version.findbugs.annotations>1.3.2</version.findbugs.annotations>
         <version.commons.logging>1.2</version.commons.logging>
 
-        <version.opensaml2>2.4.1.wso2v1</version.opensaml2>
+        <!--<version.opensaml2>2.4.1.wso2v1</version.opensaml2>-->
         <version.compass>2.0.1.wso2v2</version.compass>
 
         <version.xercesImpl>2.8.1.wso2v2</version.xercesImpl>
-        <version.xalan>2.7.1.wso2v1</version.xalan>
+        <version.xalan>2.7.2.wso2v1</version.xalan>
         <version.XmlSchema>1.4.7.wso2v3</version.XmlSchema>
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
         <version.commons.codec>1.4.0.wso2v1</version.commons.codec>
         <version.annogen>0.1.0.wso2v1</version.annogen>
         <version.xml.apis>1.3.04.wso2v2</version.xml.apis>
         <version.backport.util.concurrent>3.1.0.wso2v1</version.backport.util.concurrent>
-        <version.commons.fileupload>1.2.2.wso2v1</version.commons.fileupload>
+        <version.commons.fileupload>1.3.1.wso2v1</version.commons.fileupload>
         <version.ehcache>1.5.0.wso2v2</version.ehcache>
         <version.opencsv>1.8.wso2v1</version.opencsv>
 
         <orbit.version.httpcore>4.3.3.wso2v1</orbit.version.httpcore>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-        <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
         <orbit.version.commons.httpclient>3.1.0.wso2v2</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
-        <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
 
         <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
 
@@ -788,14 +783,9 @@
                 <version>${version.equinox.javax.servlet}</version>
             </dependency>
             <dependency>
-                <groupId>org.bouncycastle.wso2</groupId>
+                <groupId>org.wso2.orbit.org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>opensaml.wso2</groupId>
-                <artifactId>opensaml2</artifactId>
-                <version>${version.opensaml2}</version>
             </dependency>
             <dependency>
                 <groupId>org.compass-project.wso2</groupId>
@@ -900,7 +890,7 @@
                 <version>${version.xercesImpl}</version>
             </dependency>
             <dependency>
-                <groupId>xalan.wso2</groupId>
+                <groupId>org.wso2.orbit.xalan</groupId>
                 <artifactId>xalan</artifactId>
                 <version>${version.xalan}</version>
             </dependency>
@@ -945,7 +935,7 @@
                 <version>${version.backport.util.concurrent}</version>
             </dependency>
             <dependency>
-                <groupId>commons-fileupload.wso2</groupId>
+                <groupId>org.wso2.orbit.commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
                 <version>${version.commons.fileupload}</version>
             </dependency>
@@ -1010,19 +1000,9 @@
                 <version>${version.opencsv}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.poi.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.poi</groupId>
                 <artifactId>poi</artifactId>
                 <version>${orbit.version.poi}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi.wso2</groupId>
-                <artifactId>poi-scratchpad</artifactId>
-                <version>${orbit.version.poi.scratchpad}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi.wso2</groupId>
-                <artifactId>poi-ooxml</artifactId>
-                <version>${orbit.version.poi.ooxm}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>

@@ -77,7 +77,6 @@
                                 <bundleDef>org.codehaus.jettison.wso2:jettison:${orbit.version.jettison}</bundleDef>
                                 <bundleDef>commons-pool.wso2:commons-pool:${orbit.version.commons.pool}</bundleDef>
                                 <bundleDef>commons-dbcp.wso2:commons-dbcp:${orbit.version.commons.dbcp}</bundleDef>
-                                <bundleDef>opensaml.wso2:opensaml2:${version.opensaml2}</bundleDef>
                                 <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.wso2.orbit.com.hazelcast:hazelcast:${orbit.version.hazelcast}</bundleDef>
@@ -94,7 +93,7 @@
                                 <bundleDef>
                                     backport-util-concurrent.wso2:backport-util-concurrent:${version.backport.util.concurrent}
                                 </bundleDef>
-                                <bundleDef>commons-fileupload.wso2:commons-fileupload:${version.commons.fileupload}
+                                <bundleDef>org.wso2.orbit.commons-fileupload:commons-fileupload:${version.commons.fileupload}
                                 </bundleDef>
                                 <bundleDef>
                                     commons-httpclient.wso2:commons-httpclient:${orbit.version.commons.httpclient}
@@ -109,9 +108,9 @@
                                 <bundleDef>
                                     org.apache.geronimo.specs.wso2:geronimo-saaj_1.3_spec:${version.geronimo.saaj.spec}
                                 </bundleDef>
-                                <bundleDef>org.apache.poi.wso2:poi:${orbit.version.poi}</bundleDef>
-                                <bundleDef>org.apache.poi.wso2:poi-scratchpad:${orbit.version.poi.scratchpad}
-                                </bundleDef>
+                                <!--<bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>-->
+                                <!--<bundleDef>org.apache.poi.wso2:poi-scratchpad:${orbit.version.poi.scratchpad}-->
+                                <!--</bundleDef>-->
                                 <bundleDef>com.sun.xml.bind.wso2:jaxb:${version.jaxb}</bundleDef>
                                 <bundleDef>com.jezhumble.wso2:javasysmon:${javasysmon.version}</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
