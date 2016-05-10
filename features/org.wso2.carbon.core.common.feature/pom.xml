@@ -108,9 +108,6 @@
                                 <bundleDef>
                                     org.apache.geronimo.specs.wso2:geronimo-saaj_1.3_spec:${version.geronimo.saaj.spec}
                                 </bundleDef>
-                                <!--<bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>-->
-                                <!--<bundleDef>org.apache.poi.wso2:poi-scratchpad:${orbit.version.poi.scratchpad}-->
-                                <!--</bundleDef>-->
                                 <bundleDef>com.sun.xml.bind.wso2:jaxb:${version.jaxb}</bundleDef>
                                 <bundleDef>com.jezhumble.wso2:javasysmon:${javasysmon.version}</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>

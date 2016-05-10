@@ -528,10 +528,6 @@
             <artifactId>jdbc-pool</artifactId>
             <version>${jdbc-pool.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.poi.wso2</groupId>-->
-            <!--<artifactId>poi-scratchpad</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
             <artifactId>commons-httpclient</artifactId>
