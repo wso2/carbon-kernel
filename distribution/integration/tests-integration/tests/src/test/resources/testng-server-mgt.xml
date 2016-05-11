@@ -75,6 +75,7 @@
     <test name="logging-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.integration.tests.logging.LoggingWithUUIDTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.logging.CARBON15185MaxPermGenSpaceWarningTestCase"/>
         </classes>
     </test>
 
