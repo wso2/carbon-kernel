@@ -84,6 +84,7 @@
             org.slf4j.*;version="[1.7,2)",
             com.hazelcast.*;version="[3.6,4)",
         </import.package>
+        <dynamic.import.package>*</dynamic.import.package>
         <provide.capability>
 
         </provide.capability>

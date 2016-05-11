@@ -58,6 +58,10 @@ public class CarbonHazelcastComponent {
                     "conf", "hazelcast", "hazelcast.xml").toString();
 
             Config config = new XmlConfigBuilder(hazelcastFilePath).build();
+            // Set class loader of this class as the Hazelcast class loader
+            // Internally used by Hazelcast for de-serialization and as context class-loader of Hazelcast
+            // internal threads.
+            config.setClassLoader(this.getClass().getClassLoader());
 
             hazelcastInstance = DataHolder.getInstance().getHazelcastOSGiService()
                     .newHazelcastInstance(config);
