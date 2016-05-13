@@ -81,7 +81,6 @@ public class BundleGeneratorUtils {
             if (fileName.endsWith(Constants.JAR_FILE_EXTENSION)) {
                 if (BundleGeneratorUtils.isOSGiBundle(jarFile)) {
                     logger.log(Level.WARNING, "Path " + jarFile.toString() + " refers to an OSGi bundle");
-                    return;
                 }
 
                 if (manifest == null) {

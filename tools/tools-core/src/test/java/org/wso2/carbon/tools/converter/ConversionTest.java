@@ -156,23 +156,26 @@ public class ConversionTest {
         }
     }
 
-    @Test(description = "Attempts to convert the contents of a source directory that does not contain any OSGi bundles",
+    @Test(description = "Attempts to convert the contents of a source directory that contains an OSGi bundle",
             priority = 2)
-    public void testConvertingDirectoryNotContainingOSGiBundle() throws IOException, CarbonToolException {
-        Files.deleteIfExists(Paths.get(converterTestResources.toString(), TestConstants.ARTIFACT_ONE));
+    public void testConvertingDirectoryContainingOSGiBundle() throws IOException, CarbonToolException {
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
         System.setProperty(Constants.CARBON_TOOL_SYSTEM_PROPERTY, "jar-to-bundle-converter");
-        CarbonToolExecutor.main(new String[]{
-                converterTestResources.toString(), destination.toString()
-        });
+        CarbonToolExecutor.main(new String[] { converterTestResources.toString(), destination.toString() });
 
-        Path jarFilePath = sampleJARFile.getFileName();
-        if (jarFilePath != null) {
-            String jarFileName = getBundleSymbolicName(jarFilePath);
-            String bundleName = jarFileName + "_1.0.0.jar";
-            Path bundlePath = Paths.get(destination.toString(), bundleName);
-            assert isOSGiBundle(bundlePath, jarFileName);
-            BundleGeneratorUtils.delete(bundlePath);
+        Path jarFilePathOne = sampleJARFile.getFileName();
+        Path osgiBundle = Paths.get(converterTestResources.toString(), TestConstants.ARTIFACT_ONE);
+        Path jarFilePathTwo = osgiBundle.getFileName();
+        if ((jarFilePathOne != null) && (jarFilePathTwo != null)) {
+            String jarFileOneName = getBundleSymbolicName(jarFilePathOne);
+            String jarFileTwoName = getBundleSymbolicName(jarFilePathTwo);
+            String bundleOneName = jarFileOneName + "_1.0.0.jar";
+            String bundleTwoName = jarFileTwoName + "_1.0.0.jar";
+            Path bundleOnePath = Paths.get(destination.toString(), bundleOneName);
+            Path bundleTwoPath = Paths.get(destination.toString(), bundleTwoName);
+            assert ((isOSGiBundle(bundleOnePath, jarFileOneName) && (isOSGiBundle(bundleTwoPath, jarFileTwoName))));
+            BundleGeneratorUtils.delete(bundleOnePath);
+            BundleGeneratorUtils.delete(bundleTwoPath);
         } else {
             assert false;
         }
@@ -181,6 +184,7 @@ public class ConversionTest {
     @Test(description = "Attempts to convert a JAR to an OSGi bundle to a destination where it has already "
             + "been converted to", priority = 3)
     public void testConvertingExistingBundle() throws IOException, CarbonToolException {
+        Files.deleteIfExists(Paths.get(converterTestResources.toString(), TestConstants.ARTIFACT_ONE));
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
         //  executes twice
         CarbonToolExecutor.main(new String[]{
