@@ -27,10 +27,12 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,13 +160,30 @@ public class DatabaseUtil {
                     JDBCRealmConstants.VALIDATION_QUERY));
             poolProperties.setTestOnBorrow(true);
         }
+        
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL)) &&
-            StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
+                StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
             poolProperties.setValidationInterval(Long.parseLong(realmConfig.getUserStoreProperty(
                     VALIDATION_INTERVAL)));
         } else {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
+        
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED) != null && 
+        !realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED).trim().equals("")){
+            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED)));
+        }
+        
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED) != null && 
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED).trim().equals("")){
+                    poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED)));
+                }
+
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT) != null &&
+        		 !realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT).trim().equals("")) {
+            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
+        }
+        
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
 
@@ -235,6 +254,18 @@ public class DatabaseUtil {
         if (realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
             poolProperties.setValidationQuery(realmConfig.getRealmProperty(
                     JDBCRealmConstants.VALIDATION_QUERY));
+        }
+
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED) != null) {
+            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED)));
+        }
+
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.LOG_ABANDONED) != null) {
+            poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(JDBCRealmConstants.LOG_ABANDONED)));
+        }
+
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT) != null) {
+            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
         }
 
         dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
@@ -571,38 +602,52 @@ public class DatabaseUtil {
     }
 
     public static void closeConnection(Connection dbConnection) {
-
-        if (dbConnection != null) {
-            try {
+        try {
+            if (dbConnection != null && !dbConnection.isClosed())
                 dbConnection.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
-            }
+        } catch (SQLRecoverableException ex) {
+            handleSQLRecoverableException(ex);
+        } catch (SQLException e) {
+            log.error("Database error. Could not close statement. Continuing with others. - " + e.getErrorCode() + e.getMessage(), e);
         }
     }
 
     private static void closeResultSet(ResultSet rs) {
-
-        if (rs != null) {
-            try {
+        try {
+            if (rs != null && !rs.isClosed())
                 rs.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close result set  - " + e.getMessage(), e);
-            }
+        } catch (SQLRecoverableException ex) {
+              handleSQLRecoverableException(ex);
+        } catch (SQLException e) {
+            log.error("Database error. Could not close result set  - " + e.getMessage(), e);
         }
-
     }
 
     private static void closeStatement(PreparedStatement preparedStatement) {
-
-        if (preparedStatement != null) {
-            try {
+        try {
+            if (preparedStatement != null && !preparedStatement.isClosed())
                 preparedStatement.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
-            }
+        } catch (SQLRecoverableException ex){
+            handleSQLRecoverableException(ex);
+        } catch (SQLException e) {
+            log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
         }
+    }
 
+    private static void handleSQLRecoverableException( SQLRecoverableException ex) {
+        try {
+            if (isClosedConnectionException(ex)) {
+                Connection dbConnection = DatabaseUtil.getDBConnection(dataSource);
+                dbConnection.close();
+            }
+        } catch (SQLException e) {
+            log.error("Error handling recovery on connection ... connection set to null." + e.getMessage());
+        }
+    }
+
+    private static boolean isClosedConnectionException(SQLRecoverableException ex) {
+        log.warn("Attempting recovery from thrown SQLRecoverableException ..." + ex.getLocalizedMessage(), ex);
+        return (ex.getLocalizedMessage().contains("Closed Connection"));
     }
 
     private static void closeStatements(PreparedStatement... prepStmts) {
@@ -612,7 +657,6 @@ public class DatabaseUtil {
                 closeStatement(stmt);
             }
         }
-
     }
 
     public static void closeAllConnections(Connection dbConnection, PreparedStatement... prepStmts) {
