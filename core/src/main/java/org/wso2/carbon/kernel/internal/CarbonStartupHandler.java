@@ -41,7 +41,7 @@ public class CarbonStartupHandler {
         double startupTime = (System.currentTimeMillis() - startTime) / 1000;
 
         DecimalFormat decimalFormatter = new DecimalFormat("#,##0.000");
-        logger.info("WSO2 Carbon started in " + Double.valueOf(decimalFormatter.format(startupTime)) + " sec");
+        logger.info("WSO2 Carbon started in " + decimalFormatter.format(startupTime) + " sec");
     }
 
     /**
