@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.1.1-SNAPSHOT</version>
+    <version>5.5.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -45,6 +45,7 @@
         <module>components/application-mgt</module>
         <module>components/user-mgt</module>
         <module>components/identity-mgt</module>
+        <module>components/identity-event</module>
         <module>components/notification-mgt</module>
         <module>components/provisioning</module>
         <module>components/user-store</module>
@@ -58,7 +59,7 @@
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
-        <module>features/user-mgt</module>
+        <module>features/identity-event</module>
         <module>features/identity-mgt</module>
         <module>features/xacml</module>
         <module>features/authentication-framework</module>
@@ -67,6 +68,7 @@
         <module>features/notification-mgt</module>
         <module>features/idp-mgt</module>
         <module>features/directory-server-manager</module>
+        <module>features/user-mgt</module>
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
@@ -305,6 +307,12 @@
                 <groupId>org.wso2.charon</groupId>
                 <artifactId>org.wso2.charon.utils</artifactId>
                 <version>${charon.wso2.version.identity}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>opensaml.wso2</groupId>
+                <artifactId>opensaml</artifactId>
+                <version>${opensaml.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -736,7 +744,6 @@
                 <artifactId>org.wso2.carbon.identity.application.authenticator.basicauth.server.feature</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
@@ -1070,6 +1077,22 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.event</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.event.server.feature</artifactId>
+                <version>${identity.framework.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
@@ -1326,7 +1349,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <identity.framework.version>5.1.1-SNAPSHOT</identity.framework.version>
+        <identity.framework.version>5.5.0-SNAPSHOT</identity.framework.version>
         <carbon.identity.package.export.version>${identity.framework.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
 
