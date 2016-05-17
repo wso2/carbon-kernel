@@ -63,7 +63,7 @@ public class FileResolver {
     }
 
     /**
-     * Returns the URL path from the given String (path)
+     * Returns the URL path from the given String (path).
      *
      * @param path  path to resolve to URL
      * @return      URL path
