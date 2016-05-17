@@ -34,7 +34,6 @@
         <module>org.wso2.carbon.feature.mgt.services</module>
         <module>org.wso2.carbon.feature.mgt.core</module>
         <module>org.wso2.carbon.feature.mgt.ui</module>
-        <module>org.wso2.carbon.p2.touchpoint</module>
     </modules>
 
 </project>

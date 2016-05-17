@@ -17,7 +17,6 @@ org.wso2.carbon.core.bootup.validator*
 org.wso2.carbon.osgi.security*
 org.wso2.carbon.tomcat.ext*
 org.wso2.carbon.core.common*
-org.wso2.carbon.p2.touchpoint*
 org.wso2.carbon.tomcat*
 org.wso2.carbon.queuing*
 org.wso2.carbon.core.services*
