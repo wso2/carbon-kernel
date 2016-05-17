@@ -128,7 +128,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
         Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "osgi");
-        Assert.assertEquals(osgiRepoURL.toString().concat(File.separator), expectedPath.toUri().toURL().toString());
+        Assert.assertEquals(osgiRepoURL.toString().concat("/"), expectedPath.toUri().toURL().toString());
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
