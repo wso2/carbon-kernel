@@ -163,7 +163,7 @@ public class ConversionTest {
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
         System.setProperty(Constants.CARBON_TOOL_SYSTEM_PROPERTY, "jar-to-bundle-converter");
         CarbonToolExecutor.main(new String[]{
-                converterTestResources.toString(), destination.toString()
+                converterTestResources.toString(), destination.toString(), "Not specified"
         });
 
         Path jarFilePath = sampleJARFile.getFileName();
@@ -184,10 +184,10 @@ public class ConversionTest {
         Path destination = Paths.get(TestConstants.TEMP_DIRECTORY);
         //  executes twice
         CarbonToolExecutor.main(new String[]{
-                converterTestResources.toString(), destination.toString()
+                converterTestResources.toString(), destination.toString(), "Not specified"
         });
         CarbonToolExecutor.main(new String[]{
-                converterTestResources.toString(), destination.toString()
+                converterTestResources.toString(), destination.toString(), "Not specified"
         });
 
         Path jarFilePath = sampleJARFile.getFileName();
@@ -206,22 +206,24 @@ public class ConversionTest {
     private void executeConversion(Path source, Path destination) throws CarbonToolException {
         String[] arguments;
         if ((source != null) && (destination != null)) {
-            arguments = new String[2];
+            arguments = new String[3];
             arguments[0] = source.toString();
             arguments[1] = destination.toString();
         } else if ((source == null) && (destination != null)) {
-            arguments = new String[2];
+            arguments = new String[3];
             arguments[0] = "";
             arguments[1] = destination.toString();
         } else if (source != null) {
-            arguments = new String[2];
+            arguments = new String[3];
             arguments[0] = source.toString();
             arguments[1] = "";
         } else {
-            arguments = new String[2];
+            arguments = new String[3];
             arguments[0] = "";
             arguments[1] = "";
         }
+        arguments[2] = "Not specified";
+
         CarbonTool converter = new BundleGeneratorTool();
         converter.execute(arguments);
     }
