@@ -33,11 +33,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -128,7 +130,17 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
         Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "osgi");
-        Assert.assertEquals(osgiRepoURL, expectedPath.toUri().toURL());
+        try {
+            if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
+                Assert.assertEquals(osgiRepoURL.toURI().toURL().toString().concat("/"),
+                        expectedPath.toUri().toURL().toString().replaceFirst("/", ""));
+            } else {
+                Assert.assertEquals(osgiRepoURL.toString(), "file:".concat(expectedPath.toString()));
+            }
+        } catch (URISyntaxException e) {
+            Assert.fail("Exception occurred when converting URL to String");
+        }
+
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})

@@ -15,9 +15,11 @@
  */
 package org.wso2.carbon.launcher.utils;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Resolving absolute path for a given file.
@@ -45,26 +47,38 @@ public class FileResolver {
 
         String relativeFilePath = path;
         if (path.startsWith("file:")) {
-            relativeFilePath = path.substring(5);
+            relativeFilePath = path.substring((5));
         }
 
-        File file = new File(relativeFilePath);
-        if (file.isAbsolute()) {
-            try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+        Path filePath = Paths.get(relativeFilePath);
+        if (filePath.isAbsolute()) {
+            return pathByOS(filePath.toString());
         } else {
-            file = new File(parentPath, relativeFilePath);
-            if (file.isAbsolute()) {
-                try {
-                    return file.toURI().toURL();
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e.getMessage(), e);
-                }
+            filePath = Paths.get(parentPath, relativeFilePath);
+            if (filePath.isAbsolute()) {
+                return pathByOS(filePath.toString());
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the URL path from the given String (path).
+     *
+     * @param path  path to resolve to URL
+     * @return      URL path
+     */
+    private static URL pathByOS(String path) {
+        URL filePathURL;
+        try {
+            if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
+                filePathURL = new URL("file:" + path);
+            } else {
+                filePathURL = new URL("file://" + path);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        return filePathURL;
     }
 }
