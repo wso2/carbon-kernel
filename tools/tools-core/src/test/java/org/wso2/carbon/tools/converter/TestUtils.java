@@ -47,7 +47,8 @@ class TestUtils {
     static boolean createFile(Path file) {
         try {
             if (!Files.exists(file)) {
-                Files.createFile(file);
+                Path createdFile = Files.createFile(file);
+                createdFile.toFile().deleteOnExit();
             }
             return true;
         } catch (IOException e) {
