@@ -211,24 +211,27 @@ public class DropinsBundleDeployerUtils {
     private static Map<BundleInstallStatus, List<BundleInfo>> getUpdatableBundles(List<BundleInfo> newBundlesInfo,
             List<BundleInfo> existingBundleInfo) {
         Map<BundleInstallStatus, List<BundleInfo>> updatableBundles = new HashMap<>();
-        //  initializes the list for newly installable OSGi bundles
-        updatableBundles.put(BundleInstallStatus.TO_BE_INSTALLED, new ArrayList<>());
-        //  initializes the list for OSGi bundles to be uninstalled
-        updatableBundles.put(BundleInstallStatus.TO_BE_REMOVED, new ArrayList<>());
 
         //  retrieves the newly installable OSGi bundle information
-        Optional.ofNullable(newBundlesInfo).orElse(new ArrayList<>())
+        List<BundleInfo> bundlesToBeInstalled = Optional.ofNullable(newBundlesInfo)
+                .orElse(new ArrayList<>())
                 .stream()
-                .filter(bundleInfo -> !Optional.ofNullable(existingBundleInfo).orElse(new ArrayList<>())
-                        .contains(bundleInfo))
-                .forEach(bundleInfo -> updatableBundles.get(BundleInstallStatus.TO_BE_INSTALLED).add(bundleInfo));
+                .filter(bundleInfo -> !Optional.ofNullable(existingBundleInfo)
+                        .orElse(new ArrayList<>()).contains(bundleInfo))
+                .collect(Collectors.toList());
 
         //  retrieves the OSGi bundle information to be uninstalled
-        Optional.ofNullable(existingBundleInfo).orElse(new ArrayList<>())
+        List<BundleInfo> bundlesToBeRemoved = Optional.ofNullable(existingBundleInfo)
+                .orElse(new ArrayList<>())
                 .stream()
-                .filter(bundleInfo -> !Optional.ofNullable(newBundlesInfo).orElse(new ArrayList<>())
-                        .contains(bundleInfo))
-                .forEach(bundleInfo -> updatableBundles.get(BundleInstallStatus.TO_BE_REMOVED).add(bundleInfo));
+                .filter(bundleInfo -> !Optional.ofNullable(newBundlesInfo)
+                        .orElse(new ArrayList<>()).contains(bundleInfo))
+                .collect(Collectors.toList());
+
+        //  sets the list for newly installable OSGi bundles
+        updatableBundles.put(BundleInstallStatus.TO_BE_INSTALLED, bundlesToBeInstalled);
+        //  sets the list for OSGi bundles to be uninstalled
+        updatableBundles.put(BundleInstallStatus.TO_BE_REMOVED, bundlesToBeRemoved);
 
         return updatableBundles;
     }
