@@ -46,10 +46,12 @@ public class BundleGeneratorTool implements CarbonTool {
     public void execute(String[] toolArgs) {
         int sourceIndex = 0;
         int destinationIndex = 1;
+        int executingDirectoryIndex = 2;
 
-        if ((toolArgs.length == 2) && (!toolArgs[0].isEmpty()) && (!toolArgs[1].isEmpty())) {
-            Optional<Path> source = getPath(toolArgs[sourceIndex]);
-            Optional<Path> destination = getPath(toolArgs[destinationIndex]);
+        if ((toolArgs.length == 3) && (!toolArgs[sourceIndex].isEmpty()) && (!toolArgs[destinationIndex].isEmpty())
+                && (!toolArgs[executingDirectoryIndex].isEmpty())) {
+            Optional<Path> source = getPath(toolArgs[sourceIndex], toolArgs[executingDirectoryIndex]);
+            Optional<Path> destination = getPath(toolArgs[destinationIndex], toolArgs[executingDirectoryIndex]);
 
             if ((source.isPresent()) && (destination.isPresent())) {
                 if ((Files.isReadable(source.get())) && (Files.isWritable(destination.get()))) {
@@ -87,15 +89,21 @@ public class BundleGeneratorTool implements CarbonTool {
     }
 
     /**
-     * Returns a {@code Path} instance if the {@code String pathValue} is valid.
+     * Returns a {@code Path} instance if the {@code String userPathInput} is valid.
      *
-     * @param pathValue a {@link String} value of the file path
-     * @return a {@link Path} instance, if the {@code String pathValue} is valid, else {@code null}
+     * @param userPathInput      a {@link String} value of the file path input by the user
+     * @param executingDirectory the directory from which the script for the tool was executed
+     * @return a {@link Path} instance, if the {@code String userPathInput} is valid, else {@code null}
      */
-    private static Optional<Path> getPath(String pathValue) {
+    private static Optional<Path> getPath(String userPathInput, String executingDirectory) {
         Path path;
-        if (pathValue != null) {
-            path = Paths.get(pathValue);
+        if (userPathInput != null) {
+            path = Paths.get(userPathInput);
+
+            if (!path.isAbsolute()) {
+                path = Paths.get(executingDirectory, userPathInput);
+            }
+
             if (Files.exists(path)) {
                 return Optional.of(path);
             } else {
