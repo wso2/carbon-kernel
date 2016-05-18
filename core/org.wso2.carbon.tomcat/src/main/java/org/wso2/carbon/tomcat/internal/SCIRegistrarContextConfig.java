@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.tomcat.internal;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.WebappServiceLoader;
 import org.apache.commons.logging.Log;
