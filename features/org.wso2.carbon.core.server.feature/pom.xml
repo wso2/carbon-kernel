@@ -69,7 +69,6 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.user.core:${carbon.kernel.version}
                                 </bundleDef>
                                 <bundleDef>org.bouncycastle.wso2:bcprov-jdk15on:${bouncycastle.version}</bundleDef>
-                                <bundleDef>org.apache.poi.wso2:poi-ooxml:${orbit.version.poi.ooxml}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

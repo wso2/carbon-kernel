@@ -106,7 +106,6 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.xml.stream.*; version="1.0.1",
                             org.pdfbox.*,
-                            org.apache.poi.*,
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.lucene.*,
                             org.apache.commons.io.*; version="0.0.0",
@@ -528,10 +527,6 @@
             <groupId>org.apache.tomcat.wso2</groupId>
             <artifactId>jdbc-pool</artifactId>
             <version>${jdbc-pool.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi.wso2</groupId>
-            <artifactId>poi-scratchpad</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
