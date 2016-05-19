@@ -44,7 +44,13 @@ import org.wso2.carbon.roles.mgt.ServerRoleConstants;
 import org.wso2.carbon.roles.mgt.ServerRoleUtils;
 
 import javax.xml.namespace.QName;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -309,11 +315,12 @@ public class CarbonAppPersistenceManager {
                 continue;
             }
             // .dump file is a zip, so create a ZipInputStream
-            ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
-            zis.getNextEntry();
-            Reader reader = new InputStreamReader(zis);
-            if (reg != null) {
-                reg.restore(dump.getPath(), reader);
+            try (ZipInputStream zis = new ZipInputStream(
+                    new FileInputStream(file)); Reader reader = new InputStreamReader(zis)) {
+                zis.getNextEntry();
+                if (reg != null) {
+                    reg.restore(dump.getPath(), reader);
+                }
             }
         }
 
@@ -474,7 +481,9 @@ public class CarbonAppPersistenceManager {
                         new StAXOMBuilder(xmlStream).getDocumentElement());
             }
         }
-        regConfig.setAppName(appName);
+        if (regConfig != null) {
+            regConfig.setAppName(appName);
+        }
         return regConfig;
     }
     

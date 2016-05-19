@@ -425,9 +425,11 @@ public class Utils {
             throw new RuntimeException(sourceDir + " is not a directory");
         }
 
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destArchive));
+        FileOutputStream fileOutputStream = new FileOutputStream(destArchive);
+        ZipOutputStream zos = new ZipOutputStream(fileOutputStream);
         zipDir(zipDir, zos, sourceDir);
         zos.close();
+        fileOutputStream.close();
     }
 
     protected static void zipDir(File zipDir, ZipOutputStream zos, String archiveSourceDir)
@@ -580,15 +582,15 @@ public class Utils {
                 }
 
                 if (!f.isDirectory()) {
-                    OutputStream out = new FileOutputStream(f);
-                    byte[] buf = new byte[40960];
+                    try (OutputStream out = new FileOutputStream(f)) {
+                        byte[] buf = new byte[40960];
 
-                    // Transfer bytes from the ZIP file to the output file
-                    int len;
-                    while ((len = zin.read(buf)) > 0) {
-                        out.write(buf, 0, len);
+                        // Transfer bytes from the ZIP file to the output file
+                        int len;
+                        while ((len = zin.read(buf)) > 0) {
+                            out.write(buf, 0, len);
+                        }
                     }
-                    out.close();
                 }
             }
         } catch (IOException e) {
@@ -613,33 +615,32 @@ public class Utils {
      */
     public static String parseJar(File jarFile) throws IOException {
         List<String> exportedPackagesList = new ArrayList<String>();
-        ZipInputStream zipInputStream = new ZipInputStream(
-                new BufferedInputStream(new FileInputStream(jarFile)));
-        List<ZipEntry> entries = populateList(zipInputStream);
-        zipInputStream.close();
+        StringBuffer exportedPackages = new StringBuffer();
+        try (ZipInputStream zipInputStream = new ZipInputStream(
+                new BufferedInputStream(new FileInputStream(jarFile)))) {
+            List<ZipEntry> entries = populateList(zipInputStream);
 
-        for (ZipEntry entry : entries) {
-            String path = entry.getName();
-            if (!path.endsWith("/") && path.endsWith(".class")) {
-                //This is package that contains classes. Thus, exportedPackagesList
-                int index = path.lastIndexOf('/');
-                if (index != -1) {
-                    path = path.substring(0, index);
-                    path = path.replaceAll("/", ".");
-                    if (!exportedPackagesList.contains(path)) {
-                        exportedPackagesList.add(path);
+            for (ZipEntry entry : entries) {
+                String path = entry.getName();
+                if (!path.endsWith("/") && path.endsWith(".class")) {
+                    //This is package that contains classes. Thus, exportedPackagesList
+                    int index = path.lastIndexOf('/');
+                    if (index != -1) {
+                        path = path.substring(0, index);
+                        path = path.replaceAll("/", ".");
+                        if (!exportedPackagesList.contains(path)) {
+                            exportedPackagesList.add(path);
+                        }
                     }
                 }
             }
-        }
 
-        String[] packageArray =
-                exportedPackagesList.toArray(new String[exportedPackagesList.size()]);
-        StringBuffer exportedPackages = new StringBuffer();
-        for (int i = 0; i < packageArray.length; i++) {
-            exportedPackages.append(packageArray[i]);
-            if (i != (packageArray.length - 1)) {
-                exportedPackages.append(",");
+            String[] packageArray = exportedPackagesList.toArray(new String[exportedPackagesList.size()]);
+            for (int i = 0; i < packageArray.length; i++) {
+                exportedPackages.append(packageArray[i]);
+                if (i != (packageArray.length - 1)) {
+                    exportedPackages.append(",");
+                }
             }
         }
         return exportedPackages.toString();

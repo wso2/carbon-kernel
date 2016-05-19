@@ -20,13 +20,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.CarbonLaunchExtension;
 import org.wso2.carbon.server.LauncherConstants;
-import org.wso2.carbon.server.util.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.PrivateKey;
 
 /**
  * A bug in p2 libs(https://bugs.eclipse.org/bugs/show_bug.cgi?id=344153) prevent us from using bundle pooling with
@@ -72,17 +70,12 @@ public class EclipseIniRewriter implements CarbonLaunchExtension {
     //  used delete/create method to rewrite file
     private void rewriteFile(File file, String profileLocation) {
         file.delete();
-        PrintWriter pw = null;
-        try {
-            pw = new PrintWriter(new FileWriter(file));
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file))){
             pw.write("-install\n");
             pw.write(profileLocation);
             pw.flush();
         } catch (IOException e) {
             log.error("Error while writing to file " + file.getName(), e);
-        } finally {
-            pw.close();
         }
-
     }
 }

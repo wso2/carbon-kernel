@@ -429,17 +429,14 @@ public class EquinoxFrameworkLauncher implements FrameworkLauncher {
      * @param target           - Location to extract
      */
     protected void extractResource(String compressFilePath, File target) {
-        try {
+        try (ZipInputStream zipinputstream = new ZipInputStream(context.getResourceAsStream(compressFilePath))) {
             byte[] buf = new byte[1024];
-            ZipInputStream zipinputstream;
             ZipEntry zipentry;
-            zipinputstream = new ZipInputStream(context.getResourceAsStream(compressFilePath));
 
             zipentry = zipinputstream.getNextEntry();
             while (zipentry != null) {
                 String entryName = zipentry.getName();
                 int n;
-                FileOutputStream fileoutputstream;
                 File newFile = new File(entryName);
                 String directory = newFile.getParent();
 
@@ -460,20 +457,16 @@ public class EquinoxFrameworkLauncher implements FrameworkLauncher {
                 if (outputFile.getParentFile() != null && !outputFile.getParentFile().mkdirs()) {
                     throw new IOException("Fail to create the directory: " + outputFile.getParentFile().getAbsolutePath());
                 }
-                fileoutputstream = new FileOutputStream(outputFile);
-
-                while ((n = zipinputstream.read(buf, 0, 1024)) > -1)
-                    fileoutputstream.write(buf, 0, n);
-
-                fileoutputstream.close();
+                try (FileOutputStream fileoutputstream = new FileOutputStream(outputFile)) {
+                    while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+                        fileoutputstream.write(buf, 0, n);
+                    }
+                }
                 zipinputstream.closeEntry();
                 zipentry = zipinputstream.getNextEntry();
 
             }
-
-            zipinputstream.close();
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
             //ignore invalid compress file
             context.log(ignored.getMessage(), ignored);
         }
