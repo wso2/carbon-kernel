@@ -25,6 +25,14 @@
 
 
 <%
+
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+    
     FeatureWrapper[] featureWrappers = null;
     String featureId = CharacterEncoder.getSafeText(request.getParameter("featureId"));
     String isInstalledFeature = CharacterEncoder.getSafeText(request.getParameter("isInstalledFeature"));

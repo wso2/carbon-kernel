@@ -27,6 +27,13 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+
     String[] selectedFeatures = request.getParameterValues("selectedFeatures");
     HashMap<String, FeatureInfo> featuresMap = new HashMap<String, FeatureInfo>();
     FeatureInfo[] features = null;
