@@ -5,19 +5,22 @@ function shutdownServerGracefully() {
 }
 
 function shutdownServerGracefullyCallback() {
-    var url = "proxy_ajaxprocessor.jsp?action=shutdownGracefully";
     jQuery.noConflict();
-    jQuery("#output").load(url, null, function (responseText, status, XMLHttpRequest) {
-/*        if (jQuery.trim(responseText) != '') {
-            CARBON.showWarningDialog(responseText);
-            return;
-        }*/
-        if (status != "success") {
-            CARBON.showErrorDialog(jsi18n["graceful.shutdown.error"]);
-        } else {
-            CARBON.showInfoDialog(jsi18n["graceful.shutdown.in.progress.message"]);
+    jQuery.post("proxy_ajaxprocessor.jsp",
+        {
+            "action":"shutdownGracefully"
+        },function (responseText, status, XMLHttpRequest) {
+            /*        if (jQuery.trim(responseText) != '') {
+                CARBON.showWarningDialog(responseText);
+                return;
+            }*/
+            if (status != "success") {
+                CARBON.showErrorDialog(jsi18n["graceful.shutdown.error"]);
+            } else {
+                CARBON.showInfoDialog(jsi18n["graceful.shutdown.in.progress.message"]);
+            }
         }
-    });
+    );
 }
 
 function shutdownServer() {
@@ -26,19 +29,22 @@ function shutdownServer() {
 }
 
 function shutdownServerCallback() {
-    var url = "proxy_ajaxprocessor.jsp?action=shutdown";
     jQuery.noConflict();
-    jQuery("#output").load(url, null, function (responseText, status, XMLHttpRequest) {
-/*        if (jQuery.trim(responseText) != '') {
-            CARBON.showWarningDialog(responseText);
-            return;
-        }*/
-        if (status != "success") {
-            CARBON.showErrorDialog(jsi18n["shutdown.error"]);
-        } else {
-            CARBON.showInfoDialog(jsi18n["shutdown.in.progress.message"]);
+    jQuery.post("proxy_ajaxprocessor.jsp",
+        {
+            "action":"shutdown"
+        },function (responseText, status, XMLHttpRequest) {
+            /*        if (jQuery.trim(responseText) != '') {
+                CARBON.showWarningDialog(responseText);
+                return;
+            }*/
+            if (status != "success") {
+                CARBON.showErrorDialog(jsi18n["shutdown.error"]);
+            } else {
+                CARBON.showInfoDialog(jsi18n["shutdown.in.progress.message"]);
+            }
         }
-    });
+    );
 }
 
 function restartServerGracefully() {
@@ -47,19 +53,22 @@ function restartServerGracefully() {
 }
 
 function restartServerGracefullyCallback() {
-    var url = "proxy_ajaxprocessor.jsp?action=restartGracefully";
     jQuery.noConflict();
-    jQuery("#output").load(url, null, function (responseText, status, XMLHttpRequest) {
-/*        if (jQuery.trim(responseText) != '') {
-            CARBON.showWarningDialog(responseText);
-            return;
-        }*/
-        if (status != "success") {
-            CARBON.showErrorDialog(jsi18n["graceful.restart.error"]);
-        } else {
-            CARBON.showInfoDialog(jsi18n["graceful.restart.in.progress.message"]);
+    jQuery.post("proxy_ajaxprocessor.jsp",
+        {
+            "action":"restartGracefully"
+        },function (responseText, status, XMLHttpRequest) {
+            /*        if (jQuery.trim(responseText) != '') {
+                CARBON.showWarningDialog(responseText);
+                return;
+            }*/
+            if (status != "success") {
+                CARBON.showErrorDialog(jsi18n["graceful.restart.error"]);
+            } else {
+                CARBON.showInfoDialog(jsi18n["graceful.restart.in.progress.message"]);
+            }
         }
-    });
+    );
 }
 
 function restartServer() {
@@ -68,17 +77,20 @@ function restartServer() {
 }
 
 function restartServerCallback() {
-    var url = "proxy_ajaxprocessor.jsp?action=restart";
     jQuery.noConflict();
-    jQuery("#output").load(url, null, function (responseText, status, XMLHttpRequest) {
-/*        if (jQuery.trim(responseText) != '') {
-            CARBON.showWarningDialog(responseText);
-            return;
-        }*/
-        if (status != "success") {
-            CARBON.showErrorDialog(jsi18n["restart.error"]);
-        } else {
-            CARBON.showInfoDialog(jsi18n["restart.in.progress.message"]);
+    jQuery.post("proxy_ajaxprocessor.jsp",
+        {
+            "action":"restart"
+        },function (responseText, status, XMLHttpRequest) {
+            /*        if (jQuery.trim(responseText) != '') {
+                CARBON.showWarningDialog(responseText);
+                return;
+            }*/
+            if (status != "success") {
+                CARBON.showErrorDialog(jsi18n["restart.error"]);
+            } else {
+                CARBON.showInfoDialog(jsi18n["restart.in.progress.message"]);
+            }
         }
-    });
+    );
 }
