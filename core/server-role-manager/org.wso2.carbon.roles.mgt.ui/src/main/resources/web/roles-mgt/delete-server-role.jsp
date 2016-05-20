@@ -26,6 +26,13 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 
 <%
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+
     String forwardTo;
     String BUNDLE = "org.wso2.carbon.roles.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());

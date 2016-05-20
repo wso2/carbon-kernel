@@ -17,18 +17,25 @@
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.feature.mgt.stub.prov.data.Feature" %>
 <%@ page import="org.wso2.carbon.feature.mgt.ui.FeatureWrapper" %>
 <%@ page import="org.wso2.carbon.feature.mgt.ui.RepositoryAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.feature.mgt.stub.prov.data.Feature" %>
 <%@ page import="org.wso2.carbon.feature.mgt.ui.util.Utils" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Stack" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+
     String queryType = CharacterEncoder.getSafeText(request.getParameter("queryType"));
     String repositoryURL = CharacterEncoder.getSafeText(request.getParameter("repoURL"));
     boolean groupByCategory = Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter("groupByCategory")));

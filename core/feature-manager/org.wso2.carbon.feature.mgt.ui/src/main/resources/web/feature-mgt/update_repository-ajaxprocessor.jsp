@@ -23,7 +23,15 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
-<%  String repoUpdateAction = request.getParameter("action");
+<%
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+
+    String repoUpdateAction = request.getParameter("action");
 
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =

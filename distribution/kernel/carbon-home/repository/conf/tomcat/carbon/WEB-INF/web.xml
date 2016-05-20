@@ -105,6 +105,10 @@
         <location>/carbon/errors/error_404.html</location>
     </error-page>
     <error-page>
+        <error-code>405</error-code>
+        <location>/carbon/errors/error_405.html</location>
+    </error-page>
+    <error-page>
         <error-code>408</error-code>
         <location>/carbon/errors/error_408.html</location>
     </error-page>
