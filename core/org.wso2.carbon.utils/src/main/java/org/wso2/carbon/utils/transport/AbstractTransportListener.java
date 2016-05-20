@@ -50,6 +50,8 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
 
     private static final String TRANSPORT_MANAGER =
             "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
+    private static final int DEFAULT_HTTP_PROXY_PORT = 80;
+    private static final int DEFAULT_HTTPS_PROXY_PORT = 443;
     private Class transportManagerClass;
     private Object transportManager;
     private String transport;
@@ -205,12 +207,13 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
 
             if (workerProxyPort != null) {
                 int workerProxyPortParsed = Integer.parseInt(workerProxyPort.trim());
-                if (workerProxyPortParsed == 80 || workerProxyPortParsed == 443) {
+                if (workerProxyPortParsed == DEFAULT_HTTP_PROXY_PORT ||
+                        workerProxyPortParsed == DEFAULT_HTTPS_PROXY_PORT) {
                     tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
                 } else {
                     tmp += ":" + workerProxyPortParsed + proxyContextPath + serviceContextPath + "/" + serviceName;
                 }
-            } else if (proxyPort == 80 || proxyPort == 443) {
+            } else if (proxyPort == DEFAULT_HTTP_PROXY_PORT || proxyPort == DEFAULT_HTTPS_PROXY_PORT) {
                 tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
             } else if (proxyPort != -1) {
                 tmp += ":" + proxyPort + proxyContextPath + serviceContextPath + "/" + serviceName;
