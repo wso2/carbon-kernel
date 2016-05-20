@@ -40,7 +40,7 @@ import java.util.List;
 public class StartupComponent {
 
     /**
-     * Name of the startup listener component extracted from the componentName manifest attribute
+     * Name of the startup listener component extracted from the componentName manifest attribute.
      */
     private String name;
 
