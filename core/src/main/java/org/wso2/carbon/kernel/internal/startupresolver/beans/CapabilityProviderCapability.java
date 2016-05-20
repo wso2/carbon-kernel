@@ -29,10 +29,11 @@ public class CapabilityProviderCapability extends OSGiServiceCapability {
 
     public CapabilityProviderCapability(String capabilityName,
                                         CapabilityType type,
+                                        CapabilityState status,
                                         String providedCapabilityName,
                                         Bundle bundle) {
 
-        super(capabilityName, type, bundle);
+        super(capabilityName, type, status, bundle);
         this.providedCapabilityName = providedCapabilityName;
     }
 
@@ -44,6 +45,20 @@ public class CapabilityProviderCapability extends OSGiServiceCapability {
         return bundle;
     }
 
+    /**
+     * Checks whether the given {@code CapabilityProviderCapability} is equal to
+     * this {@code CapabilityProviderCapability} instance.
+     * <p>
+     * Two {@code CapabilityProviderCapability} instances are equal if all the following conditions are satisfied.
+     * <p>
+     * 1) Their providedCapabilityName values should be equal,
+     * 2) They should be from the same bundle.
+     * 3) When one of the {@code CapabilityProviderCapability} instances is in the EXPECTED state, the other one
+     * should be in the AVAILABLE state, or vice versa.
+     *
+     * @param obj OSGiServiceCapability to be checked.
+     * @return true if the given object is equal to the this object.
+     */
     public boolean equals(Object obj) {
         if (!(obj instanceof CapabilityProviderCapability)) {
             return false;
@@ -51,7 +66,10 @@ public class CapabilityProviderCapability extends OSGiServiceCapability {
 
         CapabilityProviderCapability other = (CapabilityProviderCapability) obj;
         return this.providedCapabilityName.equals(other.getProvidedCapabilityName()) &&
-                this.bundle.equals(other.getBundle());
+                this.bundle.equals(other.getBundle()) &&
+                (this.getState() == CapabilityState.AVAILABLE && other.getState() == CapabilityState.EXPECTED ||
+                        this.getState() == CapabilityState.EXPECTED &&
+                                other.getState() == CapabilityState.AVAILABLE);
     }
 
     public int hashCode() {

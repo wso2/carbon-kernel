@@ -25,8 +25,10 @@ import org.osgi.framework.Bundle;
  * @since 5.1.0
  */
 public class Capability {
+
     protected String name;
     protected CapabilityType type;
+    protected CapabilityState state;
     protected Bundle bundle;
 
     /**
@@ -36,12 +38,21 @@ public class Capability {
      */
     public enum CapabilityType {
         OSGi_SERVICE,
-        MANIFEST_HEADER
     }
 
-    public Capability(String name, CapabilityType type, Bundle bundle) {
+    /**
+     * Describes the state of the Capability.
+     * It could be in either EXPECTED state or AVAILABLE state
+     */
+    public enum CapabilityState {
+        EXPECTED,
+        AVAILABLE
+    }
+
+    public Capability(String name, CapabilityType type, CapabilityState state, Bundle bundle) {
         this.name = name;
         this.type = type;
+        this.state = state;
         this.bundle = bundle;
     }
 
@@ -53,10 +64,23 @@ public class Capability {
         return type;
     }
 
+    public CapabilityState getState() {
+        return state;
+    }
+
+    public void setState(CapabilityState state) {
+        this.state = state;
+    }
+
     public Bundle getBundle() {
         return bundle;
     }
 
+    /**
+     * Checks whether the given {@code Capability} is equal to this {@code Capability} instance.
+     * @param obj Capability to be compared.
+     * @return true if this {@code Capability} instances is equal to the given {@code Capability}.
+     */
     public boolean equals(Object obj) {
         if (!(obj instanceof Capability)) {
             return false;
