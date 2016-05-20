@@ -55,8 +55,7 @@
         <import.package>*</import.package>
         <carbon.component>
             osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
-            capabilityName="org.wso2.carbon.sample.transport.mgt.Transport",
-            osgi.service;objectClass="org.wso2.carbon.sample.transport.mgt.Transport"
+            capabilityName="org.wso2.carbon.sample.transport.mgt.Transport"
         </carbon.component>
     </properties>
 

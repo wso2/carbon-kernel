@@ -84,10 +84,10 @@ class OSGiServiceCapabilityTracker {
      * @return a {@link List} of OSGi service keys
      */
     private List<String> getRequiredServiceList(StartupComponentManager startupComponentManager) {
-        List<StartupComponent> startupComponentList = startupComponentManager.getPendingComponents();
-        List<String> requiredServiceList = startupComponentList
+        List<StartupComponent> pendingComponents = startupComponentManager.getComponents(StartupComponent::isPending);
+        List<String> requiredServiceList = pendingComponents
                 .stream()
-                .flatMap(startupComponentBean -> startupComponentBean.getRequiredServiceList().stream())
+                .flatMap(startupComponent -> startupComponent.getRequiredServices().stream())
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -158,14 +158,21 @@ class OSGiServiceCapabilityTracker {
                 }
 
                 CapabilityProviderCapability capabilityProvider = new CapabilityProviderCapability(
-                        CapabilityProvider.class.getName(), Capability.CapabilityType.OSGi_SERVICE,
-                        capabilityName.trim(), bundle);
-                startupComponentManager.addAvailableCapabilityProvider(capabilityProvider);
+                        CapabilityProvider.class.getName(),
+                        Capability.CapabilityType.OSGi_SERVICE,
+                        Capability.CapabilityState.AVAILABLE,
+                        capabilityName.trim(),
+                        bundle);
+
+                startupComponentManager.addExpectedOrAvailableCapabilityProvider(capabilityProvider);
 
                 IntStream.range(0, provider.getCount())
-                        .forEach(count -> startupComponentManager.addExpectedRequiredCapability(
-                                new OSGiServiceCapability(capabilityName.trim(),
-                                        Capability.CapabilityType.OSGi_SERVICE, bundle)));
+                        .forEach(count -> startupComponentManager.addRequiredCapability(
+                                new OSGiServiceCapability(
+                                        capabilityName.trim(),
+                                        Capability.CapabilityType.OSGi_SERVICE,
+                                        Capability.CapabilityState.EXPECTED,
+                                        bundle)));
 
             } else {
                 // this has to be a capability service
@@ -173,9 +180,13 @@ class OSGiServiceCapabilityTracker {
                         serviceInterfaceClassName,
                         serviceImplClassName);
 
-                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(serviceInterfaceClassName,
-                        Capability.CapabilityType.OSGi_SERVICE, bundle);
-                startupComponentManager.addAvailableRequiredCapability(osgiServiceCapability);
+                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(
+                        serviceInterfaceClassName,
+                        Capability.CapabilityType.OSGi_SERVICE,
+                        Capability.CapabilityState.AVAILABLE,
+                        bundle);
+
+                startupComponentManager.addRequiredCapability(osgiServiceCapability);
             }
 
             return serviceObject;
