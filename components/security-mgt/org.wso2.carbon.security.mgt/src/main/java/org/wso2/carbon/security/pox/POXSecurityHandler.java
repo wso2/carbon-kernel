@@ -27,6 +27,9 @@ import org.apache.axiom.soap.SOAPFactory;
 import org.apache.axiom.soap.SOAPFault;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axiom.soap.SOAPHeaderBlock;
+import org.apache.axiom.soap.impl.dom.soap11.SOAP11FaultCodeImpl;
+import org.apache.axiom.soap.impl.dom.soap12.SOAP12FaultCodeImpl;
+import org.apache.axiom.soap.impl.dom.soap12.SOAP12FaultSubCodeImpl;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisService;
@@ -125,6 +128,17 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
+        boolean isBasicAuth = false;
+        Parameter configParameter = msgCtx.getConfigurationContext().getAxisConfiguration().getParameter("enableBasicAuth");
+        if(configParameter != null && configParameter.getValue() != null){
+            isBasicAuth  = Boolean.parseBoolean(configParameter.getValue().toString());
+        }
+
+        Parameter serviceParameter = msgCtx.getAxisService().getParameter("enableBasicAuth");
+        if(serviceParameter != null && serviceParameter.getValue() != null){
+            isBasicAuth  = Boolean.parseBoolean(serviceParameter.getValue().toString());
+        }
+
         String isPox = null;
         Cache<String, String> cache = this.getPOXCache();
         if (cache != null && cache.get(service.getName()) != null) {
@@ -135,7 +149,7 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
-        if (msgCtx.isFault() && new Integer(MessageContext.OUT_FAULT_FLOW).equals(msgCtx.getFLOW())) {
+        if (msgCtx.isFault() && new Integer(MessageContext.OUT_FAULT_FLOW).equals(msgCtx.getFLOW()) && isBasicAuth) {
             // we only need to execute this block in Unauthorized situations when basicAuth used
             // otherwise it should continue the message flow by throwing the incoming fault message since
             // this is already a fault response - ESBJAVA-2731
@@ -146,17 +160,34 @@ public class POXSecurityHandler implements Handler {
             try {
                 String scenarioID = getScenarioId(msgCtx, service);
                 if (scenarioID != null && scenarioID.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
-                    setAuthHeaders(msgCtx);
 
-                    //If request is a REST then remove the soap fault tag contents to avoid it getting in client end
-                    if (msgCtx.isDoingREST()) {
-                        SOAPFault soapFault = msgCtx.getEnvelope().getBody().getFault();
-                        if (soapFault != null) {
-                            Iterator itr = soapFault.getChildren();
-                            while (itr.hasNext()) {
-                                OMNode omNode = (OMNode) itr.next();
-                                if (omNode != null) {
-                                    itr.remove();
+                    boolean authenticationError = false;
+                    String faultCode = null;
+
+                    Object faultCodeObject = msgCtx.getEnvelope().getBody().getFault().getCode();
+                    if(faultCodeObject instanceof SOAP11FaultCodeImpl) {
+                        faultCode = ((SOAP11FaultCodeImpl) faultCodeObject).getTextContent();
+                    } else if (faultCodeObject instanceof SOAP12FaultCodeImpl) {
+                        faultCode = ((SOAP12FaultSubCodeImpl) ((SOAP12FaultCodeImpl) faultCodeObject).getSubCode()).getTextContent();
+                    }
+
+                    if(faultCode != null  && faultCode.contains("FailedAuthentication")){  // this is standard error code according to the WS-Sec
+                        authenticationError = true;
+                    }
+
+                    if(authenticationError) {
+                        setAuthHeaders(msgCtx);
+
+                        //If request is a REST then remove the soap fault tag contents to avoid it getting in client end
+                        if (msgCtx.isDoingREST()) {
+                            SOAPFault soapFault = msgCtx.getEnvelope().getBody().getFault();
+                            if (soapFault != null) {
+                                Iterator itr = soapFault.getChildren();
+                                while (itr.hasNext()) {
+                                    OMNode omNode = (OMNode) itr.next();
+                                    if (omNode != null) {
+                                        itr.remove();
+                                    }
                                 }
                             }
                         }
@@ -189,7 +220,7 @@ public class POXSecurityHandler implements Handler {
          * basic auth headers. This will make sure soap message without security headers giving soap fault
          * instead unauthorized header
          */
-        if (!msgCtx.isDoingREST() && soapWithoutSecHeader && basicAuthHeader == null) {
+        if (!msgCtx.isDoingREST() && soapWithoutSecHeader && basicAuthHeader == null && !isBasicAuth) {
             return InvocationResponse.CONTINUE;
         }
 
