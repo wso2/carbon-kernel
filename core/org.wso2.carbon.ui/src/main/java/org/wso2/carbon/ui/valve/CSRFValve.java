@@ -44,6 +44,7 @@ public class CSRFValve extends ValveBase {
     private final static String RULE_ALLOW = "allow";
     private final static String RULE_DENY = "deny";
     private final static String AJAXPROCESSOR_URL_PATTERN = "ajaxprocessor.jsp";
+    private final static String FINISHJSP_URL_PATTERN = "finish.jsp";
     private static String[] csrfPatternList;
     private static String[] whiteList;
     private static String csrfRule;
@@ -146,7 +147,7 @@ public class CSRFValve extends ValveBase {
             }
         } else {
             String requestURI = request.getRequestURI();
-            if (requestURI.contains(AJAXPROCESSOR_URL_PATTERN)) {
+            if (requestURI.contains(AJAXPROCESSOR_URL_PATTERN) || requestURI.contains(FINISHJSP_URL_PATTERN)) {
                 HttpSession currentSession = request.getSession(false);
                 if (currentSession != null) {
                     currentSession.invalidate();
