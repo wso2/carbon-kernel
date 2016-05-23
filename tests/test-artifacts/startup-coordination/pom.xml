@@ -45,6 +45,8 @@
         <module>org.wso2.carbon.sample.order.resolver</module>
         <module>org.wso2.carbon.sample.datasource.mgt</module>
         <module>org.wso2.carbon.sample.repository.mgt</module>
+        <module>org.wso2.carbon.sample.transport.service</module>
+        <module>org.wso2.carbon.sample.runtime.service</module>
     </modules>
 
 </project>
