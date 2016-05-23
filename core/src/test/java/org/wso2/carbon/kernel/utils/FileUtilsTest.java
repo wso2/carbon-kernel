@@ -76,6 +76,12 @@ public class FileUtilsTest {
         }
     }
 
+    @Test(expectedExceptions = IOException.class)
+    public void testNegativeCopyFileToDir() throws IOException {
+        File invalidFile = Paths.get("src", "wrongPath", "test", "resources", "sample.txt").toFile();
+        FileUtils.copyFileToDir(invalidFile, null);
+    }
+
 //    @Test(dependsOnMethods = {"testCopyFileToDir"})
 //    public void testArchiveDir() {
 //        try {

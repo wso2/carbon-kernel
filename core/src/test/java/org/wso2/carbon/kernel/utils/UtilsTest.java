@@ -45,6 +45,23 @@ public class UtilsTest {
         }
     }
 
+    @Test
+    public void testValueSubstituteVariables() {
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
+        boolean isCarbonHomeChanged = false;
+
+        if (carbonHome == null) {
+            carbonHome = "test-carbon-home";
+            System.setProperty(Constants.CARBON_HOME, carbonHome);
+            isCarbonHomeChanged = true;
+        }
+
+        Assert.assertEquals(Utils.substituteVariables("ValueNotExist"), "ValueNotExist");
+        if (isCarbonHomeChanged) {
+            System.clearProperty(Constants.CARBON_HOME);
+        }
+    }
+
     @Test(expectedExceptions = RuntimeException.class)
     public void testSubstituteVarsSystemPropertyIsNull() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
@@ -62,6 +79,16 @@ public class UtilsTest {
                 System.setProperty(Constants.CARBON_HOME, carbonHome);
             }
         }
+    }
+
+    @Test
+    public void testGetSystemVariableValue() {
+
+        Assert.assertEquals(Utils.getSystemVariableValue("testEnvironmentVariable", null), "EnvironmentVariable");
+        Assert.assertEquals(Utils.getSystemVariableValue("${server.key.not.exist}", null, Constants.PlaceHolders.class),
+                null);
+        Assert.assertEquals(Utils.getSystemVariableValue("server.key", null, Constants.PlaceHolders.class),
+                "carbon-kernel");
     }
 
     @DataProvider(name = "paths")

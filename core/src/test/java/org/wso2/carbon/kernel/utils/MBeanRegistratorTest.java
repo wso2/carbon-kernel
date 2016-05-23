@@ -16,13 +16,19 @@
 
 package org.wso2.carbon.kernel.utils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 /**
  * Unit test class for org.wso2.carbon.kernel.utils.MBeanRegistrator.
@@ -31,10 +37,11 @@ import javax.management.ObjectName;
  */
 public class MBeanRegistratorTest {
 
+    private static Log log = LogFactory.getLog(MBeanRegistratorTest.class);
     private static int initialMBeanCount;
 
-    @Test
-    public void testRegisterMBean() throws Exception {
+    @Test()
+    public void testRegisterMBean() {
 
         MBeanServer mBeanServer = MBeanManagementFactory.getMBeanServer();
         initialMBeanCount = mBeanServer.getMBeanCount();
@@ -48,11 +55,20 @@ public class MBeanRegistratorTest {
         }
 
         String objectName = Constants.SERVER_PACKAGE + ":type=" + className;
-        Assert.assertNotNull(mBeanServer.getMBeanInfo(new ObjectName(objectName)));
+        try {
+            Assert.assertNotNull(mBeanServer.getMBeanInfo(new ObjectName(objectName)));
+        } catch (MalformedObjectNameException | InstanceNotFoundException | IntrospectionException |
+                ReflectionException e) {
+            log.error("Error when retrieving mBean Inforation", e);
+        }
     }
 
+    @Test(dependsOnMethods = {"testRegisterMBean"}, expectedExceptions = RuntimeException.class)
+    public void testMBeanAlreadyExists() throws RuntimeException {
+        MBeanRegistrator.registerMBean(new TransportManager());
+    }
 
-    @Test(dependsOnMethods = {"testRegisterMBean"})
+    @Test(dependsOnMethods = {"testMBeanAlreadyExists"})
     public void testUnregisterAllMBeans() {
         MBeanServer mBeanServer = MBeanManagementFactory.getMBeanServer();
         MBeanRegistrator.unregisterAllMBeans();
