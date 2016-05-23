@@ -95,6 +95,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String ADMIN_USER = "AdminUser";
     private static final String INVALID_PASSWORD = "PasswordInvalid";
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -3230,11 +3231,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (roles != null && roles.length > 0) {
+            String userAttributeSeparator = ",";
+            String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                userAttributeSeparator = claimSeparator;
+            }
             String delim = "";
             StringBuffer roleBf = new StringBuffer();
             for (String role : roles) {
                 roleBf.append(delim).append(role);
-                delim = ",";
+                delim = userAttributeSeparator;
             }
             finalValues.put(roleClaim, roleBf.toString());
         }
