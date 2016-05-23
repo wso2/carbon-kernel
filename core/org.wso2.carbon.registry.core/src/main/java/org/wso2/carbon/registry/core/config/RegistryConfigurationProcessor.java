@@ -162,7 +162,6 @@ public class RegistryConfigurationProcessor {
                         } catch (NamingException ignored) {
                             log.warn("Unable to look-up JNDI name " + dataSourceName);
                         } catch (SQLException e) {
-                            e.printStackTrace();
                             throw new RegistryException("Unable to connect to Data Source", e);
                         }
                     } else {

@@ -28,6 +28,14 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
+
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+
     String featureID = CharacterEncoder.getSafeText(request.getParameter("featureID"));
     String featureVersion = CharacterEncoder.getSafeText(request.getParameter("featureVersion"));
     String divIDToShow = CharacterEncoder.getSafeText(request.getParameter("divIDToShow"));

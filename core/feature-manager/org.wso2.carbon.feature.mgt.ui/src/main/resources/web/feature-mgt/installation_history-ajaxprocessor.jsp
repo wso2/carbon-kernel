@@ -34,6 +34,14 @@
 
 
 <%
+
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+    
     ProvisioningAdminClient provAdminClient;
     ProfileHistory[] profHistoryConf = null;
 
