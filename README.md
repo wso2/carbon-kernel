@@ -16,6 +16,8 @@ The WSO2 Carbon Kernel includes the following key features. For further details 
 * Carbon Launcher Framework
 * Pax Exam OSGi Test Framework Support
 * Artifact Deployment Framework
+* Audit Log Mechanism
+* JMX support
 
 ### How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
