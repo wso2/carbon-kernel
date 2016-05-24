@@ -92,6 +92,12 @@
                                     <outputDirectory>${project.build.directory}/lib/launcher</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
+                                    <groupId>org.wso2.orbit.org.yaml</groupId>
+                                    <artifactId>snakeyaml</artifactId>
+                                    <version>${org.snakeyaml.version}</version>
+                                    <outputDirectory>${project.build.directory}/lib/launcher</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>org.wso2.carbon.tools.core</artifactId>
                                     <version>${carbon.kernel.version}</version>

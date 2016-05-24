@@ -17,146 +17,124 @@
 package org.wso2.carbon.tools.securevault;
 
 import org.wso2.carbon.tools.CarbonTool;
+import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.tools.securevault.exception.CipherToolException;
+import org.wso2.carbon.tools.securevault.model.CarbonKeyStore;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.xml.bind.DatatypeConverter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 /**
- * todo.
+ * This class defines a tool which can decrypt the secrets defined in the
+ * CARBON-HOME/conf/security/secrets.properties file using a given keystore.
  *
  * @since 5.1.0
  */
-public class CipherTool implements CarbonTool {   //todo rename
+public class CipherTool implements CarbonTool {
+    private static final Logger logger = Logger.getLogger(CipherTool.class.getName());
 
-    private static Map<String, String> aliasPasswordMap = new HashMap<String, String>();
-    ;
+    private static Map<String, String> aliasPasswordMap = new HashMap<>();
+
+    /**
+     * Executes the WSO2 Carbon cipher-tool based on the specified arguments.
+     *
+     * @param toolArgs the {@link String} argument specifying the user options and CARBON_HOME
+     */
+    @Override
+    public void execute(String... toolArgs) {
+        if ((toolArgs != null) && (toolArgs.length > 1)) {
+            try{
+                String carbonHome = toolArgs[1];
+                if (carbonHome == null || carbonHome.isEmpty()) {
+                    throw new CarbonToolException("Invalid Carbon home specified: " + carbonHome);
+                }
+                executeTool(toolArgs, carbonHome);
+            } catch (CarbonToolException exception) {
+                logger.log(Level.SEVERE, exception.getMessage());
+            }
+
+        }
+
+    }
 
     /**
      * init the mode of operation of cipher tool using command line argument
      *
      * @param args command line arguments
      */
-    private static void initialize(String[] args) throws IOException {
-        String property;
+    private void executeTool(String[] args, String carbonHome) throws CarbonToolException {
+        String userArgument;
         for (String arg : args) {
             if (arg.equals("-help")) {
-                printHelp();
-                System.exit(0);
+                Utils.printHelp();
+                return;
             } else if (arg.substring(0, 2).equals("-D")) {
-                property = arg.substring(2);
-                if (property.equals(SecureVaultConstants.CONFIGURE)) {
-                    Utils.setSystemProperties();
-                    Cipher cipher = KeyStoreUtil.initializeCipher();
-                    loadXpathValuesAndPasswordDetails();
-                    System.setProperty(property, SecureVaultConstants.TRUE);  //todo usage of this property?
-                    encryptCipherTextFile(cipher);
-                    Utils.writeSecretYamlConfiguration();
-                } else if (property.equals(SecureVaultConstants.CHANGE)) {
-                    System.setProperty(property, SecureVaultConstants.TRUE);
-                } else if (property.substring(0, 8).equals(SecureVaultConstants.CONSOLE_PASSWORD_PARAM)) {
-                    System.setProperty(SecureVaultConstants.KEYSTORE_PASSWORD, property.substring(9));
+                userArgument = arg.substring(2);
+                if (userArgument.equals(SecureVaultConstants.CONFIGURE)) {
+                    performEncryption(userArgument, carbonHome);
                 } else {
-                    System.out.println("This option is not define!");
-                    System.exit(-1);
+                    logger.log(Level.INFO, "This option is not define!");
+                    return;
                 }
             }
         }
-        //Utils.setSystemProperties();
+    }
+
+    private void performEncryption(String userArgument, String carbonHome) throws CarbonToolException {
+        Optional<CarbonKeyStore> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
+        Cipher cipher = KeyStoreUtil.getCipherInstance(keystore);
+        if (userArgument != null &&
+                userArgument.equals(SecureVaultConstants.CONFIGURE)) {
+            loadSecretsAndAliasFromFile(carbonHome);
+            encryptSecrets(cipher, carbonHome);
+            Utils.writeSecretYamlConfiguration(keystore.get(), carbonHome);
+        } else {
+            encryptValues(cipher);
+        }
     }
 
     /**
-     * print the help on command line
-     */
-    private static void printHelp() {
-
-        System.out.println("\n---------Cipher Tool Help---------\n");
-        System.out.println("By default, CipherTool can be used for creating encrypted value for given plaint text\n");
-        System.out.println("Options :\n");
-
-        System.out.println("\t-Dconfigure\t\t This option would allow user to secure plain text passwords in carbon " +
-                "configuration files. CipherTool will replace all the passwords listed in " +
-                "cipher-text.properties file with encrypted values and modify related password elements " +
-                "in the configuration files with secret alias names. Also secret-conf.properties file is " +
-                "modified with the default configuration data");
-
-        System.out.println("\t-Dchange\t\t This option would allow user to change the specific password which has " +
-                "been secured\n");
-        System.out.println("\t-Dpassword=<password>\t This option would allow user to provide the password as a " +
-                "command line argument. NOTE: Providing the password in command line arguments list is " +
-                "not recommended.\n");
-    }
-
-
-    /**
-     * Encrypt plain text password defined in cipher-text.properties file. If not read password from command-line and
-     * save to cipher-text.properties
+     * Encrypt plain text password defined in secrets.properties file.
      *
      * @param cipher cipher
      */
-    private static void encryptCipherTextFile(Cipher cipher) {
+    private void encryptSecrets(Cipher cipher, String carbonHome) {
         Properties properties = new Properties();
         for (Map.Entry<String, String> entry : aliasPasswordMap.entrySet()) {
             String value = entry.getValue();
             if (value != null && !value.equals("")) {
                 if (value.startsWith("plainText=")) {
                     value = value.substring(("plainText=").length(), value.length());
-                    System.out.println("value is " + value);
                     value = doEncryption(cipher, value);
                 }
             } else {
-                //value = getPasswordFromConsole(entry.getKey(), cipher);
+                value = getPasswordFromConsole(entry.getKey(), cipher);
             }
             properties.setProperty(entry.getKey(), "cipherText\u003d" + value);
         }
 
-        writeToPropertyFile(properties, System.getProperty(SecureVaultConstants.CIPHER_TEXT_PROPERTY_FILE_PROPERTY));
+        Utils.writeToPropertyFile(properties, Utils.getSecretsFileLocation(carbonHome).toString());
     }
 
     /**
-     * loads the secret alias, config filename and xpath
+     * loads the secret alias, and secrets from secrets.properties file.
      */
-    private static void loadXpathValuesAndPasswordDetails() {
+    private void loadSecretsAndAliasFromFile(String carbonHome) {
 
-        Properties cipherTextProperties =
-                Utils.loadProperties(System.getProperty(SecureVaultConstants.CIPHER_TEXT_PROPERTY_FILE_PROPERTY));
-        for (Object key : cipherTextProperties.keySet()) {
+        Properties secretProperties =
+                Utils.loadProperties(Utils.getSecretsFileLocation(carbonHome).toString());
+        for (Object key : secretProperties.keySet()) {
             String passwordAlias = (String) key;
-            aliasPasswordMap.put(passwordAlias, cipherTextProperties.getProperty(passwordAlias));
-        }
-        System.out.println("alias map size : " + aliasPasswordMap.size());
-        System.out.println("properties file : " + System.getProperty(SecureVaultConstants.CIPHER_TEXT_PROPERTY_FILE_PROPERTY));
-    }
-
-    /**
-     * writes the properties into a file
-     *
-     * @param properties properties
-     * @param filePath   filepath
-     */
-    public static void writeToPropertyFile(Properties properties, String filePath) {
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = new FileOutputStream(filePath);
-            properties.store(fileOutputStream, null);
-        } catch (IOException e) {
-            String msg = "Error loading properties from a file at : " + filePath;
-            //throw new CipherToolException(msg + " Error : " + e.getMessage());
-        } finally {
-            try {
-                if (fileOutputStream != null) {
-                    fileOutputStream.close();
-                }
-            } catch (IOException e) {
-                System.err.println("Error while closing output stream");
-            }
+            aliasPasswordMap.put(passwordAlias, secretProperties.getProperty(passwordAlias));
         }
     }
 
@@ -167,31 +145,56 @@ public class CipherTool implements CarbonTool {   //todo rename
      * @param plainTextPwd plain text password
      * @return encrypted password
      */
-    private static String doEncryption(Cipher cipher, String plainTextPwd) {
-        String encodedValue = null;
+    private String doEncryption(Cipher cipher, String plainTextPwd) {
+        String encodedValue;
         try {
-            byte[] encryptedPassword = cipher.doFinal(plainTextPwd.getBytes(Charset.forName(SecureVaultConstants.UTF8)));
+            byte[] encryptedPassword = cipher.doFinal(
+                    plainTextPwd.getBytes(Charset.forName(SecureVaultConstants.UTF8)));
             encodedValue = DatatypeConverter.printBase64Binary(encryptedPassword);
         } catch (BadPaddingException e) {
-            //throw new CipherToolException("Error encrypting password ", e);
+            //throwing a runtime exception as this exception may occur due to a invalid user inputs.
+            throw new CipherToolException("Error encrypting password ", e);
         } catch (IllegalBlockSizeException e) {
-            //throw new CipherToolException("Error encrypting password ", e);
+            //throwing a runtime exception as this exception may occur due to a invalid user inputs.
+            throw new CipherToolException("Error encrypting password ", e);
         }
-        System.out.println("\nEncryption is done Successfully\n");
+        logger.log(Level.INFO, "\nEncryption is done Successfully\n");
         return encodedValue;
     }
 
-    @Override
-    public void execute(String... toolArgs) {
-        if ((toolArgs != null) && (toolArgs.length == 2)) {
-            String carbonHome = toolArgs[1];
-            System.setProperty(SecureVaultConstants.CARBON_HOME, carbonHome);
+    /**
+     * returns the encrypted value entered via the Console for the given Secret Alias
+     *
+     * @param key    key
+     * @param cipher cipher
+     * @return encrypted value
+     */
+    private String getPasswordFromConsole(String key, Cipher cipher) {
+        String firstPassword = Utils.getValueFromConsole("Enter Password of Secret Alias - '" + key + "' : ", true);
+        String secondPassword = Utils.getValueFromConsole("Please Enter Password Again : ", true);
+        if (!firstPassword.isEmpty() && firstPassword.equals(secondPassword)) {
+            String encryptedValue = doEncryption(cipher, firstPassword);
+            aliasPasswordMap.put(key, encryptedValue);
+            return encryptedValue;
+        } else {
+            throw new CipherToolException("Error : Password does not match");
         }
+    }
 
-        try {
-            initialize(toolArgs);
-        } catch (IOException e) {
-            e.printStackTrace();     //todo
+    /**
+     * encrypt text retrieved from Console.
+     *
+     * @param cipher cipher
+     */
+    private void encryptValues(Cipher cipher) {
+        String firstPassword = Utils.getValueFromConsole("Enter Plain Text Value : ", true);
+        String secondPassword = Utils.getValueFromConsole("Please Enter Value Again : ", true);
+
+        if (!firstPassword.isEmpty() && firstPassword.equals(secondPassword)) {
+            String encryptedText = doEncryption(cipher, firstPassword);
+            logger.log(Level.INFO, "\nEncrypted value is : \n" + encryptedText + "\n");
+        } else {
+            throw new CipherToolException("Error : Password does not match");
         }
     }
 }
