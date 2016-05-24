@@ -31,17 +31,10 @@
     <url>http://wso2.com</url>
 
     <dependencies>
-
-        <!--<dependency>-->
-            <!--<groupId>org.jacoco</groupId>-->
-            <!--<artifactId>org.jacoco.agent</artifactId>-->
-            <!--<classifier>runtime</classifier>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.ant</artifactId>
-            <!--<scope>test</scope>-->
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -94,33 +87,37 @@
                                         </taskdef>
                                         <jacoco:report>
                                             <executiondata>
-                                                <fileset dir="../core/target">
-                                                    <include name="jacoco.exec" />
-                                                </fileset>
-                                                <fileset dir="../tests/osgi-tests/target">
-                                                    <include name="jacoco.exec" />
-                                                </fileset>
                                                 <fileset dir="../base/target">
+                                                    <include name="jacoco.exec" />
+                                                </fileset>
+                                                <fileset dir="../core/target">
                                                     <include name="jacoco.exec" />
                                                 </fileset>
                                                 <fileset dir="../launcher/target">
                                                     <include name="jacoco.exec" />
                                                 </fileset>
-
+                                                <fileset dir="../tests/osgi-tests/target">
+                                                    <include name="jacoco.exec" />
+                                                </fileset>
+                                                <fileset dir="../tools/tools-core/target">
+                                                    <include name="jacoco.exec" />
+                                                </fileset>
                                             </executiondata>
 
                                             <structure name="Carbon Kernel - Coverage Report">
                                                 <classfiles>
-                                                    <fileset dir="../core/target/classes" />
-                                                    <fileset dir="../core/target/classes" />
                                                     <fileset dir="../base/target/classes" />
+                                                    <fileset dir="../core/target/classes" />
                                                     <fileset dir="../launcher/target/classes" />
+                                                    <fileset dir="../core/target/classes" />
+                                                    <fileset dir="../tools/tools-core/target/classes" />
                                                 </classfiles>
                                                 <sourcefiles encoding="UTF-8">
-                                                    <fileset dir="../core/src" />
-                                                    <fileset dir="../core/src" />
                                                     <fileset dir="../base/src" />
+                                                    <fileset dir="../core/src" />
                                                     <fileset dir="../launcher/src" />
+                                                    <fileset dir="../core/src" />
+                                                    <fileset dir="../tools/tools-core/src" />
                                                 </sourcefiles>
                                             </structure>
                                             <html destdir="${project.build.directory}/site/jacoco" />
