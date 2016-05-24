@@ -50,6 +50,7 @@
                 <module>features</module>
                 <module>distribution</module>
                 <module>tests</module>
+                <module>coverage-report</module>
             </modules>
         </profile>
     </profiles>
