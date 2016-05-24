@@ -81,7 +81,7 @@ class StartupComponentManager {
      * @param componentName  the component name to which this new service capability to be added.
      * @param capabilityName the capability name to added to the component.
      */
-    void addRequiredOSGiServiceCapabilityToComponent(String componentName, String capabilityName) {
+    void addRequiredOSGiServiceToComponent(String componentName, String capabilityName) {
         StartupComponent startupComponent = startupComponentMap.get(componentName);
         if (startupComponent == null) {
             logger.warn("Adding a required OSGi service capability to component, but specified startup component is " +
@@ -159,7 +159,7 @@ class StartupComponentManager {
      *
      * @param capability {@code Capability} instance
      */
-    void addRequiredCapability(Capability capability) {
+    void addExpectedOrAvailableCapability(Capability capability) {
         startupComponentMap.values()
                 .stream()
                 .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
@@ -214,7 +214,7 @@ class StartupComponentManager {
      */
     List<CapabilityProviderCapability> getPendingCapabilityProviders() {
         return startupComponentMap.values().stream()
-                .filter(StartupComponent::isSatisfied)
+                .filter(StartupComponent::isPending)
                 .flatMap((startupComponent) -> startupComponent.getPendingCapabilityProviders().stream())
                 .distinct()
                 .collect(Collectors.toList());

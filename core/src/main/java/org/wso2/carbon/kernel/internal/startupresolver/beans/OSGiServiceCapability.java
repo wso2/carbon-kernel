@@ -19,6 +19,9 @@ package org.wso2.carbon.kernel.internal.startupresolver.beans;
 
 import org.osgi.framework.Bundle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents an OSGi service capability.
  * For an example all following manifest headers are converted to {@code OSGiServiceCapability} objects.
@@ -29,18 +32,18 @@ import org.osgi.framework.Bundle;
  */
 public class OSGiServiceCapability extends Capability {
 
-    private String dependentComponentName;
+    private List<String> requiredByComponentNames = new ArrayList<>();
 
     public OSGiServiceCapability(String capabilityName, CapabilityType type, CapabilityState state, Bundle bundle) {
         super(capabilityName, type, state, bundle);
     }
 
-    public String getDependentComponentName() {
-        return dependentComponentName;
+    public List<String> getRequiredByComponentNames() {
+        return requiredByComponentNames;
     }
 
-    public void setDependentComponentName(String dependentComponentName) {
-        this.dependentComponentName = dependentComponentName;
+    public void setRequiredByComponentName(String requiredByComponentName) {
+        requiredByComponentNames.add(requiredByComponentName);
     }
 
     /**

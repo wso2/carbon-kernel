@@ -68,7 +68,12 @@ public class MBeanRegistratorTest {
         MBeanRegistrator.registerMBean(new TransportManager());
     }
 
-    @Test(dependsOnMethods = {"testMBeanAlreadyExists"})
+    @Test(dependsOnMethods = {"testMBeanAlreadyExists"}, expectedExceptions = RuntimeException.class)
+    public void testMBeanNotCompliant() throws RuntimeException {
+        MBeanRegistrator.registerMBean(new CarbonServerInfo());
+    }
+
+    @Test(dependsOnMethods = {"testMBeanNotCompliant"})
     public void testUnregisterAllMBeans() {
         MBeanServer mBeanServer = MBeanManagementFactory.getMBeanServer();
         MBeanRegistrator.unregisterAllMBeans();

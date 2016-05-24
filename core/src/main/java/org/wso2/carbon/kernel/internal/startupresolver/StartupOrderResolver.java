@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.internal.CarbonStartupHandler;
 import org.wso2.carbon.kernel.internal.DataHolder;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.CapabilityProviderCapability;
-import org.wso2.carbon.kernel.internal.startupresolver.beans.OSGiServiceCapability;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 
@@ -38,14 +36,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.createCapabilityProviders;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.createOSGiServiceCapabilities;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.createStartupComponents;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
+        capabilityProviderElementPredicate;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
         logPendingCapabilityProviderServiceDetails;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.logPendingComponentDetails;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
         logPendingRequiredCapabilityListenerServiceDetails;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
+        requiredCapabilityListenerElementPredicate;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OSGI_SERVICE_COMPONENT;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.STARTUP_LISTENER_COMPONENT;
 
@@ -62,7 +61,6 @@ import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverCon
  * possible in a standard OSGi containers.
  * <p>
  * e.g. A Transport Manager starts transports all at once
- *
  *
  * @since 5.0.0
  */
@@ -98,24 +96,15 @@ public class StartupOrderResolver {
             // 1) Process OSGi manifest headers to calculate the expected list required capabilities.
             processManifestHeaders(Arrays.asList(bundleContext.getBundles()));
 
-            // 2) Check for any startup components with pending required capabilities.
-            if (startupComponentManager.getComponents(StartupComponent::isPending).size() == 0) {
-                // There are no registered RequiredCapabilityListener
-                // Clear all the populated maps.
-                startupComponentManager = null;
-                return;
-            }
-
-            // 3) Register capability trackers to get notified when required capabilities are available.
+            // 2) Register capability trackers to get notified when required capabilities are available.
             startCapabilityTrackers();
 
-            // 4) Schedule a time task to check for startup components with zero pending required capabilities.
+            // 3) Schedule a time task to check for startup components with zero pending required capabilities.
             scheduleCapabilityListenerTimer();
 
-            // 5) Start a timer to track pending capabilities, pending CapabilityProvider services,
+            // 4) Start a timer task to track pending capabilities, pending CapabilityProvider services,
             // pending RequiredCapabilityLister services.
             schedulePendingCapabilityTimerTask();
-
         } catch (Throwable e) {
             logger.error("Error occurred in Startup Order Resolver.", e);
         }
@@ -144,16 +133,14 @@ public class StartupOrderResolver {
                         // Filter out all the bundles with the Carbon-Component manifest header.
                         .filter(StartupOrderResolverUtils::isCarbonComponentHeaderPresent)
                         // Process filtered manifest headers and get a list of ManifestElements.
-                        .map(StartupOrderResolverUtils::createManifestElements)
+                        .map(StartupOrderResolverUtils::getManifestElements)
                         // Merge all the manifest elements lists into a single list.
                         .flatMap(Collection::stream)
                         // Partition all the ManifestElements with the manifest header name.
                         .collect(Collectors.groupingBy(ManifestElement::getValue));
 
         if (groupedManifestElements.get(STARTUP_LISTENER_COMPONENT) != null) {
-            List<StartupComponent> startupComponents = createStartupComponents(
-                    groupedManifestElements.get(STARTUP_LISTENER_COMPONENT));
-            startupComponents.forEach(startupComponentManager::addStartupComponent);
+            processServiceComponents(groupedManifestElements);
         }
 
         if (groupedManifestElements.get(OSGI_SERVICE_COMPONENT) != null) {
@@ -179,6 +166,7 @@ public class StartupOrderResolver {
 
             @Override
             public void run() {
+
                 if (startupComponentManager.getComponents(StartupComponent::isPending).size() == 0) {
                     startupComponentManager.notifySatisfiableComponents();
 
@@ -240,6 +228,13 @@ public class StartupOrderResolver {
         }, pendingCapabilityTimerDelay, pendingCapabilityTimerPeriod);
     }
 
+    private void processServiceComponents(Map<String, List<ManifestElement>> groupedManifestElements) {
+        groupedManifestElements.get(STARTUP_LISTENER_COMPONENT)
+                .stream()
+                .map(StartupOrderResolverUtils::getStartupComponent)
+                .forEach(startupComponentManager::addStartupComponent);
+    }
+
     /**
      * Process all the Provide-Capability Manifest header elements to get a list of required Capabilities.
      * <p>
@@ -248,16 +243,23 @@ public class StartupOrderResolver {
      * @param manifestElementList manifest elements by the header name.
      */
     private void processOSGiServices(List<ManifestElement> manifestElementList) {
-        List<OSGiServiceCapability> osgiServiceCapabilities = createOSGiServiceCapabilities(manifestElementList);
-
-        osgiServiceCapabilities.forEach(
-                osgiServiceCapability -> {
-                    if (osgiServiceCapability.getDependentComponentName() != null) {
-                        startupComponentManager.addRequiredOSGiServiceCapabilityToComponent(
-                                osgiServiceCapability.getDependentComponentName(), osgiServiceCapability.getName());
+        manifestElementList
+                .stream()
+                .filter(capabilityProviderElementPredicate.negate().and(
+                        requiredCapabilityListenerElementPredicate.negate()))
+                // Creating a Capability from the manifestElement
+                .map(StartupOrderResolverUtils::getOSGiServiceCapabilities)
+                .flatMap(Collection::stream)
+                .forEach(serviceCapability -> {
+                    if (!serviceCapability.getRequiredByComponentNames().isEmpty()) {
+                        serviceCapability.getRequiredByComponentNames()
+                                .forEach(componentName ->
+                                        startupComponentManager.addRequiredOSGiServiceToComponent(
+                                                componentName,
+                                                serviceCapability.getName()));
                     }
 
-                    startupComponentManager.addRequiredCapability(osgiServiceCapability);
+                    startupComponentManager.addExpectedOrAvailableCapability(serviceCapability);
                 });
     }
 
@@ -265,8 +267,10 @@ public class StartupOrderResolver {
      * @param manifestElementList A list of {@code ManifestElement}
      */
     private void processCapabilityProviders(List<ManifestElement> manifestElementList) {
-        List<CapabilityProviderCapability> providerCapabilityList = createCapabilityProviders(manifestElementList);
-        providerCapabilityList.forEach(startupComponentManager::addExpectedOrAvailableCapabilityProvider);
+        manifestElementList.stream()
+                .filter(capabilityProviderElementPredicate)
+                .map(StartupOrderResolverUtils::getCapabilityProviderCapability)
+                .forEach(startupComponentManager::addExpectedOrAvailableCapabilityProvider);
     }
 
     /**

@@ -33,6 +33,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,8 +43,10 @@ import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverCon
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.DEPENDENT_COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.REQUIRED_BY_COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.REQUIRED_SERVICE;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.SERVICE_COUNT;
+import static org.wso2.carbon.kernel.utils.StringUtils.getNonEmptyStringAfterTrim;
 
 /**
  * This class contains utility methods required for the StartupOrderResolver.
@@ -57,6 +60,14 @@ class StartupOrderResolverUtils {
 
     }
 
+    static Predicate<ManifestElement> capabilityProviderElementPredicate =
+            manifestElement -> CapabilityProvider.class.getName().equals(
+                    getObjectClassName(manifestElement));
+
+    static Predicate<ManifestElement> requiredCapabilityListenerElementPredicate =
+            manifestElement -> RequiredCapabilityListener.class.getName().equals(
+                    getObjectClassName(manifestElement));
+
     static Boolean isCarbonComponentHeaderPresent(Bundle bundle) {
         return AccessController.doPrivileged((PrivilegedAction<Boolean>) () ->
                 bundle.getHeaders().get(CARBON_COMPONENT_HEADER) != null);
@@ -68,7 +79,7 @@ class StartupOrderResolverUtils {
      * @param bundle from the which the header value should retrieved.
      * @return the created list of {@code ManifestElement} instances
      */
-    static List<ManifestElement> createManifestElements(Bundle bundle) {
+    static List<ManifestElement> getManifestElements(Bundle bundle) {
         String headerValue = AccessController.doPrivileged((PrivilegedAction<String>) () ->
                 bundle.getHeaders().get(CARBON_COMPONENT_HEADER));
 
@@ -82,85 +93,94 @@ class StartupOrderResolverUtils {
     }
 
     /**
-     * Process all the Startup-Component manifest header elements and creates {@code StartupComponent} instances
-     * for each and every ManifestElement.
+     * Create a {@code StartupComponent} from he manifest element.
      *
-     * @param manifestElementList a list of {@code ManifestElement} whose header name is Startup-Component.
+     * @param manifestElement {@code ManifestElement} from which the {@code StartupComponent} is created.
+     * @return the created {@code StartupComponent}.
      */
-    static List<StartupComponent> createStartupComponents(List<ManifestElement> manifestElementList) {
-        // Create StartupComponents from the manifest elements.
-        return manifestElementList.stream()
-                .map(StartupOrderResolverUtils::getStartupComponent)
+    static StartupComponent getStartupComponent(ManifestElement manifestElement) {
+        String componentName = getNonEmptyStringAfterTrim(manifestElement.getAttribute(COMPONENT_NAME))
+                .orElseThrow(
+                        () -> new StartOrderResolverException(COMPONENT_NAME + " attribute value is missing in " +
+                                manifestElement.getManifestHeaderName() + " header of bundle(" +
+                                manifestElement.getBundle().getSymbolicName() + ":" +
+                                manifestElement.getBundle().getVersion() + ")"));
+
+        String requiredServices = getNonEmptyStringAfterTrim(manifestElement.getAttribute(REQUIRED_SERVICE))
+                .orElseThrow(
+                        () -> new StartOrderResolverException(REQUIRED_SERVICE + " attribute value is missing in " +
+                                manifestElement.getManifestHeaderName() + " header of bundle(" +
+                                manifestElement.getBundle().getSymbolicName() + ":" +
+                                manifestElement.getBundle().getVersion() + ")"));
+
+        String[] requiredServiceArray = requiredServices.split(CAPABILITY_NAME_SPLIT_CHAR);
+        List<String> requiredServicesList = Arrays.asList(requiredServiceArray)
+                .stream()
+                .map(String::trim)
                 .collect(Collectors.toList());
+
+        StartupComponent startupComponent = new StartupComponent(componentName, manifestElement.getBundle());
+        startupComponent.addRequiredServices(requiredServicesList);
+        return startupComponent;
     }
 
-    static List<CapabilityProviderCapability> createCapabilityProviders(List<ManifestElement> manifestElementList) {
-        return manifestElementList.stream()
-                .filter(manifestElement -> CapabilityProvider.class.getName().equals(
-                        getObjectClassName(manifestElement)))
-                .map(manifestElement -> {
-                    // Processing CapabilityProvider OSGi service
-                    String providedCapabilityName = getMandatoryManifestElementAttribute(
-                            CAPABILITY_NAME, manifestElement, true);
+    static CapabilityProviderCapability getCapabilityProviderCapability(ManifestElement manifestElement) {
+        // Processing CapabilityProvider OSGi service
+        String providedCapabilityName = getNonEmptyStringAfterTrim(manifestElement.getAttribute(CAPABILITY_NAME))
+                .orElseThrow(
+                        () -> new StartOrderResolverException(CAPABILITY_NAME + " attribute value is missing in " +
+                                manifestElement.getManifestHeaderName() + " header of bundle(" +
+                                manifestElement.getBundle().getSymbolicName() + ":" +
+                                manifestElement.getBundle().getVersion() + ")"));
 
-                    return new CapabilityProviderCapability(
+        return new CapabilityProviderCapability(
+                getObjectClassName(manifestElement),
+                Capability.CapabilityType.OSGi_SERVICE,
+                Capability.CapabilityState.EXPECTED,
+                providedCapabilityName,
+                manifestElement.getBundle());
+    }
+
+    static List<OSGiServiceCapability> getOSGiServiceCapabilities(ManifestElement manifestElement) {
+        // Get the value of the serviceCount manifest attribute, if any. Default value is 1.
+        int serviceCount = getNonEmptyStringAfterTrim(manifestElement.getAttribute(SERVICE_COUNT))
+                .map(serviceCountStr -> {
+                    try {
+                        return Integer.parseInt(serviceCountStr.trim());
+                    } catch (NumberFormatException e) {
+                        throw new StartOrderResolverException("Invalid value for serviceCount manifest " +
+                                "attribute in bundle(" + manifestElement.getBundle().getSymbolicName() +
+                                ":" + manifestElement.getBundle().getVersion() + ")", e);
+                    }
+                })
+                .orElse(1);
+
+        // Create specified number of OSGi service components and adding them to a list.
+        List<OSGiServiceCapability> osgiServiceCapabilityList = new ArrayList<>(serviceCount);
+        IntStream.range(0, serviceCount)
+                .forEach(count -> {
+                    OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(
                             getObjectClassName(manifestElement),
                             Capability.CapabilityType.OSGi_SERVICE,
                             Capability.CapabilityState.EXPECTED,
-                            providedCapabilityName,
                             manifestElement.getBundle());
-                })
-                .collect(Collectors.toList());
-    }
 
-    static List<OSGiServiceCapability> createOSGiServiceCapabilities(List<ManifestElement> manifestElementList) {
-        // Handle other OSGi service capabilities
-        return manifestElementList
-                .stream()
-                .filter(manifestElement -> !CapabilityProvider.class.getName().equals(
-                        getObjectClassName(manifestElement)) &&
-                        !RequiredCapabilityListener.class.getName().equals(getObjectClassName(manifestElement)))
-                // Creating a Capability from the manifestElement
-                .flatMap(manifestElement -> {
-                    String capabilityName = getObjectClassName(manifestElement);
+                    // Check whether requiredByComponent property is specified.
+                    getNonEmptyStringAfterTrim(manifestElement.getAttribute(REQUIRED_BY_COMPONENT_NAME))
+                            .ifPresent(requiredByComponentNameStr ->
+                                    addRequiredByComponentNames(osgiServiceCapability, requiredByComponentNameStr)
+                            );
 
-                    String serviceCountStr = getOptionalManifestElementAttribute(SERVICE_COUNT, manifestElement);
+                    // Check whether dependentComponentName property is specified. Backward compatibility.
+                    getNonEmptyStringAfterTrim(manifestElement.getAttribute(DEPENDENT_COMPONENT_NAME))
+                            .ifPresent(requiredByComponentNameStr ->
+                                    addRequiredByComponentNames(osgiServiceCapability, requiredByComponentNameStr)
+                            );
 
-                    int serviceCount = 1;
-                    if (serviceCountStr != null) {
-                        try {
-                            serviceCount = Integer.parseInt(serviceCountStr.trim());
-                        } catch (NumberFormatException e) {
-                            throw new StartOrderResolverException("Invalid value for serviceCount manifest attribute " +
-                                    "in bundle(" + manifestElement.getBundle().getSymbolicName() + ":" +
-                                    manifestElement.getBundle().getVersion() + ")", e);
-                        }
-                    }
+                    osgiServiceCapabilityList.add(osgiServiceCapability);
+                });
 
-                    // Create specified  number of OSGi service components and adding them to a list.
-                    List<OSGiServiceCapability> osgiServiceCapabilityList = new ArrayList<>(serviceCount);
-                    IntStream.range(0, serviceCount)
-                            .forEach(count -> {
-                                OSGiServiceCapability osgiServiceCapability = new OSGiServiceCapability(
-                                        capabilityName,
-                                        Capability.CapabilityType.OSGi_SERVICE,
-                                        Capability.CapabilityState.EXPECTED,
-                                        manifestElement.getBundle());
-
-                                // Check whether a dependent-component-key or dependent-component-name
-                                // property is specified.
-                                String dependentComponentName = getOptionalManifestElementAttribute(
-                                        DEPENDENT_COMPONENT_NAME, manifestElement);
-
-                                if (dependentComponentName != null && !dependentComponentName.equals("")) {
-                                    osgiServiceCapability.setDependentComponentName(dependentComponentName.trim());
-                                }
-                                osgiServiceCapabilityList.add(osgiServiceCapability);
-                            });
-
-                    return osgiServiceCapabilityList.stream();
-                })
-                .collect(Collectors.toList());
+        return osgiServiceCapabilityList;
     }
 
     static void logPendingComponentDetails(Logger logger, List<StartupComponent> pendingComponents) {
@@ -182,8 +202,8 @@ class StartupOrderResolverUtils {
 
         componentsWithPendingListeners
                 .forEach(startupComponent ->
-                        logger.warn("Waiting for RequiredCapabilityListener " +
-                                        "OSGi Service from bundle({}:{}). component-key: {}",
+                        logger.warn("Waiting for a RequiredCapabilityListener " +
+                                        "OSGi Service from bundle({}:{}) with componentName: {}",
                                 startupComponent.getBundle().getSymbolicName(),
                                 startupComponent.getBundle().getVersion(),
                                 startupComponent.getName()));
@@ -194,12 +214,24 @@ class StartupOrderResolverUtils {
             List<CapabilityProviderCapability> pendingCapabilityProviderList) {
 
         pendingCapabilityProviderList
-                .forEach(capabilityProvider ->
-                        logger.warn("Waiting for CapabilityProvider OSGi service " +
-                                        "from bundle({}:{}). Provided capability name: {} ",
+                .forEach(capabilityProvider -> {
+                    if (capabilityProvider.getState() == Capability.CapabilityState.EXPECTED) {
+                        logger.warn("Waiting for a CapabilityProvider OSGi service to be registered " +
+                                        "from bundle({}:{}) with providedCapabilityName: {}. " +
+                                        "Refer the Startup Order Resolver documentation for more information.",
                                 capabilityProvider.getBundle().getSymbolicName(),
                                 capabilityProvider.getBundle().getVersion(),
-                                capabilityProvider.getProvidedCapabilityName()));
+                                capabilityProvider.getProvidedCapabilityName());
+                    } else {
+                        logger.warn("Looks like you've registered a CapabilityProvider OSGi service from " +
+                                        "bundle({}:{}) with the providedCapabilityName: {}, but you haven't " +
+                                        "declared it in the pom.xml using Carbon-Component manifest header. " +
+                                        "Refer the Startup Order Resolver documentation for more information.",
+                                capabilityProvider.getBundle().getSymbolicName(),
+                                capabilityProvider.getBundle().getVersion(),
+                                capabilityProvider.getProvidedCapabilityName());
+                    }
+                });
 
     }
 
@@ -233,69 +265,23 @@ class StartupOrderResolverUtils {
     }
 
     /**
-     * Create a {@code StartupComponent} from he manifest element.
-     *
-     * @param manifestElement {@code ManifestElement} from which the {@code StartupComponent} is created.
-     * @return the created {@code StartupComponent}.
-     */
-    private static StartupComponent getStartupComponent(ManifestElement manifestElement) {
-        String componentName = getMandatoryManifestElementAttribute(COMPONENT_NAME, manifestElement, true);
-        String requiredServices = getMandatoryManifestElementAttribute(REQUIRED_SERVICE, manifestElement, true);
-        String[] requiredServiceArray = requiredServices != null ?
-                requiredServices.split(CAPABILITY_NAME_SPLIT_CHAR) : new String[0];
-        List<String> requiredServicesList = Arrays.asList(requiredServiceArray)
-                .stream()
-                .map(String::trim)
-                .collect(Collectors.toList());
-
-        StartupComponent startupComponent = new StartupComponent(componentName, manifestElement.getBundle());
-        startupComponent.addRequiredServices(requiredServicesList);
-        return startupComponent;
-    }
-
-    /**
-     * Returns the attribute value of the specified key from the {@code ManifestElement}.
-     *
-     * @param attributeKey    key of the manifest element attribute
-     * @param manifestElement {@code ManifestElement} object from which we lookup for attributes
-     * @param mandatory       states whether this is a required attribute or not. If a required attribute value is null,
-     *                        then this method throws a {@code StartOrderResolverException}
-     * @return requested attribute value
-     */
-    private static String getMandatoryManifestElementAttribute(String attributeKey,
-                                                               ManifestElement manifestElement, boolean mandatory) {
-        String value = manifestElement.getAttribute(attributeKey);
-        if ((value == null || value.equals("")) && mandatory) {
-            throw new StartOrderResolverException(attributeKey + " attribute value is missing in " +
-                    manifestElement.getManifestHeaderName() + " header of bundle(" +
-                    manifestElement.getBundle().getSymbolicName() + ":" +
-                    manifestElement.getBundle().getVersion() + ")");
-        }
-
-        return value != null ? value.trim() : null;
-
-    }
-
-    private static String getOptionalManifestElementAttribute(String attributeKey, ManifestElement manifestElement) {
-        String value = manifestElement.getAttribute(attributeKey);
-        return value != null ? value.trim() : null;
-
-    }
-
-    /**
      * Extracts the "objectClass" manifest element attribute from the give {@code ManifestElement}.
      *
      * @param manifestElement {@code ManifestElement} from which the "objectClass" is to be extracted.
-     * @return the value of the "objectClass" attribut.
+     * @return the value of the "objectClass" attribute.
      */
     private static String getObjectClassName(ManifestElement manifestElement) {
-        String className = manifestElement.getAttribute(OBJECT_CLASS);
+        return getNonEmptyStringAfterTrim(manifestElement.getAttribute(OBJECT_CLASS))
+                .orElseThrow(() -> new StartOrderResolverException("objectClass cannot be empty. " +
+                        "Bundle-SymbolicName: " + manifestElement.getBundle().getSymbolicName()));
+    }
 
-        if (className == null || className.equals("")) {
-            throw new StartOrderResolverException("objectClass cannot be empty. Bundle-SymbolicName: " +
-                    manifestElement.getBundle().getSymbolicName());
-        }
-
-        return className;
+    private static void addRequiredByComponentNames(OSGiServiceCapability osgiServiceCapability,
+                                                    String requiredByComponentNameStr) {
+        Arrays.asList(requiredByComponentNameStr.split(CAPABILITY_NAME_SPLIT_CHAR))
+                .stream()
+                .map(String::trim)
+                .filter(componentName -> componentName != null && componentName.length() > 0)
+                .forEach(osgiServiceCapability::setRequiredByComponentName);
     }
 }

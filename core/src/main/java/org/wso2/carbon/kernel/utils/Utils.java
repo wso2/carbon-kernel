@@ -114,8 +114,8 @@ public class Utils {
      * If the variable in available in the environment as well as a System property, the System property takes
      * precedence.
      *
-     * @param variableName System/environment variable name
-     * @param defaultValue default value to be returned if the specified system variable is not specified.
+     * @param variableName  System/environment variable name
+     * @param defaultValue  default value to be returned if the specified system variable is not specified.
      * @param constantClass Class from which the Predefined value should be retrieved if system variable and default
      *                      value is not specified.
      * @return value of the system/environment variable
