@@ -30,6 +30,7 @@ class StartupResolverConstants {
     static final String STARTUP_LISTENER_COMPONENT = "startup.listener";
     static final String OSGI_SERVICE_COMPONENT = "osgi.service";
     static final String DEPENDENT_COMPONENT_NAME = "dependentComponentName";
+    static final String REQUIRED_BY_COMPONENT_NAME = "requiredByComponentName";
     static final String SERVICE_COUNT = "serviceCount";
     static final String OBJECT_CLASS = "objectClass";
     static final String CAPABILITY_NAME_SPLIT_CHAR = ",";

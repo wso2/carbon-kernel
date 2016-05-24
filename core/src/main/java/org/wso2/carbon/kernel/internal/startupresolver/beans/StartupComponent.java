@@ -52,7 +52,7 @@ public class StartupComponent {
     /**
      * List of pending expected or available capabilities.
      */
-    private List<Capability> pendingCapabilityList = Collections.synchronizedList(new ArrayList<>());
+    private final List<Capability> pendingCapabilityList = Collections.synchronizedList(new ArrayList<>());
 
     /**
      * RequiredCapabilityListener service instance.
@@ -130,11 +130,13 @@ public class StartupComponent {
      *
      * @param capability {@code Capability} object to be registered with this startup listener component.
      */
-    public synchronized void addExpectedOrAvailableCapability(Capability capability) {
-        if (pendingCapabilityList.contains(capability)) {
-            pendingCapabilityList.remove(capability);
-        } else {
-            pendingCapabilityList.add(capability);
+    public void addExpectedOrAvailableCapability(Capability capability) {
+        synchronized (pendingCapabilityList) {
+            if (pendingCapabilityList.contains(capability)) {
+                pendingCapabilityList.remove(capability);
+            } else {
+                pendingCapabilityList.add(capability);
+            }
         }
     }
 
