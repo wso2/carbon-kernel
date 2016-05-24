@@ -327,17 +327,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.igniterealtime.smack.wso2</groupId>
-                <artifactId>smack</artifactId>
-                <version>${smack.wso2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.igniterealtime.smack.wso2</groupId>
-                <artifactId>smackx</artifactId>
-                <version>${smackx.wso2.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>libthrift.wso2</groupId>
                 <artifactId>libthrift</artifactId>
                 <version>${libthrift.wso2.version}</version>
@@ -1514,8 +1503,6 @@
         <balana.imp.pkg.version.range>[1.0.1,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,2.0.0)</gdata-core.imp.pkg.version.range>
-        <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
-        <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
         <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
