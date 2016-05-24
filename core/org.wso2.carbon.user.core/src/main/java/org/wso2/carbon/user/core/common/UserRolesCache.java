@@ -148,7 +148,7 @@ public class UserRolesCache {
             return;
         }
         if (!isCaseSensitiveUsername(userName, tenantId)) {
-            userName = userName.toLowerCase();
+            userName = (UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName).toLowerCase();
         }
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         if (cache.containsKey(userRolesCacheKey)) {
