@@ -19,7 +19,7 @@
     <parent>
         <artifactId>carbon-kernel-test-artifacts</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>5.1.0-beta</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>carbon-context-test-artifact</artifactId>
     <packaging>bundle</packaging>

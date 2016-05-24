@@ -18,13 +18,13 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-tests</artifactId>
-        <version>5.1.0-beta</version>
+        <version>5.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>carbon-kernel-coverage-reports</artifactId>
-    <version>5.1.0-beta</version>
+    <version>5.1.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - Coverage Reports</name>
     <description>Coverage Report for Carbon Kernel by merging unit and osgi tests</description>
     <url>http://wso2.com</url>
