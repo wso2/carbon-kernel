@@ -56,6 +56,9 @@
 
     <properties>
         <export.package>org.wso2.carbon.sample.dbs.deployer</export.package>
+        <carbon.component>
+            osgi.service;objectClass="org.wso2.carbon.sample.deployer.mgt.Deployer"
+        </carbon.component>
     </properties>
 
 </project>

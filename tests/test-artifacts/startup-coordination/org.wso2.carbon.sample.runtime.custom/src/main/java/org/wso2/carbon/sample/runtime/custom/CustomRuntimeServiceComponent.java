@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 @Component(
         name = "org.wso2.carbon.sample.runtime.custom.CustomRuntimeServiceComponent",
         immediate = true,
-        property = "capability-name=org.wso2.carbon.sample.runtime.mgt.Runtime"
+        property = "capabilityName=org.wso2.carbon.sample.runtime.mgt.Runtime"
 )
 public class CustomRuntimeServiceComponent implements CapabilityProvider {
     private int runtimeServiceCount = 3;

@@ -28,19 +28,32 @@ public class BundleInfo {
     private String bundlePath;
     private int startLevel;
     private boolean isFragment;
-    private boolean isFromDropins;
+    private BundleLocation isFromDropins;
 
     public BundleInfo(String bundleSymbolicName, String bundleVersion, String bundlePath, int startLevel,
-                      boolean isFragment) {
+            boolean isFragment) {
         this.bundleSymbolicName = bundleSymbolicName;
         this.bundleVersion = bundleVersion;
         this.bundlePath = bundlePath;
         this.startLevel = startLevel;
         this.isFragment = isFragment;
-        this.isFromDropins = bundlePath.contains(Constants.DROPINS + "/");
+
+        if (bundlePath.contains(Constants.DROPINS + "/")) {
+            isFromDropins = BundleLocation.DROPINS_BUNDLE;
+        } else {
+            isFromDropins = BundleLocation.NON_DROPINS_BUNDLE;
+        }
     }
 
-    public boolean isFromDropins() {
+    public String getBundleSymbolicName() {
+        return bundleSymbolicName;
+    }
+
+    public String getBundleVersion() {
+        return bundleVersion;
+    }
+
+    public BundleLocation isFromDropins() {
         return isFromDropins;
     }
 
@@ -95,7 +108,6 @@ public class BundleInfo {
 
     @Override
     public int hashCode() {
-        assert false : "hashCode not designed";
-        return 52;
+        return (bundleSymbolicName.hashCode() * bundleVersion.hashCode());
     }
 }

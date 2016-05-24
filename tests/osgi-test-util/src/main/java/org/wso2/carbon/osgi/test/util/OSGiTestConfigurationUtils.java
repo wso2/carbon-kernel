@@ -160,6 +160,8 @@ public class OSGiTestConfigurationUtils {
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("snakeyaml").groupId("org.wso2.orbit.org.yaml")
                 .versionAsInProject());
+        optionList.add(mavenBundle().artifactId("org.wso2.carbon.base").groupId("org.wso2.carbon")
+                .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon")
                 .versionAsInProject());
 

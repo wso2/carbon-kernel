@@ -44,13 +44,14 @@ public class CarbonToolExecutor {
      */
     public static void main(String[] args) {
         String toolIdentifier = System.getProperty(Constants.CARBON_TOOL_SYSTEM_PROPERTY);
-        Optional.ofNullable(toolIdentifier).ifPresent(identifier -> {
-            try {
-                executeTool(identifier, args);
-            } catch (CarbonToolException e) {
-                logger.log(Level.SEVERE, "An error has occurred when executing the Carbon tool", e);
-            }
-        });
+        Optional.ofNullable(toolIdentifier)
+                .ifPresent(identifier -> {
+                    try {
+                        executeTool(identifier, args);
+                    } catch (CarbonToolException e) {
+                        logger.log(Level.SEVERE, "An error has occurred when executing the Carbon tool", e);
+                    }
+                });
     }
 
     /**

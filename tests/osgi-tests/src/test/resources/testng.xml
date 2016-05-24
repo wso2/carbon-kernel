@@ -27,9 +27,12 @@ limitations under the License.
             <!--<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>-->
 
             <class name="org.wso2.carbon.osgi.runtime.CarbonRuntimeOSGiTest"/>
+            <class name="org.wso2.carbon.osgi.runtime.CustomRuntimeOSGiTest"/>
             <class name="org.wso2.carbon.osgi.context.CarbonContextOSGiTest"/>
             <class name="org.wso2.carbon.osgi.runtime.PluggableRuntimeServiceOSGiTest"/>
             <class name="org.wso2.carbon.osgi.runtime.RuntimeServiceOSGITest"/>
+            <class name="org.wso2.carbon.osgi.runtime.RuntimeOSGITest" />
+            <class name="org.wso2.carbon.osgi.transport.TransportOSGITest" />
 
             <class name="org.wso2.carbon.osgi.transport.TransportServiceOSGiTest"/>
             <class name="org.wso2.carbon.osgi.transport.TransportManagerOSGiTest"/>

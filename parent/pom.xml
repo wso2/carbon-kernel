@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>4</version>
+        <version>5</version>
         <relativePath />
     </parent>
 
@@ -141,25 +141,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                </configuration>
-            </plugin>
-
-            <!-- Remove after fixing CARBON-15861 -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <doCheck>false</doCheck>
-                    <doUpdate>false</doUpdate>
-                    <revisionOnScmFailure>${maven.build.timestamp}</revisionOnScmFailure>
                 </configuration>
             </plugin>
 
@@ -434,7 +415,7 @@
 
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.1.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.package.export.version>5.0.0</carbon.kernel.package.export.version>
+        <carbon.kernel.package.export.version>5.1.0</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <!--Logging API version range-->

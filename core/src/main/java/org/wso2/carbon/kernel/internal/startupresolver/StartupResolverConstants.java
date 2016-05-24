@@ -24,17 +24,16 @@ package org.wso2.carbon.kernel.internal.startupresolver;
  */
 class StartupResolverConstants {
 
-    static final String PROVIDE_CAPABILITY_HEADER = "Provide-Capability";
-    static final String STARTUP_COMPONENT_HEADER = "Startup-Component";
-    static final String CAPABILITY_NAME = "capability-name";
-    static final String COMPONENT_NAME = "component-key";
-    static final String OSGI_SERVICE = "osgi.service";
-    static final String DEPENDENT_COMPONENT_KEY = "dependent-component-key";
-    static final String DEPENDENT_COMPONENT_NAME = "dependent-component-name";
+    static final String CARBON_COMPONENT_HEADER = "Carbon-Component";
+    static final String CAPABILITY_NAME = "capabilityName";
+    static final String COMPONENT_NAME = "componentName";
+    static final String STARTUP_LISTENER_COMPONENT = "startup.listener";
+    static final String OSGI_SERVICE_COMPONENT = "osgi.service";
+    static final String DEPENDENT_COMPONENT_NAME = "dependentComponentName";
+    static final String SERVICE_COUNT = "serviceCount";
     static final String OBJECT_CLASS = "objectClass";
-    static final String OBJECT_CLASS_LIST_STRING = "objectClass:List<String>";
     static final String CAPABILITY_NAME_SPLIT_CHAR = ",";
-    static final String REQUIRED_SERVICE = "required-service";
+    static final String REQUIRED_SERVICE = "requiredService";
 
 
     private StartupResolverConstants() {

@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 @Component(
         name = "org.wso2.carbon.sample.transport.http.CustomTransportServiceCapabilityProvider",
         immediate = true,
-        property = "capability-name=org.wso2.carbon.sample.transport.mgt.Transport"
+        property = "capabilityName=org.wso2.carbon.sample.transport.mgt.Transport"
 )
 public class CustomTransportServiceCapabilityProvider implements CapabilityProvider {
     private static final int customTransportServiceCount = 3;

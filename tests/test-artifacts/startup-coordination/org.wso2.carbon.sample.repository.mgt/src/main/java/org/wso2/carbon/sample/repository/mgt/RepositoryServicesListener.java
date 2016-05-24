@@ -34,9 +34,7 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         immediate = true,
         service = RequiredCapabilityListener.class,
         property = {
-                "capability-name=org.wso2.carbon.sample.transport.mgt.Transport," +
-                        "org.wso2.carbon.sample.runtime.mgt.Runtime",
-                "component-key=carbon-sample-repository-mgt"
+                "componentName=carbon-sample-repository-mgt"
         }
 )
 public class RepositoryServicesListener implements RequiredCapabilityListener {

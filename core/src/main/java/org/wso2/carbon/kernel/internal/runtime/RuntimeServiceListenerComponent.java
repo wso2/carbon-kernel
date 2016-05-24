@@ -40,8 +40,7 @@ import org.wso2.carbon.kernel.utils.MBeanRegistrator;
         name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceListenerComponent",
         immediate = true,
         property = {
-                "capability-name=org.wso2.carbon.kernel.runtime.Runtime",
-                "component-key=carbon-runtime-mgt"
+                "componentName=carbon-runtime-mgt"
         }
 )
 public class RuntimeServiceListenerComponent implements RequiredCapabilityListener {

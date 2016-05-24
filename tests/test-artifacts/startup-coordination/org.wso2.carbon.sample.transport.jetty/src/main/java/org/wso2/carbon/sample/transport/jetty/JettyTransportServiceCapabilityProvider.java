@@ -14,7 +14,7 @@ import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 @Component(
         name = "org.wso2.carbon.sample.transport.jetty.JettyTransportServiceCapabilityProvider",
         immediate = true,
-        property = "capability-name=org.wso2.carbon.sample.transport.mgt.Transport"
+        property = "capabilityName=org.wso2.carbon.sample.transport.mgt.Transport"
 )
 public class JettyTransportServiceCapabilityProvider implements CapabilityProvider {
     private static final int customTransportServiceCount = 3;

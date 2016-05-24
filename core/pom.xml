@@ -80,6 +80,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>false</inherited>
                 <configuration>
+                    <environmentVariables>
+                        <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
+                    </environmentVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
@@ -132,16 +135,11 @@
             javax.management.*;version="${javax.management.import.version.range}",
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
         </import.package>
-        <provide.capability>
-            osgi.service;effective:=active;
-            objectClass:List&lt;String&gt;="org.wso2.carbon.kernel.runtime.RuntimeService";
-            dependent-component-name=carbon-transport-mgt,
-        </provide.capability>
-        <startup.component>
-            carbon-transport-mgt;required-service="org.wso2.carbon.kernel.transports.CarbonTransport",
-            carbon-runtime-mgt;required-service="org.wso2.carbon.kernel.runtime.Runtime"
-        </startup.component>
-
+        <carbon.component>
+            startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
+            startup.listener;componentName="carbon-runtime-mgt";requiredService="org.wso2.carbon.kernel.runtime.Runtime",
+            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";dependentComponentName="carbon-transport-mgt"
+        </carbon.component>
     </properties>
 
 </project>

@@ -83,6 +83,14 @@ public final class LambdaExceptionUtils {
         void run() throws E;
     }
 
+    /**
+     * This method allows a Consumer which throws exceptions to be used in places which expects a Consumer.
+     *
+     * @param consumer instances of the {@code ConsumerWithExceptions} functional interface
+     * @param <T>      the type of the input to the function
+     * @param <E>      the type of Exception
+     * @return an instance of the {@code Consumer}
+     */
     public static <T, E extends Exception> Consumer<T> rethrowConsumer(ConsumerWithExceptions<T, E> consumer) {
         return t -> {
             try {
@@ -93,6 +101,15 @@ public final class LambdaExceptionUtils {
         };
     }
 
+    /**
+     * This method allows a BiConsumer which throws exceptions to be used in places which expects a BiConsumer.
+     *
+     * @param biConsumer instances of the {@code BiConsumerWithExceptions} functional interface
+     * @param <T>        the type of the input to the function
+     * @param <U>        the type of the input to the function
+     * @param <E>        the type of Exception
+     * @return an instance of the {@code BiConsumer}
+     */
     public static <T, U, E extends Exception> BiConsumer<T, U> rethrowBiConsumer(
             BiConsumerWithExceptions<T, U, E> biConsumer) {
         return (t, u) -> {
@@ -105,13 +122,13 @@ public final class LambdaExceptionUtils {
     }
 
     /**
-     * .map(rethrowFunction(name -- Class.forName(name))) or .map(rethrowFunction(Class::forName))
+     * This method allows a Function which throws exceptions to be used in places which expects a Function.
+     *
      * @param <T>      Any Object.
      * @param <R>      Any Object
      * @param <E>      Any Exception.
      * @param function Function to apply for given arguments.
-     *
-     * @return     Any Object that result from the function passed.
+     * @return Any Object that result from the function passed.
      */
     public static <T, R, E extends Exception> Function<T, R> rethrowFunction(
             FunctionWithExceptions<T, R, E> function) {
@@ -126,11 +143,11 @@ public final class LambdaExceptionUtils {
     }
 
     /**
-     * rethrowSupplier(() -- new StringJoiner(new String(new byte[]{77, 97, 114, 107}, "UTF-8"))),
+     * This method allows a Supplier which throws exceptions to be used in places which expects a Supplier.
+     *
      * @param <T>      Any Object.
      * @param <E>      Any Exception.
      * @param function Function to apply for given arguments.
-     *
      * @return Supplier of the results.
      */
     public static <T, E extends Exception> Supplier<T> rethrowSupplier(SupplierWithExceptions<T, E> function) {
@@ -144,58 +161,9 @@ public final class LambdaExceptionUtils {
         };
     }
 
-    /**
-     * uncheck(() -- Class.forName("xxx"));
-     * @param t RunnableException.
-     */
-    public static void uncheck(RunnableWithExceptions t) {
-        try {
-            t.run();
-        } catch (Exception exception) {
-            throwAsUnchecked(exception);
-        }
-    }
-
-    /**
-     * uncheck(() -- Class.forName("xxx"));
-     * @param <R>    Any Object.
-     * @param <E>    Any Exception.
-     * @param supplier supplier interface which can throw exceptions.
-     *
-     * @return R     Any Object.
-     */
-    public static <R, E extends Exception> R uncheck(SupplierWithExceptions<R, E> supplier) {
-        try {
-            return supplier.get();
-        } catch (Exception exception) {
-            throwAsUnchecked(exception);
-            return null;
-        }
-    }
-
-    /**
-     * uncheck(Class::forName, "xxx");
-     * @param <T>     Any Object.
-     * @param <R>     Any Object.
-     * @param <E>     Any Exception.
-     * @param function Any function which can throw an exception.
-     * @param t       Any Object.
-     *
-     * @return R      Any Object.
-     */
-    public static <T, R, E extends Exception> R uncheck(FunctionWithExceptions<T, R, E> function, T t) {
-        try {
-            return function.apply(t);
-        } catch (Exception exception) {
-            throwAsUnchecked(exception);
-            return null;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private static <E extends Throwable> void throwAsUnchecked(Exception exception) throws E {
         throw (E) exception;
     }
 
 }
-

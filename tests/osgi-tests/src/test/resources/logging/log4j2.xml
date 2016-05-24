@@ -19,11 +19,21 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
         </Console>
+        <RollingFile name="AUDIT_LOGFILE" fileName="${sys:carbon.home}/logs/audit.log"
+                     filePattern="${sys:project.build.directory}/logs/audit-%d{MM-dd-yyyy}.log">
+            <PatternLayout pattern="[%d] %5p %X %m%ex%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Root level="debug">
             <AppenderRef ref="Console" />
         </Root>
+        <Logger name="AUDIT_LOG" level="info" additivity="false">
+            <AppenderRef ref="AUDIT_LOGFILE"/>
+        </Logger>
     </Loggers>
 </Configuration>
 

@@ -15,10 +15,15 @@
  */
 package org.wso2.carbon.tools.dropins;
 
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
+import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +32,7 @@ import java.util.logging.Logger;
  *
  * @since 5.1.0
  */
-public class DropinsDeployerToolUtils {
+class DropinsDeployerToolUtils {
     private static final Logger logger = Logger.getLogger(DropinsDeployerToolUtils.class.getName());
 
     /**
@@ -38,24 +43,33 @@ public class DropinsDeployerToolUtils {
      * @throws CarbonToolException if the {@code carbonHome} is invalid
      * @throws IOException         if an I/O error occurs when extracting the Carbon Profile names
      */
-    public static void executeTool(String carbonHome, String profile) throws CarbonToolException, IOException {
+    static void executeTool(String carbonHome, String profile) throws CarbonToolException, IOException {
         if ((carbonHome == null) || (carbonHome.isEmpty())) {
             throw new CarbonToolException("Invalid Carbon home specified: " + carbonHome);
         }
 
         if (profile != null) {
+            Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.DROPINS);
+            logger.log(Level.FINE,
+                    "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
+            List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(dropinsDirectoryPath);
+            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
+                    " folder");
+
             if (profile.equals("ALL")) {
-                DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome).forEach(carbonProfile -> {
-                    try {
-                        DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome, carbonProfile);
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE,
-                                "Failed to update the OSGi bundle information of Carbon Profile: " + carbonProfile, e);
-                    }
-                });
+                DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome)
+                        .forEach(carbonProfile -> {
+                            try {
+                                DropinsBundleDeployerUtils.updateDropins(carbonHome, carbonProfile, newBundlesInfo);
+                            } catch (IOException e) {
+                                logger.log(Level.SEVERE,
+                                        "Failed to update the OSGi bundle information of Carbon Profile: "
+                                                + carbonProfile, e);
+                            }
+                        });
             } else {
                 try {
-                    DropinsBundleDeployerUtils.executeDropinsCapability(carbonHome, profile);
+                    DropinsBundleDeployerUtils.updateDropins(carbonHome, profile, newBundlesInfo);
                 } catch (IOException e) {
                     logger.log(Level.SEVERE,
                             "Failed to update the OSGi bundle information of Carbon Profile: " + profile, e);

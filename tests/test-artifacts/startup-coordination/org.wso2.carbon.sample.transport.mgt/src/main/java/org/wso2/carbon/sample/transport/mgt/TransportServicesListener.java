@@ -35,7 +35,7 @@ import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
         immediate = true,
         service = RequiredCapabilityListener.class,
         property = {
-                "component-key=carbon-sample-transport-mgt"
+                "componentName=carbon-sample-transport-mgt"
         }
 )
 public class TransportServicesListener implements RequiredCapabilityListener {
