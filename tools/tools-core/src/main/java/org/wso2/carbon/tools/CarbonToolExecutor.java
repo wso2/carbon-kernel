@@ -18,6 +18,7 @@ package org.wso2.carbon.tools;
 import org.wso2.carbon.tools.converter.BundleGeneratorTool;
 import org.wso2.carbon.tools.dropins.DropinsDeployerTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.tools.securevault.CipherTool;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -71,6 +72,9 @@ public class CarbonToolExecutor {
                 break;
             case "dropins-deployer":
                 carbonTool = new DropinsDeployerTool();
+                break;
+            case "cipher-tool":
+                carbonTool = new CipherTool();
                 break;
             default:
                 carbonTool = null;

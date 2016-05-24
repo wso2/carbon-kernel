@@ -119,6 +119,7 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>bin/**</include>
+                                        <include>resources/**</include>
                                         <include>conf/**</include>
                                         <include>deployment/**</include>
                                         <include>logs/**</include>
