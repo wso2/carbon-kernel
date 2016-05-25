@@ -94,7 +94,7 @@ public class UserRolesCache {
             return;
         }
         if (!isCaseSensitiveUsername(userName, tenantId)) {
-            userName = userName.toLowerCase();
+            userName = (UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName).toLowerCase();
         }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
@@ -114,7 +114,7 @@ public class UserRolesCache {
             return new String[0];
         }
         if (!isCaseSensitiveUsername(userName, tenantId)) {
-            userName = userName.toLowerCase();
+            userName = (UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName).toLowerCase();
         }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
