@@ -20,31 +20,30 @@ limitations under the License.
 <suite name="Carbon-Kernel-Core_OSGI-Test-Suite">
     <test name="carbon-core-osgi-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.BaseOSGiTest"/>
+            <!--<class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.BaseOSGiTest"/>-->
 
-            <class name="org.wso2.carbon.osgi.logging.LoggingConfigurationOSGiTest"/>
-            <!--<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.logging.LoggingConfigurationOSGiTest"/>-->
+            <!--&lt;!&ndash;<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>&ndash;&gt;-->
 
-            <class name="org.wso2.carbon.osgi.runtime.CarbonRuntimeOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.runtime.CustomRuntimeOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.context.CarbonContextOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.runtime.PluggableRuntimeServiceOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.runtime.RuntimeServiceOSGITest"/>
-            <class name="org.wso2.carbon.osgi.runtime.RuntimeOSGITest" />
-            <class name="org.wso2.carbon.osgi.transport.TransportOSGITest" />
+            <!--<class name="org.wso2.carbon.osgi.runtime.CarbonRuntimeOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.runtime.CustomRuntimeOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.context.CarbonContextOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.runtime.PluggableRuntimeServiceOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.runtime.RuntimeServiceOSGITest"/>-->
 
-            <class name="org.wso2.carbon.osgi.transport.TransportServiceOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.transport.TransportManagerOSGiTest"/>
+            <!--<class name="org.wso2.carbon.osgi.transport.TransportServiceOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.transport.TransportManagerOSGiTest"/>-->
 
-            <class name="org.wso2.carbon.osgi.utils.manifest.ManifestElementOSGiTest"/>
+            <!--<class name="org.wso2.carbon.osgi.utils.manifest.ManifestElementOSGiTest"/>-->
 
-            <class name="org.wso2.carbon.osgi.startupresolver.DynamicCapabilityOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.startupresolver.SampleStartupOrderResolverOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.startupresolver.StartupCoordinatorOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.startupresolver.MultipleCapabilitiesForCapabilityListenerOSGiTest"/>
-            <!--keep this test as the last since there is a issue in windows intermittently-->
-            <class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>
+            <!--<class name="org.wso2.carbon.osgi.startupresolver.DynamicCapabilityOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.startupresolver.SampleStartupOrderResolverOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.startupresolver.StartupCoordinatorOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.startupresolver.MultipleCapabilitiesForCapabilityListenerOSGiTest"/>-->
+            <!--&lt;!&ndash;keep this test as the last since there is a issue in windows intermittently&ndash;&gt;-->
+            <!--<class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>-->
+            <class name="org.wso2.carbon.osgi.TestCarbonContainer"/>
         </classes>
     </test>
 </suite>

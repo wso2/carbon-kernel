@@ -126,6 +126,10 @@
                                     <id>org.wso2.carbon.runtime.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id></id>
+                                    <version></version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>

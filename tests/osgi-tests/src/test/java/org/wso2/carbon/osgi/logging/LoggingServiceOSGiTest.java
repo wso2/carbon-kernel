@@ -15,6 +15,7 @@
 */
 package org.wso2.carbon.osgi.logging;
 
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -24,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
 
 import java.util.Enumeration;
 import javax.inject.Inject;
