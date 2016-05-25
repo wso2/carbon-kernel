@@ -16,7 +16,7 @@
 package org.wso2.carbon.tools.securevault;
 
 import org.wso2.carbon.tools.securevault.exception.CipherToolException;
-import org.wso2.carbon.tools.securevault.model.CarbonKeyStore;
+import org.wso2.carbon.tools.securevault.model.KeyStoreInformation;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedWriter;
@@ -80,7 +80,7 @@ public class Utils {
     /**
      * Write to the Secret-vault.yml file.
      */
-    public static void writeSecretYamlConfiguration(CarbonKeyStore keyStore, String carbonHome) {
+    public static void writeSecretYamlConfiguration(KeyStoreInformation keyStore, String carbonHome) {
 
         String secretsYamlFile = carbonHome + File.separator + SecureVaultConstants.CONF_DIR +
                 File.separator + SecureVaultConstants.SECURITY_DIR +

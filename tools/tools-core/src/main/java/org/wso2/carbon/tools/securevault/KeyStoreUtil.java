@@ -17,7 +17,7 @@ package org.wso2.carbon.tools.securevault;
 
 import org.wso2.carbon.tools.exception.CarbonToolException;
 import org.wso2.carbon.tools.securevault.exception.CipherToolException;
-import org.wso2.carbon.tools.securevault.model.CarbonKeyStore;
+import org.wso2.carbon.tools.securevault.model.KeyStoreInformation;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedInputStream;
@@ -55,14 +55,14 @@ public class KeyStoreUtil {
      *
      * @return cipher cipher
      */
-    public static Cipher getCipherInstance(Optional<CarbonKeyStore> keystoreOptional) throws CarbonToolException {
+    public static Cipher getCipherInstance(Optional<KeyStoreInformation> keystoreOptional) throws CarbonToolException {
         Cipher cipher = null;
         if (keystoreOptional.isPresent()) {
-            CarbonKeyStore carbonKeyStore = keystoreOptional.get();
-            String keyStoreFile = carbonKeyStore.getLocation();
-            String keyType = carbonKeyStore.getType();
-            String keyAlias = carbonKeyStore.getKeyAlias();
-            String password = carbonKeyStore.getPassword();
+            KeyStoreInformation keyStoreInformation = keystoreOptional.get();
+            String keyStoreFile = keyStoreInformation.getLocation();
+            String keyType = keyStoreInformation.getType();
+            String keyAlias = keyStoreInformation.getKeyAlias();
+            String password = keyStoreInformation.getPassword();
             if (password == null || password.isEmpty()) {
                 password = Utils.getValueFromConsole(
                         "Please Enter Primary KeyStore Password of Carbon Server : ", true);
@@ -97,9 +97,10 @@ public class KeyStoreUtil {
      * create a CarbonKeystore from keystore configuration.
      */
     @SuppressWarnings("unchecked")
-    public static Optional<CarbonKeyStore> loadKeystoreConfiguration(String carbonHome) throws CarbonToolException {
+    public static Optional<KeyStoreInformation> loadKeystoreConfiguration(String carbonHome)
+            throws CarbonToolException {
 
-        CarbonKeyStore carbonKeyStore = null;
+        KeyStoreInformation keyStoreInformation = null;
 
         Path serverConfigurationFile =
                 Paths.get(carbonHome, SecureVaultConstants.CONF_DIR, SecureVaultConstants.CARBON_CONFIG_FILE);
@@ -121,7 +122,7 @@ public class KeyStoreUtil {
                 String keyType = (String) keyStoreConfig.get("Type");
                 String keyAlias = (String) keyStoreConfig.get("KeyAlias");
 
-                carbonKeyStore = new CarbonKeyStore(keyStoreLocation, keyType,
+                keyStoreInformation = new KeyStoreInformation(keyStoreLocation, keyType,
                         (String) keyStoreConfig.get("Password"), keyAlias);
 
             } catch (FileNotFoundException e) {
@@ -142,16 +143,16 @@ public class KeyStoreUtil {
             //todo handling non-wso2 environments
         }
 
-        if (carbonKeyStore == null || carbonKeyStore.getLocation() == null ||
-                carbonKeyStore.getLocation().trim().isEmpty()) {
+        if (keyStoreInformation == null || keyStoreInformation.getLocation() == null ||
+                keyStoreInformation.getLocation().trim().isEmpty()) {
             throw new CipherToolException("KeyStore file path cannot be empty");
         }
-        if (carbonKeyStore.getKeyAlias() == null ||
-                carbonKeyStore.getKeyAlias().trim().isEmpty()) {
+        if (keyStoreInformation.getKeyAlias() == null ||
+                keyStoreInformation.getKeyAlias().trim().isEmpty()) {
             throw new CipherToolException("Key alias cannot be empty");
         }
 
-        return Optional.of(carbonKeyStore);
+        return Optional.of(keyStoreInformation);
     }
 
     private static KeyStore getKeyStore(String location, String storePassword,

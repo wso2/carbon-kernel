@@ -21,13 +21,13 @@ package org.wso2.carbon.tools.securevault.model;
  *
  * @since 5.1.0
  */
-public class CarbonKeyStore {
+public class KeyStoreInformation {
     private String location;
     private String type;
     private String password;
     private String keyAlias;
 
-    public CarbonKeyStore(String location, String type, String password, String keyAlias) {
+    public KeyStoreInformation(String location, String type, String password, String keyAlias) {
         this.location = location;
         this.type = type;
         this.password = password;

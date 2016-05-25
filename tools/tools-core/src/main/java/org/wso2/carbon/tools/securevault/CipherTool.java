@@ -19,7 +19,7 @@ package org.wso2.carbon.tools.securevault;
 import org.wso2.carbon.tools.CarbonTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 import org.wso2.carbon.tools.securevault.exception.CipherToolException;
-import org.wso2.carbon.tools.securevault.model.CarbonKeyStore;
+import org.wso2.carbon.tools.securevault.model.KeyStoreInformation;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ public class CipherTool implements CarbonTool {
     @Override
     public void execute(String... toolArgs) {
         if ((toolArgs != null) && (toolArgs.length > 1)) {
-            try{
+            try {
                 String carbonHome = toolArgs[1];
                 if (carbonHome == null || carbonHome.isEmpty()) {
                     throw new CarbonToolException("Invalid Carbon home specified: " + carbonHome);
@@ -90,16 +90,11 @@ public class CipherTool implements CarbonTool {
     }
 
     private void performEncryption(String userArgument, String carbonHome) throws CarbonToolException {
-        Optional<CarbonKeyStore> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
+        Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
         Cipher cipher = KeyStoreUtil.getCipherInstance(keystore);
-        if (userArgument != null &&
-                userArgument.equals(SecureVaultConstants.CONFIGURE)) {
-            loadSecretsAndAliasFromFile(carbonHome);
-            encryptSecrets(cipher, carbonHome);
-            Utils.writeSecretYamlConfiguration(keystore.get(), carbonHome);
-        } else {
-            encryptValues(cipher);
-        }
+        loadSecretsAndAliasFromFile(carbonHome);
+        encryptSecrets(cipher, carbonHome);
+        Utils.writeSecretYamlConfiguration(keystore.get(), carbonHome);
     }
 
     /**
@@ -112,14 +107,14 @@ public class CipherTool implements CarbonTool {
         for (Map.Entry<String, String> entry : aliasPasswordMap.entrySet()) {
             String value = entry.getValue();
             if (value != null && !value.equals("")) {
-                if (value.startsWith("plainText=")) {
-                    value = value.substring(("plainText=").length(), value.length());
-                    value = doEncryption(cipher, value);
+                if (value.startsWith("plainText:")) {
+                    value = value.substring(("plainText:").length(), value.length());
+                    value = "cipherText\u003d" + doEncryption(cipher, value);
                 }
             } else {
                 value = getPasswordFromConsole(entry.getKey(), cipher);
             }
-            properties.setProperty(entry.getKey(), "cipherText\u003d" + value);
+            properties.setProperty(entry.getKey(), value);
         }
 
         Utils.writeToPropertyFile(properties, Utils.getSecretsFileLocation(carbonHome).toString());
