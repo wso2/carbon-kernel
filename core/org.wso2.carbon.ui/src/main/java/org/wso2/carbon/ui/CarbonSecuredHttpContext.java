@@ -106,10 +106,6 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
             context = "";
         }
 
-        if (isWebXMLPath(context, requestedURI)) {
-            return false;
-        }
-
         // We eliminate the /tenant/{tenant-domain} from authentications
         Matcher matcher = CarbonUILoginUtil.getTenantEnabledUriPattern().matcher(requestedURI);
         if (matcher.matches()) {
@@ -291,6 +287,12 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
             }
             return false;
         }
+
+        if (isWebXMLPath(context, requestedURI)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return false;
+        }
+
         return true;
     }
 
