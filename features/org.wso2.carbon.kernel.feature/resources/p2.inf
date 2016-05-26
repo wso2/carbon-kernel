@@ -3,7 +3,6 @@ org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../fea
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/tools/,target:${installFolder}/../../../bin/bootstrap/tools/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/conf,target:${installFolder}/../../../conf/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/bin,target:${installFolder}/../../../bin/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/deployment,target:${installFolder}/../../../deployment/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/logs,target:${installFolder}/../../../logs/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/osgi,target:${installFolder}/../../../osgi/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/tmp,target:${installFolder}/../../../tmp/,overwrite:true);\
@@ -14,7 +13,6 @@ org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../..
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin/bootstrap,targetFile:logging.properties,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../conf/osgi,targetFile:launch.properties,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../conf,targetFile:carbon.yml,permissions:644);\
-org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../deployment,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../logs,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../osgi,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../tmp,targetFile:README.txt,permissions:644);\
