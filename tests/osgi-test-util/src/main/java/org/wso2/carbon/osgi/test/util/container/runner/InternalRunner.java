@@ -18,7 +18,6 @@ package org.wso2.carbon.osgi.test.util.container.runner;
 
 import org.ops4j.io.Pipe;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,8 +31,7 @@ public class InternalRunner {
     private Object frameworkProcessMonitor = new Object();
     private Thread shutdownHook;
 
-    public synchronized void exec(CommandLineBuilder commandLine, final File workingDirectory,
-            final String[] envOptions) {
+    public synchronized void exec(CommandLineBuilder commandLine, final String[] envOptions) {
         if (frameworkProcess != null) {
             throw new IllegalStateException("Platform already started");
         }

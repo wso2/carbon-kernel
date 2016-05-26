@@ -19,45 +19,36 @@ package org.wso2.carbon.osgi.test.util.container.options;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 
-import java.io.File;
+import java.nio.file.Path;
 
 public class CarbonDistributionConfigurationOption implements Option {
 
-    private String distributionURL;
+    private Path distributionFolderURL;
+    private Path distributionZipURL;
     private MavenUrlReference distributionMavenURL;
     private String name;
-    private File unpackDirectory;
+    private Path unpackDirectory;
 
     public CarbonDistributionConfigurationOption() {
-        distributionURL = null;
+        distributionFolderURL = null;
         distributionMavenURL = null;
         name = null;
     }
 
-    public CarbonDistributionConfigurationOption(File unpackDirectory, String name, String distributionURL) {
-        this.unpackDirectory = unpackDirectory;
-        this.name = name;
-        this.distributionMavenURL = null;
-        this.distributionURL = distributionURL;
+    public CarbonDistributionConfigurationOption distributionZipURL(Path distributionZipURL) {
+        this.distributionZipURL = distributionZipURL;
+        return this;
     }
 
-    public CarbonDistributionConfigurationOption(File unpackDirectory, String name,
-            MavenUrlReference distributionMavenURL) {
-        this.unpackDirectory = unpackDirectory;
-        this.name = name;
-        this.distributionMavenURL = distributionMavenURL;
-        this.distributionURL = null;
-    }
-
-    public CarbonDistributionConfigurationOption distributionURL(String distributionURL) {
-        this.distributionURL = distributionURL;
+    public CarbonDistributionConfigurationOption distributionFolderURL(Path distributionFolderURL) {
+        this.distributionFolderURL = distributionFolderURL;
         return this;
     }
 
     /**
-     * Sets the URL of the distribution as a maven reference.
+     * Sets the URL of the frameworks as a maven reference.
      *
-     * @param distributionURL distribution URL
+     * @param distributionURL framework URL
      * @return this for fluent syntax
      */
     public CarbonDistributionConfigurationOption distributionMavenURL(MavenUrlReference distributionURL) {
@@ -66,7 +57,7 @@ public class CarbonDistributionConfigurationOption implements Option {
     }
 
     /**
-     * Sets the name of the distribution. This is only used for logging.
+     * Sets the name of the framework. This is only used for logging.
      *
      * @param name distribution name
      * @return this for fluent syntax
@@ -83,7 +74,7 @@ public class CarbonDistributionConfigurationOption implements Option {
      * @param unpackDirectory unpack directory
      * @return this for fluent syntax
      */
-    public CarbonDistributionConfigurationOption unpackDirectory(File unpackDirectory) {
+    public CarbonDistributionConfigurationOption unpackDirectory(Path unpackDirectory) {
         this.unpackDirectory = unpackDirectory;
         return this;
     }
@@ -92,15 +83,19 @@ public class CarbonDistributionConfigurationOption implements Option {
         return distributionMavenURL;
     }
 
-    public String getDistributionURL() {
-        return distributionURL;
+    public Path getDistributionFolderURL() {
+        return distributionFolderURL;
+    }
+
+    public Path getDistributionZipURL() {
+        return distributionZipURL;
     }
 
     public String getName() {
         return name;
     }
 
-    public File getUnpackDirectory() {
+    public Path getUnpackDirectory() {
         return unpackDirectory;
     }
 

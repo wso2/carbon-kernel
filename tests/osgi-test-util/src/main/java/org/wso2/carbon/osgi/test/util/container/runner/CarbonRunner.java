@@ -17,6 +17,7 @@
 package org.wso2.carbon.osgi.test.util.container.runner;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 public class CarbonRunner implements Runner {
@@ -29,24 +30,20 @@ public class CarbonRunner implements Runner {
     }
 
     @Override
-    public synchronized void exec(String[] environment, File carbonHome, String javaHome, List<String> javaOpts) {
+    public synchronized void exec(String[] environment, Path carbonHome, List<String> javaOpts) {
         Thread thread = new Thread("CarbonJavaRunner") {
             @Override
             public void run() {
-                if (javaHome == null) {
-                    throw new IllegalStateException("JAVA_HOME is not set.");
-                }
-
                 CommandLineBuilder commandLine = new CommandLineBuilder();
 
                 if (IS_WINDOWS_OS) {
-                    commandLine.append(carbonHome.getPath() + "/bin/carbon.bat");
+                    commandLine.append(carbonHome.toAbsolutePath() + "/bin/carbon.bat");
                 } else {
-                    commandLine.append(carbonHome.getPath() + "/bin/carbon.sh");
+                    commandLine.append(carbonHome.toAbsolutePath() + "/bin/carbon.sh");
                 }
 
                 javaOpts.forEach(commandLine::append);
-                runner.exec(commandLine, carbonHome, environment);
+                runner.exec(commandLine, environment);
             }
         };
         thread.start();

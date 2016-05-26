@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.NoSuchObjectException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -53,7 +55,7 @@ public class CarbonTestContainer implements TestContainer {
     private CarbonDistributionConfigurationOption carbonDistributionConfigurationOption;
     private boolean started;
     private RBCRemoteTarget target;
-    private File targetFolder;
+    private Path targetFolder;
     private Registry rgstry;
 
     public CarbonTestContainer(ExamSystem system,
@@ -65,7 +67,7 @@ public class CarbonTestContainer implements TestContainer {
 
     public synchronized TestContainer start() {
 
-        if (carbonDistributionConfigurationOption.getDistributionURL() == null
+        if (carbonDistributionConfigurationOption.getDistributionFolderURL() == null
                 && carbonDistributionConfigurationOption.getDistributionMavenURL() == null) {
             throw new IllegalStateException("Either distributionURL or distributionUrlReference need to be set.");
         }
@@ -83,12 +85,11 @@ public class CarbonTestContainer implements TestContainer {
             String host = InetAddress.getLocalHost().getHostName();
 
             //setting RMI related properties
-            ExamSystem subsystem = system.fork(options(
-                    systemProperty(RMI_HOST_PROPERTY).value(host),
+            ExamSystem subsystem = system.fork(options(systemProperty(RMI_HOST_PROPERTY).value(host),
                     systemProperty(RMI_PORT_PROPERTY).value(Integer.toString(port)),
-                    systemProperty(RMI_NAME_PROPERTY).value(name),
-                    systemProperty(EXAM_INJECT_PROPERTY).value("true"),
-                    systemProperty("jline.shutdownhook").value("true")));
+                    systemProperty(RMI_NAME_PROPERTY).value(name), systemProperty(EXAM_INJECT_PROPERTY).value("true")
+                    //                    systemProperty("jline.shutdownhook").value("true"))
+            ));
 
             target = new RBCRemoteTarget(name, port, subsystem.getTimeout());
 
@@ -99,16 +100,26 @@ public class CarbonTestContainer implements TestContainer {
                 System.setProperty("org.ops4j.pax.url.mvn.repositories", buildString(repositories));
             }
 
-            if (carbonDistributionConfigurationOption.getDistributionMavenURL() != null) {
-                URL sourceDistribution = new URL(
-                        carbonDistributionConfigurationOption.getDistributionMavenURL().getURL());
-                targetFolder = retrieveFinalTargetFolder(subsystem);
-                ArchiveExtractor.extract(sourceDistribution, targetFolder);
+            if (carbonDistributionConfigurationOption.getDistributionFolderURL() == null) {
+                URL sourceDistribution = null;
+
+                if (carbonDistributionConfigurationOption.getDistributionMavenURL() != null) {
+                    sourceDistribution = new URL(
+                            carbonDistributionConfigurationOption.getDistributionMavenURL().getURL());
+                }
+                if (carbonDistributionConfigurationOption.getDistributionZipURL() != null) {
+                    sourceDistribution = new URL(
+                            carbonDistributionConfigurationOption.getDistributionZipURL().toString());
+                }
+
+                targetFolder = retrieveFinalTargetFolder();
+                ArchiveExtractor.extract(sourceDistribution, targetFolder.toFile());
             } else {
-                targetFolder = new File(carbonDistributionConfigurationOption.getDistributionURL());
+                targetFolder = carbonDistributionConfigurationOption.getDistributionFolderURL();
             }
 
-            File carbonHome = new File(targetFolder.getAbsolutePath());
+            Path carbonHome = targetFolder;
+            System.setProperty("carbon.home", carbonHome.toAbsolutePath().toString());
 
             copyPaxBundlesToDropins(carbonHome);
             copyReferencedBundles(carbonHome, subsystem);
@@ -127,7 +138,7 @@ public class CarbonTestContainer implements TestContainer {
         return new File(deploy, prefix + "_" + fileName + ".jar");
     }
 
-    private void copyPaxBundlesToDropins(File carbonHome) {
+    private void copyPaxBundlesToDropins(Path carbonHome) {
         copyReferencedArtifactsToDeployFolder("mvn:org.ops4j.base/ops4j-base-lang/1.5.0", carbonHome + "/osgi/dropins");
         copyReferencedArtifactsToDeployFolder("mvn:org.ops4j.base/ops4j-base-monitors/1.5.0",
                 carbonHome + "/osgi/dropins");
@@ -178,27 +189,21 @@ public class CarbonTestContainer implements TestContainer {
     /**
      * Copy dependencies specified as ProvisionOption in system to the dropins folder
      */
-    private void copyReferencedBundles(File carbonHome, ExamSystem system) {
-        String targetFolder = carbonHome+"/osgi/dropins";
-        ProvisionOption<?>[] options = system.getOptions(ProvisionOption.class);
-        for (ProvisionOption<?> option : options) {
-            copyReferencedArtifactsToDeployFolder(option.getURL(), targetFolder);
-        }
+    private void copyReferencedBundles(Path carbonHome, ExamSystem system) {
+        String targetFolder = carbonHome + "/osgi/dropins";
+
+        Arrays.asList(system.getOptions(ProvisionOption.class)).forEach(
+                provisionOption -> copyReferencedArtifactsToDeployFolder(provisionOption.getURL(), targetFolder));
     }
 
-    private void startCarbon(ExamSystem subsystem, File carbonHome) throws IOException {
+    private void startCarbon(ExamSystem subsystem, Path carbonHome) throws IOException {
         long startedAt = System.currentTimeMillis();
-        File carbonBin = new File(carbonHome, "bin");
-        makeScriptsInBinExec(carbonBin);
-        File javaHome = new File(System.getProperty("java.home"));
+        Path carbonBin = carbonHome.resolve("bin");
+        makeScriptsInBinExec(carbonBin.toFile());
         ArrayList<String> javaOpts = new ArrayList<>();
-
         String[] environment = new String[] {};
-
         setupSystemProperties(javaOpts, subsystem);
-
-        runner.exec(environment, carbonHome, javaHome.toString(), javaOpts);
-
+        runner.exec(environment, carbonHome, javaOpts);
         waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
 
         logger.info("Test Container started in " + (System.currentTimeMillis() - startedAt) + " millis");
@@ -221,14 +226,13 @@ public class CarbonTestContainer implements TestContainer {
         Arrays.asList(carbonBin.listFiles()).forEach(file -> file.setExecutable(true));
     }
 
-    private File retrieveFinalTargetFolder(ExamSystem subsystem) {
-        if (carbonDistributionConfigurationOption.getUnpackDirectory() == null) {
-            return subsystem.getConfigFolder();
-        } else {
-            File targetDir = new File(carbonDistributionConfigurationOption.getUnpackDirectory().getAbsolutePath());
-            targetDir.mkdirs();
-            return targetDir;
+    private Path retrieveFinalTargetFolder() {
+        Path unpackDirectory = carbonDistributionConfigurationOption.getUnpackDirectory();
+        if (unpackDirectory == null) {
+            unpackDirectory = Paths.get("target", UUID.randomUUID().toString());
         }
+        unpackDirectory.toFile().mkdir();
+        return unpackDirectory;
     }
 
     private boolean shouldDeleteRuntime() {
@@ -294,7 +298,7 @@ public class CarbonTestContainer implements TestContainer {
             if (shouldDeleteRuntime()) {
                 system.clear();
                 try {
-                    FileUtils.forceDelete(targetFolder);
+                    FileUtils.forceDelete(targetFolder.toFile());
                 } catch (IOException e) {
                     forceCleanup();
                 }
@@ -305,7 +309,7 @@ public class CarbonTestContainer implements TestContainer {
 
     private void forceCleanup() {
         try {
-            FileUtils.forceDeleteOnExit(targetFolder);
+            FileUtils.forceDeleteOnExit(targetFolder.toFile());
         } catch (IOException e) {
             logger.error("Error occured when deleting the folder.", e);
         }
@@ -332,7 +336,7 @@ public class CarbonTestContainer implements TestContainer {
 
     @Override
     public String toString() {
-        return "CarbonTestContainer{" + carbonDistributionConfigurationOption.getDistributionURL() + "}";
+        return "CarbonTestContainer{" + carbonDistributionConfigurationOption.getDistributionFolderURL() + "}";
     }
 
     @Override

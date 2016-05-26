@@ -19,6 +19,7 @@ package org.wso2.carbon.osgi.test.util;
 
 import org.ops4j.pax.exam.Option;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,7 +167,7 @@ public class OSGiTestConfigurationUtils {
 //                .versionAsInProject());
 
 //        optionList.add(repository("http://maven.wso2.org/nexus/content/groups/wso2-public"));
-        optionList.add(CarbonDistributionConfiguration().distributionURL(System.getProperty("carbon.home")));
+        optionList.add(CarbonDistributionConfiguration().distributionURL(Paths.get(System.getProperty("carbon.home"))));
         optionList.add(keepRuntimeFolder());
 
         return optionList;

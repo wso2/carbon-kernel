@@ -16,14 +16,13 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
 import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption;
-import org.wso2.carbon.sample.transport.mgt.TransportManager;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.Arrays;
+import java.net.URI;
+import java.nio.file.Paths;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.repository;
 import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
 import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.keepRuntimeFolder;
@@ -41,63 +40,75 @@ public class TestCarbonContainer {
     @Inject
     private CarbonServerInfo carbonServerInfo;
 
-    @Inject
-    TransportManager transportManager;
+    //    @Inject
+    //    TransportManager transportManager;
 
     @Configuration
     public Option[] config() {
 
-//                return new Option[] { repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-//                        CarbonDistributionConfiguration().distributionMavenURL(
-//                                maven().groupId("org.wso2.carbon")
-//                                        .artifactId("wso2carbon-kernel")
-//                                        .type("zip")
-//                                        .version("5.0.0"))
-//                                .unpackDirectory(new File("target/pax")),
-//                        //                CarbonDistributionOption.debugConfiguration("5005")
-//                };
-
-
-//        return new Option[] {
-//                repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-//                CarbonDistributionConfiguration().distributionURL("target/wso2carbon-kernel-5.1.0-SNAPSHOT"),
-//                keepRuntimeFolder(),
-//                //                CarbonDistributionOption.debugConfiguration("5005")
-//        };
-
         return new Option[] {
                 repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-                CarbonDistributionConfiguration().distributionURL("target/wso2carbon-kernel-5.1.0-SNAPSHOT"),
-                keepRuntimeFolder(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
-                        .versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
-                        .versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.custom").groupId("org.wso2.carbon")
-                        .versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.jms").groupId("org.wso2.carbon")
-                        .versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-                        .versionAsInProject(),
-//                CarbonDistributionOption.debugConfiguration("5005")
+                CarbonDistributionConfiguration().distributionMavenURL(
+                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel").type("zip")
+                                .version("5.0.0")),
+                keepRuntimeFolder()
+//                                CarbonDistributionOption.debugConfiguration("5005")
         };
 
 //        return new Option[] {
 //                repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-//                CarbonDistributionConfiguration().distributionURL("target/wso2carbon-kernel-5.1.0-SNAPSHOT"),
-//                keepRuntimeFolder(),
-//                mavenBundle()
-//                        .artifactId("carbon-context-test-artifact")
-//                        .groupId("org.wso2.carbon")
-//                        .versionAsInProject()
-//                //                CarbonDistributionOption.debugConfiguration("5005")
+//                CarbonDistributionConfiguration().distributionZipURL(Paths.get()),
+//                keepRuntimeFolder()
+//                //                                CarbonDistributionOption.debugConfiguration("5005")
 //        };
+
+//                return new Option[] {
+//                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+//                        CarbonDistributionConfiguration().distributionURL(Paths.get("target/wso2carbon-kernel-5.1"
+//                                + ".0-SNAPSHOT")),
+//                        keepRuntimeFolder(),
+//                        //                CarbonDistributionOption.debugConfiguration("5005")
+//                };
+
+//                return new Option[] {
+//                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+//                        CarbonDistributionConfiguration().distributionURL("target/wso2carbon-kernel-5.1.0-SNAPSHOT"),
+//                        keepRuntimeFolder(),
+//                        mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+//                                .versionAsInProject(),
+//                        mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
+//                                .versionAsInProject(),
+//                        mavenBundle().artifactId("org.wso2.carbon.sample.transport.custom").groupId("org.wso2.carbon")
+//                                .versionAsInProject(),
+//                        mavenBundle().artifactId("org.wso2.carbon.sample.transport.jms").groupId("org.wso2.carbon")
+//                                .versionAsInProject(),
+//                        mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+//                                .versionAsInProject(),
+//        //                CarbonDistributionOption.debugConfiguration("5005")
+//                };
+
+        //        return new Option[] {
+        //                repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+        //                CarbonDistributionConfiguration().distributionURL("target/wso2carbon-kernel-5.1.0-SNAPSHOT"),
+        //                keepRuntimeFolder(),
+        //                mavenBundle()
+        //                        .artifactId("carbon-context-test-artifact")
+        //                        .groupId("org.wso2.carbon")
+        //                        .versionAsInProject()
+        //                //                CarbonDistributionOption.debugConfiguration("5005")
+        //        };
     }
 
     @Test
     public void testBundles() {
-        Arrays.asList(bundleContext.getBundles()).forEach((bundle -> logger.info(bundle.toString())));
+        logger.info(bundleContext.getBundle().getSymbolicName());
+        logger.info(System.getProperty("carbon.home"));
     }
+
+    //    @Test
+    //    public void testTransportCount(){
+    //        logger.info(String.valueOf(transportManager.getTransportCount()));
+    //    }
 
     @Test
     public void testCarbonCoreBundleStatus() {
