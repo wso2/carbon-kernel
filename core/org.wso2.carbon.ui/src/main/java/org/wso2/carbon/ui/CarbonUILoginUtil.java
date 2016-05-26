@@ -316,7 +316,7 @@ public final class CarbonUILoginUtil {
         // This condition is evaluated when users are logged out in SAML2 based SSO
         if (request.getAttribute("logoutRequest") != null) {
         	log.debug("Loging out from SSO session");
-            response.sendRedirect("../../carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
+            response.sendRedirect(contextPath + "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
             return false;
         }
 
@@ -376,7 +376,7 @@ public final class CarbonUILoginUtil {
                     && idpSessionIndex != null && !"".equals(idpSessionIndex)) {
                 session.setAttribute(CarbonSecuredHttpContext.LOGGED_USER, request.getParameter("username"));
                 session.setAttribute("idpSessionIndex", idpSessionIndex);
-                response.sendRedirect("/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
+                response.sendRedirect(contextPath + "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
                 return false;
             }
 
@@ -440,7 +440,7 @@ public final class CarbonUILoginUtil {
 
             if (relayState != null && relayState.endsWith("-logout")) {
                 session.setAttribute(CarbonSecuredHttpContext.LOGGED_USER, request.getParameter("username"));
-                response.sendRedirect("/carbon/admin/logout_action.jsp");
+                response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false");
                 return false;
             }
 
