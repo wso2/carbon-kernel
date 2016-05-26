@@ -21,18 +21,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
-import org.wso2.carbon.core.util.MIMEType2FileExtensionMap;
 import org.wso2.carbon.core.commons.stub.filedownload.FileDownloadServiceStub;
+import org.wso2.carbon.core.util.MIMEType2FileExtensionMap;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.utils.CarbonUtils;
-
 
 import javax.activation.DataHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -111,10 +114,8 @@ public class FileDownloadUtil {
             return false;
         }
 
-
-        try {
-            File file = new File(fileName);
-            FileInputStream in = new FileInputStream(file);
+        File file = new File(fileName);
+        try (FileInputStream in = new FileInputStream(file)) {
             byte[] b = new byte[(int) file.length()];
             response.setContentType(mimeMap.getMIMEType(file));
             response.setContentLength((int) file.length());
@@ -124,13 +125,19 @@ public class FileDownloadUtil {
                 out.write(b);
             }
             out.flush();
-            out.close();
-            in.close();
             return true;
         } catch (IOException e) {
             String msg = "Unable to retrieve file ";
             log.error(msg, e);
             throw new CarbonException(msg, e);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error("Couldn;t close the Outputstream " + e.getMessage(), e);
+                }
+            }
         }
     }
 

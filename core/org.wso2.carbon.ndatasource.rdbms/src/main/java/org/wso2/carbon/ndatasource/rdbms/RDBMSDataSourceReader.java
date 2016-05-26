@@ -95,11 +95,8 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 		if (connection != null) {
 			String validationQuery = rdbmsConfiguration.getValidationQuery();
 			if (validationQuery != null && !"".equals(validationQuery)) {
-				PreparedStatement ps = null;
-				try {
-					ps = connection.prepareStatement(validationQuery.trim());
+				try (PreparedStatement ps = connection.prepareStatement(validationQuery.trim())) {
 					ps.execute();
-					ps.close();
 				} catch (SQLException e) {
 					throw new DataSourceException("Error during executing validation query: " + e.getMessage(), e);
 				}
