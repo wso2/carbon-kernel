@@ -120,7 +120,6 @@
                                     <includes>
                                         <include>bin/**</include>
                                         <include>conf/**</include>
-                                        <include>deployment/**</include>
                                         <include>logs/**</include>
                                         <include>osgi/**</include>
                                         <include>tmp/**</include>
