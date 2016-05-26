@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.1.1-SNAPSHOT</version>
+    <version>5.5.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -45,6 +45,7 @@
         <module>components/application-mgt</module>
         <module>components/user-mgt</module>
         <module>components/identity-mgt</module>
+        <module>components/identity-event</module>
         <module>components/notification-mgt</module>
         <module>components/provisioning</module>
         <module>components/user-store</module>
@@ -58,7 +59,7 @@
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
-        <module>features/user-mgt</module>
+        <module>features/identity-event</module>
         <module>features/identity-mgt</module>
         <module>features/xacml</module>
         <module>features/authentication-framework</module>
@@ -67,6 +68,7 @@
         <module>features/notification-mgt</module>
         <module>features/idp-mgt</module>
         <module>features/directory-server-manager</module>
+        <module>features/user-mgt</module>
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
@@ -308,6 +310,12 @@
             </dependency>
 
             <dependency>
+                <groupId>opensaml.wso2</groupId>
+                <artifactId>opensaml</artifactId>
+                <version>${opensaml.wso2.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.wso2.balana</groupId>
                 <artifactId>org.wso2.balana</artifactId>
                 <version>${balana.version}</version>
@@ -316,17 +324,6 @@
                 <groupId>com.google.gdata.wso2</groupId>
                 <artifactId>gdata-core</artifactId>
                 <version>${gdata-core.wso2.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.igniterealtime.smack.wso2</groupId>
-                <artifactId>smack</artifactId>
-                <version>${smack.wso2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.igniterealtime.smack.wso2</groupId>
-                <artifactId>smackx</artifactId>
-                <version>${smackx.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -736,7 +733,6 @@
                 <artifactId>org.wso2.carbon.identity.application.authenticator.basicauth.server.feature</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
@@ -1070,6 +1066,22 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.event</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.event.server.feature</artifactId>
+                <version>${identity.framework.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
@@ -1095,6 +1107,13 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
+                <version>${identity.framework.version}</version>
+                <type>war</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.mgt.endpoint</artifactId>
                 <version>${identity.framework.version}</version>
                 <type>war</type>
             </dependency>
@@ -1149,28 +1168,6 @@
                 <type>zip</type>
             </dependency>
 
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow</artifactId>
-                <version>${identity.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
-                <version>${identity.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
-                <version>${identity.framework.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
-                <version>${identity.framework.version}</version>
-                <type>zip</type>
-            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
@@ -1348,7 +1345,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <identity.framework.version>5.1.1-SNAPSHOT</identity.framework.version>
+        <identity.framework.version>5.5.0-SNAPSHOT</identity.framework.version>
         <carbon.identity.package.export.version>${identity.framework.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
 
@@ -1506,8 +1503,6 @@
         <balana.imp.pkg.version.range>[1.0.1,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,2.0.0)</gdata-core.imp.pkg.version.range>
-        <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
-        <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
         <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
