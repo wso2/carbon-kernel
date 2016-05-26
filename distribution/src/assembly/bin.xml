@@ -1,5 +1,5 @@
 <!--
- ~ Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -49,33 +49,20 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
+
+        <fileSet>
+            <directory>carbon-home</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>**/*.html</include>
+                <include>**/*.txt</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
     </fileSets>
 
     <files>
-        <file>
-            <source>target/WSO2Carbon/conf/log4j2.xml</source>
-            <outputDirectory>conf</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/conf/etc/pax-logging.properties</source>
-            <outputDirectory>conf/etc</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/bin/bootstrap/logging.properties</source>
-            <outputDirectory>bin/bootstrap</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/conf/osgi/launch.properties</source>
-            <outputDirectory>conf/osgi</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
         <file>
             <source>target/WSO2Carbon/conf/carbon.yml</source>
             <outputDirectory>conf/</outputDirectory>
@@ -87,37 +74,6 @@
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/bin/README.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-
-        <file>
-            <source>carbon-home/README.txt</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/INSTALL.txt</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/LICENSE.txt</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/release-notes.html</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
         </file>
     </files>
 
