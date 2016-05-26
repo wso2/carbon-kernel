@@ -60,9 +60,6 @@ Carbon Binary Distribution Directory Structure
     - conf
       Contains server configuration files. Ex: carbon.yml
 
-    - deployment
-	  All deployment artifacts should go into this directory.
-
     - logs
       Contains all log files created during execution.
 
