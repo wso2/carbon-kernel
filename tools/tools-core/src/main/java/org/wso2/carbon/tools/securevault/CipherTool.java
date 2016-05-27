@@ -73,23 +73,35 @@ public class CipherTool implements CarbonTool {
      */
     private void executeTool(String[] args, String carbonHome) throws CarbonToolException {
         String userArgument;
-        for (String arg : args) {
-            if (arg.equals("-help")) {
-                Utils.printHelp();
-                return;
-            } else if (arg.substring(0, 2).equals("-D")) {
-                userArgument = arg.substring(2);
-                if (userArgument.equals(SecureVaultConstants.CONFIGURE)) {
-                    performEncryption(userArgument, carbonHome);
-                } else {
-                    logger.log(Level.INFO, "This option is not define!");
+        if (args[0].isEmpty() || args[0].equals("")) {
+            //only CARBON_HOME has passed as arguments
+            encryptSecretsFromSecretRepository(carbonHome);
+        } else {
+            for (String arg : args) {
+                if (arg.equals("-help")) {
+                    Utils.printHelp();
                     return;
+                } else if (arg.substring(0, 2).equals("-D")) {
+                    userArgument = arg.substring(2);
+                    if (userArgument.equals(SecureVaultConstants.ENCRYPT_TEXT)) {
+                        encryptValue(carbonHome);
+                    } else {
+                        logger.log(Level.INFO, "This option is not define!");
+                        return;
+                    }
                 }
             }
         }
+
     }
 
-    private void performEncryption(String userArgument, String carbonHome) throws CarbonToolException {
+    private void encryptValue(String carbonHome) throws CarbonToolException {
+        Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
+        Cipher cipher = KeyStoreUtil.getCipherInstance(keystore);
+        encrypt(cipher);
+    }
+
+    private void encryptSecretsFromSecretRepository(String carbonHome) throws CarbonToolException {
         Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
         Cipher cipher = KeyStoreUtil.getCipherInstance(keystore);
         loadSecretsAndAliasFromFile(carbonHome);
@@ -107,9 +119,9 @@ public class CipherTool implements CarbonTool {
         for (Map.Entry<String, String> entry : aliasPasswordMap.entrySet()) {
             String value = entry.getValue();
             if (value != null && !value.equals("")) {
-                if (value.startsWith("plainText:")) {
-                    value = value.substring(("plainText:").length(), value.length());
-                    value = "cipherText\u003d" + doEncryption(cipher, value);
+                if (value.startsWith("plainText ")) {
+                    value = value.substring(("plainText ").length(), value.length());
+                    value = "cipherText " + doEncryption(cipher, value);
                 }
             } else {
                 value = getPasswordFromConsole(entry.getKey(), cipher);
@@ -181,7 +193,7 @@ public class CipherTool implements CarbonTool {
      *
      * @param cipher cipher
      */
-    private void encryptValues(Cipher cipher) {
+    private void encrypt(Cipher cipher) {
         String firstPassword = Utils.getValueFromConsole("Enter Plain Text Value : ", true);
         String secondPassword = Utils.getValueFromConsole("Please Enter Value Again : ", true);
 
