@@ -43,7 +43,6 @@ Carbon Binary Distribution Directory Structure
         |   |-- bootstrap <directory>
         |-- osgi <directory>
         |-- conf <directory>
-        |-- deployment <directory>
         |-- logs <directory>
         |-- tmp <directory>
         |-- LICENSE.txt <file>
