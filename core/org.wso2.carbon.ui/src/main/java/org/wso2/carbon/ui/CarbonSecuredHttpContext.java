@@ -160,7 +160,8 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
            return true;
         }
 
-        String resourceURI = requestedURI.replaceFirst(context + "/carbon/", contextURIBuilder(context + "/carbon"));
+        String resourceURI = CarbonUILoginUtil.addNewContext(requestedURI).replaceFirst(context + "/carbon/",
+                contextURIBuilder(context + "/carbon"));
 
         if (log.isDebugEnabled()) {
             log.debug("CarbonSecuredHttpContext -> handleSecurity() requestURI:" + requestedURI
