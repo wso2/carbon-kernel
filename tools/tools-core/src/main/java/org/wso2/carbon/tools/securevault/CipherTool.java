@@ -164,7 +164,7 @@ public class CipherTool implements CarbonTool {
             encodedValue = DatatypeConverter.printBase64Binary(encryptedPassword);
         } catch (BadPaddingException e) {
             //throwing a runtime exception as this exception may occur due to a invalid user inputs.
-            throw new CipherToolException("Error encrypting password ", e);
+            throw new CipherToolException("Error due to data not padded properly", e);
         } catch (IllegalBlockSizeException e) {
             //throwing a runtime exception as this exception may occur due to a invalid user inputs.
             throw new CipherToolException("Error encrypting password ", e);
