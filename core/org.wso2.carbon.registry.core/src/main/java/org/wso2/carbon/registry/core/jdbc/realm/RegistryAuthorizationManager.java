@@ -16,13 +16,18 @@
 
 package org.wso2.carbon.registry.core.jdbc.realm;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
+import org.wso2.carbon.registry.core.internal.RegistryDataHolder;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +39,7 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     private UserRealm coreRealm;
     private Map<String, String> pathMap;
+    private static final Log log = LogFactory.getLog(RegistryAuthorizationManager.class);
 
     public String computePathOnMount(final String path) {
         for (Map.Entry<String, String> e : pathMap.entrySet()) {
@@ -46,7 +52,7 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Construct the registry authorization manager
-     * 
+     *
      * @param coreRealm
      *            the realm to wrap.
      */
@@ -61,14 +67,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Clear user authorization for a given resource and action.
-     * 
+     *
      * @param userName
      *            the user name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -91,14 +97,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Clear the role authorization for a given resource id and action.
-     * 
+     *
      * @param roleName
      *            the role name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -118,14 +124,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Authorize user for an action on a resource.
-     * 
+     *
      * @param userName
      *            the user name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -139,14 +145,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Authorize role for an action on a resource.
-     * 
+     *
      * @param roleName
      *            the role name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -163,10 +169,10 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 */
     /**
      * clear the resource authorizations.
-     * 
+     *
      * @param resourceId
      *            the resource id.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -177,14 +183,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Check whether the user is authorized to do an action on a resource.
-     * 
+     *
      * @param userName
      *            the user name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @return true, if the user is authorized, false otherwise.
      * @throws UserStoreException
      *             throws if the operation failed.
@@ -197,14 +203,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Check whether the role is authorized do an action on a resource.
-     * 
+     *
      * @param roleName
      *            the role name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @return true, if the role is authorized, false otherwise.
      * @throws UserStoreException
      *             throws if the operation failed.
@@ -217,12 +223,12 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get allowed roles for a resource to do an action.
-     * 
+     *
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @return the allowed roles.
      * @throws UserStoreException
      *             throws if the operation failed.
@@ -235,14 +241,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Deny role to do an action on a resource.
-     * 
+     *
      * @param roleName
      *            the role name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -254,14 +260,14 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Deny user to do an action on a resource.
-     * 
+     *
      * @param userName
      *            the user name.
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -275,12 +281,12 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get denied roles for a resource to do an action.
-     * 
+     *
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @return the denied roles array.
      * @throws UserStoreException
      *             throws if the operation failed.
@@ -293,12 +299,12 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get the explicitly allowed users for a resource.
-     * 
+     *
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @return the denied roles array.
      * @throws UserStoreException
      *             throws if the operation failed.
@@ -314,12 +320,12 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get the explicitly denied users for a resource.
-     * 
+     *
      * @param resourceId
      *            the resource id.
      * @param action
      *            the action.
-     * 
+     *
      * @return the denied roles array.
      * @throws UserStoreException
      *             throws if the operation failed.
@@ -335,12 +341,12 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get the explicitly denied users for a resource.
-     * 
+     *
      * @param roleName
      *            the role name.
      * @param action
      *            the action.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -351,10 +357,10 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get the allowed UI resources for a user.
-     * 
+     *
      * @param userName
      *            the user name.
-     * 
+     *
      * @return an array of users.
      * @throws UserStoreException
      *             if the operation failed.
@@ -366,10 +372,10 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Clear the role authorization.
-     * 
+     *
      * @param roleName
      *            the role name.
-     * 
+     *
      * @throws UserStoreException
      *             if the operation failed.
      */
@@ -380,10 +386,10 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Clear the user authorization.
-     * 
+     *
      * @param userName
      *            the user name.
-     * 
+     *
      * @throws UserStoreException
      *             throws if the operation failed.
      */
@@ -395,13 +401,32 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     /**
      * Get the core authorization manager.
-     * 
+     *
      * @return the authorization manager.
      * @throws UserStoreException
      *             throws if the operation failed.
      */
     private AuthorizationManager getAuthorizationManager() throws UserStoreException {
-        return coreRealm.getAuthorizationManager();
+        int tenantId = coreRealm.getAuthorizationManager().getTenantId();
+        RealmService realmService = RegistryDataHolder.getInstance().getRealmService();
+        if (realmService != null) {
+            try {
+                UserRealm userRealm = (UserRealm) realmService.getTenantUserRealm(tenantId);
+                if (userRealm != null) {
+                    return userRealm.getAuthorizationManager();
+                } else {
+                    throw new UserStoreException("Retrieving Authorization Manager for tenant '"
+                            + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
+                            + "' failed. User realm is null.");
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e.getMessage(), e);
+            }
+        } else {
+            throw new UserStoreException("Retrieving Authorization Manager for tenant '"
+                    + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
+                    + "' failed. Realm service is null.");
+        }
     }
 
 
@@ -420,12 +445,12 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
      *
      * @param roleName    existing role name.
      * @param newRoleName new role name.
-     * 
+     *
      * @throws UserStoreException if the operation failed
      */
     public void resetPermissionOnUpdateRole(String roleName, String newRoleName)
             throws UserStoreException {
-        getAuthorizationManager().resetPermissionOnUpdateRole(roleName, newRoleName);        
+        getAuthorizationManager().resetPermissionOnUpdateRole(roleName, newRoleName);
     }
 
 	@Override
