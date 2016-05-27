@@ -88,8 +88,5 @@ hours, to premium 24x7 phone support.
 
 For additional support information please refer to http://wso2.com/support/
 
-For more information on WSO2 Carbon, visit WSO2 Carbon Home Page (http://wso2.com/products/carbon)
-
-
 ---------------------------------------------------------------------------
 (c) Copyright 2015 WSO2 Inc.

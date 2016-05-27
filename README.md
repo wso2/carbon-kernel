@@ -8,18 +8,18 @@ The WSO2 Carbon Kernel includes the following key features. For further details 
 
 ### Key Features
 * Java 8 Support
-* Carbon Startup Order Resolver Framework
-* Carbon Tools - Jar To Bundle Converter
+* Carbon Component Startup Order Resolver
+* Carbon Tools - Jar To Bundle Converter and Dropins Installer
 * Equipped with Eclipse Luna SR2 OSGi Framework
 * Dropins Support for OSGi Ready Bundles
-* Carbon Launcher Framework
+* Carbon Launcher
 * Centralized Logging Framework with Log4j 2.0 as the Backend
-* Transport Management Framework
-* Pluggable Runtimes Framework
+* Transport Management
+* Pluggable Runtime Management
 * OSGi Test Framework
 * Audit Log Mechanism
 * JMX support
-* Carbon Context
+* Carbon Context API
 
 ### How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
