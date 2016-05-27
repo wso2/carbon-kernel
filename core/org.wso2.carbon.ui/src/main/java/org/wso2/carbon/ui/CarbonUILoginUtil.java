@@ -462,7 +462,7 @@ public final class CarbonUILoginUtil {
                     response.sendRedirect(httpLogin + "?loginStatus=false");
                     return false;
                 } else {
-                    response.sendRedirect("/carbon/admin/login.jsp?loginStatus=false");
+                    response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false");
                     return false;
                 }
             } catch (Exception e1) {
