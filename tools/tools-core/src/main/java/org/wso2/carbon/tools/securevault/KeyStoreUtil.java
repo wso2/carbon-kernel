@@ -97,7 +97,8 @@ public class KeyStoreUtil {
      * create a CarbonKeystore from keystore configuration.
      */
     @SuppressWarnings("unchecked")
-    public static Optional<KeyStoreInformation> loadKeystoreConfiguration(String carbonHome)
+    public static Optional<KeyStoreInformation> loadKeystoreConfiguration(String carbonHome,
+                                                                          Optional<String> keystorePassword)
             throws CarbonToolException {
 
         KeyStoreInformation keyStoreInformation = null;
@@ -122,8 +123,10 @@ public class KeyStoreUtil {
                 String keyType = (String) keyStoreConfig.get("Type");
                 String keyAlias = (String) keyStoreConfig.get("KeyAlias");
 
-                keyStoreInformation = new KeyStoreInformation(keyStoreLocation, keyType,
-                        (String) keyStoreConfig.get("Password"), keyAlias);
+                keyStoreInformation = new KeyStoreInformation(keyStoreLocation, keyType, keyAlias);
+                if (keystorePassword.isPresent()) {
+                    keyStoreInformation.setPassword(keystorePassword.get());
+                }
 
             } catch (FileNotFoundException e) {
                 throw new CipherToolException("No configuration file found at : " +

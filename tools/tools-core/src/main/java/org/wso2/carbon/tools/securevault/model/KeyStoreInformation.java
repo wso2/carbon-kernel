@@ -27,10 +27,9 @@ public class KeyStoreInformation {
     private String password;
     private String keyAlias;
 
-    public KeyStoreInformation(String location, String type, String password, String keyAlias) {
+    public KeyStoreInformation(String location, String type, String keyAlias) {
         this.location = location;
-        this.type = type;
-        this.password = password;
+        this.type = type;;
         this.keyAlias = keyAlias;
     }
 

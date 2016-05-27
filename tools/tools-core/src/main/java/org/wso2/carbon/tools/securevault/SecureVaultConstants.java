@@ -24,7 +24,7 @@ public class SecureVaultConstants {
 
     public static final String ENCRYPT_TEXT = "encryptText";
     public static final String CHANGE = "change";
-    public static final String CONSOLE_PASSWORD_PARAM = "password";
+    public static final String CONSOLE_PASSWORD_PARAM = "keystorePassword";
     public static final String UTF8 = "UTF-8";
     public static final String CONF_DIR = "conf";
     public static final String CARBON_CONFIG_FILE = "security.yml"; //todo

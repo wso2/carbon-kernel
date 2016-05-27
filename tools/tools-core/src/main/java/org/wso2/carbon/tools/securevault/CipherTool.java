@@ -75,7 +75,7 @@ public class CipherTool implements CarbonTool {
         String userArgument;
         if (args[0].isEmpty() || args[0].equals("")) {
             //only CARBON_HOME has passed as arguments
-            encryptSecretsFromSecretRepository(carbonHome);
+            encryptSecretsFromSecretRepository(carbonHome, Optional.empty());
         } else {
             for (String arg : args) {
                 if (arg.equals("-help")) {
@@ -84,7 +84,10 @@ public class CipherTool implements CarbonTool {
                 } else if (arg.substring(0, 2).equals("-D")) {
                     userArgument = arg.substring(2);
                     if (userArgument.equals(SecureVaultConstants.ENCRYPT_TEXT)) {
-                        encryptValue(carbonHome);
+                        encryptValue(carbonHome, Optional.empty());
+                    } else if (userArgument.startsWith(SecureVaultConstants.CONSOLE_PASSWORD_PARAM)) {
+                        encryptValue(carbonHome, Optional.of(
+                                userArgument.substring(SecureVaultConstants.CONSOLE_PASSWORD_PARAM.length() + 1)));
                     } else {
                         logger.log(Level.INFO, "This option is not define!");
                         return;
@@ -95,14 +98,15 @@ public class CipherTool implements CarbonTool {
 
     }
 
-    private void encryptValue(String carbonHome) throws CarbonToolException {
-        Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
+    private void encryptValue(String carbonHome, Optional<String> keystorePassword) throws CarbonToolException {
+        Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome, keystorePassword);
         Cipher cipher = KeyStoreUtil.getCipherInstance(keystore);
         encrypt(cipher);
     }
 
-    private void encryptSecretsFromSecretRepository(String carbonHome) throws CarbonToolException {
-        Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome);
+    private void encryptSecretsFromSecretRepository(String carbonHome,
+                                                    Optional<String> keystorePassword) throws CarbonToolException {
+        Optional<KeyStoreInformation> keystore = KeyStoreUtil.loadKeystoreConfiguration(carbonHome, keystorePassword);
         Cipher cipher = KeyStoreUtil.getCipherInstance(keystore);
         loadSecretsAndAliasFromFile(carbonHome);
         encryptSecrets(cipher, carbonHome);
