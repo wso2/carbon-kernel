@@ -15,17 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.carbon.jndi.internal.osgi.builders;
+package org.wso2.carbon.jndi.internal;
 
+import org.wso2.carbon.jndi.internal.impl.NamingContext;
+
+import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.spi.ObjectFactory;
-import javax.naming.spi.ObjectFactoryBuilder;
+import javax.naming.spi.InitialContextFactory;
 import java.util.Hashtable;
 
-public class DefaultObjectFactoryBuilder implements ObjectFactoryBuilder {
+public class InMemoryInitialContextFactory implements InitialContextFactory {
 
+    protected static volatile Context initialContext = null;
+    public static final String MAIN = "initialContext";
+
+    @SuppressWarnings("unchecked")
     @Override
-    public ObjectFactory createObjectFactory(Object obj, Hashtable<?, ?> environment) throws NamingException {
-        return null;
+    public synchronized Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
+
+        if (initialContext == null) {
+            initialContext = new NamingContext((Hashtable<String, Object>) environment, MAIN);
+        }
+        return initialContext;
     }
 }
