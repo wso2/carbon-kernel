@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.utils.manifest;
 
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -29,6 +30,7 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +47,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class ManifestElementOSGiTest {
     private static final String CARBON_COMPONENT = "Carbon-Component";
 

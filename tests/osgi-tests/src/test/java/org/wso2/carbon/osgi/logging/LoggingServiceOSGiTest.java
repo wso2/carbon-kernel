@@ -37,6 +37,7 @@ import javax.inject.Inject;
 */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class LoggingServiceOSGiTest {
     private static final String START_UP_LOG_MESSAGE = "WSO2 Carbon started in";
 

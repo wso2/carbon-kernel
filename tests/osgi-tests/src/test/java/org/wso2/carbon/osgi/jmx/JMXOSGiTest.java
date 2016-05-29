@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.jmx;
 
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -44,6 +46,7 @@ import javax.management.ObjectName;
  */
 @Listeners(org.ops4j.pax.exam.testng.listener.PaxExam.class)
 @ExamReactorStrategy(org.ops4j.pax.exam.spi.reactors.PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class JMXOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(JMXOSGiTest.class);

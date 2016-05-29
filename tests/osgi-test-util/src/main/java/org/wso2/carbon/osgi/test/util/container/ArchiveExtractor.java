@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Path;
 
 /**
  * Extract zip or tar.gz archives to a target folder.
@@ -51,6 +52,14 @@ public class ArchiveExtractor {
         } else {
             throw new IllegalStateException(
                     "Unknow packaging; only zip or tar.gz could be handled. URL was " + sourceURL);
+        }
+    }
+
+    public static void extract(Path path, File targetFolder) throws IOException {
+        if (path.toString().indexOf(".zip") > 0) {
+            extract(new ZipArchiveInputStream(new FileInputStream(path.toFile())), targetFolder);
+        } else {
+            throw new IllegalStateException("Unknow packaging of distribution; only zip can be handled.");
         }
     }
 

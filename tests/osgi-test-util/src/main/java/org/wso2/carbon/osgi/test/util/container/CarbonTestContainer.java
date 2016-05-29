@@ -68,7 +68,8 @@ public class CarbonTestContainer implements TestContainer {
     public synchronized TestContainer start() {
 
         if (carbonDistributionConfigurationOption.getDistributionFolderURL() == null
-                && carbonDistributionConfigurationOption.getDistributionMavenURL() == null) {
+                && carbonDistributionConfigurationOption.getDistributionMavenURL() == null &&
+                carbonDistributionConfigurationOption.getDistributionZipURL() == null) {
             throw new IllegalStateException("Either distributionURL or distributionUrlReference need to be set.");
         }
 
@@ -101,27 +102,25 @@ public class CarbonTestContainer implements TestContainer {
             }
 
             if (carbonDistributionConfigurationOption.getDistributionFolderURL() == null) {
-                URL sourceDistribution = null;
+                targetFolder = retrieveFinalTargetFolder();
 
                 if (carbonDistributionConfigurationOption.getDistributionMavenURL() != null) {
-                    sourceDistribution = new URL(
+                    URL sourceDistribution = new URL(
                             carbonDistributionConfigurationOption.getDistributionMavenURL().getURL());
+                    ArchiveExtractor.extract(sourceDistribution, targetFolder.toFile());
                 }
                 if (carbonDistributionConfigurationOption.getDistributionZipURL() != null) {
-                    sourceDistribution = new URL(
-                            carbonDistributionConfigurationOption.getDistributionZipURL().toString());
+                    Path sourceDistribution = carbonDistributionConfigurationOption.getDistributionZipURL();
+                    ArchiveExtractor.extract(sourceDistribution, targetFolder.toFile());
                 }
 
-                targetFolder = retrieveFinalTargetFolder();
-                ArchiveExtractor.extract(sourceDistribution, targetFolder.toFile());
             } else {
                 targetFolder = carbonDistributionConfigurationOption.getDistributionFolderURL();
             }
 
             Path carbonHome = targetFolder;
-            System.setProperty("carbon.home", carbonHome.toAbsolutePath().toString());
 
-            copyPaxBundlesToDropins(carbonHome);
+//            copyPaxBundlesToDropins(carbonHome);
             copyReferencedBundles(carbonHome, subsystem);
 
             startCarbon(subsystem, carbonHome);

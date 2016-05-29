@@ -18,6 +18,7 @@ package org.wso2.carbon.osgi.context;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.SystemPropertyOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -62,13 +63,15 @@ public class CarbonContextOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        System.setProperty(Constants.TENANT_NAME, TEST_TENANT_NAME);
+//        System.setProperty(Constants.TENANT_NAME, TEST_TENANT_NAME);
+        System.setProperty("carbon.home","target/"+this.getClass().getName());
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
         copyConfigFiles();
         optionList.add(mavenBundle()
                 .artifactId("carbon-context-test-artifact")
                 .groupId("org.wso2.carbon")
                 .versionAsInProject());
+        optionList.add(new SystemPropertyOption(Constants.TENANT_NAME).value(TEST_TENANT_NAME));
         return optionList.toArray(new Option[optionList.size()]);
     }
 

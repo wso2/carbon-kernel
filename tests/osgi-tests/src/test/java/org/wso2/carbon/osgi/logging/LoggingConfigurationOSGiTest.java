@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.osgi.logging;
 
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -30,6 +31,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,6 +51,7 @@ import javax.inject.Inject;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class LoggingConfigurationOSGiTest {
     private static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
     private static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";

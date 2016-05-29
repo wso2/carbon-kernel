@@ -33,6 +33,7 @@
     <modules>
         <module>org.wso2.carbon.kernel.feature</module>
         <module>org.wso2.carbon.runtime.feature</module>
+        <module>org.wso2.carbon.pax.exam.feature</module>
     </modules>
 
 </project>

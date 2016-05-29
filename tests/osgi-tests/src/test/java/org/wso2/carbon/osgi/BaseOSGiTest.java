@@ -47,7 +47,6 @@ import javax.inject.Inject;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-@ExamFactory(CarbonContainerFactory.class)
 public class BaseOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseOSGiTest.class);

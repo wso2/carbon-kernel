@@ -33,6 +33,7 @@
         <module>osgi-test-util</module>
         <module>osgi-tests</module>
         <module>coverage-report</module>
+        <module>test-distribution</module>
     </modules>
 
     <dependencyManagement>

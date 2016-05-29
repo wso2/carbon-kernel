@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.transport;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -24,6 +25,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.TransportManager;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
 
 import javax.inject.Inject;
 
@@ -34,6 +36,7 @@ import javax.inject.Inject;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class TransportManagerOSGiTest {
     private static final String TRANSPORT_ID = "DummyTransport";
 
