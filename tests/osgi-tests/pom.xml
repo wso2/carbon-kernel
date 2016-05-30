@@ -389,6 +389,9 @@
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR
                                 </org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
+                            <environmentVariables>
+                                <JAVA_OPTS>${jcoverage.command}</JAVA_OPTS>
+                            </environmentVariables>
                             <systemProperties>
                                 <property>
                                     <name>carbon.home</name>
@@ -410,6 +413,7 @@
                                     <goal>prepare-agent</goal>
                                 </goals>
                                 <configuration>
+                                    <propertyName>jcoverage.command</propertyName>
                                     <includes>
                                         <include>org.wso2.carbon.*</include>
                                     </includes>

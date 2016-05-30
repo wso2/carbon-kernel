@@ -36,7 +36,7 @@ public class CommandLineBuilder {
      * @param segments array to append
      * @return CommandLineBuilder for fluent api
      */
-    private CommandLineBuilder append(final String[] segments) {
+    public CommandLineBuilder append(final String[] segments) {
         if (segments != null && segments.length > 0) {
             final String[] command = new String[commandLine.length + segments.length];
             System.arraycopy(commandLine, 0, command, 0, commandLine.length);

@@ -27,7 +27,11 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
 
+import javax.inject.Inject;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
@@ -35,9 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import javax.inject.Inject;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 /**
  * JMXOSGiTest class is to test the CarbonJMX.
@@ -50,25 +51,8 @@ import javax.management.ObjectName;
 public class JMXOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(JMXOSGiTest.class);
-
-    @Configuration
-    public Option[] createConfiguration() {
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        copyCarbonYAML();
-        return optionList.toArray(new Option[optionList.size()]);    }
-
     @Inject
     private CarbonServerInfo carbonServerInfo;
-
-    @Test
-    public void testMBeanRegistration() throws Exception {
-        JMXCustom test = new JMXCustom();
-        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXCustom");
-        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        mBeanServer.registerMBean(test, mbeanName);
-
-        Assert.assertTrue(mBeanServer.isRegistered(mbeanName), "MBean is not registered");
-    }
 
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
@@ -87,5 +71,27 @@ public class JMXOSGiTest {
         } catch (IOException e) {
             logger.error("Unable to copy the carbon.yml file", e);
         }
+    }
+
+    @Configuration
+    public Option[] createConfiguration() {
+        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = Paths.get(".").toString();
+        }
+        optionList.add(new CarbonDistributionConfigurationFileReplacementOption(Paths.get(basedir, "src", "test",
+                "resources", "jmx", "carbon.yml"),Paths.get("conf","carbon.yml")));
+        return optionList.toArray(new Option[optionList.size()]);
+    }
+
+    @Test
+    public void testMBeanRegistration() throws Exception {
+        JMXCustom test = new JMXCustom();
+        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXCustom");
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        mBeanServer.registerMBean(test, mbeanName);
+
+        Assert.assertTrue(mBeanServer.isRegistered(mbeanName), "MBean is not registered");
     }
 }

@@ -19,9 +19,9 @@ package org.wso2.carbon.osgi.test.util.container.options;
 import org.ops4j.pax.exam.Option;
 
 /**
- * Per default the folder pax-exam is deleting the test directories after a test is over. To keep those
+ * Per default the Directory pax-exam is deleting the test directories after a test is over. To keep those
  * directories (for later evaluation) set this option.
  */
-public class KeepRuntimeFolderOption implements Option {
+public class KeepRuntimeDirectory implements Option {
 
 }

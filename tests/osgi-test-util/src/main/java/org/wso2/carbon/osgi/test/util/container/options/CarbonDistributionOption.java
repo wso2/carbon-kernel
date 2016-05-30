@@ -3,16 +3,6 @@ package org.wso2.carbon.osgi.test.util.container.options;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.extra.VMOption;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 import static java.lang.String.format;
 
 /**
@@ -28,13 +18,13 @@ public final class CarbonDistributionOption {
     }
 
     /**
-     * Per default the folder pax-exam is deleting the test directories after a test is over. To keep those
+     * Per default the Directory pax-exam is deleting the test directories after a test is over. To keep those
      * directories (for later evaluation) simply set this option.
      * 
-     * @return keep runtime folder option
+     * @return keep runtime Directory option
      */
-    public static Option keepRuntimeFolder() {
-        return new KeepRuntimeFolderOption();
+    public static Option keepRuntimeDirectory() {
+        return new KeepRuntimeDirectory();
     }
 
     /**

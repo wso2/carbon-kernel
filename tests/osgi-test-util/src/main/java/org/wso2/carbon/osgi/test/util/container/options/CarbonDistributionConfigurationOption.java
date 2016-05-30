@@ -23,25 +23,25 @@ import java.nio.file.Path;
 
 public class CarbonDistributionConfigurationOption implements Option {
 
-    private Path distributionFolderURL;
-    private Path distributionZipURL;
+    private Path distributionDirectoryPath;
+    private Path distributionZipPath;
     private MavenUrlReference distributionMavenURL;
     private String name;
     private Path unpackDirectory;
 
     public CarbonDistributionConfigurationOption() {
-        distributionFolderURL = null;
+        distributionDirectoryPath = null;
         distributionMavenURL = null;
         name = null;
     }
 
     public CarbonDistributionConfigurationOption distributionZipURL(Path distributionZipURL) {
-        this.distributionZipURL = distributionZipURL;
+        this.distributionZipPath = distributionZipURL;
         return this;
     }
 
-    public CarbonDistributionConfigurationOption distributionFolderURL(Path distributionFolderURL) {
-        this.distributionFolderURL = distributionFolderURL;
+    public CarbonDistributionConfigurationOption distributionDirectoryURL(Path distributionDirectoryURL) {
+        this.distributionDirectoryPath = distributionDirectoryURL;
         return this;
     }
 
@@ -83,12 +83,12 @@ public class CarbonDistributionConfigurationOption implements Option {
         return distributionMavenURL;
     }
 
-    public Path getDistributionFolderURL() {
-        return distributionFolderURL;
+    public Path getDistributionDirectoryPath() {
+        return distributionDirectoryPath;
     }
 
-    public Path getDistributionZipURL() {
-        return distributionZipURL;
+    public Path getDistributionZipPath() {
+        return distributionZipPath;
     }
 
     public String getName() {

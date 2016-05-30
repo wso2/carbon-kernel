@@ -18,7 +18,9 @@ package org.wso2.carbon.osgi.test.util.container.runner;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class CarbonRunner implements Runner {
 
@@ -42,7 +44,7 @@ public class CarbonRunner implements Runner {
                     commandLine.append(carbonHome.toAbsolutePath() + "/bin/carbon.sh");
                 }
 
-                javaOpts.forEach(commandLine::append);
+                commandLine.append(javaOpts.toArray(new String[javaOpts.size()]));
                 runner.exec(commandLine, environment);
             }
         };

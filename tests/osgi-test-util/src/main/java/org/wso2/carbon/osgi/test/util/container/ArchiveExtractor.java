@@ -19,7 +19,7 @@ import java.net.URL;
 import java.nio.file.Path;
 
 /**
- * Extract zip or tar.gz archives to a target folder.
+ * Extract zip or tar.gz archives to a target Directory.
  */
 public class ArchiveExtractor {
 
@@ -27,18 +27,18 @@ public class ArchiveExtractor {
     }
 
     /**
-     * Extract zip or tar.gz archives to a target folder.
+     * Extract zip or tar.gz archives to a target Directory.
      *
      * @param sourceURL    url of the archive to extract
-     * @param targetFolder where to extract to
+     * @param targetDirectory where to extract to
      * @throws IOException on I/O error
      */
-    public static void extract(URL sourceURL, File targetFolder) throws IOException {
+    public static void extract(URL sourceURL, File targetDirectory) throws IOException {
         if (sourceURL.getProtocol().equals("file")) {
             if (sourceURL.getFile().indexOf(".zip") > 0) {
-                extractZipDistribution(sourceURL, targetFolder);
+                extractZipDistribution(sourceURL, targetDirectory);
             } else if (sourceURL.getFile().indexOf(".tar.gz") > 0) {
-                extractTarGzDistribution(sourceURL, targetFolder);
+                extractTarGzDistribution(sourceURL, targetDirectory);
             } else {
                 throw new IllegalStateException(
                         "Unknow packaging of distribution; only zip or tar.gz could be handled.");
@@ -46,32 +46,32 @@ public class ArchiveExtractor {
             return;
         }
         if (sourceURL.toExternalForm().indexOf("/zip") > 0) {
-            extractZipDistribution(sourceURL, targetFolder);
+            extractZipDistribution(sourceURL, targetDirectory);
         } else if (sourceURL.toExternalForm().indexOf("/tar.gz") > 0) {
-            extractTarGzDistribution(sourceURL, targetFolder);
+            extractTarGzDistribution(sourceURL, targetDirectory);
         } else {
             throw new IllegalStateException(
                     "Unknow packaging; only zip or tar.gz could be handled. URL was " + sourceURL);
         }
     }
 
-    public static void extract(Path path, File targetFolder) throws IOException {
+    public static void extract(Path path, File targetDirectory) throws IOException {
         if (path.toString().indexOf(".zip") > 0) {
-            extract(new ZipArchiveInputStream(new FileInputStream(path.toFile())), targetFolder);
+            extract(new ZipArchiveInputStream(new FileInputStream(path.toFile())), targetDirectory);
         } else {
             throw new IllegalStateException("Unknow packaging of distribution; only zip can be handled.");
         }
     }
 
-    private static void extractTarGzDistribution(URL sourceDistribution, File _targetFolder) throws IOException {
+    private static void extractTarGzDistribution(URL sourceDistribution, File _targetDirectory) throws IOException {
         File uncompressedFile = File.createTempFile("uncompressedTarGz-", ".tar");
         extractGzArchive(sourceDistribution.openStream(), uncompressedFile);
-        extract(new TarArchiveInputStream(new FileInputStream(uncompressedFile)), _targetFolder);
+        extract(new TarArchiveInputStream(new FileInputStream(uncompressedFile)), _targetDirectory);
         FileUtils.forceDelete(uncompressedFile);
     }
 
-    private static void extractZipDistribution(URL sourceDistribution, File _targetFolder) throws IOException {
-        extract(new ZipArchiveInputStream(sourceDistribution.openStream()), _targetFolder);
+    private static void extractZipDistribution(URL sourceDistribution, File _targetDirectory) throws IOException {
+        extract(new ZipArchiveInputStream(sourceDistribution.openStream()), _targetDirectory);
     }
 
     private static void extractGzArchive(InputStream tarGz, File tar) throws IOException {
