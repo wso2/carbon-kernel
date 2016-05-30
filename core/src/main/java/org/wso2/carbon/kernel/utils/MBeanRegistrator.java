@@ -64,15 +64,23 @@ public class MBeanRegistrator {
                     mBeanServer.registerMBean(mBeanInstance, name);
                     mBeans.add(name);
                 } catch (InstanceAlreadyExistsException e) {
-                    throw new RuntimeException("MBean " + objectName + " already exists", e);
+                    String msg = "MBean " + objectName + " already exists";
+                    logger.error(msg, e);
+                    throw new RuntimeException(msg, e);
                 } catch (MBeanRegistrationException | NotCompliantMBeanException e) {
-                    throw new RuntimeException("Execption when registering MBean" , e);
+                    String msg = "Execption when registering MBean";
+                    logger.error(msg, e);
+                    throw new RuntimeException(msg, e);
                 }
             } else {
-                throw new RuntimeException("MBean " + objectName + " already exists");
+                String msg = "MBean " + objectName + " already exists";
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
         } catch (MalformedObjectNameException e) {
-            throw new RuntimeException("Could not register " + mBeanInstance.getClass() + " MBean", e);
+            String msg = "Could not register " + mBeanInstance.getClass() + " MBean";
+            logger.error(msg);
+            throw new RuntimeException(msg, e);
         }
     }
 
