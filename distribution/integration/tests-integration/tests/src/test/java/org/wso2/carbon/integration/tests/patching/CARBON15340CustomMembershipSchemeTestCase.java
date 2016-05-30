@@ -38,7 +38,8 @@ public class CARBON15340CustomMembershipSchemeTestCase extends CarbonIntegration
     private AutomationContext context;
     private Process process;
 
-    @BeforeClass(alwaysRun = true) public void initTests() throws Exception {
+    @BeforeClass(alwaysRun = true)
+    public void initTests() throws Exception {
         super.init();
         context = new AutomationContext();
 
