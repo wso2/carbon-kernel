@@ -90,7 +90,9 @@ public class RegistryCoreServiceComponent {
     @SuppressWarnings("deprecation")
     private static org.wso2.carbon.registry.core.config.RegistryConfiguration registryConfig;
 
-    private static RealmService realmService;
+    //private static RealmService realmService;
+
+    private RegistryDataHolder dataHolder = RegistryDataHolder.getInstance();
 
     private static final Log log = LogFactory.getLog(RegistryCoreServiceComponent.class);
 
@@ -582,7 +584,7 @@ public class RegistryCoreServiceComponent {
         RegistryContext registryContext;
         try {
             configInputStream = new FileInputStream(getConfigFile());
-            registryContext = RegistryContext.getBaseInstance(configInputStream, realmService);
+            registryContext = RegistryContext.getBaseInstance(configInputStream, dataHolder.getRealmService());
             registryContext.setSetup(System.getProperty(RegistryConstants.SETUP_PROPERTY) != null);
         } finally {
             if (configInputStream != null) {
@@ -611,7 +613,7 @@ public class RegistryCoreServiceComponent {
                 .getValue(org.wso2.carbon.registry.core.config.RegistryConfiguration.REGISTRY_ROOT);
 
         return new RemoteRegistryService(url, username,
-                password, realmService, chroot);
+                password, dataHolder.getRealmService(), chroot);
     }
 
     // Gets registry configuration instance.
@@ -729,7 +731,7 @@ public class RegistryCoreServiceComponent {
 
     // Method to update realm service.
     private static void updateRealmService(RealmService service) {
-        realmService = service;
+        RegistryDataHolder.getInstance().setRealmService(service);
     }
 
     // Method to update registry configuration.
@@ -779,7 +781,7 @@ public class RegistryCoreServiceComponent {
      * @return the instance of the realm service.
      */
     public static RealmService getRealmService() {
-        return realmService;
+        return RegistryDataHolder.getInstance().getRealmService();
     }
 
 
