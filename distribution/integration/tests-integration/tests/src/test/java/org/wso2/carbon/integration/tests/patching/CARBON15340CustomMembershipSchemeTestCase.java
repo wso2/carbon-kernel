@@ -12,6 +12,7 @@ import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -44,26 +45,22 @@ public class CARBON15340CustomMembershipSchemeTestCase extends CarbonIntegration
     }
 
     private void replaceAxis2XML() throws IOException {
-        String source = TestConfigurationProvider.getResourceLocation() + File.separator +
-                "artifacts" + File.separator + "CARBON" + File.separator + "CARBON15340" + File.separator + "axis2.xml";
+        Path source = Paths.get(TestConfigurationProvider.getResourceLocation(), "artifacts", "CARBON", "CARBON15340",
+                "axis2.xml");
 
-        String target = carbonHome + File.separator + "repository" +
-                File.separator + "conf" + File.separator + "axis2" + File.separator + "axis2.xml";
+        Path target = Paths.get(carbonHome, "repository", "conf", "axis2", "axis2.xml");
 
-        Files.copy(Paths.get(source), Paths.get(target), StandardCopyOption.REPLACE_EXISTING);
-
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private void copyCustomMemberShipSchemeBundleToDropins() throws IOException, CarbonToolsIntegrationTestException {
-        String source = TestConfigurationProvider.getResourceLocation() + File.separator +
-                "artifacts" + File.separator + "CARBON" + File.separator + "CARBON15340" +
-                File.separator + "org.wso2.membershipScheme.dummy-1.0-SNAPSHOT.jar";
+        Path source = Paths.get(TestConfigurationProvider.getResourceLocation(), "artifacts", "CARBON", "CARBON15340",
+                "org.wso2.membershipScheme.dummy-1.0-SNAPSHOT.jar");
 
-        String target = carbonHome + File.separator + "repository" +
-                File.separator + "components" + File.separator + "dropins" + File.separator
-                + "org.wso2.membershipScheme.dummy-1.0-SNAPSHOT.jar";
+        Path target = Paths.get(carbonHome, "repository", "components", "dropins",
+                "org.wso2.membershipScheme.dummy-1.0-SNAPSHOT.jar");
 
-        Files.copy(Paths.get(source), Paths.get(target));
+        Files.copy(source, target);
     }
 
     @Test(groups = "carbon.core", description = "Test custom membership scheme")
