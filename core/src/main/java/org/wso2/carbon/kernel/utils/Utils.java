@@ -16,6 +16,8 @@
 package org.wso2.carbon.kernel.utils;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.Constants;
 
 import java.lang.management.ManagementPermission;
@@ -33,6 +35,7 @@ import java.util.regex.Pattern;
  */
 public class Utils {
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     /**
      * Remove default constructor and make it not available to initialize.
@@ -86,7 +89,9 @@ public class Utils {
             String sysPropKey = matcher.group(1);
             String sysPropValue = getSystemVariableValue(sysPropKey, null);
             if (sysPropValue == null || sysPropValue.length() == 0) {
-                throw new RuntimeException("System property " + sysPropKey + " is not specified");
+                String msg = "System property " + sysPropKey + " is not specified";
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
             // Due to reported bug under CARBON-14746
             sysPropValue = sysPropValue.replace("\\", "\\\\");
