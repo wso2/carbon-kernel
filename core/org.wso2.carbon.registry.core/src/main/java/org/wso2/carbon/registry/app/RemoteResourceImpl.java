@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.registry.app;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -35,6 +37,7 @@ public class RemoteResourceImpl extends ResourceImpl {
 
     private URL contentURL;
     private String authorizationString;
+    private static final Log log = LogFactory.getLog(RemoteResourceImpl.class);
 
     /**
      * Method to set to content url.
@@ -110,14 +113,14 @@ public class RemoteResourceImpl extends ResourceImpl {
                     try {
                         is.close();
                     } catch (IOException e) {
-                        throw new RegistryException("Failed to close content stream", e);
+                        log.error("Failed to close content stream", e);
                     }
                 }
                 if (os != null) {
                     try {
                         os.close();
                     } catch (IOException e) {
-                        throw new RegistryException("Failed to close content stream", e);
+                        log.error("Failed to close content stream", e);
                     }
                 }
             }
