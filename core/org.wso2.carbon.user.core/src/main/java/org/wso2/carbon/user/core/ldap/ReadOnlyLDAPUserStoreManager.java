@@ -559,8 +559,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     if (attObject instanceof String) {
                                         attr = (String) attObject;
                                     } else if (attObject instanceof byte[]) {
-                                        //if the attribute type is binary base64 encoded string will be returned
-                                        attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                        // return canonical representation of UUIDs or base64 encoded string of other
+                                        // binary data.
+                                        // Active Directory attribute: objectGUID
+                                        // RFC 4530 attribute: entryUUID
+                                        final byte[] bytes = (byte[]) attObject;
+                                        if (bytes.length == 16 && name.endsWith("UID")) {
+                                            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(bytes);
+                                            attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+                                        } else {
+                                            attr = new String(Base64.encodeBase64(bytes);
+                                        }
                                     }
 
                                     if (attr != null && attr.trim().length() > 0) {
