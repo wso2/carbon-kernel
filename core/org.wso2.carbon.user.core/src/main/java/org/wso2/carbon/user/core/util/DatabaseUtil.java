@@ -27,7 +27,12 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -541,34 +546,32 @@ public class DatabaseUtil {
         }
     }
 
-    private static PreparedStatement getPreparedStatement(Connection dbConnection, String sqlStmt, Object... params) throws SQLException {
-
-        PreparedStatement preparedStatement = dbConnection.prepareStatement(sqlStmt);
-        if (params != null) {
-
-            int index = 1;
-            for (Object param : params) {
-                if (param == null || param instanceof String){
-                    //allow to send null data since null allowed values can be in the table. eg: domain name
-                    preparedStatement.setString(index++, (String) param);
-                }else if (param instanceof Integer){
-                    preparedStatement.setInt(index++, (Integer) param);
-                }else if (param instanceof Short) {
-                    preparedStatement.setShort(index++, (Short) param);
-                }else if (param instanceof Date) {
-                    Timestamp time = new Timestamp(((Date) param).getTime());
-                    preparedStatement.setTimestamp(index++, time);
-                }
-            }
-        }
-        return preparedStatement;
-    }
-
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
+
         try ( PreparedStatement prepStmt = getPreparedStatement(dbConnection, sqlStmt,params)) {
+
+            if (params != null && params.length > 0) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        //allow to send null data since null allowed values can be in the table. eg: domain name
+                        prepStmt.setString(i + 1, null);
+                        //throw new UserStoreException("Null data provided.");
+                    } else if (param instanceof String) {
+                        prepStmt.setString(i + 1, (String) param);
+                    } else if (param instanceof Integer) {
+                        prepStmt.setInt(i + 1, (Integer) param);
+                    } else if (param instanceof Short) {
+                        prepStmt.setShort(i + 1, (Short) param);
+                    } else if (param instanceof Date) {
+                        Date date = (Date) param;
+                        Timestamp time = new Timestamp(date.getTime());
+                        prepStmt.setTimestamp(i + 1, time);
+                    }
+                }
+            }
             prepStmt.executeUpdate();
-            DatabaseUtil.closeAllConnections(null, prepStmt);
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -588,8 +591,8 @@ public class DatabaseUtil {
     }
 
     public static void closeConnection(Connection dbConnection) {
-        if (dbConnection != null) {
 
+        if (dbConnection != null) {
             try {
                 dbConnection.close();
             } catch (SQLRecoverableException ex) {
@@ -601,6 +604,7 @@ public class DatabaseUtil {
     }
 
     private static void closeResultSet(ResultSet rs) {
+
         if (rs != null) {
             try {
                 rs.close();
@@ -610,6 +614,7 @@ public class DatabaseUtil {
                 log.error("Database error. Could not close result set  - " + e.getMessage(), e);
             }
         }
+
     }
 
     private static void closeStatement(PreparedStatement preparedStatement) {
@@ -623,9 +628,11 @@ public class DatabaseUtil {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             }
         }
+
     }
 
     private static void handleSQLRecoverableException(Object dbObject, SQLRecoverableException ex, boolean retry){
+
         log.error("SQLRecoverable exception encountered.  Attempting recovery.", ex);
 
         try{
@@ -660,11 +667,13 @@ public class DatabaseUtil {
     }
 
     public static void closeAllConnections(Connection dbConnection, PreparedStatement... prepStmts) {
+
         closeStatements(prepStmts);
         closeConnection(dbConnection);
     }
 
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
+
         closeResultSet(rs);
         closeStatements(prepStmts);
         closeConnection(dbConnection);
