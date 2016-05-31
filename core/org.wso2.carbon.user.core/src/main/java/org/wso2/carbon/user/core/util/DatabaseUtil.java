@@ -25,14 +25,10 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
+import javax.lang.model.type.UnknownTypeException;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLRecoverableException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -92,64 +88,57 @@ public class DatabaseUtil {
         if (dataSourceName != null) {
             return lookupDataSource(dataSourceName);
         }
+
         PoolProperties poolProperties = new PoolProperties();
         poolProperties.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
         if (poolProperties.getDriverClassName() == null) {
             return null;
         }
+
         poolProperties.setUrl(realmConfig.getUserStoreProperty(JDBCRealmConstants.URL));
         poolProperties.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
         poolProperties.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE))) {
             poolProperties.setMaxActive(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_ACTIVE)));
         } else {
             poolProperties.setMaxActive(DEFAULT_MAX_ACTIVE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE))) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MIN_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE))) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT))) {
             poolProperties.setMaxWait(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_WAIT)));
         } else {
             poolProperties.setMaxWait(DEFAULT_MAX_WAIT);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE))) {
             poolProperties.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.TEST_WHILE_IDLE)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
-                !realmConfig.getUserStoreProperty(
-                        JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
+        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS))) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getUserStoreProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
-                !realmConfig.getUserStoreProperty(
-                        JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
+        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS))) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -167,18 +156,15 @@ public class DatabaseUtil {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
 		
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED) != null && 
-        		!realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED).trim().equals("")){
+        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED))){
         	poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED)));
         }
         
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED) != null && 
-        		!realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED).trim().equals("")){
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED))){
         	poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT) != null &&
-        		!realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT).trim().equals("")){
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT))){
         	poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
         }
     
@@ -556,40 +542,40 @@ public class DatabaseUtil {
         }
     }
 
-    public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
-            throws UserStoreException {
-        PreparedStatement prepStmt = null;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            if (params != null && params.length > 0) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param == null) {
-                        //allow to send null data since null allowed values can be in the table. eg: domain name
-                        prepStmt.setString(i + 1, null);
-                        //throw new UserStoreException("Null data provided.");
-                    } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String) param);
-                    } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer) param);
-                    } else if (param instanceof Short) {
-                        prepStmt.setShort(i + 1, (Short) param);
-                    } else if (param instanceof Date) {
-                        Date date = (Date) param;
-                        Timestamp time = new Timestamp(date.getTime());
-                        prepStmt.setTimestamp(i + 1, time);
-                    }
+    private static PreparedStatement getPreparedStatement(Connection dbConnection, String sqlStmt, Object... params) throws SQLException {
+
+        PreparedStatement preparedStatement = dbConnection.prepareStatement(sqlStmt);
+        if (params != null) {
+
+            int index = 1;
+            for (Object param : params) {
+                if (param == null || param instanceof String){
+                    //allow to send null data since null allowed values can be in the table. eg: domain name
+                    preparedStatement.setString(index++, (String) param);
+                }else if (param instanceof Integer){
+                    preparedStatement.setInt(index++, (Integer) param);
+                }else if (param instanceof Short) {
+                    preparedStatement.setShort(index++, (Short) param);
+                }else if (param instanceof Date) {
+                    Timestamp time = new Timestamp(((Date) param).getTime());
+                    preparedStatement.setTimestamp(index++, time);
                 }
             }
+        }
+        return preparedStatement;
+    }
+
+    public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
+            throws UserStoreException {
+        try ( PreparedStatement prepStmt = getPreparedStatement(dbConnection, sqlStmt,params)) {
             prepStmt.executeUpdate();
+            DatabaseUtil.closeAllConnections(null, prepStmt);
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(null, prepStmt);
         }
     }
 
@@ -603,14 +589,12 @@ public class DatabaseUtil {
     }
 
     public static void closeConnection(Connection dbConnection) {
-
         if (dbConnection != null) {
+
             try {
-				if (dbConnection != null && !dbConnection.isClosed()) {
-					dbConnection.close();
-				}
+                dbConnection.close();
             } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(dbConnection, ex);
+                handleSQLRecoverableException(dbConnection, ex, true);
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             }
@@ -618,17 +602,15 @@ public class DatabaseUtil {
     }
 
     private static void closeResultSet(ResultSet rs) {
-
         if (rs != null) {
             try {
                 rs.close();
-				} catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(ex);
+            } catch (SQLRecoverableException ex) {
+                handleSQLRecoverableException(rs,ex, true);
             } catch (SQLException e) {
                 log.error("Database error. Could not close result set  - " + e.getMessage(), e);
             }
         }
-
     }
 
     private static void closeStatement(PreparedStatement preparedStatement) {
@@ -637,41 +619,39 @@ public class DatabaseUtil {
             try {
                 preparedStatement.close();
             } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(ex);
+                handleSQLRecoverableException(preparedStatement, ex, true);
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             }
         }
-
     }
 
-    private static void handleSQLRecoverableException(SQLRecoverableException ex){
-		Connection dbConnection;
-    	try {
-	    	if(dataSource != null){
-	    		dbConnection = getDBConnection(dataSource);
-				handleSQLRecoverableException(dbConnection, ex);
-	    	}
-    	} catch (SQLException e) {
-            log.error("Error occurred during SQLRecoverableException handling.", e);
-    	}
-    }
-    
-    private static void handleSQLRecoverableException(Connection dbConnection, SQLRecoverableException ex) {
-        log.info("Attempting recovery from thrown SQLRecoverableException ..." + ex.getLocalizedMessage(), ex);
-        try {
-        	if(dbConnection != null){
-        		dbConnection.close();
-        		
-        	}else{
-            	String reason = dbConnection == null? "database connection is null" : dbConnection.isClosed()? "database connection is closed": "unknown";
-        		log.warn("Couldn't recover from SQLRecoverableException - cause: " + reason);
-        	}
-        } catch (SQLException e) {
-            log.error("Error occurred during SQLRecoverableException handling." + e.getLocalizedMessage(),e); 
+    private static void handleSQLRecoverableException(Object dbObject, SQLRecoverableException ex, boolean retry){
+        log.error("SQLRecoverable exception encountered.  Attempting recovery.", ex);
+
+        try{
+            if (dbObject instanceof ResultSet) {
+                ((ResultSet)dbObject).close();
+            } else if(dbObject instanceof  PreparedStatement) {
+                ((PreparedStatement)dbObject).close();
+            } else if( dbObject instanceof Connection ) {
+                ((Connection)dbObject).close();
+            } else { // wrong caller for method
+                throw new UnknownTypeException(null,dbObject);
+            }
+        } catch (SQLRecoverableException recException){
+            // retry on first failure only
+            if(retry) {
+                handleSQLRecoverableException(dbObject, recException, false);
+            }else{
+                log.error("Recovery failed for SQLRecoverableError - exiting recovery.", recException);
+            }
+        }
+        catch (SQLException sqlEx){
+            log.error("Database error. Could not close result set  - " + sqlEx.getMessage(), sqlEx);
         }
     }
-  
+
     private static void closeStatements(PreparedStatement... prepStmts) {
 
         if (prepStmts != null && prepStmts.length > 0) {
@@ -683,13 +663,11 @@ public class DatabaseUtil {
     }
 
     public static void closeAllConnections(Connection dbConnection, PreparedStatement... prepStmts) {
-
         closeStatements(prepStmts);
         closeConnection(dbConnection);
     }
 
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
-
         closeResultSet(rs);
         closeStatements(prepStmts);
         closeConnection(dbConnection);
