@@ -549,7 +549,7 @@ public class DatabaseUtil {
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
 
-        try ( PreparedStatement prepStmt = getPreparedStatement(dbConnection, sqlStmt,params)) {
+        try ( PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
 
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -572,6 +572,7 @@ public class DatabaseUtil {
                 }
             }
             prepStmt.executeUpdate();
+            DatabaseUtil.closeAllConnections(null, prepStmt);
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -601,10 +602,10 @@ public class DatabaseUtil {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             }
         }
+
     }
 
     private static void closeResultSet(ResultSet rs) {
-
         if (rs != null) {
             try {
                 rs.close();
@@ -618,7 +619,6 @@ public class DatabaseUtil {
     }
 
     private static void closeStatement(PreparedStatement preparedStatement) {
-
         if (preparedStatement != null) {
             try {
                 preparedStatement.close();
@@ -632,7 +632,6 @@ public class DatabaseUtil {
     }
 
     private static void handleSQLRecoverableException(Object dbObject, SQLRecoverableException ex, boolean retry){
-
         log.error("SQLRecoverable exception encountered.  Attempting recovery.", ex);
 
         try{
@@ -643,17 +642,22 @@ public class DatabaseUtil {
             } else if( dbObject instanceof Connection ) {
                 ((Connection)dbObject).close();
             }
-        } catch (SQLRecoverableException recException){
-            // retry on first failure only
+        }catch (SQLRecoverableException recException){
+            // retry on first failure - retrieve new connection
             if(retry) {
-                handleSQLRecoverableException(dbObject, recException, false);
+                try (Connection connection = getDBConnection(dataSource)){
+                handleSQLRecoverableException(connection, recException, false);
+                } catch (SQLException sqlExeption){
+                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", sqlExeption);
+                }
             }else{
+                dbObject = null;
                 log.error("Recovery failed for SQLRecoverableError - exiting recovery.", recException);
             }
-        }
-        catch (SQLException sqlEx){
+        }catch (SQLException sqlEx){
             log.error("Database error. Could not close result set  - " + sqlEx.getMessage(), sqlEx);
         }
+
     }
 
     private static void closeStatements(PreparedStatement... prepStmts) {
