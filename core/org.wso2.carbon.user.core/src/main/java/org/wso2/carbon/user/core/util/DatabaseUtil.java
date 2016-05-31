@@ -40,8 +40,6 @@ public class DatabaseUtil {
     private static final int DEFAULT_MIN_IDLE = 5;
     private static final int DEFAULT_MAX_IDLE = 6;
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
-
-
     private static DataSource dataSource = null;
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
@@ -296,6 +294,7 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+
         } finally {
             close(dbConnection);
         }
@@ -435,9 +434,6 @@ public class DatabaseUtil {
             throw new UserStoreException(errorMessage, e);
         } finally {  // can remove since this is not needed with try-with-resources -
             close(dbConnection);
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
         }
     }
 
@@ -524,7 +520,6 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            close(dbConnection);
             if (localConnection) {
 				close(dbConnection);
             }
@@ -556,30 +551,9 @@ public class DatabaseUtil {
 
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
-
-        try ( PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
-
-            if (params != null && params.length > 0) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param == null) {
-                        //allow to send null data since null allowed values can be in the table. eg: domain name
-                        prepStmt.setString(i + 1, null);
-                        //throw new UserStoreException("Null data provided.");
-                    } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String) param);
-                    } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer) param);
-                    } else if (param instanceof Short) {
-                        prepStmt.setShort(i + 1, (Short) param);
-                    } else if (param instanceof Date) {
-                        Date date = (Date) param;
-                        Timestamp time = new Timestamp(date.getTime());
-                        prepStmt.setTimestamp(i + 1, time);
-                    }
-                }
-            }
+        try ( PreparedStatement prepStmt = getPreparedStatement(dbConnection, sqlStmt,params)) {
             prepStmt.executeUpdate();
+            DatabaseUtil.closeAllConnections(null, prepStmt);
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -610,7 +584,6 @@ public class DatabaseUtil {
      */
     private static <AutoClosableWrapper extends AutoCloseable & Wrapper> void close(AutoClosableWrapper dbObject) {
         if (dbObject != null) {
-
             try {
                 dbObject.close();
             } catch (SQLRecoverableException ex) {
@@ -618,7 +591,7 @@ public class DatabaseUtil {
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             } catch (Exception e) {
-                log.error("Generic error occurred during close operation" + e.getMessage(), e);
+                log.error("An unknown error occurred during close operation" + e.getMessage(), e);
             } finally {
                 dbObject = null;
             }
@@ -633,14 +606,14 @@ public class DatabaseUtil {
                 connection.close();
             } catch (SQLException | NullPointerException e) {
                 if (dataSource == null)
-                    log.error("Null encountered during sqlrecoverable error recovery", e);
+                    log.error("A null datasource was encountered during SQLRecoverableException handling recovery operation - exiting recovery. " + e.getMessage(), e);
                 else
-                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", e);
+                    log.error("An error occurred during SQLRecoverableException handling recovery operation - exiting recovery." + e.getMessage() , e);
             }
         } catch (SQLException sqlEx){
-            log.error("Error occurred during close operation  - continuing with errors" + sqlEx.getMessage(), sqlEx);
+            log.error("An error occurred during SQLRecoverableException handling close operation  - continuing with errors. " + sqlEx.getMessage(), sqlEx);
         } catch (Exception e) {
-            log.error("Generic error occurred during close operation" + e.getMessage(), e);
+            log.error("An unknown error occurred during SQLRecoverableException handling close operation. " + e.getMessage(), e);
         }
     }
 
@@ -662,7 +635,6 @@ public class DatabaseUtil {
         closeStatements(prepStmts);
         close(dbConnection);
     }
-
     public static void close(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
         close(rs1);
