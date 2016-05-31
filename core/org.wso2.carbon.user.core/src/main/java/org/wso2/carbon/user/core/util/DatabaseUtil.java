@@ -553,6 +553,7 @@ public class DatabaseUtil {
             throws UserStoreException {
         try ( PreparedStatement prepStmt = getPreparedStatement(dbConnection, sqlStmt,params)) {
             prepStmt.executeUpdate();
+            DatabaseUtil.closeAllConnections(null, prepStmt);
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -583,7 +584,6 @@ public class DatabaseUtil {
      */
     private static <AutoClosableWrapper extends AutoCloseable & Wrapper> void close(AutoClosableWrapper dbObject) {
         if (dbObject != null) {
-
             try {
                 dbObject.close();
             } catch (SQLRecoverableException ex) {
@@ -591,7 +591,7 @@ public class DatabaseUtil {
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             } catch (Exception e) {
-                log.error("Generic error occurred during close operation" + e.getMessage(), e);
+                log.error("An unknown error occurred during close operation" + e.getMessage(), e);
             } finally {
                 dbObject = null;
             }
@@ -606,14 +606,14 @@ public class DatabaseUtil {
                 connection.close();
             } catch (SQLException | NullPointerException e) {
                 if (dataSource == null)
-                    log.error("Null encountered during sqlrecoverable error recovery", e);
+                    log.error("A null datasource was encountered during SQLRecoverableException handling recovery operation - exiting recovery. " + e.getMessage(), e);
                 else
-                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", e);
+                    log.error("An error occurred during SQLRecoverableException handling recovery operation - exiting recovery." + e.getMessage() , e);
             }
         } catch (SQLException sqlEx){
-            log.error("Error occurred during close operation  - continuing with errors" + sqlEx.getMessage(), sqlEx);
+            log.error("An error occurred during SQLRecoverableException handling close operation  - continuing with errors. " + sqlEx.getMessage(), sqlEx);
         } catch (Exception e) {
-            log.error("Generic error occurred during close operation" + e.getMessage(), e);
+            log.error("An unknown error occurred during SQLRecoverableException handling close operation. " + e.getMessage(), e);
         }
     }
 
@@ -635,7 +635,6 @@ public class DatabaseUtil {
         closeStatements(prepStmts);
         close(dbConnection);
     }
-
     public static void close(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
         close(rs1);
