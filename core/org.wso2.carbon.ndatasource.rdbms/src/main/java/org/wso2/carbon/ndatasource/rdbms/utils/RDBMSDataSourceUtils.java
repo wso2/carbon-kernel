@@ -264,9 +264,7 @@ public class RDBMSDataSourceUtils {
 		if (config.getValidationInterval() != null) {
 			props.setValidationInterval(config.getValidationInterval());
 		}
-		if (config.isJmxEnabled() != null) {
-			props.setJmxEnabled(config.isJmxEnabled());
-		}
+		props.setJmxEnabled(config.isJmxEnabled() == null ? false : config.isJmxEnabled());
 		if (config.isFairQueue() != null) {
 			props.setFairQueue(config.isFairQueue());
 		}
