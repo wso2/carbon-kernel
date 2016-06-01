@@ -20,11 +20,11 @@ limitations under the License.
 <suite name="Carbon-Kernel-Core_OSGI-Test-Suite">
     <test name="carbon-core-osgi-tests" preserve-order="true" parallel="false">
         <classes>
-            <!--<class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>-->
-            <!--<class name="org.wso2.carbon.osgi.BaseOSGiTest"/>-->
+            <class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>
+            <class name="org.wso2.carbon.osgi.BaseOSGiTest"/>
 
             <!--<class name="org.wso2.carbon.osgi.logging.LoggingConfigurationOSGiTest"/>-->
-            <!--<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>-->
+            <!--&lt;!&ndash;<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>&ndash;&gt;-->
 
             <!--<class name="org.wso2.carbon.osgi.runtime.CarbonRuntimeOSGiTest"/>-->
             <!--<class name="org.wso2.carbon.osgi.runtime.CustomRuntimeOSGiTest"/>-->
@@ -41,10 +41,9 @@ limitations under the License.
             <!--<class name="org.wso2.carbon.osgi.startupresolver.SampleStartupOrderResolverOSGiTest"/>-->
             <!--<class name="org.wso2.carbon.osgi.startupresolver.StartupCoordinatorOSGiTest"/>-->
             <!--<class name="org.wso2.carbon.osgi.startupresolver.MultipleCapabilitiesForCapabilityListenerOSGiTest"/>-->
-            <!--keep this test as the last since there is a issue in windows intermittently-->
+            <!--&lt;!&ndash;keep this test as the last since there is a issue in windows intermittently&ndash;&gt;-->
             <!--<class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>-->
-            <!--<class name="org.wso2.carbon.osgi.Test2"/>-->
-            <class name="org.wso2.carbon.osgi.TestCarbonContainer"/>
+            <!--<class name="org.wso2.carbon.osgi.TestCarbonContainer"/>-->
         </classes>
     </test>
 </suite>

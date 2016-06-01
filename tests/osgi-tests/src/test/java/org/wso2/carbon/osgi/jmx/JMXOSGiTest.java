@@ -19,6 +19,9 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -32,12 +35,9 @@ import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfig
 import javax.inject.Inject;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 /**
@@ -46,7 +46,7 @@ import java.util.List;
  * @since 5.1.0
  */
 @Listeners(org.ops4j.pax.exam.testng.listener.PaxExam.class)
-@ExamReactorStrategy(org.ops4j.pax.exam.spi.reactors.PerClass.class)
+@ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class JMXOSGiTest {
 
@@ -57,31 +57,23 @@ public class JMXOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private static void copyCarbonYAML() {
+    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf", "carbon.yml"),
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.error("Unable to copy the carbon.yml file", e);
-        }
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
+
+        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+                Paths.get("conf", "carbon.yml"));
     }
 
     @Configuration
     public Option[] createConfiguration() {
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        String basedir = System.getProperty("basedir");
-        if (basedir == null) {
-            basedir = Paths.get(".").toString();
-        }
-        optionList.add(new CarbonDistributionConfigurationFileReplacementOption(Paths.get(basedir, "src", "test",
-                "resources", "jmx", "carbon.yml"),Paths.get("conf","carbon.yml")));
+        optionList.add(copyCarbonYAMLOption());
         return optionList.toArray(new Option[optionList.size()]);
     }
 

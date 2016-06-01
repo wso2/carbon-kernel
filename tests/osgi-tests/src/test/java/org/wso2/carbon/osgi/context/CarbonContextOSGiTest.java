@@ -34,15 +34,13 @@ import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.List;
-import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
@@ -63,13 +61,9 @@ public class CarbonContextOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-//        System.setProperty(Constants.TENANT_NAME, TEST_TENANT_NAME);
-        System.setProperty("carbon.home","target/"+this.getClass().getName());
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        copyConfigFiles();
-        optionList.add(mavenBundle()
-                .artifactId("carbon-context-test-artifact")
-                .groupId("org.wso2.carbon")
+        optionList.add(copyCarbonYAMLOption());
+        optionList.add(mavenBundle().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon")
                 .versionAsInProject());
         optionList.add(new SystemPropertyOption(Constants.TENANT_NAME).value(TEST_TENANT_NAME));
         return optionList.toArray(new Option[optionList.size()]);
@@ -140,19 +134,15 @@ public class CarbonContextOSGiTest {
     /**
      * Replace the existing carbon.yaml file with the file found at runtime resources directory.
      */
-    private void copyConfigFiles() {
+    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
-                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.error("Unable to copy the tenant.xml file", e);
-        }
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yml");
+        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+                Paths.get("conf", "carbon.yml"));
     }
 }

@@ -20,6 +20,7 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -29,16 +30,15 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.kernel.utils.Utils;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import javax.inject.Inject;
 
 /**
  * Base OSGi class to test the OSGi status of the org.wso2.carbon.core bundle.
@@ -51,19 +51,17 @@ import javax.inject.Inject;
 public class BaseOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseOSGiTest.class);
+    @Inject
+    private BundleContext bundleContext;
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Configuration
     public Option[] createConfiguration() {
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        copyCarbonYAML();
+        optionList.add(copyCarbonYAMLOption());
         return optionList.toArray(new Option[optionList.size()]);
     }
-
-    @Inject
-    private BundleContext bundleContext;
-
-    @Inject
-    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testBundleContextStatus() {
@@ -72,6 +70,8 @@ public class BaseOSGiTest {
 
     @Test
     public void testCarbonCoreBundleStatus() {
+
+        Assert.assertNotNull(Utils.getCarbonConfigHome());
 
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
@@ -87,19 +87,15 @@ public class BaseOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private static void copyCarbonYAML() {
+    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf", "carbon.yml"),
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.error("Unable to copy the carbon.yml file", e);
-        }
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+                Paths.get("conf", "carbon.yml"));
     }
 }

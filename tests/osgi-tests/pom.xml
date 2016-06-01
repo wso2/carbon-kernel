@@ -182,11 +182,11 @@
             <artifactId>geronimo-atinject_1.0_spec</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-native</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.ops4j.pax.exam</groupId>-->
+            <!--<artifactId>pax-exam-container-native</artifactId>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-testng</artifactId>
@@ -345,25 +345,6 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>unpack-distribution</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.wso2.carbon</groupId>
-                                            <artifactId>wso2carbon-kernel-test</artifactId>
-                                            <type>zip</type>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-
-                            <execution>
                                 <id>copy-jacoco-dependencies</id>
                                 <phase>compile</phase>
                                 <goals>
@@ -380,6 +361,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.9</version>
                         <configuration>
                             <systemPropertyVariables>
                                 <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}
@@ -388,16 +370,8 @@
                                 <pax.exam.system>default</pax.exam.system>
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR
                                 </org.ops4j.pax.logging.DefaultServiceLog.level>
+                                <coverage.command>${jcoverage.command}</coverage.command>
                             </systemPropertyVariables>
-                            <environmentVariables>
-                                <JAVA_OPTS>${jcoverage.command}</JAVA_OPTS>
-                            </environmentVariables>
-                            <systemProperties>
-                                <property>
-                                    <name>carbon.home</name>
-                                    <value>${basedir}/target/wso2carbon-kernel-${project.version}</value>
-                                </property>
-                            </systemProperties>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
@@ -415,7 +389,7 @@
                                 <configuration>
                                     <propertyName>jcoverage.command</propertyName>
                                     <includes>
-                                        <include>org.wso2.carbon.*</include>
+                                        <include>org.wso2.carbon*</include>
                                     </includes>
                                     <append>true</append>
                                 </configuration>

@@ -31,9 +31,9 @@
     <modules>
         <module>test-artifacts</module>
         <module>osgi-test-util</module>
+        <module>test-distribution</module>
         <module>osgi-tests</module>
         <module>coverage-report</module>
-        <module>test-distribution</module>
     </modules>
 
     <dependencyManagement>

@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.logging;
 
 import org.ops4j.pax.exam.ExamFactory;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -31,7 +32,10 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationOption;
+import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,6 +44,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -69,10 +74,17 @@ public class LoggingConfigurationOSGiTest {
 
     private static String loggingConfigDirectory;
 
+    @org.ops4j.pax.exam.Configuration
+    public Option[] createConfiguration() {
+        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        optionList.add(CarbonDistributionOption.keepRuntimeDirectory());
+        return optionList.toArray(new Option[optionList.size()]);
+    }
+
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = Paths.get(".").toString();
+            basedir = Paths.get("../../").toString();
         }
         loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }

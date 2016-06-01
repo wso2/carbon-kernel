@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
 import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationOption;
+import org.wso2.carbon.osgi.test.util.container.options.EnvironmentPropertyOption;
 import org.wso2.carbon.osgi.test.util.container.options.KeepRuntimeDirectory;
 import org.wso2.carbon.osgi.test.util.container.runner.Runner;
 
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -104,30 +106,25 @@ public class CarbonTestContainer implements TestContainer {
                 System.setProperty("org.ops4j.pax.url.mvn.repositories", buildString(repositories));
             }
 
-            if (carbonDistributionConfigurationOption.getDistributionDirectoryPath() == null) {
-                targetDirectory = retrieveFinalTargetDirectory();
+            targetDirectory = retrieveFinalTargetDirectory();
 
-                if (carbonDistributionConfigurationOption.getDistributionMavenURL() != null) {
-                    URL sourceDistribution = new URL(
-                            carbonDistributionConfigurationOption.getDistributionMavenURL().getURL());
-                    ArchiveExtractor.extract(sourceDistribution, targetDirectory.toFile());
-                }
-                if (carbonDistributionConfigurationOption.getDistributionZipPath() != null) {
-                    Path sourceDistribution = carbonDistributionConfigurationOption.getDistributionZipPath();
-                    ArchiveExtractor.extract(sourceDistribution, targetDirectory.toFile());
-                }
-
+            if (carbonDistributionConfigurationOption.getDistributionMavenURL() != null) {
+                URL sourceDistribution = new URL(
+                        carbonDistributionConfigurationOption.getDistributionMavenURL().getURL());
+                ArchiveExtractor.extract(sourceDistribution, targetDirectory.toFile());
+            } else if (carbonDistributionConfigurationOption.getDistributionZipPath() != null) {
+                Path sourceDistribution = carbonDistributionConfigurationOption.getDistributionZipPath();
+                ArchiveExtractor.extract(sourceDistribution, targetDirectory.toFile());
             } else {
-                targetDirectory = carbonDistributionConfigurationOption.getDistributionDirectoryPath();
+                Path sourceDirectory = carbonDistributionConfigurationOption.getDistributionDirectoryPath();
+                FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
             }
 
-            Path carbonHome = targetDirectory;
-
             //            copyPaxBundlesToDropins(carbonHome);
-            copyReferencedBundles(carbonHome, subsystem);
-            copyConfigurationFiles(carbonHome);
+            copyReferencedBundles(targetDirectory, subsystem);
+            copyConfigurationFiles(targetDirectory);
 
-            startCarbon(subsystem, carbonHome);
+            startCarbon(subsystem, targetDirectory);
             started = true;
         } catch (IOException e) {
             throw new RuntimeException("Problem starting container", e);
@@ -142,14 +139,18 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     private void copyPaxBundlesToDropins(Path carbonHome) {
-        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-lang/1.5.0", carbonHome + "/osgi/dropins");
+        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-lang/1.5.0",
+                carbonHome + "/osgi/dropins");
         copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-monitors/1.5.0",
                 carbonHome + "/osgi/dropins");
-        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-net/1.5.0", carbonHome + "/osgi/dropins");
+        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-net/1.5.0",
+                carbonHome + "/osgi/dropins");
         copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-store/1.5.0",
                 carbonHome + "/osgi/dropins");
-        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-io/1.5.0", carbonHome + "/osgi/dropins");
-        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-spi/1.5.0", carbonHome + "/osgi/dropins");
+        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-io/1.5.0",
+                carbonHome + "/osgi/dropins");
+        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-spi/1.5.0",
+                carbonHome + "/osgi/dropins");
         copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-util-property/1.5.0",
                 carbonHome + "/osgi/dropins");
         copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.swissbox/pax-swissbox-core/1.8.2",
@@ -199,11 +200,11 @@ public class CarbonTestContainer implements TestContainer {
                 provisionOption -> copyReferencedArtifactsToDeployDirectory(provisionOption.getURL(), targetDirectory));
     }
 
-    private void copyConfigurationFiles(Path carbonHome){
-        Arrays.asList(system.getOptions(CarbonDistributionConfigurationFileReplacementOption.class)).forEach(option->{
+    private void copyConfigurationFiles(Path carbonHome) {
+        Arrays.asList(system.getOptions(CarbonDistributionConfigurationFileReplacementOption.class)).forEach(option -> {
             try {
-                Files.copy(option.getSourcePath(),carbonHome.resolve(option.getDestinationPath()), StandardCopyOption
-                        .REPLACE_EXISTING);
+                Files.copy(option.getSourcePath(), carbonHome.resolve(option.getDestinationPath()),
+                        StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -215,13 +216,19 @@ public class CarbonTestContainer implements TestContainer {
         Path carbonBin = carbonHome.resolve("bin");
         makeScriptsInBinExec(carbonBin.toFile());
         ArrayList<String> javaOpts = new ArrayList<>();
-        String[] environment = new String[]{};
+        String[] environment = setupEnvironmentProperties(subsystem);
         setupSystemProperties(javaOpts, subsystem);
         runner.exec(environment, carbonHome, javaOpts);
         waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
 
         logger.info("Test Container started in " + (System.currentTimeMillis() - startedAt) + " millis");
         logger.info("Wait for test container to finish its initialization " + subsystem.getTimeout());
+    }
+
+    private String[] setupEnvironmentProperties(ExamSystem subsystem) {
+        EnvironmentPropertyOption[] options = subsystem.getOptions(EnvironmentPropertyOption.class);
+        return Arrays.asList(options).stream().map(option -> option.getOption()).collect(Collectors.toList())
+                .toArray(new String[options.length]);
     }
 
     private void setupSystemProperties(List<String> javaOpts, ExamSystem subsystem) throws IOException {

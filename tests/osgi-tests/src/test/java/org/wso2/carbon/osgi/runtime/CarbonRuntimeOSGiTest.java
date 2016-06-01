@@ -34,14 +34,12 @@ import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import javax.inject.Inject;
 
 /**
  * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service.
@@ -68,7 +66,7 @@ public class CarbonRuntimeOSGiTest {
     @Configuration
     public Option[] createConfiguration() {
         List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        copyCarbonYAML();
+        optionList.add(copyCarbonYAMLOption());
         return optionList.toArray(new Option[optionList.size()]);
     }
 
@@ -80,7 +78,7 @@ public class CarbonRuntimeOSGiTest {
         Assert.assertNotNull(carbonConfiguration, "Carbon Configuration is null");
     }
 
-    @Test(dependsOnMethods = {"testCarbonRuntimeService"})
+    @Test(dependsOnMethods = { "testCarbonRuntimeService" })
     public void testCarbonConfiguration() {
 
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
@@ -111,19 +109,15 @@ public class CarbonRuntimeOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private static void copyCarbonYAML() {
+    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
-                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.error("Unable to copy the carbon.yml file", e);
-        }
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+                Paths.get("conf", "carbon.yml"));
     }
 }

@@ -5,6 +5,7 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -15,6 +16,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.osgi.test.util.container.options.EnvironmentPropertyOption;
 
 import javax.inject.Inject;
 import java.nio.file.Paths;
@@ -47,26 +49,30 @@ public class TestCarbonContainer {
     public Option[] config() {
 
                 return new Option[] {
-                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+//                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
                         CarbonDistributionConfiguration().distributionMavenURL(
                                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
                                         .version("5.1.0-SNAPSHOT")),
                         keepRuntimeDirectory(),
+                        addCoverageOption()
 //                                        CarbonDistributionOption.debugConfiguration("5005")
                 };
 
 //                return new Option[] {
 //                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
 //                        CarbonDistributionConfiguration().distributionZipURL(Paths.get
-//                                ("/home/chanaka/Documents/WSO2/Git/C5/C5-2/carbon-kernel/tests/distribution-test"
+//                                ("/home/chanaka/Documents/WSO2/Git/C5/C5-2/carbon-kernel/tests/test-distribution"
 //                                        + "/target/wso2carbon-kernel-test-5.1.0-SNAPSHOT.zip")),
-//                        keepRuntimeDirectory()
+//                        keepRuntimeDirectory(),
+//                        addCoverageOption(),
 //                        //                                CarbonDistributionOption.debugConfiguration("5005")
 //                };
 
 //        return new Option[] { repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
 //                CarbonDistributionConfiguration().distributionDirectoryURL(
-//                        Paths.get("target/wso2carbon-kernel-test-5.1.0-SNAPSHOT")), keepRuntimeDirectory(),
+//                        Paths.get("target/wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
+//                addCoverageOption(),
+//           keepRuntimeDirectory(),
 ////                                CarbonDistributionOption.debugConfiguration("5005")
 //        };
 
@@ -97,6 +103,16 @@ public class TestCarbonContainer {
 //                                        .versionAsInProject(),
 //                //                CarbonDistributionOption.debugConfiguration("5005")
 //                        };
+    }
+
+    private EnvironmentPropertyOption addCoverageOption(){
+        String coverageCommand = System.getProperty("coverage.command");
+        if(coverageCommand!=null) {
+            return new EnvironmentPropertyOption("JAVA_OPTS=" + coverageCommand);
+        }
+        else{
+            return null;
+        }
     }
 
     @Test
