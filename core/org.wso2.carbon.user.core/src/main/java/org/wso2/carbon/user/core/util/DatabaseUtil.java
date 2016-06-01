@@ -296,7 +296,6 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-
         }finally {
             close(dbConnection);
         }
@@ -436,6 +435,9 @@ public class DatabaseUtil {
             throw new UserStoreException(errorMessage, e);
         } finally {  // can remove since this is not needed with try-with-resources -
             close(dbConnection);
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
         }
     }
 
@@ -477,6 +479,9 @@ public class DatabaseUtil {
             throw new UserStoreException(errorMessage, e);
         } finally {
             close(dbConnection);
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
         }
     }
 
@@ -524,7 +529,33 @@ public class DatabaseUtil {
             throw new UserStoreException(errorMessage, e);
         } finally {
             close(dbConnection);
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
         }
+    }
+
+    private static PreparedStatement getPreparedStatement(Connection dbConnection, String sqlStmt, Object... params) throws SQLException {
+
+        PreparedStatement preparedStatement = dbConnection.prepareStatement(sqlStmt);
+        if (params != null) {
+
+            int index = 1;
+            for (Object param : params) {
+                if (param == null || param instanceof String){
+                    //allow to send null data since null allowed values can be in the table. eg: domain name
+                    preparedStatement.setString(index++, (String) param);
+                }else if (param instanceof Integer){
+                    preparedStatement.setInt(index++, (Integer) param);
+                }else if (param instanceof Short) {
+                    preparedStatement.setShort(index++, (Short) param);
+                }else if (param instanceof Date) {
+                    Timestamp time = new Timestamp(((Date) param).getTime());
+                    preparedStatement.setTimestamp(index++, time);
+                }
+            }
+        }
+        return preparedStatement;
     }
 
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
@@ -619,16 +650,15 @@ public class DatabaseUtil {
                     else
                         log.error("Recovery failed for SQLRecoverableError - exiting recovery.", nullOrSqlException);
                 }
-            }else{
+            } else {
                 dbObject = null;
                 log.error("Recovery failed for SQLRecoverableError - exiting recovery.", recException);
             }
-        }catch (SQLException sqlEx){
+        } catch (SQLException sqlEx){
             log.error("Error occurred during close operation  - continuing with errors" + sqlEx.getMessage(), sqlEx);
         } catch (Exception e) {
             log.error("Generic error occurred during close operation" + e.getMessage(), e);
         }
-
     }
 
     private static void closeStatements(PreparedStatement... prepStmts) {
