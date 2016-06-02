@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -225,7 +224,7 @@ public final class UserCoreUtil {
      * @return
      */
     public static String getDummyPassword() {
-        Random rand = new Random();
+        SecureRandom rand = new SecureRandom();
         return DUMMY_VALUE + rand.nextInt(999999);
     }
 

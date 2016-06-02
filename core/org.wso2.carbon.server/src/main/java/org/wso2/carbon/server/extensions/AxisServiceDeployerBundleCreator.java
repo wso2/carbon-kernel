@@ -106,7 +106,9 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
                 } finally {
                     try {
                         //close the Stream
-                        zin.close();
+                        if (zin != null) {
+                            zin.close();
+                        }
                     } catch (IOException e) {
                         System.out.println("Unable to close the InputStream " + e.getMessage());
                         e.printStackTrace();

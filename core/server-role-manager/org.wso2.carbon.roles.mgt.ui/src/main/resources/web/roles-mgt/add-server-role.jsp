@@ -20,12 +20,20 @@
 <%@page import="org.wso2.carbon.roles.mgt.ui.ServerRoleManagerClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.text.MessageFormat" %>
-<%@page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
+
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+
     String forwardTo;
     String BUNDLE = "org.wso2.carbon.roles.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());

@@ -61,7 +61,7 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle.wso2</groupId>
+            <groupId>org.wso2.orbit.org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
     </dependencies>

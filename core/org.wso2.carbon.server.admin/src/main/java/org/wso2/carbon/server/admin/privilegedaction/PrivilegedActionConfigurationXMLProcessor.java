@@ -78,17 +78,22 @@ public class PrivilegedActionConfigurationXMLProcessor {
 
         InputStream inStream = PrivilegedActionConfigurationXMLProcessor.class.getResourceAsStream("/" + PRIVILEGED_ACTION_CONFIG_FILE);
 
-        if(inStream == null){
+        if (inStream == null) {
             throw new PrivilegedActionException("Unable to find PrivilegedAction configuration file " + PRIVILEGED_ACTION_CONFIG_FILE);
         }
 
         OMElement privilegedActionElement = null;
-        try{
+        try {
             String confString = convertStreamToString(inStream);
             privilegedActionElement = createOMElement(confString);
-            inStream.close();
-        } catch (IOException e) {
-            log.error("Error occurred while closing InputStream of " + PRIVILEGED_ACTION_CONFIG_FILE, e);
+        } finally {
+            if (inStream != null) {
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    log.error("Error occurred while closing InputStream of " + PRIVILEGED_ACTION_CONFIG_FILE, e);
+                }
+            }
         }
         return privilegedActionElement;
     }

@@ -755,8 +755,7 @@ public final class AppDeployerUtils {
                 AppDeployerConstants.META_FILE_POSTFIX;
         File metaFile = new File(metaFilePath);
         if (metaFile.exists()) {
-            try {
-                FileInputStream fis = new FileInputStream(metaFile);
+            try (FileInputStream fis = new FileInputStream(metaFile)) {
                 OMElement docElement = new StAXOMBuilder(fis).getDocumentElement();
                 OMElement mediaTypeElement = docElement
                         .getFirstChildWithName(new QName(AppDeployerConstants.META_MEDIA_TYPE));

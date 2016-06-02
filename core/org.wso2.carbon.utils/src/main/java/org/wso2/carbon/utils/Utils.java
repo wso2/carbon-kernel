@@ -122,9 +122,8 @@ public class Utils {
      */
     public static void deployZipFile(File zipFileLocation, File targetLocation)
             throws CarbonException {
-        try {
+        try (JarFile jarFile = new JarFile(zipFileLocation)) {
             SortedSet<String> dirsMade = new TreeSet<String>();
-            JarFile jarFile = new JarFile(zipFileLocation);
             Enumeration all = jarFile.entries();
             while (all.hasMoreElements()) {
                 getFile((ZipEntry) all.nextElement(), jarFile, targetLocation, dirsMade);

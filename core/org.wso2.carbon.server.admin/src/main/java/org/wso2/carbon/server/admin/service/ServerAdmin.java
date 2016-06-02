@@ -117,6 +117,7 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
             data.setRegistryType(registryType);
 
             // Extract DB related data from RegistryContext
+            Connection dbConnection = null;
             if (registryType.equals("embedded")) {
                 try {
                     DataAccessManager dataAccessManager =
@@ -127,7 +128,7 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
                         throw new AxisFault(msg);
                     }
                     DataSource dataSource = ((JDBCDataAccessManager)dataAccessManager).getDataSource();
-                    Connection dbConnection = dataSource.getConnection();
+                    dbConnection = dataSource.getConnection();
                     DatabaseMetaData metaData = dbConnection.getMetaData();
                     if (metaData != null) {
                         data.setDbName(metaData.getDatabaseProductName());
@@ -136,11 +137,14 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
                         data.setDbDriverVersion(metaData.getDriverVersion());
                         data.setDbURL(metaData.getURL());
                     }
-                    dbConnection.close();
                 } catch (SQLException e) {
                     String msg = "Cannot create DB connection";
                     log.error(msg, e);
                     throw new AxisFault(msg, e);
+                } finally {
+                    if (dbConnection != null) {
+                        dbConnection.close();
+                    }
                 }
             } else if (registryType.equals("remote")) {
                 data.setRemoteRegistryChroot(serverConfig.getFirstProperty("Registry.Chroot"));

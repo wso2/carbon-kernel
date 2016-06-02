@@ -55,10 +55,10 @@ public class ToolsFileUploadExecutor extends AbstractFileUploadExecutor {
                     }
                 }
                 File uploadedFile = new File(dir, uuid);
-                FileOutputStream fileOutStream = new FileOutputStream(uploadedFile);
-                fileItem.getDataHandler().writeTo(fileOutStream);
-                fileOutStream.flush();
-                fileOutStream.close();
+                try (FileOutputStream fileOutStream = new FileOutputStream(uploadedFile)) {
+                    fileItem.getDataHandler().writeTo(fileOutStream);
+                    fileOutStream.flush();
+                }
                 response.setContentType("text/plain; charset=utf-8");
                 filePathsStrBuffer.append(uploadedFile.getAbsolutePath());
                 filePathsStrBuffer.append(',');                

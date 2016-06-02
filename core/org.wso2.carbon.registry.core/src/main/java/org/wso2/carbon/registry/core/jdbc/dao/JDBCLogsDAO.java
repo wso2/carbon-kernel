@@ -21,7 +21,6 @@ package org.wso2.carbon.registry.core.jdbc.dao;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.util.ArrayUtil;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.registry.core.LogEntry;
 import org.wso2.carbon.registry.core.RegistryConstants;

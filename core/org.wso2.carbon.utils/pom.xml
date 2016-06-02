@@ -26,7 +26,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.bouncycastle.wso2</groupId>
+            <groupId>org.wso2.orbit.org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
         <dependency>
@@ -76,7 +76,7 @@
             <artifactId>jaxen</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-fileupload.wso2</groupId>
+            <groupId>org.wso2.orbit.commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </dependency>
         <dependency>

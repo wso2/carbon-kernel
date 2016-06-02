@@ -37,6 +37,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -66,7 +67,6 @@ public class SymmetricEncryption {
 
     public void generateSymmetricKey() throws CryptoException {
 
-        FileInputStream fileInputStream = null;
         OutputStream output = null;
         KeyGenerator generator = null;
         String secretAlias;
@@ -89,9 +89,10 @@ public class SymmetricEncryption {
 
             File file = new File(filePath);
             if (file.exists()) {
-                fileInputStream = new FileInputStream(file);
-                properties = new Properties();
-                properties.load(fileInputStream);
+                try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                    properties = new Properties();
+                    properties.load(fileInputStream);
+                }
 
                 SecretResolver secretResolver = SecretResolverFactory.create(properties);
                 if (symmetricKeySecureVaultAlias == null) {

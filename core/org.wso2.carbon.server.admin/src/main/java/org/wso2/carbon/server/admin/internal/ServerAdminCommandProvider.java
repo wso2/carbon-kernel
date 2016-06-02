@@ -18,14 +18,11 @@ package org.wso2.carbon.server.admin.internal;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
-import org.apache.poi.hssf.record.IterationRecord;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.server.admin.service.ServerAdmin;
-import org.wso2.carbon.utils.deployment.Axis2ServiceRegistry;
 
-import javax.management.relation.InvalidRelationTypeException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;

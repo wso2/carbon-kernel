@@ -117,7 +117,7 @@ public class FileSystemTenantManager extends CommonHybridLDAPTenantManager {
     public Tenant getTenant(int tenantId) throws UserStoreException {
         Tenant tenant = super.getTenant(tenantId);
 
-        InputStream inStream;
+        InputStream inStream = null;
         try {
 
             inStream = new FileInputStream(filePath + tenantId + File.separator + userMgtXml);
@@ -152,6 +152,14 @@ public class FileSystemTenantManager extends CommonHybridLDAPTenantManager {
             throw new UserStoreException(errorMessage, e);
         } catch (FileNotFoundException e) {
             log.error("Realm configuration file 'user-mgt.xml',does not exist for tenant:" + tenantId);
+        } finally {
+            if (inStream != null) {
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    log.error("Couldn't close FileInputStream " + e.getMessage(), e);
+                }
+            }
         }
 
         return tenant;

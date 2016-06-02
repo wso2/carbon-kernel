@@ -42,7 +42,7 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
     public static final String LOGGED_USER = CarbonConstants.LOGGED_USER;
     public static final String CARBON_AUTHNETICATOR = "CarbonAuthenticator";
-    private static final String CARBON_WEB_XML_PATH_PATTERN = "/carbon/WEB-INF/*";
+    private static final String CARBON_WEB_XML_PATH_PATTERN = "/carbon/WEB-INF/";
 
     private static final Log log = LogFactory.getLog(CarbonSecuredHttpContext.class);
     private Bundle bundle = null;
@@ -106,10 +106,6 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
             context = "";
         }
 
-        if (isWebXMLPath(context, requestedURI)) {
-            return false;
-        }
-
         // We eliminate the /tenant/{tenant-domain} from authentications
         Matcher matcher = CarbonUILoginUtil.getTenantEnabledUriPattern().matcher(requestedURI);
         if (matcher.matches()) {
@@ -164,7 +160,8 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
            return true;
         }
 
-        String resourceURI = requestedURI.replaceFirst(context + "/carbon/", contextURIBuilder(context + "/carbon"));
+        String resourceURI = CarbonUILoginUtil.addNewContext(requestedURI).replaceFirst(context + "/carbon/",
+                contextURIBuilder(context + "/carbon"));
 
         if (log.isDebugEnabled()) {
             log.debug("CarbonSecuredHttpContext -> handleSecurity() requestURI:" + requestedURI
@@ -291,6 +288,12 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
             }
             return false;
         }
+
+        if (isWebXMLPath(context, requestedURI)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return false;
+        }
+
         return true;
     }
 

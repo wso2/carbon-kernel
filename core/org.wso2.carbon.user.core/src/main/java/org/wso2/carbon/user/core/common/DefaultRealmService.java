@@ -48,6 +48,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.security.AccessController;
@@ -278,9 +279,9 @@ public class DefaultRealmService implements RealmService {
     // TODO : Move this into RealmConfigXMLProcessor
 
     private OMElement getConfigurationElement() throws UserStoreException {
+        InputStream inStream = null;
         try {
             String userMgt = CarbonUtils.getUserMgtXMLPath();
-            InputStream inStream = null;
             if (userMgt != null) {
                 File userMgtXml = new File(userMgt);
                 if (!userMgtXml.exists()) {
@@ -316,6 +317,14 @@ public class DefaultRealmService implements RealmService {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            if (inStream != null) {
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    log.error("Couldn't close the InputStream" + e.getMessage(), e);
+                }
+            }
         }
     }
 

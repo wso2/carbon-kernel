@@ -90,7 +90,7 @@
             <artifactId>xercesImpl</artifactId>
         </dependency>
         <dependency>
-            <groupId>xalan.wso2</groupId>
+            <groupId>org.wso2.orbit.xalan</groupId>
             <artifactId>xalan</artifactId>
         </dependency>
         <dependency>
