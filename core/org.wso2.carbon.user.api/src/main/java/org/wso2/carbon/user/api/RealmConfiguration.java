@@ -41,7 +41,7 @@ public class RealmConfiguration {
     protected String description = null;
     protected List<String> restrictedDomainsForSelfSignUp = new ArrayList<String>();
     protected List<String> reservedRoleNames = new ArrayList<String>();
-    ;
+
     protected Map<String, String> userStoreProperties = new HashMap<String, String>();
     protected Map<String, String> authzProperties = new HashMap<String, String>();
     protected Map<String, String> realmProperties = new HashMap<String, String>();
@@ -50,7 +50,7 @@ public class RealmConfiguration {
     protected Date persistedTimestamp;
     protected boolean passwordsExternallyManaged = false;
     protected boolean isPrimary = false;
-   	protected boolean removeAbandoned;
+    protected boolean removeAbandoned;
     protected boolean logAbandoned; 
     protected RealmConfiguration secondaryRealmConfig;
     protected Map<String, Map<String, String>> multipleCredentialProps = new HashMap<String, Map<String, String>>();
