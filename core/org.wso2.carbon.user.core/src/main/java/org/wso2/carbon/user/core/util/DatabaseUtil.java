@@ -27,12 +27,7 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLRecoverableException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -577,39 +572,29 @@ public class DatabaseUtil {
     }
 
     public static void closeConnection(Connection dbConnection) {
-        if (dbConnection != null) {
-
-            try {
-                dbConnection.close();
-            } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(dbConnection, ex, true);
-            } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
-            }
-        }
+        close(dbConnection);
     }
 
-    private static void closeResultSet(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(rs,ex, true);
-            } catch (SQLException e) {
-                log.error("Database error. Could not close result set  - " + e.getMessage(), e);
-            }
-        }
-    }
+    // Although using generics is a bit more cryptic to the uninitiated, this method ensures type safety
+    // and flexibility without the horrible cast conversions in
+    // favor of the usage of interfaces.
+    // Only java.sql types can be used as parameters.
+    //
+    // Only  java.sql object types intersect both Wrapper and AutoCloseable interfaces
+    // Types that are allowed as arguments: CachedRowSet, CallableStatement, Connection, DatabaseMetaData, DataSource,
+    // FilteredRowSet, JdbcRowSet, JoinRowSet, ParameterMetaData,
+    // PreparedStatement, ResultSet, ResultSetMetaData, RowSet, RowSetMetaData, Statement, SyncResolver, WebRowSet
+    private static <AutoClosableWrapper extends AutoCloseable & Wrapper> void close(AutoClosableWrapper dbObject) {
+        if (dbObject != null) {
 
-    private static void closeStatement(PreparedStatement preparedStatement) {
-
-        if (preparedStatement != null) {
             try {
-                preparedStatement.close();
+                dbObject.close();
             } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(preparedStatement, ex, true);
+                handleSQLRecoverableException(dbObject, ex, true);
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
+            } catch (Exception e) {
+                log.error("Generic error occurred during close operation" + e.getMessage(), e);
             }
         }
     }
@@ -624,11 +609,11 @@ public class DatabaseUtil {
             if(retry) {
                 try (Connection connection = getDBConnection(dataSource)){
                 handleSQLRecoverableException(connection, recException, false);
-                } catch (SQLException salException){
-                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", salException);
-                }catch (NullPointerException nullException){
-                    if(dataSource == null) log.error("DataSource is null", nullException);
-                    else log.error("Null encountered during recovery", nullException);
+                } catch (SQLException | NullPointerException nullOrSqlException){
+                    if(dataSource == null)
+                        log.error("Null encountered during recovery", nullOrSqlException);
+                    else
+                        log.error("Recovery failed for SQLRecoverableError - exiting recovery.", nullOrSqlException);
                 }
             }else{
                 log.error("Recovery failed for SQLRecoverableError - exiting recovery.", recException);
@@ -642,33 +627,57 @@ public class DatabaseUtil {
     }
 
     private static void closeStatements(PreparedStatement... prepStmts) {
-
         if (prepStmts != null && prepStmts.length > 0) {
             for (PreparedStatement stmt : prepStmts) {
-                closeStatement(stmt);
+                close(stmt);
             }
         }
-
     }
 
+    public static void close(Connection dbConnection, PreparedStatement... prepStmts) {
+        closeStatements(prepStmts);
+        close(dbConnection);
+    }
+
+    public static void close(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
+        close(rs);
+        closeStatements(prepStmts);
+        close(dbConnection);
+    }
+
+    public static void close(Connection dbConnection, ResultSet rs1, ResultSet rs2,
+                                           PreparedStatement... prepStmts) {
+        close(rs1);
+        close(rs2);
+        closeStatements(prepStmts);
+        close(dbConnection);
+    }
+
+    /**
+     * Recommend:
+     * @deprecated Should discontinue use in favor of the parametrized close method.
+     */
     public static void closeAllConnections(Connection dbConnection, PreparedStatement... prepStmts) {
-        closeStatements(prepStmts);
-        closeConnection(dbConnection);
+        close(dbConnection, prepStmts);
     }
 
+    /**
+     * Recommend:
+     * @deprecated Should discontinue use in favor of the parametrized close method.
+     */
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
-        closeResultSet(rs);
-        closeStatements(prepStmts);
-        closeConnection(dbConnection);
+        close(dbConnection,rs,prepStmts);
     }
 
+    /**
+     * Recommend:
+     * @deprecated Should discontinue use in favor of the parametrized close method.
+     */
     public static void closeAllConnections(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
-        closeResultSet(rs1);
-        closeResultSet(rs2);
-        closeStatements(prepStmts);
-        closeConnection(dbConnection);
+        close(dbConnection, rs1, rs2, prepStmts);
     }
+
 
     public static void rollBack(Connection dbConnection) {
         try {
