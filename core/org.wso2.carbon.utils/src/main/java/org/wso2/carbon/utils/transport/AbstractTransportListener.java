@@ -199,9 +199,9 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
             String tmp = protocol + "://" + ip;
 
             String workerProxyPort = null;
-            if (protocol == ServerConstants.HTTP_TRANSPORT) {
+            if (ServerConstants.HTTP_TRANSPORT.equals(protocol)) {
                 workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpProxyPort");
-            } else if (protocol == ServerConstants.HTTPS_TRANSPORT) {
+            } else if (ServerConstants.HTTPS_TRANSPORT.equals(protocol)) {
                 workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpsProxyPort");
             }
 
