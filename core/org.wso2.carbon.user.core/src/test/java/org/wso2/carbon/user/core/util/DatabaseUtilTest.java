@@ -2,6 +2,7 @@ package org.wso2.carbon.user.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,6 +34,7 @@ public class DatabaseUtilTest {
     @Mock PoolProperties poolProperties;
     @Mock CallableStatement callableStatementMock;
 
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -41,8 +43,9 @@ public class DatabaseUtilTest {
         when(statement.getResultSet()).thenReturn(resultSetMock);
     }
 
+
     @Test
-    public void getDBConnectionShouldNotBeNull() throws Exception {
+    public void getDBConnection() throws Exception {
         // not a true unit test.
         String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
         String driverName = "org.h2.Driver";
@@ -106,15 +109,18 @@ public class DatabaseUtilTest {
         }
     }
     @Test
-    public void testCloseStatements() throws SQLException {
-
-        when(conn.isClosed()).thenReturn(false);
-        DatabaseUtil.closeAllConnections(conn, preparedStatement);
+    public void testCloseConnectionHandlesSQLRecoverableException() throws Exception {
+        try {
+            Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
+            DatabaseUtil.closeConnection(conn);
+        } catch (SQLRecoverableException e) {
+            Assert.assertNull(conn);
+            Assert.assertEquals(SQLRecoverableException.class, e.getClass());
+        }
     }
 
     @Test
-    public void testClosePreparedStatementHandlesSQLRecoverableException() {
-
+    public void testCloseStatements() throws SQLException {
         boolean isThrown = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
@@ -146,7 +152,6 @@ public class DatabaseUtilTest {
 
     @Test
     public void testCreateUserStoreDataSource() throws Exception {
-
         when(realmConfig.isLogAbandoned()).thenReturn(true);
         when(realmConfig.isRemoveAbandoned()).thenReturn(true);
         when(realmConfig.getRemoveAbandonedTimeout()).thenReturn(100);
@@ -157,6 +162,7 @@ public class DatabaseUtilTest {
         Assert.assertEquals(100, realmConfig.getRemoveAbandonedTimeout());
         Assert.assertNotNull(datasource.getConnection());
     }
+
     @Test
     public void testNullCreateUserStoreDataSource() throws Exception {
 
@@ -206,16 +212,7 @@ public class DatabaseUtilTest {
         Assert.assertTrue(System.getProperties().getProperty("java.version").contains("1.7"));
     }
 
-    public DataSource getDBConnection() throws Exception {
 
-        // not a true unit test.
-        String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
-        String driverName = "org.h2.Driver";
-        PoolProperties poolProperties = new PoolProperties();
-        poolProperties.setUrl(url);
-        poolProperties.setDriverClassName(driverName);
-        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
-    }
 
     private class ResultSetMocker {
 
