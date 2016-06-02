@@ -120,6 +120,31 @@ public class DatabaseUtilTest {
     }
 
     @Test
+    public void testNewCloseStatements() throws SQLException {
+        when(conn.isClosed()).thenReturn(false);
+        DatabaseUtil.close(conn, preparedStatement);
+    }
+
+    @Test
+    public void testNewClosePreparedStatementHandlesSQLRecoverableException() {
+        boolean isThrown = false;
+        try {
+            Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
+            DatabaseUtil.close(conn, preparedStatement);
+        } catch (SQLRecoverableException e) {
+            // this is expected
+            e.printStackTrace();
+            isThrown = true;
+            Assert.assertTrue(isThrown);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // this shouldn't happen
+            Assert.assertTrue(false);
+        }
+        Assert.assertNotNull(preparedStatement);
+    }
+
+    @Test
     public void testCloseStatements() throws SQLException {
         boolean isThrown = false;
         try {

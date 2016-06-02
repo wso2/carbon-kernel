@@ -27,12 +27,7 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLRecoverableException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -624,12 +619,10 @@ public class DatabaseUtil {
     // FilteredRowSet, JdbcRowSet, JoinRowSet, ParameterMetaData,
     // PreparedStatement, ResultSet, ResultSetMetaData, RowSet, RowSetMetaData, Statement, SyncResolver, WebRowSet
     private static <AutoClosableWrapper extends AutoCloseable & Wrapper> void close(AutoClosableWrapper dbObject) {
-
         if (dbObject != null) {
 
             try {
                 dbObject.close();
-                dbObject = null;
             } catch (SQLRecoverableException ex) {
                 handleSQLRecoverableException(dbObject, ex, true);
             } catch (SQLException e) {
@@ -652,7 +645,7 @@ public class DatabaseUtil {
                 handleSQLRecoverableException(connection, recException, false);
                 } catch (SQLException | NullPointerException nullOrSqlException){
                     if(dataSource == null)
-                        log.error("Null encountered during sqlrecoverable error recovery", nullOrSqlException);
+                        log.error("Null encountered during recovery", nullOrSqlException);
                     else
                         log.error("Recovery failed for SQLRecoverableError - exiting recovery.", nullOrSqlException);
                 }
@@ -684,7 +677,6 @@ public class DatabaseUtil {
         close(rs);
         closeStatements(prepStmts);
         close(dbConnection);
-
     }
 
     public static void close(Connection dbConnection, ResultSet rs1, ResultSet rs2,
