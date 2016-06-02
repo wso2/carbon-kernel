@@ -613,24 +613,18 @@ public class DatabaseUtil {
 
     }
 
-    private static void handleSQLRecoverableException(Object dbObject, SQLRecoverableException ex, boolean retry){
+    private static void handleSQLRecoverableException(AutoCloseable dbObject, SQLRecoverableException ex, boolean retry){
         log.error("SQLRecoverable exception encountered.  Attempting recovery.", ex);
 
         try{
-            if (dbObject instanceof ResultSet) {
-                ((ResultSet)dbObject).close();
-            } else if(dbObject instanceof  PreparedStatement) {
-                ((PreparedStatement)dbObject).close();
-            } else if( dbObject instanceof Connection ) {
-                ((Connection)dbObject).close();
-            }
+            dbObject.close();
         }catch (SQLRecoverableException recException){
             // retry on first failure - retrieve new connection
             if(retry) {
                 try (Connection connection = getDBConnection(dataSource)){
                 handleSQLRecoverableException(connection, recException, false);
-                } catch (SQLException sqlExeption){
-                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", sqlExeption);
+                } catch (SQLException salException){
+                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", salException);
                 }catch (NullPointerException nullException){
                     if(dataSource == null) log.error("DataSource is null", nullException);
                     else log.error("Null encountered during recovery", nullException);
@@ -641,6 +635,8 @@ public class DatabaseUtil {
             }
         }catch (SQLException sqlEx){
             log.error("Error occurred during close operation  - continuing with errors" + sqlEx.getMessage(), sqlEx);
+        } catch (Exception e) {
+            log.error("Generic error occurred during close operation" + e.getMessage(), e);
         }
 
     }
