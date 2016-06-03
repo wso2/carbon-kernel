@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.dto.RoleDTO;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -707,13 +708,23 @@ public final class UserCoreUtil {
     }
 
     public static String extractDomainFromName(String nameWithDomain) {
-        int index;
-        if ((index = nameWithDomain.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) > 0) {
-            // extract the domain name if exist
-            String names[] = nameWithDomain.split(CarbonConstants.DOMAIN_SEPARATOR);
+        if (nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0) {
+            String names[] = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR);
             return names[0];
+        } else {
+            if (UserStoreMgtDSComponent.getRealmService() != null) {
+                //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+                //as an example when running the unit tests.
+                RealmConfiguration realmConfiguration = UserStoreMgtDSComponent.getRealmService()
+                        .getBootstrapRealmConfiguration();
+                if (realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) != null) {
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                } else {
+                    return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+            }
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
     public static void persistDomain(String domain, int tenantId, DataSource dataSource) throws UserStoreException {
