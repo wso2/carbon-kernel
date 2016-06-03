@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2015 WSO2, Inc. (http://wso2.com)
+  ~ Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
     <parameter name="attachmentDIR">work/mtom</parameter>
     <parameter name="sizeThreshold">4000</parameter>
 
-    <parameter name="EnableChildFirstClassLoading">true</parameter>
+    <parameter name="EnableChildFirstClassLoading">${childfirstCL}</parameter>
 
     <!--
     The exposeServiceMetadata parameter decides whether the metadata (WSDL, schema, policy) of
@@ -73,10 +73,10 @@
     <parameter name="ModulesDirectory">axis2modules</parameter>
 
     <parameter name="userAgent" locked="true">
-        WSO2 Carbon-4.4.1-SNAPSHOT
+        WSO2 Identity Server-5.1.0
     </parameter>
     <parameter name="server" locked="true">
-        WSO2 Carbon-4.4.1-SNAPSHOT
+        WSO2 Identity Server-5.1.0
     </parameter>
 
     <!-- ========================================================================-->
@@ -113,7 +113,7 @@
     <!--policies etc.. to AxisService, it doesn't appear in the WSDL. By setting the following property-->
     <!--to true, you can create the AxisService using the generated WSDL and remove the need for a-->
     <!--WSDL generator. When ?wsdl is called, WSDL is generated in the normal way.-->
-    <parameter name="useGeneratedWSDLinJAXWS">true</parameter>
+    <parameter name="useGeneratedWSDLinJAXWS">${jaxwsparam}</parameter>
 
     <!-- Deployer for the dataservice. -->
     <!--<deployer extension="dbs" directory="dataservices" class="org.wso2.dataservices.DBDeployer"/>-->
@@ -162,13 +162,13 @@
         <!--messageFormatter contentType="application/json"
                           class="org.apache.axis2.json.JSONMessageFormatter"/-->
         <messageFormatter contentType="application/json"
-                          class="org.apache.axis2.json.gson.JsonFormatter" />
+                                  class="org.apache.axis2.json.gson.JsonFormatter" />
         <messageFormatter contentType="application/json/badgerfish"
                           class="org.apache.axis2.json.JSONBadgerfishMessageFormatter"/>
         <!--messageFormatter contentType="text/javascript"
                           class="org.apache.axis2.json.JSONMessageFormatter"/-->
         <messageFormatter contentType="text/javascript"
-                          class="org.apache.axis2.json.gson.JsonFormatter" />
+                                  class="org.apache.axis2.json.gson.JsonFormatter" />
 
         <!--messageFormatter contentType="application/x-www-form-urlencoded"
                         class="org.wso2.carbon.relay.ExpandingMessageFormatter"/-->
@@ -198,13 +198,13 @@
         <!--messageBuilder contentType="application/json"
                         class="org.apache.axis2.json.JSONOMBuilder"/-->
         <messageBuilder contentType="application/json"
-                        class="org.apache.axis2.json.gson.JsonBuilder" />
+                                class="org.apache.axis2.json.gson.JsonBuilder" />
         <messageBuilder contentType="application/json/badgerfish"
                         class="org.apache.axis2.json.JSONBadgerfishOMBuilder"/>
         <!--messageBuilder contentType="text/javascript"
                         class="org.apache.axis2.json.JSONOMBuilder"/-->
         <messageBuilder contentType="text/javascript"
-                        class="org.apache.axis2.json.gson.JsonBuilder" />
+                                class="org.apache.axis2.json.gson.JsonBuilder" />
 
         <!--messageBuilder contentType="application/xml"
      		        class="org.wso2.carbon.relay.BinaryRelayBuilder"/-->
@@ -245,13 +245,13 @@
         <!--<parameter name="proxyPort">80</parameter>-->
     </transportReceiver>
 
-    <!--Please uncomment this in Multiple Instance Scenario if you want to use NIO Transport Recievers and
+    <!--Please uncomment this in Multiple Instance Scenario if you want to use NIO Transport Recievers and 
  	Remove the current transport REceivers in axis2.xml -->
     <!--transportReceiver name="http" class="org.apache.synapse.transport.nhttp.HttpCoreNIOListener">
         <parameter name="port" locked="false">8280</parameter>
         <parameter name="non-blocking" locked="false">true</parameter>
     </transportReceiver>
-
+    
     <transportReceiver name="https" class="org.apache.synapse.transport.nhttp.HttpCoreNIOSSLListener">
         <parameter name="port" locked="false">8243</parameter>
         <parameter name="non-blocking" locked="false">true</parameter>
@@ -420,7 +420,7 @@
     </transportSender>-->
 
     <!--Please uncomment this in Multiple Instance Scenario if you want to use NIO sender -->
-    <!--
+    <!--  
     <transportSender name="http" class="org.apache.synapse.transport.nhttp.HttpCoreNIOSender">
         <parameter name="non-blocking" locked="false">true</parameter>
     </transportSender>
@@ -587,7 +587,7 @@
         <phase name="PolicyDetermination"/>
         <phase name="MessageOut"/>
         <phase name="Security"/>
-        <phase name="Transport"/>
+	<phase name="Transport"/>
         <!--
            The MsgOutObservation phase is used to observe messages just before the
            responses are sent out. In this phase, we could do some things such as SOAP message
@@ -600,8 +600,125 @@
         <phase name="StatReporting"/>
     </phaseOrder>
 
-    <clustering class="org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent" enable="true">
-        <parameter name="membershipScheme">dummy</parameter>
-        <parameter name="membershipSchemeClassName">org.wso2.membershipScheme.dummy.DummyMembershipScheme</parameter>
+    <clustering class="org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent"
+                enable="true">
+
+        <!--
+           This parameter indicates whether the cluster has to be automatically initalized
+           when the AxisConfiguration is built. If set to "true" the initialization will not be
+           done at that stage, and some other party will have to explictly initialize the cluster.
+        -->
+        <parameter name="AvoidInitiation">true</parameter>
+
+        <!--
+           The membership scheme used in this setup. The only values supported at the moment are
+           "multicast" and "wka"
+
+           1. multicast - membership is automatically discovered using multicasting
+           2. wka - Well-Known Address based multicasting. Membership is discovered with the help
+                    of one or more nodes running at a Well-Known Address. New members joining a
+                    cluster will first connect to a well-known node, register with the well-known node
+                    and get the membership list from it. When new members join, one of the well-known
+                    nodes will notify the others in the group. When a member leaves the cluster or
+                    is deemed to have left the cluster, it will be detected by the Group Membership
+                    Service (GMS) using a TCP ping mechanism.
+        -->
+        <parameter name="membershipScheme">wka</parameter>
+        <parameter name="mgtCenterURL">http://localhost:8080/mancenter</parameter>
+
+        <!--
+         The clustering domain/group. Nodes in the same group will belong to the same multicast
+         domain. There will not be interference between nodes in different groups.
+        -->
+        <parameter name="domain">wso2.is.domain</parameter>
+
+        <!-- The multicast address to be used -->
+        <!--<parameter name="mcastAddress">228.0.0.4</parameter>-->
+
+        <!-- The multicast port to be used -->
+        <parameter name="mcastPort">45564</parameter>
+
+        <parameter name="mcastTTL">100</parameter>
+
+        <parameter name="mcastTimeout">60</parameter>
+
+        <!--
+           The IP address of the network interface to which the multicasting has to be bound to.
+           Multicasting would be done using this interface.
+        -->
+        <!--
+            <parameter name="mcastBindAddress">127.0.0.1</parameter>
+        -->
+        <!-- The host name or IP address of this member -->
+
+        <parameter name="localMemberHost">127.0.0.3</parameter>
+
+        <!--
+            The bind adress of this member. The difference between localMemberHost & localMemberBindAddress
+            is that localMemberHost is the one that is advertised by this member, while localMemberBindAddress
+            is the address to which this member is bound to.
+        -->
+        <!--
+        <parameter name="localMemberBindAddress">127.0.0.1</parameter>
+        -->
+
+        <!--
+        The TCP port used by this member. This is the port through which other nodes will
+        contact this member
+         -->
+        <parameter name="localMemberPort">4002</parameter>
+
+        <!--
+            The bind port of this member. The difference between localMemberPort & localMemberBindPort
+            is that localMemberPort is the one that is advertised by this member, while localMemberBindPort
+            is the port to which this member is bound to.
+        -->
+        <!--
+        <parameter name="localMemberBindPort">4001</parameter>
+        -->
+
+        <!--
+        Properties specific to this member
+        -->
+        <parameter name="properties">
+            <property name="backendServerURL" value="https://${hostName}:${httpsPort}/services/"/>
+            <property name="mgtConsoleURL" value="https://${hostName}:${httpsPort}/"/>
+            <property name="subDomain" value="worker"/>
+        </parameter>
+
+        <!--
+        Uncomment the following section to load custom Hazelcast data serializers.
+        -->
+        <!--
+        <parameter name="hazelcastSerializers">
+            <serializer typeClass="java.util.TreeSet">org.wso2.carbon.hazelcast.serializer.TreeSetSerializer
+            </serializer>
+            <serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer</serializer>
+        </parameter>
+        -->
+
+        <!--
+           The list of static or well-known members. These entries will only be valid if the
+           "membershipScheme" above is set to "wka"
+        -->
+	<members>
+	    <member>
+	      <hostName>127.0.0.2</hostName>
+	      <port>4001</port>
+	    </member>
+	</members>
+
+        <!--
+        Enable the groupManagement entry if you need to run this node as a cluster manager.
+        Multiple application domains with different GroupManagementAgent implementations
+        can be defined in this section.
+        -->
+        <groupManagement enable="false">
+            <applicationDomain name="wso2.as.domain"
+                               description="AS group"
+                               agent="org.wso2.carbon.core.clustering.hazelcast.HazelcastGroupManagementAgent"
+                               subDomain="worker"
+                               port="2222"/>
+        </groupManagement>
     </clustering>
 </axisconfig>
