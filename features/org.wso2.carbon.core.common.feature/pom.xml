@@ -96,7 +96,7 @@
                                 <bundleDef>org.wso2.orbit.commons-fileupload:commons-fileupload:${version.commons.fileupload}
                                 </bundleDef>
                                 <bundleDef>
-                                    commons-httpclient.wso2:commons-httpclient:${orbit.version.commons.httpclient}
+                                    org.wso2.orbit.commons-httpclient:commons-httpclient:${orbit.version.commons.httpclient}
                                 </bundleDef>
                                 <bundleDef>commons-io.wso2:commons-io:${orbit.version.commons.io}</bundleDef>
                                 <bundleDef>
