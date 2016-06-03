@@ -451,6 +451,9 @@
         <test.framework.version>4.4.3</test.framework.version>
         <jacoco.agent.version>0.7.5.201505241946</jacoco.agent.version>
         <testng.verson>6.1.1</testng.verson>
+
+        <!-- OWASP CSRFGuard Version -->
+        <orbit.version.csrfguard>3.1.0.wso2v2</orbit.version.csrfguard>
     </properties>
 
     <dependencyManagement>
@@ -1119,6 +1122,11 @@
                 <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
                 <artifactId>encoder</artifactId>
                 <version>${orbit.version.encoder}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.owasp</groupId>
+                <artifactId>csrfguard</artifactId>
+                <version>${orbit.version.csrfguard}</version>
             </dependency>
             <!--service-stub versions -->
             <dependency>
