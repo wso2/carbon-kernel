@@ -160,7 +160,20 @@ public class CacheBackedRegistry implements Registry {
     @SuppressWarnings("unchecked")
     public Resource get(String path) throws RegistryException {
         if (registry.getRegistryContext().isNoCachePath(path) || isCommunityFeatureRequest(path)) {
-            return registry.get(path);
+            Resource resource = registry.get(path);
+            if (registry.getRegistryContext().isNoCachePath(path)) {
+                Object ghostResourceObject;
+                RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
+                Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
+                if ((ghostResourceObject = cache.get(registryCacheKey)) == null) {
+                    GhostResource<Resource> ghostResource = new GhostResource<Resource>(resource);
+                    if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
+                            resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
+                        cache.put(registryCacheKey, ghostResource);
+                    }
+                }
+            }
+            return resource;
         }
         
         Resource resource;        
@@ -286,7 +299,14 @@ public class CacheBackedRegistry implements Registry {
     @SuppressWarnings("unchecked")
     public Collection get(String path, int start, int pageSize) throws RegistryException {
         if (registry.getRegistryContext().isNoCachePath(path) || isCommunityFeatureRequest(path)) {
-            return registry.get(path, start, pageSize);
+            Collection collection = registry.get(path, start, pageSize);
+            if (registry.getRegistryContext().isNoCachePath(path)) {
+                GhostResource<Resource> ghostResource = getGhostCollectionFromCache(path, start, pageSize);
+                if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
+                    ghostResource.setResource(collection);
+                }
+            }
+            return collection;
         }
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
@@ -327,7 +347,13 @@ public class CacheBackedRegistry implements Registry {
 
     public boolean resourceExists(String path) throws RegistryException {
         if (registry.getRegistryContext().isNoCachePath(path)) {
-            return registry.resourceExists(path);
+            boolean isResourceExists = registry.resourceExists(path);
+            if (isResourceExists){
+                Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
+                RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
+                cache.put(registryCacheKey, new GhostResource<Resource>(null));
+            }
+            return isResourceExists;
         }
 
         Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
