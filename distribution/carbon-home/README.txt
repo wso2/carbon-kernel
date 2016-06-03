@@ -60,9 +60,6 @@ Carbon Binary Distribution Directory Structure
     - conf
       Contains server configuration files. Ex: carbon.yml
 
-    - deployment
-	  All deployment artifacts should go into this directory.
-
     - logs
       Contains all log files created during execution.
 
@@ -90,9 +87,6 @@ programs, ranging from Web-based support up through normal business
 hours, to premium 24x7 phone support.
 
 For additional support information please refer to http://wso2.com/support/
-
-For more information on WSO2 Carbon, visit WSO2 Carbon Home Page (http://wso2.com/products/carbon)
-
 
 ---------------------------------------------------------------------------
 (c) Copyright 2015 WSO2 Inc.

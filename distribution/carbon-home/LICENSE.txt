@@ -34,10 +34,10 @@ org.eclipse.osgi_3.10.2.v20150203-1939.jar                                      
 org.ops4j.pax.logging.pax-logging-api_1.8.5.jar                                 bundle         apache2   1675      
 org.ops4j.pax.logging.pax-logging-log4j2_1.8.5.jar                              bundle         apache2   1674      
 org.osgi.core-6.0.0.jar                                                         bundle         apache2   1407      
-org.wso2.carbon.base_5.1.0.beta.jar                                             bundle         apache2   7862      
-org.wso2.carbon.core_5.1.0.beta.jar                                             bundle         apache2   7861      
-org.wso2.carbon.launcher-5.1.0-beta.jar                                         bundle         apache2   7860      
-org.wso2.carbon.tools.core-5.1.0-beta.jar                                       bundle         apache2   7859      
+org.wso2.carbon.base_5.1.0.jar                                                  bundle         apache2   8144      
+org.wso2.carbon.core_5.1.0.jar                                                  bundle         apache2   8143      
+org.wso2.carbon.launcher-5.1.0.jar                                              bundle         apache2   8142      
+org.wso2.carbon.tools.core-5.1.0.jar                                            bundle         apache2   8141      
 snakeyaml_1.16.0.wso2v1.jar                                                     bundle         apache2   6274      
 
 
