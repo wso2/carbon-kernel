@@ -176,7 +176,7 @@ public class CacheBackedRegistry implements Registry {
             if (registry.getRegistryContext().isNoCachePath(path)) {
                 RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
                 Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
-                if (cache.get(registryCacheKey) == null) {
+                if (cache.get(registryCacheKey) != null) {
                     GhostResource<Resource> ghostResource = new GhostResource<Resource>(resource);
                     if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
                             resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
@@ -313,7 +313,7 @@ public class CacheBackedRegistry implements Registry {
             Collection collection = registry.get(path, start, pageSize);
             if (registry.getRegistryContext().isNoCachePath(path)) {
                 GhostResource<Resource> ghostResource = getGhostCollectionFromCache(path, start, pageSize);
-                if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
+                if (ghostResource != null && collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
                     ghostResource.setResource(collection);
                 }
             }
@@ -362,7 +362,9 @@ public class CacheBackedRegistry implements Registry {
             if (isResourceExists) {
                 Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
                 RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
-                cache.put(registryCacheKey, new GhostResource<Resource>(null));
+                if (cache.containsKey(registryCacheKey) && cache.get(registryCacheKey) != null) {
+                    cache.put(registryCacheKey, new GhostResource<Resource>(null));
+                }
             }
             return isResourceExists;
         }
