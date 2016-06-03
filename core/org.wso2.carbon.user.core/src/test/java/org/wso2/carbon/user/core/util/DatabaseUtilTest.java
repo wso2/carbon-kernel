@@ -34,7 +34,6 @@ public class DatabaseUtilTest {
     @Mock PoolProperties poolProperties;
     @Mock CallableStatement callableStatementMock;
 
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -43,9 +42,20 @@ public class DatabaseUtilTest {
         when(statement.getResultSet()).thenReturn(resultSetMock);
     }
 
+    //for testing
+    public DataSource getDBConnection() throws Exception {
+        // not a true unit test.
+        String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
+        String driverName = "org.h2.Driver";
+        PoolProperties poolProperties = new PoolProperties();
+        poolProperties.setUrl(url);
+        poolProperties.setDriverClassName(driverName);
+        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+    }
+
 
     @Test
-    public void getDBConnection() throws Exception {
+    public void getDBConnectionShouldNotBeNull() throws Exception {
         // not a true unit test.
         String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
         String driverName = "org.h2.Driver";
@@ -59,7 +69,6 @@ public class DatabaseUtilTest {
 
     @Test
     public void closeConnectionShouldNotBeNull() throws SQLException {
-
         Mockito.doAnswer(RETURNS_MOCKS).when(datasource).getConnection();
         DatabaseUtil.closeConnection(conn);
         assertNotNull(conn);
@@ -110,38 +119,10 @@ public class DatabaseUtilTest {
     }
     @Test
     public void testCloseConnectionHandlesSQLRecoverableException() throws Exception {
-        try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
             DatabaseUtil.closeConnection(conn);
-        } catch (SQLRecoverableException e) {
-            Assert.assertNull(conn);
-            Assert.assertEquals(SQLRecoverableException.class, e.getClass());
-        }
-    }
-
-    @Test
-    public void testNewCloseStatements() throws SQLException {
-        when(conn.isClosed()).thenReturn(false);
-        DatabaseUtil.close(conn, preparedStatement);
-    }
-
-    @Test
-    public void testNewClosePreparedStatementHandlesSQLRecoverableException() {
-        boolean isThrown = false;
-        try {
-            Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
-            DatabaseUtil.close(conn, preparedStatement);
-        } catch (SQLRecoverableException e) {
-            // this is expected
-            e.printStackTrace();
-            isThrown = true;
-            Assert.assertTrue(isThrown);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // this shouldn't happen
-            Assert.assertTrue(false);
-        }
-        Assert.assertNotNull(preparedStatement);
+            System.out.println("Expected error thrown in sqlerecoverable handler");// +  e.getMessage());
+            Assert.assertNotNull(conn);
     }
 
     @Test
@@ -177,6 +158,7 @@ public class DatabaseUtilTest {
 
     @Test
     public void testCreateUserStoreDataSource() throws Exception {
+
         when(realmConfig.isLogAbandoned()).thenReturn(true);
         when(realmConfig.isRemoveAbandoned()).thenReturn(true);
         when(realmConfig.getRemoveAbandonedTimeout()).thenReturn(100);
@@ -201,6 +183,7 @@ public class DatabaseUtilTest {
         Assert.assertEquals(realmConfig.isRemoveAbandoned(), poolProperties.isRemoveAbandoned());
         Assert.assertEquals(realmConfig.getRemoveAbandonedTimeout(), poolProperties.getRemoveAbandonedTimeout());
     }
+
 
     @Test
     public void getStringValuesFromDatabaseShouldReturnValues() throws Exception{
@@ -263,7 +246,6 @@ public class DatabaseUtilTest {
 
         public ResultSetMocker invoke() throws SQLException {
 
-            sqlStmt = "SELECT  * FROM people WHHERE firstname=? AND lastname=? AND id=?";
 
             params = new ArrayList<>();
             params.add("Jack");
