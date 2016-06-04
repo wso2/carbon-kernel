@@ -28,7 +28,6 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -254,7 +253,7 @@ public class DatabaseUtil {
             poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(
             		JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
         }
-        
+
         dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
         return dataSource;
     }
@@ -296,6 +295,8 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
 
+        } finally {
+            close(dbConnection);
         }
     }
 
@@ -303,7 +304,7 @@ public class DatabaseUtil {
     public static String[] getStringValuesFromDatabaseForInternalRoles(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
         String[] values = new String[0];
-
+        //PreparedStatement prepStmt = null;
         try(PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt) ) {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -338,6 +339,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        }finally {
+            close(dbConnection);
         }
     }
 
@@ -370,6 +373,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        }finally {
+            close(dbConnection);
         }
     }
 
@@ -428,9 +433,7 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {  // can remove since this is not needed with try-with-resources -
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
+            close(dbConnection);
         }
     }
 
@@ -471,9 +474,7 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
+            close(dbConnection);
         }
     }
 
@@ -512,7 +513,6 @@ public class DatabaseUtil {
             if (localConnection) {
                 dbConnection.commit();
             }
-
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -521,7 +521,7 @@ public class DatabaseUtil {
             throw new UserStoreException(errorMessage, e);
         } finally {
             if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
+				close(dbConnection);
             }
         }
     }
@@ -559,6 +559,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            close(dbConnection);
         }
     }
 
@@ -575,51 +577,40 @@ public class DatabaseUtil {
         close(dbConnection);
     }
 
-    // Although using generics is a bit more cryptic to the uninitiated, this method ensures type safety
-    // and flexibility without the horrible cast conversions in
-    // favor of the usage of interfaces.
-    // Only java.sql types can be used as parameters.
-    //
-    // Only  java.sql object types intersect both Wrapper and AutoCloseable interfaces
-    // Types that are allowed as arguments: CachedRowSet, CallableStatement, Connection, DatabaseMetaData, DataSource,
-    // FilteredRowSet, JdbcRowSet, JoinRowSet, ParameterMetaData,
-    // PreparedStatement, ResultSet, ResultSetMetaData, RowSet, RowSetMetaData, Statement, SyncResolver, WebRowSet
+    /**
+     *
+     * @param dbObject -  java.sql object types that implement both Wrapper and AutoCloseable interfaces
+     */
     private static <AutoClosableWrapper extends AutoCloseable & Wrapper> void close(AutoClosableWrapper dbObject) {
         if (dbObject != null) {
 
             try {
                 dbObject.close();
             } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(dbObject, ex, true);
+                handleSQLRecoverableException(dbObject, ex);
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             } catch (Exception e) {
                 log.error("Generic error occurred during close operation" + e.getMessage(), e);
+            } finally {
+                dbObject = null;
             }
         }
     }
 
-    private static void handleSQLRecoverableException(AutoCloseable dbObject, SQLRecoverableException ex, boolean retry){
-        log.error("SQLRecoverable exception encountered.  Attempting recovery.", ex);
-
-        try{
+    private static <AutoClosableWrapper extends AutoCloseable & Wrapper>  void handleSQLRecoverableException(AutoClosableWrapper dbObject, SQLRecoverableException recException){
+        try {
+            log.error("SQLRecoverable exception encountered.  Attempting recovery.", recException);
             dbObject.close();
-        } catch (SQLRecoverableException recException){
-            // retry on first failure only
-            if(retry) {
-                try (Connection connection = getDBConnection(dataSource)){
-                handleSQLRecoverableException(connection, recException, false);
-                } catch (SQLException | NullPointerException nullOrSqlException){
-                    if(dataSource == null)
-                        log.error("Null encountered during recovery", nullOrSqlException);
-                    else
-                        log.error("Recovery failed for SQLRecoverableError - exiting recovery.", nullOrSqlException);
-                }
-            }else{
-                log.error("Recovery failed for SQLRecoverableError - exiting recovery.", recException);
+            try (Connection connection = getDBConnection(dataSource)) {
+                connection.close();
+            } catch (SQLException | NullPointerException e) {
+                if (dataSource == null)
+                    log.error("Null encountered during sqlrecoverable error recovery", e);
+                else
+                    log.error("Recovery failed for SQLRecoverableError - exiting recovery.", e);
             }
-        }
-        catch (SQLException sqlEx){
+        } catch (SQLException sqlEx){
             log.error("Error occurred during close operation  - continuing with errors" + sqlEx.getMessage(), sqlEx);
         } catch (Exception e) {
             log.error("Generic error occurred during close operation" + e.getMessage(), e);
