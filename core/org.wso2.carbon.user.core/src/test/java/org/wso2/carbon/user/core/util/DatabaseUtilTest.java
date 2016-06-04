@@ -53,7 +53,6 @@ public class DatabaseUtilTest {
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
 
-
     @Test
     public void getDBConnectionShouldNotBeNull() throws Exception {
         // not a true unit test.
@@ -69,6 +68,7 @@ public class DatabaseUtilTest {
 
     @Test
     public void closeConnectionShouldNotBeNull() throws SQLException {
+
         Mockito.doAnswer(RETURNS_MOCKS).when(datasource).getConnection();
         DatabaseUtil.closeConnection(conn);
         assertNotNull(conn);
@@ -127,6 +127,14 @@ public class DatabaseUtilTest {
 
     @Test
     public void testCloseStatements() throws SQLException {
+
+        when(conn.isClosed()).thenReturn(false);
+        DatabaseUtil.closeAllConnections(conn, preparedStatement);
+    }
+
+    @Test
+    public void testClosePreparedStatementHandlesSQLRecoverableException() {
+
         boolean isThrown = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
@@ -169,7 +177,6 @@ public class DatabaseUtilTest {
         Assert.assertEquals(100, realmConfig.getRemoveAbandonedTimeout());
         Assert.assertNotNull(datasource.getConnection());
     }
-
     @Test
     public void testNullCreateUserStoreDataSource() throws Exception {
 
@@ -183,7 +190,6 @@ public class DatabaseUtilTest {
         Assert.assertEquals(realmConfig.isRemoveAbandoned(), poolProperties.isRemoveAbandoned());
         Assert.assertEquals(realmConfig.getRemoveAbandonedTimeout(), poolProperties.getRemoveAbandonedTimeout());
     }
-
 
     @Test
     public void getStringValuesFromDatabaseShouldReturnValues() throws Exception{
@@ -220,8 +226,6 @@ public class DatabaseUtilTest {
         Assert.assertTrue(System.getProperties().getProperty("java.version").contains("1.7"));
     }
 
-
-
     private class ResultSetMocker {
 
         private String sqlStmt;
@@ -246,6 +250,7 @@ public class DatabaseUtilTest {
 
         public ResultSetMocker invoke() throws SQLException {
 
+//            sqlStmt = "SELECT  * FROM people WHHERE firstname=? AND lastname=? AND id=?";
 
             params = new ArrayList<>();
             params.add("Jack");
