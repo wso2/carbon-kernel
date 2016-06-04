@@ -2,7 +2,6 @@ package org.wso2.carbon.user.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,17 +41,6 @@ public class DatabaseUtilTest {
         when(statement.getResultSet()).thenReturn(resultSetMock);
     }
 
-    //for testing
-    public DataSource getDBConnection() throws Exception {
-        // not a true unit test.
-        String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
-        String driverName = "org.h2.Driver";
-        PoolProperties poolProperties = new PoolProperties();
-        poolProperties.setUrl(url);
-        poolProperties.setDriverClassName(driverName);
-        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
-    }
-
     @Test
     public void getDBConnectionShouldNotBeNull() throws Exception {
         // not a true unit test.
@@ -77,10 +65,10 @@ public class DatabaseUtilTest {
     @Test
     public void closeConnectionShouldHandlesSQLRecoverableException() throws Exception {
 
-        Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
-        DatabaseUtil.closeConnection(conn);
-        System.out.println("Expected error thrown in sqlerecoverable handler");
-        Assert.assertNotNull(conn);
+            Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
+            DatabaseUtil.closeConnection(conn);
+            System.out.println("Expected error thrown in sqlerecoverable handler");
+            Assert.assertNotNull(conn);
     }
 
     @Test
@@ -118,14 +106,6 @@ public class DatabaseUtilTest {
         }
     }
     @Test
-    public void testCloseConnectionHandlesSQLRecoverableException() throws Exception {
-        Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
-        DatabaseUtil.closeConnection(conn);
-        System.out.println("Expected error thrown in sqlerecoverable handler");// +  e.getMessage());
-        Assert.assertNotNull(conn);
-    }
-
-    @Test
     public void testCloseStatements() throws SQLException {
 
         when(conn.isClosed()).thenReturn(false);
@@ -142,14 +122,14 @@ public class DatabaseUtilTest {
         } catch (SQLRecoverableException e) {
             // this is expected
             isThrown = true;
-            Assert.assertTrue(isThrown);
+           Assert.assertTrue(isThrown);
 
         } catch (SQLException e) {
             e.printStackTrace();
             // this shouldn't happen
             Assert.assertTrue(false);
         }
-        Assert.assertNotNull(preparedStatement);
+       Assert.assertNotNull(preparedStatement);
     }
 
     @Test
@@ -226,6 +206,17 @@ public class DatabaseUtilTest {
         Assert.assertTrue(System.getProperties().getProperty("java.version").contains("1.7"));
     }
 
+    public DataSource getDBConnection() throws Exception {
+
+        // not a true unit test.
+        String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
+        String driverName = "org.h2.Driver";
+        PoolProperties poolProperties = new PoolProperties();
+        poolProperties.setUrl(url);
+        poolProperties.setDriverClassName(driverName);
+        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+    }
+
     private class ResultSetMocker {
 
         private String sqlStmt;
@@ -250,7 +241,7 @@ public class DatabaseUtilTest {
 
         public ResultSetMocker invoke() throws SQLException {
 
-//            sqlStmt = "SELECT  * FROM people WHHERE firstname=? AND lastname=? AND id=?";
+            sqlStmt = "SELECT  * FROM people WHHERE firstname=? AND lastname=? AND id=?";
 
             params = new ArrayList<>();
             params.add("Jack");
