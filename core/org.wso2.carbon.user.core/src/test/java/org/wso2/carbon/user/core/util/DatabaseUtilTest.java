@@ -41,17 +41,6 @@ public class DatabaseUtilTest {
         when(statement.getResultSet()).thenReturn(resultSetMock);
     }
 
-    //for testing
-    public DataSource getDBConnection() throws Exception {
-        // not a true unit test.
-        String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
-        String driverName = "org.h2.Driver";
-        PoolProperties poolProperties = new PoolProperties();
-        poolProperties.setUrl(url);
-        poolProperties.setDriverClassName(driverName);
-        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
-    }
-
     @Test
     public void getDBConnectionShouldNotBeNull() throws Exception {
         // not a true unit test.
@@ -67,6 +56,7 @@ public class DatabaseUtilTest {
 
     @Test
     public void closeConnectionShouldNotBeNull() throws SQLException {
+
         Mockito.doAnswer(RETURNS_MOCKS).when(datasource).getConnection();
         DatabaseUtil.closeConnection(conn);
         assertNotNull(conn);
@@ -74,10 +64,10 @@ public class DatabaseUtilTest {
 
     @Test
     public void closeConnectionShouldHandlesSQLRecoverableException() throws Exception {
-        //try {
+
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
             DatabaseUtil.closeConnection(conn);
-            System.out.println("Expected error thrown in sqlerecoverable handler");// +  e.getMessage());
+            System.out.println("Expected error thrown in sqlerecoverable handler");
             Assert.assertNotNull(conn);
     }
 
@@ -89,6 +79,7 @@ public class DatabaseUtilTest {
 
     @Test
     public void newClosePreparedStatementShouldHandlesSQLRecoverableException() {
+
         boolean isThrown = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
@@ -102,8 +93,10 @@ public class DatabaseUtilTest {
         }
         Assert.assertNotNull(preparedStatement);
     }
+
     @Test
     public void testNewCloseResultSetHandlesSQLRecoverableException() {
+
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(resultSetMock).close();
             DatabaseUtil.close(conn, resultSetMock, preparedStatement);
@@ -112,15 +105,16 @@ public class DatabaseUtilTest {
             log.error("Unexpected error thrown in sqlerecoverable handler" +  e.getMessage(), e);
         }
     }
-
     @Test
     public void testCloseStatements() throws SQLException {
+
         when(conn.isClosed()).thenReturn(false);
         DatabaseUtil.closeAllConnections(conn, preparedStatement);
     }
 
     @Test
     public void testClosePreparedStatementHandlesSQLRecoverableException() {
+
         boolean isThrown = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
@@ -140,6 +134,7 @@ public class DatabaseUtilTest {
 
     @Test
     public void testCloseResultSetHandlesSQLRecoverableException() {
+
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(resultSetMock).close();
             DatabaseUtil.closeAllConnections(conn, resultSetMock, preparedStatement);
@@ -148,6 +143,7 @@ public class DatabaseUtilTest {
             log.error("Unexpected error thrown in sqlerecoverable handler" +  e.getMessage(), e);
         }
     }
+
     @Test
     public void testCreateUserStoreDataSource() throws Exception {
 
@@ -161,7 +157,6 @@ public class DatabaseUtilTest {
         Assert.assertEquals(100, realmConfig.getRemoveAbandonedTimeout());
         Assert.assertNotNull(datasource.getConnection());
     }
-
     @Test
     public void testNullCreateUserStoreDataSource() throws Exception {
 
@@ -176,28 +171,8 @@ public class DatabaseUtilTest {
         Assert.assertEquals(realmConfig.getRemoveAbandonedTimeout(), poolProperties.getRemoveAbandonedTimeout());
     }
 
-
     @Test
     public void getStringValuesFromDatabaseShouldReturnValues() throws Exception{
-
-//        String sqlStmt = "update people set firstname=? , lastname=? where id=?";
-//
-//        List<Object> params = new ArrayList<>();
-//        params.add("Jack");
-//        params.add("Smith");
-//        params.add(100);
-//
-//        List<Object> resultSetAnswers = new ArrayList<>();
-//        resultSetAnswers.add("Value1");
-//        resultSetAnswers.add("Value2");
-//        resultSetAnswers.add("100");
-//
-//        when(conn.prepareStatement(sqlStmt)).thenReturn(preparedStatement);
-//        when(preparedStatement.executeQuery()).thenReturn(resultSetMock);
-//        when(resultSetMock.getString(1)).thenReturn( (String) resultSetAnswers.get(0), (String) resultSetAnswers.get(1), (String) resultSetAnswers.get(2));
-//
-//        Mockito.when(resultSetMock.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
-//        Mockito.doReturn(resultSetMock).when(callableStatementMock).getResultSet();
 
         ResultSetMocker resultSetMocker = new ResultSetMocker().invoke();
         String sqlStmt = resultSetMocker.getSqlStmt();
@@ -211,8 +186,10 @@ public class DatabaseUtilTest {
         Assert.assertEquals(resultSetAnswers.get(2), results[2]);
     }
 
+
     @Test (expected = UserStoreException.class)
     public void getStringValuesFromDatabaseShouldHandleSQLRecoverableException() throws Exception{
+
         // cannot handle sqlerecoverable for resultsets
         ResultSetMocker resultSetMocker = new ResultSetMocker().invoke();
         String sqlStmt = resultSetMocker.getSqlStmt();
@@ -225,10 +202,23 @@ public class DatabaseUtilTest {
 
     @Test
     public void getCurrentRuntime(){
+
         Assert.assertTrue(System.getProperties().getProperty("java.version").contains("1.7"));
     }
 
+    public DataSource getDBConnection() throws Exception {
+
+        // not a true unit test.
+        String url = "jdbc:h2:target/ReadOnlyTest/CARBON_TEST";
+        String driverName = "org.h2.Driver";
+        PoolProperties poolProperties = new PoolProperties();
+        poolProperties.setUrl(url);
+        poolProperties.setDriverClassName(driverName);
+        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+    }
+
     private class ResultSetMocker {
+
         private String sqlStmt;
         private List<Object> params;
         private List<Object> resultSetAnswers;
@@ -250,7 +240,7 @@ public class DatabaseUtilTest {
         }
 
         public ResultSetMocker invoke() throws SQLException {
-//            sqlStmt = "update people set firstname=? , lastname=? where id=?";
+
             sqlStmt = "SELECT  * FROM people WHHERE firstname=? AND lastname=? AND id=?";
 
             params = new ArrayList<>();

@@ -40,6 +40,8 @@ public class DatabaseUtil {
     private static final int DEFAULT_MIN_IDLE = 5;
     private static final int DEFAULT_MAX_IDLE = 6;
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
+
+
     private static DataSource dataSource = null;
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
@@ -295,6 +297,8 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
 
+        }finally {
+            close(dbConnection);
         }
     }
 
@@ -337,6 +341,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        }finally {
+            close(dbConnection);
         }
     }
 
@@ -369,6 +375,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        }finally {
+            close(dbConnection);
         }
     }
 
@@ -427,9 +435,7 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {  // can remove since this is not needed with try-with-resources -
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
+            close(dbConnection);
         }
     }
 
@@ -470,9 +476,7 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
+            close(dbConnection);
         }
     }
 
@@ -519,9 +523,7 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
+            close(dbConnection);
         }
     }
 
@@ -557,6 +559,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            close(dbConnection);
         }
     }
 
@@ -588,6 +592,7 @@ public class DatabaseUtil {
 
             try {
                 dbObject.close();
+                dbObject = null;
             } catch (SQLRecoverableException ex) {
                 handleSQLRecoverableException(dbObject, ex, true);
             } catch (SQLException e) {
@@ -610,7 +615,7 @@ public class DatabaseUtil {
                 handleSQLRecoverableException(connection, recException, false);
                 } catch (SQLException | NullPointerException nullOrSqlException){
                     if(dataSource == null)
-                        log.error("Null encountered during recovery", nullOrSqlException);
+                        log.error("Null encountered during sqlrecoverable error recovery", nullOrSqlException);
                     else
                         log.error("Recovery failed for SQLRecoverableError - exiting recovery.", nullOrSqlException);
                 }
