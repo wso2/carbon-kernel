@@ -142,8 +142,6 @@ public class KeyStoreUtil {
                 }
             }
 
-        } else {
-            //todo handling non-wso2 environments
         }
 
         if (keyStoreInformation == null || keyStoreInformation.getLocation() == null ||
