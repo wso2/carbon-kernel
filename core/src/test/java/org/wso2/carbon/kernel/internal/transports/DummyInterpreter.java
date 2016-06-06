@@ -66,31 +66,31 @@ public class DummyInterpreter implements CommandInterpreter {
 
     @Override
     public void print(Object o) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void println() {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void println(Object o) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void printStackTrace(Throwable throwable) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void printDictionary(Dictionary<?, ?> dictionary, String s) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void printBundleResource(Bundle bundle, String s) {
-
+        throw new UnsupportedOperationException();
     }
 }
