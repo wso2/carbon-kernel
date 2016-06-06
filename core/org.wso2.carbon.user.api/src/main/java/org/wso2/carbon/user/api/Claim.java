@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.user.api;
 
+import java.io.Serializable;
+
 /**
  * Represents a claim that is associated with an entity usually a user. Claims
  * describe the capabilities associated with some entity in the system. A claim
@@ -23,7 +25,7 @@ package org.wso2.carbon.user.api;
  * claim has a uri, display name, value and many other properties. This class
  * models the properties of a claim.
  */
-public class Claim {
+public class Claim implements Serializable {
 
     /**
      * An URI to uniquely identify a given claim. This is the one used by the
