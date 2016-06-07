@@ -549,7 +549,6 @@ public class HybridRoleManager {
         // At this moment Role name doesn't contain the Domain prefix.
         // clearRoleAuthorization() expects domain qualified name.
         // Hence we add the "Internal" Domain name explicitly here.
-
         if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             roleName = UserCoreUtil.addDomainToName(roleName, UserCoreConstants.INTERNAL_DOMAIN);
         }
