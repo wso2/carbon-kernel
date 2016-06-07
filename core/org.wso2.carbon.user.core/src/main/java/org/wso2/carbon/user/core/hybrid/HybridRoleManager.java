@@ -525,15 +525,6 @@ public class HybridRoleManager {
             throw new UserStoreException("Invalid operation");
         }
 
-        //In UM_HYBRID_ROLE Table; Internal Roles, don't contain the Domain prefix
-        // (i.e 'Internal' prefix in Internal/role1); hence we remove the domain name : IDENTITY-4656
-        String domain;
-        if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-            domain = UserCoreConstants.INTERNAL_DOMAIN;
-        } else {
-            domain = UserCoreUtil.extractDomainFromName(roleName);
-        }
-
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
@@ -554,8 +545,17 @@ public class HybridRoleManager {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
 
-        // Before removing the specific permissions of the internal role; "Internal"
-        // role will be appended again : IDENTITY-4656
+        //In UM_ROLE_PERMISSION Table; the roles have associated Domain id.
+        // In order to derive the Domain id from the role we need to
+        //provide role name with domain prefix. At this moment role name
+        //doesn't contain domain prefix;hence we add it explicitly here.
+        String domain;
+        if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            domain = UserCoreConstants.INTERNAL_DOMAIN;
+        } else {
+            domain = UserCoreUtil.extractDomainFromName(roleName);
+        }
+
         if (domain.equalsIgnoreCase(UserCoreConstants.INTERNAL_DOMAIN)) {
             roleName = UserCoreUtil.addDomainToName(roleName, UserCoreConstants.INTERNAL_DOMAIN);
         }
