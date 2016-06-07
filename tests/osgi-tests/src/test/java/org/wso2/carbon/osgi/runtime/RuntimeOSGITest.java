@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.container.CarbonContainerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

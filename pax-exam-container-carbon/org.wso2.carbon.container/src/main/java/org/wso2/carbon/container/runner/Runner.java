@@ -1,4 +1,4 @@
-package org.wso2.carbon.osgi.test.util.container.runner;
+package org.wso2.carbon.container.runner;
 
 import java.io.File;
 import java.nio.file.Path;

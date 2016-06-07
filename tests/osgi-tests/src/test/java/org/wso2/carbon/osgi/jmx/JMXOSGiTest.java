@@ -20,8 +20,6 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.spi.reactors.PerMethod;
-import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -29,8 +27,8 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
-import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CarbonDistributionConfigurationFileCopyOption;
 
 import javax.inject.Inject;
 import javax.management.MBeanServer;
@@ -57,7 +55,7 @@ public class JMXOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
+    private CarbonDistributionConfigurationFileCopyOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
@@ -66,7 +64,7 @@ public class JMXOSGiTest {
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
 
-        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+        return new CarbonDistributionConfigurationFileCopyOption(carbonYmlFilePath,
                 Paths.get("conf", "carbon.yml"));
     }
 

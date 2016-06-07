@@ -14,13 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.osgi.test.util.container.runner;
+package org.wso2.carbon.container.runner;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 public class CarbonRunner implements Runner {
 

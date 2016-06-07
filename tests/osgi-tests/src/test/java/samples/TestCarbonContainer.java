@@ -1,11 +1,10 @@
-package org.wso2.carbon.osgi;
+package samples;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -15,18 +14,16 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
-import org.wso2.carbon.osgi.test.util.container.options.EnvironmentPropertyOption;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.EnvironmentPropertyOption;
 
 import javax.inject.Inject;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.repository;
-import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
-import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.keepRuntimeDirectory;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -49,10 +46,9 @@ public class TestCarbonContainer {
     public Option[] config() {
 
                 return new Option[] {
-//                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
                         CarbonDistributionConfiguration().distributionMavenURL(
                                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                                        .version("5.1.0-SNAPSHOT")),
+                                        .versionAsInProject()),
                         keepRuntimeDirectory(),
                         addCoverageOption()
 //                                        CarbonDistributionOption.debugConfiguration("5005")

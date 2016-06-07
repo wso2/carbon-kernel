@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.osgi.test.util.container.runner;
+package org.wso2.carbon.container.runner;
 
 import org.ops4j.io.Pipe;
 
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InternalRunner {
 
@@ -52,9 +53,7 @@ public class InternalRunner {
     private String[] createEnvironmentVars(String[] envOptions) {
         List<String> env = new ArrayList<>();
         Map<String, String> getenv = System.getenv();
-        for (String key : getenv.keySet()) {
-            env.add(key + "=" + getenv.get(key));
-        }
+        env.addAll(getenv.keySet().stream().map(key -> key + "=" + getenv.get(key)).collect(Collectors.toList()));
         if (envOptions != null) {
             Collections.addAll(env, envOptions);
         }

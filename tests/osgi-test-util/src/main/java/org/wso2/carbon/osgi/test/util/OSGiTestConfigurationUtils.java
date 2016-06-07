@@ -18,20 +18,13 @@
 package org.wso2.carbon.osgi.test.util;
 
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.osgi.test.util.container.options.EnvironmentPropertyOption;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.repositories;
 import static org.ops4j.pax.exam.CoreOptions.repository;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
-import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.debugConfiguration;
-import static org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption.keepRuntimeDirectory;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
 
 /**
  * This class contains utility methods to create PAX Exam options required to boot up a Carbon Kernel with user defined
@@ -172,21 +165,10 @@ public class OSGiTestConfigurationUtils {
         optionList.add(repository("http://maven.wso2.org/nexus/content/groups/wso2-public"));
         optionList.add(CarbonDistributionConfiguration().distributionMavenURL(
                         maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                                .version("5.1.0-SNAPSHOT")));
+                                .versionAsInProject()));
 //        optionList.add(debugConfiguration("5005"));
 //        optionList.add(keepRuntimeDirectory());
-        optionList.add(addCoverageOption());
 
         return optionList;
-    }
-
-    private static EnvironmentPropertyOption addCoverageOption(){
-        String coverageCommand = System.getProperty("coverage.command");
-        if(coverageCommand!=null) {
-            return new EnvironmentPropertyOption("JAVA_OPTS=" + coverageCommand);
-        }
-        else{
-            return null;
-        }
     }
 }

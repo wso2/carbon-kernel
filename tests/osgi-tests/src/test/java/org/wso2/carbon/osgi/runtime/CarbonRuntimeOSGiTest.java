@@ -33,8 +33,8 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
-import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CarbonDistributionConfigurationFileCopyOption;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
@@ -109,7 +109,7 @@ public class CarbonRuntimeOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
+    private CarbonDistributionConfigurationFileCopyOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
@@ -117,7 +117,7 @@ public class CarbonRuntimeOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+        return new CarbonDistributionConfigurationFileCopyOption(carbonYmlFilePath,
                 Paths.get("conf", "carbon.yml"));
     }
 }

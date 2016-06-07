@@ -27,7 +27,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.sample.repository.mgt.RepositoryManager;
 
 import java.util.ArrayList;

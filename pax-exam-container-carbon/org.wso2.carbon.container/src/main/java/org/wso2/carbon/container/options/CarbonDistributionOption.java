@@ -1,4 +1,4 @@
-package org.wso2.carbon.osgi.test.util.container.options;
+package org.wso2.carbon.container.options;
 
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.extra.VMOption;

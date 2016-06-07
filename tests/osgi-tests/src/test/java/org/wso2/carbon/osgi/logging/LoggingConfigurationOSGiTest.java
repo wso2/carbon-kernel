@@ -33,9 +33,9 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
-import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationOption;
-import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionOption;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CarbonDistributionConfigurationOption;
+import org.wso2.carbon.container.options.CarbonDistributionOption;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -84,7 +84,7 @@ public class LoggingConfigurationOSGiTest {
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = Paths.get("../../").toString();
+            basedir = Paths.get("..","..").toString();
         }
         loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }

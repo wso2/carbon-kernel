@@ -13,7 +13,7 @@ import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
+import org.wso2.carbon.container.CarbonContainerFactory;
 
 import javax.inject.Inject;
 

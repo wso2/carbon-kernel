@@ -37,7 +37,8 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
      */
     public Option[] createConfiguration() {
         //setting up the environment
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        return optionList.toArray(new Option[optionList.size()]);
+//        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+//        return optionList.toArray(new Option[optionList.size()]);
+        return null;
     }
 }

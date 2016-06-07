@@ -20,11 +20,11 @@ limitations under the License.
 <suite name="Carbon-Kernel-Core_OSGI-Test-Suite">
     <test name="carbon-core-osgi-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>
-            <class name="org.wso2.carbon.osgi.BaseOSGiTest"/>
+            <!--<class name="org.wso2.carbon.osgi.jmx.JMXOSGiTest"/>-->
+            <!--<class name="org.wso2.carbon.osgi.BaseOSGiTest"/>-->
 
             <!--<class name="org.wso2.carbon.osgi.logging.LoggingConfigurationOSGiTest"/>-->
-            <!--&lt;!&ndash;<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;&lt;!&ndash;<class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest"/>&ndash;&gt;&ndash;&gt;-->
 
             <!--<class name="org.wso2.carbon.osgi.runtime.CarbonRuntimeOSGiTest"/>-->
             <!--<class name="org.wso2.carbon.osgi.runtime.CustomRuntimeOSGiTest"/>-->
@@ -43,7 +43,13 @@ limitations under the License.
             <!--<class name="org.wso2.carbon.osgi.startupresolver.MultipleCapabilitiesForCapabilityListenerOSGiTest"/>-->
             <!--&lt;!&ndash;keep this test as the last since there is a issue in windows intermittently&ndash;&gt;-->
             <!--<class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>-->
-            <!--<class name="org.wso2.carbon.osgi.TestCarbonContainer"/>-->
+
+            <!--Sample Test Classes for pax exam container-->
+            <class name="samples.Sample1"/>
+            <class name="samples.Sample2"/>
+            <!--<class name="samples.Sample3"/>-->
+            <class name="samples.Sample4"/>
+            <!--<class name="samples.Sample5"/>-->
         </classes>
     </test>
 </suite>

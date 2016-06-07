@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CarbonDistributionConfigurationFileCopyOption;
 import org.wso2.carbon.context.test.CarbonContextInvoker;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.osgi.test.util.container.CarbonContainerFactory;
-import org.wso2.carbon.osgi.test.util.container.options.CarbonDistributionConfigurationFileReplacementOption;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
@@ -134,7 +134,7 @@ public class CarbonContextOSGiTest {
     /**
      * Replace the existing carbon.yaml file with the file found at runtime resources directory.
      */
-    private CarbonDistributionConfigurationFileReplacementOption copyCarbonYAMLOption() {
+    private CarbonDistributionConfigurationFileCopyOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
@@ -142,7 +142,7 @@ public class CarbonContextOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yml");
-        return new CarbonDistributionConfigurationFileReplacementOption(carbonYmlFilePath,
+        return new CarbonDistributionConfigurationFileCopyOption(carbonYmlFilePath,
                 Paths.get("conf", "carbon.yml"));
     }
 }
