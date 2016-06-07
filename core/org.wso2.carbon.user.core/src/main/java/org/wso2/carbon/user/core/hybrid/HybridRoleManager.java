@@ -545,18 +545,12 @@ public class HybridRoleManager {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
 
-        //In UM_ROLE_PERMISSION Table; the roles have associated Domain id.
-        // In order to derive the Domain id from the role we need to
-        //provide role name with domain prefix. At this moment role name
-        //doesn't contain domain prefix;hence we add it explicitly here.
-        String domain;
-        if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-            domain = UserCoreConstants.INTERNAL_DOMAIN;
-        } else {
-            domain = UserCoreUtil.extractDomainFromName(roleName);
-        }
+        // UM_ROLE_PERMISSION Table, roles are associated with Domain ID.
+        // At this moment Role name doesn't contain the Domain prefix.
+        // clearRoleAuthorization() expects domain qualified name.
+        // Hence we add the "Internal" Domain name explicitly here.
 
-        if (domain.equalsIgnoreCase(UserCoreConstants.INTERNAL_DOMAIN)) {
+        if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             roleName = UserCoreUtil.addDomainToName(roleName, UserCoreConstants.INTERNAL_DOMAIN);
         }
         // also need to clear role authorization
