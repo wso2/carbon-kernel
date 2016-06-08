@@ -174,15 +174,15 @@ public class PermissionTest extends BaseTestCase {
         AuthorizationManager authManager = realm.getAuthorizationManager();
         UserStoreManager userStoreManager = realm.getUserStoreManager();
 
-        Permission[] primaryRolepermisions = new Permission[2];
-        primaryRolepermisions[0] = new Permission("high security", "read");
-        primaryRolepermisions[1] = new Permission("low security", "write");
+        Permission[] primaryRolepermissions = new Permission[2];
+        primaryRolepermissions[0] = new Permission("high security", "read");
+        primaryRolepermissions[1] = new Permission("low security", "write");
 
-        Permission[] internalRolePermisions = new Permission[1];
-        internalRolePermisions[0] = new Permission("low security", "read");
+        Permission[] internalRolePermissions = new Permission[1];
+        internalRolePermissions[0] = new Permission("low security", "read");
 
-        userStoreManager.addRole("roleK", null, primaryRolepermisions);
-        userStoreManager.addRole("Internal/roleK", null, internalRolePermisions);
+        userStoreManager.addRole("roleK", null, primaryRolepermissions);
+        userStoreManager.addRole("Internal/roleK", null, internalRolePermissions);
 
         userStoreManager.deleteRole("Internal/roleK");
         assertTrue(authManager.isRoleAuthorized("roleK", "high security", "read"));
