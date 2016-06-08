@@ -544,6 +544,14 @@ public class HybridRoleManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+
+        // UM_ROLE_PERMISSION Table, roles are associated with Domain ID.
+        // At this moment Role name doesn't contain the Domain prefix.
+        // clearRoleAuthorization() expects domain qualified name.
+        // Hence we add the "Internal" Domain name explicitly here.
+        if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            roleName = UserCoreUtil.addDomainToName(roleName, UserCoreConstants.INTERNAL_DOMAIN);
+        }
         // also need to clear role authorization
         userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
     }
