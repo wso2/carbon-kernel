@@ -22,6 +22,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
+import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -51,6 +52,7 @@ public class PermissionTest extends BaseTestCase {
         checkPermission();
         checkCamelCasePermissionsForRole();
         checkCamelCasePermissionsForRoleAfterClearAuthorization();
+        checkPrimaryRolePermissionAfterDeletingInternalRole();
     }
 
     public void initRealmStuff() throws Exception {
@@ -160,4 +162,30 @@ public class PermissionTest extends BaseTestCase {
 
         assertFalse(authManager.isRoleAuthorized("roleB", "/top/wso2/bizzness", "read"));
     }
+
+    /**
+     * Check permissions of the primary-Role after subsequently deleting the
+     * internal role with the same name.
+     *
+     * @throws Exception
+     */
+    public void checkPrimaryRolePermissionAfterDeletingInternalRole() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        Permission[] primaryRolepermisions = new Permission[2];
+        primaryRolepermisions[0] = new Permission("high security", "read");
+        primaryRolepermisions[1] = new Permission("low security", "write");
+
+        Permission[] internalRolePermisions = new Permission[1];
+        internalRolePermisions[0] = new Permission("low security", "read");
+
+        userStoreManager.addRole("roleK", null, primaryRolepermisions);
+        userStoreManager.addRole("Internal/roleK", null, internalRolePermisions);
+
+        userStoreManager.deleteRole("Internal/roleK");
+        assertTrue(authManager.isRoleAuthorized("roleK", "high security", "read"));
+    }
+
 }
