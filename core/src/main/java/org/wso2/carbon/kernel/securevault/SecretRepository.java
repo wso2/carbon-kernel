@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.kernel.securevault;
 
-import java.util.Map;
 
 /**
  * Created by nipuni on 6/6/16. //todo
@@ -26,9 +25,9 @@ public interface SecretRepository {
     /**
      * Initializes the repository based on provided configuration
      *
-     * @param keystoreConfiguration Configuration for keystore.
+     * @param keyStoreInformation Configuration for keystore.
      */
-    void init(Map<String, Object> keystoreConfiguration);
+    void init(KeyStoreInformation keyStoreInformation);
 
     /**
      * Returns the secret of provided alias name . An alias represents the logical name

@@ -16,9 +16,6 @@
 
 package org.wso2.carbon.kernel.securevault;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created by nipuni on 6/6/16. //todo
  */

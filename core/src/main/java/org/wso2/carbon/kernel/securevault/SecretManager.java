@@ -35,7 +35,7 @@ import java.util.Map;
 public class SecretManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SecretManager.class);
-    //True , if secret manage has been started up properly
+    //True , if secret manager has been started up properly.
     private boolean initialized = false;
 
 
@@ -74,66 +74,24 @@ public class SecretManager {
                 return; //todo throw exception
             }
 
-//        globalSecretProvider = MiscellaneousUtil.getProperty(configuration, PROP_SECRET_PROVIDER,null);
-//        if(globalSecretProvider==null || "".equals(globalSecretProvider)){
-//            if(logger.isDebugEnabled()){
-//                logger.debug("No global secret provider is configured.");
-//            }
-//        }
-            Map<String, Object> keyStorConfig = (Map<String, Object>) configuration.get("keystore");
+            Map<String, Object> keystoreConfig = (Map<String, Object>) configuration.get("keystore");
             Map<String, Object> secretRepositories = (Map<String, Object>) configuration.get("secretRepositories");
+
             //todo support multiple repos
             if (secretRepositories.isEmpty()) {
                 logger.debug("No secret repositories have been configured");
                 return;
             }
 
-//        //Create a KeyStore Information  for private key entry KeyStore
-//        IdentityKeyStoreInformation identityInformation =
-//                KeyStoreInformationFactory.createIdentityKeyStoreInformation(properties);
-//
-//        // Create a KeyStore Information for trusted certificate KeyStore
-//        TrustKeyStoreInformation trustInformation =
-//                KeyStoreInformationFactory.createTrustKeyStoreInformation(properties);
-//
-//        String identityKeyPass = null;
-//        String identityStorePass = null;
-//        String trustStorePass = null;
-//        if(identityInformation != null){
-//            identityKeyPass = identityInformation
-//                    .getKeyPasswordProvider().getResolvedSecret();
-//            identityStorePass = identityInformation
-//                    .getKeyStorePasswordProvider().getResolvedSecret();
-//        }
-//
-//        if(trustInformation != null){
-//            trustStorePass = trustInformation
-//                    .getKeyStorePasswordProvider().getResolvedSecret();
-//        }
-//
-//
-//        if (!validatePasswords(identityStorePass, identityKeyPass, trustStorePass)) {
-//            if (logger.isDebugEnabled()) {
-//                logger.info("Either Identity or Trust keystore password is mandatory" +
-//                        " in order to initialized secret manager.");
-//            }
-//            return;
-//        }
-//
-//        IdentityKeyStoreWrapper identityKeyStoreWrapper = new IdentityKeyStoreWrapper();
-//        identityKeyStoreWrapper.init(identityInformation, identityKeyPass);
-//
-//        TrustKeyStoreWrapper trustKeyStoreWrapper = new TrustKeyStoreWrapper();
-//        if(trustInformation != null){
-//            trustKeyStoreWrapper.init(trustInformation);
-//        }
-//
+            KeyStoreInformation keyStoreInformation =
+                    KeystoreInformationFactory.createIdentityKeyStoreInformation(keystoreConfig);
+
             for (Map.Entry<String, Object> entry : secretRepositories.entrySet()) {
                 SecretRepository secretRepository = new FileBaseSecretRepository(); //todo should be able to extend
                 LinkedHashMap<String, String> values = (LinkedHashMap<String, String>) entry.getValue();
                 secretRepository.setLocation(values.get("location"));
                 secretRepository.setProvider(values.get("provider"));
-                secretRepository.init(keyStorConfig);
+                secretRepository.init(keyStoreInformation);
             }
 
 
