@@ -4,6 +4,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
@@ -24,7 +25,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerSuite.class)
+@ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample4 {
 
@@ -42,17 +43,7 @@ public class Sample4 {
         return new Option[] { CarbonDistributionConfiguration().distributionMavenURL(
                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
                         .versionAsInProject()).unpackDirectory(Paths.get("target", "pax")),
-                addCoverageOption(),
         };
-    }
-
-    private EnvironmentPropertyOption addCoverageOption() {
-        String coverageCommand = System.getProperty(COVERAGE_COMMAND);
-        if (coverageCommand != null) {
-            return new EnvironmentPropertyOption("JAVA_OPTS=" + coverageCommand);
-        } else {
-            return null;
-        }
     }
 
         @Test
@@ -64,8 +55,9 @@ public class Sample4 {
         }
 
     @Test
-    public void testCarbonCoreBundleStatus() {
-        logger.info("Sample 4");
+    public void testSample4() {
+        logger.info("Sample 4-2");
+        logger.info(System.getProperty("carbon.home"));
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {

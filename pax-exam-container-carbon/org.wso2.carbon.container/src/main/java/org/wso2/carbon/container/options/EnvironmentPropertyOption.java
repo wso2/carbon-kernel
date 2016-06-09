@@ -1,16 +1,25 @@
 package org.wso2.carbon.container.options;
 
+import org.ops4j.lang.NullArgumentException;
 import org.ops4j.pax.exam.Option;
 
 public class EnvironmentPropertyOption implements Option {
 
-    private String option;
+    private final String key;
+    private String value;
 
-    public EnvironmentPropertyOption(String option) {
-        this.option = option;
+    public EnvironmentPropertyOption(String key) {
+        this.key = key;
+        this.value = "";
+    }
+
+    public EnvironmentPropertyOption value(String value) {
+        NullArgumentException.validateNotNull(value, "Value");
+        this.value = value;
+        return this;
     }
 
     public String getOption() {
-        return option;
+        return String.format("%s=%s", this.key, this.value);
     }
 }

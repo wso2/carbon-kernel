@@ -50,7 +50,6 @@ public class TestCarbonContainer {
                                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
                                         .versionAsInProject()),
                         keepRuntimeDirectory(),
-                        addCoverageOption()
 //                                        CarbonDistributionOption.debugConfiguration("5005")
                 };
 
@@ -99,16 +98,6 @@ public class TestCarbonContainer {
 //                                        .versionAsInProject(),
 //                //                CarbonDistributionOption.debugConfiguration("5005")
 //                        };
-    }
-
-    private EnvironmentPropertyOption addCoverageOption(){
-        String coverageCommand = System.getProperty("coverage.command");
-        if(coverageCommand!=null) {
-            return new EnvironmentPropertyOption("JAVA_OPTS=" + coverageCommand);
-        }
-        else{
-            return null;
-        }
     }
 
     @Test

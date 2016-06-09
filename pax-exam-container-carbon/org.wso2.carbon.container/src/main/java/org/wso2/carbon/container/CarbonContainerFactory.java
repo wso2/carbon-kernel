@@ -20,10 +20,8 @@ import org.kohsuke.MetaInfServices;
 import org.ops4j.pax.exam.ExamSystem;
 import org.ops4j.pax.exam.TestContainer;
 import org.ops4j.pax.exam.TestContainerFactory;
-import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 import org.wso2.carbon.container.options.CarbonDistributionConfigurationOption;
 import org.wso2.carbon.container.options.CarbonDistributionOption;
-import org.wso2.carbon.container.runner.CarbonRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +45,7 @@ public class CarbonContainerFactory implements TestContainerFactory {
         return containers.toArray(new TestContainer[containers.size()]);
     }
 
-    public CarbonDistributionConfigurationOption getDefaultConfiguration(){
+    private CarbonDistributionConfigurationOption getDefaultConfiguration(){
         String defaultDistribution = System.getProperty("pax.default.distribution");
         String[] distribution = defaultDistribution.split(":");
         return CarbonDistributionOption.CarbonDistributionConfiguration().distributionMavenURL(maven().groupId

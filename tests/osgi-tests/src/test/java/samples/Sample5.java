@@ -14,6 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CarbonDistributionExternalBundleOption;
 import org.wso2.carbon.container.options.EnvironmentPropertyOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
@@ -42,19 +43,9 @@ public class Sample5 {
         return new Option[] { CarbonDistributionConfiguration().distributionMavenURL(
                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
                         .version("5.1.0-SNAPSHOT")),
-                mavenBundle().artifactId("carbon-context-test-artifact")
-                .groupId("org.wso2.carbon").versionAsInProject(),
-                addCoverageOption(),
+                new CarbonDistributionExternalBundleOption(maven().artifactId("carbon-context-test-artifact")
+                .groupId("org.wso2.carbon").versionAsInProject()),
         };
-    }
-
-    private EnvironmentPropertyOption addCoverageOption() {
-        String coverageCommand = System.getProperty(COVERAGE_COMMAND);
-        if (coverageCommand != null) {
-            return new EnvironmentPropertyOption("JAVA_OPTS=" + coverageCommand);
-        } else {
-            return null;
-        }
     }
 
 //    @Test

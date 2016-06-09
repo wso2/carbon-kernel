@@ -26,7 +26,7 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonD
 import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerSuite.class)
+@ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample3 {
     private static final Logger logger = LoggerFactory.getLogger(Sample3.class);
@@ -40,27 +40,27 @@ public class Sample3 {
     @Configuration
     public Option[] config() {
 
-        return new Option[] {
-                CarbonDistributionConfiguration().distributionMavenURL(
-                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                                .versionAsInProject()),
-                keepRuntimeDirectory()
-        };
-
 //        return new Option[] {
-//                CarbonDistributionConfiguration().distributionDirectoryURL(
-////                Paths.get("target","wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
-//                Paths.get("/home/chanaka/Documents/WSO2/Git/C5/wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
+//                CarbonDistributionConfiguration().distributionMavenURL(
+//                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+//                                .versionAsInProject()),
 //                keepRuntimeDirectory()
 //        };
+
+        return new Option[] {
+                CarbonDistributionConfiguration().distributionDirectoryURL(
+                Paths.get("target","wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
+                keepRuntimeDirectory()
+        };
     }
 
-    //    @Test
-    //    public void testBundles() {
-    //        logger.info(bundleContext.getBundle().getSymbolicName());
-    //        logger.info(System.getProperty("carbon.home"));
-    //        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
-    //    }
+        @Test
+        public void testBundles3() {
+            logger.info("Sample 3-1");
+//            logger.info(bundleContext.getBundle().getSymbolicName());
+//            logger.info(System.getProperty("carbon.home"));
+//            Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
+        }
 
     @Test
     public void testSample3() {

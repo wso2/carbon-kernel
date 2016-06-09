@@ -83,16 +83,14 @@ public class CarbonTestContainer implements TestContainer {
             String name = system.createID(CARBON_TEST_CONTAINER);
             FreePort freePort = new FreePort(21000, 21099);
             int port = freePort.getPort();
-            logger.info("using RMI registry at port {}"+name, port);
+            logger.info("using RMI registry at port {}" + name, port);
             registry = LocateRegistry.createRegistry(port);
             String host = InetAddress.getLocalHost().getHostName();
 
             //setting RMI related properties
             ExamSystem subsystem = system.fork(options(systemProperty(RMI_HOST_PROPERTY).value(host),
                     systemProperty(RMI_PORT_PROPERTY).value(Integer.toString(port)),
-                    systemProperty(RMI_NAME_PROPERTY).value(name),
-                    systemProperty(EXAM_INJECT_PROPERTY).value("true")
-            ));
+                    systemProperty(RMI_NAME_PROPERTY).value(name), systemProperty(EXAM_INJECT_PROPERTY).value("true")));
 
             target = new RBCRemoteTarget(name, port, subsystem.getTimeout());
             System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
@@ -106,7 +104,7 @@ public class CarbonTestContainer implements TestContainer {
             } else if (carbonDistributionConfigurationOption.getDistributionZipPath() != null) {
                 Path sourceDistribution = carbonDistributionConfigurationOption.getDistributionZipPath();
                 ArchiveExtractor.extract(sourceDistribution, targetDirectory.toFile());
-            } else if(carbonDistributionConfigurationOption.getDistributionDirectoryPath() != null){
+            } else if (carbonDistributionConfigurationOption.getDistributionDirectoryPath() != null) {
                 Path sourceDirectory = carbonDistributionConfigurationOption.getDistributionDirectoryPath();
                 FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
             }
@@ -134,55 +132,12 @@ public class CarbonTestContainer implements TestContainer {
         return new File(deploy, prefix + "_" + fileName + ".jar");
     }
 
-//    private void copyPaxBundlesToDropins(Path carbonHome) {
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-lang/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-monitors/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-net/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-store/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-io/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-spi/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base-util-property/1.5.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.swissbox/pax-swissbox-core/1.8.2",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/1.8.2",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/1.8.2",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.swissbox/pax-swissbox-tracker/1.8.2",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.swissbox/pax-swissbox-framework/1.8.2",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.exam/pax-exam/4.10.0-SNAPSHOT",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.exam/pax-exam-extender-service/4.10.0-SNAPSHOT",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.exam/pax-exam-container-rbc/4.10.0-SNAPSHOT",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.exam/pax-exam-inject/4.10.0-SNAPSHOT",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.tipi/org.ops4j.pax.tipi.hamcrest.core/1.3.0.1",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.pax.tipi/org.ops4j.pax.tipi.junit/4.12.0.1",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.apache.geronimo.specs/geronimo-atinject_1.0_spec/1.0",
-//                carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.ops4j.base/ops4j-base/1.5.0", carbonHome + "/osgi/dropins");
-//        copyReferencedArtifactsToDeployDirectory("mvn:org.testng/testng/6.8.17", carbonHome + "/osgi/dropins");
-//    }
-
     private void copyReferencedArtifactsToDeployDirectory(String url, Path targetDirectory) {
         File target = createUnique(url, targetDirectory.toFile());
         try {
             FileUtils.copyURLToFile(new URL(url), target);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error while copying Artifacts", e);
         }
     }
 
@@ -203,7 +158,7 @@ public class CarbonTestContainer implements TestContainer {
                 Files.copy(option.getSourcePath(), carbonHome.resolve(option.getDestinationPath()),
                         StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error while copying configuration files", e);
             }
         });
     }
@@ -216,15 +171,14 @@ public class CarbonTestContainer implements TestContainer {
         String[] environment = setupEnvironmentProperties(subsystem);
         setupSystemProperties(javaOpts, subsystem);
         runner.exec(environment, carbonHome, javaOpts);
-        waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
-
-        logger.info("Test Container started in " + (System.currentTimeMillis() - startedAt) + " millis");
         logger.info("Wait for test container to finish its initialization " + subsystem.getTimeout());
+        waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
+        logger.info("Test Container started in " + (System.currentTimeMillis() - startedAt) + " millis");
     }
 
     private String[] setupEnvironmentProperties(ExamSystem subsystem) {
         EnvironmentPropertyOption[] options = subsystem.getOptions(EnvironmentPropertyOption.class);
-        return Arrays.asList(options).stream().map(option -> option.getOption()).collect(Collectors.toList())
+        return Arrays.asList(options).stream().map(EnvironmentPropertyOption::getOption).collect(Collectors.toList())
                 .toArray(new String[options.length]);
     }
 
@@ -241,7 +195,10 @@ public class CarbonTestContainer implements TestContainer {
         if (!carbonBin.exists()) {
             return;
         }
-        Arrays.asList(carbonBin.listFiles()).forEach(file -> file.setExecutable(true));
+        File[] files = carbonBin.listFiles();
+        if (files != null) {
+            Arrays.asList(files).forEach(file -> file.setExecutable(true));
+        }
     }
 
     private Path retrieveFinalTargetDirectory() {
@@ -298,9 +255,7 @@ public class CarbonTestContainer implements TestContainer {
                     remoteBundleContextClient.stop();
 
                 }
-                if (runner != null) {
-                    runner.shutdown();
-                }
+                runner.shutdown();
                 try {
                     UnicastRemoteObject.unexportObject(registry, true);
                 } catch (NoSuchObjectException exc) {
@@ -353,11 +308,6 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     @Override
-    public String toString() {
-        return "CarbonTestContainer{" + carbonDistributionConfigurationOption.getDistributionDirectoryPath() + "}";
-    }
-
-    @Override
     public long installProbe(InputStream stream) {
         return target.installProbe(stream);
     }
@@ -365,5 +315,10 @@ public class CarbonTestContainer implements TestContainer {
     @Override
     public void uninstallProbe() {
         target.uninstallProbe();
+    }
+
+    @Override
+    public String toString() {
+        return "CarbonTestContainer{"+targetDirectory+"}";
     }
 }

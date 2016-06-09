@@ -26,11 +26,9 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonD
 import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerSuite.class)
+@ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample2 {
-
-    protected static final String COVERAGE_COMMAND = "coverage.command";
     private static final Logger logger = LoggerFactory.getLogger(Sample2.class);
 
     @Inject
@@ -52,6 +50,12 @@ public class Sample2 {
         };
 
 //        return new Option[] {
+//                CarbonDistributionConfiguration().distributionDirectoryURL(
+//                        Paths.get("target","wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
+//                keepRuntimeDirectory()
+//        };
+
+//        return new Option[] {
 //                CarbonDistributionConfiguration().distributionMavenURL(
 //                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
 //                                .versionAsInProject()),
@@ -70,6 +74,7 @@ public class Sample2 {
     @Test
     public void testSample2() {
         logger.info("Sample 2");
+        logger.info(System.getProperty("carbon.home"));
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {

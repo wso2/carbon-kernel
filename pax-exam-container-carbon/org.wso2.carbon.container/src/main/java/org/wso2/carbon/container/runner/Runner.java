@@ -1,6 +1,5 @@
 package org.wso2.carbon.container.runner;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 

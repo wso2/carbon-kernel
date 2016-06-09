@@ -16,6 +16,7 @@
  */
 package org.wso2.carbon.container.options;
 
+import org.ops4j.lang.NullArgumentException;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 
@@ -35,32 +36,47 @@ public class CarbonDistributionConfigurationOption implements Option {
         name = null;
     }
 
-    public CarbonDistributionConfigurationOption distributionZipURL(Path distributionZipURL) {
-        this.distributionZipPath = distributionZipURL;
-        return this;
-    }
-
-    public CarbonDistributionConfigurationOption distributionDirectoryURL(Path distributionDirectoryURL) {
-        this.distributionDirectoryPath = distributionDirectoryURL;
-        return this;
-    }
-
     /**
-     * Sets the URL of the frameworks as a maven reference.
+     * Sets the path of the distribution as a zip file.
      *
-     * @param distributionURL framework URL
-     * @return this for fluent syntax
+     * @param distributionZipPath distribution path
+     * @return this
      */
-    public CarbonDistributionConfigurationOption distributionMavenURL(MavenUrlReference distributionURL) {
-        distributionMavenURL = distributionURL;
+    public CarbonDistributionConfigurationOption distributionZipURL(Path distributionZipPath) {
+        NullArgumentException.validateNotNull(distributionZipPath, "Distribution Zip Path");
+        this.distributionZipPath = distributionZipPath;
         return this;
     }
 
     /**
-     * Sets the name of the framework. This is only used for logging.
+     * Sets the path of the distribution as a directory.
+     *
+     * @param distributionDirectoryPath distribution directory path
+     * @return this
+     */
+    public CarbonDistributionConfigurationOption distributionDirectoryURL(Path distributionDirectoryPath) {
+        NullArgumentException.validateNotNull(distributionDirectoryPath, "Distribution Directory Path");
+        this.distributionDirectoryPath = distributionDirectoryPath;
+        return this;
+    }
+
+    /**
+     * Sets the URL of the distribution as a maven reference.
+     *
+     * @param distributionMavenURL distribution maven URL
+     * @return this
+     */
+    public CarbonDistributionConfigurationOption distributionMavenURL(MavenUrlReference distributionMavenURL) {
+        NullArgumentException.validateNotNull(distributionMavenURL, "Distribution Maven URL");
+        this.distributionMavenURL = distributionMavenURL;
+        return this;
+    }
+
+    /**
+     * Sets the name of the Distribution. This is only used for logging.
      *
      * @param name distribution name
-     * @return this for fluent syntax
+     * @return this
      */
     public CarbonDistributionConfigurationOption name(String name) {
         this.name = name;
