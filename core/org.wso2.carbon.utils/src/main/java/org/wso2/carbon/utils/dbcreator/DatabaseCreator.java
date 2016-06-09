@@ -22,17 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.sql.DataSource;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
+import java.io.*;
+import java.sql.*;
 import java.util.StringTokenizer;
 
 public class DatabaseCreator {
@@ -294,6 +285,7 @@ public class DatabaseCreator {
             delimiter = "/";
             keepFormat = true;
         }
+        databaseType = getDatabaseTypeWithVersion(databaseType);
 
         String dbscriptName = getDbScriptLocation(databaseType);
 
@@ -347,6 +339,24 @@ public class DatabaseCreator {
                 reader.close();
             }
         }
+    }
+
+    private String getDatabaseTypeWithVersion(String databaseType) {
+        try {
+            if (databaseType != null && databaseType.equals("mysql")) {
+                if (conn != null && (!conn.isClosed())) {
+                    DatabaseMetaData metaData = conn.getMetaData();
+                    String databaseProductVersion = metaData.getDatabaseProductVersion();
+                    double versionWithMinorNumber = Double.parseDouble(databaseProductVersion.substring(0, 3));
+                    if (versionWithMinorNumber >= 5.7) {
+                        databaseType = databaseType + "-5.7+";
+                    }
+                }
+            }
+        } catch (SQLException | NumberFormatException e) {
+            log.warn("Unable to retrieve version of the database.");
+        }
+        return databaseType;
     }
 
     protected String getDbScriptLocation(String databaseType) {
