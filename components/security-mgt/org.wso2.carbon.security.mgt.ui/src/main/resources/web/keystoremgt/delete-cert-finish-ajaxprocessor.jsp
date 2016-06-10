@@ -17,20 +17,24 @@
 -->
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
 <%@page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.text.MessageFormat" %>
+<%@page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<jsp:include page="../dialog/display_messages.jsp"/>
-
 <%
+    String httpMethod = request.getMethod();
+    if (!"post".equalsIgnoreCase(httpMethod)) {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        return;
+    }
+
     String forwardTo = null;
-    String keyStore = request.getParameter("keyStore");
+    String keyStore = request.getParameter("keystore");
+	String certificateAlias = request.getParameter("alias");	 
     String BUNDLE = "org.wso2.carbon.security.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     try {
@@ -39,15 +43,14 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
-        client.deleteStore(keyStore);
-        String message = resourceBundle.getString("keystore.delete");
-        forwardTo = "keystore-mgt.jsp";
+		client.removeCertificateFromKeyStore(keyStore, certificateAlias);
+        String message = resourceBundle.getString("cert.delete");
+        forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-        session.setAttribute(SecurityUIConstants.RE_FETCH_KEYSTORES, Boolean.TRUE);
     } catch (Exception e) {
-        String message = MessageFormat.format(resourceBundle.getString("keystore.cannot.delete"),
+        String message = MessageFormat.format(resourceBundle.getString("cert.cannot.delete"),
                 new Object[]{e.getMessage()});
-        forwardTo = "keystore-mgt.jsp";
+        forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
 %>
