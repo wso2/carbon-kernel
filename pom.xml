@@ -421,11 +421,10 @@
                 <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
-
             <dependency>
-                <groupId>org.apache.cxf.wso2</groupId>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-bundle</artifactId>
-                <version>${cxf-bundle.wso2.version}</version>
+                <version>${cxf-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
@@ -1534,6 +1533,7 @@
         <jdom.wso2.version>1.0.0.wso2v1</jdom.wso2.version>
         <json-smart.version>1.3</json-smart.version>
         <cxf-bundle.wso2.version>2.6.1.wso2v2</cxf-bundle.wso2.version>
+        <cxf-version>2.7.13</cxf-version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
