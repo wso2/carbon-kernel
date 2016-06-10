@@ -294,6 +294,7 @@ public class DatabaseCreator {
             delimiter = "/";
             keepFormat = true;
         }
+        databaseType = getDatabaseTypeWithVersion(databaseType);
 
         String dbscriptName = getDbScriptLocation(databaseType);
 
@@ -347,6 +348,21 @@ public class DatabaseCreator {
                 reader.close();
             }
         }
+    }
+
+    private String getDatabaseTypeWithVersion(String databaseType) throws SQLException {
+
+        if (databaseType != null && databaseType.equals("mysql")) {
+            if (conn != null && (!conn.isClosed())) {
+                DatabaseMetaData metaData = conn.getMetaData();
+                int databaseMajorVersion = metaData.getDatabaseMajorVersion();
+                int databaseMinorVersion = metaData.getDatabaseMinorVersion();
+                if (databaseMajorVersion == 5 && databaseMinorVersion >= 7) {
+                    databaseType = databaseType + "-5.7+";
+                }
+            }
+        }
+        return databaseType;
     }
 
     protected String getDbScriptLocation(String databaseType) {
