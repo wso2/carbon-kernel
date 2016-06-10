@@ -26,7 +26,7 @@ public class SecureVaultConstants {
     public static final String CONSOLE_PASSWORD_PARAM = "keystorePassword";
     public static final String UTF8 = "UTF-8";
     public static final String CONF_DIR = "conf";
-    public static final String CARBON_CONFIG_FILE = "security.yml"; //todo
+    public static final String CARBON_CONFIG_FILE = "security.yml"; //todo this should change to carbon.yml
     public static final String SECURITY_DIR = "security";
     public static final String SECRETS_FILE = "secrets.properties";
     public static final String SECRET_PROPERTY_FILE = "secret.conf.properties.file";

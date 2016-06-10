@@ -102,6 +102,7 @@ public class FileBaseSecretRepository implements SecretRepository {
                 .map(entry -> new Secret(entry.getKey().toString(), entry.getValue().toString()))
                 .forEach(secret -> secretsMap.put(secret.getAlias(), secret));
 
+
         Key key = getKey(CipherOperationMode.DECRYPT, keyStoreInformation);
         CipherInformation cipherInformation = new CipherInformation();
         cipherInformation.setCipherOperationMode(CipherOperationMode.DECRYPT);
