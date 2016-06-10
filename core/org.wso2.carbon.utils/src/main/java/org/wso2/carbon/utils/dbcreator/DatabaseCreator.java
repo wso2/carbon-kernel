@@ -351,25 +351,16 @@ public class DatabaseCreator {
     }
 
     private String getDatabaseTypeWithVersion(String databaseType) throws SQLException {
-        String databaseProductVersion = null;
-        try {
-            if (databaseType != null && databaseType.equals("mysql")) {
-                if (conn != null && (!conn.isClosed())) {
-                    DatabaseMetaData metaData = conn.getMetaData();
-                    databaseProductVersion = metaData.getDatabaseProductVersion();
-                    double versionWithMinorNumber = Double.parseDouble(databaseProductVersion.substring(0, 3));
-                    if (versionWithMinorNumber >= 5.7) {
-                        databaseType = databaseType + "-5.7+";
-                    }
+
+        if (databaseType != null && databaseType.equals("mysql")) {
+            if (conn != null && (!conn.isClosed())) {
+                DatabaseMetaData metaData = conn.getMetaData();
+                int databaseMajorVersion = metaData.getDatabaseMajorVersion();
+                int databaseMinorVersion = metaData.getDatabaseMinorVersion();
+                if (databaseMajorVersion == 5 && databaseMinorVersion >= 7) {
+                    databaseType = databaseType + "-5.7+";
                 }
             }
-        } catch (NumberFormatException e) {
-            /*
-            If unable to get the database version to check whether the database type is mysql 5.7 or higher,
-            ignore the error and continue with the default script.
-             */
-            log.warn("Unable to parse the database product version: " + databaseProductVersion
-                    + " Continuing with the default script.", e);
         }
         return databaseType;
     }
