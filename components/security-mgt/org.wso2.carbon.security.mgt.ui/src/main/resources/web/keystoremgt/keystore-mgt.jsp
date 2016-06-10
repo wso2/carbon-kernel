@@ -101,16 +101,28 @@
 		resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
 		topPage="true" request="<%=request%>" />
     <script type="text/javascript">
-        
+
         function deleteKeystore(keystore) {
-            function doDelete(){
-                var keystoreName = keystore;
-                location.href = 'delete-keystore.jsp?keyStore=' + keystoreName;
+
+            function doDelete() {
+                $.ajax({
+                    type: 'POST',
+                    url: 'delete-keystore-finish-ajaxprocessor.jsp',
+                    headers: {
+                        Accept: "text/html"
+                    },
+                    data: 'keyStore=' + keystore,
+                    async: false,
+                    success: function (responseText, status) {
+                        if (status == "success") {
+                            location.assign("keystore-mgt.jsp");
+                        }
+                    }
+                });
             }
+
             CARBON.showConfirmationDialog('<fmt:message key="do.you.want.to.delete.the.keystore"/> ' + keystore + '?', doDelete, null);
         }
-        
-        
     </script>
 
     
