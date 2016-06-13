@@ -31,6 +31,12 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 
 <%
+    String httpMethod = request.getMethod();
+    if (!"post".equalsIgnoreCase(httpMethod)) {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        return;
+    }
+
     String forwardTo = null;
     String keyStore = null;
     String BUNDLE = "org.wso2.carbon.security.ui.i18n.Resources";

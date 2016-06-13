@@ -79,7 +79,7 @@
         <h2><fmt:message key="import.certificates.to"/><%= " " + Encode.forHtml(keyStore) %></h2>
         <div id="workArea">
             <form method="post" name="certForm" enctype="multipart/form-data"
-                  action="import-cert-finish.jsp">
+                  action="import-cert-finish-ajaxprocessor.jsp">
                 <table class="styledLeft">
                     <thead>
                     <tr>
