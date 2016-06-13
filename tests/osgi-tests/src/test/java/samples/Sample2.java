@@ -26,7 +26,7 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonD
 import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample2 {
     private static final Logger logger = LoggerFactory.getLogger(Sample2.class);
@@ -45,7 +45,7 @@ public class Sample2 {
         }
 
         return new Option[] { CarbonDistributionConfiguration().distributionZipURL(
-                Paths.get(basedir, "..", "test-distribution", "target", "wso2carbon-kernel-test-5.1.0-SNAPSHOT.zip")),
+                Paths.get(basedir, "..", "test-distribution", "target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")),
                 keepRuntimeDirectory(),
         };
 

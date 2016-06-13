@@ -17,15 +17,14 @@
  -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2carbon-kernel-test-${pom.version}</baseDirectory>
+    <baseDirectory>wso2carbon-kernel-test-${carbon.kernel.version}</baseDirectory>
     <id>carbon</id>
     <formats>
         <format>zip</format>
     </formats>
-
     <fileSets>
         <fileSet>
-            <directory>target/WSO2Carbon</directory>
+            <directory>target/wso2carbon-kernel-${carbon.kernel.version}</directory>
             <outputDirectory></outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
@@ -41,7 +40,7 @@
         </fileSet>
 
         <fileSet>
-            <directory>target/WSO2Carbon</directory>
+            <directory>target/wso2carbon-kernel-${carbon.kernel.version}</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>**/*.sh</include>
@@ -53,72 +52,16 @@
 
     <files>
         <file>
-            <source>target/WSO2Carbon/conf/log4j2.xml</source>
-            <outputDirectory>conf</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/conf/etc/pax-logging.properties</source>
-            <outputDirectory>conf/etc</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/bin/bootstrap/logging.properties</source>
-            <outputDirectory>bin/bootstrap</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/conf/osgi/launch.properties</source>
-            <outputDirectory>conf/osgi</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/conf/carbon.yml</source>
+            <source>target/wso2carbon-kernel-${carbon.kernel.version}/conf/carbon.yml</source>
             <outputDirectory>conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>target/WSO2Carbon/bin/kernel-version.txt</source>
+            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/kernel-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>target/WSO2Carbon/bin/README.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-
-        <file>
-            <source>carbon-home/README.txt</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/INSTALL.txt</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/LICENSE.txt</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>carbon-home/release-notes.html</source>
-            <outputDirectory></outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
         </file>
     </files>
-
 </assembly>

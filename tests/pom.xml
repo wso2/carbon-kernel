@@ -29,9 +29,9 @@
     <url>http://wso2.com</url>
 
     <modules>
+        <module>test-distribution</module>
         <module>test-artifacts</module>
         <module>osgi-test-util</module>
-        <module>test-distribution</module>
         <module>osgi-tests</module>
         <module>coverage-report</module>
     </modules>

@@ -49,7 +49,7 @@ public class Sample3 {
 
         return new Option[] {
                 CarbonDistributionConfiguration().distributionDirectoryURL(
-                Paths.get("target","wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
+                Paths.get("target","wso2carbon-kernel-test-5.2.0-SNAPSHOT")),
                 keepRuntimeDirectory()
         };
     }

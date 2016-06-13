@@ -29,7 +29,7 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.debugCo
 import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample1 {
     private static final Logger logger = LoggerFactory.getLogger(Sample1.class);
