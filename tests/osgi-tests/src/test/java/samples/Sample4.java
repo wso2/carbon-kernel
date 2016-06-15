@@ -28,8 +28,6 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonD
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample4 {
-
-    protected static final String COVERAGE_COMMAND = "coverage.command";
     private static final Logger logger = LoggerFactory.getLogger(Sample4.class);
 
     @Inject

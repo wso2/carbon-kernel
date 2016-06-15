@@ -48,8 +48,8 @@
                 <module>core</module>
                 <module>tools</module>
                 <module>features</module>
-                <module>distribution</module>
                 <module>pax-exam-container-carbon</module>
+                <module>distribution</module>
                 <module>tests</module>
                 <module>pax-exam-container-carbon</module>
             </modules>

@@ -46,9 +46,9 @@ limitations under the License.
 
             <!--Sample Test Classes for pax exam container-->
             <class name="samples.Sample1"/>
-            <!--<class name="samples.Sample2"/>-->
-            <!--<class name="samples.Sample3"/>-->
-            <!--<class name="samples.Sample4"/>-->
+            <class name="samples.Sample2"/>
+            <class name="samples.Sample3"/>
+            <class name="samples.Sample4"/>
             <!--<class name="samples.Sample5"/>-->
         </classes>
     </test>

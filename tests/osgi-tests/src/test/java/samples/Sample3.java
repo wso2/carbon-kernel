@@ -39,14 +39,6 @@ public class Sample3 {
 
     @Configuration
     public Option[] config() {
-
-//        return new Option[] {
-//                CarbonDistributionConfiguration().distributionMavenURL(
-//                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-//                                .versionAsInProject()),
-//                keepRuntimeDirectory()
-//        };
-
         return new Option[] {
                 CarbonDistributionConfiguration().distributionDirectoryURL(
                 Paths.get("target","wso2carbon-kernel-test-5.2.0-SNAPSHOT")),
@@ -64,7 +56,8 @@ public class Sample3 {
 
     @Test
     public void testSample3() {
-        logger.info("Sample 3");
+        logger.info("Sample 3-2");
+        logger.info(System.getProperty("carbon.home"));
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {

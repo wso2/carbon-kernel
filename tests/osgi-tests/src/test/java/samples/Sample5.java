@@ -4,6 +4,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
@@ -25,11 +26,9 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerSuite.class)
+@ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class Sample5 {
-
-    protected static final String COVERAGE_COMMAND = "coverage.command";
     private static final Logger logger = LoggerFactory.getLogger(Sample5.class);
 
     @Inject

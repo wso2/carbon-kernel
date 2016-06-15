@@ -319,6 +319,6 @@ public class CarbonTestContainer implements TestContainer {
 
     @Override
     public String toString() {
-        return "CarbonTestContainer{"+targetDirectory+"}";
+        return "CarbonTestContainer";
     }
 }
