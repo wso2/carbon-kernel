@@ -149,8 +149,8 @@ public class UserRolesCache {
             return;
         }
 
-        boolean isCaseSensitiveUsername = isCaseSensitiveUsername(userName, tenantId);
-        if (!isCaseSensitiveUsername) {
+        boolean caseSensitiveUsername = isCaseSensitiveUsername(userName, tenantId);
+        if (!caseSensitiveUsername) {
             userName = userName.toLowerCase();
         }
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
@@ -161,7 +161,7 @@ public class UserRolesCache {
         String userNameWithCacheIdentifier = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName;
 
         // creating new key for isUserHasRole cache.
-        if(!isCaseSensitiveUsername) {
+        if(!caseSensitiveUsername) {
             userNameWithCacheIdentifier = userNameWithCacheIdentifier.toLowerCase();
         }
 
