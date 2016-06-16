@@ -1,0 +1,14 @@
+tenant: tenant
+transports:
+  - transport:        #Transport with direct values
+      name: abc
+      port: 8000
+      secure: false
+  - transport:        #Transport with System properties as values
+      name: pqr
+      port: $env:pqr.http.port
+      secure: $sys:pqr.secure
+  - transport:        #Transport with System properties, default values as values
+      name: xyz
+      port: $env:xyz.http.port,9000
+      secure: $sys:xyz.secure,true

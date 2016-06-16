@@ -15,7 +15,8 @@
  limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -71,6 +72,11 @@
             <groupId>commons-io.wso2</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+            <version>3.0.0.wso2v1</version>
         </dependency>
     </dependencies>
 
@@ -134,6 +140,7 @@
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             javax.management.*;version="${javax.management.import.version.range}",
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
+            org.json.*;version="3.0.0.wso2v1"
         </import.package>
         <carbon.component>
             startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",

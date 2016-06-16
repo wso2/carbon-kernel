@@ -46,6 +46,9 @@ limitations under the License.
             <class name="org.wso2.carbon.kernel.utils.manifest.ManifestElementTest"/>
             <class name="org.wso2.carbon.kernel.utils.MBeanManagementFactoryTest"/>
             <class name="org.wso2.carbon.kernel.utils.MBeanRegistratorTest"/>
+
+            <class name="org.wso2.carbon.kernel.utils.ConfigUtilTest"/>
+
         </classes>
     </test>
 </suite>

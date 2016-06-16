@@ -16,4 +16,5 @@ org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../..
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../logs,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../osgi,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../tmp,targetFile:README.txt,permissions:644);\
-org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:kernel-version.txt,permissions:644);
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:kernel-version.txt,permissions:644);\
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../conf,targetFile:deployment.properties,permissions:644);
