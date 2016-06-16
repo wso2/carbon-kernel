@@ -221,6 +221,11 @@ public final class ConfigUtil {
                 Map<String, String> configMap = deploymentPropertiesMap.get(fileName);
                 if (configMap.containsKey(xpath)) {
                     returnValue = configMap.get(xpath);
+                    if (returnValue.matches(PLACEHOLDER_WITH_DEFAULT_REGEX)) {
+                        returnValue = processPlaceholderWithDefaultValue(returnValue);
+                    } else if (returnValue.matches(PLACEHOLDER_REGEX)) {
+                        returnValue = processPlaceholder(returnValue);
+                    }
                 }
             } else {
                 logger.debug(xpath + " was not found");
