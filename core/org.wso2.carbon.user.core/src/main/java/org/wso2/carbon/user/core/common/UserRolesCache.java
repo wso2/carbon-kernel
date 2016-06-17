@@ -1,3 +1,4 @@
+
 /*
 *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -94,7 +95,7 @@ public class UserRolesCache {
             return;
         }
         if (!isCaseSensitiveUsername(userName, tenantId)) {
-            userName = (UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName).toLowerCase();
+            userName = userName.toLowerCase();
         }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
@@ -114,7 +115,7 @@ public class UserRolesCache {
             return new String[0];
         }
         if (!isCaseSensitiveUsername(userName, tenantId)) {
-            userName = (UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName).toLowerCase();
+            userName = userName.toLowerCase();
         }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
@@ -147,16 +148,24 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return;
         }
-        if (!isCaseSensitiveUsername(userName, tenantId)) {
-            userName = (UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName).toLowerCase();
+
+        boolean caseSensitiveUsername = isCaseSensitiveUsername(userName, tenantId);
+        if (!caseSensitiveUsername) {
+            userName = userName.toLowerCase();
         }
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         if (cache.containsKey(userRolesCacheKey)) {
             cache.remove(userRolesCacheKey);
         }
+
+        String userNameWithCacheIdentifier = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName;
+
         // creating new key for isUserHasRole cache.
-        userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId,
-                UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName);
+        if(!caseSensitiveUsername) {
+            userNameWithCacheIdentifier = userNameWithCacheIdentifier.toLowerCase();
+        }
+
+        userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userNameWithCacheIdentifier);
         if (cache.containsKey(userRolesCacheKey)) {
             cache.remove(userRolesCacheKey);
         }
