@@ -164,7 +164,8 @@ public class OSGiTestConfigurationUtils {
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon")
                 .versionAsInProject());
-
+        optionList.add(mavenBundle().artifactId("json").groupId("org.json.wso2")
+                                    .versionAsInProject());
         return optionList;
     }
 }
