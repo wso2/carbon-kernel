@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.6-SNAPSHOT</version>
+        <version>4.4.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -184,6 +184,7 @@
                             org.eclipse.equinox.http.helper,
                             org.apache.tiles.*;version="2.0.5",
                             org.wso2.carbon.registry.core.service,
+                            org.owasp.csrfguard.tag.*; version="${orbit.version.csrfguard}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
