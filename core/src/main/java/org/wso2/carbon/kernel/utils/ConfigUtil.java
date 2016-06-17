@@ -409,19 +409,15 @@ public final class ConfigUtil {
      * @return New configs in XML formatted String
      */
     private static String applyNewConfigs(String xmlString, String fileName) {
-
         String formattedFileName = "[" + fileName + "]";
-        String updatedString = xmlString;
-
+        String updatedString;
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         if (deploymentPropertiesMap.containsKey(formattedFileName)) {
             Map<String, String> newConfigs = deploymentPropertiesMap.get(formattedFileName);
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-
             try {
                 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
                 Document document = docBuilder.parse(new InputSource(new StringReader(xmlString)));
                 XPath xPath = XPathFactory.newInstance().newXPath();
-
                 newConfigs.keySet().forEach(xPathKey -> {
                     try {
                         NodeList nodeList = (NodeList) xPath.compile(xPathKey)
@@ -449,6 +445,15 @@ public final class ConfigUtil {
         } else {
             logger.debug("New configurations for " + formattedFileName + " was not found in "
                     + DEPLOYMENT_PROPERTIES_FILE_NAME);
+            try {
+                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+                Document document = docBuilder.parse(new InputSource(new StringReader(xmlString)));
+                processPlaceholders(document.getDocumentElement().getChildNodes());
+                updatedString = convertXMLtoString(document);
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                logger.error("Exception occurred when building document: " + e);
+                throw new RuntimeException("Exception occurred when building document: " + e);
+            }
         }
         return updatedString;
     }
@@ -464,16 +469,18 @@ public final class ConfigUtil {
             // Make sure that the node is a Element node
             if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
                 String value;
-                if (tempNode.getFirstChild().getNodeValue() != null) {
-                    value = tempNode.getFirstChild().getNodeValue().trim();
-                    if (value.length() != 0) {
-                        String newValue = value;
-                        if (value.matches(PLACEHOLDER_WITH_DEFAULT_REGEX)) {
-                            newValue = processPlaceholderWithDefaultValue(value);
-                        } else if (value.matches(PLACEHOLDER_REGEX)) {
-                            newValue = processPlaceholder(value);
+                if (tempNode.getFirstChild() != null) {
+                    if (tempNode.getFirstChild().getNodeValue() != null) {
+                        value = tempNode.getFirstChild().getNodeValue().trim();
+                        if (value.length() != 0) {
+                            String newValue = value;
+                            if (value.matches(PLACEHOLDER_WITH_DEFAULT_REGEX)) {
+                                newValue = processPlaceholderWithDefaultValue(value);
+                            } else if (value.matches(PLACEHOLDER_REGEX)) {
+                                newValue = processPlaceholder(value);
+                            }
+                            tempNode.getFirstChild().setNodeValue(newValue);
                         }
-                        tempNode.getFirstChild().setNodeValue(newValue);
                     }
                 }
                 if (tempNode.hasAttributes()) {
