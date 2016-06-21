@@ -27,10 +27,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 class Transport {
 
-    String name;
-    int port;
-    String secure;
-    String desc;
+    private String name;
+    private int port;
+    private String secure;
+    private String desc;
 
     @XmlAttribute
     public void setSecure(String secure) {
@@ -72,7 +72,7 @@ class Transport {
 @XmlRootElement
 class Transports {
 
-    List<Transport> transport;
+    private List<Transport> transport;
 
     @XmlElement
     public void setTransport(List<Transport> transport) {
@@ -88,8 +88,8 @@ class Transports {
 @XmlRootElement
 public class Configurations {
 
-    String tenant;
-    Transports transports;
+    private String tenant;
+    private Transports transports;
 
     @XmlElement
     public void setTenant(String tenant) {
