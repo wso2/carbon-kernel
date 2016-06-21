@@ -44,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -60,18 +61,15 @@ import javax.xml.xpath.XPathFactory;
  */
 public final class ConfigUtil {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigUtil.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(ConfigUtil.class.getName());
+    private static final String DEPLOYMENT_PROPERTIES = "deployment.properties";
     private static final String DEPLOYMENT_PROPERTIES_FILE_NAME = "deployment.properties";
     private static final String DEPLOYMENT_PROPERTIES_FILE_PATH = getPath();
     private static final String ROOT_ELEMENT = "configurations";
     private static final String FILE_REGEX = ".+\\.(" + getFileTypesString() + ")";
-    private static final String PLACEHOLDER_REGEX = "\\$\\s*(" + getPlaceholderString() + ")\\s*:(.+)";
+    private static final String PLACEHOLDER_REGEX = "(.*)(\\$\\{(sys|env|sec):([^,]+?)((,)(.+))?\\})(.*)";
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile(PLACEHOLDER_REGEX);
-    private static final String PLACEHOLDER_WITH_DEFAULT_REGEX = "\\$\\s*(sys|env|sec)\\s*:(.+),(.+)"; // TODO: 6/21/16
-    private static final Pattern PLACEHOLDER_WITH_DEFAULT_PATTERN = Pattern
-            .compile(PLACEHOLDER_WITH_DEFAULT_REGEX); // TODO: 6/21/16
-    //    (\${(sys|env|sec):([^,]+?)(,.+)?})
-    //add comments
+    // TODO: 6/21/16 Comment
     private static final Map<String, Map<String, String>> deploymentPropertiesMap = readDeploymentFile();
 
     private enum ConfigFileFormat {
@@ -104,24 +102,6 @@ public final class ConfigUtil {
         }
     }
 
-    private static String getFileTypesString() {
-        StringBuffer stringBuffer = new StringBuffer();
-        for (FileType fileType : FileType.values()) {
-            stringBuffer.append(fileType.getValue()).append("|");
-        }
-        String value = stringBuffer.toString();
-        return value.substring(0, value.length() - 1);
-    }
-
-    private static String getPlaceholderString() {
-        StringBuffer stringBuffer = new StringBuffer();
-        for (Placeholder placeholder : Placeholder.values()) {
-            stringBuffer.append(placeholder.getValue()).append("|");
-        }
-        String value = stringBuffer.toString();
-        return value.substring(0, value.length() - 1);
-    }
-
     private ConfigUtil() {
 
     }
@@ -138,15 +118,15 @@ public final class ConfigUtil {
      * @see ConfigFileType
      */
     public static <T extends ConfigFileType> T getConfig(File file, Class<T> clazz) {
-        T newConfigs;
+        T newConfig;
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            newConfigs = getConfig(fileInputStream, file.getName(), clazz);
+            newConfig = getConfig(fileInputStream, file.getName(), clazz);
         } catch (FileNotFoundException e) {
-            LOGGER.error("File not found at " + file.getAbsolutePath() + " : ", e);
+            logger.error("File not found at " + file.getAbsolutePath() + " : ", e);
             throw new RuntimeException("File not found at " + file.getAbsolutePath() + " : ", e);
         }
-        return newConfigs;
+        return newConfig;
     }
 
     /**
@@ -189,12 +169,12 @@ public final class ConfigUtil {
                     throw new RuntimeException("Unsupported class format:  " + clazz);
                 }
             } catch (IOException e) {
-                LOGGER.error("IOException: ", e);
+                logger.error("IOException: ", e);
                 throw new RuntimeException("IOException:  ", e);
             }
         }
 
-        //Apply the new configs
+        //Apply the new config
         xmlString = applyNewConfig(xmlString, configFileKey);
         //Convert xml back to original format
         convertedString = convertToOriginalFormat(xmlString, originalFileFormat);
@@ -249,14 +229,12 @@ public final class ConfigUtil {
                 Map<String, String> configMap = deploymentPropertiesMap.get(fileName);
                 if (configMap.containsKey(xpath)) {
                     returnValue = configMap.get(xpath);
-                    if (returnValue.matches(PLACEHOLDER_WITH_DEFAULT_REGEX)) {
-                        returnValue = processPlaceholderWithDefaultValue(returnValue);
-                    } else if (returnValue.matches(PLACEHOLDER_REGEX)) {
+                    if (returnValue.matches(PLACEHOLDER_REGEX)) {
                         returnValue = processPlaceholder(returnValue);
                     }
                 }
             } else {
-                LOGGER.error(xpath + " was not found in " + DEPLOYMENT_PROPERTIES_FILE_NAME);
+                logger.error(xpath + " was not found in " + DEPLOYMENT_PROPERTIES_FILE_NAME);
                 throw new RuntimeException(xpath + " was not found in " + DEPLOYMENT_PROPERTIES_FILE_NAME);
             }
         }
@@ -266,56 +244,85 @@ public final class ConfigUtil {
     /**
      * This method applies new configurations to given XML String
      *
-     * @param xmlString Current configs in XML format
-     * @param fileName  Filename of the current configs
-     * @return New configs in XML formatted String
+     * @param xmlString Current config in XML format
+     * @param fileName  Filename of the current config
+     * @return New config in XML formatted String
      */
     private static String applyNewConfig(String xmlString, String fileName) { // TODO: 6/20/16
-        String formattedFileName = fileName;
         String updatedString;
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        //        docBuilderFactory .setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        if (deploymentPropertiesMap.containsKey(formattedFileName)) {
-            Map<String, String> newConfigs = deploymentPropertiesMap.get(formattedFileName);
+        if (deploymentPropertiesMap.containsKey(fileName)) {
+            Map<String, String> newConfig = deploymentPropertiesMap.get(fileName);
+            StringReader stringReader = null;
             try {
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                //Preventing Entity Expansion Attacks
+                docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                Document document = docBuilder.parse(new InputSource(new StringReader(xmlString))); // TODO: 6/20/16
+                stringReader = new StringReader(xmlString);
+                InputSource inputSource = new InputSource(stringReader);
+                Document document = docBuilder.parse(inputSource); // TODO: 6/20/16
                 XPath xPath = XPathFactory.newInstance().newXPath();
-                newConfigs.keySet().forEach(xPathKey -> {
+                newConfig.keySet().forEach(xPathKey -> {
                     try {
                         NodeList nodeList = (NodeList) xPath.compile(xPathKey)
                                                             .evaluate(document, XPathConstants.NODESET);
-                        if (nodeList.item(0) != null) { // TODO: 6/20/16 comments
+
+                        //If deployment.properties has any additional config which is not in the original config
+                        // file, the fist item will be null. In this case, we have to throw an exception and indicate
+                        // that there are additional config in the deployment.properties file which are not in the
+                        // original config file
+                        if (nodeList.item(0) != null) {
                             Node firstNode = nodeList.item(0);
-                            firstNode.getFirstChild().setNodeValue(newConfigs.get(xPathKey));
+                            firstNode.getFirstChild().setNodeValue(newConfig.get(xPathKey));
                         } else {
-                            //If key in deployment.properties not found in the config file
-                            LOGGER.error(xPathKey + " was not found in " + fileName);
-                            throw new RuntimeException(xPathKey + " was not found in " + fileName);
+                            //If key in deployment.properties not found in the original config file, throw an exception
+                            logger.error(xPathKey + " was not found in " + fileName + " . remove this entry from the "
+                                    + DEPLOYMENT_PROPERTIES_FILE_NAME + " or add this config to the original config "
+                                    + "file");
+                            throw new RuntimeException(
+                                    xPathKey + " was not found in " + fileName + " . remove this entry from the "
+                                            + DEPLOYMENT_PROPERTIES_FILE_NAME + " or add this config to the original"
+                                            + " config file");
                         }
                     } catch (XPathExpressionException e) {
-                        LOGGER.error("Exception occurred when applying xpath: ", e);
-                        throw new RuntimeException("Exception occurred when applying xpath: ", e);
+                        logger.error("Exception occurred when applying xpath. Check the syntax and "
+                                + "make sure it is a valid xpath: " + xPathKey, e);
+                        throw new RuntimeException("Exception occurred when applying xpath. Check the syntax and "
+                                + "make sure it is a valid xpath: " + xPathKey, e);
                     }
                 });
                 //Process the placeholders
                 processPlaceholders(document.getDocumentElement().getChildNodes());
                 updatedString = Utils.convertXMLtoString(document);
             } catch (ParserConfigurationException | IOException | SAXException e) {
-                LOGGER.error("Exception occurred when building document: ", e);
+                logger.error("Exception occurred when building document: ", e);
                 throw new RuntimeException("Exception occurred when building document: ", e);
+            } finally {
+                if (stringReader != null) {
+                    stringReader.close();
+                }
             }
         } else {
-            LOGGER.debug("New configurations for " + formattedFileName + " was not found in "
-                    + DEPLOYMENT_PROPERTIES_FILE_NAME);
+            logger.debug("New configurations for " + fileName + " was not found in " + DEPLOYMENT_PROPERTIES_FILE_NAME);
+            //If no new configs found, just process the placeholders
+            StringReader stringReader = null;
             try {
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                //Preventing Entity Expansion Attacks
+                docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                Document document = docBuilder.parse(new InputSource(new StringReader(xmlString)));
+                stringReader = new StringReader(xmlString);
+                InputSource inputSource = new InputSource(stringReader);
+                Document document = docBuilder.parse(inputSource);
                 processPlaceholders(document.getDocumentElement().getChildNodes());
                 updatedString = Utils.convertXMLtoString(document);
             } catch (ParserConfigurationException | IOException | SAXException e) {
-                LOGGER.error("Exception occurred when building document: ", e);
+                logger.error("Exception occurred when building document: ", e);
                 throw new RuntimeException("Exception occurred when building document: ", e);
+            } finally {
+                if (stringReader != null) {
+                    stringReader.close();
+                }
             }
         }
         return updatedString;
@@ -337,9 +344,7 @@ public final class ConfigUtil {
                         value = tempNode.getFirstChild().getNodeValue().trim();
                         if (value.length() != 0) {
                             String newValue = value;
-                            if (value.matches(PLACEHOLDER_WITH_DEFAULT_REGEX)) {
-                                newValue = processPlaceholderWithDefaultValue(value);
-                            } else if (value.matches(PLACEHOLDER_REGEX)) {
+                            if (value.matches(PLACEHOLDER_REGEX)) {
                                 newValue = processPlaceholder(value);
                             }
                             tempNode.getFirstChild().setNodeValue(newValue);
@@ -353,9 +358,7 @@ public final class ConfigUtil {
                         Node node = nodeMap.item(i);
                         value = node.getNodeValue();
                         String newValue = value;
-                        if (value.matches(PLACEHOLDER_WITH_DEFAULT_REGEX)) {
-                            newValue = processPlaceholderWithDefaultValue(value);
-                        } else if (value.matches(PLACEHOLDER_REGEX)) {
+                        if (value.matches(PLACEHOLDER_REGEX)) {
                             newValue = processPlaceholder(value);
                         }
                         node.setNodeValue(newValue);
@@ -384,7 +387,7 @@ public final class ConfigUtil {
             File file = new File(DEPLOYMENT_PROPERTIES_FILE_PATH);
 
             if (file.exists()) {
-                LOGGER.debug(DEPLOYMENT_PROPERTIES_FILE_PATH + " found. Reading new config data.");
+                logger.debug(DEPLOYMENT_PROPERTIES_FILE_PATH + " found. Reading new config data.");
                 input = new FileInputStream(file);
                 deploymentProperties.load(input);
 
@@ -410,7 +413,7 @@ public final class ConfigUtil {
                 });
             }
         } catch (IOException ioException) {
-            LOGGER.error("Error occurred during reading the " + DEPLOYMENT_PROPERTIES_FILE_NAME +
+            logger.error("Error occurred during reading the " + DEPLOYMENT_PROPERTIES_FILE_NAME +
                     " file. Error: ", ioException);
             throw new RuntimeException("Error occurred during reading the " + DEPLOYMENT_PROPERTIES_FILE_NAME +
                     " file. Error: ", ioException);
@@ -419,7 +422,7 @@ public final class ConfigUtil {
                 try {
                     input.close();
                 } catch (IOException ioException2) {
-                    LOGGER.warn("Error occurred while closing the InputStream: ", ioException2);
+                    logger.warn("Error occurred while closing the InputStream: ", ioException2);
                 }
             }
         }
@@ -433,77 +436,88 @@ public final class ConfigUtil {
      * @return New getValue which corresponds to placeholder
      */
     private static String processPlaceholder(String placeholder) {
-        String newValue = placeholder;
+        String newValue;
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(placeholder);
         if (matcher.find()) {
-            String key = matcher.group(1).trim();
-            String value = matcher.group(2).trim();
+            String key = matcher.group(3);
+            String value = matcher.group(4);
+            String defaultValue = matcher.group(7);
             switch (key) {
                 case "env":
                     newValue = System.getenv(value);
                     if (newValue == null) {
-                        String failMessage = "Processing " + DEPLOYMENT_PROPERTIES_FILE_NAME + " failed.";
-                        throw new RuntimeException("Environment Variable " + value + " not found." + failMessage);
+                        if (defaultValue == null) {
+                            throw new RuntimeException("Environment Variable " + value + " not found. Processing " +
+                                    DEPLOYMENT_PROPERTIES_FILE_NAME + " failed. Placeholder: " + placeholder);
+                        } else {
+                            newValue = placeholder.replaceAll(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
+                        }
+                    } else {
+                        newValue = placeholder.replaceAll(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
                     }
                     break;
                 case "sys":
                     newValue = System.getProperty(value);
                     if (newValue == null) {
-                        String failMessage = "Processing " + DEPLOYMENT_PROPERTIES_FILE_NAME + " failed.";
-                        throw new RuntimeException("System property " + value + " not found." + failMessage);
+                        if (defaultValue == null) {
+                            throw new RuntimeException("System property" + value + " not found. Processing " +
+                                    DEPLOYMENT_PROPERTIES_FILE_NAME + " failed. Placeholder: " + placeholder);
+                        } else {
+                            newValue = placeholder.replaceAll(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
+                        }
+                    } else {
+                        newValue = placeholder.replaceAll(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
                     }
                     break;
                 case "sec":
                     //todo
+                    newValue = "";
                     break;
                 default:
                     throw new RuntimeException("Unidentified placeholder key: " + key);
             }
+        } else {
+            throw new RuntimeException(
+                    "No matches found for regular expression: " + PLACEHOLDER_REGEX + " in " + placeholder);
         }
         return newValue;
     }
 
-    /**
-     * This method returns the Environment, System, Secure getValue which correspond to the given placeholder. If the
-     * Environment, System, Secure getValue is not available, it will return the default getValue.
-     *
-     * @param placeholder Placeholder that needs to be replaced
-     * @return New getValue which corresponds to placeholder or the default getValue
-     */
-    private static String processPlaceholderWithDefaultValue(String placeholder) {
-        String newValue = placeholder;
-        Matcher matcher = PLACEHOLDER_WITH_DEFAULT_PATTERN.matcher(placeholder);
-        if (matcher.find()) {
-            String key = matcher.group(1).trim();
-            String value = matcher.group(2).trim();
-            String defaultValue = matcher.group(3).trim();
-            switch (key) {
-                case "env":
-                    newValue = System.getenv(value);
-                    if (newValue == null) {
-                        newValue = defaultValue;
-                    }
-                    break;
-                case "sys":
-                    newValue = System.getProperty(value);
-                    if (newValue == null) {
-                        newValue = defaultValue;
-                    }
-                    break;
-                case "sec":
-                    //todo
-                    break;
-                default:
-                    throw new RuntimeException("Unidentified placeholder key: " + key);
-            }
+    private static String getFileTypesString() {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (FileType fileType : FileType.values()) {
+            stringBuffer.append(fileType.getValue()).append("|");
         }
-        return newValue;
+        String value = stringBuffer.toString();
+        return value.substring(0, value.length() - 1);
+    }
+
+    private static String getPlaceholderString() {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (Placeholder placeholder : Placeholder.values()) {
+            stringBuffer.append(placeholder.getValue()).append("|");
+        }
+        String value = stringBuffer.toString();
+        return value.substring(0, value.length() - 1);
     }
 
     private static String getPath() {
-        Path confHome = Utils.getCarbonConfigHome();
-        Path path = Paths.get(confHome.toString(), "deployment.properties");
-        LOGGER.debug("deployment.properties file path: " + path.toString());
-        return path.toString();
+        String fileLocation = System.getProperty(DEPLOYMENT_PROPERTIES);
+        if (fileLocation == null) {
+            fileLocation = System.getenv(DEPLOYMENT_PROPERTIES);
+            if (fileLocation == null) {
+                logger.debug(DEPLOYMENT_PROPERTIES + " not found in both System,Environment variables");
+                Path confHome = Utils.getCarbonConfigHome();
+                Path path = Paths.get(confHome.toString(), "deployment.properties");
+                logger.debug("deployment.properties file path is set to: " + path.toString());
+                fileLocation = path.toString();
+            } else {
+                logger.debug(DEPLOYMENT_PROPERTIES + " location found in Environment variables. Location: " +
+                        fileLocation);
+            }
+        } else {
+            logger.debug(DEPLOYMENT_PROPERTIES + " location found in System variables. Location: " + fileLocation);
+        }
+        return fileLocation;
     }
 }
