@@ -6,16 +6,19 @@
         <transport secure="false">
             <name>abc</name>
             <port>8000</port>
+            <desc>This transport will use 8000 as its port</desc>
         </transport>
         <!--Transport with System properties as values-->
-        <transport secure="$sys:pqr.secure">
+        <transport secure="${sys:pqr.secure}">
             <name>pqr</name>
-            <port>$env:pqr.http.port</port>
+            <port>${env:pqr.http.port}</port>
+            <desc>This transport will use ${env:pqr.http.port} as its port</desc>
         </transport>
         <!--Transport with System properties, default values as values-->
-        <transport secure="$sys:xyz.secure,true">
+        <transport secure="${sys:xyz.secure,true}">
             <name>xyz</name>
-            <port>$sys:env.http.port,9000</port>
+            <port>${sys:xyz.http.port,9000}</port>
+            <desc>This transport will use ${env:xyz.http.port,8888} as its port</desc>
         </transport>
     </transports>
 </configurations>

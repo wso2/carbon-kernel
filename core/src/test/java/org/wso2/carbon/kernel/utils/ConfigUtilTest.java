@@ -80,15 +80,21 @@ public class ConfigUtilTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).getName(), "abc");
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPort(), 8000);
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "false");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getDesc(),
+                    "This transport will use 8000 as its port");
             //Transport 2
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 0);
-            Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "$sys:pqr.secure");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "${sys:pqr.secure}");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getDesc(),
+                    "This transport will use ${env:pqr.http.port} as its port");
             //Transport 3
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 0);
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).isSecure(),
-                    "$sys:xyz.secure,true");
+                    "${sys:xyz.secure,true}");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getDesc(),
+                    "This transport will use ${env:xyz.http.port,8888} as its port");
 
             XML configXml = ConfigUtil.getConfig(file, XML.class);
 
@@ -104,14 +110,20 @@ public class ConfigUtilTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).getName(), "abc");
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPort(), 8001);
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "true");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getDesc(),
+                    "This transport will use 8000 as its port");
             //Transport 2
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 8501);
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "true");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getDesc(),
+                    "This transport will use 8501 as its port");
             //Transport 3
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 9000);
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).isSecure(), "true");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getDesc(),
+                    "This transport will use 8888 as its port");
 
         } catch (JAXBException e) {
             logger.error(e.toString());
@@ -138,14 +150,18 @@ public class ConfigUtilTest {
             Assert.assertEquals(transport1.get("name"), "abc");
             Assert.assertEquals(transport1.get("port"), 8000);
             Assert.assertEquals(transport1.get("secure"), false);
+            Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
             //Transport 2
             Assert.assertEquals(transport2.get("name"), "pqr");
-            Assert.assertEquals(transport2.get("port"), "$env:pqr.http.port");
-            Assert.assertEquals(transport2.get("secure"), "$sys:pqr.secure");
+            Assert.assertEquals(transport2.get("port"), "${env:pqr.http.port}");
+            Assert.assertEquals(transport2.get("secure"), "${sys:pqr.secure}");
+            Assert.assertEquals(transport2.get("desc"), "This transport will use ${env:pqr.http.port} as its port");
             //Transport 3
             Assert.assertEquals(transport3.get("name"), "xyz");
-            Assert.assertEquals(transport3.get("port"), "$env:xyz.http.port,9000");
-            Assert.assertEquals(transport3.get("secure"), "$sys:xyz.secure,true");
+            Assert.assertEquals(transport3.get("port"), "${env:xyz.http.port,9000}");
+            Assert.assertEquals(transport3.get("secure"), "${sys:xyz.secure,true}");
+            Assert.assertEquals(transport3.get("desc"),
+                    "This transport will use ${env:xyz.http.port,8888} as its port");
 
             fileInputStream = new FileInputStream(file);
             YAML configYml = ConfigUtil.getConfig(fileInputStream, file.getName(), YAML.class);
@@ -163,14 +179,17 @@ public class ConfigUtilTest {
             Assert.assertEquals(transport1.get("name"), "abc");
             Assert.assertEquals(transport1.get("port"), 8001);
             Assert.assertEquals(transport1.get("secure"), true);
+            Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
             //Transport 2
             Assert.assertEquals(transport2.get("name"), "pqr");
             Assert.assertEquals(transport2.get("port"), 8501);
             Assert.assertEquals(transport2.get("secure"), true);
+            Assert.assertEquals(transport2.get("desc"), "This transport will use 8501 as its port");
             //Transport 3
             Assert.assertEquals(transport3.get("name"), "xyz");
             Assert.assertEquals(transport3.get("port"), 9000);
             Assert.assertEquals(transport3.get("secure"), true);
+            Assert.assertEquals(transport3.get("desc"), "This transport will use 8888 as its port");
 
         } catch (FileNotFoundException e) {
             logger.error(e.toString());
@@ -192,12 +211,17 @@ public class ConfigUtilTest {
             //Transport 1
             Assert.assertEquals(properties.get("transport.abc.port"), "8000");
             Assert.assertEquals(properties.get("transport.abc.secure"), "false");
+            Assert.assertEquals(properties.get("transport.abc.desc"), "This transport will use 8000 as its port");
             //Transport 2
-            Assert.assertEquals(properties.get("transport.pqr.port"), "$env:pqr.http.port");
-            Assert.assertEquals(properties.get("transport.pqr.secure"), "$sys:pqr.secure");
+            Assert.assertEquals(properties.get("transport.pqr.port"), "${env:pqr.http.port}");
+            Assert.assertEquals(properties.get("transport.pqr.secure"), "${sys:pqr.secure}");
+            Assert.assertEquals(properties.get("transport.pqr.desc"),
+                    "This transport will use ${env:pqr.http.port} as its port");
             //Transport 3
-            Assert.assertEquals(properties.get("transport.xyz.port"), "$env:xyz.http.port,9000");
-            Assert.assertEquals(properties.get("transport.xyz.secure"), "$sys:xyz.secure,true");
+            Assert.assertEquals(properties.get("transport.xyz.port"), "${env:xyz.http.port,9000}");
+            Assert.assertEquals(properties.get("transport.xyz.secure"), "${sys:xyz.secure,true}");
+            Assert.assertEquals(properties.get("transport.xyz.desc"),
+                    "This transport will use ${env:xyz.http.port,8888} as its port");
 
             fileInputStream = new FileInputStream(file);
             Properties configProperties = ConfigUtil.getConfig(fileInputStream, file.getName(), Properties.class);
@@ -209,12 +233,19 @@ public class ConfigUtilTest {
             //Transport 1
             Assert.assertEquals(properties.get("transport.abc.port"), "8001");
             Assert.assertEquals(properties.get("transport.abc.secure"), "true");
+            Assert.assertEquals(properties.get("transport.abc.desc"), "This transport will use 8000 as its port");
+
             //Transport 2
             Assert.assertEquals(properties.get("transport.pqr.port"), "8501");
             Assert.assertEquals(properties.get("transport.pqr.secure"), "true");
+            Assert.assertEquals(properties.get("transport.pqr.desc"),
+                    "This transport will use 8501 as its port");
+
             //Transport 3
             Assert.assertEquals(properties.get("transport.xyz.port"), "9000");
             Assert.assertEquals(properties.get("transport.xyz.secure"), "true");
+            Assert.assertEquals(properties.get("transport.xyz.desc"),
+                    "This transport will use 8888 as its port");
 
         } catch (IOException e) {
             logger.error(e.toString());
@@ -266,14 +297,14 @@ public class ConfigUtilTest {
         setCarbonHome();
         System.clearProperty("abc.http.port");
         String newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport/port");
-        Assert.assertEquals(newValue, "$sys:abc.http.port");
+        Assert.assertEquals(newValue, "${sys:abc.http.port}");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
     public void getConfigTest3() {
         setCarbonHome();
         String newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport/port");
-        Assert.assertEquals(newValue, "$env:abc.http.port");
+        Assert.assertEquals(newValue, "${env:abc.http.port}");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
