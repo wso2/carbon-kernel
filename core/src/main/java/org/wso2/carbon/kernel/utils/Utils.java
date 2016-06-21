@@ -61,7 +61,6 @@ public class Utils {
 
     private Utils() {
         throw new AssertionError("Instantiating utility class...");
-
     }
 
     /**
@@ -286,20 +285,20 @@ public class Utils {
      * @return String in XML format
      */
     public static String convertPropertiesToXml(InputStream inputStream, String rootElement) {
-        String xmlString;
+        StringBuilder stringBuilder;
         java.util.Properties properties = new java.util.Properties();
         try {
             properties.load(inputStream);
-            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder = new StringBuilder();
             properties.entrySet().forEach(entry -> stringBuilder
                     .append(createXmlElement(entry.getKey().toString(), entry.getValue().toString())));
-            xmlString = stringBuilder.toString();
+
         } catch (IOException e) {
             logger.error("Exception occurred while converting Properties to XML: ", e);
             throw new RuntimeException("Exception occurred while converting Properties to XML: ", e);
         }
+        String xmlString = createXmlElement(rootElement, stringBuilder.toString());
         //Need to add a root element
-        xmlString = createXmlElement(rootElement, xmlString);
         return prettyFormatXMLString(xmlString);
     }
 
