@@ -44,7 +44,7 @@ limitations under the License.
             <!--keep this test as the last since there is a issue in windows intermittently-->
             <class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>
 
-            Test Classes for test container
+            <!--Test Classes for test container-->
             <class name="org.wso2.carbon.osgi.testcontainer.DistributionMavenTest"/>
             <class name="org.wso2.carbon.osgi.testcontainer.DistributionZipTest"/>
             <class name="org.wso2.carbon.osgi.testcontainer.DistributionDirectoryTest"/>
