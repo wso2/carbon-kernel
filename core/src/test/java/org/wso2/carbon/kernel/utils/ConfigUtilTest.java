@@ -87,7 +87,7 @@ public class ConfigUtilTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 0);
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "${sys:pqr.secure}");
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getDesc(),
-                    "This transport will use ${env:pqr.http.port} as its port");
+                    "This transport will use ${env:pqr.http.port} as its port. Secure - ${sys:pqr.secure}");
             //Transport 3
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 0);
@@ -117,7 +117,7 @@ public class ConfigUtilTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 8501);
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "true");
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getDesc(),
-                    "This transport will use 8501 as its port");
+                    "This transport will use 8501 as its port. Secure - true");
             //Transport 3
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 9000);
@@ -155,7 +155,8 @@ public class ConfigUtilTest {
             Assert.assertEquals(transport2.get("name"), "pqr");
             Assert.assertEquals(transport2.get("port"), "${env:pqr.http.port}");
             Assert.assertEquals(transport2.get("secure"), "${sys:pqr.secure}");
-            Assert.assertEquals(transport2.get("desc"), "This transport will use ${env:pqr.http.port} as its port");
+            Assert.assertEquals(transport2.get("desc"), "This transport will use ${env:pqr.http.port} as its port. "
+                    + "Secure - ${sys:pqr.secure}");
             //Transport 3
             Assert.assertEquals(transport3.get("name"), "xyz");
             Assert.assertEquals(transport3.get("port"), "${env:xyz.http.port,9000}");
@@ -184,7 +185,7 @@ public class ConfigUtilTest {
             Assert.assertEquals(transport2.get("name"), "pqr");
             Assert.assertEquals(transport2.get("port"), 8501);
             Assert.assertEquals(transport2.get("secure"), true);
-            Assert.assertEquals(transport2.get("desc"), "This transport will use 8501 as its port");
+            Assert.assertEquals(transport2.get("desc"), "This transport will use 8501 as its port. Secure - true");
             //Transport 3
             Assert.assertEquals(transport3.get("name"), "xyz");
             Assert.assertEquals(transport3.get("port"), 9000);
@@ -216,7 +217,7 @@ public class ConfigUtilTest {
             Assert.assertEquals(properties.get("transport.pqr.port"), "${env:pqr.http.port}");
             Assert.assertEquals(properties.get("transport.pqr.secure"), "${sys:pqr.secure}");
             Assert.assertEquals(properties.get("transport.pqr.desc"),
-                    "This transport will use ${env:pqr.http.port} as its port");
+                    "This transport will use ${env:pqr.http.port} as its port. Secure - ${sys:pqr.secure}");
             //Transport 3
             Assert.assertEquals(properties.get("transport.xyz.port"), "${env:xyz.http.port,9000}");
             Assert.assertEquals(properties.get("transport.xyz.secure"), "${sys:xyz.secure,true}");
@@ -239,7 +240,7 @@ public class ConfigUtilTest {
             Assert.assertEquals(properties.get("transport.pqr.port"), "8501");
             Assert.assertEquals(properties.get("transport.pqr.secure"), "true");
             Assert.assertEquals(properties.get("transport.pqr.desc"),
-                    "This transport will use 8501 as its port");
+                    "This transport will use 8501 as its port. Secure - true");
 
             //Transport 3
             Assert.assertEquals(properties.get("transport.xyz.port"), "9000");
