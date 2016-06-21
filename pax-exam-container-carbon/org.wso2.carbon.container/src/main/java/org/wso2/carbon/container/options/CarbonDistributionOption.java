@@ -1,58 +1,73 @@
 package org.wso2.carbon.container.options;
 
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.extra.VMOption;
+import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
-import static java.lang.String.format;
+import java.nio.file.Path;
 
 /**
- * Final class to provide an intuitive way to configure the specific carbon distribution
- * options.
+ * Utility class to provide an easy and intuitive way to configure the specific carbon distribution options.
  */
-public final class CarbonDistributionOption {
+public class CarbonDistributionOption {
 
     /**
-     * Hidden utility class constructor
+     * Hidden utility class constructor.
      */
     private CarbonDistributionOption() {
     }
 
     /**
-     * Per default the Directory pax-exam is deleting the test directories after a test is over. To keep those
-     * directories (for later evaluation) simply set this option.
-     * 
-     * @return keep runtime Directory option
+     * Set the carbon distribution path option.
+     * @return an option to set the path to distribution.
      */
-    public static Option keepRuntimeDirectory() {
+    public static CarbonHomeOption carbonHome() {
+        return new CarbonHomeOption();
+    }
+
+    /**
+     * Copy a file from  one location to another location in the distribution..
+     * @param sourcePath
+     * @param destinationPath
+     * @return carbon file copy option
+     */
+    public static Option carbonFileCopy(Path sourcePath, Path destinationPath) {
+        return new CarbonFileCopyOption(sourcePath, destinationPath);
+    }
+
+    /**
+     * Copy a maven bundle to the dropins directory.
+     * @param mavenArtifactUrlReference
+     * @return carbon dropins bundle option
+     */
+    public static Option carbonDropinsBundle(MavenArtifactUrlReference mavenArtifactUrlReference) {
+        return new CarbonDropinsBundleOption(mavenArtifactUrlReference);
+    }
+
+    /**
+     * Per default the folder pax-exam is deleting the test directories after a test is over.
+     * To keep those directories (for later evaluation) simply set this option.
+     *
+     * @return keep runtime folder option
+     */
+    public static Option keepRuntimeFolder() {
         return new KeepRuntimeDirectory();
     }
 
     /**
-     * Configures which distribution options to use.
-     *
-     * @return option
-     */
-    public static CarbonDistributionConfigurationOption CarbonDistributionConfiguration() {
-        return new CarbonDistributionConfigurationOption();
-    }
-
-    /**
-     * Activates debugging on the Carbon container using the standard 5005 port.
-     *
-     * @return option
+     * Set the debug configuration to default port 5005.
+     * @return debug configuration option
      */
     public static Option debugConfiguration() {
-        return debugConfiguration("5005");
+        return new DebugConfigurationOption();
     }
 
     /**
-     * Returns an option to activate and configure remote debugging for the Carbon container.
-     * 
+     * Set the debug configuration to the given port.
      * @param port
-     *            remote debugger port
-     * @return option
+     * @return debug configuration option
      */
-    public static Option debugConfiguration(String port) {
-        return new VMOption(format("-debug %s", port));
+    public static Option debugConfiguration(int port) {
+        return new DebugConfigurationOption(port);
     }
+
 }

@@ -25,11 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Internal runner to create the framework process to start the distribution.
+ */
 public class InternalRunner {
 
     private final Object shutdownHookMonitor = new Object();
+    private final Object frameworkProcessMonitor = new Object();
     private Process frameworkProcess;
-    private Object frameworkProcessMonitor = new Object();
     private Thread shutdownHook;
 
     public synchronized void exec(CommandLineBuilder commandLine, final String[] envOptions) {
@@ -60,14 +63,14 @@ public class InternalRunner {
         return env.toArray(new String[env.size()]);
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         try {
             if (shutdownHook != null) {
                 synchronized (shutdownHookMonitor) {
                     if (shutdownHook != null) {
                         Runtime.getRuntime().removeShutdownHook(shutdownHook);
                         frameworkProcess = null;
-                        shutdownHook.run();
+                        shutdownHook.start();
                         shutdownHook = null;
                     }
                 }
@@ -86,7 +89,9 @@ public class InternalRunner {
                 if (shutdownHook != null) {
                     synchronized (frameworkProcessMonitor) {
                         try {
-                            frameworkProcess.waitFor();
+                            if (frameworkProcess != null) {
+                                frameworkProcess.waitFor();
+                            }
                             shutdown();
                         } catch (Throwable e) {
                             shutdown();
@@ -98,7 +103,7 @@ public class InternalRunner {
     }
 
     /**
-     * Create helper thread to safely shutdown the external framework process
+     * Create helper thread to safely shutdown the external framework process.
      *
      * @param process framework process
      * @return stream handler
@@ -115,12 +120,10 @@ public class InternalRunner {
 
             try {
                 process.destroy();
+            } catch (Exception e) {
+                // ignore if already shutting down.
             }
-            // CHECKSTYLE:SKIP
-            catch (Exception e) {
-                // ignore if already shutting down
-            }
-        }, "Pax-Carbon.Runner shutdown hook");
+        });
     }
 
 }

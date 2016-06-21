@@ -231,19 +231,6 @@
                                     </artifactItems>
                                 </configuration>
                             </execution>
-
-                            <!--<execution>-->
-                                <!--<id>copy-jacoco-dependencies</id>-->
-                                <!--<phase>compile</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>copy-dependencies</goal>-->
-                                <!--</goals>-->
-                                <!--<configuration>-->
-                                    <!--<outputDirectory>${project.build.directory}</outputDirectory>-->
-                                    <!--<includeTypes>jar</includeTypes>-->
-                                    <!--<includeArtifactIds>org.jacoco.ant</includeArtifactIds>-->
-                                <!--</configuration>-->
-                            <!--</execution>-->
                         </executions>
                     </plugin>
                     <plugin>
@@ -253,9 +240,9 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
-                                <pax.default.distribution>
+                                <org.wso2.carbon.test.default.distribution>
                                     org.wso2.carbon:wso2carbon-kernel-test
-                                </pax.default.distribution>
+                                </org.wso2.carbon.test.default.distribution>
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
                             <suiteXmlFiles>

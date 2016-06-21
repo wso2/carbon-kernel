@@ -25,16 +25,17 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
+import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDropinsBundle;
 
 /**
  * A test strategy to test and verify the custom pluggable Runtime's.
@@ -62,16 +63,16 @@ public class CustomRuntimeOSGiTest {
     public Option[] createConfiguration() {
 
         List<Option> optionList = new ArrayList<>();
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.runtime.jar").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-                .versionAsInProject());
-
-        optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
+        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2"
+                + ".carbon")
+                .versionAsInProject()));
+        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2"
+                + ".carbon")
+                .versionAsInProject()));
+        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.jar").groupId("org.wso2.carbon")
+                .versionAsInProject()));
+        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                .versionAsInProject()));
         return optionList.toArray(new Option[optionList.size()]);
     }
 

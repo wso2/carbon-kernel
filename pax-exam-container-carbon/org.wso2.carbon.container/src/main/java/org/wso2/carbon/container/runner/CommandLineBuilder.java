@@ -16,6 +16,9 @@
  */
 package org.wso2.carbon.container.runner;
 
+/**
+ * Command line builder to build command line commands.
+ */
 public class CommandLineBuilder {
 
     /**
@@ -65,7 +68,7 @@ public class CommandLineBuilder {
      * @return command line
      */
     public String[] toArray() {
-        return commandLine;
+        return commandLine.clone();
     }
 
 }

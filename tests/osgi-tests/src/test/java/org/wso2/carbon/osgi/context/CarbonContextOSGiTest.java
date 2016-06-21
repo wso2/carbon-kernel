@@ -18,7 +18,6 @@ package org.wso2.carbon.osgi.context;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.SystemPropertyOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -28,21 +27,24 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionConfigurationFileCopyOption;
+import org.wso2.carbon.container.options.CarbonFileCopyOption;
 import org.wso2.carbon.context.test.CarbonContextInvoker;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDropinsBundle;
 
 /**
  * CarbonContextOSGiTest class is to test the functionality of the Carbon Context API.
@@ -61,11 +63,11 @@ public class CarbonContextOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        List<Option> optionList = new ArrayList<>();
         optionList.add(copyCarbonYAMLOption());
-        optionList.add(mavenBundle().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(new SystemPropertyOption(Constants.TENANT_NAME).value(TEST_TENANT_NAME));
+        optionList.add(carbonDropinsBundle(maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon")
+                .versionAsInProject()));
+        optionList.add(systemProperty(Constants.TENANT_NAME).value(TEST_TENANT_NAME));
         return optionList.toArray(new Option[optionList.size()]);
     }
 
@@ -134,7 +136,7 @@ public class CarbonContextOSGiTest {
     /**
      * Replace the existing carbon.yaml file with the file found at runtime resources directory.
      */
-    private CarbonDistributionConfigurationFileCopyOption copyCarbonYAMLOption() {
+    private CarbonFileCopyOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
@@ -142,7 +144,6 @@ public class CarbonContextOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yml");
-        return new CarbonDistributionConfigurationFileCopyOption(carbonYmlFilePath,
-                Paths.get("conf", "carbon.yml"));
+        return new CarbonFileCopyOption(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
     }
 }

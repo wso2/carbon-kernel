@@ -22,7 +22,10 @@ import org.ops4j.pax.exam.options.MavenUrlReference;
 
 import java.nio.file.Path;
 
-public class CarbonDistributionConfigurationOption implements Option {
+/**
+ * Hold distribution path information.
+ */
+public class CarbonHomeOption implements Option {
 
     private Path distributionDirectoryPath;
     private Path distributionZipPath;
@@ -30,7 +33,7 @@ public class CarbonDistributionConfigurationOption implements Option {
     private String name;
     private Path unpackDirectory;
 
-    public CarbonDistributionConfigurationOption() {
+    public CarbonHomeOption() {
         distributionDirectoryPath = null;
         distributionMavenURL = null;
         name = null;
@@ -42,7 +45,7 @@ public class CarbonDistributionConfigurationOption implements Option {
      * @param distributionZipPath distribution path
      * @return this
      */
-    public CarbonDistributionConfigurationOption distributionZipURL(Path distributionZipPath) {
+    public CarbonHomeOption distributionZipURL(Path distributionZipPath) {
         NullArgumentException.validateNotNull(distributionZipPath, "Distribution Zip Path");
         this.distributionZipPath = distributionZipPath;
         return this;
@@ -54,7 +57,7 @@ public class CarbonDistributionConfigurationOption implements Option {
      * @param distributionDirectoryPath distribution directory path
      * @return this
      */
-    public CarbonDistributionConfigurationOption distributionDirectoryURL(Path distributionDirectoryPath) {
+    public CarbonHomeOption distributionDirectoryURL(Path distributionDirectoryPath) {
         NullArgumentException.validateNotNull(distributionDirectoryPath, "Distribution Directory Path");
         this.distributionDirectoryPath = distributionDirectoryPath;
         return this;
@@ -66,7 +69,7 @@ public class CarbonDistributionConfigurationOption implements Option {
      * @param distributionMavenURL distribution maven URL
      * @return this
      */
-    public CarbonDistributionConfigurationOption distributionMavenURL(MavenUrlReference distributionMavenURL) {
+    public CarbonHomeOption distributionMavenURL(MavenUrlReference distributionMavenURL) {
         NullArgumentException.validateNotNull(distributionMavenURL, "Distribution Maven URL");
         this.distributionMavenURL = distributionMavenURL;
         return this;
@@ -78,7 +81,7 @@ public class CarbonDistributionConfigurationOption implements Option {
      * @param name distribution name
      * @return this
      */
-    public CarbonDistributionConfigurationOption name(String name) {
+    public CarbonHomeOption name(String name) {
         this.name = name;
         return this;
     }
@@ -90,7 +93,7 @@ public class CarbonDistributionConfigurationOption implements Option {
      * @param unpackDirectory unpack directory
      * @return this for fluent syntax
      */
-    public CarbonDistributionConfigurationOption unpackDirectory(Path unpackDirectory) {
+    public CarbonHomeOption unpackDirectory(Path unpackDirectory) {
         this.unpackDirectory = unpackDirectory;
         return this;
     }

@@ -5,7 +5,6 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -15,15 +14,11 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.EnvironmentPropertyOption;
+import org.wso2.carbon.container.options.CarbonHomeOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 import java.nio.file.Paths;
-
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -44,18 +39,17 @@ public class Sample2 {
             basedir = Paths.get(".").toString();
         }
 
-        return new Option[] { CarbonDistributionConfiguration().distributionZipURL(
-                Paths.get(basedir, "..", "test-distribution", "target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")),
-                keepRuntimeDirectory(),
-        };
+        return new Option[] { new CarbonHomeOption().distributionZipURL(
+                Paths.get(basedir, "..", "test-distribution", "target",
+                        "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")), };
     }
 
     @Test
     public void testBundles2() {
         logger.info("Sample 2-1");
-//        logger.info(bundleContext.getBundle().getSymbolicName());
-//        logger.info(System.getProperty("carbon.home"));
-//        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
+        //        logger.info(bundleContext.getBundle().getSymbolicName());
+        //        logger.info(System.getProperty("carbon.home"));
+        //        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
     }
 
     @Test

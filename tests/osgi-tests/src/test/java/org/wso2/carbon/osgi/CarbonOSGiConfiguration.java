@@ -17,9 +17,9 @@ package org.wso2.carbon.osgi;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
-import java.util.List;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -31,14 +31,15 @@ import java.util.List;
  */
 public class CarbonOSGiConfiguration implements ConfigurationFactory {
 
-    @Override
     /**
      * Populates the default configuration required to run PAX-EXAM.
+     *
+     * @return option list
      */
+    @Override
     public Option[] createConfiguration() {
-        //setting up the environment
-//        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-//        return optionList.toArray(new Option[optionList.size()]);
-        return null;
+        return new Option[] { carbonHome().distributionMavenURL(
+                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+                        .versionAsInProject()) };
     }
 }

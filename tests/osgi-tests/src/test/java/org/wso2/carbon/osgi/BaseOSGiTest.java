@@ -29,17 +29,16 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionConfigurationFileCopyOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.kernel.utils.Utils;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonFileCopy;
 
 /**
  * Base OSGi class to test the OSGi status of the org.wso2.carbon.core bundle.
@@ -59,7 +58,7 @@ public class BaseOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        List<Option> optionList = new ArrayList<>();
         optionList.add(copyCarbonYAMLOption());
         return optionList.toArray(new Option[optionList.size()]);
     }
@@ -88,7 +87,7 @@ public class BaseOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private CarbonDistributionConfigurationFileCopyOption copyCarbonYAMLOption() {
+    private Option copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
@@ -96,7 +95,6 @@ public class BaseOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-        return new CarbonDistributionConfigurationFileCopyOption(carbonYmlFilePath,
-                Paths.get("conf", "carbon.yml"));
+        return carbonFileCopy(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
     }
 }

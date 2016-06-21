@@ -1,4 +1,4 @@
-package org.wso2.carbon.container;
+package org.wso2.carbon.osgi.testcontainer;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
@@ -11,18 +11,19 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CarbonHomeOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
+import java.nio.file.Paths;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
-public class CarbonTestContainerTest {
+public class DistributionDirectoryTest {
 
     @Inject
     protected BundleContext bundleContext;
@@ -32,16 +33,12 @@ public class CarbonTestContainerTest {
 
     @Configuration
     public Option[] config() {
-        return new Option[] {
-                CarbonDistributionConfiguration().distributionMavenURL(
-                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                                .versionAsInProject()),
-                keepRuntimeDirectory(),
-        };
+        return new Option[] { new CarbonHomeOption().distributionDirectoryURL(
+                Paths.get("target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT")), };
     }
 
     @Test
-    public void testCarbonCoreBundle() {
+    public void testCarbonCoreBundleStatus() {
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {
@@ -50,6 +47,7 @@ public class CarbonTestContainerTest {
             }
         }
         Assert.assertNotNull(coreBundle, "Carbon Core bundle not found");
+        Assert.assertEquals(coreBundle.getState(), Bundle.ACTIVE, "Carbon Core Bundle is not activated");
     }
 
 }

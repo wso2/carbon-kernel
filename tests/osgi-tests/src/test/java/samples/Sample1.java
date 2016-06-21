@@ -5,7 +5,6 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -15,18 +14,14 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionExternalBundleOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 
-import java.nio.file.Paths;
-import java.util.Arrays;
-
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.CarbonDistributionConfiguration;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.debugConfiguration;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeDirectory;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeFolder;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -43,10 +38,11 @@ public class Sample1 {
     @Configuration
     public Option[] config() {
         return new Option[] {
-                CarbonDistributionConfiguration().distributionMavenURL(
+                carbonHome().distributionMavenURL(
                         maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
                                 .versionAsInProject()),
-                keepRuntimeDirectory(),
+                debugConfiguration(8500),
+                keepRuntimeFolder()
         };
     }
 

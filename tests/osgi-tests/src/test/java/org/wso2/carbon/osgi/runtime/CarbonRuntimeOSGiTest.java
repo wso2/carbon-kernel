@@ -28,18 +28,19 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionConfigurationFileCopyOption;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonFileCopy;
 
 /**
  * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service.
@@ -65,7 +66,7 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+        List<Option> optionList = new ArrayList<>();
         optionList.add(copyCarbonYAMLOption());
         return optionList.toArray(new Option[optionList.size()]);
     }
@@ -109,7 +110,7 @@ public class CarbonRuntimeOSGiTest {
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
      */
-    private CarbonDistributionConfigurationFileCopyOption copyCarbonYAMLOption() {
+    private Option copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
@@ -117,7 +118,6 @@ public class CarbonRuntimeOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-        return new CarbonDistributionConfigurationFileCopyOption(carbonYmlFilePath,
-                Paths.get("conf", "carbon.yml"));
+        return carbonFileCopy(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
     }
 }

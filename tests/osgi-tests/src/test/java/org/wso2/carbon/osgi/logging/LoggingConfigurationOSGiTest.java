@@ -16,7 +16,6 @@
 package org.wso2.carbon.osgi.logging;
 
 import org.ops4j.pax.exam.ExamFactory;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -30,13 +29,11 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionConfigurationOption;
-import org.wso2.carbon.container.options.CarbonDistributionOption;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,10 +41,8 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.inject.Inject;
 
 /**
  * Logging Configuration OSGi test case.
@@ -61,33 +56,23 @@ public class LoggingConfigurationOSGiTest {
     private static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
     private static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";
     private static final String LOG4J2_CONFIG_FILE = "log4j2.xml";
-
-    @Inject
-    private ConfigurationAdmin configAdmin;
-
-    @Inject
-    @Filter("(service.pid=org.ops4j.pax.logging)")
-    private ManagedService managedService;
-
-    @Inject
-    private CarbonServerInfo carbonServerInfo;
-
     private static String loggingConfigDirectory;
-
-    @org.ops4j.pax.exam.Configuration
-    public Option[] createConfiguration() {
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        optionList.add(CarbonDistributionOption.keepRuntimeDirectory());
-        return optionList.toArray(new Option[optionList.size()]);
-    }
 
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = Paths.get("..","..").toString();
+            basedir = Paths.get("..", "..").toString();
         }
         loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }
+
+    @Inject
+    private ConfigurationAdmin configAdmin;
+    @Inject
+    @Filter("(service.pid=org.ops4j.pax.logging)")
+    private ManagedService managedService;
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testConfigAdminService() throws IOException {
@@ -118,7 +103,7 @@ public class LoggingConfigurationOSGiTest {
         Assert.assertEquals(logger.isDebugEnabled(), true);
     }
 
-    @Test (dependsOnMethods = "testLog4j2ConfigUpdate")
+    @Test(dependsOnMethods = "testLog4j2ConfigUpdate")
     public void testAuditLog() throws IOException, ConfigurationException {
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
         Principal principal = () -> "Banda";

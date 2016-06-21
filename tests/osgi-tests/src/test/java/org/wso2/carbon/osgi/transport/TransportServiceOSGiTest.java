@@ -10,9 +10,9 @@ import org.osgi.framework.ServiceRegistration;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.container.CarbonContainerFactory;
 
 import javax.inject.Inject;
 
@@ -35,8 +35,8 @@ public class TransportServiceOSGiTest {
 
     @Test
     public void testRegisterTransport() {
-        ServiceRegistration serviceRegistration = bundleContext.registerService(CarbonTransport.class,
-                new CustomCarbonTransport(TRANSPORT_ID), null);
+        ServiceRegistration serviceRegistration = bundleContext
+                .registerService(CarbonTransport.class, new CustomCarbonTransport(TRANSPORT_ID), null);
         ServiceReference reference = bundleContext.getServiceReference(CarbonTransport.class.getName());
         Assert.assertNotNull(reference, "Custom Carbon Transport Service Reference is null");
         CustomCarbonTransport customCarbonTransport = (CustomCarbonTransport) bundleContext.getService(reference);

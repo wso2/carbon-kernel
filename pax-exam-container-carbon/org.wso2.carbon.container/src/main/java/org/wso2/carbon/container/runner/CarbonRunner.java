@@ -18,10 +18,15 @@ package org.wso2.carbon.container.runner;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * Runner class to execute the carbon.sh.
+ */
 public class CarbonRunner implements Runner {
 
-    private static final boolean IS_WINDOWS_OS = System.getProperty("os.name").toLowerCase().contains("windows");
+    private static final boolean IS_WINDOWS_OS = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
+            .contains("windows");
     private InternalRunner runner;
 
     public CarbonRunner() {
@@ -29,7 +34,7 @@ public class CarbonRunner implements Runner {
     }
 
     @Override
-    public synchronized void exec(String[] environment, Path carbonHome, List<String> javaOpts) {
+    public synchronized void exec(String[] environment, Path carbonHome, List<String> options) {
         Thread thread = new Thread("CarbonJavaRunner") {
             @Override
             public void run() {
@@ -41,7 +46,7 @@ public class CarbonRunner implements Runner {
                     commandLine.append(carbonHome.toAbsolutePath() + "/bin/carbon.sh");
                 }
 
-                commandLine.append(javaOpts.toArray(new String[javaOpts.size()]));
+                commandLine.append(options.toArray(new String[options.size()]));
                 runner.exec(commandLine, environment);
             }
         };
@@ -52,5 +57,4 @@ public class CarbonRunner implements Runner {
     public synchronized void shutdown() {
         runner.shutdown();
     }
-
 }

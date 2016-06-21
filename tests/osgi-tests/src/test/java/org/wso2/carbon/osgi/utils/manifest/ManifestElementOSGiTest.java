@@ -26,19 +26,20 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.container.CarbonContainerFactory;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.inject.Inject;
 
+import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDropinsBundle;
 
 /**
  * OSGi tests class to test org.wso2.carbon.kernel.utils.manifest.ManifestElement as OSGi service registration.
@@ -61,27 +62,22 @@ public class ManifestElementOSGiTest {
     public Option[] createConfiguration() {
 
         List<Option> optionList = new ArrayList<>();
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-                .versionAsInProject());
-
-        optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
+        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
+                .versionAsInProject()));
+        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                .versionAsInProject()));
         return optionList.toArray(new Option[optionList.size()]);
     }
 
     @Test
     public void testParseHeader() {
-        Bundle carbonCoreBundle = Arrays.asList(bundleContext.getBundles())
-                .stream()
-                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.sample.deployer.mgt"))
-                .findFirst()
-                .get();
+        Bundle carbonCoreBundle = Arrays.asList(bundleContext.getBundles()).stream()
+                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.sample.deployer.mgt")).findFirst().get();
 
         String headerValue = carbonCoreBundle.getHeaders().get(CARBON_COMPONENT);
         try {
-            List<ManifestElement> elements = ManifestElement.parseHeader(CARBON_COMPONENT, headerValue,
-                    bundleContext.getBundle());
+            List<ManifestElement> elements = ManifestElement
+                    .parseHeader(CARBON_COMPONENT, headerValue, bundleContext.getBundle());
             Assert.assertTrue(elements.size() > 0);
 
             ManifestElement firstElement = elements.get(0);
@@ -101,8 +97,8 @@ public class ManifestElementOSGiTest {
     @Test
     public void testParseHeaderEmptyValueTest() {
         try {
-            List<ManifestElement> elements = ManifestElement.parseHeader(CARBON_COMPONENT, null,
-                    bundleContext.getBundle());
+            List<ManifestElement> elements = ManifestElement
+                    .parseHeader(CARBON_COMPONENT, null, bundleContext.getBundle());
             Assert.assertEquals(0, elements.size());
         } catch (ManifestElementParserException e) {
             Assert.assertTrue(false);

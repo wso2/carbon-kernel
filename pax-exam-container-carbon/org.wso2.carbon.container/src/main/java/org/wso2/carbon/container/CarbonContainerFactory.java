@@ -20,8 +20,7 @@ import org.kohsuke.MetaInfServices;
 import org.ops4j.pax.exam.ExamSystem;
 import org.ops4j.pax.exam.TestContainer;
 import org.ops4j.pax.exam.TestContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionConfigurationOption;
-import org.wso2.carbon.container.options.CarbonDistributionOption;
+import org.wso2.carbon.container.options.CarbonHomeOption;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,26 +28,41 @@ import java.util.stream.Collectors;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
+/**
+ * Factory class for the CarbonTestContainer.
+ */
 @MetaInfServices
 public class CarbonContainerFactory implements TestContainerFactory {
 
     @Override
     public TestContainer[] create(ExamSystem system) {
-        List<TestContainer> containers = Arrays.asList(system.getOptions(CarbonDistributionConfigurationOption.class))
-                .stream().map(option -> new CarbonTestContainer(system, option))
-                .collect(Collectors.toList());
+        List<TestContainer> containers = Arrays.asList(system.getOptions(CarbonHomeOption.class)).stream()
+                .map(option -> new CarbonTestContainer(system, option)).collect(Collectors.toList());
 
-        if(containers.isEmpty()){
+        if (containers.isEmpty()) {
             containers.add(new CarbonTestContainer(system, getDefaultConfiguration()));
         }
 
         return containers.toArray(new TestContainer[containers.size()]);
     }
 
-    private CarbonDistributionConfigurationOption getDefaultConfiguration(){
-        String defaultDistribution = System.getProperty("pax.default.distribution");
+    /**
+     * Set the default distribution.
+     *
+     * @return carbon home option
+     */
+    private CarbonHomeOption getDefaultConfiguration() {
+        String defaultDistribution = System.getProperty("org.wso2.carbon.test.default.distribution");
+        if (defaultDistribution == null) {
+            throw new IllegalStateException("Default distribution is not specified.");
+        }
         String[] distribution = defaultDistribution.split(":");
-        return CarbonDistributionOption.CarbonDistributionConfiguration().distributionMavenURL(maven().groupId
-                (distribution[0]).artifactId(distribution[1]).versionAsInProject().type("zip"));
+        if (distribution.length < 3) {
+            return new CarbonHomeOption().distributionMavenURL(
+                    maven().groupId(distribution[0]).artifactId(distribution[1]).versionAsInProject().type("zip"));
+        } else {
+            return new CarbonHomeOption().distributionMavenURL(
+                    maven().groupId(distribution[0]).artifactId(distribution[1]).version(distribution[3]));
+        }
     }
 }

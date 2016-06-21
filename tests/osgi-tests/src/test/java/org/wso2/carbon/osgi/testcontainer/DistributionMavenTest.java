@@ -1,4 +1,4 @@
-package samples;
+package org.wso2.carbon.osgi.testcontainer;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;
@@ -8,25 +8,21 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDropinsBundleOption;
-import org.wso2.carbon.container.options.CarbonHomeOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
-public class Sample5 {
-    private static final Logger logger = LoggerFactory.getLogger(Sample5.class);
+public class DistributionMavenTest {
 
     @Inject
     protected BundleContext bundleContext;
@@ -36,22 +32,15 @@ public class Sample5 {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { new CarbonHomeOption().distributionMavenURL(
-                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                        .version("5.1.0-SNAPSHOT")), new CarbonDropinsBundleOption(
-                maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon").versionAsInProject()), };
+        return new Option[] {
+                carbonHome().distributionMavenURL(
+                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+                                .versionAsInProject())
+        };
     }
-
-    //    @Test
-    //    public void testBundles() {
-    //        logger.info(bundleContext.getBundle().getSymbolicName());
-    //        logger.info(System.getProperty("carbon.home"));
-    //        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
-    //    }
 
     @Test
     public void testCarbonCoreBundleStatus() {
-        logger.info("Sample 5");
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {
