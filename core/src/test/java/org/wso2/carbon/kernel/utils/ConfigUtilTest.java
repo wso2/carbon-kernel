@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -93,27 +92,27 @@ public class ConfigUtilTest {
 
             XML configXml = ConfigUtil.getConfig(file, XML.class);
 
-            Optional<String> value = configXml.getValue();
-            if (value.isPresent()) {
-                Source xmlInput = new StreamSource(new StringReader(value.get()));
-                jaxbContext = JAXBContext.newInstance(Configurations.class);
-                unmarshaller = jaxbContext.createUnmarshaller();
-                configurations = (Configurations) unmarshaller.unmarshal(xmlInput);
+            String value = configXml.getValue();
 
-                //Transport 1
-                Assert.assertEquals(configurations.getTenant(), "new_tenant");
-                Assert.assertEquals(configurations.getTransports().getTransport().get(0).getName(), "abc");
-                Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPort(), 8001);
-                Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "true");
-                //Transport 2
-                Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
-                Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 8501);
-                Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "true");
-                //Transport 3
-                Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
-                Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 9000);
-                Assert.assertEquals(configurations.getTransports().getTransport().get(2).isSecure(), "true");
-            }
+            Source xmlInput = new StreamSource(new StringReader(value));
+            jaxbContext = JAXBContext.newInstance(Configurations.class);
+            unmarshaller = jaxbContext.createUnmarshaller();
+            configurations = (Configurations) unmarshaller.unmarshal(xmlInput);
+
+            //Transport 1
+            Assert.assertEquals(configurations.getTenant(), "new_tenant");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getName(), "abc");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPort(), 8001);
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "true");
+            //Transport 2
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 8501);
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "true");
+            //Transport 3
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 9000);
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).isSecure(), "true");
+
         } catch (JAXBException e) {
             logger.error(e.toString());
             Assert.fail();
@@ -151,28 +150,28 @@ public class ConfigUtilTest {
             fileInputStream = new FileInputStream(file);
             YAML configYml = ConfigUtil.getConfig(fileInputStream, file.getName(), YAML.class);
             yaml = new Yaml();
-            Optional<String> value = configYml.getValue();
-            if (value.isPresent()) {
-                map = yaml.loadAs(value.get(), Map.class);
-                transports = (ArrayList) map.get("transports");
-                transport1 = (LinkedHashMap) ((LinkedHashMap) transports.get(0)).get("transport");
-                transport2 = (LinkedHashMap) ((LinkedHashMap) transports.get(1)).get("transport");
-                transport3 = (LinkedHashMap) ((LinkedHashMap) transports.get(2)).get("transport");
+            String value = configYml.getValue();
 
-                Assert.assertEquals(map.get("tenant"), "new_tenant");
-                //Transport 1
-                Assert.assertEquals(transport1.get("name"), "abc");
-                Assert.assertEquals(transport1.get("port"), 8001);
-                Assert.assertEquals(transport1.get("secure"), true);
-                //Transport 2
-                Assert.assertEquals(transport2.get("name"), "pqr");
-                Assert.assertEquals(transport2.get("port"), 8501);
-                Assert.assertEquals(transport2.get("secure"), true);
-                //Transport 3
-                Assert.assertEquals(transport3.get("name"), "xyz");
-                Assert.assertEquals(transport3.get("port"), 9000);
-                Assert.assertEquals(transport3.get("secure"), true);
-            }
+            map = yaml.loadAs(value, Map.class);
+            transports = (ArrayList) map.get("transports");
+            transport1 = (LinkedHashMap) ((LinkedHashMap) transports.get(0)).get("transport");
+            transport2 = (LinkedHashMap) ((LinkedHashMap) transports.get(1)).get("transport");
+            transport3 = (LinkedHashMap) ((LinkedHashMap) transports.get(2)).get("transport");
+
+            Assert.assertEquals(map.get("tenant"), "new_tenant");
+            //Transport 1
+            Assert.assertEquals(transport1.get("name"), "abc");
+            Assert.assertEquals(transport1.get("port"), 8001);
+            Assert.assertEquals(transport1.get("secure"), true);
+            //Transport 2
+            Assert.assertEquals(transport2.get("name"), "pqr");
+            Assert.assertEquals(transport2.get("port"), 8501);
+            Assert.assertEquals(transport2.get("secure"), true);
+            //Transport 3
+            Assert.assertEquals(transport3.get("name"), "xyz");
+            Assert.assertEquals(transport3.get("port"), 9000);
+            Assert.assertEquals(transport3.get("secure"), true);
+
         } catch (FileNotFoundException e) {
             logger.error(e.toString());
             Assert.fail();
@@ -203,20 +202,20 @@ public class ConfigUtilTest {
             fileInputStream = new FileInputStream(file);
             Properties configProperties = ConfigUtil.getConfig(fileInputStream, file.getName(), Properties.class);
             properties = new java.util.Properties();
-            Optional<String> value = configProperties.getValue();
-            if (value.isPresent()) {
-                properties.load(new StringReader(value.get()));
-                Assert.assertEquals(properties.get("tenant"), "new_tenant");
-                //Transport 1
-                Assert.assertEquals(properties.get("transport.abc.port"), "8001");
-                Assert.assertEquals(properties.get("transport.abc.secure"), "true");
-                //Transport 2
-                Assert.assertEquals(properties.get("transport.pqr.port"), "8501");
-                Assert.assertEquals(properties.get("transport.pqr.secure"), "true");
-                //Transport 3
-                Assert.assertEquals(properties.get("transport.xyz.port"), "9000");
-                Assert.assertEquals(properties.get("transport.xyz.secure"), "true");
-            }
+            String value = configProperties.getValue();
+
+            properties.load(new StringReader(value));
+            Assert.assertEquals(properties.get("tenant"), "new_tenant");
+            //Transport 1
+            Assert.assertEquals(properties.get("transport.abc.port"), "8001");
+            Assert.assertEquals(properties.get("transport.abc.secure"), "true");
+            //Transport 2
+            Assert.assertEquals(properties.get("transport.pqr.port"), "8501");
+            Assert.assertEquals(properties.get("transport.pqr.secure"), "true");
+            //Transport 3
+            Assert.assertEquals(properties.get("transport.xyz.port"), "9000");
+            Assert.assertEquals(properties.get("transport.xyz.secure"), "true");
+
         } catch (IOException e) {
             logger.error(e.toString());
             Assert.fail();
@@ -285,14 +284,14 @@ public class ConfigUtilTest {
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             XML configXml = ConfigUtil.getConfig(fileInputStream, "Example.xml", XML.class);
-            logger.debug(configXml.getValue().orElse("No data"));
+            logger.debug(configXml.getValue());
         } catch (FileNotFoundException e) {
             logger.warn("File Not found: " + file.getAbsolutePath());
             Assert.fail();
         }
     }
 
-    @Test
+    @Test(expectedExceptions = RuntimeException.class)
     public void invalidFileTest() {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "Example3.xml");
@@ -301,7 +300,7 @@ public class ConfigUtilTest {
         Assert.assertNull(configXml);
     }
 
-    @Test
+    @Test(expectedExceptions = RuntimeException.class)
     public void invalidFileNameTest() {
         setUpEnvironment();
         String tenant = ConfigUtil.getConfig("[Example2.xml]/configurations/tenant/name");

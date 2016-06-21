@@ -15,26 +15,21 @@
  */
 package org.wso2.carbon.kernel.utils.configfiletypes;
 
-import java.util.Optional;
-
 /**
  * This class is used to return the new config values to the component developer.
  *
  * @since 5.2.0
  */
-public abstract class AbstractConfigFileType {
+public class ConfigFileType {
 
-    private Optional<String> value;
+    private String value;
 
-    public Optional<String> getValue() {
+    public ConfigFileType(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
         return value;
     }
 
-    public void setValue(String newValue) {
-        if (newValue == null) {
-            this.value = Optional.empty();
-        } else {
-            this.value = Optional.of(newValue);
-        }
-    }
 }

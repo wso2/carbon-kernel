@@ -20,5 +20,8 @@ package org.wso2.carbon.kernel.utils.configfiletypes;
  *
  * @since 5.2.0
  */
-public class YAML extends AbstractConfigFileType {
+public class YAML extends ConfigFileType {
+    public YAML(String value) {
+        super(value);
+    }
 }
