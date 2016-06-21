@@ -224,6 +224,8 @@ public class Utils {
         //Remove root element
         if (map.containsKey(rootElement)) {
             map = (Map) map.get(rootElement);
+        } else {
+            throw new RuntimeException("Root element not found when converting JSON to YAML");
         }
         return yaml.dumpAsMap(map);
     }
@@ -285,11 +287,11 @@ public class Utils {
      */
     public static String convertPropertiesToXml(InputStream inputStream, String rootElement) {
         String xmlString;
-        java.util.Properties deploymentProperties = new java.util.Properties();
+        java.util.Properties properties = new java.util.Properties();
         try {
-            deploymentProperties.load(inputStream);
+            properties.load(inputStream);
             StringBuilder stringBuilder = new StringBuilder();
-            deploymentProperties.entrySet().forEach(entry -> stringBuilder
+            properties.entrySet().forEach(entry -> stringBuilder
                     .append(createXmlElement(entry.getKey().toString(), entry.getValue().toString())));
             xmlString = stringBuilder.toString();
         } catch (IOException e) {
@@ -314,6 +316,8 @@ public class Utils {
         //Remove root element
         if (map.containsKey(rootElement)) {
             map = (Map) map.get(rootElement);
+        } else {
+            throw new RuntimeException("Root element not found when converting XML to Properties");
         }
         StringBuilder stringBuilder = new StringBuilder();
         String tempString;
