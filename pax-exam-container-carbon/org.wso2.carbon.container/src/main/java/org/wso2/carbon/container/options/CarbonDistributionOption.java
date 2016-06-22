@@ -49,8 +49,8 @@ public class CarbonDistributionOption {
      *
      * @return keep runtime folder option
      */
-    public static Option keepRuntimeFolder() {
-        return new KeepRuntimeDirectory();
+    public static Option keepTestDistributionDirectory() {
+        return new KeepTestDistributionDirectoryOption();
     }
 
     /**

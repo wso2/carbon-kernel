@@ -19,7 +19,7 @@ import org.wso2.carbon.container.options.CarbonDropinsBundleOption;
 import org.wso2.carbon.container.options.CarbonFileCopyOption;
 import org.wso2.carbon.container.options.CarbonHomeOption;
 import org.wso2.carbon.container.options.DebugConfigurationOption;
-import org.wso2.carbon.container.options.KeepRuntimeDirectory;
+import org.wso2.carbon.container.options.KeepTestDistributionDirectoryOption;
 import org.wso2.carbon.container.runner.CarbonRunner;
 import org.wso2.carbon.container.runner.Runner;
 
@@ -76,7 +76,7 @@ public class CarbonTestContainer implements TestContainer {
         if (carbonHomeDirectoryOption.getDistributionDirectoryPath() == null
                 && carbonHomeDirectoryOption.getDistributionMavenURL() == null &&
                 carbonHomeDirectoryOption.getDistributionZipPath() == null) {
-            throw new IllegalStateException("Distribution path need to be set.");
+            throw new TestContainerException("Distribution path need to be set.");
         }
         try {
             String name = system.createID(CARBON_TEST_CONTAINER);
@@ -134,7 +134,7 @@ public class CarbonTestContainer implements TestContainer {
             waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
             started = true;
         } catch (IOException e) {
-            throw new RuntimeException("Problem starting container", e);
+            throw new TestContainerException("Problem starting container", e);
         }
         return this;
     }
@@ -162,7 +162,7 @@ public class CarbonTestContainer implements TestContainer {
                 copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
                         targetDirectory);
             } catch (IOException e) {
-                throw new RuntimeException("Error while copying artifacts to dropins", e);
+                throw new TestContainerException("Error while copying artifacts to dropins", e);
             }
         });
     }
@@ -202,7 +202,7 @@ public class CarbonTestContainer implements TestContainer {
                 Files.copy(option.getSourcePath(), carbonHome.resolve(option.getDestinationPath()),
                         StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                throw new RuntimeException("Error while copying configuration files", e);
+                throw new TestContainerException("Error while copying configuration files", e);
             }
         });
     }
@@ -251,7 +251,7 @@ public class CarbonTestContainer implements TestContainer {
             isCreated = unpackDirectory.toFile().mkdir();
         }
         if (!isCreated) {
-            throw new IOException("Couldn't create the directory: " + unpackDirectory.toFile().toString());
+            throw new TestContainerException("Couldn't create the directory: " + unpackDirectory.toFile().toString());
         }
         return unpackDirectory;
     }
@@ -263,8 +263,9 @@ public class CarbonTestContainer implements TestContainer {
      */
     private boolean shouldDeleteRuntime() {
         boolean deleteRuntime = true;
-        KeepRuntimeDirectory[] keepRuntimeDirectory = system.getOptions(KeepRuntimeDirectory.class);
-        if (keepRuntimeDirectory != null && keepRuntimeDirectory.length != 0) {
+        KeepTestDistributionDirectoryOption[] keepTestDistributionDirectoryOption = system
+                .getOptions(KeepTestDistributionDirectoryOption.class);
+        if (keepTestDistributionDirectoryOption != null && keepTestDistributionDirectoryOption.length != 0) {
             deleteRuntime = false;
         }
         return deleteRuntime;
@@ -318,7 +319,7 @@ public class CarbonTestContainer implements TestContainer {
                 }
 
             } else {
-                throw new RuntimeException("Container never started.");
+                throw new TestContainerException("Container never started.");
             }
         } finally {
             started = false;

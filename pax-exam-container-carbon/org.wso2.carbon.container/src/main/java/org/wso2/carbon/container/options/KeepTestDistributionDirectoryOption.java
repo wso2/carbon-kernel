@@ -22,6 +22,6 @@ import org.ops4j.pax.exam.Option;
  * Per default pax-exam is deleting the test directories after a test is over. To keep those
  * directories (for later evaluation) set this option.
  */
-public class KeepRuntimeDirectory implements Option {
+public class KeepTestDistributionDirectoryOption implements Option {
 
 }

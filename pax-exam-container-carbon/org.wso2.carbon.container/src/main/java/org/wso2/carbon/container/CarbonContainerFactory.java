@@ -19,6 +19,7 @@ package org.wso2.carbon.container;
 import org.kohsuke.MetaInfServices;
 import org.ops4j.pax.exam.ExamSystem;
 import org.ops4j.pax.exam.TestContainer;
+import org.ops4j.pax.exam.TestContainerException;
 import org.ops4j.pax.exam.TestContainerFactory;
 import org.wso2.carbon.container.options.CarbonHomeOption;
 
@@ -47,14 +48,14 @@ public class CarbonContainerFactory implements TestContainerFactory {
     }
 
     /**
-     * Set the default distribution.
+     * Sets the default distribution.
      *
      * @return carbon home option
      */
     private CarbonHomeOption getDefaultConfiguration() {
         String defaultDistribution = System.getProperty("org.wso2.carbon.test.default.distribution");
         if (defaultDistribution == null) {
-            throw new IllegalStateException("Default distribution is not specified.");
+            throw new TestContainerException("Default distribution is not specified.");
         }
         String[] distribution = defaultDistribution.split(":");
         if (distribution.length < 3) {
@@ -62,7 +63,7 @@ public class CarbonContainerFactory implements TestContainerFactory {
                     maven().groupId(distribution[0]).artifactId(distribution[1]).versionAsInProject().type("zip"));
         } else {
             return new CarbonHomeOption().distributionMavenURL(
-                    maven().groupId(distribution[0]).artifactId(distribution[1]).version(distribution[3]));
+                    maven().groupId(distribution[0]).artifactId(distribution[1]).version(distribution[2]).type("zip"));
         }
     }
 }

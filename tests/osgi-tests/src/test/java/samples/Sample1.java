@@ -5,7 +5,6 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -21,8 +20,6 @@ import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.debugConfiguration;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.keepRuntimeFolder;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -39,18 +36,19 @@ public class Sample1 {
     @Configuration
     public Option[] config() {
         return new Option[] {
-                carbonHome().distributionMavenURL(
-                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                                .versionAsInProject()),
-        };
+//                carbonHome().distributionMavenURL(
+//                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+//                        .versionAsInProject()),
+                 };
     }
 
     @Test
     public void testBundles1() {
         logger.info("Sample 1-1");
-//        logger.info(bundleContext.getBundle().getSymbolicName());
-//        logger.info(System.getProperty("carbon.home"));
-//        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
+        Assert.fail();
+        //        logger.info(bundleContext.getBundle().getSymbolicName());
+        //        logger.info(System.getProperty("carbon.home"));
+        //        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
     }
 
     @Test

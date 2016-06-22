@@ -7,6 +7,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.ops4j.pax.exam.TestContainerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class ArchiveExtractor {
             } else if (file.endsWith(".tar.gz")) {
                 extractTarGzDistribution(sourceURL, targetDirectory);
             } else {
-                throw new IllegalStateException(
+                throw new TestContainerException(
                         "Unknown packaging of distribution; only zip or tar.gz could be handled.");
             }
             return;
@@ -55,7 +56,7 @@ public class ArchiveExtractor {
         } else if (sourceURL.toExternalForm().endsWith("/tar.gz")) {
             extractTarGzDistribution(sourceURL, targetDirectory);
         } else {
-            throw new IllegalStateException(
+            throw new TestContainerException(
                     "Unknown packaging; only zip or tar.gz could be handled. URL was " + sourceURL);
         }
     }
@@ -71,7 +72,7 @@ public class ArchiveExtractor {
         if (path.toString().endsWith(".zip")) {
             extract(new ZipArchiveInputStream(new FileInputStream(path.toFile())), targetDirectory);
         } else {
-            throw new IllegalStateException("Unknown packaging of distribution; only zip can be handled.");
+            throw new TestContainerException("Unknown packaging of distribution; only zip can be handled.");
         }
     }
 
@@ -147,14 +148,14 @@ public class ArchiveExtractor {
         }
     }
 
-    private static void createDirectory(File directory) throws IOException {
+    private static void createDirectory(File directory) {
         boolean isCreated = true;
         if (!directory.exists()) {
             isCreated = directory.mkdirs();
         }
 
         if (!isCreated) {
-            throw new IOException("Couldn't create the directory: " + directory.toString());
+            throw new TestContainerException("Couldn't create the directory: " + directory.toString());
         }
     }
 }
