@@ -45,7 +45,6 @@ public class Sample1 {
     @Test
     public void testBundles1() {
         logger.info("Sample 1-1");
-        Assert.fail();
         //        logger.info(bundleContext.getBundle().getSymbolicName());
         //        logger.info(System.getProperty("carbon.home"));
         //        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
