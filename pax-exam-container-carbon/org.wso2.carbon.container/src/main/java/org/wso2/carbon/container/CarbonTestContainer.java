@@ -60,10 +60,10 @@ public class CarbonTestContainer implements TestContainer {
     private final Runner runner;
     private final ExamSystem system;
     private CarbonHomeOption carbonHomeDirectoryOption;
-    private boolean started;
     private RBCRemoteTarget target;
     private Path targetDirectory;
     private Registry registry;
+    private boolean started;
 
     public CarbonTestContainer(ExamSystem system, CarbonHomeOption carbonHomeDirectoryOption) {
         this.carbonHomeDirectoryOption = carbonHomeDirectoryOption;
@@ -78,9 +78,9 @@ public class CarbonTestContainer implements TestContainer {
                 carbonHomeDirectoryOption.getDistributionZipPath() == null) {
             throw new IllegalStateException("Distribution path need to be set.");
         }
-
         try {
             String name = system.createID(CARBON_TEST_CONTAINER);
+            //get a free port to use for rmi
             FreePort freePort = new FreePort(21000, 21099);
             int port = freePort.getPort();
             logger.info("using RMI registry at port {}" + name, port);
@@ -95,6 +95,7 @@ public class CarbonTestContainer implements TestContainer {
             target = new RBCRemoteTarget(name, port, subsystem.getTimeout());
             System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
 
+            //setup repositories if there are any
             addRepositories();
             targetDirectory = retrieveFinalTargetDirectory();
 
@@ -109,23 +110,27 @@ public class CarbonTestContainer implements TestContainer {
                 FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
             }
 
-            copyReferencedBundles(targetDirectory, subsystem);
+            //install bundles to dropins if there are any
+            copyDropinsBundles(targetDirectory);
+            //copy files to the distributions if there are any
             copyFiles(targetDirectory);
 
             Path carbonBin = targetDirectory.resolve("bin");
-            makeScriptsInBinExec(carbonBin.toFile());
+            //make the files in the bin directory to be executable
+            makeFilesInBinExec(carbonBin.toFile());
             ArrayList<String> options = new ArrayList<>();
             String[] environment = new String[] {};
+            //set system properties as command line arguments
             setupSystemProperties(options, subsystem);
-
+            //Setup debug configurations if available
             DebugConfigurationOption[] debugConfigurationOptions = system.getOptions(DebugConfigurationOption.class);
-
             if (debugConfigurationOptions.length > 0) {
                 options.add(debugConfigurationOptions[debugConfigurationOptions.length - 1].getDebugConfiguration());
             }
 
             runner.exec(environment, targetDirectory, options);
             logger.info("Wait for test container to finish its initialization " + subsystem.getTimeout());
+            //wait for the osgi environment to be active
             waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
             started = true;
         } catch (IOException e) {
@@ -146,13 +151,20 @@ public class CarbonTestContainer implements TestContainer {
 
     /**
      * Copy dependencies specified as carbon dropins bundle option in system to the dropins Directory
+     *
+     * @param carbonHome carbon home dir
      */
-    private void copyReferencedBundles(Path carbonHome, ExamSystem system) {
+    private void copyDropinsBundles(Path carbonHome) {
         Path targetDirectory = carbonHome.resolve("osgi").resolve("dropins");
 
-        Arrays.asList(system.getOptions(CarbonDropinsBundleOption.class)).forEach(
-                option -> copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
-                        targetDirectory));
+        Arrays.asList(system.getOptions(CarbonDropinsBundleOption.class)).forEach(option -> {
+            try {
+                copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
+                        targetDirectory);
+            } catch (IOException e) {
+                throw new RuntimeException("Error while copying artifacts to dropins", e);
+            }
+        });
     }
 
     /**
@@ -161,13 +173,9 @@ public class CarbonTestContainer implements TestContainer {
      * @param url             url of the artifact
      * @param targetDirectory target directory
      */
-    private void copyReferencedArtifactsToDeployDirectory(String url, Path targetDirectory) {
+    private void copyReferencedArtifactsToDeployDirectory(String url, Path targetDirectory) throws IOException {
         File target = createUnique(url, targetDirectory.toFile());
-        try {
-            FileUtils.copyURLToFile(new URL(url), target);
-        } catch (IOException e) {
-            logger.error("Error while copying Artifacts", e);
-        }
+        FileUtils.copyURLToFile(new URL(url), target);
     }
 
     /**
@@ -194,19 +202,19 @@ public class CarbonTestContainer implements TestContainer {
                 Files.copy(option.getSourcePath(), carbonHome.resolve(option.getDestinationPath()),
                         StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                logger.error("Error while copying configuration files", e);
+                throw new RuntimeException("Error while copying configuration files", e);
             }
         });
     }
 
     /**
      * Setup system properties.
-     * @param options
-     * @param subsystem
+     *
+     * @param options options
      * @throws IOException
      */
-    private void setupSystemProperties(List<String> options, ExamSystem subsystem) throws IOException {
-        Arrays.asList(subsystem.getOptions(SystemPropertyOption.class)).forEach(systemPropertyOption -> {
+    private void setupSystemProperties(List<String> options, ExamSystem examSystem) throws IOException {
+        Arrays.asList(examSystem.getOptions(SystemPropertyOption.class)).forEach(systemPropertyOption -> {
             String property = String.format("-D%s=%s", systemPropertyOption.getKey(), systemPropertyOption.getValue());
             options.add(property);
         });
@@ -217,7 +225,7 @@ public class CarbonTestContainer implements TestContainer {
      *
      * @param carbonBin carbonBin
      */
-    private void makeScriptsInBinExec(File carbonBin) {
+    private void makeFilesInBinExec(File carbonBin) {
         if (!carbonBin.exists()) {
             return;
         }
@@ -238,16 +246,13 @@ public class CarbonTestContainer implements TestContainer {
         if (unpackDirectory == null) {
             unpackDirectory = Paths.get("target", UUID.randomUUID().toString());
         }
-
         boolean isCreated = true;
         if (!unpackDirectory.toFile().exists()) {
             isCreated = unpackDirectory.toFile().mkdir();
         }
-
         if (!isCreated) {
             throw new IOException("Couldn't create the directory: " + unpackDirectory.toFile().toString());
         }
-
         return unpackDirectory;
     }
 
