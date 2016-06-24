@@ -140,7 +140,9 @@
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             javax.management.*;version="${javax.management.import.version.range}",
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
-            org.json.*;version="3.0.0.wso2v1"
+            javax.xml.*;version="${javax.xml.import.version.range}",
+            org.w3c.*;version="${org.w3c.import.version.range}",
+            org.json.*;version="${org.json.import.version.range}",
         </import.package>
         <carbon.component>
             startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
