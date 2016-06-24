@@ -27,11 +27,7 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -44,6 +40,8 @@ public class DatabaseUtil {
     private static final int DEFAULT_MIN_IDLE = 5;
     private static final int DEFAULT_MAX_IDLE = 6;
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
+
+
     private static DataSource dataSource = null;
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
@@ -91,64 +89,57 @@ public class DatabaseUtil {
         if (dataSourceName != null) {
             return lookupDataSource(dataSourceName);
         }
+
         PoolProperties poolProperties = new PoolProperties();
         poolProperties.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
         if (poolProperties.getDriverClassName() == null) {
             return null;
         }
+
         poolProperties.setUrl(realmConfig.getUserStoreProperty(JDBCRealmConstants.URL));
         poolProperties.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
         poolProperties.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE))) {
             poolProperties.setMaxActive(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_ACTIVE)));
         } else {
             poolProperties.setMaxActive(DEFAULT_MAX_ACTIVE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE))) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MIN_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE))) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT))) {
             poolProperties.setMaxWait(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_WAIT)));
         } else {
             poolProperties.setMaxWait(DEFAULT_MAX_WAIT);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE))) {
             poolProperties.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.TEST_WHILE_IDLE)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
-                !realmConfig.getUserStoreProperty(
-                        JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
+        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS))) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getUserStoreProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
-                !realmConfig.getUserStoreProperty(
-                        JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
+        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS))) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -165,6 +156,19 @@ public class DatabaseUtil {
         } else {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
+		
+        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED))){
+        	poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED)));
+        }
+        
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED))){
+        	poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT))){
+        	poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
+        }
+    
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
 
@@ -237,6 +241,21 @@ public class DatabaseUtil {
                     JDBCRealmConstants.VALIDATION_QUERY));
         }
 
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED) != null) {
+            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(
+            		JDBCRealmConstants.REMOVE_ABANDONED)));
+        }
+
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.LOG_ABANDONED) != null) {
+            poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(
+            		JDBCRealmConstants.LOG_ABANDONED)));
+        }
+
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT) != null) {
+            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(
+            		JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
+        }
+        
         dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
         return dataSource;
     }
@@ -244,10 +263,8 @@ public class DatabaseUtil {
     public static String[] getStringValuesFromDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
         String[] values = new String[0];
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+        try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
@@ -262,24 +279,26 @@ public class DatabaseUtil {
                     }
                 }
             }
-            rs = prepStmt.executeQuery();
-            List<String> lst = new ArrayList<String>();
-            while (rs.next()) {
-                String name = rs.getString(1);
-                lst.add(name);
+            try(ResultSet rs = prepStmt.executeQuery() ) {
+                List<String> lst = new ArrayList<String>();
+                while (rs.next()) {
+                    String name = rs.getString(1);
+                    lst.add(name);
+                }
+                if (lst.size() > 0) {
+                    values = lst.toArray(new String[lst.size()]);
+                }
+                return values;
             }
-            if (lst.size() > 0) {
-                values = lst.toArray(new String[lst.size()]);
-            }
-            return values;
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(null, rs, prepStmt);
+
+        }finally {
+            close(dbConnection);
         }
     }
 
@@ -287,10 +306,8 @@ public class DatabaseUtil {
     public static String[] getStringValuesFromDatabaseForInternalRoles(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
         String[] values = new String[0];
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+        try(PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt) ) {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
@@ -303,38 +320,37 @@ public class DatabaseUtil {
                     }
                 }
             }
-            rs = prepStmt.executeQuery();
-            List<String> lst = new ArrayList<String>();
-            while (rs.next()) {
-                String name = rs.getString(1);
-                String domain = rs.getString(2);
-                if (domain != null) {
-                    name = UserCoreUtil.addDomainToName(name, domain);
+            try (ResultSet rs = prepStmt.executeQuery()) {
+                List<String> lst = new ArrayList<String>();
+                while (rs.next()) {
+                    String name = rs.getString(1);
+                    String domain = rs.getString(2);
+                    if (domain != null) {
+                        name = UserCoreUtil.addDomainToName(name, domain);
+                    }
+                    lst.add(name);
                 }
-                lst.add(name);
+                if (lst.size() > 0) {
+                    values = lst.toArray(new String[lst.size()]);
+                }
+                return values;
             }
-            if (lst.size() > 0) {
-                values = lst.toArray(new String[lst.size()]);
-            }
-            return values;
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(null, rs, prepStmt);
+        }finally {
+            close(dbConnection);
         }
     }
 
     public static int getIntegerValueFromDatabase(Connection dbConnection, String sqlStmt,
                                                   Object... params) throws UserStoreException {
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
+
         int value = -1;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)){
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
@@ -347,28 +363,27 @@ public class DatabaseUtil {
                     }
                 }
             }
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                value = rs.getInt(1);
+            try(ResultSet rs = prepStmt.executeQuery()) {
+                if (rs.next()) {
+                    value = rs.getInt(1);
+                }
+                return value;
             }
-            return value;
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(null, rs, prepStmt);
+        }finally {
+            close(dbConnection);
         }
     }
 
     public static void udpateUserRoleMappingInBatchModeForInternalRoles(Connection dbConnection,
                                                                         String sqlStmt, String primaryDomain, Object... params) throws UserStoreException {
-        PreparedStatement prepStmt = null;
         boolean localConnection = false;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             int batchParamIndex = -1;
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -419,11 +434,8 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
-            DatabaseUtil.closeAllConnections(null, prepStmt);
+        } finally {  // can remove since this is not needed with try-with-resources -
+            close(dbConnection);
         }
     }
 
@@ -431,10 +443,8 @@ public class DatabaseUtil {
                                                             String[] roles, String userName,
                                                             Integer[] tenantIds, int currentTenantId)
             throws UserStoreException {
-        PreparedStatement ps = null;
         boolean localConnection = false;
-        try {
-            ps = dbConnection.prepareStatement(sqlStmt);
+        try (PreparedStatement ps = dbConnection.prepareStatement(sqlStmt)){
             byte count = 0;
             byte index = 0;
 
@@ -466,19 +476,14 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
-            DatabaseUtil.closeAllConnections(null, ps);
+            close(dbConnection);
         }
     }
 
     public static void udpateUserRoleMappingInBatchMode(Connection dbConnection, String sqlStmt,
                                                         Object... params) throws UserStoreException {
-        PreparedStatement prepStmt = null;
         boolean localConnection = false;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             int batchParamIndex = -1;
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -510,6 +515,7 @@ public class DatabaseUtil {
             if (localConnection) {
                 dbConnection.commit();
             }
+
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -517,18 +523,15 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            if (localConnection) {
-                DatabaseUtil.closeAllConnections(dbConnection);
-            }
-            DatabaseUtil.closeAllConnections(null, prepStmt);
+            close(dbConnection);
         }
     }
 
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
-        PreparedStatement prepStmt = null;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+        try ( PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
@@ -557,7 +560,7 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            DatabaseUtil.closeAllConnections(null, prepStmt);
+            close(dbConnection);
         }
     }
 
@@ -571,70 +574,116 @@ public class DatabaseUtil {
     }
 
     public static void closeConnection(Connection dbConnection) {
+        close(dbConnection);
+    }
 
-        if (dbConnection != null) {
+    // Although using generics is a bit more cryptic to the uninitiated, this method ensures type safety
+    // and flexibility without the horrible cast conversions in
+    // favor of the usage of interfaces.
+    // Only java.sql types can be used as parameters.
+    //
+    // Only  java.sql object types intersect both Wrapper and AutoCloseable interfaces
+    // Types that are allowed as arguments: CachedRowSet, CallableStatement, Connection, DatabaseMetaData, DataSource,
+    // FilteredRowSet, JdbcRowSet, JoinRowSet, ParameterMetaData,
+    // PreparedStatement, ResultSet, ResultSetMetaData, RowSet, RowSetMetaData, Statement, SyncResolver, WebRowSet
+    private static <AutoClosableWrapper extends AutoCloseable & Wrapper> void close(AutoClosableWrapper dbObject) {
+
+        if (dbObject != null) {
+
             try {
-                dbConnection.close();
+                dbObject.close();
+                dbObject = null;
+            } catch (SQLRecoverableException ex) {
+                handleSQLRecoverableException(dbObject, ex, true);
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
+            } catch (Exception e) {
+                log.error("Generic error occurred during close operation" + e.getMessage(), e);
             }
         }
     }
 
-    private static void closeResultSet(ResultSet rs) {
+    private static void handleSQLRecoverableException(AutoCloseable dbObject, SQLRecoverableException ex, boolean retry){
+        log.error("SQLRecoverable exception encountered.  Attempting recovery.", ex);
 
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close result set  - " + e.getMessage(), e);
+        try{
+            dbObject.close();
+        }catch (SQLRecoverableException recException){
+            // retry on first failure - retrieve new connection
+            if(retry) {
+                try (Connection connection = getDBConnection(dataSource)){
+                handleSQLRecoverableException(connection, recException, false);
+                } catch (SQLException | NullPointerException nullOrSqlException){
+                    if(dataSource == null)
+                        log.error("Null encountered during sqlrecoverable error recovery", nullOrSqlException);
+                    else
+                        log.error("Recovery failed for SQLRecoverableError - exiting recovery.", nullOrSqlException);
+                }
+            }else{
+                dbObject = null;
+                log.error("Recovery failed for SQLRecoverableError - exiting recovery.", recException);
             }
-        }
-
-    }
-
-    private static void closeStatement(PreparedStatement preparedStatement) {
-
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
-            }
+        }catch (SQLException sqlEx){
+            log.error("Error occurred during close operation  - continuing with errors" + sqlEx.getMessage(), sqlEx);
+        } catch (Exception e) {
+            log.error("Generic error occurred during close operation" + e.getMessage(), e);
         }
 
     }
 
     private static void closeStatements(PreparedStatement... prepStmts) {
-
         if (prepStmts != null && prepStmts.length > 0) {
             for (PreparedStatement stmt : prepStmts) {
-                closeStatement(stmt);
+                close(stmt);
             }
         }
+    }
+
+    public static void close(Connection dbConnection, PreparedStatement... prepStmts) {
+        closeStatements(prepStmts);
+        close(dbConnection);
+    }
+
+    public static void close(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
+        close(rs);
+        closeStatements(prepStmts);
+        close(dbConnection);
 
     }
 
+    public static void close(Connection dbConnection, ResultSet rs1, ResultSet rs2,
+                                           PreparedStatement... prepStmts) {
+        close(rs1);
+        close(rs2);
+        closeStatements(prepStmts);
+        close(dbConnection);
+    }
+
+    /**
+     * Recommend:
+     * @deprecated Should discontinue use in favor of the parametrized close method.
+     */
     public static void closeAllConnections(Connection dbConnection, PreparedStatement... prepStmts) {
-
-        closeStatements(prepStmts);
-        closeConnection(dbConnection);
+        close(dbConnection, prepStmts);
     }
 
+    /**
+     * Recommend:
+     * @deprecated Should discontinue use in favor of the parametrized close method.
+     */
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
-
-        closeResultSet(rs);
-        closeStatements(prepStmts);
-        closeConnection(dbConnection);
+        close(dbConnection,rs,prepStmts);
     }
 
+    /**
+     * Recommend:
+     * @deprecated Should discontinue use in favor of the parametrized close method.
+     */
     public static void closeAllConnections(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
-        closeResultSet(rs1);
-        closeResultSet(rs1);
-        closeStatements(prepStmts);
-        closeConnection(dbConnection);
+        close(dbConnection, rs1, rs2, prepStmts);
     }
+
 
     public static void rollBack(Connection dbConnection) {
         try {
