@@ -53,6 +53,7 @@ public class PermissionTest extends BaseTestCase {
         checkCamelCasePermissionsForRole();
         checkCamelCasePermissionsForRoleAfterClearAuthorization();
         checkPrimaryRolePermissionAfterDeletingInternalRole();
+        checkCaseSensitivePermissionWithPropertyTrue();
     }
 
     public void initRealmStuff() throws Exception {
@@ -186,6 +187,26 @@ public class PermissionTest extends BaseTestCase {
 
         userStoreManager.deleteRole("Internal/roleK");
         assertTrue(authManager.isRoleAuthorized("roleK", "high security", "read"));
+    }
+
+    /**
+     * Check for case sensitive resources when the 'IsCaseSensitiveResources' property is set to true.
+     * @throws Exception
+     */
+    public void checkCaseSensitivePermissionWithPropertyTrue() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        userStoreManager.addRole("roleJK", null, null);
+        userStoreManager.addUser("jayangak", "password", new String[] {"Internal/everyone" , "roleJK" }, null, null,
+                false);
+
+        authManager.authorizeRole("roleJK", "/permission/ui/Dialog", "ui.execute");
+
+        String [] resources = authManager.getAllowedUIResourcesForUser("jayangak", "/permission/ui/Dialog");
+
+        assertTrue(resources.length > 0);
     }
 
 }
