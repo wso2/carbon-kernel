@@ -23,7 +23,7 @@
             <AdminUser>
                 <UserName>admin</UserName>
                 <Password>admin</Password>
-            </AdminUser>N
+            </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName>
             <ReadOnly>false</ReadOnly>
             <MaxUserNameListLength>500</MaxUserNameListLength>
