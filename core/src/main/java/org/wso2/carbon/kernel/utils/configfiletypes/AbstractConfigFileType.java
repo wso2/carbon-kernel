@@ -20,11 +20,11 @@ package org.wso2.carbon.kernel.utils.configfiletypes;
  *
  * @since 5.2.0
  */
-public class ConfigFileType {
+public abstract class AbstractConfigFileType {
 
     private String value;
 
-    public ConfigFileType(String value) {
+    public AbstractConfigFileType(String value) {
         this.value = value;
     }
 
