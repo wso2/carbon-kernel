@@ -61,7 +61,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private UserRealm userRealm = null;
     private RealmConfiguration realmConfig = null;
     private boolean caseInSensitiveAuthorizationRules;
-    private boolean preserveCaseForResources;
+    private boolean preserveCaseForResources = true;
     private boolean verifyByRetrievingAllUserRoles;
     private String cacheIdentifier;
     private int tenantId;
@@ -104,9 +104,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     .ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL);
         }
 
-        if ("true".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.RealmConfig
+        if ("false".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_PRESERVE_CASE_FOR_RESOURCES))) {
-            preserveCaseForResources = true;
+            preserveCaseForResources = false;
         }
 
         String userCoreCacheIdentifier = realmConfig.getUserStoreProperty(UserCoreConstants.
