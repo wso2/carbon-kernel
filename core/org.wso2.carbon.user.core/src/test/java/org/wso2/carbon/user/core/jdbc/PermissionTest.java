@@ -190,7 +190,7 @@ public class PermissionTest extends BaseTestCase {
     }
 
     /**
-     * Check for case sensitive resources when the 'IsCaseSensitiveResources' property is set to true.
+     * Check for case sensitive resources when the 'PreserveCaseForResources' property is set to true.
      * @throws Exception
      */
     public void checkCaseSensitivePermissionWithPropertyTrue() throws Exception {

@@ -61,7 +61,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private UserRealm userRealm = null;
     private RealmConfiguration realmConfig = null;
     private boolean caseInSensitiveAuthorizationRules;
-    private boolean caseSensitiveResource;
+    private boolean preserveCaseForResources;
     private boolean verifyByRetrievingAllUserRoles;
     private String cacheIdentifier;
     private int tenantId;
@@ -105,8 +105,8 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
 
         if ("true".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_IS_CASE_SENSITIVE_RESOURCES))) {
-            caseSensitiveResource = true;
+                .PROPERTY_PRESERVE_CASE_FOR_RESOURCES))) {
+            preserveCaseForResources = true;
         }
 
         String userCoreCacheIdentifier = realmConfig.getUserStoreProperty(UserCoreConstants.
@@ -482,7 +482,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {
 
-        if (!caseSensitiveResource && resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -510,7 +510,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void denyRole(String roleName, String resourceId, String action)
             throws UserStoreException {
 
-        if (!caseSensitiveResource && resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -587,7 +587,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void clearResourceAuthorizations(String resourceId) throws UserStoreException {
 
-        if (!caseSensitiveResource && resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -638,7 +638,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void clearRoleAuthorization(String roleName, String resourceId, String action)
             throws UserStoreException {
 
-        if (!caseSensitiveResource && resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -919,7 +919,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                                  boolean authorized, boolean isRole) throws UserStoreException {
 
         // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
-        if (!caseSensitiveResource && resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
