@@ -21,8 +21,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.carbon.kernel.utils.configfiletypes.ConfigFileType;
+import org.wso2.carbon.kernel.utils.configfiletypes.AbstractConfigFileType;
 import org.wso2.carbon.kernel.utils.configfiletypes.Properties;
+import org.wso2.carbon.kernel.utils.configfiletypes.XML;
 import org.wso2.carbon.kernel.utils.configfiletypes.YAML;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -39,7 +40,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -55,7 +59,7 @@ import javax.xml.xpath.XPathFactory;
 
 /**
  * This util class provide the ability to override configurations in various components using a single file which has
- * the name {@link ConfigUtil#DEPLOYMENT_PROPERTIES_FILE}.
+ * the name {@link ConfigUtil#CONFIG_FILE_NAME}.
  *
  * @since 5.2.0
  */
@@ -63,25 +67,33 @@ public final class ConfigUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigUtil.class.getName());
     //This is used to read the deployment.properties file location using System/Environment variables.
-    private static final String DEPLOYMENT_PROPERTIES_VAR_NAME = "deployment.properties";
+    private static final String FILE_PATH_KEY = "deployment.conf";
     //This variable contains the name of the config overriding file
-    private static final String DEPLOYMENT_PROPERTIES_FILE = "deployment.properties";
-    //This variable contains the path to the deployment.properties file.
-    private static final String DEPLOYMENT_PROPERTIES_FILE_PATH = getPath();
+    private static final String CONFIG_FILE_NAME = "deployment.properties";
     //This variable contains the value which will be used as the root element when converting yaml,properties files
     private static final String ROOT_ELEMENT = "configurations";
     //This regex is used to identify yaml, properties files
-    private static final String FILE_REGEX = ".+\\.(" + getFileTypesString() + ")";
+    private static final String FILE_REGEX;
     //This regex is used to identify placeholder values
-    private static final String PLACEHOLDER_REGEX =
-            "(.*?)(\\$\\{(" + getPlaceholderString() + "):([^,]+?)((,)(.+?))?\\})(.*?)";
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile(PLACEHOLDER_REGEX);
+    private static final String PLACEHOLDER_REGEX;
+    private static final Pattern PLACEHOLDER_PATTERN;
     /*
      This map contains config data read from the deployment.properties file. The keys will be file names and values
      will be another map. In the 2nd map, the key will be the xpath and the value will be tha value in the
      deployment.properties file.
      */
-    private static final Map<String, Map<String, String>> deploymentPropertiesMap = readDeploymentFile();
+    private static final Map<String, Map<String, String>> deploymentPropertiesMap;
+
+    private static final ResourceBundle bundle;
+
+    static {
+        bundle = ResourceBundle.getBundle("Resources");
+        FILE_REGEX = ".+\\.(" + getFileTypesString() + ")";
+        PLACEHOLDER_REGEX = "(.*?)(\\$\\{(" + getPlaceholderString() + "):([^,]+?)((,)(.+?))?\\})(.*?)";
+        String path = getPath();
+        deploymentPropertiesMap = readDeploymentFile(path);
+        PLACEHOLDER_PATTERN = Pattern.compile(PLACEHOLDER_REGEX);
+    }
 
     //Enum to hold the file types which we need to add root elements when converting
     private enum FileType {
@@ -116,41 +128,42 @@ public final class ConfigUtil {
     }
 
     /**
-     * This method reads the provided {@link File} and returns an object of type {@link ConfigFileType}
+     * This method reads the provided {@link File} and returns an object of type {@link AbstractConfigFileType}
      * which was given as a input. That object has the new configurations as a String which you can get by
-     * {@link ConfigFileType#getValue()} method.
+     * {@link AbstractConfigFileType#getValue()} method.
      *
      * @param <T>   The class representing the configuration file type
      * @param file  Input config file
-     * @param clazz Configuration file type which is a subclass of {@link ConfigFileType}.
+     * @param clazz Configuration file type which is a subclass of {@link AbstractConfigFileType}.
      * @return The new configurations in the given format as a String.
-     * @see ConfigFileType
+     * @see AbstractConfigFileType
      */
-    public static <T extends ConfigFileType> T getConfig(File file, Class<T> clazz) {
+    public static <T extends AbstractConfigFileType> T getConfig(File file, Class<T> clazz) {
         T newConfig;
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             newConfig = getConfig(fileInputStream, file.getName(), clazz);
         } catch (FileNotFoundException e) {
-            logger.error("File not found at " + file.getAbsolutePath() + " : ", e);
-            throw new RuntimeException("File not found at " + file.getAbsolutePath() + " : ", e);
+            String msg = String.format(bundle.getString("FILE_NOT_FOUND"), file.getAbsolutePath());
+            logger.error(msg, e);
+            throw new RuntimeException(msg, e);
         }
         return newConfig;
     }
 
     /**
      * This method reads the provided {@link FileInputStream} and returns an object of type
-     * {@link ConfigFileType} which was given as a input. That object has the new configurations as a String
-     * which you can get by {@link ConfigFileType#getValue()} method.
+     * {@link AbstractConfigFileType} which was given as a input. That object has the new configurations as a String
+     * which you can get by {@link AbstractConfigFileType#getValue()} method.
      *
      * @param <T>         The class representing the configuration file type
      * @param inputStream FileInputStream of the config file
      * @param fileNameKey Name of the config file
-     * @param clazz       Configuration file type which is a subclass of {@link ConfigFileType}.
+     * @param clazz       Configuration file type which is a subclass of {@link AbstractConfigFileType}.
      * @return The new configurations in the given format as a String.
-     * @see ConfigFileType
+     * @see AbstractConfigFileType
      */
-    public static <T extends ConfigFileType> T getConfig(FileInputStream inputStream, String fileNameKey,
+    public static <T extends AbstractConfigFileType> T getConfig(FileInputStream inputStream, String fileNameKey,
             Class<T> clazz) {
 
         String xmlString;
@@ -162,17 +175,20 @@ public final class ConfigUtil {
             try (BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String inputString = bufferedReader.lines().collect(Collectors.joining("\n"));
-                if (clazz.isAssignableFrom(org.wso2.carbon.kernel.utils.configfiletypes.XML.class)) {
+                if (clazz.isAssignableFrom(XML.class)) {
                     xmlString = inputString;
                 } else if (clazz.isAssignableFrom(YAML.class)) {
                     //Convert the file to XML format
                     xmlString = Utils.convertYAMLToXML(inputString, ROOT_ELEMENT);
                 } else {
-                    throw new RuntimeException("Unsupported class format:  " + clazz);
+                    String msg = String.format(bundle.getString("UNSUPPORTED_CLASS"), clazz.getName());
+                    logger.error(msg);
+                    throw new RuntimeException(msg);
                 }
             } catch (IOException e) {
-                logger.error("IOException: ", e);
-                throw new RuntimeException("IOException:  ", e);
+                String msg = bundle.getString("ERROR_INPUTSTREAM");
+                logger.error(msg, e);
+                throw new RuntimeException(msg, e);
             }
         }
 
@@ -181,36 +197,39 @@ public final class ConfigUtil {
         //Convert xml back to original format
         String convertedString = convertToOriginalFormat(xmlString, clazz);
 
-        ConfigFileType baseObject;
+        AbstractConfigFileType baseObject;
 
-        if (clazz.isAssignableFrom(YAML.class)) {
+        if (clazz == YAML.class) {
             baseObject = new YAML(convertedString);
-        } else if (clazz.isAssignableFrom(org.wso2.carbon.kernel.utils.configfiletypes.XML.class)) {
-            baseObject = new org.wso2.carbon.kernel.utils.configfiletypes.XML(convertedString);
-        } else if (clazz.isAssignableFrom(Properties.class)) {
+        } else if (clazz == XML.class) {
+            baseObject = new XML(convertedString);
+        } else if (clazz == Properties.class) {
             baseObject = new Properties(convertedString);
         } else {
-            throw new RuntimeException("Unsupported type " + clazz.getTypeName());
+            String msg = String.format(bundle.getString("UNSUPPORTED_CLASS"), clazz.getTypeName());
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
         return clazz.cast(baseObject);
     }
 
     private static String convertToOriginalFormat(String xmlString, Class clazz) {
-        switch (clazz.getName()) {
-            case "org.wso2.carbon.kernel.utils.configfiletypes.XML":
-                return xmlString;
-            case "org.wso2.carbon.kernel.utils.configfiletypes.YAML":
-                return Utils.convertXMLToYAML(xmlString, ROOT_ELEMENT);
-            case "org.wso2.carbon.kernel.utils.configfiletypes.Properties":
-                return Utils.convertXMLToProperties(xmlString, ROOT_ELEMENT);
-            default:
-                throw new RuntimeException("Unsupported class: " + clazz);
+        if (clazz == YAML.class) {
+            return Utils.convertXMLToYAML(xmlString, ROOT_ELEMENT);
+        } else if (clazz == XML.class) {
+            return xmlString;
+        } else if (clazz == Properties.class) {
+            return Utils.convertXMLToProperties(xmlString, ROOT_ELEMENT);
+        } else {
+            String msg = String.format(bundle.getString("UNSUPPORTED_CLASS"), clazz.getName());
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
     }
 
     /**
      * This method returns the configuration associated with the given key in the
-     * {@link ConfigUtil#DEPLOYMENT_PROPERTIES_FILE}.
+     * {@link ConfigUtil#CONFIG_FILE_NAME}.
      *
      * @param key Key of the configuration
      * @return The new configuration getValue if the key. If it does not have a new getValue,
@@ -219,7 +238,11 @@ public final class ConfigUtil {
     public static String getConfig(String key) {
         String returnValue = null;
         int index = key.indexOf('/');
-        if (index != -1) {
+        if (index == -1) {
+            String msg = bundle.getString("INVALID_KEY");
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        } else {
             //Get the filename and remove [,]
             String fileName = key.substring(0, index).replaceAll("[\\[\\]]", "");
             String xpath = key.substring(index);
@@ -238,12 +261,10 @@ public final class ConfigUtil {
                 }
             } else {
                 // TODO: 6/21/16 Do we need to throw an exception? or warn the user and return a null?
-                logger.error(xpath + " was not found in " + DEPLOYMENT_PROPERTIES_FILE);
-                throw new RuntimeException(xpath + " was not found in " + DEPLOYMENT_PROPERTIES_FILE);
+                String msg = String.format(bundle.getString("XPATH_NOT_FOUND"), xpath, CONFIG_FILE_NAME);
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
-        } else {
-            logger.error("Invalid key. Key should be in [filename]/xpath format");
-            throw new RuntimeException("Invalid key. Key should be in [filename]/xpath format");
         }
         return returnValue;
     }
@@ -257,18 +278,20 @@ public final class ConfigUtil {
      */
     private static String applyNewConfig(String xmlString, String fileNameKey) {
         String updatedString;
-        if (deploymentPropertiesMap.containsKey(fileNameKey)) {
-            Map<String, String> newConfig = deploymentPropertiesMap.get(fileNameKey);
-            StringReader stringReader = null;
-            try {
-                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-                //Preventing Entity Expansion Attacks
-                docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                stringReader = new StringReader(xmlString);
-                InputSource inputSource = new InputSource(stringReader);
-                Document document = docBuilder.parse(inputSource);
+
+        StringReader stringReader = null;
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            //Preventing Entity Expansion Attacks
+            docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            stringReader = new StringReader(xmlString);
+            InputSource inputSource = new InputSource(stringReader);
+            Document document = docBuilder.parse(inputSource);
+
+            if (deploymentPropertiesMap.containsKey(fileNameKey)) {
                 XPath xPath = XPathFactory.newInstance().newXPath();
+                Map<String, String> newConfig = deploymentPropertiesMap.get(fileNameKey);
 
                 newConfig.keySet().forEach(xPathKey -> {
                     try {
@@ -284,54 +307,28 @@ public final class ConfigUtil {
                         } else {
                             //If xpath in deployment.properties not found in the original config file, throw an
                             // exception
-                            logger.error(
-                                    xPathKey + " was not found in " + fileNameKey + " . remove this entry from the "
-                                            + DEPLOYMENT_PROPERTIES_FILE + " or add this config to the original config "
-                                            + "file");
-                            throw new RuntimeException(
-                                    xPathKey + " was not found in " + fileNameKey + " . remove this entry from the "
-                                            + DEPLOYMENT_PROPERTIES_FILE + " or add this config to the original"
-                                            + " config file");
+                            String msg = String.format(bundle.getString("CONFIG_NOT_FOUND"), xPathKey, fileNameKey,
+                                    CONFIG_FILE_NAME, fileNameKey);
+                            logger.error(msg);
+                            throw new RuntimeException(msg);
                         }
                     } catch (XPathExpressionException e) {
-                        logger.error("Exception occurred when applying xpath. Check the syntax and "
-                                + "make sure it is a valid xpath: " + xPathKey, e);
-                        throw new RuntimeException("Exception occurred when applying xpath. Check the syntax and "
-                                + "make sure it is a valid xpath: " + xPathKey, e);
+                        String msg = String.format(bundle.getString("XPATH_ERROR"), xPathKey);
+                        logger.error(msg, e);
+                        throw new RuntimeException(msg, e);
                     }
                 });
-                //Process the placeholders
-                processPlaceholders(document.getDocumentElement().getChildNodes());
-                updatedString = Utils.convertXMLtoString(document);
-            } catch (ParserConfigurationException | IOException | SAXException e) {
-                logger.error("Exception occurred when building document: ", e);
-                throw new RuntimeException("Exception occurred when building document: ", e);
-            } finally {
-                if (stringReader != null) {
-                    stringReader.close();
-                }
             }
-        } else {
-            logger.debug("New configurations for " + fileNameKey + " was not found in " + DEPLOYMENT_PROPERTIES_FILE);
-            //If no new configs found, just process the placeholders
-            StringReader stringReader = null;
-            try {
-                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-                //Preventing Entity Expansion Attacks
-                docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                stringReader = new StringReader(xmlString);
-                InputSource inputSource = new InputSource(stringReader);
-                Document document = docBuilder.parse(inputSource);
-                processPlaceholders(document.getDocumentElement().getChildNodes());
-                updatedString = Utils.convertXMLtoString(document);
-            } catch (ParserConfigurationException | IOException | SAXException e) {
-                logger.error("Exception occurred when processing: ", e);
-                throw new RuntimeException("Exception occurred when processing: ", e);
-            } finally {
-                if (stringReader != null) {
-                    stringReader.close();
-                }
+            //process placeholders
+            processPlaceholdersInXML(document.getDocumentElement().getChildNodes());
+            updatedString = Utils.convertXMLtoString(document);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            String msg = bundle.getString("APPLY_NEW_CONFIG_ERROR");
+            logger.error(msg, e);
+            throw new RuntimeException(msg, e);
+        } finally {
+            if (stringReader != null) {
+                stringReader.close();
             }
         }
         return updatedString;
@@ -342,68 +339,66 @@ public final class ConfigUtil {
      *
      * @param nodeList Node list that needs to be checked for placeholders
      */
-    private static void processPlaceholders(NodeList nodeList) {
+    private static void processPlaceholdersInXML(NodeList nodeList) {
+        //forEach not applicable to NodeList
         for (int count = 0; count < nodeList.getLength(); count++) {
             Node tempNode = nodeList.item(count);
-            // Make sure that the node is a Element node
-            if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-                String value;
-                //First child contains the values. Check whether child node exists
-                if (tempNode.getFirstChild() != null) {
-                    //We only need to process the node value only if values is not null. If a node does not contain
-                    // any textual value (only contain sub elements), node value will be null
-                    if (tempNode.getFirstChild().getNodeValue() != null) {
-                        //Some nodes contain new line and space as node values. So we don't need to check those nodes
-                        value = tempNode.getFirstChild().getNodeValue().trim();
-                        if (value.length() != 0) {
-                            String newValue = value;
-                            if (value.matches(PLACEHOLDER_REGEX)) {
-                                newValue = processPlaceholder(value);
-                            }
-                            //Set the new value
-                            tempNode.getFirstChild().setNodeValue(newValue);
-                        }
+            // Make sure that the node is a Element node. Otherwise continue to the next element
+            if (tempNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            /* First child contains the values. Check whether child node exists. If child exists, We only need to
+            process the node value only if node value is not null. If a node does not contain any textual value (only
+             contain sub elements), node value will be null */
+            if (tempNode.getFirstChild() != null && tempNode.getFirstChild().getNodeValue() != null) {
+                //Some nodes contain new line and space as node values. So we don't need to check those nodes
+                String value = tempNode.getFirstChild().getNodeValue().trim();
+                if (value.length() != 0) {
+                    if (value.matches(PLACEHOLDER_REGEX)) {
+                        //Process the placeholder and set the new value
+                        tempNode.getFirstChild().setNodeValue(processPlaceholder(value));
                     }
-                }
-                if (tempNode.hasAttributes()) {
-                    // Get attributes' names and values
-                    NamedNodeMap nodeMap = tempNode.getAttributes();
-                    //Iterate through all attributes and process palceholders
-                    for (int i = 0; i < nodeMap.getLength(); i++) {
-                        Node node = nodeMap.item(i);
-                        value = node.getNodeValue();
-                        String newValue;
-                        if (value.matches(PLACEHOLDER_REGEX)) {
-                            newValue = processPlaceholder(value);
-                        } else {
-                            //If the value does not contain a placeholder, return the original value
-                            newValue = value;
-                        }
-                        node.setNodeValue(newValue);
-                    }
-                }
-                if (tempNode.hasChildNodes()) {
-                    // Loop again if the current node has child nodes
-                    processPlaceholders(tempNode.getChildNodes());
                 }
             }
+
+            if (tempNode.hasAttributes()) {
+                // Get attributes' names and values
+                NamedNodeMap nodeMap = tempNode.getAttributes();
+                //Iterate through all attributes and process placeholders
+                for (int i = 0; i < nodeMap.getLength(); i++) {
+                    Node node = nodeMap.item(i);
+                    String value = node.getNodeValue();
+                    if (value.matches(PLACEHOLDER_REGEX)) {
+                        //Process the placeholder and set the new value
+                        node.setNodeValue(processPlaceholder(value));
+                    }
+                }
+            }
+            if (tempNode.hasChildNodes()) {
+                // Loop again if the current node has child nodes
+                processPlaceholdersInXML(tempNode.getChildNodes());
+            }
         }
+
     }
 
     /**
-     * This method read the {@link ConfigUtil#DEPLOYMENT_PROPERTIES_FILE} on when this class loads
+     * This method read the {@link ConfigUtil#CONFIG_FILE_NAME} on when this class loads
      *
-     * @return Configurations in the {@link ConfigUtil#DEPLOYMENT_PROPERTIES_FILE} in Map format
+     * @return Configurations in the {@link ConfigUtil#CONFIG_FILE_NAME} in Map format
      */
-    private static Map<String, Map<String, String>> readDeploymentFile() {
+    private static Map<String, Map<String, String>> readDeploymentFile(String filePath) {
 
         Map<String, Map<String, String>> tempPropertiesMap = new HashMap<>();
         java.util.Properties deploymentProperties = new java.util.Properties();
         InputStream input = null;
         try {
-            File file = new File(DEPLOYMENT_PROPERTIES_FILE_PATH);
+            File file = new File(filePath);
             if (file.exists()) {
-                logger.debug(DEPLOYMENT_PROPERTIES_FILE_PATH + " found. Reading new config data.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format(bundle.getString("CONF_FILE_FOUND"), filePath));
+                }
                 input = new FileInputStream(file);
                 deploymentProperties.load(input);
                 //Process each entry in the deployment.properties file and add them to tempPropertiesMap
@@ -432,16 +427,15 @@ public final class ConfigUtil {
                 });
             }
         } catch (IOException ioException) {
-            logger.error("Error occurred during reading the " + DEPLOYMENT_PROPERTIES_FILE +
-                    " file. Error: ", ioException);
-            throw new RuntimeException("Error occurred during reading the " + DEPLOYMENT_PROPERTIES_FILE +
-                    " file. Error: ", ioException);
+            String msg = String.format(bundle.getString("ERROR_READING_FILE"), CONFIG_FILE_NAME);
+            logger.error(msg, ioException);
+            throw new RuntimeException(msg, ioException);
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException ioException2) {
-                    logger.warn("Error occurred while closing the InputStream: ", ioException2);
+                    logger.warn(bundle.getString("ERROR_CLOSING_INPUTSTREAM"), ioException2);
                 }
             }
         }
@@ -466,41 +460,41 @@ public final class ConfigUtil {
             //Group 7 corresponds to the default value in the inputString. If default value is not available, this
             // will be null
             String defaultValue = matcher.group(7);
-            String newValue;
             switch (key) {
                 case "env":
-                    newValue = System.getenv(value);
-                    if (newValue == null) {
-                        if (defaultValue == null) {
-                            throw new RuntimeException("Environment Variable " + value + " not found. Processing " +
-                                    DEPLOYMENT_PROPERTIES_FILE + " failed. Placeholder: " + inputString);
-                        } else {
-                            inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
-                        }
-                    } else {
-                        inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
-                    }
+                    inputString = processValue(System::getenv, value, inputString, defaultValue, Placeholder.ENV);
                     break;
                 case "sys":
-                    newValue = System.getProperty(value);
-                    if (newValue == null) {
-                        if (defaultValue == null) {
-                            throw new RuntimeException("System property" + value + " not found. Processing " +
-                                    DEPLOYMENT_PROPERTIES_FILE + " failed. Placeholder: " + inputString);
-                        } else {
-                            inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
-                        }
-                    } else {
-                        inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
-                    }
+                    inputString = processValue(System::getProperty, value, inputString, defaultValue, Placeholder.SYS);
                     break;
                 case "sec":
                     //todo
                     inputString = "";
                     break;
                 default:
-                    throw new RuntimeException("Unsupported inputString key: " + key);
+                    String msg = String.format(bundle.getString("UNSUPPORTED_PLACEHOLDER"), key);
+                    logger.error(msg);
+                    throw new RuntimeException(msg);
             }
+        }
+        return inputString;
+    }
+
+    private static String processValue(Function<String, String> func, String key, String inputString,
+            String defaultValue, Placeholder type) {
+        String newValue = func.apply(key);
+        if (newValue == null) {
+            if (defaultValue == null) {
+                String msg = String.format(bundle.getString(
+                        "PROCESSING_PLACEHOLDER_FAILED_" + type.getValue().toUpperCase(Locale.ENGLISH)), key,
+                        CONFIG_FILE_NAME, inputString);
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            } else {
+                inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
+            }
+        } else {
+            inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
         }
         return inputString;
     }
@@ -536,31 +530,46 @@ public final class ConfigUtil {
     }
 
     /**
-     * This method will return the {@link ConfigUtil#DEPLOYMENT_PROPERTIES_FILE} file path. Path will be read using
-     * {@link ConfigUtil#DEPLOYMENT_PROPERTIES_VAR_NAME} environment variable or
-     * {@link ConfigUtil#DEPLOYMENT_PROPERTIES_VAR_NAME}
+     * This method will return the {@link ConfigUtil#CONFIG_FILE_NAME} file path. Path will be read using
+     * {@link ConfigUtil#FILE_PATH_KEY} environment variable or
+     * {@link ConfigUtil#FILE_PATH_KEY}
      * system variable respectively. If both are null, CARBON_HOME/conf will be set as the default location.
      *
-     * @return Location of the {@link ConfigUtil#DEPLOYMENT_PROPERTIES_FILE} file
+     * @return Location of the {@link ConfigUtil#CONFIG_FILE_NAME} file
      */
     private static String getPath() {
-
-        String fileLocation = System.getenv(DEPLOYMENT_PROPERTIES_VAR_NAME);
-        if (fileLocation == null) {
-            fileLocation = System.getProperty(DEPLOYMENT_PROPERTIES_VAR_NAME);
-            if (fileLocation == null) {
-                logger.debug(DEPLOYMENT_PROPERTIES_VAR_NAME + " not found in both System,Environment variables");
+        String fileLocation = System.getenv(FILE_PATH_KEY);
+        if (StringUtils.isNullOrEmpty(fileLocation)) {
+            if (fileLocation != null && fileLocation.isEmpty()) {
+                logger.warn(String.format(bundle.getString("EMPTY_ENV_SYS_VARIABLE"), bundle.getString("ENVIRONMENT"),
+                        FILE_PATH_KEY));
+            }
+            fileLocation = System.getProperty(FILE_PATH_KEY);
+            if (StringUtils.isNullOrEmpty(fileLocation)) {
+                if (fileLocation != null && fileLocation.isEmpty()) {
+                    logger.warn(String.format(bundle.getString("EMPTY_ENV_SYS_VARIABLE"), bundle.getString("SYSTEM"),
+                            FILE_PATH_KEY));
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format(bundle.getString("ENV_SYS_NOT_FOUND"), FILE_PATH_KEY));
+                }
                 Path confHome = Utils.getCarbonConfigHome();
-                Path path = Paths.get(confHome.toString(), "deployment.properties");
-                logger.debug("deployment.properties file path is set to: " + path.toString());
+                Path path = Paths.get(confHome.toString(), CONFIG_FILE_NAME);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format(bundle.getString("PATH_SET_TO"), CONFIG_FILE_NAME, path.toString()));
+                }
                 fileLocation = path.toString();
             } else {
-                logger.debug(DEPLOYMENT_PROPERTIES_VAR_NAME + " location found in System variables. Location: "
-                        + fileLocation);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format(bundle.getString("ENV_SYS_FOUND"), FILE_PATH_KEY,
+                            bundle.getString("ENVIRONMENT"), fileLocation));
+                }
             }
         } else {
-            logger.debug(DEPLOYMENT_PROPERTIES_VAR_NAME + " location found in Environment variables. Location: " +
-                    fileLocation);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format(bundle.getString("ENV_SYS_FOUND"), FILE_PATH_KEY, bundle.getString("SYSTEM"),
+                        fileLocation));
+            }
         }
         return fileLocation;
     }
