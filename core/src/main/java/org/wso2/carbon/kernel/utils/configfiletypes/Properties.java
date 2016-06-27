@@ -20,7 +20,7 @@ package org.wso2.carbon.kernel.utils.configfiletypes;
  *
  * @since 5.2.0
  */
-public class Properties extends ConfigFileType {
+public final class Properties extends AbstractConfigFileType {
     public Properties(String value) {
         super(value);
     }

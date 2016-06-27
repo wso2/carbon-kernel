@@ -20,7 +20,7 @@ package org.wso2.carbon.kernel.utils.configfiletypes;
  *
  * @since 5.2.0
  */
-public class XML extends ConfigFileType {
+public final class XML extends AbstractConfigFileType {
     public XML(String value) {
         super(value);
     }
