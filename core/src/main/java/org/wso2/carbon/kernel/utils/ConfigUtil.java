@@ -40,7 +40,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -144,7 +143,7 @@ public final class ConfigUtil {
             FileInputStream fileInputStream = new FileInputStream(file);
             newConfig = getConfig(fileInputStream, file.getName(), clazz);
         } catch (FileNotFoundException e) {
-            String msg = String.format(bundle.getString("FILE_NOT_FOUND"), file.getAbsolutePath());
+            String msg = String.format(bundle.getString("file.not.found"), file.getAbsolutePath());
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
         }
@@ -181,12 +180,12 @@ public final class ConfigUtil {
                     //Convert the file to XML format
                     xmlString = Utils.convertYAMLToXML(inputString, ROOT_ELEMENT);
                 } else {
-                    String msg = String.format(bundle.getString("UNSUPPORTED_CLASS"), clazz.getName());
+                    String msg = String.format(bundle.getString("unsupported.class"), clazz.getName());
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
             } catch (IOException e) {
-                String msg = bundle.getString("ERROR_INPUTSTREAM");
+                String msg = bundle.getString("error.reading.inputstream");
                 logger.error(msg, e);
                 throw new RuntimeException(msg, e);
             }
@@ -198,7 +197,6 @@ public final class ConfigUtil {
         String convertedString = convertToOriginalFormat(xmlString, clazz);
 
         AbstractConfigFileType baseObject;
-
         if (clazz == YAML.class) {
             baseObject = new YAML(convertedString);
         } else if (clazz == XML.class) {
@@ -206,7 +204,7 @@ public final class ConfigUtil {
         } else if (clazz == Properties.class) {
             baseObject = new Properties(convertedString);
         } else {
-            String msg = String.format(bundle.getString("UNSUPPORTED_CLASS"), clazz.getTypeName());
+            String msg = String.format(bundle.getString("unsupported.class"), clazz.getTypeName());
             logger.error(msg);
             throw new RuntimeException(msg);
         }
@@ -221,7 +219,7 @@ public final class ConfigUtil {
         } else if (clazz == Properties.class) {
             return Utils.convertXMLToProperties(xmlString, ROOT_ELEMENT);
         } else {
-            String msg = String.format(bundle.getString("UNSUPPORTED_CLASS"), clazz.getName());
+            String msg = String.format(bundle.getString("unsupported.class"), clazz.getName());
             logger.error(msg);
             throw new RuntimeException(msg);
         }
@@ -236,10 +234,9 @@ public final class ConfigUtil {
      * {@link RuntimeException} will be thrown.
      */
     public static String getConfig(String key) {
-        String returnValue = null;
         int index = key.indexOf('/');
         if (index == -1) {
-            String msg = bundle.getString("INVALID_KEY");
+            String msg = bundle.getString("invalid.key");
             logger.error(msg);
             throw new RuntimeException(msg);
         } else {
@@ -250,23 +247,26 @@ public final class ConfigUtil {
             if (fileName.matches(FILE_REGEX)) {
                 xpath = "/" + ROOT_ELEMENT + xpath;
             }
-            if (deploymentPropertiesMap.containsKey(fileName)) {
+            if (!deploymentPropertiesMap.containsKey(fileName)) {
+                String msg = String.format(bundle.getString("filename.not.found"), fileName, CONFIG_FILE_NAME);
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            } else {
                 Map<String, String> configMap = deploymentPropertiesMap.get(fileName);
                 if (configMap.containsKey(xpath)) {
-                    returnValue = configMap.get(xpath);
+                    String returnValue = configMap.get(xpath);
                     //If the value contain a placeholder, process the placeholder before returning the value
                     if (returnValue.matches(PLACEHOLDER_REGEX)) {
                         returnValue = processPlaceholder(returnValue);
                     }
+                    return returnValue;
+                } else {
+                    String msg = String.format(bundle.getString("xpath.not.found"), xpath, fileName, CONFIG_FILE_NAME);
+                    logger.error(msg);
+                    throw new RuntimeException(msg);
                 }
-            } else {
-                // TODO: 6/21/16 Do we need to throw an exception? or warn the user and return a null?
-                String msg = String.format(bundle.getString("XPATH_NOT_FOUND"), xpath, CONFIG_FILE_NAME);
-                logger.error(msg);
-                throw new RuntimeException(msg);
             }
         }
-        return returnValue;
     }
 
     /**
@@ -277,8 +277,6 @@ public final class ConfigUtil {
      * @return New config in XML formatted String
      */
     private static String applyNewConfig(String xmlString, String fileNameKey) {
-        String updatedString;
-
         StringReader stringReader = null;
         try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -288,11 +286,10 @@ public final class ConfigUtil {
             stringReader = new StringReader(xmlString);
             InputSource inputSource = new InputSource(stringReader);
             Document document = docBuilder.parse(inputSource);
-
+            //Apply new config if new config available
             if (deploymentPropertiesMap.containsKey(fileNameKey)) {
                 XPath xPath = XPathFactory.newInstance().newXPath();
                 Map<String, String> newConfig = deploymentPropertiesMap.get(fileNameKey);
-
                 newConfig.keySet().forEach(xPathKey -> {
                     try {
                         NodeList nodeList = (NodeList) xPath.compile(xPathKey)
@@ -307,13 +304,13 @@ public final class ConfigUtil {
                         } else {
                             //If xpath in deployment.properties not found in the original config file, throw an
                             // exception
-                            String msg = String.format(bundle.getString("CONFIG_NOT_FOUND"), xPathKey, fileNameKey,
+                            String msg = String.format(bundle.getString("config.not.found"), xPathKey, fileNameKey,
                                     CONFIG_FILE_NAME, fileNameKey);
                             logger.error(msg);
                             throw new RuntimeException(msg);
                         }
                     } catch (XPathExpressionException e) {
-                        String msg = String.format(bundle.getString("XPATH_ERROR"), xPathKey);
+                        String msg = String.format(bundle.getString("xpath.error"), xPathKey);
                         logger.error(msg, e);
                         throw new RuntimeException(msg, e);
                     }
@@ -321,9 +318,9 @@ public final class ConfigUtil {
             }
             //process placeholders
             processPlaceholdersInXML(document.getDocumentElement().getChildNodes());
-            updatedString = Utils.convertXMLtoString(document);
+            return Utils.convertXMLtoString(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
-            String msg = bundle.getString("APPLY_NEW_CONFIG_ERROR");
+            String msg = bundle.getString("apply.new.config.error");
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
         } finally {
@@ -331,7 +328,6 @@ public final class ConfigUtil {
                 stringReader.close();
             }
         }
-        return updatedString;
     }
 
     /**
@@ -347,7 +343,9 @@ public final class ConfigUtil {
             if (tempNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format(bundle.getString("traversing.node"), tempNode.getNodeName()));
+            }
             /* First child contains the values. Check whether child node exists. If child exists, We only need to
             process the node value only if node value is not null. If a node does not contain any textual value (only
              contain sub elements), node value will be null */
@@ -355,24 +353,20 @@ public final class ConfigUtil {
                 //Some nodes contain new line and space as node values. So we don't need to check those nodes
                 String value = tempNode.getFirstChild().getNodeValue().trim();
                 if (value.length() != 0) {
-                    if (value.matches(PLACEHOLDER_REGEX)) {
-                        //Process the placeholder and set the new value
-                        tempNode.getFirstChild().setNodeValue(processPlaceholder(value));
-                    }
+                    setNewValue(tempNode.getFirstChild(), value);
                 }
             }
-
             if (tempNode.hasAttributes()) {
                 // Get attributes' names and values
                 NamedNodeMap nodeMap = tempNode.getAttributes();
                 //Iterate through all attributes and process placeholders
                 for (int i = 0; i < nodeMap.getLength(); i++) {
                     Node node = nodeMap.item(i);
-                    String value = node.getNodeValue();
-                    if (value.matches(PLACEHOLDER_REGEX)) {
-                        //Process the placeholder and set the new value
-                        node.setNodeValue(processPlaceholder(value));
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format(bundle.getString("traversing.attribute"), node.getNodeName()));
                     }
+                    String value = node.getNodeValue();
+                    setNewValue(node, value);
                 }
             }
             if (tempNode.hasChildNodes()) {
@@ -380,7 +374,26 @@ public final class ConfigUtil {
                 processPlaceholdersInXML(tempNode.getChildNodes());
             }
         }
+    }
 
+    /**
+     * This helper method sets the value to a placeholder
+     *
+     * @param node  Node which contains the placeholder
+     * @param value Value of the node
+     */
+    private static void setNewValue(Node node, String value) {
+        if (value.matches(PLACEHOLDER_REGEX)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Placeholder match found: %s", value));
+            }
+            //Process the placeholder and set the new value
+            String newValue = processPlaceholder(value);
+            node.setNodeValue(newValue);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Setting new value: %s", newValue));
+            }
+        }
     }
 
     /**
@@ -389,15 +402,16 @@ public final class ConfigUtil {
      * @return Configurations in the {@link ConfigUtil#CONFIG_FILE_NAME} in Map format
      */
     private static Map<String, Map<String, String>> readDeploymentFile(String filePath) {
-
         Map<String, Map<String, String>> tempPropertiesMap = new HashMap<>();
         java.util.Properties deploymentProperties = new java.util.Properties();
         InputStream input = null;
         try {
             File file = new File(filePath);
-            if (file.exists()) {
+            if (!file.exists()) {
+                return tempPropertiesMap;
+            } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format(bundle.getString("CONF_FILE_FOUND"), filePath));
+                    logger.debug(String.format(bundle.getString("conf.file.found"), filePath));
                 }
                 input = new FileInputStream(file);
                 deploymentProperties.load(input);
@@ -409,9 +423,18 @@ public final class ConfigUtil {
                     String fileName = keyString.substring(0, index).replaceAll("[\\[\\]]", "");
                     String xpath = keyString.substring(index);
                     String value = deploymentProperties.getProperty(keyString);
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format("Processing - filename: %s ; xpath: %s ; value: %s", fileName, xpath,
+                                value));
+                    }
+
                     //Add root element for yml, properties files
                     if (fileName.matches(FILE_REGEX)) {
                         xpath = "/" + ROOT_ELEMENT + xpath;
+                        if(logger.isDebugEnabled()){
+                            logger.debug("Root element added");
+                        }
                     }
                     //If the fileName is already in the tempPropertiesMap, update the 2nd map (which is the value of
                     // the tempPropertiesMap)
@@ -427,7 +450,7 @@ public final class ConfigUtil {
                 });
             }
         } catch (IOException ioException) {
-            String msg = String.format(bundle.getString("ERROR_READING_FILE"), CONFIG_FILE_NAME);
+            String msg = String.format(bundle.getString("error.reading.file"), CONFIG_FILE_NAME);
             logger.error(msg, ioException);
             throw new RuntimeException(msg, ioException);
         } finally {
@@ -435,7 +458,7 @@ public final class ConfigUtil {
                 try {
                     input.close();
                 } catch (IOException ioException2) {
-                    logger.warn(bundle.getString("ERROR_CLOSING_INPUTSTREAM"), ioException2);
+                    logger.warn(bundle.getString("error.closing.inputstream"), ioException2);
                 }
             }
         }
@@ -472,7 +495,7 @@ public final class ConfigUtil {
                     inputString = "";
                     break;
                 default:
-                    String msg = String.format(bundle.getString("UNSUPPORTED_PLACEHOLDER"), key);
+                    String msg = String.format(bundle.getString("unsupported.placeholder"), key);
                     logger.error(msg);
                     throw new RuntimeException(msg);
             }
@@ -480,23 +503,31 @@ public final class ConfigUtil {
         return inputString;
     }
 
+    /**
+     * This method process a given placeholder string and returns the string with replaced new value
+     *
+     * @param func         Function to apply
+     * @param key          Environment Variable/System Property key
+     * @param inputString  String which needs to process
+     * @param defaultValue Default value of the placeholder. If default value is not available, this is null
+     * @param type         Type of the placeholder (env/sys/sec) This is used to print the error message
+     * @return String which has the new value instead of the placeholder
+     */
     private static String processValue(Function<String, String> func, String key, String inputString,
             String defaultValue, Placeholder type) {
         String newValue = func.apply(key);
-        if (newValue == null) {
-            if (defaultValue == null) {
-                String msg = String.format(bundle.getString(
-                        "PROCESSING_PLACEHOLDER_FAILED_" + type.getValue().toUpperCase(Locale.ENGLISH)), key,
+        if (newValue != null) {
+            return inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
+        } else {
+            if (defaultValue != null) {
+                return inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
+            } else {
+                String msg = String.format(bundle.getString("processing.placeholder.failed." + type.getValue()), key,
                         CONFIG_FILE_NAME, inputString);
                 logger.error(msg);
                 throw new RuntimeException(msg);
-            } else {
-                inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
             }
-        } else {
-            inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
         }
-        return inputString;
     }
 
     /**
@@ -511,6 +542,9 @@ public final class ConfigUtil {
             stringBuilder.append(fileType.getValue()).append("|");
         }
         String value = stringBuilder.toString();
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("FileType String: %s", value));
+        }
         return value.substring(0, value.length() - 1);
     }
 
@@ -526,6 +560,9 @@ public final class ConfigUtil {
             stringBuilder.append(placeholder.getValue()).append("|");
         }
         String value = stringBuilder.toString();
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("PlaceHolder String: %s", value));
+        }
         return value.substring(0, value.length() - 1);
     }
 
@@ -539,38 +576,40 @@ public final class ConfigUtil {
      */
     private static String getPath() {
         String fileLocation = System.getenv(FILE_PATH_KEY);
-        if (StringUtils.isNullOrEmpty(fileLocation)) {
+        if (!StringUtils.isNullOrEmpty(fileLocation)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                        String.format(bundle.getString("env.sys.var.found"), FILE_PATH_KEY, bundle.getString("system"),
+                                fileLocation));
+            }
+            return fileLocation;
+        } else {
             if (fileLocation != null && fileLocation.isEmpty()) {
-                logger.warn(String.format(bundle.getString("EMPTY_ENV_SYS_VARIABLE"), bundle.getString("ENVIRONMENT"),
+                logger.warn(String.format(bundle.getString("empty.env.sys.variable"), bundle.getString("environment"),
                         FILE_PATH_KEY));
             }
             fileLocation = System.getProperty(FILE_PATH_KEY);
-            if (StringUtils.isNullOrEmpty(fileLocation)) {
+            if (!StringUtils.isNullOrEmpty(fileLocation)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format(bundle.getString("env.sys.var.found"), FILE_PATH_KEY,
+                            bundle.getString("environment"), fileLocation));
+                }
+                return fileLocation;
+            } else {
                 if (fileLocation != null && fileLocation.isEmpty()) {
-                    logger.warn(String.format(bundle.getString("EMPTY_ENV_SYS_VARIABLE"), bundle.getString("SYSTEM"),
+                    logger.warn(String.format(bundle.getString("empty.env.sys.variable"), bundle.getString("system"),
                             FILE_PATH_KEY));
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format(bundle.getString("ENV_SYS_NOT_FOUND"), FILE_PATH_KEY));
+                    logger.debug(String.format(bundle.getString("env.sys.var.not.found"), FILE_PATH_KEY));
                 }
                 Path confHome = Utils.getCarbonConfigHome();
                 Path path = Paths.get(confHome.toString(), CONFIG_FILE_NAME);
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format(bundle.getString("PATH_SET_TO"), CONFIG_FILE_NAME, path.toString()));
+                    logger.debug(String.format(bundle.getString("path.set.to"), CONFIG_FILE_NAME, path.toString()));
                 }
-                fileLocation = path.toString();
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(String.format(bundle.getString("ENV_SYS_FOUND"), FILE_PATH_KEY,
-                            bundle.getString("ENVIRONMENT"), fileLocation));
-                }
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format(bundle.getString("ENV_SYS_FOUND"), FILE_PATH_KEY, bundle.getString("SYSTEM"),
-                        fileLocation));
+                return path.toString();
             }
         }
-        return fileLocation;
     }
 }
