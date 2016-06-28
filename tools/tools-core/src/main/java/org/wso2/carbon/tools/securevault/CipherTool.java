@@ -83,11 +83,11 @@ public class CipherTool implements CarbonTool {
                     return;
                 } else if (arg.substring(0, 2).equals("-D")) {
                     userArgument = arg.substring(2);
-                    if (userArgument.equals(SecureVaultConstants.ENCRYPT_TEXT)) {
+                    if (userArgument.equals(CipherToolConstants.ENCRYPT_TEXT)) {
                         encryptValue(carbonHome, Optional.empty());
-                    } else if (userArgument.startsWith(SecureVaultConstants.CONSOLE_PASSWORD_PARAM)) {
+                    } else if (userArgument.startsWith(CipherToolConstants.CONSOLE_PASSWORD_PARAM)) {
                         encryptValue(carbonHome, Optional.of(
-                                userArgument.substring(SecureVaultConstants.CONSOLE_PASSWORD_PARAM.length() + 1)));
+                                userArgument.substring(CipherToolConstants.CONSOLE_PASSWORD_PARAM.length() + 1)));
                     } else {
                         logger.log(Level.INFO, "This option is not define!");
                         return;
@@ -160,7 +160,7 @@ public class CipherTool implements CarbonTool {
         String encodedValue;
         try {
             byte[] encryptedPassword = cipher.doFinal(
-                    plainTextPwd.getBytes(Charset.forName(SecureVaultConstants.UTF8)));
+                    plainTextPwd.getBytes(Charset.forName(CipherToolConstants.UTF8)));
             encodedValue = DatatypeConverter.printBase64Binary(encryptedPassword);
         } catch (BadPaddingException e) {
             //throwing a runtime exception as this exception may occur due to a invalid user inputs.

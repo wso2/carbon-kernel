@@ -82,9 +82,9 @@ public class Utils {
      */
     public static void writeSecretYamlConfiguration(KeyStoreInformation keyStore, String carbonHome) {
 
-        String secretsYamlFile = carbonHome + File.separator + SecureVaultConstants.CONF_DIR +
-                File.separator + SecureVaultConstants.SECURITY_DIR +
-                File.separator + SecureVaultConstants.SECRET_YAML_FILE;
+        String secretsYamlFile = carbonHome + File.separator + CipherToolConstants.CONF_DIR +
+                File.separator + CipherToolConstants.SECURITY_DIR +
+                File.separator + CipherToolConstants.SECRET_YAML_FILE;
 
         Map<String, Object> data = new HashMap<>();
 
@@ -94,24 +94,24 @@ public class Utils {
 
         //build data related to keystore.
         Map<String, Object> keystoreData = new HashMap<>();
-        keystoreData.put(SecureVaultConstants.SecureVault.LOCATION, keyStoreFile);
-        keystoreData.put(SecureVaultConstants.SecureVault.TYPE, keyType);
-        keystoreData.put(SecureVaultConstants.SecureVault.KEYSTORE_ALIAS, aliasName);
-        keystoreData.put(SecureVaultConstants.SecureVault.KEYSTORE_STORE_PASSWORD, keyStore.getPassword());
+        keystoreData.put(CipherToolConstants.SecureVault.LOCATION, keyStoreFile);
+        keystoreData.put(CipherToolConstants.SecureVault.TYPE, keyType);
+        keystoreData.put(CipherToolConstants.SecureVault.KEYSTORE_ALIAS, aliasName);
+        keystoreData.put(CipherToolConstants.SecureVault.KEYSTORE_STORE_PASSWORD, keyStore.getPassword());
 
         //build data related to secret-repositories.
         Map<String, Object> fileBasedRepoData = new HashMap<>();
-        fileBasedRepoData.put(SecureVaultConstants.SecureVault.TYPE,
-                SecureVaultConstants.SecureVault.SECRET_REPO_FILE_TYPE);
-        fileBasedRepoData.put(SecureVaultConstants.SecureVault.LOCATION, "conf/security/secrets.properties");
-        fileBasedRepoData.put(SecureVaultConstants.SecureVault.SECRET_FILE_PROVIDER,
-                SecureVaultConstants.SecureVault.SECRET_FILE_BASE_PROVIDER_CLASS);
+        fileBasedRepoData.put(CipherToolConstants.SecureVault.TYPE,
+                CipherToolConstants.SecureVault.SECRET_REPO_FILE_TYPE);
+        fileBasedRepoData.put(CipherToolConstants.SecureVault.LOCATION, "conf/security/secrets.properties");
+        fileBasedRepoData.put(CipherToolConstants.SecureVault.SECRET_FILE_PROVIDER,
+                CipherToolConstants.SecureVault.SECRET_FILE_BASE_PROVIDER_CLASS);
 
         Map<String, Object> secretRepoData = new HashMap<>();
-        secretRepoData.put(SecureVaultConstants.SecureVault.SECRET_REPOSITORY, fileBasedRepoData);
+        secretRepoData.put(CipherToolConstants.SecureVault.SECRET_REPOSITORY, fileBasedRepoData);
 
-        data.put(SecureVaultConstants.SecureVault.KEYSTORE, keystoreData);
-        data.put(SecureVaultConstants.SecureVault.SECRET_REPOSITORIES, secretRepoData);
+        data.put(CipherToolConstants.SecureVault.KEYSTORE, keystoreData);
+        data.put(CipherToolConstants.SecureVault.SECRET_REPOSITORIES, secretRepoData);
 
         Yaml yaml = new Yaml();
         Writer writer = null;
@@ -120,7 +120,7 @@ public class Utils {
                     new File(secretsYamlFile)), "UTF-8"));
             yaml.dump(data, writer);
         } catch (IOException e) {
-            throw new CipherToolException("Error writing to file " + SecureVaultConstants.SECRET_PROPERTY_FILE, e);
+            throw new CipherToolException("Error writing to file " + CipherToolConstants.SECRET_PROPERTY_FILE, e);
         } finally {
             try {
                 if (writer != null) {
@@ -155,8 +155,8 @@ public class Utils {
     }
 
     public static Path getSecretsFileLocation(String carbonHome) {
-        return Paths.get(carbonHome, SecureVaultConstants.CONF_DIR,
-                SecureVaultConstants.SECURITY_DIR, SecureVaultConstants.SECRETS_FILE);
+        return Paths.get(carbonHome, CipherToolConstants.CONF_DIR,
+                CipherToolConstants.SECURITY_DIR, CipherToolConstants.SECRETS_FILE);
     }
 
     /**

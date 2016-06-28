@@ -104,7 +104,7 @@ public class KeyStoreUtil {
         KeyStoreInformation keyStoreInformation = null;
 
         Path serverConfigurationFile =
-                Paths.get(carbonHome, SecureVaultConstants.CONF_DIR, SecureVaultConstants.CARBON_CONFIG_FILE);
+                Paths.get(carbonHome, CipherToolConstants.CONF_DIR, CipherToolConstants.CARBON_CONFIG_FILE);
 
         if (Files.exists(serverConfigurationFile)) {
             //WSO2 Environment

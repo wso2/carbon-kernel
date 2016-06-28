@@ -20,7 +20,7 @@ package org.wso2.carbon.tools.securevault;
  *
  * @since 5.1.0
  */
-public class SecureVaultConstants {
+public class CipherToolConstants {
 
     public static final String ENCRYPT_TEXT = "encryptText";
     public static final String CONSOLE_PASSWORD_PARAM = "keystorePassword";
@@ -33,18 +33,12 @@ public class SecureVaultConstants {
     public static final String SECRET_YAML_FILE = "secret-vault.yml";
 
     /**
-     * Constants for Secure-vault configuration.
+     * Constants for Secure-vault.yml configuration.
      */
     public static final class SecureVault {
         public static final String TYPE = "type";
         public static final String LOCATION = "location";
 
-        public static final String ATTRIBUTE = "provider";
-        public static final String SECRET_PROVIDER_CLASS =
-                "org.wso2.securevault.secret.handler.SecretManagerSecretCallbackHandler";
-        public static final String CARBON_DEFAULT_SECRET_PROVIDER =
-                "org.wso2.carbon.securevault.DefaultSecretCallbackHandler";
-        public static final String ALIAS = "svns:secretAlias";
         public static final String SECRET_REPOSITORIES = "secretRepositories";
         public static final String SECRET_REPOSITORY = "repository";
         public static final String SECRET_REPO_FILE_TYPE = "file";
@@ -55,11 +49,6 @@ public class SecureVaultConstants {
         public static final String KEYSTORE = "keystore";
         public static final String KEYSTORE_ALIAS = "alias";
         public static final String KEYSTORE_STORE_PASSWORD = "password";
-        public static final String IDENTITY_STORE_PASSWORD = "identity.store.password";
-        public static final String KEYSTORE_STORE_SECRET_PROVIDER = "keystore.identity.store.secretProvider";
-        public static final String KEYSTORE_KEY_PASSWORD = "keystore.identity.key.password";
-        public static final String IDENTITY_KEY_PASSWORD = "identity.key.password";
-        public static final String KEYSTORE_KEY_SECRET_PROVIDER = "keystore.identity.key.secretProvider";
     }
 }
 

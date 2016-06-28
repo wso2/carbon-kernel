@@ -35,15 +35,27 @@ import java.util.Map;
 public class SecretManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SecretManager.class);
+
+    // A Static member holds only one instance of the SecretManager.
+    private final static SecretManager SECRET_MANAGER = new SecretManager();
     //True , if secret manager has been started up properly.
     private boolean initialized = false;
 
+    // Providing Global point of access.
+    public static SecretManager getInstance() {
+        return SECRET_MANAGER;
+    }
+
+    // prevents any other class from instantiating.
+    private SecretManager() {
+    }
 
     /**
      * Initializes the Secret Manager by providing configuration properties
      *
      * @param serverConfigurationFile Path to configuration file.
      */
+    @SuppressWarnings("unchecked")
     public void init(Path serverConfigurationFile) {
         //we only initialize secretManager once.
         if (initialized) {
