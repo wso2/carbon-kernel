@@ -92,15 +92,26 @@ public class Utils {
         String keyType = keyStore.getType();
         String aliasName = keyStore.getKeyAlias();
 
-        data.put(SecureVaultConstants.SecureVault.SECRET_REPOSITORIES, "file");
-        data.put(SecureVaultConstants.SecureVault.SECRET_FILE_PROVIDER,
+        //build data related to keystore.
+        Map<String, Object> keystoreData = new HashMap<>();
+        keystoreData.put(SecureVaultConstants.SecureVault.LOCATION, keyStoreFile);
+        keystoreData.put(SecureVaultConstants.SecureVault.TYPE, keyType);
+        keystoreData.put(SecureVaultConstants.SecureVault.KEYSTORE_ALIAS, aliasName);
+        keystoreData.put(SecureVaultConstants.SecureVault.KEYSTORE_STORE_PASSWORD, keyStore.getPassword());
+
+        //build data related to secret-repositories.
+        Map<String, Object> fileBasedRepoData = new HashMap<>();
+        fileBasedRepoData.put(SecureVaultConstants.SecureVault.TYPE,
+                SecureVaultConstants.SecureVault.SECRET_REPO_FILE_TYPE);
+        fileBasedRepoData.put(SecureVaultConstants.SecureVault.LOCATION, "conf/security/secrets.properties");
+        fileBasedRepoData.put(SecureVaultConstants.SecureVault.SECRET_FILE_PROVIDER,
                 SecureVaultConstants.SecureVault.SECRET_FILE_BASE_PROVIDER_CLASS);
-        data.put(SecureVaultConstants.SecureVault.SECRET_FILE_LOCATION,
-                getSecretsFileLocation(carbonHome).toString());
-        data.put(SecureVaultConstants.SecureVault.KEYSTORE_LOCATION, keyStoreFile);
-        data.put(SecureVaultConstants.SecureVault.KEYSTORE_TYPE, keyType);
-        data.put(SecureVaultConstants.SecureVault.KEYSTORE_ALIAS, aliasName);
-        data.put(SecureVaultConstants.SecureVault.KEYSTORE_STORE_PASSWORD, keyStore.getPassword());
+
+        Map<String, Object> secretRepoData = new HashMap<>();
+        secretRepoData.put(SecureVaultConstants.SecureVault.SECRET_REPOSITORY, fileBasedRepoData);
+
+        data.put(SecureVaultConstants.SecureVault.KEYSTORE, keystoreData);
+        data.put(SecureVaultConstants.SecureVault.SECRET_REPOSITORIES, secretRepoData);
 
         Yaml yaml = new Yaml();
         Writer writer = null;

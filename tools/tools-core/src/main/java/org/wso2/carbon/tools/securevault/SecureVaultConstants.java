@@ -36,6 +36,9 @@ public class SecureVaultConstants {
      * Constants for Secure-vault configuration.
      */
     public static final class SecureVault {
+        public static final String TYPE = "type";
+        public static final String LOCATION = "location";
+
         public static final String ATTRIBUTE = "provider";
         public static final String SECRET_PROVIDER_CLASS =
                 "org.wso2.securevault.secret.handler.SecretManagerSecretCallbackHandler";
@@ -43,15 +46,15 @@ public class SecureVaultConstants {
                 "org.wso2.carbon.securevault.DefaultSecretCallbackHandler";
         public static final String ALIAS = "svns:secretAlias";
         public static final String SECRET_REPOSITORIES = "secretRepositories";
-        public static final String CARBON_SECRET_PROVIDER = "carbon.secretProvider";
-        public static final String SECRET_FILE_PROVIDER = "secretRepositories.file.provider";
+        public static final String SECRET_REPOSITORY = "repository";
+        public static final String SECRET_REPO_FILE_TYPE = "file";
+        public static final String SECRET_FILE_PROVIDER = "provider";
         public static final String SECRET_FILE_BASE_PROVIDER_CLASS =
                 "org.wso2.carbon.kernel.security.repository.FileBaseSecretRepositoryProvider";
-        public static final String SECRET_FILE_LOCATION = "secretRepositories.file.location";
-        public static final String KEYSTORE_LOCATION = "keystore.identity.location";
-        public static final String KEYSTORE_TYPE = "keystore.identity.type";
-        public static final String KEYSTORE_ALIAS = "keystore.identity.alias";
-        public static final String KEYSTORE_STORE_PASSWORD = "keystore.identity.store.password";
+
+        public static final String KEYSTORE = "keystore";
+        public static final String KEYSTORE_ALIAS = "alias";
+        public static final String KEYSTORE_STORE_PASSWORD = "password";
         public static final String IDENTITY_STORE_PASSWORD = "identity.store.password";
         public static final String KEYSTORE_STORE_SECRET_PROVIDER = "keystore.identity.store.secretProvider";
         public static final String KEYSTORE_KEY_PASSWORD = "keystore.identity.key.password";
