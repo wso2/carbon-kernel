@@ -17,7 +17,9 @@
 package org.wso2.carbon.kernel.securevault;
 
 /**
- * KeyStore Types
+ * KeyStore Types.
+ *
+ * @since 5.2.0
  */
 
 public enum KeyStoreType {

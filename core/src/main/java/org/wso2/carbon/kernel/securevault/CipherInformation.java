@@ -21,8 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by nipuni on 6/7/16.   //todo
+ * Encapsulates the cipher related information
+ *
+ * @since 5.2.0
  */
+
 public class CipherInformation {
 
     private static final Logger log = LoggerFactory.getLogger(CipherInformation.class);

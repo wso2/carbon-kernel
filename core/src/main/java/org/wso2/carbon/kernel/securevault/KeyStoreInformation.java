@@ -22,8 +22,11 @@ import org.slf4j.LoggerFactory;
 import java.security.KeyStore;
 
 /**
- * Created by nipuni on 6/7/16.   //todo
+ * Encapsulates the keyStore related information
+ *
+ * @since 5.2.0
  */
+
 public class KeyStoreInformation {
 
     private static final Logger logger = LoggerFactory.getLogger(KeyStoreInformation.class);

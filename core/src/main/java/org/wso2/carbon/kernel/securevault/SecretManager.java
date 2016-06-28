@@ -30,14 +30,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Created by nipuni on 6/6/16.     //todo
+ * Entry point for manage secrets.
+ *
+ * @since 5.2.0
  */
 public class SecretManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SecretManager.class);
 
     // A Static member holds only one instance of the SecretManager.
-    private final static SecretManager SECRET_MANAGER = new SecretManager();
+    private static final SecretManager SECRET_MANAGER = new SecretManager();
     //True , if secret manager has been started up properly.
     private boolean initialized = false;
 
@@ -83,7 +85,7 @@ public class SecretManager {
                     logger.debug("Configuration properties can not be loaded form : " +
                             serverConfigurationFile.toString());
                 }
-                return; //todo throw exception
+                return;
             }
 
             Map<String, Object> keystoreConfig = (Map<String, Object>) configuration.get("keystore");
@@ -108,18 +110,23 @@ public class SecretManager {
 
 
         } catch (FileNotFoundException e) {
-            logger.error("No file found"); //todo
+            handleException("Error while loading file from : " +  serverConfigurationFile.toString());
         } finally {
             try {
                 if (fileInputStream != null) {
                     fileInputStream.close();
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error while closing inputstream for : " +
+                handleException("Error while closing inputstream for : " +
                         serverConfigurationFile.toString());
             }
         }
 
         initialized = true;
+    }
+
+    private static void handleException(String msg) {
+        logger.error(msg);
+        throw new SecureVaultException(msg);
     }
 }

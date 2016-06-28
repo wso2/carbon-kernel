@@ -19,6 +19,8 @@ package org.wso2.carbon.kernel.securevault;
 
 /**
  * Cipher Operation Mode.
+ *
+ * @since 5.2.0
  */
 public enum CipherOperationMode {
     ENCRYPT,

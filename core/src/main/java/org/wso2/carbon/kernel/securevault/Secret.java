@@ -17,7 +17,9 @@
 package org.wso2.carbon.kernel.securevault;
 
 /**
- * Created by nipuni on 6/6/16. //todo
+ * Encapsulates secret related information.
+ *
+ * @since 5.2.0
  */
 public class Secret {
     private String alias;

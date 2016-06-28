@@ -20,7 +20,9 @@ package org.wso2.carbon.kernel.securevault;
 import java.security.Key;
 
 /**
- * Created by nipuni on 6/7/16. //todo
+ * Create ciphers.
+ *
+ * @since 5.2.0
  */
 public class CipherFactory {
 

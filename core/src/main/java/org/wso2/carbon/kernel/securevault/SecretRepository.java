@@ -18,7 +18,10 @@ package org.wso2.carbon.kernel.securevault;
 
 
 /**
- * Created by nipuni on 6/6/16. //todo
+ * Represents the abstraction 'Repository of secret'
+ * Implementation can be multiple types, eg: file.
+ *
+ * @since 5.2.0
  */
 public interface SecretRepository {
 

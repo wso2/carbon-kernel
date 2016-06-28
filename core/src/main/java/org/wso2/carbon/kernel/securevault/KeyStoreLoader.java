@@ -31,8 +31,11 @@ import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 
 /**
- * Created by nipuni on 6/7/16. //todo
+ * Provides the base for loading KeyStores.
+ *
+ * @since 5.2.0
  */
+
 public class KeyStoreLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(FileBaseSecretRepository.class);
@@ -72,15 +75,15 @@ public class KeyStoreLoader {
             keyStore.load(bis, storePassword.toCharArray());
             return keyStore;
         } catch (KeyStoreException e) {
-            logger.error("Error loading keyStore from ' " + location + " ' ", e); //todo
+            handleException("Error loading keyStore from ' " + location + " ' ", e);
         } catch (IOException e) {
-            logger.error("IOError loading keyStore from ' " + location + " ' ", e);   //todo
+            handleException("IOError loading keyStore from ' " + location + " ' ", e);
         } catch (NoSuchAlgorithmException e) {
-            logger.error("Error loading keyStore from ' " + location + " ' ", e);    //todo
+            handleException("Error loading keyStore with algorithm " + location + " ' ", e);
         } catch (CertificateException e) {
-            logger.error("Error loading keyStore from ' " + location + " ' ", e);    //todo
+            handleException("Error loading keyStore from ' " + location + " ' ", e);
         } catch (NoSuchProviderException e) {
-            logger.error("Error loading keyStore from ' " + location + " ' ", e);    //todo
+            handleException("Error loading keyStore from ' " + location + " ' ", e);
         } finally {
             if (bis != null) {
                 try {
@@ -90,5 +93,10 @@ public class KeyStoreLoader {
             }
         }
         return null;
+    }
+
+    protected void handleException(String msg, Exception e) {
+        logger.error(msg, e);
+        throw new SecureVaultException(msg, e);
     }
 }

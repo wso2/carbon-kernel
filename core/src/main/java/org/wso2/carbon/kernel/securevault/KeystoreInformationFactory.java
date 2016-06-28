@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * Created by nipuni on 6/7/16. //todo
+ * Factory for creating KeyStoreInformation based on properties
+ *
+ * @since 5.2.0
  */
 public class KeystoreInformationFactory {
 

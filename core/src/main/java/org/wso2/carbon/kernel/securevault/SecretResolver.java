@@ -19,7 +19,7 @@ package org.wso2.carbon.kernel.securevault;
 /**
  * Responsible for resolving secrets/encrypted data.
  *
- *@since 5.1.0
+ *@since 5.2.0
  */
 public class SecretResolver {
 
