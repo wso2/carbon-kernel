@@ -307,7 +307,11 @@ public class LDAPConnectionContext {
         //create a temp env for this particular authentication session by copying the original env
         Hashtable<String, String> tempEnv = new Hashtable<String, String>();
         for (Object key : environment.keySet()) {
-            tempEnv.put((String) key, (String) environment.get(key));
+            if ("com.sun.jndi.ldap.connect.pool".equals(key)) {
+                tempEnv.put((String) key, "false");
+            } else {
+                tempEnv.put((String) key, (String) environment.get(key));
+            }
         }
         //replace connection name and password with the passed credentials to this method
         tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
