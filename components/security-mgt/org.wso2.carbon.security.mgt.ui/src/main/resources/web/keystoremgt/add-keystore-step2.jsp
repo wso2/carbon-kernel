@@ -143,7 +143,7 @@
     <div id="middle">
         <h2><fmt:message key="add.new.keystore"/></h2>
         <div id="workArea">
-            <form method="post" action="add-keystore-finish-ajaxprocessor.jsp" name="keystoreFinish">
+            <form method="post" action="add-keystore-finish-ajaxprocessor.jsp?<csrf:tokenname/>=<csrf:tokenvalue/>" name="keystoreFinish">
                 <h3><fmt:message key="step.2.specify.private.key.password"/></h3>
                 <input type="hidden" name="keyStoreName" value="<%=Encode.forHtmlAttribute(fileName)%>"/>
                 <input type="hidden" name="addKeystore" value="true"/>
