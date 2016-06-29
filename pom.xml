@@ -38,7 +38,6 @@
     </scm>
 
     <modules>
-        <module>components/identity-resource-mgt</module>
         <module>service-stubs/identity</module>
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
