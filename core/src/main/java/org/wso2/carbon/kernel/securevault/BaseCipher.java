@@ -61,11 +61,9 @@ public class BaseCipher {
     public static InputStream decode(InputStream inputStream)
             throws IOException {
 
-        InputStream decodedInputStream = null;
         byte[] decodedValue = Base64.getDecoder().decode(asBytes(inputStream));
-        decodedInputStream = new ByteArrayInputStream(decodedValue);
 
-        return decodedInputStream;
+        return  new ByteArrayInputStream(decodedValue);
     }
 
     private static byte[] asBytes(InputStream in) {

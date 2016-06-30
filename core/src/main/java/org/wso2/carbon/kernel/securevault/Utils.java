@@ -122,7 +122,7 @@ public class Utils {
      * @return PrivateKey if there is a one , otherwise null
      */
     private static PrivateKey getPrivateKey(KeyStoreInformation keyStoreInformation, KeyStore keyStore) {
-        String keyPassword = "wso2carbon";
+        String keyPassword = "wso2carbon";   //todo call secret callbackhandler
         Key key = getKey(keyStoreInformation.getAlias(), keyPassword, keyStore);
         if (key instanceof PrivateKey) {
             return (PrivateKey) key;
@@ -156,12 +156,12 @@ public class Utils {
         return null;
     }
 
-    private static void handleException(String msg) {
+    public static void handleException(String msg) {
         logger.error(msg);
         throw new SecureVaultException(msg);
     }
 
-    private static void handleException(String msg, Exception e) {
+    public static void handleException(String msg, Exception e) {
         logger.error(msg, e);
         throw new SecureVaultException(msg, e);
     }

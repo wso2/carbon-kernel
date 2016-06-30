@@ -17,6 +17,8 @@
 package org.wso2.carbon.kernel.securevault;
 
 
+import java.util.Optional;
+
 /**
  * Represents the abstraction 'Repository of secret'
  * Implementation can be multiple types, eg: file.
@@ -39,8 +41,9 @@ public interface SecretRepository {
      * @param alias Alias name for look up a secret
      * @return Secret if there is any , otherwise ,alias itself
      */
-    String getSecret(String alias);
+    String getSecret(Optional<String> alias);
 
+    boolean isTokenEncrypted(String alias);
     //todo
     String getLocation();
 

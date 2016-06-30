@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Entry point for manage secrets.
@@ -42,6 +43,9 @@ public class SecretManager {
     private static final SecretManager SECRET_MANAGER = new SecretManager();
     //True , if secret manager has been started up properly.
     private boolean initialized = false;
+
+    //Secret Repository
+    private SecretRepository secretRepository;
 
     // Providing Global point of access.
     public static SecretManager getInstance() {
@@ -91,7 +95,6 @@ public class SecretManager {
             Map<String, Object> keystoreConfig = (Map<String, Object>) configuration.get("keystore");
             Map<String, Object> secretRepositories = (Map<String, Object>) configuration.get("secretRepositories");
 
-            //todo support multiple repos
             if (secretRepositories.isEmpty()) {
                 logger.debug("No secret repositories have been configured");
                 return;
@@ -101,23 +104,33 @@ public class SecretManager {
                     KeystoreInformationFactory.createIdentityKeyStoreInformation(keystoreConfig);
 
             for (Map.Entry<String, Object> entry : secretRepositories.entrySet()) {
-                SecretRepository secretRepository = new FileBaseSecretRepository(); //todo should be able to extend
                 LinkedHashMap<String, String> values = (LinkedHashMap<String, String>) entry.getValue();
-                secretRepository.setLocation(values.get("location"));
-                secretRepository.setProvider(values.get("provider"));
+                //  todo this secretRepository was return via a provider
+                Class aClass = getClass().getClassLoader().loadClass(values.get("provider").trim());
+                Object repository = aClass.newInstance();
+                if (repository instanceof SecretRepository) {
+                    secretRepository = (SecretRepository) repository;
+                    secretRepository.setLocation(values.get("location"));
+                    secretRepository.setProvider(values.get("provider"));
+                }
                 secretRepository.init(keyStoreInformation);
             }
 
-
         } catch (FileNotFoundException e) {
-            handleException("Error while loading file from : " +  serverConfigurationFile.toString());
+            Utils.handleException("Error while loading file from : " + serverConfigurationFile.toString());
+        } catch (ClassNotFoundException e) {
+            logger.error("Error loading class"); //todo
+        } catch (InstantiationException e) {
+            logger.error("Error creating instance");    //todo
+        } catch (IllegalAccessException e) {
+            logger.error("   ");   //todo
         } finally {
             try {
                 if (fileInputStream != null) {
                     fileInputStream.close();
                 }
             } catch (IOException e) {
-                handleException("Error while closing inputstream for : " +
+                Utils.handleException("Error while closing inputstream for : " +
                         serverConfigurationFile.toString());
             }
         }
@@ -125,8 +138,39 @@ public class SecretManager {
         initialized = true;
     }
 
-    private static void handleException(String msg) {
-        logger.error(msg);
-        throw new SecureVaultException(msg);
+    /**
+     * Returns the secret corresponding to the given alias name
+     *
+     * @param alias The logical or alias name
+     * @return If there is a secret , otherwise , alias itself
+     */
+    public String getSecret(String alias) {
+        if (!initialized || secretRepository == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("There is no secret repository. Returning alias itself");
+            }
+            return alias;
+        }
+        return secretRepository.getSecret(Optional.of(alias));
+    }
+
+    /**
+     * Returns the encrypted value corresponding to the given alias name
+     *
+     * @param alias The logical or alias name
+     * @return If there is a encrypted value , otherwise , alias itself
+     */
+    public boolean isTokenEncrypted(String alias) {
+        if (!initialized || secretRepository == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("There is no secret repository. Returning alias itself");
+            }
+            return false;
+        }
+        return secretRepository.isTokenEncrypted(alias);
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 }

@@ -75,15 +75,15 @@ public class KeyStoreLoader {
             keyStore.load(bis, storePassword.toCharArray());
             return keyStore;
         } catch (KeyStoreException e) {
-            handleException("Error loading keyStore from ' " + location + " ' ", e);
+            Utils.handleException("Error loading keyStore from ' " + location + " ' ", e);
         } catch (IOException e) {
-            handleException("IOError loading keyStore from ' " + location + " ' ", e);
+            Utils.handleException("IOError loading keyStore from ' " + location + " ' ", e);
         } catch (NoSuchAlgorithmException e) {
-            handleException("Error loading keyStore with algorithm " + location + " ' ", e);
+            Utils.handleException("Error loading keyStore with algorithm " + location + " ' ", e);
         } catch (CertificateException e) {
-            handleException("Error loading keyStore from ' " + location + " ' ", e);
+            Utils.handleException("Error loading keyStore from ' " + location + " ' ", e);
         } catch (NoSuchProviderException e) {
-            handleException("Error loading keyStore from ' " + location + " ' ", e);
+            Utils.handleException("Error loading keyStore from ' " + location + " ' ", e);
         } finally {
             if (bis != null) {
                 try {
@@ -93,10 +93,5 @@ public class KeyStoreLoader {
             }
         }
         return null;
-    }
-
-    protected void handleException(String msg, Exception e) {
-        logger.error(msg, e);
-        throw new SecureVaultException(msg, e);
     }
 }

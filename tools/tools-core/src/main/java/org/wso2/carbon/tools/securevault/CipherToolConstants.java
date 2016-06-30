@@ -44,7 +44,7 @@ public class CipherToolConstants {
         public static final String SECRET_REPO_FILE_TYPE = "file";
         public static final String SECRET_FILE_PROVIDER = "provider";
         public static final String SECRET_FILE_BASE_PROVIDER_CLASS =
-                "org.wso2.carbon.kernel.security.repository.FileBaseSecretRepositoryProvider";
+                "org.wso2.carbon.kernel.securevault.FileBaseSecretRepository";
 
         public static final String KEYSTORE = "keystore";
         public static final String KEYSTORE_ALIAS = "alias";

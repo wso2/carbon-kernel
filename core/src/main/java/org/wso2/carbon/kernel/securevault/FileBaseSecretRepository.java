@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -58,7 +59,7 @@ public class FileBaseSecretRepository implements SecretRepository {
 
         secrets.entrySet().stream()
                 .map(entry -> new Secret(entry.getKey().toString(), entry.getValue().toString()))
-                .forEach(secret -> encryptDataMap.put(secret.getAlias(), secret));
+                .forEach(secret -> encryptDataMap.put(secret.getAlias(), secret.getToken()));
 
 
         Key key = Utils.getKey(CipherOperationMode.DECRYPT, keyStoreInformation);
@@ -87,8 +88,34 @@ public class FileBaseSecretRepository implements SecretRepository {
     }
 
     @Override
-    public String getSecret(String alias) {
-        return null;
+    public String getSecret(Optional<String> alias) {
+        if (!alias.isPresent()) {
+            Utils.handleException("The alias can not be empty.");
+        }
+
+        if (secretsMap.isEmpty()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("There is no secret found for alias '" + alias + "' returning alias itself");
+            }
+            return alias.get();
+        }
+
+        String secret = secretsMap.get(alias.get());
+        if (secret == null || "".equals(secret)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("There is no secret found for alias '" + alias + "' returning alias itself");
+            }
+            return alias.get();
+        }
+        return secret;
+    }
+
+    public boolean isTokenEncrypted(String alias) {
+        if (encryptDataMap.containsKey(alias)) {
+            Optional<String> encryptedText = Optional.of((String) encryptDataMap.get(alias));
+            return encryptedText.isPresent() && encryptedText.get().startsWith("cipherText");
+        }
+        return false;
     }
 
     @Override

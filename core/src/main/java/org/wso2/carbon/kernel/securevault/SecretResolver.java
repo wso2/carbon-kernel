@@ -16,37 +16,47 @@
 
 package org.wso2.carbon.kernel.securevault;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Responsible for resolving secrets/encrypted data.
  *
- *@since 5.2.0
+ * @since 5.2.0
  */
 public class SecretResolver {
 
-    /**
-     * Perform initial configuration loading.
-     */
+    private static final Logger logger = LoggerFactory.getLogger(SecretResolver.class);
+
+    private final SecretManager secretManager;
+
     public SecretResolver() {
-
+        secretManager = SecretManager.getInstance();
     }
-
     /**
-     * Checks if the given value is protected.
-     * @param alias value to be checked
-     * @return true if value is protected or false otherwise.
+     * Check if a value for a given alias is encrypted.
+     *
+     * @param alias alias of the secret.
+     * @return true if the value is encrypted or false otherwise
      */
-    public boolean isTokenProtected(String alias) {
-        //get an instance of SecretManager and check the secretRepository
-        //if the given token is protected or not
-        return false;
+    public boolean isTokenEncrypted(String alias) {
+        return secretManager.isTokenEncrypted(alias);
     }
 
     /**
      * Resolve a given secret
+     *
      * @param alias alias of the secret to be resolved
      * @return secret if alias is protected or return alias itself otherwise.
      */
-    public String resolve(String alias) {
-        return null;
+    public String resolveSecret(String alias) {
+        if (!secretManager.isInitialized()) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("SecretManager has not been initialized.Cannot collect secrets. Returning alias itself.");
+            }
+            return alias;
+        }
+
+        return secretManager.getSecret(alias);
     }
 }

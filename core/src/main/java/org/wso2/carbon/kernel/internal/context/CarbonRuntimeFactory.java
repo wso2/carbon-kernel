@@ -16,9 +16,14 @@
 package org.wso2.carbon.kernel.internal.context;
 
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.securevault.SecretManager;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This is a factory class which creates a DefaultCarbonRuntime using a provided CarbonConfigProvider,
@@ -36,7 +41,11 @@ public class CarbonRuntimeFactory {
         //TODO Remove hardcoded implementations.
         CarbonConfiguration carbonConfiguration = carbonConfigProvider.getCarbonConfiguration();
 
+        Path secretYamlFile =
+                Paths.get(System.getProperty(Constants.CARBON_HOME), "conf", "security", "secret-vault.yml");
 
+
+        SecretManager.getInstance().init(secretYamlFile);
         PrivilegedCarbonRuntime carbonRuntime = new DefaultCarbonRuntime();
         carbonRuntime.setCarbonConfiguration(carbonConfiguration);
         return carbonRuntime;
