@@ -509,6 +509,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.wso2.orbit.joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda.wso2.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.wsdl2form</artifactId>
                 <version>${carbon.commons.version}</version>
@@ -1482,8 +1488,11 @@
         <log4j.version>1.2.13</log4j.version>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
         <opensaml.version>2.6.4</opensaml.version>
-        <opensaml2.wso2.version>2.6.4.wso2v2</opensaml2.wso2.version>
+        <opensaml2.wso2.version>2.6.4.wso2v3</opensaml2.wso2.version>
         <opensaml2.wso2.osgi.version.range>[2.6.0,3.0.0)</opensaml2.wso2.osgi.version.range>
+        <joda.version>2.8.2</joda.version>
+        <joda.wso2.version>2.8.2.wso2v1</joda.wso2.version>
+        <joda.wso2.osgi.version.range>[2.8.2,3.0.0)</joda.wso2.osgi.version.range>
         <commons-codec.version>1.4.0.wso2v1</commons-codec.version>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
 

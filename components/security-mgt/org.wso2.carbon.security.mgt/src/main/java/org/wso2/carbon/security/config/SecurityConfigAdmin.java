@@ -565,7 +565,7 @@ public class SecurityConfigAdmin {
                     isTrustEnabled, policyPath);
         }
         // If policy is taken from registry (custom policy) it needs to have rampartConfigs defined it.
-        if (StringUtils.isNotBlank(policyPath)) {
+        if (StringUtils.isBlank(policyPath)) {
             policyElement.addChild(buildRampartConfigXML(privateStore, trustedStores, null));
         }
 

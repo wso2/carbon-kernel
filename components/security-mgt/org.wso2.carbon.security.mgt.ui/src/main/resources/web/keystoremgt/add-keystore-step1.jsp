@@ -19,6 +19,7 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <script type="text/javascript" src="../securityconfig/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 
 <fmt:bundle basename="org.wso2.carbon.security.ui.i18n.Resources">
 <carbon:breadcrumb label="add.new.keystore"
@@ -54,7 +55,7 @@
         <h2><fmt:message key="add.new.keystore"/></h2>
 
         <div id="workArea">
-            <form method="post" name="keysotoreupload" action="add-keystore-step2.jsp"
+            <form method="post" name="keysotoreupload" action="add-keystore-step2.jsp?<csrf:tokenname/>=<csrf:tokenvalue/>"
                   enctype="multipart/form-data" onsubmit="return doValidation();">
 
                 <h3><fmt:message key="step.1.upload.keystore.file"/></h3>

@@ -24,7 +24,7 @@
 <%@page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-
+<%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -79,7 +79,7 @@
         <h2><fmt:message key="import.certificates.to"/><%= " " + Encode.forHtml(keyStore) %></h2>
         <div id="workArea">
             <form method="post" name="certForm" enctype="multipart/form-data"
-                  action="import-cert-finish-ajaxprocessor.jsp">
+                  action="import-cert-finish-ajaxprocessor.jsp?<csrf:tokenname/>=<csrf:tokenvalue/>">
                 <table class="styledLeft">
                     <thead>
                     <tr>
