@@ -310,12 +310,6 @@
             </dependency>
 
             <dependency>
-                <groupId>opensaml.wso2</groupId>
-                <artifactId>opensaml</artifactId>
-                <version>${opensaml.wso2.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.wso2.balana</groupId>
                 <artifactId>org.wso2.balana</artifactId>
                 <version>${balana.version}</version>
@@ -964,6 +958,21 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.claim.metadata.mgt</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.claim.metadata.mgt.ui</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.claim.metadata.mgt.stub</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
 
