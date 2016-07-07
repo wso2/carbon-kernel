@@ -97,7 +97,7 @@ public final class ConfigUtil {
     //Enum to hold the file types which we need to add root elements when converting
     private enum FileType {
 
-        YAML("yaml|yml"), PROPERTIES("properties");//todo: Remove yml after renaming yml files in core to yaml
+        YAML("yaml|yml"), PROPERTIES("properties");     //todo: Remove yml after renaming all yml files to yaml
 
         private String value;
 
