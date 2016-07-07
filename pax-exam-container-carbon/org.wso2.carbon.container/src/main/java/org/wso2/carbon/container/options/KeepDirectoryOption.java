@@ -13,27 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.container.runner;
+package org.wso2.carbon.container.options;
 
-import java.nio.file.Path;
-import java.util.List;
+import org.ops4j.pax.exam.Option;
 
 /**
- * Runner interface to implement different ways of running the server.
+ * Per default pax-exam is deleting the test directories after a test is over. To keep those
+ * directories (for later evaluation) set this option.
  */
-public interface Runner {
-
-    /**
-     * Start the server in a different JVM.
-     * @param environment environment arguments of the starting process
-     * @param carbonHome path to carbon home
-     * @param options arguments to set in the command line
-     */
-    void exec(final String[] environment,  Path carbonHome, List<String> options);
-
-    /**
-     * Shutdown the runner.
-     */
-    void shutdown();
+public class KeepDirectoryOption implements Option {
 
 }

@@ -13,27 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.container.runner;
+package org.wso2.carbon.container.options;
 
-import java.nio.file.Path;
-import java.util.List;
+import org.ops4j.pax.exam.Option;
 
 /**
- * Runner interface to implement different ways of running the server.
+ * Start the distribution in debug mode
  */
-public interface Runner {
+public class DebugOption implements Option {
+
+    private int port;
 
     /**
-     * Start the server in a different JVM.
-     * @param environment environment arguments of the starting process
-     * @param carbonHome path to carbon home
-     * @param options arguments to set in the command line
+     * Activates debugging on the Carbon container using the standard 5005 port.
      */
-    void exec(final String[] environment,  Path carbonHome, List<String> options);
+    public DebugOption() {
+        port = 5005;
+    }
 
     /**
-     * Shutdown the runner.
+     * Activates debugging on the Carbon container using the given port.
+     *
+     * @param port remote debugger port
      */
-    void shutdown();
+    public DebugOption(int port) {
+        this.port = port;
+    }
+
+    /**
+     * @return the string contains the debug configuration
+     */
+    public String getDebugConfiguration() {
+        return String.format("-debug %s", port);
+    }
 
 }

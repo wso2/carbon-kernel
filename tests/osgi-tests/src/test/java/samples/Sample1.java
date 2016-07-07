@@ -19,7 +19,8 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDistribution;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.debug;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -35,11 +36,11 @@ public class Sample1 {
 
     @Configuration
     public Option[] config() {
-        return new Option[] {
-//                carbonHome().distributionMavenURL(
-//                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-//                        .versionAsInProject()),
-                 };
+        return new Option[] { carbonDistribution(
+                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+                        .versionAsInProject()),
+                debug()
+        };
     }
 
     @Test

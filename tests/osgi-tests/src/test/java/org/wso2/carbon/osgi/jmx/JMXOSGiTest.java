@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonFileCopy;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 
 /**
  * JMXOSGiTest class is to test the CarbonJMX.
@@ -65,7 +65,7 @@ public class JMXOSGiTest {
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
 
-        return carbonFileCopy(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
     }
 
     @Configuration

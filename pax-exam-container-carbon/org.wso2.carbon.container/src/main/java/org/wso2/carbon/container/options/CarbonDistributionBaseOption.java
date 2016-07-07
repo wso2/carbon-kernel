@@ -1,18 +1,17 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.wso2.carbon.container.options;
 
@@ -25,7 +24,7 @@ import java.nio.file.Path;
 /**
  * Hold distribution path information.
  */
-public class CarbonHomeOption implements Option {
+public class CarbonDistributionBaseOption implements Option {
 
     private Path distributionDirectoryPath;
     private Path distributionZipPath;
@@ -33,7 +32,7 @@ public class CarbonHomeOption implements Option {
     private String name;
     private Path unpackDirectory;
 
-    public CarbonHomeOption() {
+    public CarbonDistributionBaseOption() {
         distributionDirectoryPath = null;
         distributionMavenURL = null;
         name = null;
@@ -45,7 +44,7 @@ public class CarbonHomeOption implements Option {
      * @param distributionZipPath distribution path
      * @return this
      */
-    public CarbonHomeOption distributionZipURL(Path distributionZipPath) {
+    public CarbonDistributionBaseOption distributionZipPath(Path distributionZipPath) {
         NullArgumentException.validateNotNull(distributionZipPath, "Distribution Zip Path");
         this.distributionZipPath = distributionZipPath;
         return this;
@@ -57,7 +56,7 @@ public class CarbonHomeOption implements Option {
      * @param distributionDirectoryPath distribution directory path
      * @return this
      */
-    public CarbonHomeOption distributionDirectoryURL(Path distributionDirectoryPath) {
+    public CarbonDistributionBaseOption distributionDirectoryPath(Path distributionDirectoryPath) {
         NullArgumentException.validateNotNull(distributionDirectoryPath, "Distribution Directory Path");
         this.distributionDirectoryPath = distributionDirectoryPath;
         return this;
@@ -69,7 +68,7 @@ public class CarbonHomeOption implements Option {
      * @param distributionMavenURL distribution maven URL
      * @return this
      */
-    public CarbonHomeOption distributionMavenURL(MavenUrlReference distributionMavenURL) {
+    public CarbonDistributionBaseOption distributionMavenURL(MavenUrlReference distributionMavenURL) {
         NullArgumentException.validateNotNull(distributionMavenURL, "Distribution Maven URL");
         this.distributionMavenURL = distributionMavenURL;
         return this;
@@ -81,7 +80,7 @@ public class CarbonHomeOption implements Option {
      * @param name distribution name
      * @return this
      */
-    public CarbonHomeOption name(String name) {
+    public CarbonDistributionBaseOption name(String name) {
         this.name = name;
         return this;
     }
@@ -93,7 +92,7 @@ public class CarbonHomeOption implements Option {
      * @param unpackDirectory unpack directory
      * @return this for fluent syntax
      */
-    public CarbonHomeOption unpackDirectory(Path unpackDirectory) {
+    public CarbonDistributionBaseOption unpackDirectory(Path unpackDirectory) {
         this.unpackDirectory = unpackDirectory;
         return this;
     }

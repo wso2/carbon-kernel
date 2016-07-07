@@ -40,7 +40,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonFileCopy;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 
 /**
  * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service.
@@ -118,6 +118,6 @@ public class CarbonRuntimeOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-        return carbonFileCopy(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
     }
 }

@@ -12,13 +12,14 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonHomeOption;
+import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
+import org.wso2.carbon.container.options.CarbonDistributionOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 import java.nio.file.Paths;
 
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDistribution;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -33,7 +34,7 @@ public class DistributionDirectoryTest {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { new CarbonHomeOption().distributionDirectoryURL(
+        return new Option[] { carbonDistribution(
                 Paths.get("target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT")), };
     }
 

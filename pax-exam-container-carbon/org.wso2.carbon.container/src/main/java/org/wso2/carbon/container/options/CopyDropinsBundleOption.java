@@ -13,27 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.container.runner;
+package org.wso2.carbon.container.options;
 
-import java.nio.file.Path;
-import java.util.List;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
 /**
- * Runner interface to implement different ways of running the server.
+ * Install any bundle to dropins directory.
  */
-public interface Runner {
+public class CopyDropinsBundleOption implements Option {
 
-    /**
-     * Start the server in a different JVM.
-     * @param environment environment arguments of the starting process
-     * @param carbonHome path to carbon home
-     * @param options arguments to set in the command line
-     */
-    void exec(final String[] environment,  Path carbonHome, List<String> options);
+    private MavenArtifactUrlReference mavenArtifactUrlReference;
 
-    /**
-     * Shutdown the runner.
-     */
-    void shutdown();
+    public CopyDropinsBundleOption(MavenArtifactUrlReference mavenArtifactUrlReference) {
+        this.mavenArtifactUrlReference = mavenArtifactUrlReference;
+    }
 
+    public MavenArtifactUrlReference getMavenArtifactUrlReference() {
+        return mavenArtifactUrlReference;
+    }
 }

@@ -37,7 +37,7 @@ import java.util.List;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
  * A test strategy to test and verify the transport service.
@@ -58,7 +58,7 @@ public class TransportOSGITest {
     @Configuration
     public Option[] createConfiguration() {
         List<Option> optionList = new ArrayList<>();
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.service").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.service").groupId("org.wso2.carbon")
                 .versionAsInProject()));
         return optionList.toArray(new Option[optionList.size()]);
     }

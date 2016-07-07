@@ -36,7 +36,7 @@ import java.util.List;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
  * zero provide-capability
@@ -66,29 +66,29 @@ public class StartupCoordinatorOSGiTest {
     public Option[] createConfiguration() {
 
         List<Option> optionList = new ArrayList<>();
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.jar").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.jar").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.bps").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.bps").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.webapp").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.webapp").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.custom").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.custom").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.jms").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.jms").groupId("org.wso2.carbon")
                 .versionAsInProject()));
-        optionList.add(carbonDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
                 .versionAsInProject()));
         return optionList.toArray(new Option[optionList.size()]);
     }

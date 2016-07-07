@@ -14,8 +14,8 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDropinsBundleOption;
-import org.wso2.carbon.container.options.CarbonHomeOption;
+import org.wso2.carbon.container.options.CarbonDistributionOption;
+import org.wso2.carbon.container.options.CopyDropinsBundleOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
@@ -36,10 +36,19 @@ public class Sample5 {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { new CarbonHomeOption().distributionMavenURL(
+        return new Option[] { CarbonDistributionOption.carbonDistribution(
                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                        .version("5.1.0-SNAPSHOT")), new CarbonDropinsBundleOption(
-                maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon").versionAsInProject()), };
+                        .version("5.2.0-SNAPSHOT")),
+                new CopyDropinsBundleOption(
+                maven().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                new CopyDropinsBundleOption(
+                        maven().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId("org.wso2.carbon")
+                                .versionAsInProject()),
+                new CopyDropinsBundleOption(
+                        maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                                .versionAsInProject())
+                , };
     }
 
     //    @Test

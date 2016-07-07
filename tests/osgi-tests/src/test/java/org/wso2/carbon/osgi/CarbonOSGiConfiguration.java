@@ -19,7 +19,7 @@ import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonHome;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDistribution;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -38,7 +38,7 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
      */
     @Override
     public Option[] createConfiguration() {
-        return new Option[] { carbonHome().distributionMavenURL(
+        return new Option[] { carbonDistribution(
                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
                         .versionAsInProject()) };
     }

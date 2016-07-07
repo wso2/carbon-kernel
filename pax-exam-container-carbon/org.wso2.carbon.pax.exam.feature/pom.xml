@@ -94,19 +94,9 @@
             <artifactId>pax-exam-inject</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-invoker-junit</artifactId>
-            <version>${pax.exam.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.tipi</groupId>
             <artifactId>org.ops4j.pax.tipi.hamcrest.core</artifactId>
             <version>${dependency.tipi.hamcrest.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.tipi</groupId>
-            <artifactId>org.ops4j.pax.tipi.junit</artifactId>
-            <version>${dependency.tipi.junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -201,20 +191,12 @@
                                     <version>${pax.exam.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>org.ops4j.pax.exam.invoker.junit</symbolicName>
-                                    <version>${pax.exam.version}</version>
-                                </bundle>
-                                <bundle>
                                     <symbolicName>org.ops4j.pax.exam.inject</symbolicName>
                                     <version>${pax.exam.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.ops4j.pax.tipi.hamcrest.core</symbolicName>
                                     <version>${dependency.tipi.hamcrest.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.ops4j.pax.tipi.junit</symbolicName>
-                                    <version>${dependency.tipi.junit.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.geronimo.specs.geronimo-atinject_1.0_spec</symbolicName>

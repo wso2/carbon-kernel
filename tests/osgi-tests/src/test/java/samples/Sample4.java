@@ -14,7 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonHomeOption;
+import org.wso2.carbon.container.options.CarbonDistributionOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
@@ -36,9 +36,10 @@ public class Sample4 {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { new CarbonHomeOption().distributionMavenURL(
+        return new Option[] {
+                CarbonDistributionOption.carbonDistribution(
                 maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                        .versionAsInProject()).unpackDirectory(Paths.get("target", "pax")), };
+                        .versionAsInProject()).unpackDirectory(Paths.get("target", "pax")),};
     }
 
     @Test

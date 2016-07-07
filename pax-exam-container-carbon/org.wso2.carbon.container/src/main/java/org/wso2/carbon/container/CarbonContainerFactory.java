@@ -1,18 +1,17 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.wso2.carbon.container;
 
@@ -21,7 +20,9 @@ import org.ops4j.pax.exam.ExamSystem;
 import org.ops4j.pax.exam.TestContainer;
 import org.ops4j.pax.exam.TestContainerException;
 import org.ops4j.pax.exam.TestContainerFactory;
-import org.wso2.carbon.container.options.CarbonHomeOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,9 +36,16 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 @MetaInfServices
 public class CarbonContainerFactory implements TestContainerFactory {
 
+    private static final String DEFAULT_DISTRIBUTION = "org.wso2.carbon.test.default.distribution";
+    private static final Logger logger = LoggerFactory.getLogger(TestContainerFactory.class);
+
     @Override
     public TestContainer[] create(ExamSystem system) {
-        List<TestContainer> containers = Arrays.asList(system.getOptions(CarbonHomeOption.class)).stream()
+        if (system.getOptions(CarbonDistributionBaseOption.class).length > 1) {
+            logger.warn("Multiple distribution options are specified in the configuration!!!");
+        }
+
+        List<TestContainer> containers = Arrays.asList(system.getOptions(CarbonDistributionBaseOption.class)).stream()
                 .map(option -> new CarbonTestContainer(system, option)).collect(Collectors.toList());
 
         if (containers.isEmpty()) {
@@ -52,17 +60,17 @@ public class CarbonContainerFactory implements TestContainerFactory {
      *
      * @return carbon home option
      */
-    private CarbonHomeOption getDefaultConfiguration() {
-        String defaultDistribution = System.getProperty("org.wso2.carbon.test.default.distribution");
+    private CarbonDistributionBaseOption getDefaultConfiguration() {
+        String defaultDistribution = System.getProperty(DEFAULT_DISTRIBUTION);
         if (defaultDistribution == null) {
             throw new TestContainerException("Default distribution is not specified.");
         }
         String[] distribution = defaultDistribution.split(":");
         if (distribution.length < 3) {
-            return new CarbonHomeOption().distributionMavenURL(
+            return new CarbonDistributionBaseOption().distributionMavenURL(
                     maven().groupId(distribution[0]).artifactId(distribution[1]).versionAsInProject().type("zip"));
         } else {
-            return new CarbonHomeOption().distributionMavenURL(
+            return new CarbonDistributionBaseOption().distributionMavenURL(
                     maven().groupId(distribution[0]).artifactId(distribution[1]).version(distribution[2]).type("zip"));
         }
     }

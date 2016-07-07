@@ -1,3 +1,18 @@
+/*
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.wso2.carbon.container;
 
 import org.apache.commons.io.FileUtils;
@@ -15,11 +30,11 @@ import org.ops4j.pax.exam.rbc.client.RemoteBundleContextClient;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.container.options.CarbonDropinsBundleOption;
-import org.wso2.carbon.container.options.CarbonFileCopyOption;
-import org.wso2.carbon.container.options.CarbonHomeOption;
-import org.wso2.carbon.container.options.DebugConfigurationOption;
-import org.wso2.carbon.container.options.KeepTestDistributionDirectoryOption;
+import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
+import org.wso2.carbon.container.options.CopyDropinsBundleOption;
+import org.wso2.carbon.container.options.CopyFileOption;
+import org.wso2.carbon.container.options.DebugOption;
+import org.wso2.carbon.container.options.KeepDirectoryOption;
 import org.wso2.carbon.container.runner.CarbonRunner;
 import org.wso2.carbon.container.runner.Runner;
 
@@ -59,20 +74,19 @@ public class CarbonTestContainer implements TestContainer {
 
     private final Runner runner;
     private final ExamSystem system;
-    private CarbonHomeOption carbonHomeDirectoryOption;
+    private CarbonDistributionBaseOption carbonHomeDirectoryOption;
     private RBCRemoteTarget target;
     private Path targetDirectory;
     private Registry registry;
     private boolean started;
 
-    public CarbonTestContainer(ExamSystem system, CarbonHomeOption carbonHomeDirectoryOption) {
+    public CarbonTestContainer(ExamSystem system, CarbonDistributionBaseOption carbonHomeDirectoryOption) {
         this.carbonHomeDirectoryOption = carbonHomeDirectoryOption;
         this.system = system;
         this.runner = new CarbonRunner();
     }
 
     public synchronized TestContainer start() {
-
         if (carbonHomeDirectoryOption.getDistributionDirectoryPath() == null
                 && carbonHomeDirectoryOption.getDistributionMavenURL() == null &&
                 carbonHomeDirectoryOption.getDistributionZipPath() == null) {
@@ -83,7 +97,7 @@ public class CarbonTestContainer implements TestContainer {
             //get a free port to use for rmi
             FreePort freePort = new FreePort(21000, 21099);
             int port = freePort.getPort();
-            logger.info("using RMI registry at port {}" + name, port);
+            logger.debug("using RMI registry at port {}" + name, port);
             registry = LocateRegistry.createRegistry(port);
             String host = InetAddress.getLocalHost().getHostName();
 
@@ -112,24 +126,27 @@ public class CarbonTestContainer implements TestContainer {
 
             //install bundles to dropins if there are any
             copyDropinsBundles(targetDirectory);
+
             //copy files to the distributions if there are any
             copyFiles(targetDirectory);
-
             Path carbonBin = targetDirectory.resolve("bin");
+
             //make the files in the bin directory to be executable
             makeFilesInBinExec(carbonBin.toFile());
             ArrayList<String> options = new ArrayList<>();
             String[] environment = new String[] {};
+
             //set system properties as command line arguments
             setupSystemProperties(options, subsystem);
-            //Setup debug configurations if available
-            DebugConfigurationOption[] debugConfigurationOptions = system.getOptions(DebugConfigurationOption.class);
-            if (debugConfigurationOptions.length > 0) {
-                options.add(debugConfigurationOptions[debugConfigurationOptions.length - 1].getDebugConfiguration());
-            }
 
+            //Setup debug configurations if available
+            DebugOption debugOption = system.getSingleOption(DebugOption.class);
+            if (debugOption != null) {
+                options.add(debugOption.getDebugConfiguration());
+            }
             runner.exec(environment, targetDirectory, options);
-            logger.info("Wait for test container to finish its initialization " + subsystem.getTimeout());
+            logger.debug("Wait for test container to finish its initialization " + subsystem.getTimeout());
+
             //wait for the osgi environment to be active
             waitForState(0, Bundle.ACTIVE, subsystem.getTimeout());
             started = true;
@@ -150,14 +167,14 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     /**
-     * Copy dependencies specified as carbon dropins bundle option in system to the dropins Directory
+     * Copy dependencies specified as carbon dropins bundle option in system to the dropins Directory.
      *
      * @param carbonHome carbon home dir
      */
     private void copyDropinsBundles(Path carbonHome) {
         Path targetDirectory = carbonHome.resolve("osgi").resolve("dropins");
 
-        Arrays.asList(system.getOptions(CarbonDropinsBundleOption.class)).forEach(option -> {
+        Arrays.asList(system.getOptions(CopyDropinsBundleOption.class)).forEach(option -> {
             try {
                 copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
                         targetDirectory);
@@ -197,7 +214,7 @@ public class CarbonTestContainer implements TestContainer {
      * @param carbonHome carbon home
      */
     private void copyFiles(Path carbonHome) {
-        Arrays.asList(system.getOptions(CarbonFileCopyOption.class)).forEach(option -> {
+        Arrays.asList(system.getOptions(CopyFileOption.class)).forEach(option -> {
             try {
                 Files.copy(option.getSourcePath(), carbonHome.resolve(option.getDestinationPath()),
                         StandardCopyOption.REPLACE_EXISTING);
@@ -263,9 +280,8 @@ public class CarbonTestContainer implements TestContainer {
      */
     private boolean shouldDeleteRuntime() {
         boolean deleteRuntime = true;
-        KeepTestDistributionDirectoryOption[] keepTestDistributionDirectoryOption = system
-                .getOptions(KeepTestDistributionDirectoryOption.class);
-        if (keepTestDistributionDirectoryOption != null && keepTestDistributionDirectoryOption.length != 0) {
+        KeepDirectoryOption keepDirectoryOption = system.getSingleOption(KeepDirectoryOption.class);
+        if (keepDirectoryOption != null) {
             deleteRuntime = false;
         }
         return deleteRuntime;
