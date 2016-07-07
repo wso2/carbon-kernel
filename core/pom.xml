@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.json.wso2</groupId>
             <artifactId>json</artifactId>
-            <version>3.0.0.wso2v1</version>
+            <version>${org.json.import.version}</version>
         </dependency>
     </dependencies>
 
@@ -142,7 +142,7 @@
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
             javax.xml.*;version="${javax.xml.import.version.range}",
             org.w3c.*;version="${org.w3c.import.version.range}",
-            org.json.*;version="${org.json.import.version.range}",
+            org.json.*;version="${org.json.import.version}",
         </import.package>
         <carbon.component>
             startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
