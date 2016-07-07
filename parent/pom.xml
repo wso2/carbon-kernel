@@ -491,7 +491,7 @@
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>
         <javax.xml.import.version.range>[0.0.0,1.0.0)</javax.xml.import.version.range>
-        <org.json.import.version.range>[3.0.0.wso2v1,3.1.0.wso2v1)</org.json.import.version.range>
+        <org.json.import.version>3.0.0.wso2v1</org.json.import.version>
         <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
     </properties>
 </project>
