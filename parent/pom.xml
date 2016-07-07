@@ -285,7 +285,7 @@
             <dependency>
                 <groupId>org.wso2.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-                <version>${equinox.osgi.compatibility.statre.version}</version>
+                <version>${equinox.osgi.compatibility.state.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
@@ -433,35 +433,35 @@
 
         <!-- Equinox dependency versions -->
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
-        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
-        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <equinox.ds.version>1.4.200.v20131126-2331</equinox.ds.version>
-        <equinox.common.version>3.6.200.v20130402-1505</equinox.common.version>
-        <equinox.simpleconfigurator.version>1.1.0.v20131217-1203
+        <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
+        <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
+        <equinox.ds.version>1.4.400.v20160226-2036</equinox.ds.version>
+        <equinox.common.version>3.8.0.v20160509-1230</equinox.common.version>
+        <equinox.simpleconfigurator.version>1.1.200.v20160504-1450
         </equinox.simpleconfigurator.version>
         <equinox.util.version>1.0.500.v20130404-1337</equinox.util.version>
-        <equinox.launcher.version>1.3.0.v20140415-2008</equinox.launcher.version>
-        <equinox.launcher.gtk.linux.x86.version>1.1.200.v20150204-1316
+        <equinox.launcher.version>1.3.200.v20160318-1642</equinox.launcher.version>
+        <equinox.launcher.gtk.linux.x86.version>1.1.400.v20160518-1444
         </equinox.launcher.gtk.linux.x86.version>
         <equinox.app.version>1.3.200.v20130910-1609</equinox.app.version>
         <equinox.concurrent.version>1.1.0.v20130327-1442</equinox.concurrent.version>
-        <equinox.frameworkadmin.version>2.0.100.v20131209-2144</equinox.frameworkadmin.version>
-        <equinox.frameworkadmin.equinox.version>1.0.500.v20131211-1531
+        <equinox.frameworkadmin.version>2.0.300.v20160504-1450</equinox.frameworkadmin.version>
+        <equinox.frameworkadmin.equinox.version>1.0.700.v20160102-2223
         </equinox.frameworkadmin.equinox.version>
-        <equinox.preferences.version>3.5.200.v20140224-1527</equinox.preferences.version>
+        <equinox.preferences.version>3.6.0.v20160120-1756</equinox.preferences.version>
         <equinox.registry.version>3.5.400.v20140428-1507</equinox.registry.version>
-        <equinox.simpleconfigurator.manipulator.version>2.0.0.v20131217-1203
+        <equinox.simpleconfigurator.manipulator.version>2.0.200.v20160504-1450
         </equinox.simpleconfigurator.manipulator.version>
-        <equinox.console.version>1.1.0.v20140131-1639</equinox.console.version>
+        <equinox.console.version>1.1.200.v20150929-1405</equinox.console.version>
         <apache.felix.gogo.command.version>0.10.0.v201209301215</apache.felix.gogo.command.version>
         <apache.felix.gogo.shell.version>0.10.0.v201212101605</apache.felix.gogo.shell.version>
         <apache.felix.gogo.runtime.version>0.10.0.v201209301036</apache.felix.gogo.runtime.version>
-        <equinox.osgi.compatibility.statre.version>1.0.1.v20140709-1414</equinox.osgi.compatibility.statre.version>
+        <equinox.osgi.compatibility.state.version>1.0.200.v20160504-1419</equinox.osgi.compatibility.state.version>
+        <org.eclipse.equinox.cm.version>1.1.200.v20160324-1850</org.eclipse.equinox.cm.version>
 
         <!--PAX Logging related dependency versions-->
         <pax.logging.api.version>1.8.5</pax.logging.api.version>
         <pax.logging.log4j2.version>1.8.5</pax.logging.log4j2.version>
-        <org.eclipse.equinox.cm.version>1.1.0.v20131021-1936</org.eclipse.equinox.cm.version>
 
         <!--Maven Plugins -->
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
