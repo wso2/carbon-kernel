@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.json.wso2</groupId>
             <artifactId>json</artifactId>
-            <version>3.0.0.wso2v1</version>
+            <version>${org.json.import.version}</version>
         </dependency>
     </dependencies>
 
@@ -175,7 +175,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>json</symbolicName>
-                                    <version>3.0.0.wso2v1</version>
+                                    <version>${org.json.import.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
