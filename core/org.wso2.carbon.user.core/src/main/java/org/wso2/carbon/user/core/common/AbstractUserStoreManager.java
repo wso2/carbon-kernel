@@ -622,6 +622,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
+        if(!list.isEmpty()) {
+            return list.get(0);
+        }
         return value;
     }
 
