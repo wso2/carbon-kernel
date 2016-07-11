@@ -374,7 +374,7 @@ public class BundleGeneratorUtils {
                 }
                 bundleJarProperties.put(Constants.ENCODING_TYPE_PROPERTY, "UTF-8");
                 // converts the filename to a URI
-                URI zipFileIURI = URI.create("jar:file:" + zipFilePath.toUri().getPath());
+                URI zipFileIURI = URI.create("jar:" + Paths.get(zipFilePath.toString()).toUri());
                 return FileSystems.newFileSystem(zipFileIURI, bundleJarProperties);
             } else {
                 String message = "Path zipFilePath does not refer to a .zip or .jar file";
