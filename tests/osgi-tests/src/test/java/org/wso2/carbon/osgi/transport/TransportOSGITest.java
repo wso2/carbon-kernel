@@ -32,11 +32,8 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
@@ -57,10 +54,9 @@ public class TransportOSGITest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.service").groupId("org.wso2.carbon")
-                .versionAsInProject()));
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyDropinsBundle(
+                maven().artifactId("org.wso2.carbon.sample.transport.service").groupId("org.wso2.carbon")
+                        .versionAsInProject()) };
     }
 
     @Test

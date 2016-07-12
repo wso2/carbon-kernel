@@ -38,11 +38,8 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
@@ -63,12 +60,9 @@ public class CarbonContextOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(copyCarbonYAMLOption());
-        optionList.add(copyDropinsBundle(maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon")
-                .versionAsInProject()));
-        optionList.add(systemProperty(Constants.TENANT_NAME).value(TEST_TENANT_NAME));
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyCarbonYAMLOption(), copyDropinsBundle(
+                maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon").versionAsInProject()),
+                systemProperty(Constants.TENANT_NAME).value(TEST_TENANT_NAME) };
     }
 
     @Test

@@ -32,11 +32,9 @@ public class DistributionMavenTest {
 
     @Configuration
     public Option[] config() {
-        return new Option[] {
-                carbonDistribution(
-                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                                .versionAsInProject())
-        };
+        return new Option[] { carbonDistribution(
+                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+                        .versionAsInProject()) };
     }
 
     @Test

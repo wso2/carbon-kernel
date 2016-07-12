@@ -68,35 +68,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>publishing products</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>publish-product</goal>
-                        </goals>
-                        <configuration>
-                            <productConfigurationFile>${basedir}/carbon.product
-                            </productConfigurationFile>
-                            <executable>
-                                ${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart
-                            </executable>
-                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>materialize-product</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>generate-profile</goal>
-                        </goals>
-                        <configuration>
-                            <productConfigurationFile>${basedir}/carbon.product
-                            </productConfigurationFile>
-                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-                            <targetPath>file:${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/osgi/</targetPath>
-                            <profile>profiles/default</profile>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>feature-installation</id>
                         <phase>package</phase>
                         <goals>

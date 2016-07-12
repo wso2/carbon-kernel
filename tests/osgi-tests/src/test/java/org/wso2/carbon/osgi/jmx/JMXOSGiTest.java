@@ -34,8 +34,6 @@ import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 
@@ -70,9 +68,7 @@ public class JMXOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(copyCarbonYAMLOption());
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyCarbonYAMLOption() };
     }
 
     @Test

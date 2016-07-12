@@ -33,8 +33,6 @@ import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
@@ -56,11 +54,9 @@ public class RuntimeOSGITest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(copyDropinsBundle(
+        return new Option[] { copyDropinsBundle(
                 maven().artifactId("org.wso2.carbon.sample.runtime.service").groupId("org.wso2.carbon")
-                        .versionAsInProject()));
-        return optionList.toArray(new Option[optionList.size()]);
+                        .versionAsInProject()) };
     }
 
     @Test

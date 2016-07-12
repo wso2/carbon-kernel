@@ -12,8 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
-import org.wso2.carbon.container.options.CarbonDistributionOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
@@ -34,8 +32,7 @@ public class DistributionDirectoryTest {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { carbonDistribution(
-                Paths.get("target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT")), };
+        return new Option[] { carbonDistribution(Paths.get("target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT")), };
     }
 
     @Test

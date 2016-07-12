@@ -17,8 +17,8 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDistribution;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -33,9 +33,8 @@ public class CopyDropinsTest {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { carbonDistribution(
-                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                        .versionAsInProject()), copyDropinsBundle(
+        return new Option[] {
+                copyDropinsBundle(
                 maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon").versionAsInProject()) };
     }
 

@@ -15,10 +15,8 @@ import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
-
 import java.nio.file.Paths;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDistribution;
 
 @Listeners(PaxExam.class)
@@ -40,11 +38,8 @@ public class DistributionZipTest {
             basedir = Paths.get(".").toString();
         }
 
-        return new Option[] {
-                carbonDistribution(
-                        Paths.get(basedir, "..", "test-distribution", "target",
-                                "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip"))
-        };
+        return new Option[] { carbonDistribution(
+                Paths.get(basedir, "..", "test-distribution", "target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")) };
     }
 
     @Test
