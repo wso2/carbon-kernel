@@ -24,10 +24,15 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
-
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
+import java.sql.Timestamp;
+import java.sql.Wrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -584,7 +589,7 @@ public class DatabaseUtil {
             try {
                 dbObject.close();
             } catch (SQLRecoverableException ex) {
-                handleSQLRecoverableException(dbObject, ex);
+                handleSQLRecoverableExceptionOnClose(dbObject, ex);
             } catch (SQLException e) {
                 log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             } catch (Exception e) {
@@ -595,7 +600,7 @@ public class DatabaseUtil {
         }
     }
 
-    private static <AutoClosableWrapper extends AutoCloseable & Wrapper>  void handleSQLRecoverableException(AutoClosableWrapper dbObject, SQLRecoverableException recException){
+    private static <AutoClosableWrapper extends AutoCloseable & Wrapper>  void handleSQLRecoverableExceptionOnClose(AutoClosableWrapper dbObject, SQLRecoverableException recException){
         try {
             log.error("SQLRecoverable exception encountered.  Attempting recovery.", recException);
             dbObject.close();
@@ -614,7 +619,7 @@ public class DatabaseUtil {
         }
     }
 
-    private static void closeStatements(PreparedStatement... prepStmts) {
+    private static void close(PreparedStatement... prepStmts) {
         if (prepStmts != null && prepStmts.length > 0) {
             for (PreparedStatement stmt : prepStmts) {
                 close(stmt);
@@ -623,20 +628,20 @@ public class DatabaseUtil {
     }
 
     public static void close(Connection dbConnection, PreparedStatement... prepStmts) {
-        closeStatements(prepStmts);
+        close(prepStmts);
         close(dbConnection);
     }
 
     public static void close(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
         close(rs);
-        closeStatements(prepStmts);
+        close(prepStmts);
         close(dbConnection);
     }
     public static void close(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
         close(rs1);
         close(rs2);
-        closeStatements(prepStmts);
+        close(prepStmts);
         close(dbConnection);
     }
 

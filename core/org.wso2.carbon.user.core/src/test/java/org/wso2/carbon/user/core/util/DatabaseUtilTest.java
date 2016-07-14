@@ -17,8 +17,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 public class DatabaseUtilTest {
 
@@ -55,97 +55,97 @@ public class DatabaseUtilTest {
     }
 
     @Test
-    public void closeConnectionShouldNotBeNull() throws SQLException {
-
-        Mockito.doAnswer(RETURNS_MOCKS).when(datasource).getConnection();
-        DatabaseUtil.closeConnection(conn);
-        assertNotNull(conn);
-    }
-
-    @Test
-    public void closeConnectionShouldHandlesSQLRecoverableException() throws Exception {
-
+    public void closeConnectionShouldHandleSQLRecoverableException() throws Exception {
+        boolean exceptionNotHandled = false;
+        try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(conn).close();
             DatabaseUtil.closeConnection(conn);
-            System.out.println("Expected error thrown in sqlerecoverable handler");
-            Assert.assertNotNull(conn);
+        } catch (SQLRecoverableException e) {
+            log.info("Unhandled SQLRecoverableException");
+            exceptionNotHandled = true;
+        } catch (SQLException e) {
+            // this shouldn't happen
+            Assert.fail();
+        } finally {
+            Assert.assertFalse(exceptionNotHandled);
+        }
     }
 
     @Test
-    public void newCloseStatementsShouldBBeSameResult() throws SQLException {
-        when(conn.isClosed()).thenReturn(false);
-        DatabaseUtil.close(conn, preparedStatement);
-    }
+    public void closeWithPreparedStatementShouldHandleSQLRecoverableException() {
 
-    @Test
-    public void newClosePreparedStatementShouldHandlesSQLRecoverableException() {
-
-        boolean isThrown = false;
+        boolean exceptionNotHandled = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
             DatabaseUtil.close(conn, preparedStatement);
         } catch (SQLRecoverableException e) {
-            isThrown = true;
-            Assert.assertTrue(isThrown);
+            log.info("Unhandled SQLRecoverableException");
+            exceptionNotHandled = true;
         } catch (SQLException e) {
             // this shouldn't happen
-            Assert.assertTrue(false);
+            Assert.fail();
+        } finally {
+            Assert.assertFalse(exceptionNotHandled);
         }
-        Assert.assertNotNull(preparedStatement);
     }
 
     @Test
-    public void testNewCloseResultSetHandlesSQLRecoverableException() {
-
+    public void closeWithResultSetShouldHandleSQLRecoverableException() {
+        boolean exceptionNotHandled = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(resultSetMock).close();
             DatabaseUtil.close(conn, resultSetMock, preparedStatement);
 
+        } catch (SQLRecoverableException e) {
+            log.info("Unhandled SQLRecoverableException");
+            exceptionNotHandled = true;
         } catch (SQLException e) {
-            log.error("Unexpected error thrown in sqlerecoverable handler" +  e.getMessage(), e);
+            // this shouldn't happen
+            Assert.fail();
+        } finally {
+            Assert.assertFalse(exceptionNotHandled);
         }
     }
+
+    // regression test legacy code
     @Test
-    public void testCloseStatements() throws SQLException {
+    public void legacyCloseAllConnectionWithPreparedStatementHandlesSQLRecoverableException() {
 
-        when(conn.isClosed()).thenReturn(false);
-        DatabaseUtil.closeAllConnections(conn, preparedStatement);
-    }
-
-    @Test
-    public void testClosePreparedStatementHandlesSQLRecoverableException() {
-
-        boolean isThrown = false;
+        boolean exceptionNotHandled = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(preparedStatement).close();
             DatabaseUtil.closeAllConnections(conn, preparedStatement);
         } catch (SQLRecoverableException e) {
-            // this is expected
-            isThrown = true;
-           Assert.assertTrue(isThrown);
-
+            log.info("Unhandled SQLRecoverableException");
+            exceptionNotHandled = true;
         } catch (SQLException e) {
-            e.printStackTrace();
             // this shouldn't happen
-            Assert.assertTrue(false);
+            Assert.fail();
+        } finally {
+            Assert.assertFalse(exceptionNotHandled);
         }
-       Assert.assertNotNull(preparedStatement);
     }
 
+    // regression test legacy code
     @Test
-    public void testCloseResultSetHandlesSQLRecoverableException() {
-
+    public void legacyCloseAllConnectionWithResultSetHandlesSQLRecoverableException() {
+        boolean exceptionNotHandled = false;
         try {
             Mockito.doThrow(new SQLRecoverableException("throw SQLRecoverableException")).when(resultSetMock).close();
             DatabaseUtil.closeAllConnections(conn, resultSetMock, preparedStatement);
-
+        } catch (SQLRecoverableException e) {
+        log.info("Unhandled SQLRecoverableException");
+        exceptionNotHandled = true;
         } catch (SQLException e) {
-            log.error("Unexpected error thrown in sqlerecoverable handler" +  e.getMessage(), e);
+        // this shouldn't happen
+        Assert.fail();
+        } finally {
+            Assert.assertFalse(exceptionNotHandled);
         }
     }
 
     @Test
-    public void testCreateUserStoreDataSource() throws Exception {
+    public void createUserStoreDataSource() throws Exception {
 
         when(realmConfig.isLogAbandoned()).thenReturn(true);
         when(realmConfig.isRemoveAbandoned()).thenReturn(true);
@@ -157,8 +157,9 @@ public class DatabaseUtilTest {
         Assert.assertEquals(100, realmConfig.getRemoveAbandonedTimeout());
         Assert.assertNotNull(datasource.getConnection());
     }
+
     @Test
-    public void testNullCreateUserStoreDataSource() throws Exception {
+    public void nullCreateUserStoreDataSource() throws Exception {
 
         DatabaseUtil.createUserStoreDataSource(realmConfig);
 
@@ -198,12 +199,6 @@ public class DatabaseUtilTest {
 
         String[] results =   DatabaseUtil.getStringValuesFromDatabase(conn, sqlStmt, params.get(0), params.get(1), params.get(2));
         Assert.fail("Can not handle SQLRecoverableError" );
-    }
-
-    @Test
-    public void getCurrentRuntime(){
-
-        Assert.assertTrue(System.getProperties().getProperty("java.version").contains("1.7"));
     }
 
     public DataSource getDBConnection() throws Exception {
