@@ -557,6 +557,21 @@ public class ConfigUtilTest {
         logger.debug(value);
     }
 
+    @Test(priority = 5, description = "Test what happens when invalid file path is provided")
+    public void invalidFilePath() {
+        Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "dep.properties");
+        Map<String, String> envVarMap = new HashMap<>();
+        envVarMap.put("deployment.conf", depConfPath.toString());
+        setEnv(envVarMap);
+        reloadDeploymentPropertiesFile();
+
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        File file = resourcePath.toFile();
+        XML configXml = ConfigUtil.getConfig(file, XML.class);
+        String value = configXml.getValue();
+        logger.debug(value);
+    }
+
     //This method is used to reload the config from deployment.properties. This helps to improve test coverage by
     // reloading the configs at runtime
     private void reloadDeploymentPropertiesFile() {
