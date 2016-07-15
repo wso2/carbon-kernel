@@ -64,16 +64,19 @@ import javax.xml.xpath.XPathFactory;
 public final class ConfigUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigUtil.class.getName());
-    //This is used to read the deployment.properties file location using System/Environment variables.
+    //This is used to read the {@link ConfigUtil#CONFIG_FILE_NAME} file location using System Properties or
+    // Environmental variables.
     private static final String FILE_PATH_KEY = "deployment.conf";
     //This variable contains the name of the config overriding file
     private static final String CONFIG_FILE_NAME = "deployment.properties";
-    //This variable contains the value which will be used as the root element when converting yaml,properties files
+    //This variable contains the value which will be used as the root element when converting yaml, properties files
+    // to xml format
     private static final String ROOT_ELEMENT = "configurations";
     //This regex is used to identify yaml, properties files
     private static final String FILE_REGEX;
-    //This regex is used to identify placeholder values
+    //This regex is used to identify placeholders
     private static final String PLACEHOLDER_REGEX;
+    //This is used to match placeholders
     private static final Pattern PLACEHOLDER_PATTERN;
     /*
      This map contains config data read from the deployment.properties file. The keys will be file names and values
@@ -89,12 +92,19 @@ public final class ConfigUtil {
         loadConfigs();
     }
 
+    /**
+     * This method will load configurations from the {@link ConfigUtil#CONFIG_FILE_NAME} file. The reason for this
+     * to be a separate method is to improve code coverage. We can change the visibility of this method to public
+     * when testing and then use this to test loading file path from environment variables/system properties.
+     */
     private static void loadConfigs() {
         String path = getPath();
         deploymentPropertiesMap = readDeploymentFile(path);
     }
 
-    //Enum to hold the file types which we need to add root elements when converting
+    /**
+     * Enum to hold the file types which we need to add root elements when converting to xml.
+     */
     private enum FileType {
 
         YAML("yaml|yml"), PROPERTIES("properties");     //todo: Remove yml after renaming all yml files to yaml
@@ -110,7 +120,9 @@ public final class ConfigUtil {
         }
     }
 
-    //Enum to hold the supported placeholder types
+    /**
+     * Enum to hold the supported placeholder types
+     */
     private enum Placeholder {
 
         SYS("sys"), ENV("env"), SEC("sec");
@@ -126,6 +138,9 @@ public final class ConfigUtil {
         }
     }
 
+    /**
+     * Private constructor to avoid creating instances because this is a util class.
+     */
     private ConfigUtil() {
 
     }
@@ -159,9 +174,9 @@ public final class ConfigUtil {
      * {@link AbstractConfigFileType} which was given as a input. That object has the new configurations as a String
      * which you can get by {@link AbstractConfigFileType#getValue()} method.
      *
-     * @param <T>         The class representing the configuration file type
-     * @param inputStream FileInputStream of the config file
-     * @param fileNameKey Name of the config file
+     * @param <T>         The class representing the configuration file type.
+     * @param inputStream FileInputStream of the config file.
+     * @param fileNameKey Name of the config file.
      * @param clazz       Configuration file type which is a subclass of {@link AbstractConfigFileType}.
      * @return The new configurations in the given format as a String.
      * @see AbstractConfigFileType
@@ -169,13 +184,14 @@ public final class ConfigUtil {
     public static <T extends AbstractConfigFileType> T getConfig(FileInputStream inputStream, String fileNameKey,
                                                                  Class<T> clazz) {
         String xmlString;
-        //properties file can be directly loadConfigs from the input stream
+        //properties file can be directly load from the InputStream
         if (clazz == Properties.class) {
             //Convert the properties type to XML type
             xmlString = Utils.convertPropertiesToXml(inputStream, ROOT_ELEMENT);
         } else {
-            try (BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                    StandardCharsets.UTF_8))) {
+                //Read the file
                 String inputString = bufferedReader.lines().collect(Collectors.joining("\n"));
                 if (clazz == XML.class) {
                     xmlString = inputString;
@@ -183,6 +199,7 @@ public final class ConfigUtil {
                     //Convert the yaml type to XML type
                     xmlString = Utils.convertYAMLToXML(inputString, ROOT_ELEMENT);
                 } else {
+                    //IF unsupported file format found, throw an exception
                     String msg = String.format("Unsupported file type: %s", clazz.getName());
                     logger.error(msg);
                     throw new RuntimeException(msg);
@@ -210,6 +227,13 @@ public final class ConfigUtil {
         return clazz.cast(baseObject);
     }
 
+    /**
+     * This method will convert the given xml string to its original format according to the provided class.
+     *
+     * @param xmlString String in xml format.
+     * @param clazz     The type that the xml string needs to be converted.
+     * @return String of config in the given class format.
+     */
     private static String convertToOriginalFormat(String xmlString, Class clazz) {
         //No need for else because if the class is not supported, a RuntimeException will be thrown above
         if (clazz == YAML.class) {
@@ -223,11 +247,11 @@ public final class ConfigUtil {
     }
 
     /**
-     * This method returns the configuration associated with the given key in the
-     * {@link ConfigUtil#CONFIG_FILE_NAME}.
+     * This method returns the configuration associated with the given key in the {@link ConfigUtil#CONFIG_FILE_NAME}.
      *
-     * @param key Key of the configuration
-     * @return The new configuration if the key is found. If the key is not found, null is returned.
+     * @param key Key of the configuration.
+     * @return The new configuration if the key is found. If the key is not found, null is returned. This is because
+     * the developer can check whether the given key is overridden or not.
      */
     public static String getConfig(String key) {
         int index = key.indexOf('/');
@@ -236,7 +260,7 @@ public final class ConfigUtil {
             logger.error(msg);
             throw new RuntimeException(msg);
         }
-        //Get the filename and remove [,]
+        //Get the filename and remove [,] which enclose the filename
         String fileName = key.substring(0, index).replaceAll("[\\[\\]]", "");
         String xpath = key.substring(index);
         //Add root element for yaml, properties files
@@ -248,7 +272,9 @@ public final class ConfigUtil {
             logger.debug("Entry for filename {} was not found in {}", fileName, CONFIG_FILE_NAME);
             return null;
         }
+        //Get the configurations map of the given file
         Map<String, String> configMap = deploymentPropertiesMap.get(fileName);
+        //If the map has a new value for the given xpath
         if (configMap.containsKey(xpath)) {
             String returnValue = configMap.get(xpath);
             //If the value contain a placeholder, process the placeholder before returning the value
@@ -262,11 +288,11 @@ public final class ConfigUtil {
     }
 
     /**
-     * This method applies new configurations to given XML String
+     * This method applies new configurations to given XML String.
      *
-     * @param xmlString   Current config in XML format
-     * @param fileNameKey Filename of the current config
-     * @return New config in XML formatted String
+     * @param xmlString   Current config in XML format.
+     * @param fileNameKey Filename of the current config.
+     * @return New config in XML formatted String.
      */
     private static String applyNewConfig(String xmlString, String fileNameKey) {
         StringReader stringReader = null;
@@ -283,34 +309,34 @@ public final class ConfigUtil {
                 XPath xPath = XPathFactory.newInstance().newXPath();
                 Map<String, String> newConfig = deploymentPropertiesMap.get(fileNameKey);
                 newConfig.keySet()
-                        .forEach(xPathKey -> {
-                            try {
-                                NodeList nodeList = (NodeList) xPath.compile(xPathKey).evaluate(document,
-                                        XPathConstants.NODESET);
+                         .forEach(xPathKey -> {
+                             try {
+                                 NodeList nodeList = (NodeList) xPath.compile(xPathKey).evaluate(document,
+                                         XPathConstants.NODESET);
                                  /* If deployment.properties has configs which is not in the original config
                                  file, the nodeList.item(0) will be null. In this case, we have to throw an exception
                                   and indicate that there are additional configs in the deployment.properties file
                                   which are not in the original config file */
-                                if (nodeList.item(0) == null) {
-                                    //If xpath in deployment.properties not found in the original config file, throw an
-                                    // exception
-                                    String msg = String.format(
-                                            "%s was not found in %s. Remove this entry from the %s or add this config"
-                                                    + " to %s file.", xPathKey, fileNameKey, CONFIG_FILE_NAME,
-                                            fileNameKey);
-                                    logger.error(msg);
-                                    throw new RuntimeException(msg);
-                                }
-                                Node firstNode = nodeList.item(0);
-                                firstNode.getFirstChild().setNodeValue(newConfig.get(xPathKey));
-                            } catch (XPathExpressionException e) {
-                                String msg = String.format(
-                                        "Exception occurred when applying xpath. Check the syntax and make sure it is"
-                                                + " a valid xpath: %s", xPathKey);
-                                logger.error(msg, e);
-                                throw new RuntimeException(msg, e);
-                            }
-                        });
+                                 if (nodeList.item(0) == null) {
+                                     //If xpath in deployment.properties not found in the original config file, throw an
+                                     // exception
+                                     String msg = String.format(
+                                             "%s was not found in %s. Remove this entry from the %s or add this config"
+                                                     + " to %s file.", xPathKey, fileNameKey, CONFIG_FILE_NAME,
+                                             fileNameKey);
+                                     logger.error(msg);
+                                     throw new RuntimeException(msg);
+                                 }
+                                 Node firstNode = nodeList.item(0);
+                                 firstNode.getFirstChild().setNodeValue(newConfig.get(xPathKey));
+                             } catch (XPathExpressionException e) {
+                                 String msg = String.format(
+                                         "Exception occurred when applying xpath. Check the syntax and make sure it is"
+                                                 + " a valid xpath: %s", xPathKey);
+                                 logger.error(msg, e);
+                                 throw new RuntimeException(msg, e);
+                             }
+                         });
             }
             //process placeholders
             processPlaceholdersInXML(document.getDocumentElement().getChildNodes());
@@ -352,6 +378,7 @@ public final class ConfigUtil {
                     setNewValue(firstChild, value);
                 }
             }
+            //Check attributes for placeholders
             if (tempNode.hasAttributes()) {
                 // Get attributes' names and values
                 NamedNodeMap nodeMap = tempNode.getAttributes();
@@ -371,10 +398,10 @@ public final class ConfigUtil {
     }
 
     /**
-     * This helper method sets the value to a placeholder
+     * This helper method sets the given value to a placeholder.
      *
-     * @param node  Node which contains the placeholder
-     * @param value Value of the node
+     * @param node  Node which contains the placeholder.
+     * @param value Value of the node.
      */
     private static void setNewValue(Node node, String value) {
         if (value.matches(PLACEHOLDER_REGEX)) {
@@ -397,6 +424,7 @@ public final class ConfigUtil {
         InputStream input = null;
         try {
             File file = new File(filePath);
+            //If the file is not found, return an empty map
             if (!file.exists()) {
                 logger.debug("{} not found.", filePath);
                 return tempPropertiesMap;
@@ -406,29 +434,29 @@ public final class ConfigUtil {
             deploymentProperties.load(input);
             //Process each entry in the deployment.properties file and add them to tempPropertiesMap
             deploymentProperties.keySet()
-                    .forEach(key -> {
-                        String keyString = key.toString();
-                        int index = keyString.indexOf("/");
-                        //Splitting the string
-                        String fileName = keyString.substring(0, index).replaceAll("[\\[\\]]", "");
-                        String xpath = keyString.substring(index);
-                        String value = deploymentProperties.getProperty(keyString);
-                        //Add root element for yml, properties files
-                        if (fileName.matches(FILE_REGEX)) {
-                            xpath = "/" + ROOT_ELEMENT + xpath;
-                        }
-                        //If the fileName is already in the tempPropertiesMap, update the 2nd map
-                        // (which is the value of the tempPropertiesMap). Otherwise create a new map
-                        // and add it to the tempPropertiesMap
-                        if (tempPropertiesMap.containsKey(fileName)) {
-                            Map<String, String> tempMap = tempPropertiesMap.get(fileName);
-                            tempMap.put(xpath, value);
-                        } else {
-                            Map<String, String> tempMap = new HashMap<>();
-                            tempMap.put(xpath, value);
-                            tempPropertiesMap.put(fileName, tempMap);
-                        }
-                    });
+                                .forEach(key -> {
+                                    String keyString = key.toString();
+                                    int index = keyString.indexOf("/");
+                                    //Splitting the string
+                                    String fileName = keyString.substring(0, index).replaceAll("[\\[\\]]", "");
+                                    String xpath = keyString.substring(index);
+                                    String value = deploymentProperties.getProperty(keyString);
+                                    //Add root element for yml, properties files
+                                    if (fileName.matches(FILE_REGEX)) {
+                                        xpath = "/" + ROOT_ELEMENT + xpath;
+                                    }
+                                    //If the fileName is already in the tempPropertiesMap, update the 2nd map
+                                    // (which is the value of the tempPropertiesMap). Otherwise create a new map
+                                    // and add it to the tempPropertiesMap
+                                    if (tempPropertiesMap.containsKey(fileName)) {
+                                        Map<String, String> tempMap = tempPropertiesMap.get(fileName);
+                                        tempMap.put(xpath, value);
+                                    } else {
+                                        Map<String, String> tempMap = new HashMap<>();
+                                        tempMap.put(xpath, value);
+                                        tempPropertiesMap.put(fileName, tempMap);
+                                    }
+                                });
         } catch (IOException ioException) {
             String msg = String.format("Error occurred during reading the %s file.", CONFIG_FILE_NAME);
             logger.error(msg, ioException);
@@ -484,30 +512,33 @@ public final class ConfigUtil {
     }
 
     /**
-     * This method process a given placeholder string and returns the string with replaced new value
+     * This method process a given placeholder string and returns the string with replaced new value.
      *
-     * @param func         Function to apply
-     * @param key          Environment Variable/System Property key
-     * @param inputString  String which needs to process
-     * @param defaultValue Default value of the placeholder. If default value is not available, this is null
-     * @param type         Type of the placeholder (env/sys/sec) This is used to print the error message
-     * @return String which has the new value instead of the placeholder
+     * @param func         Function to apply.
+     * @param key          Environment Variable/System Property key.
+     * @param inputString  String which needs to process.
+     * @param defaultValue Default value of the placeholder. If default value is not available, this is null.
+     * @param type         Type of the placeholder (env/sys/sec) This is used to print the error message.
+     * @return String which has the new value instead of the placeholder.
      */
-    private static String processValue(Function<String, String> func, String key, String inputString,
-                                       String defaultValue, Placeholder type) {
+    private static String processValue(Function<String, String> func, String key, String inputString, String
+            defaultValue, Placeholder type) {
         String newValue = func.apply(key);
+        //If the new value is not null, replace the placeholder with the new value and return the string.
         if (newValue != null) {
             return inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
         }
+        //If the new value is empty and the default value is not empty, replace the placeholder with the default
+        // value and return the string
         if (defaultValue != null) {
             return inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + defaultValue + "$8");
         }
+        //Otherwise print an error message and throw na exception
         String msg;
         if (Placeholder.ENV.getValue().equals(type.getValue())) {
             msg = String.format("Environment variable %s not found. Processing %s failed. Placeholder: %s", key,
                     CONFIG_FILE_NAME, inputString);
-        } else if (Placeholder.SYS.getValue()
-                .equals(type.getValue())) {
+        } else if (Placeholder.SYS.getValue().equals(type.getValue())) {
             msg = String.format("System property %s not found. Processing %s failed. Placeholder: %s", key,
                     CONFIG_FILE_NAME, inputString);
         } else {
@@ -519,9 +550,9 @@ public final class ConfigUtil {
 
     /**
      * This method will concatenate and return the file types that need a root element. File types will be separated
-     * by | token. This method will be used to create the {@link ConfigUtil#FILE_REGEX}
+     * by | token. This method will be used to create the {@link ConfigUtil#FILE_REGEX}.
      *
-     * @return String that contains file types which are separated by | token
+     * @return String that contains file types which are separated by | token.
      */
     private static String getFileTypesString() {
         StringBuilder stringBuilder = new StringBuilder();
@@ -535,9 +566,9 @@ public final class ConfigUtil {
 
     /**
      * This method will concatenate and return the placeholder types.. Placeholder types will be separated
-     * by | token. This method will be used to create the {@link ConfigUtil#PLACEHOLDER_REGEX}
+     * by | token. This method will be used to create the {@link ConfigUtil#PLACEHOLDER_REGEX}.
      *
-     * @return String that contains placeholder types which are separated by | token
+     * @return String that contains placeholder types which are separated by | token.
      */
     private static String getPlaceholderString() {
         StringBuilder stringBuilder = new StringBuilder();
@@ -551,11 +582,10 @@ public final class ConfigUtil {
 
     /**
      * This method will return the {@link ConfigUtil#CONFIG_FILE_NAME} file path. Path will be read using
-     * {@link ConfigUtil#FILE_PATH_KEY} environment variable or
-     * {@link ConfigUtil#FILE_PATH_KEY}
+     * {@link ConfigUtil#FILE_PATH_KEY} environment variable or {@link ConfigUtil#FILE_PATH_KEY}
      * system variable respectively. If both are null, CARBON_HOME/conf will be set as the default location.
      *
-     * @return Location of the {@link ConfigUtil#CONFIG_FILE_NAME} file
+     * @return Location of the {@link ConfigUtil#CONFIG_FILE_NAME} file.
      */
     private static String getPath() {
         String fileLocation = System.getenv(FILE_PATH_KEY);
