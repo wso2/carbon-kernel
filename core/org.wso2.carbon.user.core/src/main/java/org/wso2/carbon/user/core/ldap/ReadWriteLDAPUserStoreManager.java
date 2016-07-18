@@ -87,6 +87,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private static final String readTimeout = "ReadTimeout";
     private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
+    private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
+            "seperated by a space. Ex:mpegVideo mySpecialKey";
 
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
@@ -1981,6 +1983,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 " authentication in case ldap read timed out.");
         setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
                 "Name of the class that implements the count functionality");
+        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
+                LDAPBinaryAttributesDescription);
     }
 
 //
