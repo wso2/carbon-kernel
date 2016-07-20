@@ -84,6 +84,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String readTimeout = "ReadTimeout";
     private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
+    private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
+            "seperated by a space. Ex:mpegVideo mySpecialKey";
 
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
@@ -3328,6 +3330,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 " authentication in case ldap read timed out.");
         setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
                 "Name of the class that implements the count functionality");
+        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
+                LDAPBinaryAttributesDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,
