@@ -149,6 +149,10 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
                     tenantResponseMsgCtx.setEnvelope(mainInMsgContext.getEnvelope());
 
+                    // We don't want this to happen in response flow when property is set only
+                    // for request flow. See ESBJAVA-4464 (due to TenantTransportSender bug)
+                    tenantResponseMsgCtx.removeProperty(MultitenantConstants.DISABLE_CHUNKING);
+
                     if (mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null) {
                         tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_PIPE,
                                 mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
