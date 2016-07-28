@@ -33,7 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -131,15 +130,11 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
         Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "osgi");
-        try {
-            if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
-                Assert.assertEquals(osgiRepoURL.toURI().toURL().toString().concat("/"),
-                        expectedPath.toUri().toURL().toString().replaceFirst("/", ""));
-            } else {
-                Assert.assertEquals(osgiRepoURL.toString(), "file:".concat(expectedPath.toString()));
-            }
-        } catch (URISyntaxException e) {
-            Assert.fail("Exception occurred when converting URL to String");
+        if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
+            Assert.assertEquals(Paths.get(osgiRepoURL.getPath()).toUri().toURL().toString(),
+                    expectedPath.toUri().toURL().toString());
+        } else {
+            Assert.assertEquals(osgiRepoURL.toString(), "file:".concat(expectedPath.toString()));
         }
 
     }
