@@ -199,6 +199,7 @@ public class DatabaseUtilTest {
 
         String[] results =   DatabaseUtil.getStringValuesFromDatabase(conn, sqlStmt, params.get(0), params.get(1), params.get(2));
         Assert.fail("Cannot handle SQLRecoverableError" );
+
     }
 
     public DataSource getDBConnection() throws Exception {
