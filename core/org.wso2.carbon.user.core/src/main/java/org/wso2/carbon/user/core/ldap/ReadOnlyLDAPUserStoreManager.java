@@ -231,14 +231,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         String connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
         String DNSURL = realmConfig.getUserStoreProperty(LDAPConstants.DNS_URL);
-        String useSSL = realmConfig.getUserStoreProperty(USE_ANONYMOUS_BIND);
+        String AnonymousBind = realmConfig.getUserStoreProperty(USE_ANONYMOUS_BIND);
 
         if ((connectionURL == null || connectionURL.trim().length() == 0) &&
                 ((DNSURL == null || DNSURL.trim().length() == 0))) {
             throw new UserStoreException(
                     "Required ConnectionURL property is not set at the LDAP configurations");
         }
-        if (!Boolean.parseBoolean(useSSL)) {
+        if (!Boolean.parseBoolean(AnonymousBind)) {
             String connectionName = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME);
             if (StringUtils.isEmpty(connectionName)) {
                 throw new UserStoreException(
