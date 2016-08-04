@@ -86,8 +86,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
-    //Authenticating to LDAP via mutual SSL or TLS
-    private static final String USE_SSL = "UseSSL";
+    //Authenticating to LDAP via Anonymous Bind
+    private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
 
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
@@ -231,7 +231,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         String connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
         String DNSURL = realmConfig.getUserStoreProperty(LDAPConstants.DNS_URL);
-        String useSSL = realmConfig.getUserStoreProperty(USE_SSL);
+        String useSSL = realmConfig.getUserStoreProperty(USE_ANONYMOUS_BIND);
 
         if ((connectionURL == null || connectionURL.trim().length() == 0) &&
                 ((DNSURL == null || DNSURL.trim().length() == 0))) {
