@@ -138,13 +138,13 @@ public class DatabaseUtil {
                     JDBCRealmConstants.TEST_WHILE_IDLE)));
         }
 
-        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS))) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS))) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getUserStoreProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
         }
 
-        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS))) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS))) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -162,7 +162,7 @@ public class DatabaseUtil {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
 		
-        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(REMOVE_ABANDONED))){
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(REMOVE_ABANDONED))){
         	poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(REMOVE_ABANDONED)));
         }
         
@@ -246,15 +246,15 @@ public class DatabaseUtil {
                     JDBCRealmConstants.VALIDATION_QUERY));
         }
 
-        if (realmConfig.getRealmProperty(REMOVE_ABANDONED) != null) {
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(REMOVE_ABANDONED))) {
             poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(REMOVE_ABANDONED)));
         }
 
-        if (realmConfig.getRealmProperty(LOG_ABANDONED) != null) {
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(LOG_ABANDONED))) {
             poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(LOG_ABANDONED)));
         }
 
-        if (realmConfig.getRealmProperty(REMOVE_ABANDNONED_TIMEOUT) != null) {
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(REMOVE_ABANDNONED_TIMEOUT))) {
             poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(REMOVE_ABANDNONED_TIMEOUT)));
         }
 
