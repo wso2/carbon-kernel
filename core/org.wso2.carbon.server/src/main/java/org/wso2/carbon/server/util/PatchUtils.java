@@ -4,9 +4,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.LauncherConstants;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
@@ -509,9 +523,8 @@ public class PatchUtils {
             if (latestServicepack.isDirectory()) {
                 patchApplyingList.add(latestServicepack.getName());
                 // get patch list on a patches inside servicepack
-                try {
-                    File servicepackPatchesFile = FileUtils.getFile(latestServicepack, LauncherConstants.SERVICEPACK_PATCHES_FILE);
-                    BufferedReader bufReader = new BufferedReader(new FileReader(servicepackPatchesFile));
+                File servicepackPatchesFile = FileUtils.getFile(latestServicepack, LauncherConstants.SERVICEPACK_PATCHES_FILE);
+                try (BufferedReader bufReader = new BufferedReader(new FileReader(servicepackPatchesFile))) {
                     List<String> patchesInServicepack = FileUtils.readLinesToList(bufReader);
                     servicepackPatchedList.addAll(patchesInServicepack);
                 } catch (IOException e) {
@@ -534,20 +547,21 @@ public class PatchUtils {
     private static String verifyBundleFileName(File file) throws IOException {
         String newFileName = file.getName();
         if (file.getName().endsWith(".jar")) {
-            JarFile jar = new JarFile(file);
-            Attributes attributes = jar.getManifest().getMainAttributes();
-            String name = attributes.getValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME);
-            String version = attributes.getValue(LauncherConstants.BUNDLE_VERSION);
-            if (name != null && version != null) {
-                // Bundle-SymbolicName may have other parameters eg:singleton:=true , if so need to remove that part
-                int index = name.indexOf(";");
-                if (index != -1) {
-                    name = name.substring(0, index);
-                }
-                String bundleFileName = name + "_" + version + ".jar";
-                // verify and correct the bundle filename
-                if (!(file.getName().equals(bundleFileName))) {
-                    newFileName = bundleFileName;
+            try (JarFile jar = new JarFile(file)) {
+                Attributes attributes = jar.getManifest().getMainAttributes();
+                String name = attributes.getValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME);
+                String version = attributes.getValue(LauncherConstants.BUNDLE_VERSION);
+                if (name != null && version != null) {
+                    // Bundle-SymbolicName may have other parameters eg:singleton:=true , if so need to remove that part
+                    int index = name.indexOf(";");
+                    if (index != -1) {
+                        name = name.substring(0, index);
+                    }
+                    String bundleFileName = name + "_" + version + ".jar";
+                    // verify and correct the bundle filename
+                    if (!(file.getName().equals(bundleFileName))) {
+                        newFileName = bundleFileName;
+                    }
                 }
             }
         }

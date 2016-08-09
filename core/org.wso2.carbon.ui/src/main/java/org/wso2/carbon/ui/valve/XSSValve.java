@@ -21,38 +21,39 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.ServletException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class XSSValve extends ValveBase {
 
-    private final static String XSS_VALVE_PROPERTY = "Security.XSSPreventionConfig";
-    private final static String ENABLED_PROPERTY = XSS_VALVE_PROPERTY + ".Enabled";
+    private static String XSS_VALVE_PROPERTY = "Security.XSSPreventionConfig";
+    private static String ENABLED_PROPERTY = XSS_VALVE_PROPERTY + ".Enabled";
+    private static String RULE_PATTERN_PROPERTY = XSS_VALVE_PROPERTY + ".Patterns.Pattern";
+    private static String RULE_PROPERTY = XSS_VALVE_PROPERTY + ".Rule";
+    private static String XSS_EXTENSION_FILE_NAME = "xss-patterns.properties";
     private static boolean xssEnabled = false;
+    private static String RULE_ALLOW = "allow";
+    private static String RULE_DENY = "deny";
+    private static String[] xssURIPatternList;
+    private static String xssRule;
+    private static String patterPath;
+    private static ArrayList<Pattern> patternList;
 
-    private static Pattern[] patterns = new Pattern[] {
-            Pattern.compile("<input", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<body", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<link", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<script>(.*?)</script>", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("src[\r\n]*=[\r\n]*\\\'(.*?)\\\'",
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("src[\r\n]*=[\r\n]*\\\"(.*?)\\\"",
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("</script>", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("eval\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("<img", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
-    };
+    private static final Log log = LogFactory.getLog(XSSValve.class);
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -70,30 +71,106 @@ public class XSSValve extends ValveBase {
                 serverConfiguration.getFirstProperty(ENABLED_PROPERTY))) {
             xssEnabled = true;
         }
+        xssURIPatternList = serverConfiguration.getProperties(RULE_PATTERN_PROPERTY);
+        xssRule = serverConfiguration.getFirstProperty(RULE_PROPERTY);
+        patterPath = CarbonUtils.getCarbonSecurityConfigDirPath() + "/" + XSS_EXTENSION_FILE_NAME;
+        buildScriptPatterns();
     }
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         if (xssEnabled) {
-            Enumeration<String> parameterNames = request.getParameterNames();
+            String context = request.getRequestURI().substring(request.getRequestURI().indexOf("/") + 1);
+            if (RULE_ALLOW.equals(xssRule) && !isContextStartWithGivenPatterns(context)) {
+                validateParameters(request);
+            } else if (RULE_DENY.equals(xssRule) && isContextStartWithGivenPatterns(context)) {
+                validateParameters(request);
+            } else if(!(RULE_ALLOW.equals(xssRule) || RULE_DENY.equals(xssRule))){
+                validateParameters(request);
+            }
 
-            while (parameterNames.hasMoreElements()) {
+        }
+        getNext().invoke(request, response);
+    }
 
-                String paramName = parameterNames.nextElement();
-                String paramValue = request.getParameter(paramName);
-                if (paramValue != null) {
-                    paramValue = paramValue.replaceAll("\0", "");
-                    for (Pattern scriptPattern : patterns) {
-                        Matcher matcher = scriptPattern.matcher(paramValue);
-                        if (matcher.find()) {
-                            throw new ServletException(
-                                    "Possible XSS Attack. Suspicious code : " + matcher.toMatchResult().group());
-                        }
+    private void validateParameters(Request request) throws ServletException{
+
+        Enumeration<String> parameterNames = request.getParameterNames();
+
+        while (parameterNames.hasMoreElements()) {
+
+            String paramName = parameterNames.nextElement();
+            String paramValue = request.getParameter(paramName);
+            if (paramValue != null) {
+                paramValue = paramValue.replaceAll("\0", "");
+                for (Pattern scriptPattern : patternList) {
+                    Matcher matcher = scriptPattern.matcher(paramValue);
+                    if (matcher.find()) {
+                        throw new ServletException(
+                                "Possible XSS Attack. Suspicious code : " + matcher.toMatchResult().group());
                     }
                 }
             }
         }
-        getNext().invoke(request, response);
     }
+
+    /**
+     * Check whether context starts with defined pattern
+     *
+     * @param context
+     * @return
+     */
+    private boolean isContextStartWithGivenPatterns(String context) {
+
+        boolean patternMatched = false;
+
+        for (String pattern : xssURIPatternList) {
+            if (context.contains(pattern)) {
+                patternMatched = true;
+                break;
+            }
+        }
+        return patternMatched;
+    }
+
+    /**
+     * Load build script patterns from property file
+     */
+    private void buildScriptPatterns() {
+
+        patternList = new ArrayList<Pattern>();
+        if (patterPath != null && !patterPath.isEmpty()) {
+            InputStream inStream = null;
+            File xssPatternConfigFile = new File(patterPath);
+            Properties properties = new Properties();
+            if (xssPatternConfigFile.exists()) {
+                try {
+                    inStream = new FileInputStream(xssPatternConfigFile);
+                    properties.load(inStream);
+                } catch (FileNotFoundException e) {
+                    log.error("Can not load xssPatternConfig properties file ", e);
+                } catch (IOException e) {
+                    log.error("Can not load xssPatternConfigFile properties file ", e);
+                } finally {
+                    if (inStream != null) {
+                        try {
+                            inStream.close();
+                        } catch (IOException e) {
+                            log.error("Error while closing stream ", e);
+                        }
+                    }
+                }
+            }
+            if (!properties.isEmpty()) {
+                for (String key : properties.stringPropertyNames()) {
+                    String value = properties.getProperty(key);
+                    patternList
+                            .add(Pattern.compile(value, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
+                }
+            }
+
+        }
+    }
+
 }

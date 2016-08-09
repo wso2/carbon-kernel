@@ -276,15 +276,15 @@ public class JDBCClusterLock implements ClusterLock {
         }
 
         Connection conn = null;
+        PreparedStatement ps2 = null;
         try {
             conn = getDataSource().getConnection();
 
             String lockRow = "UPDATE REG_CLUSTER_LOCK SET REG_LOCK_STATUS='UNLOCKED' " +
                     "WHERE REG_LOCK_NAME=? AND REG_LOCK_STATUS='LOCKED'";
-            PreparedStatement ps2 = conn.prepareStatement(lockRow);
+            ps2 = conn.prepareStatement(lockRow);
             ps2.setString(1, lockName);
             ps2.executeUpdate();
-            ps2.close();
 
         } catch (SQLException e) {
 
@@ -294,6 +294,13 @@ public class JDBCClusterLock implements ClusterLock {
             throw new RegistryException(msg, e);
 
         } finally {
+            if (ps2 != null) {
+                try {
+                    ps2.close();
+                } catch (SQLException e) {
+                    log.error(e);
+                }
+            }
             if (conn != null) {
                 try {
                     conn.close();
@@ -321,15 +328,15 @@ public class JDBCClusterLock implements ClusterLock {
         boolean lockObtained = false;
 
         Connection conn = null;
+        PreparedStatement ps2 = null;
         try {
             conn = getDataSource().getConnection();
 
             String lockRow = "UPDATE REG_CLUSTER_LOCK SET REG_LOCK_STATUS='LOCKED' " +
                     "WHERE REG_LOCK_NAME=? AND REG_LOCK_STATUS='UNLOCKED'";
-            PreparedStatement ps2 = conn.prepareStatement(lockRow);
+            ps2 = conn.prepareStatement(lockRow);
             ps2.setString(1, lockName);
             int updatedRows = ps2.executeUpdate();
-            ps2.close();
 
             if (updatedRows > 0) {
                 lockObtained = true;
@@ -345,6 +352,13 @@ public class JDBCClusterLock implements ClusterLock {
             throw new RegistryException(msg, e);
 
         } finally {
+            if (ps2 != null) {
+                try {
+                    ps2.close();
+                } catch (SQLException e) {
+                    log.error(e);
+                }
+            }
             if (conn != null) {
                 try {
                     conn.close();

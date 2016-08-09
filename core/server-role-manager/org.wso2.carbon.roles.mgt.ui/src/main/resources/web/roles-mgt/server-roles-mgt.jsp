@@ -63,8 +63,22 @@
         var serverRoleName = serverRole;
         CARBON.showConfirmationDialog('<fmt:message key="confirm.delete.server-role"/>  \'' +
                                       serverRoleName + '\' ?', function () {
-            location.href = 'delete-server-role.jsp?serverRoleName=' + serverRoleName +
-                            '&serverRoleType=' + serverRoleType;
+
+            jQuery.ajax({
+                type: "POST",
+                url: "delete-server-role.jsp",
+                headers: {
+                    Accept: "text/html"
+                },
+                data: {"serverRoleName": serverRoleName, "serverRoleType": serverRoleType},
+                async: false,
+                success: function (responseText, status, XMLHttpRequest) {
+                    if (status == "success") {
+                        location.assign("server-roles-mgt.jsp");
+                    }
+                }
+            });
+
         }, null);
     }
 
@@ -73,9 +87,22 @@
         var serverRoleType = '<fmt:message key="server-role.type.custom"/>';
 
         if (validateInput(serverRoleName.value, serverRoleType)) {
-            location.href = 'add-server-role.jsp?serverRoleName=' + serverRoleName.value +
-                            "&serverRoleType="
-                    + serverRoleType;
+
+            jQuery.ajax({
+                type: "POST",
+                url: "add-server-role.jsp",
+                headers: {
+                    Accept: "text/html"
+                },
+                data: {"serverRoleName": serverRoleName.value, "serverRoleType": serverRoleType},
+                async: false,
+                success: function (responseText, status, XMLHttpRequest) {
+                    if (status == "success") {
+                        location.assign("server-roles-mgt.jsp");
+                    }
+                }
+            });
+
         } else {
 
         }

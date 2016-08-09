@@ -68,6 +68,14 @@ public class DatabaseCreator {
             log.fatal(msg, e);
             throw new Exception(msg, e);
         } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    log.error("Failed to close SQL statement.", e);
+                }
+            }
+
             try {
                 if (conn != null) {
                     conn.close();

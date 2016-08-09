@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
@@ -37,28 +38,33 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdvancedPermissionTreeTest extends BaseTestCase{
+public class AdvancedPermissionTreeTest extends BaseTestCase {
     private UserRealm realm = null;
+    private UserStoreManager admin = null;
+    AuthorizationManager authMan = null;
     private String TEST_URL = "jdbc:h2:target/permTreetest/CARBON_TEST";
 
     public void setUp() throws Exception {
         super.setUp();
     }
 
-    public void testStuff() throws Exception{
+    public void testStuff() throws Exception {
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
+        admin = realm.getUserStoreManager();
+        authMan = realm.getAuthorizationManager();
         dorolestuff();
         doAuthorizationstuff();
+        doTestUserRoleCachingInCaseInsensitiveUsername();
     }
 
-    public void initRealmStuff() throws Exception{
-         String dbFolder =  "target/permTreetest";
+    public void initRealmStuff() throws Exception {
+        String dbFolder = "target/permTreetest";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
 
-    	BasicDataSource ds = new BasicDataSource();
+        BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
         ds.setUrl(TEST_URL);
 
@@ -70,11 +76,10 @@ public class AdvancedPermissionTreeTest extends BaseTestCase{
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
-                .getProfileTestData(),0);
+                .getProfileTestData(), 0);
     }
 
-    public void dorolestuff() throws Exception{
-        UserStoreManager admin = realm.getUserStoreManager();
+    public void dorolestuff() throws Exception {
         Map<String, String> getClaims = new HashMap<String, String>();
         getClaims.put(ClaimTestUtil.CLAIM_URI1, "1claim1Value");
         getClaims.put(ClaimTestUtil.CLAIM_URI2, "2claim2Value");
@@ -82,46 +87,56 @@ public class AdvancedPermissionTreeTest extends BaseTestCase{
         Permission[] permisions = new Permission[2];
         permisions[0] = new Permission("high security", "read");
         permisions[1] = new Permission("low security", "write");
-        assertEquals("high security",permisions[0].getResourceId());
-        assertEquals("write",permisions[1].getAction());
+        assertEquals("high security", permisions[0].getResourceId());
+        assertEquals("write", permisions[1].getAction());
 
         admin.addUser("dimuthu", "pass1", null, null, null, false);
-        admin.addUser("isuru","pass2",null,null,null, false);
-        admin.addUser("ajith","pass3",null,null,null, false);
-        admin.addUser("Kalpa","pass4",null,null,null, false);
-        admin.addUser("Lahiru","pass5",null,null,null, false);
+        admin.addUser("isuru", "pass2", null, null, null, false);
+        admin.addUser("ajith", "pass3", null, null, null, false);
+        admin.addUser("Kalpa", "pass4", null, null, null, false);
+        admin.addUser("Lahiru", "pass5", null, null, null, false);
+        admin.addUser("indunil", "pass6", null, null, null, false);
 
-        admin.addRole("role1", new String[] { "dimuthu" }, permisions);
-        admin.addRole("role2", new String[] { "isuru","ajith" }, permisions);
-        admin.addRole("role3", new String[] { "Kalpa" }, permisions);
-        admin.addRole("role4", new String[] { "Lahiru" }, permisions);
+        admin.addRole("role1", new String[]{"dimuthu"}, permisions);
+        admin.addRole("role2", new String[]{"isuru", "ajith"}, permisions);
+        admin.addRole("role3", new String[]{"Kalpa"}, permisions);
+        admin.addRole("role4", new String[]{"Lahiru"}, permisions);
+        admin.addRole("Internal/role1", new String[]{"indunil"}, permisions);
     }
 
-    public void doAuthorizationstuff() throws Exception{
-
-        AuthorizationManager authMan = realm.getAuthorizationManager();
+    public void doAuthorizationstuff() throws Exception {
 
         //Role Authorization
         authMan.authorizeRole("role1", "/s", "read");
         assertTrue(authMan.isRoleAuthorized("role1", "/s", "read"));
         assertTrue(authMan.isRoleAuthorized("role1", "/s/t/u/v", "read"));
-        assertTrue(authMan.isUserAuthorized("dimuthu","/s", "read"));
-        assertTrue(authMan.isUserAuthorized("dimuthu","/s/t/u/v", "read"));
+        assertTrue(authMan.isUserAuthorized("dimuthu", "/s", "read"));
+        assertTrue(authMan.isUserAuthorized("dimuthu", "/s/t/u/v", "read"));
 
         authMan.denyRole("role1", "/s/t/u", "read");
         assertFalse(authMan.isRoleAuthorized("role1", "/s/t/u", "read"));
         assertFalse(authMan.isRoleAuthorized("role1", "s/t/u/v/w", "read"));
-        assertFalse(authMan.isUserAuthorized("dimuthu","s/t/u/v/w", "read"));
+        assertFalse(authMan.isUserAuthorized("dimuthu", "s/t/u/v/w", "read"));
         assertTrue(authMan.isRoleAuthorized("role1", "/s/t", "read"));
-        assertTrue(authMan.isUserAuthorized("dimuthu","/s/t", "read"));
+        assertTrue(authMan.isUserAuthorized("dimuthu", "/s/t", "read"));
 
         authMan.authorizeRole("role1", "/s/t/u/v/w/x", "read");
         assertTrue(authMan.isRoleAuthorized("role1", "/s/t/u/v/w/x/y", "read"));
         assertTrue(authMan.isRoleAuthorized("role1", "/s/t", "read"));
         assertFalse(authMan.isRoleAuthorized("role1", "/s/t/u/v/w", "read"));
 
-       
+        authMan.authorizeRole("Internal/role1", "/s/t/u/v/w/x", "read");
+        assertTrue(authMan.isRoleAuthorized("role1", "/s/t/u/v/w/x/y", "read"));
+        assertTrue(authMan.isRoleAuthorized("role1", "/s/t", "read"));
+        assertFalse(authMan.isRoleAuthorized("role1", "/s/t/u/v/w", "read"));
+        assertTrue(authMan.isUserAuthorized("indunil", "/s/t/u/v/w/x/y", "read"));
     }
+
+    public void doTestUserRoleCachingInCaseInsensitiveUsername() throws UserStoreException {
+        admin.deleteRole("Internal/role1");
+        assertFalse(authMan.isUserAuthorized("indunil", "/s/t/u/v/w/x/y", "read"));
+    }
+
 }
 
 

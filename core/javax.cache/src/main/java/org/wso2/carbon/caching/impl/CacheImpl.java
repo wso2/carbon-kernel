@@ -1075,6 +1075,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryAdded(X key) {
+            if (distributedCache == null) {
+                return;
+            }
 
             //Trigger registered listeners when a distributed cache entry is getting added.
             CacheEntry<K, V> value = distributedCache.get(key);
@@ -1096,7 +1099,15 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         }
 
         @Override
+        public void mapCleared() {
+            localCache.clear();
+        }
+
+        @Override
         public <X> void entryRemoved(X key) {
+            if (distributedCache == null) {
+                return;
+            }
 
             //Trigger registered listeners when a distributed cache entry is getting removed.
             CacheEntry<K, V> value = distributedCache.get(key);
@@ -1110,6 +1121,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryUpdated(X key) {
+            if (distributedCache == null) {
+                return;
+            }
 
             //Trigger registered listeners when a distributed cache entry is getting updated.
             CacheEntry<K, V> value = distributedCache.get(key);
@@ -1135,7 +1149,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryAdded(X key) {
-            if (!localCache.containsKey(key)) return;
+            if (!localCache.containsKey(key) || distributedTimestampMap == null) {
+                return;
+            }
             CacheEntry<K, V> value = localCache.get(key);
             if (value != null) {
             	Long timeStamp = distributedTimestampMap.get(key);
@@ -1153,7 +1169,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryUpdated(X key) {
-            if (!localCache.containsKey(key)) return;
+            if (!localCache.containsKey(key) || distributedTimestampMap == null) {
+                return;
+            }
             CacheEntry<K, V> value = localCache.get(key);
             if (value != null) {
             	Long timeStamp = distributedTimestampMap.get(key);
@@ -1163,6 +1181,11 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             		value.setLastAccessed(new Date().getTime());
             	}
             }
+        }
+
+        @Override
+        public void mapCleared() {
+            localCache.clear();
         }
     }
 }

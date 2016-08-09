@@ -31,8 +31,10 @@ import org.apache.axis2.transport.base.ManagementSupport;
 import org.apache.axis2.transport.base.MetricsCollector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.SessionContextUtil;
 
 import javax.xml.namespace.QName;
@@ -48,6 +50,8 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
 
     private static final String TRANSPORT_MANAGER =
             "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
+    private static final int DEFAULT_HTTP_PROXY_PORT = 80;
+    private static final int DEFAULT_HTTPS_PROXY_PORT = 443;
     private Class transportManagerClass;
     private Object transportManager;
     private String transport;
@@ -173,8 +177,18 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
         this.configurationContext = null;
     }
 
+    /**
+     * Returns the endpoint reference for a service.
+     *
+     * @param protocol The protocol used eg: http
+     * @param ip The IP for the service
+     * @param serviceContextPath The context path
+     * @param serviceName  The name of the service
+     * @return The end point reference
+     * @throws AxisFault Thrown in case of a socket exception
+     */
     protected EndpointReference genEpr(String protocol, String ip, String serviceContextPath,
-                                       String serviceName) throws AxisFault {
+            String serviceName) throws AxisFault {
         try {
             if (ip == null) {
                 ip = NetworkUtils.getLocalHostname();
@@ -183,7 +197,23 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
             String proxyContextPath = CarbonUtils.getProxyContextPath(true);
 
             String tmp = protocol + "://" + ip;
-            if (proxyPort == 80 || proxyPort == 443) {
+
+            String workerProxyPort = null;
+            if (ServerConstants.HTTP_TRANSPORT.equals(protocol)) {
+                workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpProxyPort");
+            } else if (ServerConstants.HTTPS_TRANSPORT.equals(protocol)) {
+                workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpsProxyPort");
+            }
+
+            if (workerProxyPort != null) {
+                int workerProxyPortParsed = Integer.parseInt(workerProxyPort.trim());
+                if (workerProxyPortParsed == DEFAULT_HTTP_PROXY_PORT ||
+                        workerProxyPortParsed == DEFAULT_HTTPS_PROXY_PORT) {
+                    tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
+                } else {
+                    tmp += ":" + workerProxyPortParsed + proxyContextPath + serviceContextPath + "/" + serviceName;
+                }
+            } else if (proxyPort == DEFAULT_HTTP_PROXY_PORT || proxyPort == DEFAULT_HTTPS_PROXY_PORT) {
                 tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
             } else if (proxyPort != -1) {
                 tmp += ":" + proxyPort + proxyContextPath + serviceContextPath + "/" + serviceName;

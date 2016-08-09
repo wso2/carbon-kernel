@@ -68,7 +68,7 @@ public class UserCoreConstants {
 
     public static final String SHARED_ROLE_TENANT_SEPERATOR = "@SharedRoleSeperator@";
 
-    public static final String NAME_COMBINER = "|";
+    public static final String NAME_COMBINER = "$_USERNAME_SEPARATOR_$";
 
     public static final String TENANT_DOMAIN_COMBINER = "@";
 

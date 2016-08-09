@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * Utilities for configuring services.
@@ -55,22 +56,37 @@ public final class ServiceConfigUtil {
     public static String getConfigFile() throws RegistryException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         if (carbonHome != null) {
-            OMElement omElement = null;
-            String configPath = CarbonUtils.getCarbonHome()+File.separator+"repository"+File.separator+"resources" + File.separator +"services-config.xml";
+            OMElement omElement;
+            InputStream stream = null;
+            String configuration = null;
+            String configPath =
+                    CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "resources"
+                            + File.separator + "services-config.xml";
 
             try {
                 File configFile = new File(configPath);
                 if (configFile.exists()) {
-                    InputStream stream = new FileInputStream(configFile);
+                    stream = new FileInputStream(configFile);
                     StAXOMBuilder builder = new StAXOMBuilder(stream);
                     omElement = builder.getDocumentElement();
+                    if (omElement != null) {
+                        configuration = omElement.toString();
+                    }
                 }
             } catch (FileNotFoundException e) {
                 log.error("The services configuration file was not found at: " + configPath);
             } catch (XMLStreamException e) {
                 log.error("The configuration file does not contain well formed XML", e);
+            } finally {
+                try {
+                    if (stream != null) {
+                        stream.close();
+                    }
+                } catch (IOException e) {
+                    log.error("Failed to close stream", e);
+                }
             }
-            return (omElement != null) ? omElement.toString() : null;
+            return configuration;
         } else {
             String msg = "carbon.home system property is not set. It is required to to derive " +
                     "the path of the Services configuration file (services-config.xml).";
@@ -136,22 +152,35 @@ public final class ServiceConfigUtil {
     public static String getConfigSchemaFile() throws RegistryException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         if (carbonHome != null) {
-            OMElement omElement = null;
+            OMElement omElement;
+            InputStream stream = null;
+            String configuration = null;
             String configPath = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                "services-config.xsd";
+                    "services-config.xsd";
             try {
                 File configFile = new File(configPath);
                 if (configFile.exists()) {
-                    InputStream stream = new FileInputStream(configFile);
+                    stream = new FileInputStream(configFile);
                     StAXOMBuilder builder = new StAXOMBuilder(stream);
                     omElement = builder.getDocumentElement();
+                    if (omElement != null) {
+                        configuration = omElement.toString();
+                    }
                 }
             } catch (FileNotFoundException e) {
                 log.error("The services configuration schema file was not found at: " + configPath);
             } catch (XMLStreamException e) {
                 log.error("The configuration schema file does not contain well formed XML", e);
+            } finally {
+                try {
+                    if (stream != null) {
+                        stream.close();
+                    }
+                } catch (IOException e) {
+                    log.error("Failed to close stream", e);
+                }
             }
-            return (omElement != null) ? omElement.toString() : null;
+            return configuration;
         } else {
             String msg = "carbon.home system property is not set. It is required to to derive " +
                     "the path of the Services configuration file (services-config.xml).";

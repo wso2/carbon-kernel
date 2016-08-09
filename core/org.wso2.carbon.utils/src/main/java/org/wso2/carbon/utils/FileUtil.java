@@ -21,7 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * 
+ *
  */
 public class FileUtil {
 
@@ -62,7 +62,7 @@ public class FileUtil {
             if (!destDir.mkdirs()) {
                 throw new IOException("Fail to create the file: " + destDir.getAbsolutePath());
             }
-            
+
             if (srcDir != null) {
                 try {
                     FileManipulator.copyDir(srcDir, destDir);
@@ -78,18 +78,16 @@ public class FileUtil {
         return replaceDir;
     }
 
-   public static String readFileToString(String path)
-        throws java.io.IOException{
-            StringBuffer fileContent = new StringBuffer(1000);
-            BufferedReader reader = new BufferedReader(
-                    new FileReader(path));
+    public static String readFileToString(String path) throws IOException {
+        StringBuffer fileContent = new StringBuffer(1000);
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             char[] buf = new char[1024];
             int numRead;
-            while((numRead=reader.read(buf)) != -1){
+            while ((numRead = reader.read(buf)) != -1) {
                 fileContent.append(buf, 0, numRead);
             }
-            reader.close();
-            return fileContent.toString();
         }
-    
+        return fileContent.toString();
+    }
+
 }

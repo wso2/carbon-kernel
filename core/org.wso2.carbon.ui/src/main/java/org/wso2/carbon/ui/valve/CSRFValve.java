@@ -21,25 +21,33 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class CSRFValve extends ValveBase {
+    private static final Log log = LogFactory.getLog(CSRFValve.class);
+    private static Log audit = CarbonConstants.AUDIT_LOG;
 
     private final static String REFERER_HEADER = "referer";
-    private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig";
+    private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig.CSRFValve";
     private final static String ENABLED_PROPERTY = CSRF_VALVE_PROPERTY + ".Enabled";
     private final static String WHITE_LIST_PROPERTY = CSRF_VALVE_PROPERTY + ".WhiteList.Url";
     private final static String RULE_PATTERN_PROPERTY = CSRF_VALVE_PROPERTY + ".Patterns.Pattern";
     private final static String RULE_PROPERTY = CSRF_VALVE_PROPERTY + ".Rule";
     private final static String RULE_ALLOW = "allow";
     private final static String RULE_DENY = "deny";
-    private static String[] patternList;
+    private final static String AJAXPROCESSOR_URL_PATTERN = "ajaxprocessor.jsp";
+    private final static String FINISHJSP_URL_PATTERN = "finish.jsp";
+    private static String[] csrfPatternList;
     private static String[] whiteList;
-    private static String rule;
+    private static String csrfRule;
     private static boolean csrfEnabled = false;
 
     /**
@@ -49,9 +57,9 @@ public class CSRFValve extends ValveBase {
 
         ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
         whiteList = serverConfiguration.getProperties(WHITE_LIST_PROPERTY);
-        patternList = serverConfiguration.getProperties(RULE_PATTERN_PROPERTY);
-        rule = serverConfiguration.getFirstProperty(RULE_PROPERTY);
-        if (whiteList.length > 0 && patternList.length > 0 && rule != null
+        csrfPatternList = serverConfiguration.getProperties(RULE_PATTERN_PROPERTY);
+        csrfRule = serverConfiguration.getFirstProperty(RULE_PROPERTY);
+        if (whiteList.length > 0 && csrfPatternList.length > 0 && csrfRule != null
                 && serverConfiguration.getFirstProperty(ENABLED_PROPERTY) != null && Boolean
                 .parseBoolean(serverConfiguration.getFirstProperty(ENABLED_PROPERTY))) {
             csrfEnabled = true;
@@ -68,7 +76,7 @@ public class CSRFValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         if (csrfEnabled) {
-            validatePatterns(request);
+            validatePatterns(request, response);
         }
         getNext().invoke(request, response);
 
@@ -76,38 +84,49 @@ public class CSRFValve extends ValveBase {
 
     /**
      * Validate request context with pattern
+     *
      * @param request  Http Request
-     * @throws javax.servlet.ServletException
+     * @param response Http response
+     * @throws ServletException
      */
-    private void validatePatterns(Request request) throws ServletException {
+    private void validatePatterns(Request request, Response response) throws ServletException {
 
-        String context;
+        String context = request.getRequestURI().substring(request.getRequestURI().indexOf("/") + 1);
 
-        if (request.getRequestURI().indexOf("/", 2) == -1) {
-            context = request.getRequestURI().substring(request.getRequestURI().indexOf("/") + 1);
-        } else {
-            context = request.getRequestURI()
-                    .substring(request.getRequestURI().indexOf("/") + 1, request.getRequestURI().indexOf(
-                            "/", 2));
-        }
-
-        if (RULE_ALLOW.equals(rule)) {
-            if (!Arrays.asList(patternList).contains(context)) {
-                validateRefererHeader(request);
-            }
-        } else if (RULE_DENY.equals(rule)) {
-            if (Arrays.asList(patternList).contains(context)) {
-                validateRefererHeader(request);
-            }
+        if (RULE_ALLOW.equals(csrfRule) && !isContextStartWithGivenPatterns(context)) {
+            validateRefererHeader(request, response);
+        } else if (RULE_DENY.equals(csrfRule) && isContextStartWithGivenPatterns(context)) {
+            validateRefererHeader(request, response);
         }
     }
 
     /**
-     * Validate referer header
-     * @param request Http Request
-     * @throws javax.servlet.ServletException
+     * Check whether context starts with defined pattern
+     *
+     * @param context
+     * @return
      */
-    private void validateRefererHeader(Request request) throws ServletException {
+    private boolean isContextStartWithGivenPatterns(String context) {
+
+        boolean patternMatched = false;
+
+        for (String pattern : csrfPatternList) {
+            if (context.startsWith(pattern)) {
+                patternMatched = true;
+                break;
+            }
+        }
+        return patternMatched;
+    }
+
+    /**
+     * Validate referer header
+     *
+     * @param request  Http Request
+     * @param response Http response
+     * @throws ServletException
+     */
+    private void validateRefererHeader(Request request, Response response) throws ServletException {
 
         String refererHeader = request.getHeader(REFERER_HEADER);
 
@@ -120,7 +139,24 @@ public class CSRFValve extends ValveBase {
                 }
             }
             if (!allow) {
-                throw new ServletException("Possible CSRF attack. Refer header : " + refererHeader);
+                String msg = "Possible CSRF attack. Refer header : " + refererHeader;
+                log.warn(msg);
+                audit.warn(msg);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                throw new ServletException(msg);
+            }
+        } else {
+            String requestURI = request.getRequestURI();
+            if (requestURI.contains(AJAXPROCESSOR_URL_PATTERN) || requestURI.contains(FINISHJSP_URL_PATTERN)) {
+                HttpSession currentSession = request.getSession(false);
+                if (currentSession != null) {
+                    currentSession.invalidate();
+                    String msg = "Possible CSRF attack. Request to '" + requestURI + "' does not have a Referer header";
+                    log.warn(msg);
+                    audit.warn(msg);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    throw new ServletException(msg);
+                }
             }
         }
     }

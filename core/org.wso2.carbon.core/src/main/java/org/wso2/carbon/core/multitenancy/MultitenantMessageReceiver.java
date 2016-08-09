@@ -149,6 +149,10 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
                     tenantResponseMsgCtx.setEnvelope(mainInMsgContext.getEnvelope());
 
+                    // We don't want this to happen in response flow when property is set only
+                    // for request flow. See ESBJAVA-4464 (due to TenantTransportSender bug)
+                    tenantResponseMsgCtx.removeProperty(MultitenantConstants.DISABLE_CHUNKING);
+
                     if (mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null) {
                         tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_PIPE,
                                 mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
@@ -434,9 +438,13 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             mainOutMsgContext.getAxisService().addSchema(tenantOutMsgContext.getAxisService().getSchema());
             mainOutMsgContext.setEnvelope(tenantOutMsgContext.getEnvelope());
 	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                  tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
-            AxisEngine.send(mainOutMsgContext);
-            mainOutMsgContext.getAxisService().getSchema().removeAll(tenantOutMsgContext.getAxisService().getSchema());
+                                      tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
+            try {
+                AxisEngine.send(mainOutMsgContext);
+            } finally {
+                mainOutMsgContext.getAxisService().getSchema()
+                                 .removeAll(tenantOutMsgContext.getAxisService().getSchema());
+            }
         }
     }
 
@@ -551,7 +559,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 //RESTUtil.processURLRequest(tenantInMsgCtx, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_POST) ||
-                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PUT)) {
+                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PUT) ||
+                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PATCH)) {
                 //RESTUtil.processXMLRequest(tenantInMsgCtx, in, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else {

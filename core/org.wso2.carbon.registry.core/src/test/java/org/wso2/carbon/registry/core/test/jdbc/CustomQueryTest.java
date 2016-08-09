@@ -202,10 +202,17 @@ public class CustomQueryTest  extends BaseTestCase {
         r1.setContent("r1x content");
         registry.put("/test/comments/r1x", r1);
 
-        registry.addComment("/test/comments/r1x", new Comment("commentXX1 on this resource :)"));
-        registry.addComment("/test/comments/r1x", new Comment("commentXX2 on this resource :)"));
-        registry.addComment("/test/comments/r1x", new Comment("commentXX3 on this resource :)"));
-        registry.addComment("/test/comments/r1x", new Comment("a new test comment"));
+        try {
+            registry.addComment("/test/comments/r1x", new Comment("commentXX1 on this resource :)"));
+            Thread.sleep(500);
+            registry.addComment("/test/comments/r1x", new Comment("commentXX2 on this resource :)"));
+            Thread.sleep(500);
+            registry.addComment("/test/comments/r1x", new Comment("commentXX3 on this resource :)"));
+            Thread.sleep(500);
+            registry.addComment("/test/comments/r1x", new Comment("a new test comment"));
+        } catch (InterruptedException e) {
+            throw new RegistryException("Error adding comments to resource", e);
+        }
 
         Resource comQuery = configSystemRegistry.newResource();
         String sql = "SELECT REG_COMMENT_ID FROM REG_COMMENT C, REG_RESOURCE_COMMENT RC " +

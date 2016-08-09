@@ -148,7 +148,9 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             if (carbonDumpProcess != null) {
                 carbonDumpProcess.destroy();
             }
-            br.close();
+            if (br != null) {
+                br.close();
+            }
         }
     }
 

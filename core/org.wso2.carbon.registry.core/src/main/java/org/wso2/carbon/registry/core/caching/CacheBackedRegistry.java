@@ -15,12 +15,24 @@
  */
 package org.wso2.carbon.registry.core.caching;
 
-import javax.cache.Cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
-import org.wso2.carbon.registry.core.*;
+import org.wso2.carbon.registry.core.ActionConstants;
+import org.wso2.carbon.registry.core.Aspect;
+import org.wso2.carbon.registry.core.Association;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Comment;
+import org.wso2.carbon.registry.core.LogEntry;
+import org.wso2.carbon.registry.core.LogEntryCollection;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.ResourcePath;
+import org.wso2.carbon.registry.core.Tag;
+import org.wso2.carbon.registry.core.TaggedResourcePath;
 import org.wso2.carbon.registry.core.config.DataBaseConfiguration;
 import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
@@ -33,10 +45,12 @@ import org.wso2.carbon.registry.core.utils.AuthorizationUtils;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.cache.Cache;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,11 +72,16 @@ public class CacheBackedRegistry implements Registry {
     private Map<String, String> pathMap =
             new HashMap<String, String>();
 
-    private static Cache<RegistryCacheKey, GhostResource> getCache() {
+    private static Cache<RegistryCacheKey, GhostResource> getDistributedCache() {
         return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_CACHE_BACKED_ID);
     }
 
+    private static Cache<RegistryCacheKey, GhostResource> getLocalCache() {
+        return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_LOCAL_CACHE_ID);
+    }
+
     private static final Log log = LogFactory.getLog(CacheBackedRegistry.class);
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
 
 
     public CacheBackedRegistry(Registry registry) {
@@ -153,14 +172,26 @@ public class CacheBackedRegistry implements Registry {
     @SuppressWarnings("unchecked")
     public Resource get(String path) throws RegistryException {
         if (registry.getRegistryContext().isNoCachePath(path) || isCommunityFeatureRequest(path)) {
-            return registry.get(path);
+            Resource resource = registry.get(path);
+            if (registry.getRegistryContext().isNoCachePath(path)) {
+                RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
+                Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
+                if (cache.get(registryCacheKey) != null) {
+                    GhostResource<Resource> ghostResource = new GhostResource<Resource>(resource);
+                    if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
+                            resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
+                        cache.put(registryCacheKey, ghostResource);
+                    }
+                }
+            }
+            return resource;
         }
         
         Resource resource;        
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
                     "read the resource " + path + ".";
-            log.warn(msg);
+            audit.warn(msg);
             throw new AuthorizationFailedException(msg);
         }
 
@@ -186,7 +217,7 @@ public class CacheBackedRegistry implements Registry {
 
         GhostResource<Resource> ghostResource;
         Object ghostResourceObject;
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         if ((ghostResourceObject = cache.get(registryCacheKey)) == null) {
             synchronized (path.intern()){
                 //Checking again as the some other previous thread might have updated the cache
@@ -216,8 +247,8 @@ public class CacheBackedRegistry implements Registry {
 
         RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path +
                 ";start=" + start + ";pageSize=" + pageSize);
-        
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         if (!cache.containsKey(registryCacheKey)) {
             synchronized (path.intern()) {
                 //check again to cache to validate whether any other thread have updated with that time.
@@ -240,15 +271,58 @@ public class CacheBackedRegistry implements Registry {
         return ghostResource;
     }
 
+    /**
+     * used to get the cache instance. Return distributed cache for mounted paths and
+     * returns local cache for non mounted paths
+     *
+     * @param path  cached resource path
+     *
+     * @return      cache instance
+     */
+    private Cache<RegistryCacheKey, GhostResource> getCache(String path) {
+        Cache<RegistryCacheKey, GhostResource> cache;
+        if (path != null && isResourcePathMounted(path)) {
+            cache = getDistributedCache();
+        } else {
+            cache = getLocalCache();
+        }
+        return cache;
+    }
+
+    /**
+     * This method is used to check if resource path is under subdirectory of mount paths
+     *
+     * @param path  path of the resource
+     *
+     * @return      true if path is a subdirectory of mount paths.
+     */
+    private boolean isResourcePathMounted(String path) {
+        RegistryContext registryContext = RegistryContext.getBaseInstance();
+        List<Mount> mounts = registryContext.getMounts();
+        for (Mount mount : mounts) {
+            if (path.startsWith(mount.getPath())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     public Collection get(String path, int start, int pageSize) throws RegistryException {
         if (registry.getRegistryContext().isNoCachePath(path) || isCommunityFeatureRequest(path)) {
-            return registry.get(path, start, pageSize);
+            Collection collection = registry.get(path, start, pageSize);
+            if (registry.getRegistryContext().isNoCachePath(path)) {
+                GhostResource<Resource> ghostResource = getGhostCollectionFromCache(path, start, pageSize);
+                if (ghostResource != null && collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
+                    ghostResource.setResource(collection);
+                }
+            }
+            return collection;
         }
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
                     "read the resource " + path + ".";
-            log.warn(msg);
+            audit.warn(msg);
             throw new AuthorizationFailedException(msg);
         }
 
@@ -284,9 +358,18 @@ public class CacheBackedRegistry implements Registry {
 
     public boolean resourceExists(String path) throws RegistryException {
         if (registry.getRegistryContext().isNoCachePath(path)) {
-            return registry.resourceExists(path);
+            boolean isResourceExists = registry.resourceExists(path);
+            if (isResourceExists) {
+                Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
+                RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
+                if (cache.containsKey(registryCacheKey) && cache.get(registryCacheKey) != null) {
+                    cache.put(registryCacheKey, new GhostResource<Resource>(null));
+                }
+            }
+            return isResourceExists;
         }
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
         if (cache.containsKey(registryCacheKey)) {
             return true;

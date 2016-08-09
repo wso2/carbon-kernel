@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.2-SNAPSHOT</version>
+        <version>4.4.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -106,7 +106,6 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.xml.stream.*; version="1.0.1",
                             org.pdfbox.*,
-                            org.apache.poi.*,
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.lucene.*,
                             org.apache.commons.io.*; version="0.0.0",
@@ -339,6 +338,34 @@
                             </excludes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>test-set8</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <forkMode>pertest</forkMode>
+                            <argLine>-enableassertions</argLine>
+                            <testFailureIgnore>false</testFailureIgnore>
+                            <reportsDirectory>${project.build.directory}/surefire-reports-8</reportsDirectory>
+                            <systemProperties>
+                                <property>
+                                    <name>registry.config</name>
+                                    <value>registry8.xml</value>
+                                </property>
+                            </systemProperties>
+                            <excludes>
+                                <exclude>**/BaseTestCase.java</exclude>
+                                <exclude>**/CustomQueryTest.java</exclude>
+                                <exclude>**/VersionHandlingTest.java</exclude>
+                                <exclude>**/StaticConfigurationFalseTest.java</exclude>
+                                <exclude>**/StaticConfigurationTrueTest.java</exclude>
+                                <exclude>**/BasicPerformanceTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -502,11 +529,7 @@
             <version>${jdbc-pool.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.poi.wso2</groupId>
-            <artifactId>poi-scratchpad</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient.wso2</groupId>
+            <groupId>org.wso2.orbit.commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
         <dependency>

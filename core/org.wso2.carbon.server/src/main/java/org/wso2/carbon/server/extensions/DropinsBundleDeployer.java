@@ -25,8 +25,17 @@ import org.wso2.carbon.server.util.BundleInfoLine;
 import org.wso2.carbon.server.util.FileUtils;
 import org.wso2.carbon.server.util.Utils;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.jar.JarFile;
 
 /**
@@ -92,34 +101,36 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
         ArrayList<BundleInfoLine> bundleInfoArray = new ArrayList<BundleInfoLine>();
 
         for (File file : bundleFileList) {
-            JarFile jarFile = new JarFile(file.getAbsoluteFile());
-            if (jarFile.getManifest() == null || jarFile.getManifest().getMainAttributes() == null) {
-                log.error("Invalid Bundle found in the dropins directory: " + file.getName());
-                continue;
+            try (JarFile jarFile = new JarFile(file.getAbsoluteFile())) {
+                if (jarFile.getManifest() == null || jarFile.getManifest().getMainAttributes() == null) {
+                    log.error("Invalid Bundle found in the dropins directory: " + file.getName());
+                    continue;
+                }
+
+                String bundleSymbolicName = jarFile.getManifest().getMainAttributes().
+                        getValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME);
+                String bundleVersion = jarFile.getManifest().getMainAttributes().
+                        getValue(LauncherConstants.BUNDLE_VERSION);
+
+                if (bundleSymbolicName == null || bundleVersion == null) {
+                    log.error("Required Bundle manifest headers do not exists: " + file.getAbsoluteFile());
+                    continue;
+                } else {
+                    //BSN can have values like, Bundle-SymbolicName: com.example.acme;singleton:=true
+                    // refer - http://wiki.osgi.org/wiki/Bundle-SymbolicName for more details
+                    if (bundleSymbolicName.contains(";")) {
+                        bundleSymbolicName = bundleSymbolicName.split(";")[0];
+                    }
+                }
+
+                //Checking whether this bundle is a fragment or not.
+                boolean isFragment = jarFile.getManifest().getMainAttributes().
+                        getValue(LauncherConstants.FRAGMENT_HOST) != null;
+
+                bundleInfoArray
+                        .add(new BundleInfoLine(bundleSymbolicName, bundleVersion, "../dropins/" + file.getName(), 4,
+                                                isFragment));
             }
-
-            String bundleSymbolicName = jarFile.getManifest().getMainAttributes().
-                    getValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME);
-	        String bundleVersion = jarFile.getManifest().getMainAttributes().
-			        getValue(LauncherConstants.BUNDLE_VERSION);
-
-            if (bundleSymbolicName == null || bundleVersion == null) {
-                log.error("Required Bundle manifest headers do not exists: " + file.getAbsoluteFile());
-                continue;
-            } else {
-	            //BSN can have values like, Bundle-SymbolicName: com.example.acme;singleton:=true
-	            // refer - http://wiki.osgi.org/wiki/Bundle-SymbolicName for more details
-	            if (bundleSymbolicName.contains(";")) {
-		            bundleSymbolicName = bundleSymbolicName.split(";")[0];
-	            }
-            }
-
-            //Checking whether this bundle is a fragment or not.
-            boolean isFragment = jarFile.getManifest().getMainAttributes().
-                    getValue(LauncherConstants.FRAGMENT_HOST) != null;
-
-            bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion,
-                    "../dropins/" + file.getName(), 4, isFragment));
         }
         return bundleInfoArray.toArray(new BundleInfoLine[bundleInfoArray.size()]);
     }

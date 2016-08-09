@@ -487,9 +487,9 @@ public class JDBCTagsVersionDAO extends JDBCTagsDAO implements TagsDAO {
             int i;
             for (i = 0; i < tags.length; i++) {
                 if (tags[i] == null) {
-                    s.setString(1, tags[i]);
+                    s.setString(i + 1 , tags[i]);
                 } else {
-                    s.setString(1, tags[i].toLowerCase());
+                    s.setString(i + 1 , tags[i].toLowerCase());
                 }
             }
             s.setInt(i + 1, CurrentSession.getTenantId());
@@ -653,12 +653,6 @@ public class JDBCTagsVersionDAO extends JDBCTagsDAO implements TagsDAO {
                             "T.REG_TENANT_ID=? AND RT.REG_TENANT_ID=? " +
                             "GROUP BY T.REG_TAG_NAME";
 
-            if(paginated){
-                if (!"".equals(sortBy) && !"".equals(sortOrder)) {
-                    sql = sql + " ORDER BY " + sortBy + " " + sortOrder;
-
-                }
-            }
             if (enableApiPagination == null || enableApiPagination.equals("true")) {
                 // TYPE_SCROLL_INSENSITIVE and CONCUR_UPDATABLE should be set to move the cursor through the resultSet
                 ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);

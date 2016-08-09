@@ -36,6 +36,7 @@ public class JVMValidator extends ConfigurationValidator {
 	public static final String INIT_HEAP_MEMORY_PARAM = "initHeapSize";
 	public static final String MAX_HEAP_MEMORY_PARAM = "maxHeapSize";
 	public static final String MAX_PERMGEN_SIZE_PARAM = "maxPermGenSize";
+	private static final String JAVA_VERSION = "java.version";
 
 	@Override
 	public Map<String, ValidationResult> validate() {
@@ -117,7 +118,8 @@ public class JVMValidator extends ConfigurationValidator {
 		ValidationResult result = new ValidationResult();
 		String msg = null;
 		boolean isValid;
-		if (maxPermSize >= minReq) {
+		// kernel is supposed to be run with java1.7 and above and max perm gen size is invalid from java 1.8 onwards.
+		if (maxPermSize >= minReq || !"1.7".equals(getJavaVersion())) {
 			isValid = true;
 		} else {
 			msg =
@@ -202,5 +204,16 @@ public class JVMValidator extends ConfigurationValidator {
 			}
 		}
 		return permGenSize;
+	}
+
+
+	/**
+	 * Returns the major version of java.
+	 *
+	 * @return major version of java
+	 */
+	private String getJavaVersion() {
+		String javaVersion = System.getProperty(JAVA_VERSION);
+		return javaVersion.substring(0, javaVersion.lastIndexOf("."));
 	}
 }

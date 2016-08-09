@@ -27,6 +27,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -104,10 +105,10 @@ public class RegistryConfiguration {
      * @throws RegistryException throws if the construction failed
      */
     public RegistryConfiguration(String carbonXMLPath) throws RegistryException {
-
+        InputStream inSXml = null;
         try {
             File carbonXML = new File(carbonXMLPath);
-            InputStream inSXml = new FileInputStream(carbonXML);
+            inSXml = new FileInputStream(carbonXML);
             OMElement config = new StAXOMBuilder(inSXml).getDocumentElement();
 
             OMElement registryConfig = config.getFirstChildWithName(new QName(
@@ -133,6 +134,14 @@ public class RegistryConfiguration {
 
         } catch (Exception e) {
             throw new RegistryException("Error occurred while initialization", e);
+        } finally {
+            if (inSXml != null) {
+                try {
+                    inSXml.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+            }
         }
     }
 

@@ -187,8 +187,17 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
             throw new RegistryException(msg, e);
         }
 
-        String content = byteOut.toString();
-        resource.setContent(content);
+        try {
+            String content = byteOut.toString();
+            resource.setContent(content);
+        } finally {
+                try {
+                    byteOut.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+
+        }
 
         return resource;
     }
@@ -227,8 +236,17 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
             throw new RegistryException(msg, e);
         }
 
-        String content = byteOut.toString();
-        resource.setContent(content);
+        try {
+            String content = byteOut.toString();
+            resource.setContent(content);
+        } finally {
+                try {
+                    byteOut.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+
+        }
 
         return resource;
     }
@@ -254,10 +272,20 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
             throw new RegistryException(msg);
         }
 
-        String content = streamToString(htmlStream);
+        Resource resource;
+        try {
+            String content = streamToString(htmlStream);
 
-        Resource resource = requestContext.getRegistry().newResource();
-        resource.setContent(content);
+            resource = requestContext.getRegistry().newResource();
+            resource.setContent(content);
+        } finally {
+                try {
+                    htmlStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+
+        }
 
         return resource;
     }
@@ -273,19 +301,24 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
             log.error(msg);
             throw new RegistryException(msg);
         }
-
+        Transformer transformer;
         try {
-            Transformer transformer =
-                    transformerFactory.newTransformer(new StreamSource(xsltStream));
+            transformer = transformerFactory.newTransformer(new StreamSource(xsltStream));
 
-            return transformer;
 
         } catch (TransformerConfigurationException e) {
             String msg = "Failed to create XSLT transformer for the XSLT file " + xsltPath +
                     " while generating custom UI. " + e.getMessage();
             log.error(msg, e);
             throw new RegistryException(msg, e);
+        } finally {
+                try {
+                    xsltStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
         }
+        return transformer;
     }
 
     private String streamToString(InputStream inputStream) throws RegistryException {

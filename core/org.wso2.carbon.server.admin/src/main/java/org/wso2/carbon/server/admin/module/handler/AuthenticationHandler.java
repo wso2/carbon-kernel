@@ -77,14 +77,23 @@ public class AuthenticationHandler extends AbstractHandler {
             (HttpServletRequest) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         HttpSession session;
         if (request != null && (session = request.getSession(false)) != null) {
-            String domain = (String) session.getAttribute(MultitenantConstants.TENANT_DOMAIN);
-            if (domain != null) {
-                msgContext.setProperty(MultitenantConstants.TENANT_DOMAIN, domain);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(domain);
+            String userTenantDomain = (String) session.getAttribute(MultitenantConstants.TENANT_DOMAIN);
+            String userName = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
+            if (userTenantDomain != null) {
+                String currentTenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                if (currentTenantDomain != null
+                        && !currentTenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)
+                        && !userTenantDomain.equals(currentTenantDomain)) {
+                    String msg = "Access Denied. A user " + userName + "@" + userTenantDomain +
+                            " is trying to access services in domain " + currentTenantDomain;
+                    audit.error(msg);
+                    throw new AxisFault(msg, ServerConstants.AUTHENTICATION_FAULT_CODE);
+                }
+                msgContext.setProperty(MultitenantConstants.TENANT_DOMAIN, userTenantDomain);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(userTenantDomain);
             }
-            String username = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
-            if(username != null){
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(username);
+            if (userName != null) {
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(userName);
             }
         }
 

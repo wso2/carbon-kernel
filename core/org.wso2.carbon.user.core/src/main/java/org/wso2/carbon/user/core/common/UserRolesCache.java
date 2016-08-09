@@ -1,3 +1,4 @@
+
 /*
 *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -19,7 +20,11 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -29,6 +34,7 @@ public class UserRolesCache {
 
     private static final String USER_ROLES_CACHE_MANAGER = "USER_ROLES_CACHE_MANAGER";
     private static final String USER_ROLES_CACHE = "USER_ROLES_CACHE";
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static Log log = LogFactory.getLog(UserRolesCache.class);
     private static UserRolesCache userRolesCache = new UserRolesCache();
 
@@ -88,6 +94,9 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return;
         }
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         //create cache entry
@@ -105,10 +114,18 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return new String[0];
         }
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         //search cache and get cache entry
         UserRolesCacheEntry userRolesCacheEntry = cache.get(userRolesCacheKey);
+
+        if (userRolesCacheEntry == null) {
+            return new String[0];
+        }
+
         return userRolesCacheEntry.getUserRolesList();
     }
 
@@ -131,15 +148,61 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return;
         }
+
+        boolean caseSensitiveUsername = isCaseSensitiveUsername(userName, tenantId);
+        if (!caseSensitiveUsername) {
+            userName = userName.toLowerCase();
+        }
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         if (cache.containsKey(userRolesCacheKey)) {
             cache.remove(userRolesCacheKey);
         }
+
+        String userNameWithCacheIdentifier = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName;
+
         // creating new key for isUserHasRole cache.
-        userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId,
-                UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName);
+        if(!caseSensitiveUsername) {
+            userNameWithCacheIdentifier = userNameWithCacheIdentifier.toLowerCase();
+        }
+
+        userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userNameWithCacheIdentifier);
         if (cache.containsKey(userRolesCacheKey)) {
             cache.remove(userRolesCacheKey);
         }
+    }
+
+
+    private boolean isCaseSensitiveUsername(String username, int tenantId) {
+
+        if (UserStoreMgtDSComponent.getRealmService() != null) {
+            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+            //as an example when running the unit tests.
+            try {
+                if (UserStoreMgtDSComponent.getRealmService().getTenantUserRealm(tenantId) != null) {
+                    UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                            .getTenantUserRealm(tenantId).getUserStoreManager();
+                    UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                            (removeUserInRoleIdentifier(UserCoreUtil.extractDomainFromName(username)));
+                    String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                            .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+
+                }
+
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+                }
+            }
+        }
+        return true;
+    }
+
+    private String removeUserInRoleIdentifier(String modifiedName) {
+        String originalName = modifiedName;
+        if (originalName.contains(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER)) {
+            originalName = modifiedName.replace(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER, "");
+        }
+        return originalName;
     }
 }

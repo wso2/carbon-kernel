@@ -18,6 +18,9 @@
 package org.wso2.carbon.user.core.authorization;
 
 
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -103,7 +106,7 @@ public class TreeNode {
      * @return Boolean.TRUE if authorized, Boolean.FALSE if not
      */
     public Boolean isRoleAuthorized(String role, Permission permission) {
-        BitSet bsAlow = roleAllowPermissions.get(role);
+        BitSet bsAlow = roleAllowPermissions.get(modify(role));
         BitSet bsDeny = roleDenyPermissions.get(role);
         if (bsAlow == null && bsDeny == null) {
             return null;
@@ -145,11 +148,11 @@ public class TreeNode {
      * @param permission the permission granted
      */
     public void authorizeRole(String role, Permission permission) {
-        BitSet bsAllow = roleAllowPermissions.get(role);
+        BitSet bsAllow = roleAllowPermissions.get(modify(role));
         if (bsAllow == null) {
             bsAllow = new BitSet();
             bsAllow.set(permission.ordinal());
-            roleAllowPermissions.put(role, bsAllow);
+            roleAllowPermissions.put(modify(role), bsAllow);
         } else {
             bsAllow.set(permission.ordinal());
         }
@@ -198,7 +201,7 @@ public class TreeNode {
             bsDeny.set(permission.ordinal());
         }
 
-        BitSet bsAllow = roleAllowPermissions.get(role);
+        BitSet bsAllow = roleAllowPermissions.get(modify(role));
         if (bsAllow != null) {
             bsAllow.clear(permission.ordinal());
         }
@@ -302,4 +305,13 @@ public class TreeNode {
         SQS_SEND_MESSAGE, SQS_RECEIVE_MESSAGE, SQS_DELETE_MESSAGE, SQS_CHANGE_MESSAGE_VISIBILITY, SQS_GET_QUEUE_ATTRIBUTES
     }
 
+    private String modify(String name) {
+        if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            return name;
+        }
+        String domain = UserCoreUtil.extractDomainFromName(name);
+        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(name);
+        String modifiedName = UserCoreUtil.addDomainToName(nameWithoutDomain, domain.toUpperCase());
+        return modifiedName;
+    }
 }

@@ -28,6 +28,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
@@ -226,7 +227,7 @@ public class Breadcrumb extends BodyTagSupport {
 		}
 
         content.append("<script type=\"text/javascript\">\n");
-        content.append("    setCookie('current-breadcrumb', '"+cookieContent+"');\n");
+        content.append("    setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent) + "');\n");
         content.append("    document.onload=setBreadcrumDiv();\n");
 		content.append("    function setBreadcrumDiv () {\n");
 		content.append("        var breadcrumbDiv = document.getElementById('breadcrumb-div');\n");

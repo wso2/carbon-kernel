@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
@@ -311,7 +312,16 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
 
            // Renaming Role
            admin.updateRoleName("role4", "role5");
-           
+
+        try {
+            // updating to invalid role name
+            admin.updateRoleName("role5", "role@12#$");
+            fail("Able to rename role with invalid characters");
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Expected error, hence ignored", e);
+            }
+        }
 
            String[] rolesOfSaman = admin.getRoleListOfUser("saman");
            assertEquals(3, rolesOfSaman.length);
@@ -645,8 +655,12 @@ public void doClaimStuff() throws Exception {
         String value = usWriter.getUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);
         assertEquals("claim1default",value);
         //Non existing user
-        String value1 = usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
-        assertEquals(null, value1);
+        try {
+            usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
+        } catch ( UserStoreException e ) {
+            // contains the 'UserNotFound' error code in the error.
+            assertTrue(e.getMessage().contains("UserNotFound"));
+        }
         // update default
         usWriter.setUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, "dimzi lee", null);
         value = usWriter.getUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);

@@ -25,6 +25,14 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%
+
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+    
     String repositoryURL = CharacterEncoder.getSafeText(request.getParameter("repoURL"));
     String nickName = CharacterEncoder.getSafeText(request.getParameter("nickName"));
 

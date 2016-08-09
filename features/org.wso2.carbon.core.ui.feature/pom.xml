@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.4.2-SNAPSHOT</version>
+        <version>4.4.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -67,6 +67,7 @@
                                 <bundleDef>org.ajaxtags.wso2:ajaxtags:${version.sourceforge.ajaxtags}</bundleDef>
                                 <bundleDef>javax.servlet.jsp.jstl.wso2:jstl:${orbit.version.jstl}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.owasp.encoder:encoder:${orbit.version.encoder}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.owasp:csrfguard:${orbit.version.csrfguard}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

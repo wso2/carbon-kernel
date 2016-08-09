@@ -22,6 +22,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
+import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -49,6 +50,9 @@ public class PermissionTest extends BaseTestCase {
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         checkPermission();
+        checkCamelCasePermissionsForRole();
+        checkCamelCasePermissionsForRoleAfterClearAuthorization();
+        checkPrimaryRolePermissionAfterDeletingInternalRole();
     }
 
     public void initRealmStuff() throws Exception {
@@ -127,7 +131,61 @@ public class PermissionTest extends BaseTestCase {
         assertFalse(authManager.isRoleAuthorized(EVERYONE_ROLE, "/top/wso2/bizzness", "read"));
         assertFalse(authManager.isUserAuthorized("dimuthu", "/top/wso2/bizzness", "read"));
     }
-    
-    
+
+    /**
+     * Check role authorization for permissions with camel case resource names.
+     * @throws Exception
+     */
+    public void checkCamelCasePermissionsForRole() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        userStoreManager.addRole("roleA", null, null);
+        authManager.authorizeRole("roleA", "/top/wso2/Bizzness", "read");
+
+        assertTrue(authManager.isRoleAuthorized("roleA", "/top/wso2/Bizzness", "read"));
+    }
+
+    /**
+     * Check role authorization after clearing the role authorization for permissions with camel case resource name.
+     * @throws Exception
+     */
+    public void checkCamelCasePermissionsForRoleAfterClearAuthorization() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        userStoreManager.addRole("roleB", null, null);
+        authManager.authorizeRole("roleB", "/top/wso2/Bizzness", "read");
+        authManager.clearRoleAuthorization("roleB", "/top/wso2/Bizzness" ,"read");
+
+        assertFalse(authManager.isRoleAuthorized("roleB", "/top/wso2/bizzness", "read"));
+    }
+
+    /**
+     * Check permissions of the primary-Role after subsequently deleting the
+     * internal role with the same name.
+     *
+     * @throws Exception
+     */
+    public void checkPrimaryRolePermissionAfterDeletingInternalRole() throws Exception {
+
+        AuthorizationManager authManager = realm.getAuthorizationManager();
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+        Permission[] primaryRolepermissions = new Permission[2];
+        primaryRolepermissions[0] = new Permission("high security", "read");
+        primaryRolepermissions[1] = new Permission("low security", "write");
+
+        Permission[] internalRolePermissions = new Permission[1];
+        internalRolePermissions[0] = new Permission("low security", "read");
+
+        userStoreManager.addRole("roleK", null, primaryRolepermissions);
+        userStoreManager.addRole("Internal/roleK", null, internalRolePermissions);
+
+        userStoreManager.deleteRole("Internal/roleK");
+        assertTrue(authManager.isRoleAuthorized("roleK", "high security", "read"));
+    }
 
 }

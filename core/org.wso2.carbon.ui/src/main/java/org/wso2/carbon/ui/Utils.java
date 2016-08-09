@@ -68,17 +68,16 @@ public class Utils {
                         new File(targetLocation, aChildren));
             }
         } else {
-            InputStream in = new FileInputStream(sourceLocation);
-            OutputStream out = new FileOutputStream(targetLocation);
+            try (InputStream in = new FileInputStream(sourceLocation);
+                 OutputStream out = new FileOutputStream(targetLocation);) {
 
-            // Copy the bits from instream to outstream
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
             }
-            in.close();
-            out.close();
         }
     }
 
@@ -93,9 +92,8 @@ public class Utils {
      */
     public static void deployZipFile(File zipFileLocation, File targetLocation)
             throws CarbonException {
-        try {
+        try (JarFile jarFile = new JarFile(zipFileLocation)) {
             SortedSet<String> dirsMade = new TreeSet<String>();
-            JarFile jarFile = new JarFile(zipFileLocation);
             Enumeration all = jarFile.entries();
             while (all.hasMoreElements()) {
                 getFile((ZipEntry) all.nextElement(), jarFile, targetLocation, dirsMade);
@@ -161,14 +159,13 @@ public class Utils {
             log.debug("Deploying " + zipName);
         }
         File file = new File(targetLocation, zipName);
-        FileOutputStream os = new FileOutputStream(file);
-        InputStream is = zippy.getInputStream(e);
-        int n;
-        while ((n = is.read(b)) > 0) {
-            os.write(b, 0, n);
+        try (FileOutputStream os = new FileOutputStream(file);
+             InputStream is = zippy.getInputStream(e)) {
+            int n;
+            while ((n = is.read(b)) > 0) {
+                os.write(b, 0, n);
+            }
         }
-        is.close();
-        os.close();
     }
 
     /**

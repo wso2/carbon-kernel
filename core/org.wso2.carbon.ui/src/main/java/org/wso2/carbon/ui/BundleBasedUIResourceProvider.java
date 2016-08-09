@@ -20,8 +20,15 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.wso2.carbon.ui.util.UIResourceProvider;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class BundleBasedUIResourceProvider implements UIResourceProvider {
 
@@ -54,13 +61,12 @@ public class BundleBasedUIResourceProvider implements UIResourceProvider {
         String resourcePath = CarbonUIUtil.getBundleResourcePath(name);
         Bundle resourceBundle = bundleResourceMap.get(resourcePath);
         if (resourceBundle != null) {
-            Enumeration entryPaths = resourceBundle.findEntries(path, file, false);
-            /* Enumeration entryPaths = null;
- 	try { 
- 	     entryPaths = resourceBundle.getResources(path + File.separator + file); 
- 	} catch (IOException ignored) { 
- 	     log.error(ignored.getMessage(), ignored); 
- 	}*/
+            Enumeration entryPaths = null;
+            try {
+                entryPaths = resourceBundle.getResources(path + "/" + file);
+            } catch (IOException ignored) {
+                log.error(ignored.getMessage(), ignored);
+            }
             if (entryPaths != null && entryPaths.hasMoreElements()) {
                 return (URL) entryPaths.nextElement();
             }

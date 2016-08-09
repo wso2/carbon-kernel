@@ -30,6 +30,14 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
+
+    String httpMethod = request.getMethod().toLowerCase();
+
+    if (!"post".equals(httpMethod)) {
+        response.sendError(405);
+        return;
+    }
+    
     String queryType = CharacterEncoder.getSafeText(request.getParameter("queryType"));
     String filterStr = CharacterEncoder.getSafeText(request.getParameter("filterStr"));
     String filterType=CharacterEncoder.getSafeText(request.getParameter("filterType"));  // filter Type : ALL / FRONT_END or BACK-END

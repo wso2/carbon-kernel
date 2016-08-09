@@ -212,26 +212,40 @@ public class CheckOutCommand {
                     new String[]{"path: " + checkOutPath, "username: " + username});
         }
 
+        ZipOutputStream zos = null;
+        Writer zipWriter = null;
         try {
             // we don't care what is dumping..
             // doing the dump
-            ZipOutputStream zos = new
-                    ZipOutputStream(new FileOutputStream(outputFile));
+            zos = new ZipOutputStream(new FileOutputStream(outputFile));
             ZipEntry ze = new ZipEntry(outputXml);
             ze.setMethod(ZipEntry.DEFLATED);
             zos.putNextEntry(ze);
 
-
-            Writer zipWriter = new OutputStreamWriter(zos);
+            zipWriter = new OutputStreamWriter(zos);
 
             log.debug("Starting to do registry 'dumpToFile' for : " + checkOutPath + " with : " + outputXml);
             registry.dumpLite(checkOutPath, zipWriter);
             log.debug("Registry 'dumpToFile' completed for : " + checkOutPath + " in : " + outputXml);
 
-            zos.close();
         } catch (Exception e) {
             throw new SynchronizationException(MessageCode.ERROR_IN_DUMPING, e,
                     new String[]{"path: " + checkOutPath, "username: " + username});
+        } finally {
+            if (zipWriter != null) {
+                try {
+                    zipWriter.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+            }
+            if (zos != null) {
+                try {
+                    zos.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+            }
         }
 
         if (cleanRegistry && registryUrl == null) {

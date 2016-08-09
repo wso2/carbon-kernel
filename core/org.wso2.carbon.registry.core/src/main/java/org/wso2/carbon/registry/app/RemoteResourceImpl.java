@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.registry.app;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -35,6 +37,7 @@ public class RemoteResourceImpl extends ResourceImpl {
 
     private URL contentURL;
     private String authorizationString;
+    private static final Log log = LogFactory.getLog(RemoteResourceImpl.class);
 
     /**
      * Method to set to content url.
@@ -84,26 +87,44 @@ public class RemoteResourceImpl extends ResourceImpl {
         }
 
         if(!contentModified){
+            InputStream is = null;
+            ByteArrayOutputStream os = null;
             try {
 
-                InputStream is = getContentStreamFromURL();
+                is = getContentStreamFromURL();
 
                 if (is == null) {
                     return null;
                 }
 
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                os = new ByteArrayOutputStream();
                 int nextChar;
                 while ((nextChar = is.read()) != -1) {
                     os.write(nextChar);
                 }
                 os.flush();
                 content = os.toByteArray();
-                return content;
+
 
             } catch (Exception e) {
                 throw new RegistryException("Couldn't get content stream", e);
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        log.error("Failed to close content stream", e);
+                    }
+                }
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        log.error("Failed to close content stream", e);
+                    }
+                }
             }
+            return content;
         }
         return null;
 

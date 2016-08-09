@@ -31,6 +31,8 @@
             <!-- TODO: https://wso2.org/jira/browse/CARBON-15314 -->
             <!-- <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> -->
             <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
+            <!--<class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastConfigTestCase"/>-->
+            <!--<class name="org.wso2.carbon.integration.tests.patching.CARBON15878HazelcastAxis2ConfigTestCase"/>-->
         </classes>
     </test>
 
@@ -63,6 +65,20 @@
     <test name="Jira-Fixes" preserve-order="true" parallel="false" >
         <classes>
             <class name="org.wso2.carbon.integration.tests.jira.issues.test.CARBON15322SkipLoginPageTestCase" />
+            <!--<class name="org.wso2.carbon.integration.tests.jira.issues.test.CARBON15898TmpDirectoryCleaningTestCase" />-->
+        </classes>
+    </test>
+
+    <test name="Symmetric-Encryption" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.encryption.SymmetricEncryptionTestCase"/>
+        </classes>
+    </test>
+
+    <test name="logging-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.logging.LoggingWithUUIDTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.logging.CARBON15185MaxPermGenSpaceWarningTestCase"/>
         </classes>
     </test>
 

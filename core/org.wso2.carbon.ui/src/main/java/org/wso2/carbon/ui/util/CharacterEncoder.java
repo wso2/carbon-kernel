@@ -33,11 +33,8 @@ public class CharacterEncoder {
         if (text.indexOf('>') > -1) {
             text = text.replace(">", "&gt;");
         }
-        if(text.contains("'")){
-            text = text.replace("'", "&#x27;");
-        }
-        if(text.contains("&")){
-            text = text.replace("&", "&amp;");
+        if(text.contains("\"")){
+            text = text.replace("\"", "&quot;");
         }
         return text;
     }

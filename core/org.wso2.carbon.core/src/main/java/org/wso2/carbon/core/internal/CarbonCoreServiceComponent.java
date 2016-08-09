@@ -31,7 +31,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
-import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
+import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
@@ -86,7 +86,10 @@ public class CarbonCoreServiceComponent {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
-            ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
+            ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(),
+                    new DeploymentServerStartupObserver(), null) ;
+            SymmetricEncryption encryption = SymmetricEncryption.getInstance();
+            encryption.generateSymmetricKey();
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {

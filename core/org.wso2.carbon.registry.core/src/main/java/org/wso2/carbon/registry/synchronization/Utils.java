@@ -1160,10 +1160,20 @@ public class Utils {
         boolean sameContent = false;
         if(!isDirectory && metaFile.exists()){
             OMElement metaElement;
+            FileInputStream fileInputStream = null;
             try {
-                metaElement = new StAXOMBuilder(new FileInputStream(metaFile)).getDocumentElement();
+                fileInputStream = new FileInputStream(metaFile);
+                metaElement = new StAXOMBuilder(fileInputStream).getDocumentElement();
             } catch (Exception e) {
                 throw new SynchronizationException(MessageCode.RESOURCE_METADATA_CORRUPTED, e);
+            } finally {
+                if (fileInputStream != null) {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        log.error("Failed to close the stream", e);
+                    }
+                }
             }
             OMAttribute md5Attribute =  metaElement.getAttribute(new QName("md5"));
 
@@ -1443,9 +1453,11 @@ public class Utils {
         String registryUrl = null;
         String metaFile = Utils.getMetaFilePath(path);
         File file = new File(metaFile);
+        FileInputStream fileInputStream = null;
         String pathAttribute;
         try {
-            OMElement resourceElement = new StAXOMBuilder(new FileInputStream(file)).getDocumentElement();
+            fileInputStream = new FileInputStream(file);
+            OMElement resourceElement = new StAXOMBuilder(fileInputStream).getDocumentElement();
             pathAttribute = resourceElement.getAttribute(new QName("path")).getAttributeValue();
             OMAttribute registryUrlAttr;
             if((registryUrlAttr = resourceElement.getAttribute(new QName("registryUrl")) ) != null){
@@ -1455,6 +1467,14 @@ public class Utils {
             throw new SynchronizationException(MessageCode.CURRENT_COLLECTION_NOT_UNDER_REGISTRY_CONTROL);
         } catch (Exception e) {
             throw new SynchronizationException(MessageCode.RESOURCE_METADATA_CORRUPTED);
+        } finally {
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+            }
         }
         addResourceMetadataRecursively(path, pathAttribute, registryUrl, true);
     }
@@ -1584,9 +1604,11 @@ public class Utils {
     private static void setDelete(String metaFilePath) throws SynchronizationException {
         File metaFile = new File(metaFilePath);
         OMElement resourceElement;
+        InputStream fileInputStream = null;
         FileWriter writer = null;
         try {
-            resourceElement = new StAXOMBuilder(new FileInputStream(metaFile)).getDocumentElement();
+            fileInputStream = new FileInputStream(metaFile);
+            resourceElement = new StAXOMBuilder(fileInputStream).getDocumentElement();
             resourceElement.addAttribute("status", "deleted", null);
             writer = new FileWriter(metaFile);
             XMLOutputFactory xof = XMLOutputFactory.newInstance();
@@ -1602,6 +1624,12 @@ public class Utils {
             if (writer != null) {
                 try {
                     writer.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream" ,e);
+                }
+            } if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
                 } catch (IOException e) {
                     log.error("Failed to close the stream" ,e);
                 }

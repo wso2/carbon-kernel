@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.2-SNAPSHOT</version>
+        <version>4.4.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -161,10 +161,12 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.ui.internal
+                            org.wso2.carbon.ui.internal,
+                            org.wso2.carbon.ui.filters.csrf
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.ui.internal,
+                            !org.wso2.carbon.ui.filters.csrf,
                             org.wso2.carbon.ui.*
                         </Export-Package>
                         <Import-Package>
@@ -182,6 +184,7 @@
                             org.eclipse.equinox.http.helper,
                             org.apache.tiles.*;version="2.0.5",
                             org.wso2.carbon.registry.core.service,
+                            org.owasp.csrfguard.tag.*; version="${orbit.version.csrfguard}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

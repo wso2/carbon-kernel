@@ -138,12 +138,6 @@
             <fileMode>644</fileMode>
         </file>
 	 <file>
-            <source>target/wso2carbon-core-${carbon.kernel.version}/webapp-mode/README.txt</source>
-            <outputDirectory>wso2carbon-${carbon.kernel.version}/webapp-mode/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-	 <file>
             <source>target/wso2carbon-core-${carbon.kernel.version}/repository/components/README.txt</source>
             <outputDirectory>wso2carbon-${carbon.kernel.version}/repository/components/</outputDirectory>
             <filtered>true</filtered>
