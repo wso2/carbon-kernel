@@ -143,35 +143,7 @@ public class DatabaseUtilTest {
             Assert.assertFalse(exceptionNotHandled);
         }
     }
-
-    @Test
-    public void createUserStoreDataSource() throws Exception {
-
-        when(realmConfig.isLogAbandoned()).thenReturn(true);
-        when(realmConfig.isRemoveAbandoned()).thenReturn(true);
-        when(realmConfig.getRemoveAbandonedTimeout()).thenReturn(100);
-        DatabaseUtil.createUserStoreDataSource(realmConfig);
-
-        Assert.assertTrue(realmConfig.isLogAbandoned());
-        Assert.assertTrue(realmConfig.isRemoveAbandoned());
-        Assert.assertEquals(100, realmConfig.getRemoveAbandonedTimeout());
-        Assert.assertNotNull(datasource.getConnection());
-    }
-
-    @Test
-    public void nullCreateUserStoreDataSource() throws Exception {
-
-        DatabaseUtil.createUserStoreDataSource(realmConfig);
-
-        Assert.assertFalse(realmConfig.isLogAbandoned());
-        Assert.assertFalse(realmConfig.isRemoveAbandoned());
-        Assert.assertEquals(0, realmConfig.getRemoveAbandonedTimeout());
-
-        Assert.assertEquals(realmConfig.isLogAbandoned(), poolProperties.isLogAbandoned());
-        Assert.assertEquals(realmConfig.isRemoveAbandoned(), poolProperties.isRemoveAbandoned());
-        Assert.assertEquals(realmConfig.getRemoveAbandonedTimeout(), poolProperties.getRemoveAbandonedTimeout());
-    }
-
+    
     @Test
     public void getStringValuesFromDatabaseShouldReturnValues() throws Exception{
 

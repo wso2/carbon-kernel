@@ -159,18 +159,6 @@ public class DatabaseUtil {
         } else {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
-		
-        if (StringUtils.isNotEmpty( realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED))){
-        	poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED)));
-        }
-        
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED))){
-        	poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED)));
-        }
-
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT))){
-        	poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
-        }
     
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
@@ -244,21 +232,6 @@ public class DatabaseUtil {
                     JDBCRealmConstants.VALIDATION_QUERY));
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED) != null) {
-            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(
-            		JDBCRealmConstants.REMOVE_ABANDONED)));
-        }
-
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.LOG_ABANDONED) != null) {
-            poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(
-            		JDBCRealmConstants.LOG_ABANDONED)));
-        }
-
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT) != null) {
-            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(
-            		JDBCRealmConstants.REMOVE_ABANDNONED_TIMEOUT)));
-        }
-
         dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
         return dataSource;
     }
@@ -299,9 +272,6 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-
-        } finally {
-            close(dbConnection);
         }
     }
 
@@ -344,8 +314,6 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        }finally {
-            close(dbConnection);
         }
     }
 
@@ -378,8 +346,6 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        }finally {
-            close(dbConnection);
         }
     }
 
@@ -437,8 +403,10 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {  // can remove since this is not needed with try-with-resources -
-            close(dbConnection);
+        } finally {
+            if(localConnection) {
+                close(dbConnection);
+            }
         }
     }
 
@@ -479,7 +447,9 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            close(dbConnection);
+            if(localConnection){
+                close(dbConnection);
+            }
         }
     }
 
@@ -525,7 +495,9 @@ public class DatabaseUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            close(dbConnection);
+            if(localConnection){
+                close(dbConnection);
+            }
         }
     }
 
@@ -562,8 +534,6 @@ public class DatabaseUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            close(dbConnection);
         }
     }
 
@@ -610,7 +580,7 @@ public class DatabaseUtil {
                 if (dataSource == null)
                     log.error("A null datasource was encountered during SQLRecoverableException handling recovery operation - exiting recovery. " + e.getMessage(), e);
                 else
-                    log.error("An error occurred during SQLRecoverableException handling recovery operation - exiting recovery." + e.getMessage() , e);
+                    log.error("An error occurred during SQLRecoverableException handling recovery operation - exiting recovery. " + e.getMessage() , e);
             }
         } catch (SQLException sqlEx){
             log.error("An error occurred during SQLRecoverableException handling close operation  - continuing with errors. " + sqlEx.getMessage(), sqlEx);
