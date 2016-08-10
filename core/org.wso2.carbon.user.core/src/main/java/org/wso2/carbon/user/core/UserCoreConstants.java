@@ -128,6 +128,7 @@ public class UserCoreConstants {
         public static final String PROPERTY_IS_USERS_OF_ROLE_LISTING = "IsUsersOfRoleListing";
         public static final String PROPERTY_READ_ONLY = "ReadOnly";
         public static final String CLASS_DESCRIPTION = "Description";
+        public static final String PROPERTY_PRESERVE_CASE_FOR_RESOURCES = "PreserveCaseForResources";
 
         public static final String EMAIL_VALIDATION_REGEX = "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
 

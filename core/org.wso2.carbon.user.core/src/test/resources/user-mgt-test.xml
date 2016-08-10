@@ -16,30 +16,30 @@
  ~ under the License.
  -->
 <UserManager>
-	<Realm>
-		<Configuration>
+    <Realm>
+        <Configuration>
             <AddAdmin>true</AddAdmin>
-			<AdminRole>admin</AdminRole>
-			<AdminUser>
-				<UserName>admin</UserName>
-				<Password>admin</Password>
-			</AdminUser>
-			<EveryOneRoleName>everyone</EveryOneRoleName>
+            <AdminRole>admin</AdminRole>
+            <AdminUser>
+                <UserName>admin</UserName>
+                <Password>admin</Password>
+            </AdminUser>
+            <EveryOneRoleName>everyone</EveryOneRoleName>
             <ReadOnly>false</ReadOnly>
             <MaxUserNameListLength>500</MaxUserNameListLength>
-			<!-- Property name="url"> Different test cases must have different urls. 
-			Because creating the database in same directory while running TestCase after another gives errors in some architectures</Property-->
-			<Property name="driverName">org.h2.Driver</Property>
-			<Property name="maxActive">50</Property>
-			<Property name="maxWait">60000</Property>
-			<Property name="minIdle">5</Property>
+            <!-- Property name="url"> Different test cases must have different urls.
+            Because creating the database in same directory while running TestCase after another gives errors in some architectures</Property-->
+            <Property name="driverName">org.h2.Driver</Property>
+            <Property name="maxActive">50</Property>
+            <Property name="maxWait">60000</Property>
+            <Property name="minIdle">5</Property>
         </Configuration>
         <UserStoreManager
-            class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
+                class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
             <Property name="PasswordJavaRegEx">[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">[\\S]{5,30}</Property>
             <Property name="UsernameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
-            <Property name="RoleameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>            
+            <Property name="RoleameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
             <Property name="SelectUserSQL">SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?</Property>
             <!--<Property name="GetRoleListSQL">SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_ROLE_NAME</Property>-->
             <!--<Property name="UserFilterSQL">SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME</Property>-->
@@ -85,10 +85,10 @@
             <!--<Property name="DeleteUserPropertySQL">DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_TENANT_ID=?</Property>-->
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
         </UserStoreManager>
-        <AuthorizationManager
-            class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
+        <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
             <Property name="AuthorizationCacheEnabled">true</Property>
-            </AuthorizationManager>
+            <Property name="PreserveCaseForResources">true</Property>
+        </AuthorizationManager>
     </Realm>
     <SystemPermission>
         <Permission>login</Permission>
