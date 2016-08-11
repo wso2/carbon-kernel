@@ -30,7 +30,7 @@ public class InMemoryEmbeddedRegistry extends EmbeddedRegistry {
     /**
      * The database URL of the In-memory embedded database.
      */
-    public static final String IN_MEMORY_DB_URL = "jdbc:h2:target/databasetest/CARBON_TEST";
+    public static final String IN_MEMORY_DB_URL = "jdbc:h2:./target/databasetest/CARBON_TEST";
 
     /**
      * The database driver of the In-memory embedded database.

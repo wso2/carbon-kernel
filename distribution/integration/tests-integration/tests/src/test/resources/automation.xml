@@ -73,13 +73,13 @@
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
         <datasource name="dataService">
-            <url>jdbc:h2:testDB</url>
+            <url>jdbc:h2:./testDB</url>
             <username>wso2carbon</username>
             <password>wso2carbon</password>
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
         <datasource name="dataService1">
-            <url>jdbc:h2:testDB</url>
+            <url>jdbc:h2:./testDB</url>
             <username>wso2carbon</username>
             <password>wso2carbon</password>
             <driverClassName>org.h2.Driver</driverClassName>

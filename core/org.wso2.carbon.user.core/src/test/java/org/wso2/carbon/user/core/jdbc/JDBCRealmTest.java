@@ -49,7 +49,7 @@ public class JDBCRealmTest extends BaseTestCase {
 
     public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test.xml";
 
-    private static String TEST_URL = "jdbc:h2:target/BasicJDBCDatabaseTest/CARBON_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/BasicJDBCDatabaseTest/CARBON_TEST";
 
     public void setUp() throws Exception {
         super.setUp();
@@ -91,7 +91,7 @@ public class JDBCRealmTest extends BaseTestCase {
     public void testAuthorizationClearence() throws Exception{
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:target/clear-resources/WSO2CARBON_DB_CLEAR");
+        ds.setUrl("jdbc:h2:./target/clear-resources/WSO2CARBON_DB_CLEAR");
         ds.setUsername("wso2carbon");
         ds.setPassword("wso2carbon");
 
