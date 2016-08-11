@@ -254,10 +254,7 @@
         <orbit.version.el.impl>2.2.wso2v1</orbit.version.el.impl>
 
         <!-- H2 Database Engine -->
-        <version.h2.engine>1.2.140.wso2v3</version.h2.engine>
-        <orbit.version.h2.engine>1.2.140.wso2v3</orbit.version.h2.engine>
-        <exp.pkg.version.h2.engine>1.2.140.wso2v3</exp.pkg.version.h2.engine>
-        <imp.pkg.version.h2.engine>[1.2.140.wso2v3, 2)</imp.pkg.version.h2.engine>
+        <version.h2.engine>1.4.191</version.h2.engine>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -992,9 +989,9 @@
                 <version>${orbit.version.commons.collection}</version>
             </dependency>
             <dependency>
-                <groupId>com.h2database.wso2</groupId>
-                <artifactId>h2-database-engine</artifactId>
-                <version>${orbit.version.h2.engine}</version>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${version.h2.engine}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.eclipse.osgi</groupId>

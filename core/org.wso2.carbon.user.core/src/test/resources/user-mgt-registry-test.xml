@@ -27,7 +27,7 @@
 	    <EveryOneRoleName>everyone</EveryOneRoleName>
             <ReadOnly>false</ReadOnly>
             <MaxUserNameListLength>500</MaxUserNameListLength>
-			<Property name="url">jdbc:h2:target/databasetest/CARBON_TEST</Property>
+			<Property name="url">jdbc:h2:./target/databasetest/CARBON_TEST</Property>
 			<Property name="driverName">org.h2.Driver</Property>
 			<Property name="maxActive">50</Property>
 			<Property name="maxWait">60000</Property>
