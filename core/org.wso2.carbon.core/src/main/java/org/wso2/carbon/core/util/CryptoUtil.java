@@ -135,7 +135,7 @@ public class CryptoUtil {
             }
         } catch (Exception e) {
             throw new
-                    CryptoException(Messages.getMessage("erorDuringEncryption"), e);
+                    CryptoException("Error during encryption", e);
         }
         return encryptedKey;
     }
