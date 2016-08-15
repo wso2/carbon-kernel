@@ -20,7 +20,6 @@
 <%@ page import="org.apache.axiom.soap.SOAP11Constants" %>
 <%@ page import="org.apache.axiom.soap.SOAP12Constants"%>
 <%@ page import="org.apache.axiom.soap.SOAPEnvelope"%>
-<%@ page import="org.apache.axis2.AxisFault"%>
 <%@ page import="org.apache.axis2.Constants"%>
 <%@ page import="org.apache.axis2.addressing.EndpointReference"%>
 <%@ page import="org.apache.axis2.client.Options"%>
@@ -29,21 +28,51 @@
 <%@ page import="org.apache.axis2.context.MessageContext"%>
 <%@ page import="org.apache.axis2.context.OperationContext"%>
 <%@ page import="org.apache.axis2.description.WSDL2Constants"%>
-<%@ page import="org.apache.axis2.util.JavaUtils"%>
-<%@ page import="org.apache.neethi.PolicyEngine"%>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="org.apache.axis2.transport.http.HTTPConstants"%>
-<%@ page import="java.util.Enumeration" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="org.apache.commons.httpclient.Header" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.apache.axis2.util.JavaUtils"%>
+<%@ page import="org.apache.axis2.util.XMLUtils"%>
+<%@ page import="org.apache.neethi.PolicyEngine" %>
+<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.xml.sax.EntityResolver" %>
+<%@ page import="org.xml.sax.InputSource" %>
+<%@ page import="org.xml.sax.SAXException" %>
+<%@ page import="javax.xml.XMLConstants" %>
+<%@ page import="javax.xml.parsers.DocumentBuilder" %>
+<%@ page import="javax.xml.parsers.DocumentBuilderFactory" %>
+<%@ page import="javax.xml.parsers.ParserConfigurationException" %>
+<%@ page import="java.io.ByteArrayInputStream" %>
+<%@ page import="java.io.IOException" %>
 <%!
 
     public static String decode(String s) throws Exception {
         if ("~".equals(s)) return null;
         return new String(Base64.decode(s), "UTF-8");
+    }
+
+    /**
+     * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
+     * @return DocumentBuilder
+     * @throws javax.xml.parsers.ParserConfigurationException
+     */
+    public static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws
+            ParserConfigurationException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new EntityResolver() {
+            @Override
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
+            }
+        });
+        return documentBuilder;
     }
 
 %><%
@@ -179,7 +208,8 @@
     OMElement payloadElement = null;
     if (payload != null) {
         try {
-            payloadElement = AXIOMUtil.stringToOM(payload);
+            payloadElement = XMLUtils.toOM(getSecuredDocumentBuilder(true).
+                    parse(new ByteArrayInputStream(payload.getBytes())).getDocumentElement());
         } catch (Exception e) {
             throw new Error("INVALID_INPUT_EXCEPTION. Invalid input was : " + payload);
         }
