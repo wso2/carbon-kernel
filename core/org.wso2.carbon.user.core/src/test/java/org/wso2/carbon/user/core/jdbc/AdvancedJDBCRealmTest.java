@@ -48,7 +48,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
 
     private static Log log = LogFactory.getLog(AdvancedJDBCRealmTest.class);
     private UserRealm realm = null;
-    private String TEST_URL = "jdbc:h2:./target/advjdbctest/CARBON_TEST";
+    private String TEST_URL = "jdbc:h2:target/advjdbctest/CARBON_TEST";
 
     public void testStuff() throws Exception {
         DatabaseUtil.closeDatabasePoolConnection();

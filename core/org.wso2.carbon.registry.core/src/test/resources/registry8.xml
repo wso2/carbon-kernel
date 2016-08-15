@@ -23,7 +23,7 @@
     <registryRoot>/</registryRoot>
 
     <dbConfig name="h2-db">
-        <url>jdbc:h2:./target/databasetest/CARBON_TEST</url>
+        <url>jdbc:h2:target/databasetest/CARBON_TEST</url>
         <!--userName>sa</userName>
         <password>sa</password-->
         <driverName>org.h2.Driver</driverName>
@@ -33,7 +33,7 @@
     </dbConfig>
 
     <dbConfig name="h2-mount">
-        <url>jdbc:h2:./target/databasetest/CARBON_MOUNT</url>
+        <url>jdbc:h2:target/databasetest/CARBON_MOUNT</url>
         <!--userName>sa</userName>
         <password>sa</password-->
         <driverName>org.h2.Driver</driverName>
@@ -48,7 +48,7 @@
         <readOnly>false</readOnly>
         <enableCache>true</enableCache>
         <registryRoot>/</registryRoot>
-        <cacheId>jdbc:h2:./target/databasetest/CARBON_MOUNT</cacheId>
+        <cacheId>jdbc:h2:target/databasetest/CARBON_MOUNT</cacheId>
     </remoteInstance>
 
     <mount path="/_system/config" overwrite="true">

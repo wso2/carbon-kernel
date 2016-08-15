@@ -50,7 +50,7 @@ public class TestTenantManager extends BaseTestCase{
 
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:./target/Tenanttest/TEN_TEST");
+        ds.setUrl("jdbc:h2:target/Tenanttest/TEN_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
         creator.createRegistryDatabase();

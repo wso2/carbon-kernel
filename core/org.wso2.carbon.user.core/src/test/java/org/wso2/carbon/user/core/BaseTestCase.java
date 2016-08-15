@@ -42,6 +42,7 @@ public class BaseTestCase extends TestCase {
             }
 		
         }
+        System.setProperty(UserCoreTestConstants.H2_IMPLICIT_RELATIVE_PATH, UserCoreTestConstants.TRUE);
 
     	PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
