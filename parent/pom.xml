@@ -493,5 +493,6 @@
         <javax.xml.import.version.range>[0.0.0,1.0.0)</javax.xml.import.version.range>
         <org.json.import.version>3.0.0.wso2v1</org.json.import.version>
         <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
+        <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
     </properties>
 </project>
