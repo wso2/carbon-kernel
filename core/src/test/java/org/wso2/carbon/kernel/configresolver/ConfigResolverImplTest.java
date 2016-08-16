@@ -74,7 +74,7 @@ public class ConfigResolverImplTest {
     public void xmlExample() {
         setUpEnvironment();
         try {
-            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example.xml");
+            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.xml");
             File file = resourcePath.toFile();
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -139,7 +139,7 @@ public class ConfigResolverImplTest {
     public void yamlExample() {
         setUpEnvironment();
         try {
-            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example.yaml");
+            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.yaml");
             File file = resourcePath.toFile();
             FileInputStream fileInputStream = new FileInputStream(file);
             Yaml yaml = new Yaml();
@@ -206,7 +206,7 @@ public class ConfigResolverImplTest {
         setUpEnvironment();
         FileInputStream fileInputStream = null;
         try {
-            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example.properties");
+            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.properties");
             File file = resourcePath.toFile();
             fileInputStream = new FileInputStream(file);
             java.util.Properties properties = new java.util.Properties();
@@ -332,7 +332,7 @@ public class ConfigResolverImplTest {
             + "have additional configs which is not in the original config file")
     public void invalidConfigTest() {
         setUpEnvironment();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -348,7 +348,7 @@ public class ConfigResolverImplTest {
             "process xml config file with errors")
     public void invalidXmlTest() {
         setUpEnvironment();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example4.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example4.xml");
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -381,7 +381,7 @@ public class ConfigResolverImplTest {
             + "properties")
     public void invalidSysPropTest() {
         setUpEnvironment();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example3.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -396,7 +396,7 @@ public class ConfigResolverImplTest {
             + "variables")
     public void invalidEnvVarTest() {
         setUpEnvironment();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example3.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -410,7 +410,7 @@ public class ConfigResolverImplTest {
     @Test(description = "Test configs with not initialized System properties, but have default values")
     public void validSysPropWithDefaultTest() {
         setUpEnvironment();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example3.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -424,7 +424,7 @@ public class ConfigResolverImplTest {
     @Test(description = "Test configs with not initialized Environment variables, but have default values")
     public void validEnvVarWithDefaultTest() {
         setUpEnvironment();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example3.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -439,7 +439,7 @@ public class ConfigResolverImplTest {
             + "provided")
     public void invalidFileType() {
         setCarbonHome();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example3.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
         TestFile configs = configResolver.getConfig(file, TestFile.class);
         logger.debug(configs.getContent());
@@ -451,7 +451,7 @@ public class ConfigResolverImplTest {
         reloadDeploymentPropertiesFile();
         Path carbonHome = Paths.get("");
         System.setProperty(Constants.CARBON_HOME, carbonHome.toString());
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.xml");
         File file = resourcePath.toFile();
         XML configs = configResolver.getConfig(file, XML.class);
         Assert.assertNotNull(configs);
@@ -463,7 +463,7 @@ public class ConfigResolverImplTest {
         System.setProperty("deployment.conf", "");
         reloadDeploymentPropertiesFile();
 
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
             XML configXml = configResolver.getConfig(file, XML.class);
@@ -484,7 +484,7 @@ public class ConfigResolverImplTest {
         System.setProperty("deployment.conf", depConfPath.toString());
         reloadDeploymentPropertiesFile();
 
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
             XML configXml = configResolver.getConfig(file, XML.class);
@@ -508,7 +508,7 @@ public class ConfigResolverImplTest {
         System.setProperty("deployment.conf", "");
         reloadDeploymentPropertiesFile();
 
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
             XML configXml = configResolver.getConfig(file, XML.class);
@@ -531,7 +531,7 @@ public class ConfigResolverImplTest {
         setEnv(envVarMap);
         reloadDeploymentPropertiesFile();
 
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
             XML configXml = configResolver.getConfig(file, XML.class);
@@ -556,7 +556,7 @@ public class ConfigResolverImplTest {
         setEnv(envVarMap);
         reloadDeploymentPropertiesFile();
 
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         XML configXml = configResolver.getConfig(file, XML.class);
         String value = configXml.getContent();
@@ -571,7 +571,7 @@ public class ConfigResolverImplTest {
         setEnv(envVarMap);
         reloadDeploymentPropertiesFile();
 
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         XML configXml = configResolver.getConfig(file, XML.class);
         String value = configXml.getContent();
