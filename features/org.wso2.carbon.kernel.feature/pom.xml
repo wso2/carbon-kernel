@@ -54,6 +54,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.tools.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.import.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -167,6 +172,10 @@
                                 <bundle>
                                     <symbolicName>snakeyaml</symbolicName>
                                     <version>${org.snakeyaml.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>json</symbolicName>
+                                    <version>${org.json.import.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
