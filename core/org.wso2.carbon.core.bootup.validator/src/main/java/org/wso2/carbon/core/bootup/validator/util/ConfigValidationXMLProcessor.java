@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.*;
 
 import org.apache.commons.logging.Log;
@@ -58,6 +59,7 @@ public class ConfigValidationXMLProcessor {
 	public void parseConfigValidationXml() throws ParserConfigurationException, SAXException,
 	                                      IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		dom = db.parse(getConfigRecommendationsXML());
 		parseDocument();

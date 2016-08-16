@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
@@ -94,7 +95,9 @@ public final class DBUtils {
             File file = new File(path);
             Document doc = null;
             try {
-            	doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            	doc = docBuilderFactory.newDocumentBuilder().parse(file);
             } catch (Exception e) {
             	log.error("Failed pasring config file " + path + ". ", e);
             	throw e;

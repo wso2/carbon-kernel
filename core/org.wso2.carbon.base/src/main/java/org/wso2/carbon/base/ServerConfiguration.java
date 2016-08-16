@@ -26,6 +26,7 @@ import org.wso2.securevault.SecretResolverFactory;
 import org.w3c.dom.Element;
 import org.wso2.carbon.securevault.SecretManagerInitializer;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLStreamException;
@@ -470,6 +471,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 				outputStream.toByteArray());
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		factory.setNamespaceAware(true);
 		return factory.newDocumentBuilder().parse(inputStream)
 				.getDocumentElement();

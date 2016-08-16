@@ -18,6 +18,7 @@ package org.wso2.carbon.coordination.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -45,6 +46,7 @@ public class CoordinationConfiguration {
 	private void initConfig(String filePath) throws CoordinationException {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		try {
+			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Element docEl = dBuilder.parse(filePath).getDocumentElement();
 			if (!docEl.getNodeName().equals(ConfigurationNames.CLIENT_CONFIG_ELEMENT)) {

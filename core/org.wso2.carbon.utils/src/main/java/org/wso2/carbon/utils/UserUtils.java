@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
@@ -21,7 +22,9 @@ public final class UserUtils {
         File file = new File(pathToUserMgtXML);
         Document doc = null;
         try {
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            doc = docBuilderFactory.newDocumentBuilder().parse(file);
         } catch (Exception e) {
             log.error("Failed pasring config file " + pathToUserMgtXML + ". ", e);
             throw e;

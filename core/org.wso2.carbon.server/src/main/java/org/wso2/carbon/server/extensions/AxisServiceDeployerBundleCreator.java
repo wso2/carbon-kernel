@@ -24,6 +24,7 @@ import org.wso2.carbon.server.CarbonLaunchExtension;
 import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.Utils;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -64,6 +65,7 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
                         if (entryName.equals("META-INF/component.xml")) {
                             URL url = new URL("jar:file:" + file.getAbsolutePath() + "!/" + entryName);
                             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                             DocumentBuilder db = dbf.newDocumentBuilder();
                             Document doc = db.parse(url.openStream());
                             doc.getDocumentElement().normalize();
