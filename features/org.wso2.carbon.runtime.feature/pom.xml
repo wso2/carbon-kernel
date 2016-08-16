@@ -224,7 +224,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi.compatibility.state</symbolicName>
-                                    <version>${equinox.osgi.compatibility.statre.version}</version>
+                                    <version>${equinox.osgi.compatibility.state.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

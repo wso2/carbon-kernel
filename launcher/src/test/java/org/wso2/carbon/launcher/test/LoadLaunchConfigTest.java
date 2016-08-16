@@ -33,7 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -113,16 +112,17 @@ public class LoadLaunchConfigTest extends BaseTest {
     public void loadLaunchConfigOSGiFrameworkTestCase() {
         //test if property "carbon.osgi.framework" has set according to sample launch.properties file
         URL url = launchConfig.getCarbonOSGiFramework();
-        Assert.assertEquals(url.getFile().split("plugins")[1],
-                "/org.eclipse.osgi_3.10.2.v20150203-1939.jar");
+        String equinoxOSGiVersion = System.getProperty("equinox.osgi.version");
+        Assert.assertEquals(url.getFile().split("plugins")[1], "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar");
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void loadLaunchConfigInitialBundlesTestCase() {
         //test if property "carbon.initial.osgi.bundles" has set according to sample launch.properties file
         List<CarbonInitialBundle> initialBundleList = launchConfig.getInitialBundles();
+        String equinoxSimpleConfiguratorVersion = System.getProperty("equinox.simpleconfigurator.version");
         Assert.assertEquals(initialBundleList.get(0).getLocation().getFile().split("plugins")[1],
-                "/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar");
+                "/org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar");
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
@@ -130,15 +130,11 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
         Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "osgi");
-        try {
-            if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
-                Assert.assertEquals(osgiRepoURL.toURI().toURL().toString().concat("/"),
-                        expectedPath.toUri().toURL().toString().replaceFirst("/", ""));
-            } else {
-                Assert.assertEquals(osgiRepoURL.toString(), "file:".concat(expectedPath.toString()));
-            }
-        } catch (URISyntaxException e) {
-            Assert.fail("Exception occurred when converting URL to String");
+        if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
+            Assert.assertEquals(Paths.get(osgiRepoURL.getPath()).toUri().toURL().toString(),
+                    expectedPath.toUri().toURL().toString());
+        } else {
+            Assert.assertEquals(osgiRepoURL.toString(), "file:".concat(expectedPath.toString()));
         }
 
     }
@@ -153,11 +149,10 @@ public class LoadLaunchConfigTest extends BaseTest {
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void carbonLogAppendTestCase() throws FileNotFoundException {
         String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
-        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest carbonLogAppendTestCase} - " +
-                "Sample message-test logging with class CarbonLaunchConfig";
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest carbonLogAppendTestCase} - "
+                + "Sample message-test logging with class CarbonLaunchConfig";
         logger.info(sampleMessage);
-        ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(logFile));
+        ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
