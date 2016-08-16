@@ -47,7 +47,7 @@ public class CoordinationConfiguration {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Element docEl = dBuilder.parse(filePath).getDocumentElement();
 			if (!docEl.getNodeName().equals(ConfigurationNames.CLIENT_CONFIG_ELEMENT)) {
 				throw new CoordinationException("The root element of the coordination client configuration must be '" + 

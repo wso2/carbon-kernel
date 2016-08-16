@@ -97,7 +97,7 @@ public final class DBUtils {
             try {
                 DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
                 docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            	doc = docBuilderFactory.newDocumentBuilder().parse(file);
+                doc = docBuilderFactory.newDocumentBuilder().parse(file);
             } catch (Exception e) {
             	log.error("Failed pasring config file " + path + ". ", e);
             	throw e;
