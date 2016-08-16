@@ -19,6 +19,8 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.securevault.SecretResolver;
@@ -26,9 +28,9 @@ import org.wso2.securevault.SecretResolverFactory;
 import org.w3c.dom.Element;
 import org.wso2.carbon.securevault.SecretManagerInitializer;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -64,6 +66,8 @@ public class ServerConfiguration implements ServerConfigurationService {
 	 * transport.
 	 */
 	public static final String HTTP_PORT = "HTTP.Port";
+
+	private static final int ENTITY_EXPANSION_LIMIT = 0;
 
 	/**
 	 * Constant to be used for properties storing the port of the command
@@ -470,11 +474,33 @@ public class ServerConfiguration implements ServerConfigurationService {
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(
 				outputStream.toByteArray());
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		DocumentBuilderFactory factory = getSecuredDocumentBuilder();
 		factory.setNamespaceAware(true);
 		return factory.newDocumentBuilder().parse(inputStream)
 				.getDocumentElement();
+	}
+
+	private static DocumentBuilderFactory getSecuredDocumentBuilder() {
+
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		dbf.setXIncludeAware(false);
+		dbf.setExpandEntityReferences(false);
+		try {
+			dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+			dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+			dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+		} catch (ParserConfigurationException e) {
+			log.error(
+					"Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
+							Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
+		}
+
+		SecurityManager securityManager = new SecurityManager();
+		securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+		dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+
+		return dbf;
 	}
 
 	protected boolean isProtectedToken(String key) {

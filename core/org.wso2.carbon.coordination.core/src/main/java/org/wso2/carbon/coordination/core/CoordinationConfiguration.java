@@ -18,10 +18,12 @@ package org.wso2.carbon.coordination.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.coordination.common.CoordinationException;
@@ -38,15 +40,16 @@ public class CoordinationConfiguration {
 	private int sessionTimeout;
 	
 	private boolean enabled;
+
+	private static final int ENTITY_EXPANSION_LIMIT = 0;
 	
 	public CoordinationConfiguration(String filePath) throws CoordinationException {
 		this.initConfig(filePath);
 	}
 	
 	private void initConfig(String filePath) throws CoordinationException {
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbFactory = getSecuredDocumentBuilder();
 		try {
-			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Element docEl = dBuilder.parse(filePath).getDocumentElement();
 			if (!docEl.getNodeName().equals(ConfigurationNames.CLIENT_CONFIG_ELEMENT)) {
@@ -90,6 +93,29 @@ public class CoordinationConfiguration {
 			}
 			throw new CoordinationException(ExceptionCode.CONFIGURATION_ERROR, e);
 		}
+	}
+
+	private static DocumentBuilderFactory getSecuredDocumentBuilder() throws CoordinationException {
+
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		dbf.setXIncludeAware(false);
+		dbf.setExpandEntityReferences(false);
+		try {
+			dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+			dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+			dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+		} catch (ParserConfigurationException e) {
+			throw new CoordinationException("Failed to load XML Processor Feature " +
+					Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE
+					+ " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE, e);
+		}
+
+		SecurityManager securityManager = new SecurityManager();
+		securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+		dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+
+		return dbf;
 	}
 	
 	private Server parseServerConfig(Element serverEl) throws CoordinationException {

@@ -17,6 +17,8 @@ package org.wso2.carbon.core.init;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,9 +32,9 @@ import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.net.SocketException;
 import java.rmi.registry.LocateRegistry;
@@ -52,6 +54,7 @@ public class JMXServerManager {
     private static final String JMX_HOST_NAME         = "HostName";
     private static final String JMX_RMI_REGISTRY_PORT = "RMIRegistryPort";
     private static final String JMX_RMI_SERVER_PORT   = "RMIServerPort";
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     private JMXConfig jmxProperties = new JMXConfig();
 
@@ -168,8 +171,7 @@ public class JMXServerManager {
         int rmiServerPort;
         try {
 
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            DocumentBuilderFactory docBuilderFactory = getSecuredDocumentBuilder();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(new File(jmxXmlPath));
 
@@ -215,6 +217,29 @@ public class JMXServerManager {
             log.fatal("Failed to parse jmx.xml", t);
         }
 
+    }
+
+    private static DocumentBuilderFactory getSecuredDocumentBuilder() {
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        try {
+            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+            dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+        } catch (ParserConfigurationException e) {
+            log.error(
+                    "Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
+                            Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
+        }
+
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+
+        return dbf;
     }
 
     private int getPort(String elementTagName, Element jmxEle) {

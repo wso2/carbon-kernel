@@ -17,6 +17,10 @@
 */
 package org.wso2.carbon.server.extensions;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -24,9 +28,9 @@ import org.wso2.carbon.server.CarbonLaunchExtension;
 import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.Utils;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -46,6 +50,10 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
     private static final String DEPLOYERS_DIR =
             "repository" + File.separator + "components" + File.separator + "axis2deployers";
 
+    private static final Log log = LogFactory.getLog(AxisServiceDeployerBundleCreator.class);
+
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
+
     public void perform() {
         File dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
         File dir = Utils.getBundleDirectory(DEPLOYERS_DIR);
@@ -64,8 +72,7 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
                         entryName = entry.getName();
                         if (entryName.equals("META-INF/component.xml")) {
                             URL url = new URL("jar:file:" + file.getAbsolutePath() + "!/" + entryName);
-                            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                            DocumentBuilderFactory dbf = getSecuredDocumentBuilder();
                             DocumentBuilder db = dbf.newDocumentBuilder();
                             Document doc = db.parse(url.openStream());
                             doc.getDocumentElement().normalize();
@@ -119,4 +126,28 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
             }
         }
     }
+    private static DocumentBuilderFactory getSecuredDocumentBuilder() {
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        try {
+            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+            dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+        } catch (ParserConfigurationException e) {
+            log.error(
+                    "Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
+                            Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
+        }
+
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+
+        return dbf;
+    }
+
+
 }
