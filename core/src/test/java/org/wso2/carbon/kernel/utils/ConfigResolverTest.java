@@ -54,9 +54,9 @@ import javax.xml.transform.stream.StreamSource;
  *
  * @since 5.2.0
  */
-public class ConfigUtilTest {
+public class ConfigResolverTest {
 
-    private static Logger logger = LoggerFactory.getLogger(ConfigUtilTest.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(ConfigResolverTest.class.getName());
     private static String basedir = System.getProperty("basedir");
 
     @BeforeTest
@@ -98,7 +98,7 @@ public class ConfigUtilTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getDesc(),
                     "This transport will use ${env:xyz.http.port,8888} as its port");
 
-            XML configXml = ConfigUtil.getConfig(file, XML.class);
+            XML configXml = ConfigResolver.getConfig(file, XML.class);
             String value = configXml.getValue();
 
             Source xmlInput = new StreamSource(new StringReader(value));
@@ -165,7 +165,7 @@ public class ConfigUtilTest {
                     "This transport will use ${env:xyz.http.port,8888} as its port");
 
             fileInputStream = new FileInputStream(file);
-            YAML configYaml = ConfigUtil.getConfig(fileInputStream, file.getName(), YAML.class);
+            YAML configYaml = ConfigResolver.getConfig(fileInputStream, file.getName(), YAML.class);
             yaml = new Yaml();
             String value = configYaml.getValue();
 
@@ -225,7 +225,7 @@ public class ConfigUtilTest {
                     "This transport will use ${env:xyz.http.port,8888} as its port");
 
             fileInputStream = new FileInputStream(file);
-            Properties configProperties = ConfigUtil.getConfig(fileInputStream, file.getName(), Properties.class);
+            Properties configProperties = ConfigResolver.getConfig(fileInputStream, file.getName(), Properties.class);
             properties = new java.util.Properties();
             String value = configProperties.getValue();
 
@@ -263,37 +263,37 @@ public class ConfigUtilTest {
     @Test(description = "This test will test functionality of getConfig method")
     public void getConfigTest1() {
         setUpEnvironment();
-        String newValue = ConfigUtil.getConfig("[Example.xml]/configurations/tenant");
+        String newValue = ConfigResolver.getConfig("[Example.xml]/configurations/tenant");
         Assert.assertEquals(newValue, "new_tenant");
-        newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport/port");
+        newValue = ConfigResolver.getConfig("[Example.xml]/configurations/transports/transport/port");
         Assert.assertEquals(newValue, "8001");
-        newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport[name='abc']/@secure");
+        newValue = ConfigResolver.getConfig("[Example.xml]/configurations/transports/transport[name='abc']/@secure");
         Assert.assertEquals(newValue, "true");
-        newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport[name='pqr']/port");
+        newValue = ConfigResolver.getConfig("[Example.xml]/configurations/transports/transport[name='pqr']/port");
         Assert.assertEquals(newValue, null);
-        newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport[2]/@secure");
+        newValue = ConfigResolver.getConfig("[Example.xml]/configurations/transports/transport[2]/@secure");
         Assert.assertEquals(newValue, null);
 
-        newValue = ConfigUtil.getConfig("[Example.yaml]/tenant");
+        newValue = ConfigResolver.getConfig("[Example.yaml]/tenant");
         Assert.assertEquals(newValue, "new_tenant");
-        newValue = ConfigUtil.getConfig("[Example.yaml]/transports/transport/port");
+        newValue = ConfigResolver.getConfig("[Example.yaml]/transports/transport/port");
         Assert.assertEquals(newValue, "8001");
-        newValue = ConfigUtil.getConfig("[Example.yaml]/transports/transport[name='abc']/secure");
+        newValue = ConfigResolver.getConfig("[Example.yaml]/transports/transport[name='abc']/secure");
         Assert.assertEquals(newValue, "true");
-        newValue = ConfigUtil.getConfig("[Example.yaml]/transports/transport[name='pqr']/port");
+        newValue = ConfigResolver.getConfig("[Example.yaml]/transports/transport[name='pqr']/port");
         Assert.assertEquals(newValue, null);
-        newValue = ConfigUtil.getConfig("[Example.yaml]/transports[2]/transport/secure");
+        newValue = ConfigResolver.getConfig("[Example.yaml]/transports[2]/transport/secure");
         Assert.assertEquals(newValue, null);
 
-        newValue = ConfigUtil.getConfig("[Example.properties]/tenant");
+        newValue = ConfigResolver.getConfig("[Example.properties]/tenant");
         Assert.assertEquals(newValue, "new_tenant");
-        newValue = ConfigUtil.getConfig("[Example.properties]/transport.abc.port");
+        newValue = ConfigResolver.getConfig("[Example.properties]/transport.abc.port");
         Assert.assertEquals(newValue, "8001");
-        newValue = ConfigUtil.getConfig("[Example.properties]/transport.abc.secure");
+        newValue = ConfigResolver.getConfig("[Example.properties]/transport.abc.secure");
         Assert.assertEquals(newValue, "true");
-        newValue = ConfigUtil.getConfig("[Example.properties]/transport.pqr.port");
+        newValue = ConfigResolver.getConfig("[Example.properties]/transport.pqr.port");
         Assert.assertEquals(newValue, null);
-        newValue = ConfigUtil.getConfig("[Example.properties]/transport.pqr.secure");
+        newValue = ConfigResolver.getConfig("[Example.properties]/transport.pqr.secure");
         Assert.assertEquals(newValue, null);
     }
 
@@ -302,7 +302,7 @@ public class ConfigUtilTest {
     public void getConfigTest2() {
         setCarbonHome();
         System.clearProperty("abc.http.port");
-        String newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport/port");
+        String newValue = ConfigResolver.getConfig("[Example.xml]/configurations/transports/transport/port");
         logger.debug(newValue);
     }
 
@@ -310,7 +310,7 @@ public class ConfigUtilTest {
             + "where value is a Environment variable placeholder and the placeholder is not found")
     public void getConfigTest3() {
         setCarbonHome();
-        String newValue = ConfigUtil.getConfig("[Example.xml]/configurations/transports/transport/port");
+        String newValue = ConfigResolver.getConfig("[Example.xml]/configurations/transports/transport/port");
         logger.debug(newValue);
     }
 
@@ -318,7 +318,7 @@ public class ConfigUtilTest {
             + "where the key is invalid xpath")
     public void getConfigTest4() {
         setCarbonHome();
-        String newValue = ConfigUtil.getConfig("[Example.xml]configurations");
+        String newValue = ConfigResolver.getConfig("[Example.xml]configurations");
         logger.debug(newValue);
     }
 
@@ -330,7 +330,7 @@ public class ConfigUtilTest {
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            XML configXml = ConfigUtil.getConfig(fileInputStream, "Example.xml", XML.class);
+            XML configXml = ConfigResolver.getConfig(fileInputStream, "Example.xml", XML.class);
             logger.debug(configXml.getValue());
         } catch (FileNotFoundException e) {
             logger.warn("File Not found: " + file.getAbsolutePath());
@@ -346,7 +346,7 @@ public class ConfigUtilTest {
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            XML configXml = ConfigUtil.getConfig(fileInputStream, "Example.xml", XML.class);
+            XML configXml = ConfigResolver.getConfig(fileInputStream, "Example.xml", XML.class);
             logger.debug(configXml.getValue());
         } catch (FileNotFoundException e) {
             logger.warn("File Not found: " + file.getAbsolutePath());
@@ -360,14 +360,14 @@ public class ConfigUtilTest {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "Example3.xml");
         File file = resourcePath.toFile();
-        XML configXml = ConfigUtil.getConfig(file, XML.class);
+        XML configXml = ConfigResolver.getConfig(file, XML.class);
         logger.debug(configXml.getValue());
     }
 
     @Test(description = "Test for keys that is not in the deployment.properties file")
     public void invalidFileNameTest() {
         setUpEnvironment();
-        String tenant = ConfigUtil.getConfig("[Example2.xml]/configurations/tenant/name");
+        String tenant = ConfigResolver.getConfig("[Example2.xml]/configurations/tenant/name");
         Assert.assertNull(tenant);
     }
 
@@ -379,7 +379,7 @@ public class ConfigUtilTest {
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = ConfigUtil.getConfig(fileInputStream, "Example3.xml", XML.class);
+            XML configs = ConfigResolver.getConfig(fileInputStream, "Example3.xml", XML.class);
             logger.debug(configs.getValue());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -394,7 +394,7 @@ public class ConfigUtilTest {
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = ConfigUtil.getConfig(fileInputStream, "Example4.xml", XML.class);
+            XML configs = ConfigResolver.getConfig(fileInputStream, "Example4.xml", XML.class);
             logger.debug(configs.getValue());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -408,7 +408,7 @@ public class ConfigUtilTest {
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = ConfigUtil.getConfig(fileInputStream, "Example6.xml", XML.class);
+            XML configs = ConfigResolver.getConfig(fileInputStream, "Example6.xml", XML.class);
             Assert.assertNotNull(configs.getValue());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -422,7 +422,7 @@ public class ConfigUtilTest {
         File file = resourcePath.toFile();
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = ConfigUtil.getConfig(fileInputStream, "Example5.xml", XML.class);
+            XML configs = ConfigResolver.getConfig(fileInputStream, "Example5.xml", XML.class);
             Assert.assertNotNull(configs.getValue());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -435,7 +435,7 @@ public class ConfigUtilTest {
         setCarbonHome();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example3.xml");
         File file = resourcePath.toFile();
-        TestType configs = ConfigUtil.getConfig(file, TestType.class);
+        TestType configs = ConfigResolver.getConfig(file, TestType.class);
         logger.debug(configs.getValue());
     }
 
@@ -447,7 +447,7 @@ public class ConfigUtilTest {
         System.setProperty(Constants.CARBON_HOME, carbonHome.toString());
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example.xml");
         File file = resourcePath.toFile();
-        XML configs = ConfigUtil.getConfig(file, XML.class);
+        XML configs = ConfigResolver.getConfig(file, XML.class);
         Assert.assertNotNull(configs);
     }
 
@@ -460,7 +460,7 @@ public class ConfigUtilTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = ConfigUtil.getConfig(file, XML.class);
+            XML configXml = ConfigResolver.getConfig(file, XML.class);
             String value = configXml.getValue();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -481,7 +481,7 @@ public class ConfigUtilTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = ConfigUtil.getConfig(file, XML.class);
+            XML configXml = ConfigResolver.getConfig(file, XML.class);
             String value = configXml.getValue();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -505,7 +505,7 @@ public class ConfigUtilTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = ConfigUtil.getConfig(file, XML.class);
+            XML configXml = ConfigResolver.getConfig(file, XML.class);
             String value = configXml.getValue();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -528,7 +528,7 @@ public class ConfigUtilTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = ConfigUtil.getConfig(file, XML.class);
+            XML configXml = ConfigResolver.getConfig(file, XML.class);
             String value = configXml.getValue();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -552,7 +552,7 @@ public class ConfigUtilTest {
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
         File file = resourcePath.toFile();
-        XML configXml = ConfigUtil.getConfig(file, XML.class);
+        XML configXml = ConfigResolver.getConfig(file, XML.class);
         String value = configXml.getValue();
         logger.debug(value);
     }
@@ -567,7 +567,7 @@ public class ConfigUtilTest {
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configutil", "Example2.xml");
         File file = resourcePath.toFile();
-        XML configXml = ConfigUtil.getConfig(file, XML.class);
+        XML configXml = ConfigResolver.getConfig(file, XML.class);
         String value = configXml.getValue();
         logger.debug(value);
     }
@@ -576,7 +576,7 @@ public class ConfigUtilTest {
     // reloading the configs at runtime
     private void reloadDeploymentPropertiesFile() {
         try {
-            Method method = ConfigUtil.class.getDeclaredMethod("loadConfigs");
+            Method method = ConfigResolver.class.getDeclaredMethod("loadConfigs");
             method.setAccessible(true);
             method.invoke(null);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
