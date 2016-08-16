@@ -17,8 +17,8 @@ import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.container.options.CarbonDistributionOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.nio.file.Paths;
+import javax.inject.Inject;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -41,15 +41,15 @@ public class Sample2 {
 
         return new Option[] {
                 CarbonDistributionOption.carbonDistribution(
-                Paths.get(basedir, "..", "test-distribution", "target",
-                        "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")),
+                        Paths.get(basedir, "..", "test-distribution", "target",
+                                "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")),
         };
     }
 
     @Test
     public void testBundles2() {
         logger.info("Sample 2-1");
-        throw  new NullPointerException();
+        throw new NullPointerException();
         //        logger.info(bundleContext.getBundle().getSymbolicName());
         //        logger.info(System.getProperty("carbon.home"));
         //        Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));

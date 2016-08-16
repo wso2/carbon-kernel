@@ -31,10 +31,10 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;

@@ -34,10 +34,10 @@ import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;

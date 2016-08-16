@@ -34,9 +34,9 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.inject.Inject;
 
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 

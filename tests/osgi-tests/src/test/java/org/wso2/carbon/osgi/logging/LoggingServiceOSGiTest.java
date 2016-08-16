@@ -24,8 +24,8 @@ import org.osgi.service.log.LogReaderService;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.util.Enumeration;
 import javax.inject.Inject;

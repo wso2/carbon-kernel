@@ -17,8 +17,8 @@ import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.util.Arrays;
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
@@ -47,52 +47,6 @@ public class TestCarbonContainer {
                         .versionAsInProject()),
                 //                                        CarbonDistributionOption.debug("5005")
         };
-
-        //                return new Option[] {
-        //                        repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-        //                        carbonDistributionConfiguration().distributionZipPath(Paths.get
-        //                                ("/home/chanaka/Documents/WSO2/Git/C5/C5-2/carbon-kernel/tests/test-distribution"
-        //                                        + "/target/wso2carbon-kernel-test-5.1.0-SNAPSHOT.zip")),
-        //                        keepRuntimeDirectory(),
-        //                        addCoverageOption(),
-        //                        //                                CarbonDistributionOption.debug("5005")
-        //                };
-
-        //        return new Option[] { repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-        //                carbonDistributionConfiguration().distributionDirectoryPath(
-        //                        Paths.get("target/wso2carbon-kernel-test-5.1.0-SNAPSHOT")),
-        //                addCoverageOption(),
-        //           keepRuntimeDirectory(),
-        ////                                CarbonDistributionOption.debug("5005")
-        //        };
-
-        //        return new Option[] {
-        //                repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-        //                carbonDistributionConfiguration().distributionMavenURL(
-        //                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-        //                                .version("5.1.0-SNAPSHOT")).unpackDirectory(Paths.get("target","pax")),
-        //                keepRuntimeDirectory()
-        //                //                                CarbonDistributionOption.debug("5005")
-        //        };
-
-        //                        return new Option[] {
-        //                                repository("http://maven.wso2.org/nexus/content/groups/wso2-public"),
-        //                                carbonDistributionConfiguration().distributionMavenURL(maven().groupId("org.wso2.carbon").artifactId
-        //                                ("wso2carbon-kernel-test").type("zip")
-        //                                        .version("5.1.0-SNAPSHOT")),
-        //                                keepRuntimeDirectory(),
-        //                                mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
-        //                                        .versionAsInProject(),
-        //                                mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
-        //                                        .versionAsInProject(),
-        //                                mavenBundle().artifactId("org.wso2.carbon.sample.transport.custom").groupId("org.wso2.carbon")
-        //                                        .versionAsInProject(),
-        //                                mavenBundle().artifactId("org.wso2.carbon.sample.transport.jms").groupId("org.wso2.carbon")
-        //                                        .versionAsInProject(),
-        //                                mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-        //                                        .versionAsInProject(),
-        //                //                CarbonDistributionOption.debug("5005")
-        //                        };
     }
 
     @Test

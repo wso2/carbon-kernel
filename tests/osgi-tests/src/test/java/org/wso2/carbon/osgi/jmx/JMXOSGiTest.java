@@ -28,12 +28,12 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.inject.Inject;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 

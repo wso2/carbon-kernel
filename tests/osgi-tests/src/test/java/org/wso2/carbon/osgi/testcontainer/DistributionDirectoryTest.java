@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.nio.file.Paths;
+import javax.inject.Inject;
 
 import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonDistribution;
 

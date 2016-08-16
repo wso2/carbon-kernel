@@ -32,9 +32,9 @@ import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.kernel.utils.Utils;
 
-import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.inject.Inject;
 
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 

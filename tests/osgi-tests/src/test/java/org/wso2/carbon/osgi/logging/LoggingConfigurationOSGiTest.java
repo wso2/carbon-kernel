@@ -33,7 +33,6 @@ import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +42,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 
 /**
  * Logging Configuration OSGi test case.

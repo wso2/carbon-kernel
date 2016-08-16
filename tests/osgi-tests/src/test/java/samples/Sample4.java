@@ -17,8 +17,8 @@ import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.container.options.CarbonDistributionOption;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
-import javax.inject.Inject;
 import java.nio.file.Paths;
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
@@ -38,8 +38,8 @@ public class Sample4 {
     public Option[] config() {
         return new Option[] {
                 CarbonDistributionOption.carbonDistribution(
-                maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
-                        .versionAsInProject()).unpackDirectory(Paths.get("target", "pax")),};
+                        maven().groupId("org.wso2.carbon").artifactId("wso2carbon-kernel-test").type("zip")
+                                .versionAsInProject()).unpackDirectory(Paths.get("target", "pax")), };
     }
 
     @Test
@@ -47,7 +47,6 @@ public class Sample4 {
         logger.info("Sample 4-1");
         //            logger.info(bundleContext.getBundle().getSymbolicName());
         //            logger.info(System.getProperty("carbon.home"));
-        //            Arrays.asList(bundleContext.getBundles()).forEach(bundle -> logger.info(bundle.getSymbolicName()));
     }
 
     @Test
