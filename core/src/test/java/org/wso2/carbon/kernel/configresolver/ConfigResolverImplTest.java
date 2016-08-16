@@ -633,7 +633,6 @@ public class ConfigResolverImplTest {
                         field.setAccessible(true);
                         Object obj = field.get(env);
                         Map<String, String> map = (Map<String, String>) obj;
-                        map.clear();
                         map.putAll(newenv);
                     }
                 }
