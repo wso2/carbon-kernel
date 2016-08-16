@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.kernel.internal.configresolver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +21,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.carbon.kernel.utils.configfiletypes.AbstractConfigFileType;
-import org.wso2.carbon.kernel.utils.configfiletypes.Properties;
-import org.wso2.carbon.kernel.utils.configfiletypes.XML;
-import org.wso2.carbon.kernel.utils.configfiletypes.YAML;
+import org.wso2.carbon.kernel.configresolver.ConfigResolver;
+import org.wso2.carbon.kernel.configresolver.configfiles.AbstractConfigFile;
+import org.wso2.carbon.kernel.configresolver.configfiles.Properties;
+import org.wso2.carbon.kernel.configresolver.configfiles.XML;
+import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
+import org.wso2.carbon.kernel.utils.StringUtils;
+import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -57,13 +60,13 @@ import javax.xml.xpath.XPathFactory;
 
 /**
  * This util class provide the ability to override configurations in various components using a single file which has
- * the name {@link ConfigResolver#CONFIG_FILE_NAME}.
+ * the name {@link ConfigResolverImpl#CONFIG_FILE_NAME}.
  *
  * @since 5.2.0
  */
-public final class ConfigResolver {
+public class ConfigResolverImpl implements ConfigResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigResolver.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(ConfigResolverImpl.class.getName());
     //This is used to read the {@link ConfigUtil#CONFIG_FILE_NAME} file location using System Properties or
     // Environmental variables.
     private static final String FILE_PATH_KEY = "deployment.conf";
@@ -93,8 +96,8 @@ public final class ConfigResolver {
     }
 
     /**
-     * This method will load configurations from the {@link ConfigResolver#CONFIG_FILE_NAME} file. The reason for this
-     * to be a separate method is to improve code coverage. We can change the visibility of this method to public
+     * This method will load configurations from the {@link ConfigResolverImpl#CONFIG_FILE_NAME} file. The reason for
+     * this to be a separate method is to improve code coverage. We can change the visibility of this method to public
      * when testing and then use this to test loading file path from environment variables/system properties.
      */
     private static void loadConfigs() {
@@ -139,30 +142,33 @@ public final class ConfigResolver {
     }
 
     /**
-     * Private constructor to avoid creating instances because this is a util class.
+     * Protected constructor to avoid creating instances other than ${@link ConfigResolverComponent}.
      */
-    private ConfigResolver() {
+    protected ConfigResolverImpl() {
 
     }
 
     /**
-     * This method reads the provided {@link File} and returns an object of type {@link AbstractConfigFileType}
+     * This method reads the provided {@link File} and returns an object of type {@link AbstractConfigFile}
      * which was given as a input. That object has the new configurations as a String which you can get by
-     * {@link AbstractConfigFileType#getValue()} method.
+     * {@link AbstractConfigFile#getContent()} method.
      *
      * @param <T>   The class representing the configuration file type
      * @param file  Input config file
-     * @param clazz Configuration file type which is a subclass of {@link AbstractConfigFileType}.
+     * @param clazz Configuration file type which is a subclass of {@link AbstractConfigFile}.
      * @return The new configurations in the given format as a String.
-     * @see AbstractConfigFileType
+     * @see AbstractConfigFile
      */
-    public static <T extends AbstractConfigFileType> T getConfig(File file, Class<T> clazz) {
+    public <T extends AbstractConfigFile> T getConfig(File file, Class<T> clazz) {
         T newConfig;
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             newConfig = getConfig(fileInputStream, file.getName(), clazz);
         } catch (FileNotFoundException e) {
             String msg = String.format("File not found at %s", file.getAbsolutePath());
+            logger.error(msg, e);
+            throw new RuntimeException(msg, e);
+        } catch (IOException e) {
+            String msg = String.format("An error occurred while reading file %s", file.getAbsolutePath());
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
         }
@@ -171,18 +177,18 @@ public final class ConfigResolver {
 
     /**
      * This method reads the provided {@link FileInputStream} and returns an object of type
-     * {@link AbstractConfigFileType} which was given as a input. That object has the new configurations as a String
-     * which you can get by {@link AbstractConfigFileType#getValue()} method.
+     * {@link AbstractConfigFile} which was given as a input. That object has the new configurations as a String
+     * which you can get by {@link AbstractConfigFile#getContent()} method.
      *
      * @param <T>         The class representing the configuration file type.
      * @param inputStream FileInputStream of the config file.
      * @param fileNameKey Name of the config file.
-     * @param clazz       Configuration file type which is a subclass of {@link AbstractConfigFileType}.
+     * @param clazz       Configuration file type which is a subclass of {@link AbstractConfigFile}.
      * @return The new configurations in the given format as a String.
-     * @see AbstractConfigFileType
+     * @see AbstractConfigFile
      */
-    public static <T extends AbstractConfigFileType> T getConfig(FileInputStream inputStream, String fileNameKey,
-                                                                 Class<T> clazz) {
+    public <T extends AbstractConfigFile> T getConfig(FileInputStream inputStream, String fileNameKey,
+                                                      Class<T> clazz) {
         String xmlString;
         //properties file can be directly load from the InputStream
         if (clazz == Properties.class) {
@@ -215,7 +221,7 @@ public final class ConfigResolver {
         //Convert xml back to original format
         String convertedString = convertToOriginalFormat(xmlString, clazz);
 
-        AbstractConfigFileType baseObject = null;
+        AbstractConfigFile baseObject = null;
         //No need for else because if the class is not supported, a RuntimeException will be thrown above
         if (clazz == YAML.class) {
             baseObject = new YAML(convertedString);
@@ -248,13 +254,13 @@ public final class ConfigResolver {
 
     /**
      * This method returns the configuration associated with the given key in the
-     * {@link ConfigResolver#CONFIG_FILE_NAME}.
+     * {@link ConfigResolverImpl#CONFIG_FILE_NAME}.
      *
      * @param key Key of the configuration.
      * @return The new configuration if the key is found. If the key is not found, null is returned. This is because
      * the developer can check whether the given key is overridden or not.
      */
-    public static String getConfig(String key) {
+    public String getConfig(String key) {
         int index = key.indexOf('/');
         if (index == -1) {
             String msg = "Invalid key. Key should be in [filename]/xpath format.";
@@ -415,9 +421,9 @@ public final class ConfigResolver {
     }
 
     /**
-     * This method read the {@link ConfigResolver#CONFIG_FILE_NAME} on when this class loads
+     * This method read the {@link ConfigResolverImpl#CONFIG_FILE_NAME} on when this class loads
      *
-     * @return Configurations in the {@link ConfigResolver#CONFIG_FILE_NAME} in Map format
+     * @return Configurations in the {@link ConfigResolverImpl#CONFIG_FILE_NAME} in Map format
      */
     private static Map<String, Map<String, String>> readDeploymentFile(String filePath) {
         Map<String, Map<String, String>> tempPropertiesMap = new HashMap<>();
@@ -473,7 +479,7 @@ public final class ConfigResolver {
      * placeholders within the same String as well.
      *
      * @param inputString Placeholder that needs to be replaced
-     * @return New getValue which corresponds to inputString
+     * @return New getContent which corresponds to inputString
      */
     private static String processPlaceholder(String inputString) {
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(inputString);
@@ -545,7 +551,7 @@ public final class ConfigResolver {
 
     /**
      * This method will concatenate and return the file types that need a root element. File types will be separated
-     * by | token. This method will be used to create the {@link ConfigResolver#FILE_REGEX}.
+     * by | token. This method will be used to create the {@link ConfigResolverImpl#FILE_REGEX}.
      *
      * @return String that contains file types which are separated by | token.
      */
@@ -561,7 +567,7 @@ public final class ConfigResolver {
 
     /**
      * This method will concatenate and return the placeholder types.. Placeholder types will be separated
-     * by | token. This method will be used to create the {@link ConfigResolver#PLACEHOLDER_REGEX}.
+     * by | token. This method will be used to create the {@link ConfigResolverImpl#PLACEHOLDER_REGEX}.
      *
      * @return String that contains placeholder types which are separated by | token.
      */
@@ -576,11 +582,11 @@ public final class ConfigResolver {
     }
 
     /**
-     * This method will return the {@link ConfigResolver#CONFIG_FILE_NAME} file path. Path will be read using
-     * {@link ConfigResolver#FILE_PATH_KEY} environment variable or {@link ConfigResolver#FILE_PATH_KEY}
+     * This method will return the {@link ConfigResolverImpl#CONFIG_FILE_NAME} file path. Path will be read using
+     * {@link ConfigResolverImpl#FILE_PATH_KEY} environment variable or {@link ConfigResolverImpl#FILE_PATH_KEY}
      * system variable respectively. If both are null, CARBON_HOME/conf will be set as the default location.
      *
-     * @return Location of the {@link ConfigResolver#CONFIG_FILE_NAME} file.
+     * @return Location of the {@link ConfigResolverImpl#CONFIG_FILE_NAME} file.
      */
     private static String getPath() {
         String fileLocation = System.getenv(FILE_PATH_KEY);

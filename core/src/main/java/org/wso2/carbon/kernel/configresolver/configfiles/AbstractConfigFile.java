@@ -13,23 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils.configfiletypes;
+package org.wso2.carbon.kernel.configresolver.configfiles;
 
 /**
  * This class is used to return the new config values to the component developer.
  *
  * @since 5.2.0
  */
-public abstract class AbstractConfigFileType {
+public abstract class AbstractConfigFile {
 
-    private String value;
+    private String content;
 
-    public AbstractConfigFileType(String value) {
-        this.value = value;
+    public AbstractConfigFile(String content) {
+        this.content = content;
     }
 
-    public String getValue() {
-        return value;
+    public String getContent() {
+        return content;
     }
 
 }

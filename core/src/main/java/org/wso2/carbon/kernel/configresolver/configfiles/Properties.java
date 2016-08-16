@@ -13,15 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils.configfiletypes;
+package org.wso2.carbon.kernel.configresolver.configfiles;
 
 /**
- * This class represents YAML formatted config data and contains YAML in String format.
+ * This class represents Properties formatted config data and contains Properties in String format.
  *
  * @since 5.2.0
  */
-public final class YAML extends AbstractConfigFileType {
-    public YAML(String value) {
-        super(value);
+public final class Properties extends AbstractConfigFile {
+    public Properties(String content) {
+        super(content);
     }
 }

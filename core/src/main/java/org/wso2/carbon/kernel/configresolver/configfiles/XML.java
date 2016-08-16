@@ -13,15 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils.configfiletypes;
+package org.wso2.carbon.kernel.configresolver.configfiles;
 
 /**
- * This class represents Properties formatted config data and contains Properties in String format.
+ * This class represents XML formatted config data and contains XML in String format.
  *
  * @since 5.2.0
  */
-public final class Properties extends AbstractConfigFileType {
-    public Properties(String value) {
-        super(value);
+public final class XML extends AbstractConfigFile {
+    public XML(String content) {
+        super(content);
     }
 }
