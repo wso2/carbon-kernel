@@ -198,6 +198,7 @@ public class ServerManager {
         Element element = null;
 
         try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             docBuilder = factory.newDocumentBuilder();
             doc = docBuilder.parse(inputStream);
             element = doc.getDocumentElement();
