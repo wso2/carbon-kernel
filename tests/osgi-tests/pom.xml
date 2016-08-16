@@ -66,7 +66,6 @@
             <artifactId>org.jacoco.ant</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
@@ -82,6 +81,19 @@
             <artifactId>pax-logging-log4j2</artifactId>
         </dependency>
 
+        <!--Test Distribution-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>wso2carbon-kernel-test</artifactId>
+            <version>${carbon.kernel.version}</version>
+            <type>zip</type>
+        </dependency>
+
+        <!--Pax exam Container Carbon-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.container</artifactId>
+        </dependency>
 
         <!-- Test artifacts -->
         <dependency>
@@ -183,16 +195,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.sample.runtime.service</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>wso2carbon-kernel-test</artifactId>
-            <version>${carbon.kernel.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.container</artifactId>
         </dependency>
     </dependencies>
     <profiles>
