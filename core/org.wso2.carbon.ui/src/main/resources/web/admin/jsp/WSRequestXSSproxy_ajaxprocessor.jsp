@@ -20,6 +20,7 @@
 <%@ page import="org.apache.axiom.soap.SOAP11Constants" %>
 <%@ page import="org.apache.axiom.soap.SOAP12Constants"%>
 <%@ page import="org.apache.axiom.soap.SOAPEnvelope"%>
+<%@ page import="org.apache.axis2.Constants"%>
 <%@ page import="org.apache.axis2.addressing.EndpointReference"%>
 <%@ page import="org.apache.axis2.client.Options"%>
 <%@ page import="org.apache.axis2.client.ServiceClient"%>
@@ -31,7 +32,6 @@
 <%@ page import="org.apache.axis2.util.JavaUtils"%>
 <%@ page import="org.apache.axis2.util.XMLUtils"%>
 <%@ page import="org.apache.neethi.PolicyEngine"%>
-<%@ page import="org.apache.xerces.impl.Constants" %>
 <%@ page import="org.apache.xerces.util.SecurityManager"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
@@ -69,8 +69,8 @@
         documentBuilderFactory.setXIncludeAware(false);
         SecurityManager securityManager = new SecurityManager();
         securityManager.setEntityExpansionLimit(0);
-        documentBuilderFactory.setAttribute(Constants.XERCES_PROPERTY_PREFIX +
-                Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+        documentBuilderFactory.setAttribute(org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
+                org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY, securityManager);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         documentBuilder.setEntityResolver(new EntityResolver() {
             @Override
