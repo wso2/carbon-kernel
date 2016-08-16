@@ -319,11 +319,9 @@ public class Utils {
             throw new RuntimeException("Root element not found when converting XML to Properties");
         }
         StringBuilder stringBuilder = new StringBuilder();
-        String tempString;
         for (Object entryObject : map.entrySet()) {
             Map.Entry entry = (Map.Entry) entryObject;
-            tempString = entry.getKey() + " = " + entry.getValue();
-            stringBuilder.append(tempString).append("\n");
+            stringBuilder.append(entry.getKey()).append(" = ").append(entry.getValue()).append("\n");
         }
         return stringBuilder.toString();
     }

@@ -309,34 +309,34 @@ public final class ConfigUtil {
                 XPath xPath = XPathFactory.newInstance().newXPath();
                 Map<String, String> newConfig = deploymentPropertiesMap.get(fileNameKey);
                 newConfig.keySet()
-                         .forEach(xPathKey -> {
-                             try {
-                                 NodeList nodeList = (NodeList) xPath.compile(xPathKey).evaluate(document,
-                                         XPathConstants.NODESET);
+                        .forEach(xPathKey -> {
+                            try {
+                                NodeList nodeList = (NodeList) xPath.compile(xPathKey).evaluate(document,
+                                        XPathConstants.NODESET);
                                  /* If deployment.properties has configs which is not in the original config
                                  file, the nodeList.item(0) will be null. In this case, we have to throw an exception
                                   and indicate that there are additional configs in the deployment.properties file
                                   which are not in the original config file */
-                                 if (nodeList.item(0) == null) {
-                                     //If xpath in deployment.properties not found in the original config file, throw an
-                                     // exception
-                                     String msg = String.format(
-                                             "%s was not found in %s. Remove this entry from the %s or add this config"
-                                                     + " to %s file.", xPathKey, fileNameKey, CONFIG_FILE_NAME,
-                                             fileNameKey);
-                                     logger.error(msg);
-                                     throw new RuntimeException(msg);
-                                 }
-                                 Node firstNode = nodeList.item(0);
-                                 firstNode.getFirstChild().setNodeValue(newConfig.get(xPathKey));
-                             } catch (XPathExpressionException e) {
-                                 String msg = String.format(
-                                         "Exception occurred when applying xpath. Check the syntax and make sure it is"
-                                                 + " a valid xpath: %s", xPathKey);
-                                 logger.error(msg, e);
-                                 throw new RuntimeException(msg, e);
-                             }
-                         });
+                                if (nodeList.item(0) == null) {
+                                    //If xpath in deployment.properties not found in the original config file, throw an
+                                    // exception
+                                    String msg = String.format(
+                                            "%s was not found in %s. Remove this entry from the %s or add this config"
+                                                    + " to %s file.", xPathKey, fileNameKey, CONFIG_FILE_NAME,
+                                            fileNameKey);
+                                    logger.error(msg);
+                                    throw new RuntimeException(msg);
+                                }
+                                Node firstNode = nodeList.item(0);
+                                firstNode.getFirstChild().setNodeValue(newConfig.get(xPathKey));
+                            } catch (XPathExpressionException e) {
+                                String msg = String.format(
+                                        "Exception occurred when applying xpath. Check the syntax and make sure it is"
+                                                + " a valid xpath: %s", xPathKey);
+                                logger.error(msg, e);
+                                throw new RuntimeException(msg, e);
+                            }
+                        });
             }
             //process placeholders
             processPlaceholdersInXML(document.getDocumentElement().getChildNodes());
@@ -420,55 +420,49 @@ public final class ConfigUtil {
      */
     private static Map<String, Map<String, String>> readDeploymentFile(String filePath) {
         Map<String, Map<String, String>> tempPropertiesMap = new HashMap<>();
-        java.util.Properties deploymentProperties = new java.util.Properties();
-        InputStream input = null;
-        try {
-            File file = new File(filePath);
+
+        File file = new File(filePath);
+        if (!file.exists()) {
             //If the file is not found, return an empty map
-            if (!file.exists()) {
-                logger.debug("{} not found.", filePath);
-                return tempPropertiesMap;
-            }
+            logger.debug("{} not found.", filePath);
+            return tempPropertiesMap;
+        }
+
+        try (InputStream input = new FileInputStream(file)) {
             logger.debug("{} found. Reading new config data.", filePath);
-            input = new FileInputStream(file);
+
+            java.util.Properties deploymentProperties = new java.util.Properties();
             deploymentProperties.load(input);
             //Process each entry in the deployment.properties file and add them to tempPropertiesMap
-            deploymentProperties.keySet()
-                                .forEach(key -> {
-                                    String keyString = key.toString();
-                                    int index = keyString.indexOf("/");
-                                    //Splitting the string
-                                    String fileName = keyString.substring(0, index).replaceAll("[\\[\\]]", "");
-                                    String xpath = keyString.substring(index);
-                                    String value = deploymentProperties.getProperty(keyString);
-                                    //Add root element for yml, properties files
-                                    if (fileName.matches(FILE_REGEX)) {
-                                        xpath = "/" + ROOT_ELEMENT + xpath;
-                                    }
-                                    //If the fileName is already in the tempPropertiesMap, update the 2nd map
-                                    // (which is the value of the tempPropertiesMap). Otherwise create a new map
-                                    // and add it to the tempPropertiesMap
-                                    if (tempPropertiesMap.containsKey(fileName)) {
-                                        Map<String, String> tempMap = tempPropertiesMap.get(fileName);
-                                        tempMap.put(xpath, value);
-                                    } else {
-                                        Map<String, String> tempMap = new HashMap<>();
-                                        tempMap.put(xpath, value);
-                                        tempPropertiesMap.put(fileName, tempMap);
-                                    }
-                                });
+            deploymentProperties.entrySet()
+                    .forEach(entry -> {
+                        String keyString = entry.getKey().toString();
+                        String value = entry.getValue().toString();
+
+                        int index = keyString.indexOf("/");
+                        //Splitting the string
+                        String fileName = keyString.substring(0, index).replaceAll("[\\[\\]]", "");
+                        String xpath = keyString.substring(index);
+                        //Add root element for yml, properties files
+                        if (fileName.matches(FILE_REGEX)) {
+                            xpath = "/" + ROOT_ELEMENT + xpath;
+                        }
+                        //If the fileName is already in the tempPropertiesMap, update the 2nd map
+                        // (which is the value of the tempPropertiesMap). Otherwise create a new map
+                        // and add it to the tempPropertiesMap
+                        if (tempPropertiesMap.containsKey(fileName)) {
+                            Map<String, String> tempMap = tempPropertiesMap.get(fileName);
+                            tempMap.put(xpath, value);
+                        } else {
+                            Map<String, String> tempMap = new HashMap<>();
+                            tempMap.put(xpath, value);
+                            tempPropertiesMap.put(fileName, tempMap);
+                        }
+                    });
         } catch (IOException ioException) {
             String msg = String.format("Error occurred during reading the %s file.", CONFIG_FILE_NAME);
             logger.error(msg, ioException);
             throw new RuntimeException(msg, ioException);
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException ioException2) {
-                    logger.warn("Error occurred while closing the InputStream.", ioException2);
-                }
-            }
         }
         return tempPropertiesMap;
     }
@@ -559,9 +553,9 @@ public final class ConfigUtil {
         for (FileType fileType : FileType.values()) {
             stringBuilder.append(fileType.getValue()).append("|");
         }
-        String value = stringBuilder.toString();
+        String value = stringBuilder.substring(0, stringBuilder.length() - 1);
         logger.debug("FileTypes String: {}", value);
-        return value.substring(0, value.length() - 1);
+        return value;
     }
 
     /**
@@ -575,9 +569,9 @@ public final class ConfigUtil {
         for (Placeholder placeholder : Placeholder.values()) {
             stringBuilder.append(placeholder.getValue()).append("|");
         }
-        String value = stringBuilder.toString();
+        String value = stringBuilder.substring(0, stringBuilder.length() - 1);
         logger.debug("PlaceHolders String: {}", value);
-        return value.substring(0, value.length() - 1);
+        return value;
     }
 
     /**
