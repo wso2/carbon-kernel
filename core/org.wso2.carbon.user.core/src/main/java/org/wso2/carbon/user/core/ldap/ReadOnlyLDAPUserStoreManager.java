@@ -86,6 +86,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
+    //Authenticating to LDAP via Anonymous Bind
+    private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
 
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
@@ -229,22 +231,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         String connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
         String DNSURL = realmConfig.getUserStoreProperty(LDAPConstants.DNS_URL);
+        String AnonymousBind = realmConfig.getUserStoreProperty(USE_ANONYMOUS_BIND);
 
         if ((connectionURL == null || connectionURL.trim().length() == 0) &&
                 ((DNSURL == null || DNSURL.trim().length() == 0))) {
             throw new UserStoreException(
                     "Required ConnectionURL property is not set at the LDAP configurations");
         }
-        String connectionName = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME);
-        if (connectionName == null || connectionName.trim().length() == 0) {
-            throw new UserStoreException(
-                    "Required ConnectionNme property is not set at the LDAP configurations");
-        }
-        String connectionPassword =
-                realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
-        if (connectionPassword == null || connectionPassword.trim().length() == 0) {
-            throw new UserStoreException(
-                    "Required ConnectionPassword property is not set at the LDAP configurations");
+        if (!Boolean.parseBoolean(AnonymousBind)) {
+            String connectionName = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME);
+            if (StringUtils.isEmpty(connectionName)) {
+                throw new UserStoreException(
+                        "Required ConnectionNme property is not set at the LDAP configurations");
+            }
+            String connectionPassword =
+                    realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
+            if (StringUtils.isEmpty(connectionPassword)) {
+                throw new UserStoreException(
+                        "Required ConnectionPassword property is not set at the LDAP configurations");
+            }
         }
         userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         if (userSearchBase == null || userSearchBase.trim().length() == 0) {
