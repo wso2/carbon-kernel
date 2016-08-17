@@ -581,6 +581,7 @@ public class DatabaseUtil {
                     log.error("A null datasource was encountered during SQLRecoverableException handling recovery operation - exiting recovery. " + e.getMessage(), e);
                 else
                     log.error("An error occurred during SQLRecoverableException handling recovery operation - exiting recovery. " + e.getMessage() , e);
+
             }
         } catch (SQLException sqlEx){
             log.error("An error occurred during SQLRecoverableException handling close operation  - continuing with errors. " + sqlEx.getMessage(), sqlEx);
@@ -617,7 +618,7 @@ public class DatabaseUtil {
 
     /**
      * Recommend:
-     * @deprecated Should discontinue use in favor of the parametrized close method.
+     * using the parametrized close method.
      */
     public static void closeAllConnections(Connection dbConnection, PreparedStatement... prepStmts) {
         close(dbConnection, prepStmts);
@@ -625,7 +626,7 @@ public class DatabaseUtil {
 
     /**
      * Recommend:
-     * @deprecated Should discontinue use in favor of the parametrized close method.
+     * using the parametrized close method.
      */
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
         close(dbConnection,rs,prepStmts);
@@ -633,7 +634,7 @@ public class DatabaseUtil {
 
     /**
      * Recommend:
-     * @deprecated Should discontinue use in favor of the parametrized close method.
+     * using the parametrized close method.
      */
     public static void closeAllConnections(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
