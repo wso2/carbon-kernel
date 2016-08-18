@@ -236,8 +236,6 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.18.1</version>
                         <configuration>
-                            <forkCount>5</forkCount>
-                            <reuseForks>false</reuseForks>
                             <systemPropertyVariables>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
                                 <org.wso2.carbon.test.default.distribution>

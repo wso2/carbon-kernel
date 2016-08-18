@@ -351,12 +351,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
-                <artifactId>pax-exam-container-native</artifactId>
+                <artifactId>pax-exam-testng</artifactId>
                 <version>${pax.exam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
-                <artifactId>pax-exam-testng</artifactId>
+                <artifactId>pax-exam-container-remote</artifactId>
                 <version>${pax.exam.version}</version>
             </dependency>
             <dependency>
@@ -390,9 +390,19 @@
                 <version>${commons.io.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons.compress.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.orbit.org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kohsuke.metainf-services</groupId>
+                <artifactId>metainf-services</artifactId>
+                <version>${org.kohsuke.metainf.services.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -491,6 +501,8 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <commons.compress.version>1.4.1</commons.compress.version>
+        <org.kohsuke.metainf.services.version>1.2</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>
