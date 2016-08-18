@@ -17,6 +17,8 @@ package org.wso2.carbon.kernel.internal.utils;
 
 import org.wso2.carbon.kernel.Constants;
 
+import java.nio.file.Paths;
+
 /**
  * Kernel internal utils.
  *
@@ -37,4 +39,24 @@ public class Utils {
                 .toString();
     }
 
+    /**
+     * Returns the secure_vault.yml location.
+     *
+     * @return String secure_vault.yml location
+     */
+    public static String getSecureVaultYAMLLocation() {
+        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(Constants.SECURE_VAULT_CONFIG_YAML)
+                .toString();
+    }
+
+    /**
+     * Returns the secrets.properties location.
+     *
+     * @return String secrets.properties location
+     */
+    public static String getSecretsPropertiesLocation() {
+        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(Paths.get("security",
+                Constants.SECRETS_PROPERTIES))
+                .toString();
+    }
 }
