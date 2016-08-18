@@ -41,12 +41,12 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * The Java class which defines the CipherTool as a CarbonTool.
+ * The Java class which defines the CipherToolInitializer as a CarbonTool.
  *
  * @since 5.2.0
  */
-public class CipherTool implements CarbonTool {
-    private static final Logger logger = Logger.getLogger(CipherTool.class.getName());
+public class CipherToolInitializer implements CarbonTool {
+    private static final Logger logger = Logger.getLogger(CipherToolInitializer.class.getName());
     private static final String ENCRYPT_TEXT = "encryptText";
     private static final String DECRYPT_TEXT = "decryptText";
     private static final String CUSTOM_LIB_PATH = "customLibPath";
