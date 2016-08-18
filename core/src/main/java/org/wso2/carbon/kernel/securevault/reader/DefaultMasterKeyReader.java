@@ -62,6 +62,7 @@ import java.util.Properties;
 )
 public class DefaultMasterKeyReader implements MasterKeyReader {
     private static Logger logger = LoggerFactory.getLogger(DefaultMasterKeyReader.class);
+    private static final String PERMANENT = "permanent";
     private boolean isPermanentFile = false;
 
     @Activate
@@ -98,7 +99,7 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
         masterKeys.forEach(masterKey -> {
             logger.debug("Reading master key '{}' from environment variables.", masterKey.getMasterKeyName());
             Optional.ofNullable(System.getenv(masterKey.getMasterKeyName()))
-                    .ifPresent(s -> masterKey.setMasterKeyValue(s));
+                    .ifPresent(masterKey::setMasterKeyValue);
         });
     }
 
@@ -106,7 +107,7 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
         masterKeys.forEach(masterKey -> {
             logger.debug("Reading master key '{}' from system properties.", masterKey.getMasterKeyName());
             Optional.ofNullable(System.getProperty(masterKey.getMasterKeyName()))
-                    .ifPresent(s -> masterKey.setMasterKeyValue(s));
+                    .ifPresent(masterKey::setMasterKeyValue);
         });
     }
 
@@ -122,7 +123,7 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
                 throw new SecureVaultException("Password file is empty " + passwordFilePath.toFile());
             }
 
-            String permanentFile = properties.getProperty("permanent");
+            String permanentFile = properties.getProperty(PERMANENT);
             if (permanentFile != null && !permanentFile.isEmpty()) {
                 isPermanentFile = Boolean.parseBoolean(permanentFile);
             }
