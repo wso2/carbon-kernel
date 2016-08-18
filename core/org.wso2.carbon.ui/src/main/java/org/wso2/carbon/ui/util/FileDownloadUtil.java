@@ -51,6 +51,13 @@ public class FileDownloadUtil {
         mimeMap.init(context);
     }
 
+    private String sanitize(String input) {
+        if (input.isEmpty()) {
+            return input;
+        }
+        return input.replaceAll("(\\r|\\n|%0D|%0A|%0a|%0d)", "");
+    }
+
     public synchronized boolean acquireResource(ConfigurationContextService configCtxService,
                                                 HttpServletRequest request,
                                                 HttpServletResponse response)
@@ -64,7 +71,7 @@ public class FileDownloadUtil {
             log.error(msg, e);
             throw new CarbonException(msg, e);
         }
-        String fileID = request.getParameter("id");
+        String fileID = sanitize(request.getParameter("id"));
         String fileName = getFileName(configCtxService, request, fileID);
 
         if (fileName == null) {

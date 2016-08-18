@@ -69,6 +69,13 @@ public final class CarbonUILoginUtil {
         return AuthenticatorRegistry.getCarbonAuthenticator(request);
     }
 
+    private static String sanitize(String input) {
+        if (input.isEmpty()) {
+            return input;
+        }
+        return input.replaceAll("(\\r|\\n|%0D|%0A|%0a|%0d)", "");
+    }
+
     /**
      * 
      * @param authenticator
@@ -104,7 +111,7 @@ public final class CarbonUILoginUtil {
             request.getSession(false).setAttribute("requestedUri", tmpURI);
             if (!tmpURI.contains("session-validate.jsp") && !("/null").equals(requestedURI)) {
                 // Also setting it in a cookie, for non-remember-me cases
-                Cookie cookie = new Cookie("requestedURI", tmpURI);
+                Cookie cookie = new Cookie("requestedURI", sanitize(tmpURI));
                 cookie.setPath("/");
                 cookie.setSecure(true);
                 cookie.setHttpOnly(true);
