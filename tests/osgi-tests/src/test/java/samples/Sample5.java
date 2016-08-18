@@ -22,6 +22,9 @@ import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
+/**
+ * Sample 5.
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)

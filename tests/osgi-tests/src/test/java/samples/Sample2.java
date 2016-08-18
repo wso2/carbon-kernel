@@ -20,6 +20,9 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 
+/**
+ * Sample 2.
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)

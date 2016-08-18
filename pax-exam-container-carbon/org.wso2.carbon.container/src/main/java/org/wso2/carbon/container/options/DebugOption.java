@@ -18,7 +18,7 @@ package org.wso2.carbon.container.options;
 import org.ops4j.pax.exam.Option;
 
 /**
- * Start the distribution in debug mode
+ * Start the distribution in debug mode.
  */
 public class DebugOption implements Option {
 
