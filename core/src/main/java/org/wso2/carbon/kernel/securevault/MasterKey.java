@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 public class MasterKey {
     private String masterKeyName;
-    private Optional<String> optMasterKeyValue = Optional.empty();
+    private Optional<char[]> optMasterKeyValue = Optional.empty();
 
     public MasterKey(String masterKeyName) {
         this.masterKeyName = masterKeyName;
@@ -36,11 +36,11 @@ public class MasterKey {
         return masterKeyName;
     }
 
-    public Optional<String> getMasterKeyValue() {
+    public Optional<char[]> getMasterKeyValue() {
         return optMasterKeyValue;
     }
 
-    public void setMasterKeyValue(String masterKeyValue) {
+    public void setMasterKeyValue(char[] masterKeyValue) {
         this.optMasterKeyValue = Optional.ofNullable(masterKeyValue);
     }
 }

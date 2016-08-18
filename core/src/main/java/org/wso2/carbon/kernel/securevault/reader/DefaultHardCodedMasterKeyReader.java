@@ -67,10 +67,10 @@ public class DefaultHardCodedMasterKeyReader implements MasterKeyReader {
         logger.debug("Providing hard coded secrets for 'keyStorePassword' and 'privateKeyPassword'");
 
         MasterKey keyStorePassword = SecureVaultUtils.getSecret(masterKeys, JKSBasedCipherProvider.KEY_STORE_PASSWORD);
-        keyStorePassword.setMasterKeyValue("wso2carbon");
+        keyStorePassword.setMasterKeyValue("wso2carbon".toCharArray());
 
         MasterKey privateKeyPassword = SecureVaultUtils.getSecret(masterKeys,
                 JKSBasedCipherProvider.PRIVATE_KEY_PASSWORD);
-        privateKeyPassword.setMasterKeyValue("wso2carbon");
+        privateKeyPassword.setMasterKeyValue("wso2carbon".toCharArray());
     }
 }
