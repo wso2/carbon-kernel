@@ -179,6 +179,90 @@ public class DefaultMasterKeyReaderTest {
         }
     }
 
+    @Test(dependsOnMethods = {"testReadMasterKeysFromPermanentFile"})
+    public void testReadMasterKeysViaRelocation() {
+        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+
+        MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
+        Properties properties = new Properties();
+        properties.setProperty("MasterKey1", "MyPasswordFromFile");
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "masterKeys", properties);
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "permanent", true);
+
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "new-master-keys.yaml").toString());
+        createMasterKeyFile(tempFile, masterKeyConfiguration);
+
+        MasterKeyConfiguration masterKeyConfiguration1 = new MasterKeyConfiguration();
+        ClassUtils.setToPrivateField(masterKeyConfiguration1, "relocation", tempFile.getAbsolutePath());
+
+        File tempFile1 = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
+        createMasterKeyFile(tempFile1, masterKeyConfiguration1);
+
+        List<MasterKey> masterKeys = new ArrayList<>();
+        masterKeys.add(new MasterKey("MasterKey1"));
+        try {
+            masterKeyReader.readMasterKeys(masterKeys);
+            Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
+        } catch (SecureVaultException e) {
+            Assert.fail("An exception occurred while reading master keys.");
+        }
+    }
+
+    @Test(dependsOnMethods = {"testReadMasterKeysViaRelocation"}, expectedExceptions = {SecureVaultException.class})
+    public void testReadMasterKeysViaRelocationNonExistingFile() throws SecureVaultException {
+        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+
+        MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
+        Properties properties = new Properties();
+        properties.setProperty("MasterKey1", "MyPasswordFromFile");
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "masterKeys", properties);
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "permanent", true);
+
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "new-master-keys.yaml").toString());
+        createMasterKeyFile(tempFile, masterKeyConfiguration);
+
+        MasterKeyConfiguration masterKeyConfiguration1 = new MasterKeyConfiguration();
+        ClassUtils.setToPrivateField(masterKeyConfiguration1, "relocation",
+                Paths.get(secureVaultTargetPath.toString(), "nonExisingPath", "master-keys.yaml").toString());
+
+        File tempFile1 = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
+        createMasterKeyFile(tempFile1, masterKeyConfiguration1);
+
+        List<MasterKey> masterKeys = new ArrayList<>();
+        masterKeys.add(new MasterKey("MasterKey1"));
+
+        masterKeyReader.readMasterKeys(masterKeys);
+        Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
+    }
+
+    @Test(expectedExceptions = {SecureVaultException.class},
+            dependsOnMethods = {"testReadMasterKeysViaRelocationNonExistingFile"})
+    public void testReadMasterKeysViaRelocationCyclicDependency() throws SecureVaultException {
+        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "new-master-keys.yaml").toString());
+        File tempFile1 = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
+        MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
+        Properties properties = new Properties();
+        properties.setProperty("MasterKey1", "MyPasswordFromFile");
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "relocation", tempFile1.getAbsolutePath());
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "masterKeys", properties);
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "permanent", true);
+
+
+        createMasterKeyFile(tempFile, masterKeyConfiguration);
+
+        MasterKeyConfiguration masterKeyConfiguration1 = new MasterKeyConfiguration();
+        ClassUtils.setToPrivateField(masterKeyConfiguration1, "relocation", tempFile.getAbsolutePath());
+
+        createMasterKeyFile(tempFile1, masterKeyConfiguration1);
+
+        List<MasterKey> masterKeys = new ArrayList<>();
+        masterKeys.add(new MasterKey("MasterKey1"));
+        masterKeyReader.readMasterKeys(masterKeys);
+        Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
+    }
+
     private void createMasterKeyFile(File file, MasterKeyConfiguration masterKeyConfiguration) {
         try {
             file.createNewFile();
