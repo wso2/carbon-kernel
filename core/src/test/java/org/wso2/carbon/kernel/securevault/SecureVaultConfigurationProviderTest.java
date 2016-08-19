@@ -85,7 +85,7 @@ public class SecureVaultConfigurationProviderTest {
         MasterKeyReaderConfiguration masterKeyReaderConfiguration = secureVaultConfiguration
                 .getMasterKeyReaderConfig();
         Assert.assertEquals(masterKeyReaderConfiguration.getType().get(),
-                "org.wso2.carbon.kernel.securevault.reader.DefaultHardCodedMasterKeyReader");
+                "org.wso2.carbon.kernel.securevault.utils.DefaultHardCodedMasterKeyReader");
         Assert.assertEquals(masterKeyReaderConfiguration.getParameter("nonExistingParam"), Optional.empty());
     }
 }

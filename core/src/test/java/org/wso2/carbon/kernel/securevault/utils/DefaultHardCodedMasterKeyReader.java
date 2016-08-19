@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.securevault.reader;
+package org.wso2.carbon.kernel.securevault.utils;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,7 +38,7 @@ import java.util.List;
  * @since 5.2.0
  */
 @Component(
-        name = "org.wso2.carbon.kernel.securevault.reader.DefaultHardCodedMasterKeyReader",
+        name = "org.wso2.carbon.kernel.securevault.utils.DefaultHardCodedMasterKeyReader",
         immediate = true,
         property = {
                 "capabilityName=org.wso2.carbon.kernel.securevault.MasterKeyReader"

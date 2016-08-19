@@ -22,8 +22,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.kernel.securevault.reader.DefaultHardCodedMasterKeyReader;
 import org.wso2.carbon.kernel.securevault.repository.DefaultSecretRepository;
+import org.wso2.carbon.kernel.securevault.utils.DefaultHardCodedMasterKeyReader;
 
 import java.io.File;
 import java.io.FileOutputStream;

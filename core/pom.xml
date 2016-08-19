@@ -158,7 +158,7 @@
             startup.listener;componentName="carbon-secure-vault";requiredService="org.wso2.carbon.kernel.securevault.SecretRepository,org.wso2.carbon.kernel.securevault.MasterKeyReader",
             osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt",
             osgi.service;objectClass="org.wso2.carbon.kernel.securevault.SecretRepository",
-            osgi.service;objectClass="org.wso2.carbon.kernel.securevault.MasterKeyReader";serviceCount="2"
+            osgi.service;objectClass="org.wso2.carbon.kernel.securevault.MasterKeyReader"
         </carbon.component>
     </properties>
 
