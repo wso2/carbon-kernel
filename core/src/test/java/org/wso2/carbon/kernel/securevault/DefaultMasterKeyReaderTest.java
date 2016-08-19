@@ -106,7 +106,7 @@ public class DefaultMasterKeyReaderTest {
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
 
-        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "password").toString());
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys").toString());
         try {
             tempFile.createNewFile();
             tempFile.deleteOnExit();
@@ -128,7 +128,7 @@ public class DefaultMasterKeyReaderTest {
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
 
-        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "password").toString());
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys").toString());
         try {
             tempFile.createNewFile();
             tempFile.deleteOnExit();
@@ -156,7 +156,7 @@ public class DefaultMasterKeyReaderTest {
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
 
-        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "password").toString());
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys").toString());
         try {
             tempFile.createNewFile();
             tempFile.deleteOnExit();

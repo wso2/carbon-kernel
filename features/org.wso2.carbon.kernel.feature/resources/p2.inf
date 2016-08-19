@@ -6,6 +6,7 @@ org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../fea
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/logs,target:${installFolder}/../../../logs/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/osgi,target:${installFolder}/../../../osgi/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/tmp,target:${installFolder}/../../../tmp/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.kernel_${feature.version}/securevault,target:${installFolder}/../../../,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:carbon.sh,permissions:755);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:jartobundle.sh,permissions:755);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../conf,targetFile:log4j2.xml,permissions:644);\
@@ -16,4 +17,5 @@ org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../..
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../logs,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../osgi,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../tmp,targetFile:README.txt,permissions:644);\
-org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:kernel-version.txt,permissions:644);
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../bin,targetFile:kernel-version.txt,permissions:644);\
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../../,targetFile:master-keys,permissions:644);\

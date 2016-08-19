@@ -1,0 +1,3 @@
+permanent=true
+keyStorePassword=wso2carbon
+privateKeyPassword=wso2carbon

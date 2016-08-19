@@ -63,6 +63,7 @@ import java.util.Properties;
 public class DefaultMasterKeyReader implements MasterKeyReader {
     private static Logger logger = LoggerFactory.getLogger(DefaultMasterKeyReader.class);
     private static final String PERMANENT = "permanent";
+    private static final String MASTER_KEYS_FILE_NAME = "master-keys";
     private boolean isPermanentFile = false;
 
     @Activate
@@ -85,7 +86,7 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
         readMasterKeysFromEnvironment(masterKeys);
         readMasterKeysFromSystem(masterKeys);
 
-        Path passwordFilePath = Paths.get(Utils.getCarbonHome().toString(), "password");
+        Path passwordFilePath = Paths.get(Utils.getCarbonHome().toString(), MASTER_KEYS_FILE_NAME);
         if (Files.exists(passwordFilePath)) {
             readSecretsFile(passwordFilePath, masterKeys);
         }
