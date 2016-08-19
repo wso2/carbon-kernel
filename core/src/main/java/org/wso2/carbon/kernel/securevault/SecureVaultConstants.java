@@ -25,9 +25,6 @@ public class SecureVaultConstants {
 
     public static final String CIPHER_TEXT = "cipherText";
     public static final String PLAIN_TEXT = "plainText";
-    public static final String ENCRYPT_TEXT = "encryptText";
-    public static final String DECRYPT_TEXT = "decryptText";
-    public static final String CUSTOM_LIB_PATH = "customLibPath";
     public static final String LOCATION = "location";
     public static final String SPACE = " ";
 
