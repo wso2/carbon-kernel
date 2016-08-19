@@ -20,19 +20,26 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.reader.DefaultMasterKeyReader;
+import org.wso2.carbon.kernel.securevault.utils.ClassUtils;
 import org.wso2.carbon.kernel.securevault.utils.EnvironmentUtils;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.BeanAccess;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Unit tests class for org.wso2.carbon.kernel.securevault.reader.DefaultMasterKeyReader.
@@ -106,7 +113,7 @@ public class DefaultMasterKeyReaderTest {
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
 
-        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys").toString());
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
         try {
             tempFile.createNewFile();
             tempFile.deleteOnExit();
@@ -128,16 +135,13 @@ public class DefaultMasterKeyReaderTest {
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
 
-        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys").toString());
-        try {
-            tempFile.createNewFile();
-            tempFile.deleteOnExit();
-            try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
-                fileOutputStream.write("MasterKey1:MyPasswordFromFile".getBytes(StandardCharsets.UTF_8), 0, 29);
-            }
-        } catch (IOException e) {
-            Assert.fail("Failed to create temp password file");
-        }
+        MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
+        Properties properties = new Properties();
+        properties.setProperty("MasterKey1", "MyPasswordFromFile");
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "masterKeys", properties);
+
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
+        createMasterKeyFile(tempFile, masterKeyConfiguration);
 
         List<MasterKey> masterKeys = new ArrayList<>();
         masterKeys.add(new MasterKey("MasterKey1"));
@@ -156,17 +160,14 @@ public class DefaultMasterKeyReaderTest {
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
 
-        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys").toString());
-        try {
-            tempFile.createNewFile();
-            tempFile.deleteOnExit();
-            try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
-                String fileEntry = "permanent:true\nMasterKey1:MyPasswordFromFile";
-                fileOutputStream.write(fileEntry.getBytes(StandardCharsets.UTF_8), 0, fileEntry.length());
-            }
-        } catch (IOException e) {
-            Assert.fail("Failed to create temp password file");
-        }
+        MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
+        Properties properties = new Properties();
+        properties.setProperty("MasterKey1", "MyPasswordFromFile");
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "masterKeys", properties);
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "permanent", true);
+
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
+        createMasterKeyFile(tempFile, masterKeyConfiguration);
 
         List<MasterKey> masterKeys = new ArrayList<>();
         masterKeys.add(new MasterKey("MasterKey1"));
@@ -175,6 +176,26 @@ public class DefaultMasterKeyReaderTest {
             Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
         } catch (SecureVaultException e) {
             Assert.fail("An exception occurred while reading master keys.");
+        }
+    }
+
+    private void createMasterKeyFile(File file, MasterKeyConfiguration masterKeyConfiguration) {
+        try {
+            file.createNewFile();
+            file.deleteOnExit();
+            FileWriter fileWriter = new FileWriter(file);
+
+            DumperOptions options = new DumperOptions();
+            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+
+            Representer representer = new Representer();
+            representer.addClassTag(MasterKeyConfiguration.class, Tag.MAP);
+            Yaml yaml = new Yaml(representer, options);
+
+            yaml.setBeanAccess(BeanAccess.FIELD);
+            yaml.dump(masterKeyConfiguration, fileWriter);
+        } catch (IOException e) {
+            Assert.fail("Failed to create temp password file");
         }
     }
 }

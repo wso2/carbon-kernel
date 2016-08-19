@@ -24,8 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.MasterKey;
 import org.wso2.carbon.kernel.securevault.MasterKeyReader;
 import org.wso2.carbon.kernel.securevault.config.model.MasterKeyReaderConfiguration;
+import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.utils.Utils;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -36,9 +39,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * This service component is responsible for providing master keys to initialize the secret repositories. This provider
@@ -62,9 +67,8 @@ import java.util.Properties;
 )
 public class DefaultMasterKeyReader implements MasterKeyReader {
     private static Logger logger = LoggerFactory.getLogger(DefaultMasterKeyReader.class);
-    private static final String PERMANENT = "permanent";
-    private static final String MASTER_KEYS_FILE_NAME = "master-keys";
-    private boolean isPermanentFile = false;
+    private static final String MASTER_KEYS_FILE_NAME = "master-keys.yaml";
+    private Set<String> relocationPaths = new HashSet<>();
 
     @Activate
     public void activate() {
@@ -117,16 +121,25 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
              BufferedReader bufferedReader = new BufferedReader(
                      new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
 
-            Properties properties = new Properties();
-            properties.load(bufferedReader);
+            Yaml yaml = new Yaml();
+            yaml.setBeanAccess(BeanAccess.FIELD);
+            MasterKeyConfiguration masterKeyConfiguration =
+                    Optional.ofNullable(yaml.loadAs(bufferedReader, MasterKeyConfiguration.class))
+                            .orElseThrow(() -> new SecureVaultException("Unable to load master-keys.yaml file"));
 
-            if (properties.isEmpty()) {
-                throw new SecureVaultException("Password file is empty " + passwordFilePath.toFile());
+            if (!masterKeyConfiguration.getRelocation().isEmpty()) {
+                if (relocationPaths.contains(passwordFilePath.toString())) {
+                    throw new SecureVaultException("Cyclic dependency detected on Master Key relocation path");
+                }
+                relocationPaths.add(passwordFilePath.toString());
+                Path path = Paths.get(masterKeyConfiguration.getRelocation());
+                readSecretsFile(path, masterKeys);
+                return;
             }
 
-            String permanentFile = properties.getProperty(PERMANENT);
-            if (permanentFile != null && !permanentFile.isEmpty()) {
-                isPermanentFile = Boolean.parseBoolean(permanentFile);
+            Properties properties = masterKeyConfiguration.getMasterKeys();
+            if (properties.isEmpty()) {
+                throw new SecureVaultException("Password file is empty " + passwordFilePath.toFile());
             }
 
             for (MasterKey masterKey : masterKeys) {
@@ -137,7 +150,8 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
 
             inputStream.close();
 
-            if (!isPermanentFile && !passwordFilePath.toFile().delete()) {
+            if (!(!relocationPaths.isEmpty() || masterKeyConfiguration.isPermanent())
+                    && !passwordFilePath.toFile().delete()) {
                 passwordFilePath.toFile().deleteOnExit();
             }
         } catch (IOException e) {
