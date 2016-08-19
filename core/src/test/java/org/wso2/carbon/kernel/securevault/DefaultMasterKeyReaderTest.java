@@ -75,7 +75,7 @@ public class DefaultMasterKeyReaderTest {
         masterKeys.add(new MasterKey("MasterKey1"));
         try {
             masterKeyReader.readMasterKeys(masterKeys);
-            Assert.assertEquals(masterKeys.get(0).getMasterKeyValue().get(), "MyPasswordFromEnv");
+            Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromEnv");
         } catch (SecureVaultException e) {
             Assert.fail("An exception occurred while reading master keys.");
         }
@@ -93,7 +93,7 @@ public class DefaultMasterKeyReaderTest {
         masterKeys.add(new MasterKey("MasterKey1"));
         try {
             masterKeyReader.readMasterKeys(masterKeys);
-            Assert.assertEquals(masterKeys.get(0).getMasterKeyValue().get(), "MyPasswordFromSys");
+            Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromSys");
         } catch (SecureVaultException e) {
             Assert.fail("An exception occurred while reading master keys.");
         }
@@ -143,7 +143,7 @@ public class DefaultMasterKeyReaderTest {
         masterKeys.add(new MasterKey("MasterKey1"));
         try {
             masterKeyReader.readMasterKeys(masterKeys);
-            Assert.assertEquals(masterKeys.get(0).getMasterKeyValue().get(), "MyPasswordFromFile");
+            Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
         } catch (SecureVaultException e) {
             Assert.fail("An exception occurred while reading master keys.");
         }
@@ -172,7 +172,7 @@ public class DefaultMasterKeyReaderTest {
         masterKeys.add(new MasterKey("MasterKey1"));
         try {
             masterKeyReader.readMasterKeys(masterKeys);
-            Assert.assertEquals(masterKeys.get(0).getMasterKeyValue().get(), "MyPasswordFromFile");
+            Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
         } catch (SecureVaultException e) {
             Assert.fail("An exception occurred while reading master keys.");
         }
