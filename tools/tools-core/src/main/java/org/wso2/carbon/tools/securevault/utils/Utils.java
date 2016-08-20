@@ -127,7 +127,7 @@ public class Utils {
                                 fileOutputStream.write(buffer, 0, length);
                             }
                         }
-                        getInternalJarURLs(tempFile);
+                        urls.add(tempFile.getAbsoluteFile().toURI().toURL());
                     }
                 }
             }
