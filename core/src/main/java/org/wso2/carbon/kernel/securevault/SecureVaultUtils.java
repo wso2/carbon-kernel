@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
+import org.wso2.carbon.kernel.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -107,7 +108,8 @@ public class SecureVaultUtils {
 
     public static String getSecretPropertiesFileLocation(SecretRepositoryConfiguration secretRepositoryConfiguration) {
         return secretRepositoryConfiguration.getParameter(SecureVaultConstants.LOCATION)
-                .orElseGet(() -> getSecretsPropertiesLocation());
+                .orElseGet(() -> Utils.getCarbonConfigHome()
+                        .resolve(Paths.get("security", SecureVaultConstants.SECRETS_PROPERTIES)).toString());
     }
 
     /**
@@ -116,18 +118,7 @@ public class SecureVaultUtils {
      * @return String secure_vault.yml location
      */
     public static String getSecureVaultYAMLLocation() {
-        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome()
-                .resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
-    }
-
-    /**
-     * Returns the secrets.properties location.
-     *
-     * @return String secrets.properties location
-     */
-    public static String getSecretsPropertiesLocation() {
-        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome()
-                .resolve(Paths.get("security", SecureVaultConstants.SECRETS_PROPERTIES)).toString();
+        return Utils.getCarbonConfigHome().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
     }
 
     /**
