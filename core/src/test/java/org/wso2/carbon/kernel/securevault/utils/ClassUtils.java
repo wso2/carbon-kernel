@@ -19,7 +19,9 @@ package org.wso2.carbon.kernel.securevault.utils;
 import java.lang.reflect.Field;
 
 /**
- * Created by jayanga on 8/12/16.
+ * ClassUtils for SecureVault unit tests
+ *
+ * @since 5.2.0
  */
 public class ClassUtils {
     public static void setToPrivateField(Object objInstance, String filedName, Object value) {

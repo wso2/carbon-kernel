@@ -16,9 +16,6 @@
 
 package org.wso2.carbon.kernel.securevault.utils;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.MasterKey;
@@ -31,31 +28,13 @@ import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import java.util.List;
 
 /**
- * This service component is responsible for providing secrets to initialize the secret repositories. It has
+ * This service component is responsible for providing master keys to initialize the secret repositories. It has
  * hard coded passwords for 'keyStorePassword' and 'privateKeyPassword'
- * And this component registers a SecretProvider as an OSGi service.
  *
  * @since 5.2.0
  */
-@Component(
-        name = "org.wso2.carbon.kernel.securevault.utils.DefaultHardCodedMasterKeyReader",
-        immediate = true,
-        property = {
-                "capabilityName=org.wso2.carbon.kernel.securevault.MasterKeyReader"
-        }
-)
 public class DefaultHardCodedMasterKeyReader implements MasterKeyReader {
     private static Logger logger = LoggerFactory.getLogger(DefaultHardCodedMasterKeyReader.class);
-
-    @Activate
-    public void activate() {
-        logger.debug("Activating DefaultHardCodedMasterKeyReader");
-    }
-
-    @Deactivate
-    public void deactivate() {
-        logger.debug("Deactivating DefaultHardCodedMasterKeyReader");
-    }
 
     @Override
     public void init(MasterKeyReaderConfiguration masterKeyReaderConfiguration) throws SecureVaultException {

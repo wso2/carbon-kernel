@@ -31,7 +31,9 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
- * Created by jayanga on 8/11/16.
+ * Unit tests class for org.wso2.carbon.kernel.internal.securevault.SecureVaultConfigurationProvider.
+ *
+ * @since 5.2.0
  */
 public class SecureVaultConfigurationProviderTest {
     private static final Path secureVaultResourcesPath = Paths.get("src", "test", "resources", "securevault");

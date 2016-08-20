@@ -38,7 +38,9 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
 /**
- * Created by jayanga on 8/12/16.
+ * Unit tests class for org.wso2.carbon.kernel.securevault.repository.DefaultSecretRepository.
+ *
+ * @since 5.2.0
  */
 public class DefaultSecretRepositoryTest {
     private static final Path secureVaultResourcesPath = Paths.get("src", "test", "resources", "securevault");

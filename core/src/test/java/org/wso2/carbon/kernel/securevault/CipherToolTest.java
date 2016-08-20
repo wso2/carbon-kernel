@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jayanga on 8/15/16.
+ * Unit tests class for org.wso2.carbon.kernel.securevault.tool.CipherTool.
+ *
+ * @since 5.2.0
  */
 public class CipherToolTest {
     private static final Path secureVaultResourcesPath = Paths.get("src", "test", "resources", "securevault");
