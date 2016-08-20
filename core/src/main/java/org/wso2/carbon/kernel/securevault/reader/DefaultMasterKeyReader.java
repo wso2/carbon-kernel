@@ -51,8 +51,8 @@ import java.util.Set;
  * 1. Reads the master keys from Environment variables.
  * 2. Reads the master keys from System properties.
  * 3. Reads the master keys from file
- * It looks for a property file with name "password" in server home directory, read the passwords and delete the
- * file. If the file has a property "permanent=true", the file will not be deleted.
+ * It looks for the master-keys.yaml file in server home directory, read the master keys and delete the
+ * file. If the file has the property "permanent:true", the file will not be deleted.
  * 4. Reads the master keys from command line.
  * And this component registers a MasterKeyReader as an OSGi service.
  *
@@ -92,11 +92,11 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
 
         Path passwordFilePath = Paths.get(Utils.getCarbonHome().toString(), MASTER_KEYS_FILE_NAME);
         if (Files.exists(passwordFilePath)) {
-            readSecretsFile(passwordFilePath, masterKeys);
+            readMasterKeysFile(passwordFilePath, masterKeys);
         }
 
         if (!fullyInitialized(masterKeys)) {
-            readSecretsFromConsole(masterKeys);
+            readMasterKeysFromConsole(masterKeys);
         }
     }
 
@@ -116,7 +116,7 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
         });
     }
 
-    private void readSecretsFile(Path passwordFilePath, List<MasterKey> masterKeys) throws SecureVaultException {
+    private void readMasterKeysFile(Path passwordFilePath, List<MasterKey> masterKeys) throws SecureVaultException {
         try (InputStream inputStream = new FileInputStream(passwordFilePath.toFile());
              BufferedReader bufferedReader = new BufferedReader(
                      new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -128,12 +128,13 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
                             .orElseThrow(() -> new SecureVaultException("Unable to load master-keys.yaml file"));
 
             if (!masterKeyConfiguration.getRelocation().isEmpty()) {
+                logger.debug("Master key relocation : {}", masterKeyConfiguration.getRelocation());
                 if (relocationPaths.contains(passwordFilePath.toString())) {
                     throw new SecureVaultException("Cyclic dependency detected on Master Key relocation path");
                 }
                 relocationPaths.add(passwordFilePath.toString());
                 Path path = Paths.get(masterKeyConfiguration.getRelocation());
-                readSecretsFile(path, masterKeys);
+                readMasterKeysFile(path, masterKeys);
                 return;
             }
 
@@ -155,11 +156,11 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
                 passwordFilePath.toFile().deleteOnExit();
             }
         } catch (IOException e) {
-            throw new SecureVaultException("Failed to load secret file " + passwordFilePath.toFile(), e);
+            throw new SecureVaultException("Failed to load master-keys.yaml file " + passwordFilePath.toFile(), e);
         }
     }
 
-    private void readSecretsFromConsole(List<MasterKey> masterKeys) throws SecureVaultException {
+    private void readMasterKeysFromConsole(List<MasterKey> masterKeys) throws SecureVaultException {
         Optional.ofNullable(System.console()).ifPresent(console ->
                 masterKeys.stream()
                         .filter(masterKey -> !masterKey.getMasterKeyValue().isPresent())

@@ -31,10 +31,10 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * {@link AbstractSecretRepository} implements {@link SecretRepository} and it provides basic implementations for
- * {@code loadSecrets}, {@code persistSecrets} and {@code resolve} methods. An extended class of this should provide
- * concrete implementations for other abstract methods and register that class as an OSGi service of interface
- * {@link SecretRepository}.
+ * This abstract class implements {@link SecretRepository} and it provides basic implementations for
+ * {@link SecretRepository#loadSecrets}, {@link SecretRepository#persistSecrets} and {@link SecretRepository#resolve}
+ * methods. An extended class of this should provide concrete implementations for other abstract methods and register
+ * that class as an OSGi service of interface {@link SecretRepository}.
  *
  * @since 5.2.0
  */

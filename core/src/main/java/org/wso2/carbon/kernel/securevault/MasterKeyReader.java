@@ -46,8 +46,8 @@ public interface MasterKeyReader {
      * An implementation of this method should populate the master key value of all the {@link MasterKey}s
      * provided in the {@code masterKeys} list.
      *
-     * @param masterKeys a list of {@link MasterKey} with initialization secrets
-     * @throws SecureVaultException on an error while trying to initialize the MasterKeyReader
+     * @param masterKeys a list of {@link MasterKey}s
+     * @throws SecureVaultException on an error while trying to read master keys
      */
     void readMasterKeys(List<MasterKey> masterKeys) throws SecureVaultException;
 }

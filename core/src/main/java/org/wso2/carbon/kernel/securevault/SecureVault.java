@@ -51,7 +51,7 @@ public interface SecureVault {
      *
      * @param cipherText            cipher text as a byte array
      * @return byte[]               plain text as a byte array
-     * @throws SecureVaultException on an error while trying to encrypt.
+     * @throws SecureVaultException on an error while trying to decrypt.
      */
     byte[] decrypt(byte[] cipherText) throws SecureVaultException;
 }
