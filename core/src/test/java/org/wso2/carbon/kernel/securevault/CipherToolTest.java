@@ -37,7 +37,7 @@ public class CipherToolTest {
     private CipherTool cipherTool;
 
     @Test
-    public void testEncryptionAndDecryption1() throws SecureVaultException {
+    public void testEncryptionAndDecryption() throws SecureVaultException {
         System.setProperty(Constants.CARBON_HOME, secureVaultResourcesPath.toString());
         List<URL> urls = new ArrayList<>();
         URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));

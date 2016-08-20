@@ -23,6 +23,8 @@ package org.wso2.carbon.kernel.securevault;
  */
 public class SecureVaultConstants {
 
+    public static final String SECURE_VAULT_CONFIG_YAML = "secure-vault.yaml";
+    public static final String SECRETS_PROPERTIES = "secrets.properties";
     public static final String CIPHER_TEXT = "cipherText";
     public static final String PLAIN_TEXT = "plainText";
     public static final String LOCATION = "location";

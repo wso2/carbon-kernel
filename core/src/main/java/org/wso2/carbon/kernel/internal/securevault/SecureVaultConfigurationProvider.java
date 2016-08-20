@@ -18,7 +18,7 @@ package org.wso2.carbon.kernel.internal.securevault;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.internal.utils.Utils;
+import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
 import org.wso2.carbon.kernel.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
@@ -63,7 +63,7 @@ public class SecureVaultConfigurationProvider {
     }
 
     private void init() throws SecureVaultException {
-        String configFileLocation = Utils.getSecureVaultYAMLLocation();
+        String configFileLocation = SecureVaultUtils.getSecureVaultYAMLLocation();
         try (InputStream inputStream = new FileInputStream(configFileLocation);
              BufferedReader bufferedReader = new BufferedReader(
                      new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
