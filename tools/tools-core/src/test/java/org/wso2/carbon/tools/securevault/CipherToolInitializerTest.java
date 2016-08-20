@@ -118,14 +118,14 @@ public class CipherToolInitializerTest {
         cipherToolInitializer.execute(toolArgs);
     }
 
-    @Test
+    @Test(expectedExceptions = {RuntimeException.class})
     public void testExecuteTestEncryptSecretsWithOddParameters() {
         String[] toolArgs = new String[]{"-customLibPath", "/tmp", "xyz"};
         CipherToolInitializer cipherToolInitializer = new CipherToolInitializer();
         cipherToolInitializer.execute(toolArgs);
     }
 
-    @Test
+    @Test(expectedExceptions = {RuntimeException.class})
     public void testExecuteTestEncryptSecretsWithWrongCommand() {
         String[] toolArgs = new String[]{"-ENCRYPTTEXT", "ABC@123"};
         CipherToolInitializer cipherToolInitializer = new CipherToolInitializer();

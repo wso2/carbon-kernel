@@ -44,7 +44,7 @@ public class CipherToolInitializer implements CarbonTool {
         } catch (CarbonToolException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
             printHelpMessage();
-            return;
+            throw new RuntimeException("Unable to run CipherTool", e);
         }
 
         URLClassLoader urlClassLoader = Utils.getCustomClassLoader(commandLineParser.getCustomLibPath());
@@ -55,6 +55,7 @@ public class CipherToolInitializer implements CarbonTool {
                     commandLineParser.getCommandParam().orElse(""), objCipherTool);
         } catch (CarbonToolException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException("Unable to run CipherTool", e);
         }
     }
 
