@@ -55,6 +55,10 @@ public class Utils {
         throw new AssertionError("Instantiating utility class...");
     }
 
+    public static CommandLineParser createCommandLineParser(String... toolArgs) throws CarbonToolException {
+        return new CommandLineParser(toolArgs);
+    }
+
     public static URLClassLoader getCustomClassLoader(Optional<String> optCustomLibPath) {
         List<URL> urls = new ArrayList<>();
 

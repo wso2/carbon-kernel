@@ -40,7 +40,7 @@ public class CipherToolInitializer implements CarbonTool {
     public void execute(String... toolArgs) {
         CommandLineParser commandLineParser;
         try {
-            commandLineParser = new CommandLineParser(toolArgs);
+            commandLineParser = Utils.createCommandLineParser(toolArgs);
         } catch (CarbonToolException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
             printHelpMessage();
