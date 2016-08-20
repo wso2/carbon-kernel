@@ -153,7 +153,27 @@ public class DefaultMasterKeyReaderTest {
         }
     }
 
-    @Test(dependsOnMethods = {"testReadMasterKeysFromFile"})
+    @Test(dependsOnMethods = {"testReadMasterKeysFromFile"}, expectedExceptions = {SecureVaultException.class})
+    public void testReadMasterKeysFromFileWithNoMasterKeys() throws SecureVaultException {
+        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+
+        EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
+        System.setProperty("MasterKey1", "MyPasswordFromSys");
+
+        MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
+        Properties properties = new Properties();
+        ClassUtils.setToPrivateField(masterKeyConfiguration, "masterKeys", properties);
+
+        File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());
+        createMasterKeyFile(tempFile, masterKeyConfiguration);
+
+        List<MasterKey> masterKeys = new ArrayList<>();
+        masterKeys.add(new MasterKey("MasterKey1"));
+        masterKeyReader.readMasterKeys(masterKeys);
+        Assert.assertEquals(new String(masterKeys.get(0).getMasterKeyValue().get()), "MyPasswordFromFile");
+    }
+
+    @Test(dependsOnMethods = {"testReadMasterKeysFromFileWithNoMasterKeys"})
     public void testReadMasterKeysFromPermanentFile() {
         System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
 
