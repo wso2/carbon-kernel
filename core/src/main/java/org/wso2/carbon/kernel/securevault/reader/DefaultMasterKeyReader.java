@@ -148,7 +148,9 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
             for (MasterKey masterKey : masterKeys) {
                 logger.debug("Reading master key '{}' from file.", masterKey.getMasterKeyName());
                 masterKey.setMasterKeyValue(Optional.ofNullable(
-                        properties.getProperty(masterKey.getMasterKeyName())).orElse("").toCharArray());
+                        properties.getProperty(masterKey.getMasterKeyName()))
+                        .orElseThrow(() -> new SecureVaultException("Master Key value not found for : "
+                                + masterKey.getMasterKeyName())).toCharArray());
             }
 
             inputStream.close();
