@@ -15,13 +15,38 @@
  */
 package org.wso2.carbon.kernel.configresolver.configfiles;
 
+import org.wso2.carbon.kernel.configresolver.ConfigResolverUtils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+
 /**
  * This class represents YAML formatted config data and contains YAML in String format.
  *
  * @since 5.2.0
  */
 public final class YAML extends AbstractConfigFile {
-    public YAML(String content) {
-        super(content);
+    private static final String ROOT_ELEMENT = "configurations";
+
+    public YAML(File file) throws IOException {
+        this(new FileInputStream(file), file.getName());
+    }
+
+    public YAML(FileInputStream fileInputStream, String filename) throws IOException {
+        super(filename);
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream,
+                StandardCharsets.UTF_8))) {
+            String input = bufferedReader.lines().collect(Collectors.joining("\n"));
+            setCanonicalContent(ConfigResolverUtils.convertYAMLToXML(input, ROOT_ELEMENT));
+        }
+    }
+
+    public void updateContent(String canonicalContent) {
+        setContent(ConfigResolverUtils.convertXMLToYAML(canonicalContent, ROOT_ELEMENT));
     }
 }

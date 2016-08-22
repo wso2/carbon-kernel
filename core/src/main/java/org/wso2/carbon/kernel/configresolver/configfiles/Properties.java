@@ -15,13 +15,45 @@
  */
 package org.wso2.carbon.kernel.configresolver.configfiles;
 
+import org.wso2.carbon.kernel.configresolver.ConfigResolverUtils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 /**
  * This class represents Properties formatted config data and contains Properties in String format.
  *
  * @since 5.2.0
  */
 public final class Properties extends AbstractConfigFile {
-    public Properties(String content) {
-        super(content);
+    private static final String ROOT_ELEMENT = "configurations";
+
+    public Properties(File file) throws IOException {
+        this(new FileInputStream(file), file.getName());
+    }
+
+    public Properties(FileInputStream fileInputStream, String filename) throws IOException {
+        super(filename);
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream,
+                StandardCharsets.UTF_8))) {
+
+            java.util.Properties properties = new java.util.Properties();
+            properties.load(bufferedReader);
+            StringBuilder stringBuilder = new StringBuilder();
+            properties.entrySet().forEach(entry -> stringBuilder
+                    .append(ConfigResolverUtils.createXmlElement(entry.getKey().toString(),
+                            entry.getValue().toString())));
+            String xmlString = ConfigResolverUtils.createXmlElement(ROOT_ELEMENT, stringBuilder.toString());
+            setCanonicalContent(ConfigResolverUtils.prettyFormatXMLString(xmlString));
+        }
+    }
+
+    @Override
+    public void updateContent(String canonicalContent) {
+        setContent(ConfigResolverUtils.convertXMLToProperties(canonicalContent, ROOT_ELEMENT));
     }
 }

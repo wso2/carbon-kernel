@@ -23,13 +23,74 @@ package org.wso2.carbon.kernel.configresolver.configfiles;
 public abstract class AbstractConfigFile {
 
     private String content;
+    private String canonicalContent;
+    private String filename;
 
-    public AbstractConfigFile(String content) {
-        this.content = content;
+    /**
+     * This constructor sets the file name that is represented by ${@link AbstractConfigFile}. Once an instance of any
+     * sub class is created it is expected to call ${@link AbstractConfigFile#setCanonicalContent(String)} in its
+     * constructor to populate the field ${@code canonicalContent}. Canonical content format is XML, which is the
+     * default format accepted by the ${@link org.wso2.carbon.kernel.configresolver.ConfigResolver}
+     *
+     * @param filename filename
+     */
+    public AbstractConfigFile(String filename) {
+        this.filename = filename;
     }
 
-    public String getContent() {
+    /**
+     * This method returns the content represented by this ${@link AbstractConfigFile}
+     *
+     * @return content
+     */
+    public final String getContent() {
         return content;
     }
 
+    /**
+     * An implementation of this method is expected to convert the provided ${@code canonicalContent} in XML in to File
+     * specific format and assign it to filed ${@code content}
+     *
+     * @param content content in XML format
+     */
+    protected final void setContent(String content) {
+        this.content = content;
+    }
+
+    /**
+     * An implementation of this method is expected to convert the provided ${@code canonicalContent} in XML in to File
+     * specific format and call the ${@link AbstractConfigFile#setContent(String)} to update the file with the
+     * new content
+     *
+     * @param canonicalContent content in XML format
+     */
+    public abstract void updateContent(String canonicalContent);
+
+    /**
+     * This method returns the ${@code canonicalContent}, which was initialized in the object creation
+     *
+     * @return canonicalContent
+     */
+    public final String getCanonicalContent() {
+        return canonicalContent;
+    }
+
+    /**
+     * This method is expected to be called in the sub class constructor, which set the XML representation of the
+     * content into filed ${@code canonicalContent}
+     *
+     * @param canonicalContent XML representation of the content
+     */
+    protected final void setCanonicalContent(String canonicalContent) {
+        this.canonicalContent = canonicalContent;
+    }
+
+    /**
+     * This method returns the filename of the content that is represented by this ${@link AbstractConfigFile}
+     *
+     * @return filename
+     */
+    public String getFilename() {
+        return filename;
+    }
 }

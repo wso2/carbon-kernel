@@ -7,6 +7,7 @@
             <name>abc</name>
             <port>8000</port>
             <desc>This transport will use 8000 as its port</desc>
+            <password>${sec:conn.auth.password}</password>
         </transport>
         <!--Transport with System properties as values-->
         <transport secure="${sys:pqr.secure}">

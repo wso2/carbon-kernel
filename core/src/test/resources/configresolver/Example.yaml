@@ -5,6 +5,7 @@ transports:
       port: 8000
       secure: false
       desc: This transport will use 8000 as its port
+      password: ${sec:conn.auth.password}
   - transport:        #Transport with System properties as values
       name: pqr
       port: ${env:pqr.http.port}

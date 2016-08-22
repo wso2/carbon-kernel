@@ -15,13 +15,35 @@
  */
 package org.wso2.carbon.kernel.configresolver.configfiles;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+
 /**
  * This class represents XML formatted config data and contains XML in String format.
  *
  * @since 5.2.0
  */
 public final class XML extends AbstractConfigFile {
-    public XML(String content) {
-        super(content);
+
+    public XML(File file) throws IOException {
+        this(new FileInputStream(file), file.getName());
+    }
+
+    public XML(FileInputStream fileInputStream, String filename) throws IOException {
+        super(filename);
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream,
+                StandardCharsets.UTF_8))) {
+            setCanonicalContent(bufferedReader.lines().collect(Collectors.joining("\n")));
+        }
+    }
+
+    @Override
+    public void updateContent(String canonicalContent) {
+        setContent(canonicalContent);
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.kernel.configresolver;
 
+import org.easymock.EasyMock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -25,7 +26,10 @@ import org.wso2.carbon.kernel.configresolver.configfiles.AbstractConfigFile;
 import org.wso2.carbon.kernel.configresolver.configfiles.Properties;
 import org.wso2.carbon.kernel.configresolver.configfiles.XML;
 import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
+import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverDataHolder;
 import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
+import org.wso2.carbon.kernel.internal.configresolver.SecureVault;
+import org.wso2.carbon.kernel.internal.configresolver.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -43,6 +47,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -58,20 +63,27 @@ import javax.xml.transform.stream.StreamSource;
 public class ConfigResolverImplTest {
 
     private static Logger logger = LoggerFactory.getLogger(ConfigResolverImplTest.class.getName());
-    private static String basedir = System.getProperty("basedir");
+    private String basedir = System.getProperty("basedir");
+    private static final String PASSWORD = "n3wP4s5w0r4";
     private ConfigResolver configResolver;
 
     @BeforeTest
-    public void setup() {
+    public void setup() throws SecureVaultException {
         setUpEnvironment();
         configResolver = new ConfigResolverImplEx();
         if (basedir == null) {
             basedir = Paths.get("").toAbsolutePath().toString();
         }
+
+
+        SecureVault secureVault = EasyMock.mock(SecureVault.class);
+        ConfigResolverDataHolder.getInstance().setOptSecureVault(Optional.ofNullable(secureVault));
+        EasyMock.expect(secureVault.resolve(EasyMock.anyString())).andReturn(PASSWORD.toCharArray()).anyTimes();
+        EasyMock.replay(secureVault);
     }
 
     @Test(description = "This test will test functionality when using xml config file")
-    public void xmlExample() {
+    public void xmlExample() throws IOException, SecureVaultException {
         setUpEnvironment();
         try {
             Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.xml");
@@ -88,6 +100,9 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "false");
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).getDesc(),
                     "This transport will use 8000 as its port");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPassword(),
+                    "${sec:conn.auth.password}");
+
             //Transport 2
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 0);
@@ -102,7 +117,8 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(2).getDesc(),
                     "This transport will use ${env:xyz.http.port,8888} as its port");
 
-            XML configXml = configResolver.getConfig(file, XML.class);
+            XML xml = new XML(file);
+            XML configXml = configResolver.getConfig(xml);
             String value = configXml.getContent();
 
             Source xmlInput = new StreamSource(new StringReader(value));
@@ -117,6 +133,8 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "true");
             Assert.assertEquals(configurations.getTransports().getTransport().get(0).getDesc(),
                     "This transport will use 8000 as its port");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPassword(), PASSWORD);
+
             //Transport 2
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
             Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 8501);
@@ -136,12 +154,11 @@ public class ConfigResolverImplTest {
     }
 
     @Test(description = "This test will test functionality when using yaml config file")
-    public void yamlExample() {
+    public void yamlExample() throws IOException {
         setUpEnvironment();
-        try {
-            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.yaml");
-            File file = resourcePath.toFile();
-            FileInputStream fileInputStream = new FileInputStream(file);
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.yaml");
+        File file = resourcePath.toFile();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             Yaml yaml = new Yaml();
             Map map = yaml.loadAs(fileInputStream, Map.class);
             ArrayList transports = (ArrayList) map.get("transports");
@@ -155,6 +172,7 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(transport1.get("port"), 8000);
             Assert.assertEquals(transport1.get("secure"), false);
             Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(transport1.get("password"), "${sec:conn.auth.password}");
             //Transport 2
             Assert.assertEquals(transport2.get("name"), "pqr");
             Assert.assertEquals(transport2.get("port"), "${env:pqr.http.port}");
@@ -167,17 +185,22 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(transport3.get("secure"), "${sys:xyz.secure,true}");
             Assert.assertEquals(transport3.get("desc"),
                     "This transport will use ${env:xyz.http.port,8888} as its port");
+        } catch (FileNotFoundException e) {
+            logger.error(e.toString());
+            Assert.fail();
+        }
 
-            fileInputStream = new FileInputStream(file);
-            YAML configYaml = configResolver.getConfig(fileInputStream, file.getName(), YAML.class);
-            yaml = new Yaml();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            YAML yaml1 = new YAML(fileInputStream, file.getName());
+            YAML configYaml = configResolver.getConfig(yaml1);
+            Yaml yaml = new Yaml();
             String value = configYaml.getContent();
 
-            map = yaml.loadAs(value, Map.class);
-            transports = (ArrayList) map.get("transports");
-            transport1 = (LinkedHashMap) ((LinkedHashMap) transports.get(0)).get("transport");
-            transport2 = (LinkedHashMap) ((LinkedHashMap) transports.get(1)).get("transport");
-            transport3 = (LinkedHashMap) ((LinkedHashMap) transports.get(2)).get("transport");
+            Map map = yaml.loadAs(value, Map.class);
+            ArrayList transports = (ArrayList) map.get("transports");
+            LinkedHashMap transport1 = (LinkedHashMap) ((LinkedHashMap) transports.get(0)).get("transport");
+            LinkedHashMap transport2 = (LinkedHashMap) ((LinkedHashMap) transports.get(1)).get("transport");
+            LinkedHashMap transport3 = (LinkedHashMap) ((LinkedHashMap) transports.get(2)).get("transport");
 
             Assert.assertEquals(map.get("tenant"), "new_tenant");
             //Transport 1
@@ -185,6 +208,7 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(transport1.get("port"), 8001);
             Assert.assertEquals(transport1.get("secure"), true);
             Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(transport1.get("password"), PASSWORD);
             //Transport 2
             Assert.assertEquals(transport2.get("name"), "pqr");
             Assert.assertEquals(transport2.get("port"), 8501);
@@ -204,11 +228,9 @@ public class ConfigResolverImplTest {
     @Test(description = "This test will test functionality when using properties config file")
     public void propertiesExample() {
         setUpEnvironment();
-        FileInputStream fileInputStream = null;
-        try {
-            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.properties");
-            File file = resourcePath.toFile();
-            fileInputStream = new FileInputStream(file);
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.properties");
+        File file = resourcePath.toFile();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             java.util.Properties properties = new java.util.Properties();
             properties.load(fileInputStream);
 
@@ -217,6 +239,7 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(properties.get("transport.abc.port"), "8000");
             Assert.assertEquals(properties.get("transport.abc.secure"), "false");
             Assert.assertEquals(properties.get("transport.abc.desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(properties.get("transport.abc.password"), "${sec:conn.auth.password}");
             //Transport 2
             Assert.assertEquals(properties.get("transport.pqr.port"), "${env:pqr.http.port}");
             Assert.assertEquals(properties.get("transport.pqr.secure"), "${sys:pqr.secure}");
@@ -227,11 +250,15 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(properties.get("transport.xyz.secure"), "${sys:xyz.secure,true}");
             Assert.assertEquals(properties.get("transport.xyz.desc"),
                     "This transport will use ${env:xyz.http.port,8888} as its port");
+        } catch (IOException e) {
+            logger.error(e.toString());
+            Assert.fail();
+        }
 
-            fileInputStream = new FileInputStream(file);
-            Properties configProperties = configResolver.getConfig(fileInputStream, file.getName(),
-                    Properties.class);
-            properties = new java.util.Properties();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            Properties properties1 = new Properties(fileInputStream, file.getName());
+            Properties configProperties = configResolver.getConfig(properties1);
+            java.util.Properties properties = new java.util.Properties();
             String value = configProperties.getContent();
 
             properties.load(new StringReader(value));
@@ -240,6 +267,7 @@ public class ConfigResolverImplTest {
             Assert.assertEquals(properties.get("transport.abc.port"), "8001");
             Assert.assertEquals(properties.get("transport.abc.secure"), "true");
             Assert.assertEquals(properties.get("transport.abc.desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(properties.get("transport.abc.password"), PASSWORD);
 
             //Transport 2
             Assert.assertEquals(properties.get("transport.pqr.port"), "8501");
@@ -254,14 +282,6 @@ public class ConfigResolverImplTest {
         } catch (IOException e) {
             logger.error(e.toString());
             Assert.fail();
-        } finally {
-            if (fileInputStream != null) {
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    logger.warn("Error occurred while closing the InputStream.", e);
-                }
-            }
         }
     }
 
@@ -330,13 +350,13 @@ public class ConfigResolverImplTest {
 
     @Test(expectedExceptions = RuntimeException.class, description = "Test the situations where deployment.properies "
             + "have additional configs which is not in the original config file")
-    public void invalidConfigTest() {
+    public void invalidConfigTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            XML configXml = configResolver.getConfig(fileInputStream, "Example.xml", XML.class);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            XML xml = new XML(fileInputStream, "Example.xml");
+            XML configXml = configResolver.getConfig(xml);
             logger.debug(configXml.getContent());
         } catch (FileNotFoundException e) {
             logger.warn("File Not found: " + file.getAbsolutePath());
@@ -346,13 +366,13 @@ public class ConfigResolverImplTest {
 
     @Test(expectedExceptions = RuntimeException.class, description = "Test the situations where the util tries to " +
             "process xml config file with errors")
-    public void invalidXmlTest() {
+    public void invalidXmlTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example4.xml");
         File file = resourcePath.toFile();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            XML configXml = configResolver.getConfig(fileInputStream, "Example.xml", XML.class);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            XML xml = new XML(fileInputStream, "Example.xml");
+            XML configXml = configResolver.getConfig(xml);
             logger.debug(configXml.getContent());
         } catch (FileNotFoundException e) {
             logger.warn("File Not found: " + file.getAbsolutePath());
@@ -360,13 +380,14 @@ public class ConfigResolverImplTest {
         }
     }
 
-    @Test(expectedExceptions = RuntimeException.class, description = "Test the util when trying to read a non existing"
+    @Test(expectedExceptions = IOException.class, description = "Test the util when trying to read a non existing"
             + " config file")
-    public void invalidFileTest() {
+    public void invalidFileTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "Example3.xml");
         File file = resourcePath.toFile();
-        XML configXml = configResolver.getConfig(file, XML.class);
+        XML xml = new XML(file);
+        XML configXml = configResolver.getConfig(xml);
         logger.debug(configXml.getContent());
     }
 
@@ -379,13 +400,13 @@ public class ConfigResolverImplTest {
 
     @Test(expectedExceptions = RuntimeException.class, description = "Test configs with not initialized System "
             + "properties")
-    public void invalidSysPropTest() {
+    public void invalidSysPropTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = configResolver.getConfig(fileInputStream, "Example3.xml", XML.class);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            XML xml = new XML(fileInputStream, "Example3.xml");
+            XML configs = configResolver.getConfig(xml);
             logger.debug(configs.getContent());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -394,13 +415,13 @@ public class ConfigResolverImplTest {
 
     @Test(expectedExceptions = RuntimeException.class, description = "Test configs with not initialized Environment "
             + "variables")
-    public void invalidEnvVarTest() {
+    public void invalidEnvVarTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = configResolver.getConfig(fileInputStream, "Example4.xml", XML.class);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            XML xml = new XML(fileInputStream, "Example4.xml");
+            XML configs = configResolver.getConfig(xml);
             logger.debug(configs.getContent());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -408,13 +429,13 @@ public class ConfigResolverImplTest {
     }
 
     @Test(description = "Test configs with not initialized System properties, but have default values")
-    public void validSysPropWithDefaultTest() {
+    public void validSysPropWithDefaultTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = configResolver.getConfig(fileInputStream, "Example6.xml", XML.class);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            XML xml = new XML(fileInputStream, "Example6.xml");
+            XML configs = configResolver.getConfig(xml);
             Assert.assertNotNull(configs.getContent());
         } catch (FileNotFoundException e) {
             Assert.fail();
@@ -422,43 +443,44 @@ public class ConfigResolverImplTest {
     }
 
     @Test(description = "Test configs with not initialized Environment variables, but have default values")
-    public void validEnvVarWithDefaultTest() {
+    public void validEnvVarWithDefaultTest() throws IOException {
         setUpEnvironment();
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
         File file = resourcePath.toFile();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            XML configs = configResolver.getConfig(fileInputStream, "Example5.xml", XML.class);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            XML xml = new XML(fileInputStream, "Example5.xml");
+            XML configs = configResolver.getConfig(xml);
             Assert.assertNotNull(configs.getContent());
         } catch (FileNotFoundException e) {
             Assert.fail();
         }
     }
 
-    @Test(expectedExceptions = RuntimeException.class, description = "Test what happens when custom file type is "
-            + "provided")
-    public void invalidFileType() {
-        setCarbonHome();
-        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
-        File file = resourcePath.toFile();
-        TestFile configs = configResolver.getConfig(file, TestFile.class);
-        logger.debug(configs.getContent());
-    }
+//    @Test(expectedExceptions = RuntimeException.class, description = "Test what happens when custom file type is "
+//            + "provided")
+//    public void invalidFileType() {
+//        setCarbonHome();
+//        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example3.xml");
+//        File file = resourcePath.toFile();
+//        TestFile configs = configResolver.getConfig(file, TestFile.class);
+//        logger.debug(configs.getContent());
+//    }
 
     @Test(priority = 1, description = "Test the functionality when deployment.properties file is not available")
-    public void depFileNotAvailable() {
+    public void depFileNotAvailable() throws IOException {
         setUpEnvironment();
         reloadDeploymentPropertiesFile();
         Path carbonHome = Paths.get("");
         System.setProperty(Constants.CARBON_HOME, carbonHome.toString());
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example.xml");
         File file = resourcePath.toFile();
-        XML configs = configResolver.getConfig(file, XML.class);
+        XML xml = new XML(file);
+        XML configs = configResolver.getConfig(xml);
         Assert.assertNotNull(configs);
     }
 
     @Test(priority = 2, description = "Test what happens when deployment.conf system property is empty")
-    public void deploymentConfSysPropEmptyTest() {
+    public void deploymentConfSysPropEmptyTest() throws IOException {
         setUpEnvironment();
         System.setProperty("deployment.conf", "");
         reloadDeploymentPropertiesFile();
@@ -466,7 +488,8 @@ public class ConfigResolverImplTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = configResolver.getConfig(file, XML.class);
+            XML xml = new XML(file);
+            XML configXml = configResolver.getConfig(xml);
             String value = configXml.getContent();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -479,7 +502,7 @@ public class ConfigResolverImplTest {
     }
 
     @Test(priority = 2, description = "Test what happens when deployment.conf found in System Properties")
-    public void deploymentConfSysPropTest() {
+    public void deploymentConfSysPropTest() throws IOException {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "dep_sys.properties");
         System.setProperty("deployment.conf", depConfPath.toString());
         reloadDeploymentPropertiesFile();
@@ -487,7 +510,8 @@ public class ConfigResolverImplTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = configResolver.getConfig(file, XML.class);
+            XML xml = new XML(file);
+            XML configXml = configResolver.getConfig(xml);
             String value = configXml.getContent();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -500,7 +524,7 @@ public class ConfigResolverImplTest {
     }
 
     @Test(priority = 3, description = "Test what happens when deployment.conf Environment variable is empty")
-    public void deploymentConfEnvVarEmptyTest() {
+    public void deploymentConfEnvVarEmptyTest() throws IOException {
         setUpEnvironment();
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", "");
@@ -511,7 +535,8 @@ public class ConfigResolverImplTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = configResolver.getConfig(file, XML.class);
+            XML xml = new XML(file);
+            XML configXml = configResolver.getConfig(xml);
             String value = configXml.getContent();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -524,7 +549,7 @@ public class ConfigResolverImplTest {
     }
 
     @Test(priority = 3, description = "Test what happens when deployment.conf found in Environment Variables")
-    public void deploymentConfEnvVarTest() {
+    public void deploymentConfEnvVarTest() throws IOException {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "dep_env.properties");
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", depConfPath.toString());
@@ -534,7 +559,8 @@ public class ConfigResolverImplTest {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
         try {
-            XML configXml = configResolver.getConfig(file, XML.class);
+            XML xml = new XML(file);
+            XML configXml = configResolver.getConfig(xml);
             String value = configXml.getContent();
             Source xmlInput = new StreamSource(new StringReader(value));
             JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
@@ -549,7 +575,7 @@ public class ConfigResolverImplTest {
     @Test(priority = 4, expectedExceptions = RuntimeException.class, description =
             "This will try to read deployment.properties file with invalid key. "
                     + "This will result in an XPathExpressionException")
-    public void getConfigTest5() {
+    public void getConfigTest5() throws IOException {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "error_dep.properties");
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", depConfPath.toString());
@@ -558,13 +584,14 @@ public class ConfigResolverImplTest {
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
-        XML configXml = configResolver.getConfig(file, XML.class);
+        XML xml = new XML(file);
+        XML configXml = configResolver.getConfig(xml);
         String value = configXml.getContent();
         logger.debug(value);
     }
 
     @Test(priority = 5, description = "Test what happens when invalid file path is provided")
-    public void invalidFilePath() {
+    public void invalidFilePath() throws IOException {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "dep.properties");
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", depConfPath.toString());
@@ -573,7 +600,8 @@ public class ConfigResolverImplTest {
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
         File file = resourcePath.toFile();
-        XML configXml = configResolver.getConfig(file, XML.class);
+        XML xml = new XML(file);
+        XML configXml = configResolver.getConfig(xml);
         String value = configXml.getContent();
         logger.debug(value);
     }
@@ -644,10 +672,15 @@ public class ConfigResolverImplTest {
         }
     }
 
-    class TestFile extends AbstractConfigFile {
+    static class TestFile extends AbstractConfigFile {
 
         public TestFile(String value) {
             super(value);
+        }
+
+        @Override
+        public void updateContent(String canonicalContent) {
+
         }
     }
 }

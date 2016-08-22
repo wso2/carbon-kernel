@@ -4,9 +4,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
+
+import java.util.Optional;
 
 /**
  * This service component is responsible for registering ConfigResolver OSGi service.
@@ -34,5 +39,20 @@ public class ConfigResolverComponent {
     @Deactivate
     protected void stop() {
         logger.debug("Stopping ConfigResolverComponent");
+    }
+
+    @Reference(
+            name = "config.resolver.secure.vault",
+            service = SecureVault.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unRegisterSecureVault"
+    )
+    protected void registerSecureVault(SecureVault secureVault) {
+        ConfigResolverDataHolder.getInstance().setOptSecureVault(Optional.ofNullable(secureVault));
+    }
+
+    protected void unRegisterSecureVault(SecureVault secureVault) {
+        ConfigResolverDataHolder.getInstance().setOptSecureVault(Optional.empty());
     }
 }

@@ -22,24 +22,18 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
+import org.wso2.carbon.kernel.configresolver.ConfigResolverUtils;
 import org.wso2.carbon.kernel.configresolver.configfiles.AbstractConfigFile;
-import org.wso2.carbon.kernel.configresolver.configfiles.Properties;
-import org.wso2.carbon.kernel.configresolver.configfiles.XML;
-import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
 import org.wso2.carbon.kernel.utils.StringUtils;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -47,8 +41,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -148,108 +140,10 @@ public class ConfigResolverImpl implements ConfigResolver {
 
     }
 
-    /**
-     * This method reads the provided {@link File} and returns an object of type {@link AbstractConfigFile}
-     * which was given as a input. That object has the new configurations as a String which you can get by
-     * {@link AbstractConfigFile#getContent()} method.
-     *
-     * @param <T>   The class representing the configuration file type
-     * @param file  Input config file
-     * @param clazz Configuration file type which is a subclass of {@link AbstractConfigFile}.
-     * @return The new configurations in the given format as a String.
-     * @see AbstractConfigFile
-     */
-    public <T extends AbstractConfigFile> T getConfig(File file, Class<T> clazz) {
-        T newConfig;
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            newConfig = getConfig(fileInputStream, file.getName(), clazz);
-        } catch (FileNotFoundException e) {
-            String msg = String.format("File not found at %s", file.getAbsolutePath());
-            logger.error(msg, e);
-            throw new RuntimeException(msg, e);
-        } catch (IOException e) {
-            String msg = String.format("An error occurred while reading file %s", file.getAbsolutePath());
-            logger.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
-        return newConfig;
-    }
-
-    /**
-     * This method reads the provided {@link FileInputStream} and returns an object of type
-     * {@link AbstractConfigFile} which was given as a input. That object has the new configurations as a String
-     * which you can get by {@link AbstractConfigFile#getContent()} method.
-     *
-     * @param <T>         The class representing the configuration file type.
-     * @param inputStream FileInputStream of the config file.
-     * @param fileNameKey Name of the config file.
-     * @param clazz       Configuration file type which is a subclass of {@link AbstractConfigFile}.
-     * @return The new configurations in the given format as a String.
-     * @see AbstractConfigFile
-     */
-    public <T extends AbstractConfigFile> T getConfig(FileInputStream inputStream, String fileNameKey,
-                                                      Class<T> clazz) {
-        String xmlString;
-        //properties file can be directly load from the InputStream
-        if (clazz == Properties.class) {
-            //Convert the properties type to XML type
-            xmlString = Utils.convertPropertiesToXml(inputStream, ROOT_ELEMENT);
-        } else {
-            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
-                    StandardCharsets.UTF_8))) {
-                //Read the file
-                String inputString = bufferedReader.lines().collect(Collectors.joining("\n"));
-                if (clazz == XML.class) {
-                    xmlString = inputString;
-                } else if (clazz == YAML.class) {
-                    //Convert the yaml type to XML type
-                    xmlString = Utils.convertYAMLToXML(inputString, ROOT_ELEMENT);
-                } else {
-                    //IF unsupported file format found, throw an exception
-                    String msg = String.format("Unsupported file type: %s", clazz.getName());
-                    logger.error(msg);
-                    throw new RuntimeException(msg);
-                }
-            } catch (IOException e) {
-                String msg = "Error occurred when reading the inputStream.";
-                logger.error(msg, e);
-                throw new RuntimeException(msg, e);
-            }
-        }
-        //Apply the new config
-        xmlString = applyNewConfig(xmlString, fileNameKey);
-        //Convert xml back to original format
-        String convertedString = convertToOriginalFormat(xmlString, clazz);
-
-        AbstractConfigFile baseObject = null;
-        //No need for else because if the class is not supported, a RuntimeException will be thrown above
-        if (clazz == YAML.class) {
-            baseObject = new YAML(convertedString);
-        } else if (clazz == XML.class) {
-            baseObject = new XML(convertedString);
-        } else if (clazz == Properties.class) {
-            baseObject = new Properties(convertedString);
-        }
-        return clazz.cast(baseObject);
-    }
-
-    /**
-     * This method will convert the given xml string to its original format according to the provided class.
-     *
-     * @param xmlString String in xml format.
-     * @param clazz     The type that the xml string needs to be converted.
-     * @return String of config in the given class format.
-     */
-    private static String convertToOriginalFormat(String xmlString, Class clazz) {
-        //No need for else because if the class is not supported, a RuntimeException will be thrown above
-        if (clazz == YAML.class) {
-            return Utils.convertXMLToYAML(xmlString, ROOT_ELEMENT);
-        } else if (clazz == XML.class) {
-            return xmlString;
-        } else if (clazz == Properties.class) {
-            return Utils.convertXMLToProperties(xmlString, ROOT_ELEMENT);
-        }
-        return null;
+    public <T extends AbstractConfigFile> T getConfig(T configFile) {
+        String newXmlString = applyNewConfig(configFile.getCanonicalContent(), configFile.getFilename());
+        configFile.updateContent(newXmlString);
+        return configFile;
     }
 
     /**
@@ -347,7 +241,7 @@ public class ConfigResolverImpl implements ConfigResolver {
             }
             //process placeholders
             processPlaceholdersInXML(document.getDocumentElement().getChildNodes());
-            return Utils.convertXMLtoString(document);
+            return ConfigResolverUtils.convertXMLtoString(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             String msg = "Exception occurred when applying new config.";
             logger.error(msg, e);
@@ -501,7 +395,14 @@ public class ConfigResolverImpl implements ConfigResolver {
                     break;
                 case "sec":
                     //todo
-                    inputString = "";
+                    inputString = defaultValue;
+                    try {
+                        inputString = new String(ConfigResolverDataHolder.getInstance().getOptSecureVault()
+                                .orElseThrow(() -> new RuntimeException("Secure Vault service is not available"))
+                                .resolve(inputString));
+                    } catch (SecureVaultException e) {
+                        throw new RuntimeException("Unable to resolve the given alias", e);
+                    }
                     break;
                 default:
                     String msg = String.format("Unsupported placeholder: %s", key);

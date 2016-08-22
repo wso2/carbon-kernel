@@ -31,6 +31,7 @@ class Transport {
     private int port;
     private String secure;
     private String desc;
+    private String password;
 
     @XmlAttribute
     public void setSecure(String secure) {
@@ -66,6 +67,15 @@ class Transport {
 
     public String getDesc() {
         return desc;
+    }
+
+    @XmlElement
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
 
