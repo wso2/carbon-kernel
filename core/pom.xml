@@ -78,6 +78,21 @@
             <artifactId>json</artifactId>
             <version>${org.json.import.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-easymock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-testng</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,11 +159,15 @@
             org.w3c.*;version="${org.w3c.import.version.range}",
             org.json.*;version="${org.json.import.version}",
             org.xml.sax.*;version="${org.xml.sax.import.version.range}",
+            javax.crypto.*;version="${javax.crypto.version.range}",
         </import.package>
         <carbon.component>
             startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
             startup.listener;componentName="carbon-runtime-mgt";requiredService="org.wso2.carbon.kernel.runtime.Runtime",
-            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt"
+            startup.listener;componentName="carbon-secure-vault";requiredService="org.wso2.carbon.kernel.securevault.SecretRepository,org.wso2.carbon.kernel.securevault.MasterKeyReader",
+            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt",
+            osgi.service;objectClass="org.wso2.carbon.kernel.securevault.SecretRepository",
+            osgi.service;objectClass="org.wso2.carbon.kernel.securevault.MasterKeyReader"
         </carbon.component>
     </properties>
 
