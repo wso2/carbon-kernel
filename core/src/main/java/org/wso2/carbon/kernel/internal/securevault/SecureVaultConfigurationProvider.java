@@ -67,10 +67,6 @@ public class SecureVaultConfigurationProvider {
         try (InputStream inputStream = new FileInputStream(configFileLocation);
              BufferedReader bufferedReader = new BufferedReader(
                      new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-
-            // TODO : pass the inputStream to deployment properties to get the updated values before creating the Yaml
-            // ConfigUtil.parse(inputStream);
-
             Yaml yaml = new Yaml();
             yaml.setBeanAccess(BeanAccess.FIELD);
             secureVaultConfiguration = yaml.loadAs(bufferedReader, SecureVaultConfiguration.class);

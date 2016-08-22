@@ -62,11 +62,12 @@ public abstract class AbstractSecretRepository implements SecretRepository {
                 continue;
             }
 
+            String updatedTokenValue = SecureVaultUtils.readUpdatedValue(tokens[1]);
             if (SecureVaultConstants.CIPHER_TEXT.equals(tokens[0])) {
-                byte[] base64Decoded = SecureVaultUtils.base64Decode(SecureVaultUtils.toBytes(tokens[1]));
+                byte[] base64Decoded = SecureVaultUtils.base64Decode(SecureVaultUtils.toBytes(updatedTokenValue));
                 decryptedPassword = SecureVaultUtils.toChars(decrypt(base64Decoded));
             } else if (SecureVaultConstants.PLAIN_TEXT.equals(tokens[0])) {
-                decryptedPassword = tokens[1].toCharArray();
+                decryptedPassword = updatedTokenValue.toCharArray();
             } else {
                 logger.error("Unknown prefix in secrets file");
                 continue;

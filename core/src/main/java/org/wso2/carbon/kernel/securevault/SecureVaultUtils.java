@@ -79,9 +79,6 @@ public class SecureVaultUtils {
         Properties properties = new Properties();
         try (InputStream inputStream = new FileInputStream(secretsFilePath.toFile());
              BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, defaultCharset))) {
-
-            // TODO : Use ConfigUtil to update with environment variables
-
             properties.load(bufferedReader);
         } catch (FileNotFoundException e) {
             throw new SecureVaultException("Cannot find secrets file in given location. (location: "
