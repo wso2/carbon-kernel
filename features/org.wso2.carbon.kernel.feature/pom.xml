@@ -122,6 +122,8 @@
                                         <include>conf/**</include>
                                         <include>logs/**</include>
                                         <include>osgi/**</include>
+                                        <include>resources/**</include>
+                                        <include>securevault/**</include>
                                         <include>tmp/**</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>

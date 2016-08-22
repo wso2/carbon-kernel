@@ -16,7 +16,6 @@
 package org.wso2.carbon.kernel.internal.utils;
 
 import org.wso2.carbon.kernel.Constants;
-
 /**
  * Kernel internal utils.
  *
@@ -36,5 +35,4 @@ public class Utils {
         return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(Constants.CARBON_CONFIG_YAML)
                 .toString();
     }
-
 }

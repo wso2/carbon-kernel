@@ -24,4 +24,8 @@ public class CarbonToolException extends Exception {
     public CarbonToolException(String message) {
         super(message);
     }
+
+    public CarbonToolException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

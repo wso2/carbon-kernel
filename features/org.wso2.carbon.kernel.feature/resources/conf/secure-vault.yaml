@@ -1,0 +1,7 @@
+secretRepository:
+  type: org.wso2.carbon.kernel.securevault.repository.DefaultSecretRepository
+  parameters:
+    privateKeyAlias: wso2carbon
+    keystoreLocation: resources/security/wso2carbon.jks
+masterKeyReader:
+  type: org.wso2.carbon.kernel.securevault.reader.DefaultMasterKeyReader
