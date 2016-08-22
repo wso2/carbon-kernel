@@ -1,5 +1,7 @@
 package org.wso2.carbon.kernel.internal.configresolver;
 
+import org.wso2.carbon.kernel.securevault.SecureVault;
+
 import java.util.Optional;
 
 /**

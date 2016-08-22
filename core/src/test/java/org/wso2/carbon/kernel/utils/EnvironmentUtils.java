@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.securevault.utils;
+package org.wso2.carbon.kernel.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * EnvironmentUtils for SecureVault unit tests
+ * EnvironmentUtils
  *
  * @since 5.2.0
  */
@@ -40,8 +40,14 @@ public class EnvironmentUtils {
 
     public static void setEnv(String key, String value) {
         Map<String, String> newenv = new HashMap<>();
-        newenv.putAll(System.getenv());
         newenv.put(key, value);
+        setEnv(newenv);
+    }
+
+    public static void setEnv(Map<String, String> newVariables) {
+        Map<String, String> newenv = new HashMap<>();
+        newenv.putAll(System.getenv());
+        newenv.putAll(newVariables);
         try {
             Class<?> processEnvironmentClass = Class.forName(PROCESS_ENVIRONMENT);
 

@@ -28,8 +28,9 @@ import org.wso2.carbon.kernel.configresolver.configfiles.XML;
 import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
 import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverDataHolder;
 import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
-import org.wso2.carbon.kernel.internal.configresolver.SecureVault;
-import org.wso2.carbon.kernel.internal.configresolver.SecureVaultException;
+import org.wso2.carbon.kernel.securevault.SecureVault;
+import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
+import org.wso2.carbon.kernel.utils.EnvironmentUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -37,18 +38,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -528,7 +526,7 @@ public class ConfigResolverImplTest {
         setUpEnvironment();
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", "");
-        setEnv(envVarMap);
+        EnvironmentUtils.setEnv(envVarMap);
         System.setProperty("deployment.conf", "");
         reloadDeploymentPropertiesFile();
 
@@ -553,7 +551,7 @@ public class ConfigResolverImplTest {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "dep_env.properties");
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", depConfPath.toString());
-        setEnv(envVarMap);
+        EnvironmentUtils.setEnv(envVarMap);
         reloadDeploymentPropertiesFile();
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
@@ -579,7 +577,7 @@ public class ConfigResolverImplTest {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "error_dep.properties");
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", depConfPath.toString());
-        setEnv(envVarMap);
+        EnvironmentUtils.setEnv(envVarMap);
         reloadDeploymentPropertiesFile();
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
@@ -595,7 +593,7 @@ public class ConfigResolverImplTest {
         Path depConfPath = Paths.get(basedir, "src", "test", "resources", "conf", "dep.properties");
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("deployment.conf", depConfPath.toString());
-        setEnv(envVarMap);
+        EnvironmentUtils.setEnv(envVarMap);
         reloadDeploymentPropertiesFile();
 
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "configresolver", "Example2.xml");
@@ -631,45 +629,11 @@ public class ConfigResolverImplTest {
         Map<String, String> envVarMap = new HashMap<>();
         envVarMap.put("pqr.http.port", "8501");
         envVarMap.put("sample.abc.port", "8081");
-        setEnv(envVarMap);
+        EnvironmentUtils.setEnv(envVarMap);
         //This is how to set System properties
         System.setProperty("abc.http.port", "8001");
         System.setProperty("sample.xyz.port", "9091");
         System.setProperty("pqr.secure", "true");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static void setEnv(Map<String, String> newenv) {
-        try {
-            Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
-            Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
-            theEnvironmentField.setAccessible(true);
-            Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
-            env.putAll(newenv);
-            Field theCaseInsensitiveEnvironmentField = processEnvironmentClass.getDeclaredField(
-                    "theCaseInsensitiveEnvironment");
-            theCaseInsensitiveEnvironmentField.setAccessible(true);
-            Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
-            cienv.putAll(newenv);
-        } catch (NoSuchFieldException e) {
-            try {
-                Class[] classes = Collections.class.getDeclaredClasses();
-                Map<String, String> env = System.getenv();
-                for (Class cl : classes) {
-                    if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
-                        Field field = cl.getDeclaredField("m");
-                        field.setAccessible(true);
-                        Object obj = field.get(env);
-                        Map<String, String> map = (Map<String, String>) obj;
-                        map.putAll(newenv);
-                    }
-                }
-            } catch (Exception e2) {
-                logger.debug(e2.toString());
-            }
-        } catch (Exception e1) {
-            logger.debug(e1.toString());
-        }
     }
 
     static class TestFile extends AbstractConfigFile {

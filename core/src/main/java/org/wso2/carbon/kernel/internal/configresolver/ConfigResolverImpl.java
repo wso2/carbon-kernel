@@ -24,6 +24,7 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
 import org.wso2.carbon.kernel.configresolver.ConfigResolverUtils;
 import org.wso2.carbon.kernel.configresolver.configfiles.AbstractConfigFile;
+import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.utils.StringUtils;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.InputSource;
@@ -394,7 +395,6 @@ public class ConfigResolverImpl implements ConfigResolver {
                     inputString = processValue(System::getProperty, value, inputString, defaultValue, Placeholder.SYS);
                     break;
                 case "sec":
-                    //todo
                     inputString = defaultValue;
                     try {
                         inputString = new String(ConfigResolverDataHolder.getInstance().getOptSecureVault()

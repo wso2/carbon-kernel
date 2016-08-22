@@ -10,6 +10,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
+import org.wso2.carbon.kernel.securevault.SecureVault;
 
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class ConfigResolverComponent {
     @Reference(
             name = "config.resolver.secure.vault",
             service = SecureVault.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
+            cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unRegisterSecureVault"
     )

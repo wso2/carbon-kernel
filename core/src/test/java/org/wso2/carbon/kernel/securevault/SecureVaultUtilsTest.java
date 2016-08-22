@@ -2,7 +2,7 @@ package org.wso2.carbon.kernel.securevault;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.securevault.utils.EnvironmentUtils;
+import org.wso2.carbon.kernel.utils.EnvironmentUtils;
 
 /**
  * Unit tests class for org.wso2.carbon.kernel.securevault.SecureVaultUtils.
