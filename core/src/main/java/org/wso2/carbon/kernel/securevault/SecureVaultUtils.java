@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -126,5 +127,28 @@ public class SecureVaultUtils {
      */
     private SecureVaultUtils() {
         throw new AssertionError("Trying to a instantiate a constant class");
+    }
+
+    public static String readUpdatedValue(String alias) {
+        if (alias != null) {
+            if (alias.startsWith("${env:")) {
+                return readFromEnvironment(alias.substring(6, alias.length() - 1));
+            } else if (alias.startsWith("${sys:")) {
+                return readFromSystem(alias.substring(6, alias.length() - 1));
+            }
+        }
+        return alias;
+    }
+
+    private static String readFromEnvironment(String alias) {
+        return Optional.ofNullable(alias)
+                .map(System::getenv)
+                .orElse(alias);
+    }
+
+    private static String readFromSystem(String alias) {
+        return Optional.ofNullable(alias)
+                .map(System::getProperty)
+                .orElse(alias);
     }
 }
