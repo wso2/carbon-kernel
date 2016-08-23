@@ -164,10 +164,7 @@
         <carbon.component>
             startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
             startup.listener;componentName="carbon-runtime-mgt";requiredService="org.wso2.carbon.kernel.runtime.Runtime",
-            startup.listener;componentName="carbon-secure-vault";requiredService="org.wso2.carbon.kernel.securevault.SecretRepository,org.wso2.carbon.kernel.securevault.MasterKeyReader",
-            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt",
-            osgi.service;objectClass="org.wso2.carbon.kernel.securevault.SecretRepository",
-            osgi.service;objectClass="org.wso2.carbon.kernel.securevault.MasterKeyReader"
+            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt"
         </carbon.component>
     </properties>
 
