@@ -297,7 +297,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 throw new UserStoreException(errorMessage, e);
             }
         }
-        }
+    }
 
     /**
      * Does required checks before adding the user
