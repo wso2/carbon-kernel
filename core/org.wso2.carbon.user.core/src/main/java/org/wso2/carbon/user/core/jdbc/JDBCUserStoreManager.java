@@ -1368,14 +1368,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     profileName = UserCoreConstants.DEFAULT_PROFILE;
                 }
 
-                Iterator<Map.Entry<String, String>> ite = claims.entrySet().iterator();
-                while (ite.hasNext()) {
-                    Map.Entry<String, String> entry = ite.next();
-                    String claimURI = entry.getKey();
-                    String propName = getClaimAtrribute(claimURI, userName, null);
-                    String propValue = entry.getValue();
-                    addProperty(dbConnection, userName, propName, propValue, profileName);
-                }
+                addProperties(dbConnection, userName, claims, profileName);
             }
 
             dbConnection.commit();
@@ -2065,22 +2058,44 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         try {
-            dbConnection = getDBConnection();
+
+            ArrayList<String> propertyListToUpdate = new ArrayList<>();
+            Map<String, String> claimPropertyMap = new HashMap<>();
             Iterator<Map.Entry<String, String>> ite = claims.entrySet().iterator();
 
+            // Get the property names fo the claims
             while (ite.hasNext()) {
                 Map.Entry<String, String> entry = ite.next();
                 String claimURI = entry.getKey();
 
                 String property = getClaimAtrribute(claimURI, userName, null);
-                String value = entry.getValue();
-                String existingValue = getProperty(dbConnection, userName, property, profileName);
-                if (existingValue == null) {
-                    addProperty(dbConnection, userName, property, value, profileName);
+                propertyListToUpdate.add(property);
+                claimPropertyMap.put(claimURI, property);
+            }
+
+            String[] propertyArr = new String[propertyListToUpdate.size()];
+            propertyArr = propertyListToUpdate.toArray(propertyArr);
+
+            // Get available properties
+            Map<String, String> availableProperties = getUserPropertyValues(userName, propertyArr, profileName);
+            Map<String, String> newClaims = new HashMap<>();
+            Map<String, String> availableClaims = new HashMap<>();
+
+            // Divide claim list to already available claims (need to update those) and new claims (need to add those)
+            Iterator<Map.Entry<String, String>> ite2 = claims.entrySet().iterator();
+            while (ite2.hasNext()) {
+                Map.Entry<String, String> entry = ite2.next();
+                String claimURI = entry.getKey();
+                if (availableProperties.containsKey(claimPropertyMap.get(claimURI))) {
+                    availableClaims.put(claimURI, entry.getValue());
                 } else {
-                    updateProperty(dbConnection, userName, property, value, profileName);
+                    newClaims.put(claimURI, entry.getValue());
                 }
             }
+
+            dbConnection = getDBConnection();
+            addProperties(dbConnection, userName, newClaims, profileName);
+            updateProperties(dbConnection, userName, availableClaims, profileName);
             dbConnection.commit();
         } catch (SQLException e) {
             String msg = "Database error occurred while setting user claim values for user : " + userName;
@@ -2857,6 +2872,218 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return sharedNames;
         }
         return new String[0];
+    }
+
+    /**
+     * Add properties as a batch
+     *
+     * @param dbConnection
+     * @param userName
+     * @param properties
+     * @param profileName
+     * @throws org.wso2.carbon.user.api.UserStoreException
+     */
+    private void addProperties(Connection dbConnection, String userName, Map<String, String> properties,
+                               String profileName) throws org.wso2.carbon.user.api.UserStoreException {
+        String type;
+        try {
+            type = DatabaseCreator.getDatabaseType(dbConnection);
+        } catch (Exception e) {
+            String msg = "Error occurred while adding user properties for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
+
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_PROPERTY + "-" + type);
+        if (sqlStmt == null) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_PROPERTY);
+        }
+        if (sqlStmt == null) {
+            throw new UserStoreException("The sql statement for add user property sql is null");
+        }
+
+        PreparedStatement prepStmt = null;
+        boolean localConnection = false;
+
+        try {
+            if (dbConnection == null) {
+                localConnection = true;
+                dbConnection = getDBConnection();
+            }
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                String propertyName = getClaimAtrribute(entry.getKey(), userName, null);
+                String propertyValue = entry.getValue();
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                        batchUpdateStringValuesToDatabase(prepStmt, propertyName, propertyValue, profileName,
+                                tenantId, userName, tenantId);
+                    } else {
+                        batchUpdateStringValuesToDatabase(prepStmt, userName, tenantId, propertyName, propertyValue,
+                                profileName, tenantId);
+                    }
+                } else {
+                    batchUpdateStringValuesToDatabase(prepStmt, userName, propertyName, propertyValue, profileName);
+                }
+            }
+
+            int[] counts = prepStmt.executeBatch();
+            if (log.isDebugEnabled()) {
+                int totalUpdated = 0;
+                if (counts != null) {
+                    for (int i : counts) {
+                        totalUpdated += i;
+                    }
+                }
+
+                if (totalUpdated == 0) {
+                    log.debug("No rows were updated");
+                }
+                log.debug("Executed query is " + sqlStmt + " and number of updated rows :: " + totalUpdated);
+            }
+
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while updating string values to database.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
+    }
+
+    /**
+     * Update properties as a batch
+     *
+     * @param dbConnection
+     * @param userName
+     * @param properties
+     * @param profileName
+     * @throws org.wso2.carbon.user.api.UserStoreException
+     */
+    private void updateProperties(Connection dbConnection, String userName, Map<String, String> properties,
+                                 String profileName) throws org.wso2.carbon.user.api.UserStoreException {
+        String type;
+        try {
+            type = DatabaseCreator.getDatabaseType(dbConnection);
+        } catch (Exception e) {
+            String msg = "Error occurred while updating user properties for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
+
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY + "-" + type);
+        if (sqlStmt == null) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY);
+        }
+        if (sqlStmt == null) {
+            throw new UserStoreException("The sql statement for update user property sql is null");
+        }
+
+        PreparedStatement prepStmt = null;
+        boolean localConnection = false;
+
+        try {
+            if (dbConnection == null) {
+                localConnection = true;
+                dbConnection = getDBConnection();
+            }
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                String propertyName = getClaimAtrribute(entry.getKey(), userName, null);
+                String propertyValue = entry.getValue();
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                        batchUpdateStringValuesToDatabase(prepStmt, propertyName, propertyValue, profileName,
+                                tenantId, userName, tenantId);
+                    } else {
+                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userName, tenantId, propertyName,
+                                profileName, tenantId);
+                    }
+                } else {
+                    batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userName, propertyName, profileName);
+                }
+            }
+
+            int[] counts = prepStmt.executeBatch();
+            if (log.isDebugEnabled()) {
+                int totalUpdated = 0;
+                if (counts != null) {
+                    for (int i : counts) {
+                        totalUpdated += i;
+                    }
+                }
+
+                if (totalUpdated == 0) {
+                    log.debug("No rows were updated");
+                }
+                log.debug("Executed query is " + sqlStmt + " and number of updated rows :: " + totalUpdated);
+            }
+
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while updating string values to database.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
+    }
+
+    /**
+     * Prepare the batch
+     *
+     * @param prepStmt
+     * @param params
+     * @throws UserStoreException
+     */
+    private void batchUpdateStringValuesToDatabase(PreparedStatement prepStmt, Object... params) throws
+            UserStoreException {
+        try {
+            if (params != null && params.length > 0) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        throw new UserStoreException("Invalid data provided");
+                    } else if (param instanceof String) {
+                        prepStmt.setString(i + 1, (String) param);
+                    } else if (param instanceof Integer) {
+                        prepStmt.setInt(i + 1, (Integer) param);
+                    } else if (param instanceof Date) {
+                        prepStmt.setTimestamp(i + 1, new Timestamp(System.currentTimeMillis()));
+                    } else if (param instanceof Boolean) {
+                        prepStmt.setBoolean(i + 1, (Boolean) param);
+                    }
+                }
+            }
+            prepStmt.addBatch();
+        } catch (SQLException e) {
+            String msg = "Error occurred while updating property values to database.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
     }
 
     @Override
