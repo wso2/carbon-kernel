@@ -2932,9 +2932,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             int[] counts = prepStmt.executeBatch();
-
             if (log.isDebugEnabled()) {
-
                 int totalUpdated = 0;
                 if (counts != null) {
                     for (int i : counts) {
