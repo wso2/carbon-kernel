@@ -23,7 +23,6 @@ import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
 import org.wso2.carbon.registry.core.internal.RegistryDataHolder;
 import org.wso2.carbon.registry.core.jdbc.realm.InMemoryRealmService;
-import org.wso2.carbon.registry.core.test.TestContants;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.io.File;
@@ -63,7 +62,6 @@ public class BaseTestCase extends TestCase {
                 System.setProperty("carbon.home", file.getAbsolutePath());
             }
         }
-        System.setProperty(TestContants.H2_IMPLICIT_RELATIVE_PATH, TestContants.TRUE);
         // The line below is responsible for initializing the cache.
         CarbonContext.getThreadLocalCarbonContext();
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain("foo.com");

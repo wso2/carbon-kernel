@@ -38,7 +38,7 @@ public class PermissionTest extends BaseTestCase {
 
     private UserRealm realm;
 
-    private static String TEST_URL = "jdbc:h2:target/PermissionTest/CARBON_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/PermissionTest/CARBON_TEST";
 
     private static final String EVERYONE_ROLE = "Internal/everyone";
 

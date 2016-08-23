@@ -42,7 +42,7 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
     private UserRealm realm = null;
     private UserStoreManager admin = null;
     AuthorizationManager authMan = null;
-    private String TEST_URL = "jdbc:h2:target/permTreetest/CARBON_TEST";
+    private String TEST_URL = "jdbc:h2:./target/permTreetest/CARBON_TEST";
 
     public void setUp() throws Exception {
         super.setUp();
