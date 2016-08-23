@@ -19,15 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.configresolver.ConfigResolver;
+import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
 import org.wso2.carbon.kernel.internal.utils.Utils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 /**
  * This class takes care of parsing the carbon.yml file and creating the CarbonConfiguration object model.
@@ -36,6 +35,11 @@ import java.util.Scanner;
  */
 public class YAMLBasedConfigProvider implements CarbonConfigProvider {
     private static final Logger logger = LoggerFactory.getLogger(YAMLBasedConfigProvider.class);
+    private ConfigResolver configResolver;
+
+    public YAMLBasedConfigProvider(ConfigResolver configResolver) {
+        this.configResolver = configResolver;
+    }
 
     /**
      * Parse the carbon.yml and returns the CarbonConfiguration object.
@@ -47,13 +51,11 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
     public CarbonConfiguration getCarbonConfiguration() {
         org.wso2.carbon.kernel.utils.Utils.checkSecurity();
         String configFileLocation = Utils.getCarbonYAMLLocation();
-        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
-
-            String yamlFileString;
-            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
-                yamlFileString = scanner.useDelimiter("\\A").next();
-                yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
-            }
+        try (FileInputStream fileInputStream = new FileInputStream(configFileLocation)) {
+            YAML carbonYaml = new YAML(fileInputStream, "carbon.yaml");
+            carbonYaml = configResolver.getConfig(carbonYaml);
+            String yamlFileString = carbonYaml.getContent();
+            yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
 
             Yaml yaml = new Yaml();
             yaml.setBeanAccess(BeanAccess.FIELD);

@@ -19,10 +19,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
-import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
-import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 import org.wso2.carbon.kernel.utils.MBeanRegistrator;
 
 /**
@@ -36,17 +32,6 @@ public class CarbonCoreBundleActivator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         DataHolder.getInstance().setBundleContext(bundleContext);
-
-        // 1) Find to initialize the Carbon configuration provider
-        CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
-
-        // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
-        CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
-
-        // 3) Register CarbonRuntime instance as an OSGi bundle.
-        bundleContext.registerService(CarbonRuntime.class.getName(), carbonRuntime, null);
-
-        DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
         logger.debug("Carbon core bundle is started successfully");
     }
 

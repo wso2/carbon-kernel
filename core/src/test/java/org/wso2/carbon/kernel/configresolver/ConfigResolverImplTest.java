@@ -68,7 +68,7 @@ public class ConfigResolverImplTest {
     @BeforeTest
     public void setup() throws SecureVaultException {
         setUpEnvironment();
-        configResolver = new ConfigResolverImplEx();
+        configResolver = new ConfigResolverImpl();
         if (basedir == null) {
             basedir = Paths.get("").toAbsolutePath().toString();
         }

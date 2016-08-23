@@ -82,7 +82,7 @@ public class SecureVaultComponent {
     @Reference(
             name = "secure.vault.secret.repository",
             service = SecretRepository.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unRegisterSecretRepository"
     )
@@ -104,7 +104,7 @@ public class SecureVaultComponent {
     @Reference(
             name = "secure.vault.master.key.reader",
             service = MasterKeyReader.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unregisterMasterKeyReader"
     )
