@@ -283,7 +283,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
 
         if(roleList != null && roleList.length > 0){
-
             try {
             /* update the user roles */
                 doUpdateRoleListOfUser(userName, null, roleList);
@@ -298,8 +297,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 throw new UserStoreException(errorMessage, e);
             }
         }
-
-    }
+        }
 
     /**
      * Does required checks before adding the user
