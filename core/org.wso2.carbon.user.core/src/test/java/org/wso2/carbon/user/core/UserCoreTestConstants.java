@@ -22,9 +22,7 @@ public class UserCoreTestConstants {
     /**
      * This constant must be the same as user-mgt.xml inside the user.core jar file.
      */
-    public static final String DB_TEST_URL = "jdbc:h2:target/databasetest/CARBON_TEST";
+    public static final String DB_TEST_URL = "jdbc:h2:./target/databasetest/CARBON_TEST";
     public static final String DB_DRIVER = "org.h2.Driver";
-    public static final String H2_IMPLICIT_RELATIVE_PATH = "h2.implicitRelativePath";
-    public static final String TRUE = "true";
 
 }

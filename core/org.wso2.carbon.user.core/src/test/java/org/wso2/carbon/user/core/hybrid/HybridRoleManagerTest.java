@@ -46,7 +46,7 @@ public class HybridRoleManagerTest extends BaseTestCase {
 
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:target/HybridRoleTest/CARBON_TEST");
+        ds.setUrl("jdbc:h2:./target/HybridRoleTest/CARBON_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
         creator.createRegistryDatabase();

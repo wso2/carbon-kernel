@@ -53,7 +53,7 @@ public class ClaimDAOTest extends BaseTestCase {
        // ds.setUrl("jdbc:derby:target/ClaimTestDatabase/CARBON_TEST;create=true");
 
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:target/ClaimTestDatabase/CARBON_TEST");
+        ds.setUrl("jdbc:h2:./target/ClaimTestDatabase/CARBON_TEST");
         DatabaseCreator creator = new DatabaseCreator(ds);
         creator.createRegistryDatabase();       
         
