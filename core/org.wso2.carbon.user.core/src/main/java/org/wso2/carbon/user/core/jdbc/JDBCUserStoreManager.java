@@ -2885,7 +2885,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     private void addProperties(Connection dbConnection, String userName, Map<String, String> properties,
                                String profileName) throws org.wso2.carbon.user.api.UserStoreException {
-
         String type;
         try {
             type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -2974,7 +2973,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     private void updateProperties(Connection dbConnection, String userName, Map<String, String> properties,
                                  String profileName) throws org.wso2.carbon.user.api.UserStoreException {
-
         String type;
         try {
             type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -3061,7 +3059,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     private void batchUpdateStringValuesToDatabase(PreparedStatement prepStmt, Object... params) throws
             UserStoreException {
-
         try {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -3088,7 +3085,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(msg, e);
         }
     }
-
 
     @Override
     protected RoleContext createRoleContext(String roleName) {
