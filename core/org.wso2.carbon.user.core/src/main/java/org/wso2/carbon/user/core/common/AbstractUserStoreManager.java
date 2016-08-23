@@ -1485,21 +1485,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 return;
             }
         }
-        // #################### </Listeners> #####################################################
 
-        try {
-            roleList = UserCoreUtil
-                    .combine(doGetInternalRoleListOfUser(userName, "*"), Arrays.asList(roleList));
-            // If the newly created user has internal roles assigned from the UI wizard those internal roles
-            // will be duplicated in the roles list. Duplcated roles are eliminated here.
-            Set<String> rolesSet = new HashSet<String>(Arrays.asList(roleList));
-            roleList = new String[rolesSet.size()];
-            rolesSet.toArray(roleList);
-            addToUserRolesCache(tenantId, userName, roleList);
-        } catch (Exception e) {
-            //if adding newly created user's roles to the user roles cache fails, do nothing. It will read
-            //from the database upon updating user.
-        }
+        // Clean the role cache since it contains old role informations
+        clearUserRolesCache(userName);
     }
 
     /**

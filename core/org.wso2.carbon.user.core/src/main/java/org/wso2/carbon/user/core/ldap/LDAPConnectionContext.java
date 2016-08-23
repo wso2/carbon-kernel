@@ -305,19 +305,30 @@ public class LDAPConnectionContext {
         LdapContext context = null;
 
         //create a temp env for this particular authentication session by copying the original env
+        // following logic help to re use the connection pool in authentication
         Hashtable<String, String> tempEnv = new Hashtable<String, String>();
         for (Object key : environment.keySet()) {
-            tempEnv.put((String) key, (String) environment.get(key));
+            if (Context.SECURITY_PRINCIPAL.equals((String) key) || Context.SECURITY_CREDENTIALS.equals((String) key)
+                    || Context.SECURITY_AUTHENTICATION.equals((String) key)) {
+                // skip adding to environment
+            } else {
+                tempEnv.put((String) key, (String) environment.get(key));
+            }
         }
-        //replace connection name and password with the passed credentials to this method
-        tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
-        tempEnv.put(Context.SECURITY_CREDENTIALS, password);
+
+        tempEnv.put(Context.SECURITY_AUTHENTICATION, "none");
 
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
 
             //replace environment properties with these credentials
             context = new InitialLdapContext(tempEnv, null);
+            context.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
+            context.addToEnvironment(Context.SECURITY_PRINCIPAL, userDN);
+            context.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+            context.reconnect(null);
+
+            context.addToEnvironment(Context.SECURITY_AUTHENTICATION, "none");
 
 
         } else if (dcMap != null && dcMap.size() != 0) {

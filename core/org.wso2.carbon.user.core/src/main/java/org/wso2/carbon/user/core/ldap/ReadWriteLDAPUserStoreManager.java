@@ -282,18 +282,20 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(dirContext);
         }
 
-        try {
+        if(roleList != null && roleList.length > 0) {
+            try {
             /* update the user roles */
-            doUpdateRoleListOfUser(userName, null, roleList);
-            if (log.isDebugEnabled()) {
-                log.debug("Roles are added for user  : " + userName + " successfully.");
+                doUpdateRoleListOfUser(userName, null, roleList);
+                if (log.isDebugEnabled()) {
+                    log.debug("Roles are added for user  : " + userName + " successfully.");
+                }
+            } catch (UserStoreException e) {
+                String errorMessage = "User is added. But error while updating role list of user : " + userName;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
             }
-        } catch (UserStoreException e) {
-            String errorMessage = "User is added. But error while updating role list of user : " + userName;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
         }
     }
 
