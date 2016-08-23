@@ -282,7 +282,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(dirContext);
         }
 
-        if(roleList != null && roleList.length > 0){
+        if(roleList != null && roleList.length > 0) {
             try {
             /* update the user roles */
                 doUpdateRoleListOfUser(userName, null, roleList);
