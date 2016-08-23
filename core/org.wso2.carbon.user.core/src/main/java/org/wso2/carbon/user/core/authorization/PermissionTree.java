@@ -949,9 +949,14 @@ public class PermissionTree {
                 if (cacheEntry.getResource() == null) {
                     synchronized (this) {
                         cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
-                        if (cacheEntry.getResource() == null) {
+                        if (cacheEntry == null || cacheEntry.getResource() == null) {
                             updatePermissionTreeFromDB();
-                            cacheEntry.setResource(root);
+                            if (cacheEntry == null) {
+                                cacheEntry = new GhostResource<TreeNode>(root);
+                                permissionCache.put(cacheKey, cacheEntry);
+                            } else {
+                                cacheEntry.setResource(root);
+                            }
                             if (log.isDebugEnabled()) {
                                 log.debug("Set resource to true");
                             }
