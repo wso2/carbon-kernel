@@ -134,13 +134,6 @@ public class ConfigResolverImpl implements ConfigResolver {
         }
     }
 
-    /**
-     * Protected constructor to avoid creating instances other than ${@link ConfigResolverComponent}.
-     */
-    protected ConfigResolverImpl() {
-
-    }
-
     public <T extends AbstractConfigFile> T getConfig(T configFile) {
         String newXmlString = applyNewConfig(configFile.getCanonicalContent(), configFile.getFilename());
         configFile.updateContent(newXmlString);
