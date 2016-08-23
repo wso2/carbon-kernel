@@ -2095,7 +2095,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             dbConnection = getDBConnection();
             addProperties(dbConnection, userName, newClaims, profileName);
-            updatePropertys(dbConnection, userName, availableClaims, profileName);
+            updateProperties(dbConnection, userName, availableClaims, profileName);
             dbConnection.commit();
         } catch (SQLException e) {
             String msg = "Database error occurred while setting user claim values for user : " + userName;
@@ -2974,7 +2974,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param profileName
      * @throws org.wso2.carbon.user.api.UserStoreException
      */
-    private void updatePropertys(Connection dbConnection, String userName, Map<String, String> properties,
+    private void updateProperties(Connection dbConnection, String userName, Map<String, String> properties,
                                  String profileName) throws org.wso2.carbon.user.api.UserStoreException {
 
         String type;
@@ -3023,9 +3023,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             int[] counts = prepStmt.executeBatch();
-
             if (log.isDebugEnabled()) {
-
                 int totalUpdated = 0;
                 if (counts != null) {
                     for (int i : counts) {
@@ -3063,7 +3061,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param params
      * @throws UserStoreException
      */
-
     private void batchUpdateStringValuesToDatabase(PreparedStatement prepStmt, Object... params) throws
             UserStoreException {
 
