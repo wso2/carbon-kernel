@@ -254,7 +254,7 @@
         <orbit.version.el.impl>2.2.wso2v1</orbit.version.el.impl>
 
         <!-- H2 Database Engine -->
-        <version.h2.engine>1.4.191</version.h2.engine>
+        <version.h2.engine>1.4.191.wso2v1</version.h2.engine>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -989,7 +989,7 @@
                 <version>${orbit.version.commons.collection}</version>
             </dependency>
             <dependency>
-                <groupId>com.h2database</groupId>
+                <groupId>org.wso2.orbit.com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${version.h2.engine}</version>
                 <exclusions>
