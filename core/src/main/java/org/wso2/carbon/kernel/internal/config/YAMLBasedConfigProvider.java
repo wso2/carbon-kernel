@@ -25,6 +25,7 @@ import org.wso2.carbon.kernel.internal.utils.Utils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -50,9 +51,9 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
      */
     public CarbonConfiguration getCarbonConfiguration() {
         org.wso2.carbon.kernel.utils.Utils.checkSecurity();
-        String configFileLocation = Utils.getCarbonYAMLLocation();
-        try (FileInputStream fileInputStream = new FileInputStream(configFileLocation)) {
-            YAML carbonYaml = new YAML(fileInputStream, "carbon.yaml");
+        File configFile = Utils.getCarbonYAMLLocation().toFile();
+        try (FileInputStream fileInputStream = new FileInputStream(configFile)) {
+            YAML carbonYaml = new YAML(fileInputStream, configFile.getName());
             carbonYaml = configResolver.getConfig(carbonYaml);
             String yamlFileString = carbonYaml.getContent();
             yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
@@ -61,7 +62,7 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
             yaml.setBeanAccess(BeanAccess.FIELD);
             return yaml.loadAs(yamlFileString, CarbonConfiguration.class);
         } catch (IOException e) {
-            String errorMessage = "Failed populate CarbonConfiguration from " + configFileLocation;
+            String errorMessage = "Failed populate CarbonConfiguration from " + configFile.getName();
             logger.error(errorMessage, e);
             throw new RuntimeException(errorMessage);
         }
