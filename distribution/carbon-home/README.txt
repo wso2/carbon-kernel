@@ -58,7 +58,7 @@ Carbon Binary Distribution Directory Structure
       Contains all OSGi related libraries and configurations.
 
     - conf
-      Contains server configuration files. Ex: carbon.yml
+      Contains server configuration files. Ex: carbon.yaml
 
     - logs
       Contains all log files created during execution.

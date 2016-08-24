@@ -19,7 +19,7 @@ import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 
 /**
- * CarbonConfiguration class holds static configuration parameters specified in the carbon.yml file.
+ * CarbonConfiguration class holds static configuration parameters specified in the carbon.yaml file.
  *
  * @since 5.0.0
  */

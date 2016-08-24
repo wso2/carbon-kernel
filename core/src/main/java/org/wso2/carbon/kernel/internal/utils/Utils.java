@@ -31,9 +31,9 @@ public class Utils {
     }
 
     /**
-     * Returns the carbon.yml location.
+     * Returns the carbon.yaml location.
      *
-     * @return Path carbon.yml location
+     * @return Path carbon.yaml location
      */
     public static Path getCarbonYAMLLocation() {
         return Paths.get(org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().toString(),

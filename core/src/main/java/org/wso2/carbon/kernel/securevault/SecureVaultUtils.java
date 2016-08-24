@@ -118,9 +118,9 @@ public class SecureVaultUtils {
     }
 
     /**
-     * Returns the secure_vault.yml location.
+     * Returns the secure_vault.yaml location.
      *
-     * @return String secure_vault.yml location
+     * @return String secure_vault.yaml location
      */
     public static String getSecureVaultYAMLLocation() {
         return Utils.getCarbonConfigHome().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();

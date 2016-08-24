@@ -18,7 +18,7 @@
 package org.wso2.carbon.kernel.config.model;
 
 /**
- * Config bean for pendingCapabilityTimer in carbon.yml file.
+ * Config bean for pendingCapabilityTimer in carbon.yaml file.
  */
 public class PendingCapabilityTimer {
 

@@ -18,7 +18,7 @@
 package org.wso2.carbon.kernel.config.model;
 
 /**
- * Config bean for startupOrderResolver in carbon.yml file.
+ * Config bean for startupOrderResolver in carbon.yaml file.
  */
 public class StartupResolverConfig {
 

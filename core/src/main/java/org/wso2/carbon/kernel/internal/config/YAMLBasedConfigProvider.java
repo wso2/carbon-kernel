@@ -30,7 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
- * This class takes care of parsing the carbon.yml file and creating the CarbonConfiguration object model.
+ * This class takes care of parsing the carbon.yaml file and creating the CarbonConfiguration object model.
  *
  * @since 5.0.0
  */
@@ -43,7 +43,7 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
     }
 
     /**
-     * Parse the carbon.yml and returns the CarbonConfiguration object.
+     * Parse the carbon.yaml and returns the CarbonConfiguration object.
      *
      * All the system properties / environment properties are replaced with values before sending to the YAML parser.
      *
