@@ -566,8 +566,37 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     if (attObject instanceof String) {
                                         attr = (String) attObject;
                                     } else if (attObject instanceof byte[]) {
-                                        //if the attribute type is binary base64 encoded string will be returned
-                                        attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                        // return canonical representation of UUIDs or base64 encoded string of other binary data
+                                        // Active Directory attribute: objectGUID
+                                        // RFC 4530 attribute: entryUUID
+                                        final byte[] bytes = (byte[]) attObject;
+                                        if (bytes.length == 16 && name.endsWith("UID")) {
+                                            // objectGUID byte order is not big-endian
+                                            // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                                            // https://community.oracle.com/thread/1157698
+                                            if (name.equals("objectGUID")) {
+                                                // bytes[0] <-> bytes[3]
+                                                byte swap = bytes[3];
+                                                bytes[3] = bytes[0];
+                                                bytes[0] = swap;
+                                                // bytes[1] <-> bytes[2]
+                                                swap = bytes[2];
+                                                bytes[2] = bytes[1];
+                                                bytes[1] = swap;
+                                                // bytes[4] <-> bytes[5]
+                                                swap = bytes[5];
+                                                bytes[5] = bytes[4];
+                                                bytes[4] = swap;
+                                                // bytes[6] <-> bytes[7]
+                                                swap = bytes[7];
+                                                bytes[7] = bytes[6];
+                                                bytes[6] = swap;
+                                            }
+                                            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(bytes);
+                                            attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+                                        } else {
+                                            attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                        }
                                     }
 
                                     if (attr != null && attr.trim().length() > 0) {
