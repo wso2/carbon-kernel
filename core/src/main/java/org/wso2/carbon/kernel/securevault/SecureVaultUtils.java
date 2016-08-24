@@ -23,6 +23,7 @@ import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.utils.Utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,6 +41,10 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Scanner;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Secure Vault utility methods.
@@ -49,6 +54,8 @@ import java.util.Properties;
 public class SecureVaultUtils {
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultUtils.class);
     private static final String defaultCharset = StandardCharsets.UTF_8.name();
+    private static final Pattern varPatternEnv = Pattern.compile("\\$\\{env:([^}]*)}");
+    private static final Pattern varPatternSys = Pattern.compile("\\$\\{sys:([^}]*)}");
 
     public static MasterKey getSecret(List<MasterKey> masterKeys, String secretName) throws SecureVaultException {
         return masterKeys.stream()
@@ -147,5 +154,71 @@ public class SecureVaultUtils {
         return Optional.ofNullable(alias)
                 .map(System::getProperty)
                 .orElse(alias);
+    }
+
+    /**
+     * This method replaces place holders in the given String with proper values.
+     * Supported place holders are, ${env:[]} and ${sys:[]}
+     *
+     * @param value a string that contains placeholders which is needed to get substitute with proper values
+     * @return updated String
+     * @throws SecureVaultException
+     */
+    public static String substituteVariables(String value) throws SecureVaultException {
+        if (varPatternEnv.matcher(value).find()) {
+            value = substituteVariables(value, varPatternEnv.matcher(value), System::getenv);
+        }
+        if (varPatternSys.matcher(value).find()) {
+            value = substituteVariables(value, varPatternSys.matcher(value), System::getProperty);
+        }
+        return value;
+    }
+
+    /**
+     * This method replaces the placeholders with value provided by the given Function.
+     *
+     * @param value string value to substitute
+     * @return String substituted string
+     */
+    public static String substituteVariables(String value, Matcher matcher, Function<String, String> function)
+            throws SecureVaultException {
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String sysPropKey = matcher.group(1);
+            String sysPropValue = function.apply(sysPropKey);
+            if (sysPropValue == null || sysPropValue.length() == 0) {
+                String msg = "A value for placeholder '" + sysPropKey + "' is not specified";
+                logger.error(msg);
+                throw new SecureVaultException(msg);
+            }
+
+            sysPropValue = sysPropValue.replace("\\", "\\\\");
+            matcher.appendReplacement(sb, sysPropValue);
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * This method reads the file content and replace all the placeholders in it.
+     *
+     * @param file a valid file
+     * @return resolved content of the file
+     * @throws SecureVaultException if an exception happens while reading the file.
+     */
+    public static String resolveFileToString(File file) throws SecureVaultException {
+        try (InputStream inputStream = new FileInputStream(file);
+             BufferedReader bufferedReader = new BufferedReader(
+                     new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+
+            String stringContent;
+            try (Scanner scanner = new Scanner(bufferedReader)) {
+                stringContent = scanner.useDelimiter("\\A").next();
+                stringContent = SecureVaultUtils.substituteVariables(stringContent);
+            }
+            return stringContent;
+        } catch (IOException e) {
+            throw new SecureVaultException("Failed to read file : " + file.getAbsoluteFile(), e);
+        }
     }
 }

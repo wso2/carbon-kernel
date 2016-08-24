@@ -24,12 +24,7 @@ import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 
 /**
  * This class takes care of parsing the secure-vault.yaml file and creating the SecureVaultConfiguration object model.
@@ -64,17 +59,13 @@ public class SecureVaultConfigurationProvider {
 
     private void init() throws SecureVaultException {
         String configFileLocation = SecureVaultUtils.getSecureVaultYAMLLocation();
-        try (InputStream inputStream = new FileInputStream(configFileLocation);
-             BufferedReader bufferedReader = new BufferedReader(
-                     new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Yaml yaml = new Yaml();
-            yaml.setBeanAccess(BeanAccess.FIELD);
-            secureVaultConfiguration = yaml.loadAs(bufferedReader, SecureVaultConfiguration.class);
+        String resolvedFileContent = SecureVaultUtils.resolveFileToString(Paths.get(configFileLocation).toFile());
 
-            initialized = true;
-            logger.debug("Secure vault configurations loaded successfully.");
-        } catch (IOException e) {
-            throw new SecureVaultException("Failed to read secure vault configuration file : " + configFileLocation, e);
-        }
+        Yaml yaml = new Yaml();
+        yaml.setBeanAccess(BeanAccess.FIELD);
+        secureVaultConfiguration = yaml.loadAs(resolvedFileContent, SecureVaultConfiguration.class);
+
+        initialized = true;
+        logger.debug("Secure vault configurations loaded successfully.");
     }
 }

@@ -15,9 +15,6 @@
  */
 package org.wso2.carbon.kernel.internal.context;
 
-import org.wso2.carbon.kernel.Constants;
-import org.wso2.carbon.kernel.internal.DataHolder;
-
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +30,6 @@ import java.util.Optional;
 
 public final class CarbonContextHolder {
 
-    private String tenant;
     private Principal userPrincipal;
     private Map<String, Object> properties = new HashMap<>();
 
@@ -44,14 +40,9 @@ public final class CarbonContextHolder {
     };
 
     /**
-     * Private Constructor which gets invoked via the static variable above. This gets invoked only once and it
-     * populates the tenant variable by first checking whether the domain value is set via system/env property.
-     * If no value is set, then this falls back to the default tenant domain value.
+     * Private Constructor which gets invoked via the static variable above. This gets invoked only once.
      */
     private CarbonContextHolder() {
-        tenant = Optional.ofNullable(DataHolder.getInstance().getCarbonRuntime())
-                .map(carbonRuntime -> carbonRuntime.getConfiguration().getTenant())
-                .orElseGet(() -> Constants.DEFAULT_TENANT);
     }
 
     /**
@@ -68,15 +59,6 @@ public final class CarbonContextHolder {
      */
     public void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
-    }
-
-    /**
-     * Method to obtain the current tenant from the CarbonContext instance.
-     *
-     * @return the tenant name.
-     */
-    public String getTenant() {
-        return tenant;
     }
 
     /**

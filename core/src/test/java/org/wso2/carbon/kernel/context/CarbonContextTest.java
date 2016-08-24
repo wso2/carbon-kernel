@@ -20,8 +20,9 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
-import org.wso2.carbon.kernel.internal.DataHolder;
+import org.wso2.carbon.kernel.configresolver.ConfigResolver;
 import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
+import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
 import java.nio.file.Path;
@@ -40,7 +41,6 @@ public class CarbonContextTest {
     @Test
     public void testCarbonContext() throws Exception {
         CarbonContext carbonContext = CarbonContext.getCurrentContext();
-        Assert.assertEquals(carbonContext.getTenant(), Constants.DEFAULT_TENANT);
         Assert.assertEquals(carbonContext.getUserPrincipal(), null);
         Assert.assertEquals(carbonContext.getProperty("someProperty"), null);
     }
@@ -52,8 +52,6 @@ public class CarbonContextTest {
         Object carbonContextPropertyValue = "VALUE";
         setupCarbonConfig(Constants.DEFAULT_TENANT);
         PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getCurrentContext();
-        Assert.assertEquals(CarbonContext.getCurrentContext().getTenant(),
-                Constants.DEFAULT_TENANT);
         try {
             privilegedCarbonContext.setUserPrincipal(userPrincipal);
             privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
@@ -75,7 +73,6 @@ public class CarbonContextTest {
             clearSystemProperties();
             setupCarbonConfig(Constants.DEFAULT_TENANT);
             PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getCurrentContext();
-            Assert.assertEquals(CarbonContext.getCurrentContext().getTenant(), Constants.DEFAULT_TENANT);
             try {
                 privilegedCarbonContext.setUserPrincipal(userPrincipal1);
                 Assert.assertEquals(CarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal1);
@@ -90,19 +87,6 @@ public class CarbonContextTest {
     }
 
     @Test(dependsOnMethods = "testCarbonContextFaultyScenario")
-    public void testSystemTenantDomainCarbonContextPopulation() throws Exception {
-        try {
-            String tenant = "test-sys-domain";
-            setupCarbonConfig(tenant);
-            CarbonContext carbonContext = CarbonContext.getCurrentContext();
-            Assert.assertEquals(carbonContext.getTenant(), tenant);
-            Assert.assertEquals(CarbonContext.getCurrentContext().getTenant(), tenant);
-        } finally {
-            clearSystemProperties();
-        }
-    }
-
-    @Test(dependsOnMethods = "testSystemTenantDomainCarbonContextPopulation")
     public void testMultiThreadedCarbonContextInvocation() throws Exception {
         setupCarbonConfig(Constants.DEFAULT_TENANT);
         IntStream.range(1, 10)
@@ -129,7 +113,6 @@ public class CarbonContextTest {
             try {
                 PrivilegedCarbonContext.destroyCurrentContext();
                 PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getCurrentContext();
-                Assert.assertEquals(CarbonContext.getCurrentContext().getTenant(), Constants.DEFAULT_TENANT);
                 Principal userPrincipal = () -> "test";
                 privilegedCarbonContext.setUserPrincipal(userPrincipal);
                 privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
@@ -155,8 +138,8 @@ public class CarbonContextTest {
     private void setupCarbonConfig(String tenantName) throws Exception {
         System.setProperty(Constants.CARBON_HOME, Paths.get(testDir.toString(), "carbon-context").toString());
         System.setProperty(Constants.TENANT_NAME, tenantName);
-        CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
+        ConfigResolver configResolver = new ConfigResolverImpl();
+        CarbonConfigProvider configProvider = new YAMLBasedConfigProvider(configResolver);
         CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
-        DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
     }
 }

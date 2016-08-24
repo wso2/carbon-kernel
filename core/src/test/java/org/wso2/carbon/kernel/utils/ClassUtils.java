@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.securevault.utils;
+package org.wso2.carbon.kernel.utils;
 
 import java.lang.reflect.Field;
 
 /**
- * ClassUtils for SecureVault unit tests
+ * ClassUtils
  *
  * @since 5.2.0
  */

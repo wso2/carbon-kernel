@@ -49,7 +49,7 @@ public class OSGiTestConfigurationUtils {
      * with Carbon Kernel.
      *
      * @param customOptions        {@code Option} list defined by the user. These options will be merged to
-     *                                           default set of options.
+     *                             default set of options.
      * @param sysPropConfiguration Contains system properties required to boot up Carbon Kernel.
      * @return a PAX Exam {@code Option} array.
      */
@@ -164,7 +164,8 @@ public class OSGiTestConfigurationUtils {
                 .versionAsInProject());
         optionList.add(mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon")
                 .versionAsInProject());
-
+        optionList.add(mavenBundle().artifactId("json").groupId("org.json.wso2")
+                .versionAsInProject());
         return optionList;
     }
 }

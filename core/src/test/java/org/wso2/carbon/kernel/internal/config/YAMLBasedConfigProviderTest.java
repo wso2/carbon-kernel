@@ -24,6 +24,8 @@ import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentConfig;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
+import org.wso2.carbon.kernel.configresolver.ConfigResolver;
+import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProvider class.
@@ -43,7 +45,8 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
         System.setProperty("carbon.home", "/home/siripala/wso2carbon-5.0.0");
         System.setProperty("carbon.version", "1.0.0");
         System.setProperty("carbon.offset", "10");
-        yamlBasedConfigProvider = new YAMLBasedConfigProvider();
+        ConfigResolver configResolver = new ConfigResolverImpl();
+        yamlBasedConfigProvider = new YAMLBasedConfigProvider(configResolver);
     }
 
     @Test(expectedExceptions = RuntimeException.class,

@@ -72,7 +72,6 @@ public class CarbonContextOSGiTest {
     @Test
     public void testCarbonContext() {
         CarbonContext carbonContext = CarbonContext.getCurrentContext();
-        Assert.assertEquals(carbonContext.getTenant(), TEST_TENANT_NAME);
         Assert.assertEquals(carbonContext.getUserPrincipal(), null);
         Assert.assertEquals(carbonContext.getProperty("someProperty"), null);
     }
@@ -85,7 +84,6 @@ public class CarbonContextOSGiTest {
 
         try {
             PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getCurrentContext();
-            Assert.assertEquals(CarbonContext.getCurrentContext().getTenant(), TEST_TENANT_NAME);
             privilegedCarbonContext.setUserPrincipal(userPrincipal);
             privilegedCarbonContext.setProperty(carbonContextPropertyKey, carbonContextPropertyValue);
             Assert.assertEquals(CarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal);
@@ -104,7 +102,6 @@ public class CarbonContextOSGiTest {
         Principal userPrincipal2 = () -> "test2";
         try {
             PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getCurrentContext();
-            Assert.assertEquals(CarbonContext.getCurrentContext().getTenant(), TEST_TENANT_NAME);
             try {
                 privilegedCarbonContext.setUserPrincipal(userPrincipal1);
                 Assert.assertEquals(CarbonContext.getCurrentContext().getUserPrincipal(), userPrincipal1);

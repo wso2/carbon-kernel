@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--config file with less number of configs-->
+<configurations>
+    <tenant>tenant</tenant>
+    <transports>
+        <transport secure="false">
+            <name>abc</name>
+        </transport>
+    </transports>
+
