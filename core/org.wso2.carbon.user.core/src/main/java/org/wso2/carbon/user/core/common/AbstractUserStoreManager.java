@@ -4100,10 +4100,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (isDisabled) {
             log.warn("Secondary user store disabled with domain " + domainName + ".");
         } else {
-
             // Creating new UserStoreManager
             UserStoreManager manager = createSecondaryUserStoreManager(userStoreRealmConfig, realm);
-
 
             if (domainName != null) {
                 if (this.getSecondaryUserStoreManager(domainName) != null) {
