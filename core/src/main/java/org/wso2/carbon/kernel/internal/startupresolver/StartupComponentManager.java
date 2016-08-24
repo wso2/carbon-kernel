@@ -143,7 +143,6 @@ class StartupComponentManager {
                     capabilityProvider.getBundle().getVersion());
         }
 
-
         startupComponentMap.values().stream()
                 .filter(startupComponent ->
                         startupComponent.isServiceRequired(capabilityProvider.getProvidedCapabilityName()))
@@ -234,7 +233,13 @@ class StartupComponentManager {
 
                     startupComponent.setSatisfied(true);
                     RequiredCapabilityListener capabilityListener = startupComponent.getListener();
-                    capabilityListener.onAllRequiredCapabilitiesAvailable();
+
+                    try {
+                        capabilityListener.onAllRequiredCapabilitiesAvailable();
+                    } catch (RuntimeException e) {
+                        logger.error("Runtime Exception occurred while calling onAllRequiredCapabilitiesAvailable of "
+                                + "component " + startupComponent.getName(), e);
+                    }
                 });
     }
 }
