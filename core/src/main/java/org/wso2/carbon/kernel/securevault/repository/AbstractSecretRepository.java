@@ -24,6 +24,8 @@ import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -48,7 +50,14 @@ public abstract class AbstractSecretRepository implements SecretRepository {
         logger.debug("Loading secrets to SecretRepository");
         Path secretPropertiesFilePath = Paths.get(SecureVaultUtils
                 .getSecretPropertiesFileLocation(secretRepositoryConfiguration));
-        Properties secretsProperties = SecureVaultUtils.loadSecretFile(secretPropertiesFilePath);
+
+        String resolvedFileContent = SecureVaultUtils.resolveFileToString(secretPropertiesFilePath.toFile());
+        Properties secretsProperties = new Properties();
+        try {
+            secretsProperties.load(new StringReader(resolvedFileContent));
+        } catch (IOException e) {
+            throw new SecureVaultException("Failed to load secrets.properties file");
+        }
 
         for (Map.Entry<Object, Object> entry: secretsProperties.entrySet()) {
             String key = entry.getKey().toString().trim();
@@ -62,7 +71,7 @@ public abstract class AbstractSecretRepository implements SecretRepository {
                 continue;
             }
 
-            String updatedTokenValue = SecureVaultUtils.readUpdatedValue(tokens[1]);
+            String updatedTokenValue = SecureVaultUtils.substituteVariables(tokens[1]);
             if (SecureVaultConstants.CIPHER_TEXT.equals(tokens[0])) {
                 byte[] base64Decoded = SecureVaultUtils.base64Decode(SecureVaultUtils.toBytes(updatedTokenValue));
                 decryptedPassword = SecureVaultUtils.toChars(decrypt(base64Decoded));

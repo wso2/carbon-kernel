@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.kernel.securevault.config.model;
 
-import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,10 +31,10 @@ public class MasterKeyReaderConfiguration {
     private Map<String, String> parameters = new HashMap<>();
 
     public Optional<String> getType() {
-        return Optional.ofNullable(SecureVaultUtils.readUpdatedValue(type));
+        return Optional.ofNullable(type);
     }
 
     public Optional<String> getParameter(String key) {
-        return Optional.ofNullable(SecureVaultUtils.readUpdatedValue(parameters.get(key)));
+        return Optional.ofNullable(parameters.get(key));
     }
 }

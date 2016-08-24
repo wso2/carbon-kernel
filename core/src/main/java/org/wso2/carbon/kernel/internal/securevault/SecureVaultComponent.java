@@ -63,7 +63,7 @@ public class SecureVaultComponent {
                 secretRepositoryType = secureVaultConfiguration.getSecretRepositoryConfig().getType().orElse("");
                 masterKeyReaderType = secureVaultConfiguration.getMasterKeyReaderConfig().getType().orElse("");
             });
-        } catch (SecureVaultException e) {
+        } catch (SecureVaultException | RuntimeException e) {
             optSecureVaultConfiguration = Optional.empty();
             logger.error("Error while acquiring secure vault configuration", e);
         }
