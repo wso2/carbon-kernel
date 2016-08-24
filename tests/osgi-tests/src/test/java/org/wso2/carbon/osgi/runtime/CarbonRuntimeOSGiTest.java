@@ -106,7 +106,7 @@ public class CarbonRuntimeOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.yml file with populated carbon.yml file.
+     * Replace the existing carbon.yaml file with populated carbon.yaml file.
      */
     private static void copyCarbonYAML() {
         Path carbonYmlFilePath;
@@ -116,11 +116,11 @@ public class CarbonRuntimeOSGiTest {
             basedir = Paths.get(".").toString();
         }
         try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yaml");
             Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
-                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
+                    "carbon.yaml"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.error("Unable to copy the carbon.yml file", e);
+            logger.error("Unable to copy the carbon.yaml file", e);
         }
     }
 }

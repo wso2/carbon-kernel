@@ -139,9 +139,9 @@ public class CarbonContextOSGiTest {
             basedir = Paths.get(".").toString();
         }
         try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yml");
+            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yaml");
             Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
-                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
+                    "carbon.yaml"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.error("Unable to copy the tenant.xml file", e);
         }
