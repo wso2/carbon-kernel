@@ -58,7 +58,7 @@
         <url>https://github.com/wso2/carbon-kernel.git</url>
         <developerConnection>scm:git:https://github.com/wso2/carbon-kernel.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon-kernel.git</connection>
-        <tag>HEAD</tag>
+        <tag>v5.2.0-m1</tag>
     </scm>
 
     <build>
