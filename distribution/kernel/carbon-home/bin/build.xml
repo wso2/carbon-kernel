@@ -116,7 +116,7 @@
             <fileset dir="${carbon.home}/repository/components/plugins/">
                 <!--<include name="org.wso2.carbon.stax.*.jar"/>-->
                 <include name="org.wso2.carbon.utils*.jar"/>
-                <include name="h2-database-engine*.jar"/>
+                <include name="h2*.jar"/>
             </fileset>
         </unzip>
 
