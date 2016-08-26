@@ -16,8 +16,10 @@
 package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.configresolver.ConfigResolver;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
+
+import java.util.Optional;
 
 /**
  * Carbon kernel DataHolder.
@@ -30,7 +32,7 @@ public class DataHolder {
 
     private RuntimeManager runtimeManager = null;
 
-    private CarbonRuntime carbonRuntime;
+    private Optional<ConfigResolver> optConfigResolver = Optional.empty();
 
     public static DataHolder getInstance() {
         return instance;
@@ -63,22 +65,20 @@ public class DataHolder {
     }
 
     /**
-     * This method used within this bundle (carbon.core) scope to get the currently held carbonRuntime service instance
-     * within this holder.
+     * Getter method of ${@link ConfigResolver}
      *
-     * @return this will return the carbonRuntime service instance.
+     * @return optConfigResolver
      */
-    public CarbonRuntime getCarbonRuntime() {
-        return carbonRuntime;
+    public Optional<ConfigResolver> getOptConfigResolver() {
+        return optConfigResolver;
     }
 
     /**
-     * This method is called by the relevant service component that acquires the carbonRuntime service
-     * instance and will be stored for future look-ups.
+     * Setter method of ${@link ConfigResolver}
      *
-     * @param carbonRuntime the carbonRuntime to be stored with this holder
+     * @param optConfigResolver
      */
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
+    public void setOptConfigResolver(Optional<ConfigResolver> optConfigResolver) {
+        this.optConfigResolver = optConfigResolver;
     }
 }

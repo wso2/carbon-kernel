@@ -63,18 +63,6 @@ public class CarbonContext {
         return new CarbonContext(CarbonContextHolder.getCurrentContextHolder());
     }
 
-
-    /**
-     * Method to get the currently executing tenant in the server space. The tenant domain in which the server is bound
-     * is set either via a system property or a an environment property. If no value is set, the server will be
-     * executing as the default tenant.
-     *
-     * @return the tenant name associated for this server.
-     */
-    public String getTenant() {
-        return getCarbonContextHolder().getTenant();
-    }
-
     /**
      * The current jass user principal set with this carbon context instance. If no principal is set, a null value will
      * be returned.

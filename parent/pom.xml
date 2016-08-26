@@ -14,13 +14,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
         <version>5</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -411,6 +412,21 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>${easymock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-easymock</artifactId>
+                <version>${powermock.api.easymock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng</artifactId>
+                <version>${powermock.module.testng.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>carbon-context-test-artifact</artifactId>
                 <version>${carbon.kernel.version}</version>
@@ -424,7 +440,7 @@
                 <scope>test</scope>
             </dependency>
         </dependencies>
-   </dependencyManagement>
+    </dependencyManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -506,7 +522,15 @@
         <commons.compress.version>1.4.1</commons.compress.version>
         <org.kohsuke.metainf.services.version>1.2</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
+        <easymock.version>3.4</easymock.version>
+        <powermock.api.easymock.version>1.6.5</powermock.api.easymock.version>
+        <powermock.module.testng.version>1.6.5</powermock.module.testng.version>
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>
+        <javax.xml.import.version.range>[0.0.0,1.0.0)</javax.xml.import.version.range>
+        <org.json.import.version>3.0.0.wso2v1</org.json.import.version>
+        <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
+        <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
+        <javax.crypto.version.range>[0.0.0,1.0.0)</javax.crypto.version.range>
     </properties>
 </project>

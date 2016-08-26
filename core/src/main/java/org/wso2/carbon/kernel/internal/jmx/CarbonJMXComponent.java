@@ -19,11 +19,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 import org.wso2.carbon.kernel.jmx.connection.SingleAddressRMIServerSocketFactory;
 import org.wso2.carbon.kernel.jmx.security.CarbonJMXAuthenticator;
@@ -54,6 +56,7 @@ public class CarbonJMXComponent {
     private static final String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
     private JMXConnectorServer jmxConnectorServer;
     private Registry rmiRegistry;
+    private CarbonRuntime carbonRuntime;
 
     /**
      * This is the activation method of CarbonJMXComponent. This will be called when all the references are
@@ -64,7 +67,6 @@ public class CarbonJMXComponent {
     @Activate
     protected void start(BundleContext bundleContext) {
         try {
-            CarbonRuntime carbonRuntime = DataHolder.getInstance().getCarbonRuntime();
             CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
             JMXConfiguration jmxConfiguration = carbonConfiguration.getJmxConfiguration();
             if (!jmxConfiguration.isEnabled()) {
@@ -124,5 +126,20 @@ public class CarbonJMXComponent {
             jmxConnectorServer.stop();
             UnicastRemoteObject.unexportObject(rmiRegistry, true); // Stop the RMI registry
         }
+    }
+
+    @Reference(
+            name = "carbon.jmx.carbon.runtime",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterCarbonRuntime"
+    )
+    protected void registerCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
+    }
+
+    protected void unregisterCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = null;
     }
 }

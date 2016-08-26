@@ -20,11 +20,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.internal.CarbonStartupHandler;
-import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 
@@ -36,15 +39,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
-        capabilityProviderElementPredicate;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
-        logPendingCapabilityProviderServiceDetails;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.capabilityProviderElementPredicate;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.logPendingCapabilityProviderServiceDetails;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.logPendingComponentDetails;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
-        logPendingRequiredCapabilityListenerServiceDetails;
-import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.
-        requiredCapabilityListenerElementPredicate;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.logPendingRequiredCapabilityListenerServiceDetails;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupOrderResolverUtils.requiredCapabilityListenerElementPredicate;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OSGI_SERVICE_COMPONENT;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.STARTUP_LISTENER_COMPONENT;
 
@@ -78,6 +77,8 @@ public class StartupOrderResolver {
     private Timer capabilityListenerTimer = new Timer();
 
     private Timer pendingCapabilityTimer = new Timer();
+
+    private CarbonRuntime carbonRuntime;
 
     /**
      * Process Provide-Capability headers and populate a counter which keep all the expected service counts. Register
@@ -114,6 +115,21 @@ public class StartupOrderResolver {
     public void stop(BundleContext bundleContext) throws Exception {
         logger.debug("Deactivating startup resolver component available in bundle {}",
                 bundleContext.getBundle().getSymbolicName());
+    }
+
+    @Reference(
+            name = "carbon.startup.order.resolver.carbon.runtime",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterCarbonRuntime"
+    )
+    protected void registerCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
+    }
+
+    protected void unregisterCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = null;
     }
 
     /**
@@ -156,7 +172,7 @@ public class StartupOrderResolver {
      * Schedule a timer task to monitor satisfiable CapabilityListeners.
      */
     private void scheduleCapabilityListenerTimer() {
-        CarbonConfiguration carbonConfiguration = DataHolder.getInstance().getCarbonRuntime().getConfiguration();
+        CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
         long capabilityListenerTimerDelay = carbonConfiguration.getStartupResolverConfig().
                 getCapabilityListenerTimer().getDelay();
         long capabilityListenerTimerPeriod = carbonConfiguration.getStartupResolverConfig().
@@ -189,7 +205,7 @@ public class StartupOrderResolver {
     }
 
     private void schedulePendingCapabilityTimerTask() {
-        CarbonConfiguration carbonConfiguration = DataHolder.getInstance().getCarbonRuntime().getConfiguration();
+        CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
         long pendingCapabilityTimerDelay = carbonConfiguration.getStartupResolverConfig().
                 getPendingCapabilityTimer().getDelay();
         long pendingCapabilityTimerPeriod = carbonConfiguration.getStartupResolverConfig().

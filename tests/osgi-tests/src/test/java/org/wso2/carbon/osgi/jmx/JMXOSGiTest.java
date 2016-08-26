@@ -52,7 +52,7 @@ public class JMXOSGiTest {
     private CarbonServerInfo carbonServerInfo;
 
     /**
-     * Replace the existing carbon.yml file with populated carbon.yml file.
+     * Replace the existing carbon.yaml file with populated carbon.yaml file.
      */
     private Option copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
@@ -61,9 +61,9 @@ public class JMXOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yml");
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "carbon.yaml");
 
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yaml"));
     }
 
     @Configuration

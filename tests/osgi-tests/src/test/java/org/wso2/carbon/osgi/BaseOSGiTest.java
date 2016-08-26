@@ -30,7 +30,6 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.kernel.utils.Utils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,8 +66,6 @@ public class BaseOSGiTest {
     @Test
     public void testCarbonCoreBundleStatus() {
 
-        Assert.assertNotNull(Utils.getCarbonConfigHome());
-
         Bundle coreBundle = null;
         for (Bundle bundle : bundleContext.getBundles()) {
             if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {
@@ -81,7 +78,7 @@ public class BaseOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.yml file with populated carbon.yml file.
+     * Replace the existing carbon.yaml file with populated carbon.yaml file.
      */
     private Option copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
@@ -90,7 +87,7 @@ public class BaseOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yaml");
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yaml"));
     }
 }
