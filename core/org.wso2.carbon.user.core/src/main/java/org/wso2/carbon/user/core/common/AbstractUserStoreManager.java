@@ -4091,25 +4091,26 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
-        // Creating new UserStoreManager
-        UserStoreManager manager = createSecondaryUserStoreManager(userStoreRealmConfig, realm);
+        boolean isDisabled = Boolean.parseBoolean(userStoreRealmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
 
         String domainName = userStoreRealmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-        if (domainName != null) {
-            if (this.getSecondaryUserStoreManager(domainName) != null) {
-                String errmsg = "Could not initialize new user store manager : " + domainName
-                        + " Duplicate domain names not allowed.";
-                if (log.isDebugEnabled()) {
-                    log.debug(errmsg);
-                }
-                throw new UserStoreException(errmsg);
-            } else {
-                boolean isDisabled = Boolean.parseBoolean(userStoreRealmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
-                if (isDisabled) {
-                    log.warn("Secondary user store disabled with domain " + domainName + ".");
+        if (isDisabled) {
+            log.warn("Secondary user store disabled with domain " + domainName + ".");
+        } else {
+            // Creating new UserStoreManager
+            UserStoreManager manager = createSecondaryUserStoreManager(userStoreRealmConfig, realm);
+
+            if (domainName != null) {
+                if (this.getSecondaryUserStoreManager(domainName) != null) {
+                    String errmsg = "Could not initialize new user store manager : " + domainName
+                            + " Duplicate domain names not allowed.";
+                    if (log.isDebugEnabled()) {
+                        log.debug(errmsg);
+                    }
+                    throw new UserStoreException(errmsg);
                 } else {
                     // Fulfilled requirements for adding UserStore,
 
@@ -4127,10 +4128,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         log.debug("UserStoreManager : " + domainName + "added to the list");
                     }
                 }
+            } else {
+                log.warn("Could not initialize new user store manager.  "
+                        + "Domain name is not defined");
             }
-        } else {
-            log.warn("Could not initialize new user store manager.  "
-                    + "Domain name is not defined");
         }
     }
 
