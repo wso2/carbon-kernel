@@ -42,7 +42,8 @@ public class DistributionZipTest {
         }
 
         return new Option[] { carbonDistribution(
-                Paths.get(basedir, "..", "test-distribution", "target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT.zip")) };
+                Paths.get(basedir, "..", "test-distribution", "target",
+                        "wso2carbon-kernel-test-" + System.getProperty("carbon.kernel.version") + ".zip")) };
     }
 
     @Test

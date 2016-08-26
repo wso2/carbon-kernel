@@ -52,7 +52,7 @@
 
     <files>
         <file>
-            <source>target/wso2carbon-kernel-${carbon.kernel.version}/conf/carbon.yml</source>
+            <source>target/wso2carbon-kernel-${carbon.kernel.version}/conf/carbon.yaml</source>
             <outputDirectory>conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>

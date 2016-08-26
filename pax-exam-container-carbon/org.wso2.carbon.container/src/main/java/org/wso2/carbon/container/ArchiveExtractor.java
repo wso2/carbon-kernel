@@ -105,27 +105,14 @@ public class ArchiveExtractor {
     private static void extractGzArchive(InputStream tarGz, File tar) throws IOException {
         BufferedInputStream in = new BufferedInputStream(tarGz);
 
-        FileOutputStream out = null;
-        GzipCompressorInputStream gzIn = null;
-
-        try {
-            out = new FileOutputStream(tar);
-            gzIn = new GzipCompressorInputStream(in);
+        try (
+                FileOutputStream out = new FileOutputStream(tar);
+                GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in)
+        ) {
             final byte[] buffer = new byte[1000];
             int n;
             while (-1 != (n = gzIn.read(buffer))) {
                 out.write(buffer, 0, n);
-            }
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (gzIn != null) {
-                    gzIn.close();
-                }
-            } catch (IOException e) {
-                logger.warn("Error occurred while closing the stream", e);
             }
         }
     }

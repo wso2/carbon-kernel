@@ -88,8 +88,8 @@ public class CarbonTestContainer implements TestContainer {
 
     public synchronized TestContainer start() {
         if (carbonHomeDirectoryOption.getDistributionDirectoryPath() == null
-                && carbonHomeDirectoryOption.getDistributionMavenURL() == null &&
-                carbonHomeDirectoryOption.getDistributionZipPath() == null) {
+                && carbonHomeDirectoryOption.getDistributionMavenURL() == null
+                && carbonHomeDirectoryOption.getDistributionZipPath() == null) {
             throw new TestContainerException("Distribution path need to be set.");
         }
         try {
@@ -133,7 +133,7 @@ public class CarbonTestContainer implements TestContainer {
 
             //make the files in the bin directory to be executable
             makeFilesInBinExec(carbonBin.toFile());
-            ArrayList<String> options = new ArrayList<>();
+            List<String> options = new ArrayList<>();
             String[] environment = new String[] {};
 
             //set system properties as command line arguments
@@ -325,7 +325,6 @@ public class CarbonTestContainer implements TestContainer {
                 RemoteBundleContextClient remoteBundleContextClient = target.getClientRBC();
                 if (remoteBundleContextClient != null) {
                     remoteBundleContextClient.stop();
-
                 }
                 runner.shutdown();
                 try {
@@ -333,7 +332,6 @@ public class CarbonTestContainer implements TestContainer {
                 } catch (NoSuchObjectException exc) {
                     throw new TestContainerException(exc);
                 }
-
             } else {
                 throw new TestContainerException("Container never started.");
             }

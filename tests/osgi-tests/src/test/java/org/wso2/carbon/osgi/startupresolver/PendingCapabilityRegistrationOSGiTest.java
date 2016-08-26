@@ -60,19 +60,22 @@ public class PendingCapabilityRegistrationOSGiTest {
      */
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.transport.jetty").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.transport.custom2").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.datasource.mgt").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-                        .versionAsInProject()) };
+        return new Option[] {
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(
+                        maven().artifactId("org.wso2.carbon.sample.transport.jetty").groupId("org.wso2.carbon")
+                                .versionAsInProject()),
+                copyDropinsBundle(
+                        maven().artifactId("org.wso2.carbon.sample.transport.custom2").groupId("org.wso2.carbon")
+                                .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.datasource.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                        .versionAsInProject())
+        };
     }
 
     @Test

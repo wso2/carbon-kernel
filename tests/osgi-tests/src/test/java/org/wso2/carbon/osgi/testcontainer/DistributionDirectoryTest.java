@@ -35,7 +35,8 @@ public class DistributionDirectoryTest {
 
     @Configuration
     public Option[] config() {
-        return new Option[] { carbonDistribution(Paths.get("target", "wso2carbon-kernel-test-5.2.0-SNAPSHOT")), };
+        return new Option[] { carbonDistribution(
+                Paths.get("target", "wso2carbon-kernel-test-" + System.getProperty("carbon.kernel.version"))), };
     }
 
     @Test

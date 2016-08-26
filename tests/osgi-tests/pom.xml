@@ -241,6 +241,7 @@
                                     org.wso2.carbon:wso2carbon-kernel-test
                                 </org.wso2.carbon.test.default.distribution>
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>
+                                <carbon.kernel.version>${carbon.kernel.version}</carbon.kernel.version>
                             </systemPropertyVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>

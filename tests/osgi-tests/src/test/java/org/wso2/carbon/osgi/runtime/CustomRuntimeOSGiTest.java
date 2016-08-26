@@ -58,15 +58,16 @@ public class CustomRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.runtime.jar").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
-                maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-                        .versionAsInProject()) };
+        return new Option[] {
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.jar").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                        .versionAsInProject())
+        };
     }
 
     @Test
