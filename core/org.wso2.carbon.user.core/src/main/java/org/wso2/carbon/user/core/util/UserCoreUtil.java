@@ -486,7 +486,11 @@ public final class UserCoreUtil {
      * @return
      */
     public static String getDomainName(RealmConfiguration realmConfig) {
-        return realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        String domainName = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        if(domainName != null) {
+            domainName = domainName.toUpperCase();
+        }
+        return domainName;
     }
 
     /**

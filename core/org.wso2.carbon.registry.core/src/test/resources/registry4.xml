@@ -23,7 +23,7 @@
     <registryRoot>/beep</registryRoot>
 
     <dbConfig name="h2-db">
-        <url>jdbc:h2:target/databasetest/CARBON_TEST</url>
+        <url>jdbc:h2:./target/databasetest/CARBON_TEST</url>
         <!--userName>sa</userName>
         <password>sa</password-->
         <driverName>org.h2.Driver</driverName>

@@ -24,7 +24,7 @@
                      <Password>admin</Password>
                 </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
-            <Property name="url">jdbc:h2:repository/database/WSO2CARBON_DB</Property>
+            <Property name="url">jdbc:h2:./repository/database/WSO2CARBON_DB</Property>
             <Property name="userName">wso2carbon</Property>
             <Property name="password">wso2carbon</Property>
             <Property name="driverName">org.h2.Driver</Property>

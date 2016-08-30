@@ -53,7 +53,7 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
 
         ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:target/claimtest/CARBON_TEST");
+        ds.setUrl("jdbc:h2:./target/claimtest/CARBON_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
         creator.createRegistryDatabase();

@@ -156,7 +156,7 @@ public class InMemoryRealmService implements RealmService {
         }
 
         dataSource = new BasicDataSource();
-        String connectionUrl = "jdbc:h2:" + derbyDBName;
+        String connectionUrl = "jdbc:h2:./" + derbyDBName;
         dataSource.setUrl(connectionUrl);
         dataSource.setDriverClassName("org.h2.Driver");
 
