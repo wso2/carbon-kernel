@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.base.logging;
 
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.wso2.carbon.base.utils.BaseUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
@@ -67,7 +69,8 @@ public class LoggingConfiguration {
      * @throws ConfigurationException this is thrown if any error occurred while update of config admin service
      *                                properties for pax-logging is being invoked.
      */
-    public void register(ManagedService managedService) throws FileNotFoundException, ConfigurationException {
+    public void register(ManagedService managedService, Configuration configuration)
+            throws IOException, ConfigurationException {
         if (managedService == null) {
             throw new IllegalStateException("Configuration admin managed service is not available.");
         }
@@ -81,6 +84,7 @@ public class LoggingConfiguration {
             } else {
                 throw new FileNotFoundException("Logging properties file is not found at : " + carbonConfigEtcHome);
             }
+            configuration.update(loggingProperties);
             managedService.updated(loggingProperties);
             logger.debug("Logging configuration registration completed using {} ",
                     loggingPropertiesFile.getAbsolutePath());
