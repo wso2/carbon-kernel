@@ -4,6 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
+import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -15,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.LogManager;
 
 import static org.wso2.carbon.launcher.Constants.DEFAULT_PROFILE;
@@ -100,6 +102,23 @@ public class LaunchConfigExceptionsTest extends BaseTest {
         File launchPropFile = new File(launchPropFilePath);
 
         new CarbonLaunchConfig(launchPropFile);
+    }
+
+    /**
+     * Test custom-launcher.properties file.
+     */
+    @Test
+    public void loadCustomCarbonLaunchConfigFromFileTestCase() {
+        String launchPropFilePath = Paths
+                .get("src", "test", "resources", "custom-launch.properties")
+                .toString();
+        File launchPropFile = new File(launchPropFilePath);
+
+        CarbonLaunchConfig carbonLaunchConfig = new CarbonLaunchConfig(launchPropFile);
+        List<CarbonInitialBundle> bundles = carbonLaunchConfig.getInitialBundles();
+        Assert.assertTrue(bundles.get(0).getLocation().toString().contains("org.apache.felix.gogo.runtime"));
+        Assert.assertTrue(bundles.get(1).getLocation().toString().contains("org.apache.felix.gogo.command"));
+        Assert.assertTrue(bundles.get(2).getLocation().toString().contains("org.eclipse.equinox.simpleconfigurator"));
     }
 
     /**
