@@ -27,7 +27,7 @@
     <artifactId>org.wso2.carbon.container</artifactId>
     <version>5.2.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - Pax Exam Container</name>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -72,15 +72,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <export.package>
-            org.wso2.carbon.container.*,
-        </export.package>
-        <import.package>
-            !org.wso2.carbon.container.*,
-            org.slf4j.*;version="${slf4j.logging.package.import.version.range}"
-        </import.package>
-    </properties>
-
 </project>
