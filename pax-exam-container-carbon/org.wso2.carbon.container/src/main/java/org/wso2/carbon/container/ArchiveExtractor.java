@@ -102,9 +102,8 @@ public class ArchiveExtractor {
     }
 
     private static void extractGzArchive(URL sourceDistribution, File tar) throws IOException {
-        BufferedInputStream in = new BufferedInputStream(sourceDistribution.openStream());
-
-        try (FileOutputStream out = new FileOutputStream(tar);
+        try (BufferedInputStream in = new BufferedInputStream(sourceDistribution.openStream());
+                FileOutputStream out = new FileOutputStream(tar);
                 GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in)) {
             final byte[] buffer = new byte[1000];
             int n;
@@ -116,7 +115,8 @@ public class ArchiveExtractor {
 
     /**
      * Extract the file and create directories accordingly.
-     * @param is pass the stream, because the stream is different for various file types
+     *
+     * @param is        pass the stream, because the stream is different for various file types
      * @param targetDir target directory
      * @throws IOException
      */
