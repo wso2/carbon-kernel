@@ -32,6 +32,8 @@ package org.wso2.carbon.container.runner;
  */
 
 import org.ops4j.io.Pipe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +47,8 @@ import java.util.stream.Collectors;
  */
 public class InternalRunner {
 
+    private static final Logger logger = LoggerFactory.getLogger(InternalRunner.class);
+
     private final Object shutdownHookMonitor = new Object();
     private final Object frameworkProcessMonitor = new Object();
     private Process frameworkProcess;
@@ -52,8 +56,9 @@ public class InternalRunner {
 
     /**
      * Execute the command and create a process for that.
+     *
      * @param commandLine command to be executed
-     * @param envOptions environment options
+     * @param envOptions  environment options
      */
     public synchronized void exec(CommandLineBuilder commandLine, final String[] envOptions) {
         if (frameworkProcess != null) {
@@ -99,7 +104,7 @@ public class InternalRunner {
                 }
             }
         } catch (IllegalStateException ignore) {
-
+            logger.error("Already started the process.", ignore);
         }
     }
 
@@ -145,6 +150,7 @@ public class InternalRunner {
                 process.destroy();
             } catch (Exception e) {
                 // ignore if already shutting down.
+                logger.error("Already shutting down the process.", e);
             }
         });
     }

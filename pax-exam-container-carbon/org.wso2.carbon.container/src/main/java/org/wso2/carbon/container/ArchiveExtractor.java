@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Path;
@@ -93,7 +92,7 @@ public class ArchiveExtractor {
 
     private static void extractTarGzDistribution(URL sourceDistribution, File targetDirectory) throws IOException {
         File uncompressedFile = File.createTempFile("uncompressedTarGz-", ".tar");
-        extractGzArchive(sourceDistribution.openStream(), uncompressedFile);
+        extractGzArchive(sourceDistribution, uncompressedFile);
         extract(new TarArchiveInputStream(new FileInputStream(uncompressedFile)), targetDirectory);
         FileUtils.forceDelete(uncompressedFile);
     }
@@ -102,13 +101,11 @@ public class ArchiveExtractor {
         extract(new ZipArchiveInputStream(sourceDistribution.openStream()), targetDirectory);
     }
 
-    private static void extractGzArchive(InputStream tarGz, File tar) throws IOException {
-        BufferedInputStream in = new BufferedInputStream(tarGz);
+    private static void extractGzArchive(URL sourceDistribution, File tar) throws IOException {
+        BufferedInputStream in = new BufferedInputStream(sourceDistribution.openStream());
 
-        try (
-                FileOutputStream out = new FileOutputStream(tar);
-                GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in)
-        ) {
+        try (FileOutputStream out = new FileOutputStream(tar);
+                GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in)) {
             final byte[] buffer = new byte[1000];
             int n;
             while (-1 != (n = gzIn.read(buffer))) {
@@ -117,6 +114,12 @@ public class ArchiveExtractor {
         }
     }
 
+    /**
+     * Extract the file and create directories accordingly.
+     * @param is pass the stream, because the stream is different for various file types
+     * @param targetDir target directory
+     * @throws IOException
+     */
     private static void extract(ArchiveInputStream is, File targetDir) throws IOException {
         try {
             if (targetDir.exists()) {

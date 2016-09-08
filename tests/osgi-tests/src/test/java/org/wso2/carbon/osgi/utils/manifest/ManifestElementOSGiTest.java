@@ -67,8 +67,10 @@ public class ManifestElementOSGiTest {
 
     @Test
     public void testParseHeader() {
-        Bundle carbonCoreBundle = Arrays.asList(bundleContext.getBundles()).stream()
-                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.sample.deployer.mgt")).findFirst().get();
+        Bundle carbonCoreBundle = Arrays.stream(bundleContext.getBundles())
+                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.sample.deployer.mgt"))
+                .findFirst()
+                .get();
 
         String headerValue = carbonCoreBundle.getHeaders().get(CARBON_COMPONENT);
         try {

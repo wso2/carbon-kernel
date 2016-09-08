@@ -45,8 +45,9 @@ public class CarbonContainerFactory implements TestContainerFactory {
             logger.warn("Multiple distribution options are specified in the configuration!!!");
         }
 
-        List<TestContainer> containers = Arrays.asList(system.getOptions(CarbonDistributionBaseOption.class)).stream()
-                .map(option -> new CarbonTestContainer(system, option)).collect(Collectors.toList());
+        List<TestContainer> containers = Arrays.stream(system.getOptions(CarbonDistributionBaseOption.class))
+                .map(option -> new CarbonTestContainer(system, option))
+                .collect(Collectors.toList());
 
         if (containers.isEmpty()) {
             containers.add(new CarbonTestContainer(system, getDefaultConfiguration()));

@@ -263,10 +263,7 @@ public class CarbonTestContainer implements TestContainer {
         if (unpackDirectory == null) {
             unpackDirectory = Paths.get("target", UUID.randomUUID().toString());
         }
-        boolean isCreated = true;
-        if (!unpackDirectory.toFile().exists()) {
-            isCreated = unpackDirectory.toFile().mkdir();
-        }
+        boolean isCreated = unpackDirectory.toFile().exists() || unpackDirectory.toFile().mkdir();
         if (!isCreated) {
             throw new TestContainerException("Couldn't create the directory: " + unpackDirectory.toFile().toString());
         }

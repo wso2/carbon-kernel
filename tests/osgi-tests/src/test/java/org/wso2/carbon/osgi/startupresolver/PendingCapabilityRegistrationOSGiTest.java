@@ -80,7 +80,7 @@ public class PendingCapabilityRegistrationOSGiTest {
 
     @Test
     public void testPendingCapabilityRegistration() {
-        //waiting for more than 1 min to check whether transport manager is registered as a service.
+        //waiting for 20 seconds to check whether transport manager is registered as a service.
         try {
             Thread.sleep(20000);
         } catch (InterruptedException ignore) {
