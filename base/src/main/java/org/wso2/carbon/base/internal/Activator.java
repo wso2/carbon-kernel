@@ -17,16 +17,16 @@ package org.wso2.carbon.base.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.logging.LoggingConfiguration;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * The base bundle which bootstrap pax-logging with the log4j2 config file. This bundle is added to the initial
@@ -34,10 +34,9 @@ import java.io.FileNotFoundException;
  *
  * @since 5.1.0
  */
-public class Activator implements BundleActivator, BundleListener {
+public class Activator implements BundleActivator {
     private static final Logger logger = LoggerFactory.getLogger(Activator.class);
-    private static final String PAX_LOGGING_BUNDLE_SYMBOLIC_NAME = "org.ops4j.pax.logging.pax-logging-log4j2";
-    private BundleContext bundleContext;
+    private static final String PAX_LOGGING_PID = "org.ops4j.pax.logging";
 
     /**
      * The activate method which called when the bundle is started. This will check for the presence of
@@ -47,8 +46,6 @@ public class Activator implements BundleActivator, BundleListener {
      * @throws Exception Could be thrown while bundle starting
      */
     public void start(BundleContext bundleContext) throws Exception {
-        this.bundleContext = bundleContext;
-        bundleContext.addBundleListener(this);
         configureLogging(bundleContext);
     }
 
@@ -64,24 +61,17 @@ public class Activator implements BundleActivator, BundleListener {
         }
     }
 
-    @Override
-    public void bundleChanged(BundleEvent bundleEvent) {
-        //TODO Properly fix this with CARBON-15908
-        if (bundleEvent.getBundle().getSymbolicName().contains(PAX_LOGGING_BUNDLE_SYMBOLIC_NAME) &&
-                bundleEvent.getType() == BundleEvent.STARTED) {
-            configureLogging(this.bundleContext);
-        }
-    }
-
-
     private void configureLogging(BundleContext bundleContext) {
-        ServiceReference reference = bundleContext.getServiceReference(ManagedService.class);
-        if (reference != null) {
+        ServiceReference managedServiceSR = bundleContext.getServiceReference(ManagedService.class);
+        ServiceReference configurationAdminSR = bundleContext.getServiceReference(ConfigurationAdmin.class);
+        if (managedServiceSR != null && configurationAdminSR != null) {
             //configuring logging using the managed config admin service
-            ManagedService managedService = (ManagedService) bundleContext.getService(reference);
+            ManagedService managedService = (ManagedService) bundleContext.getService(managedServiceSR);
+            ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) bundleContext.getService(configurationAdminSR);
             try {
-                LoggingConfiguration.getInstance().register(managedService);
-            } catch (FileNotFoundException | ConfigurationException e) {
+                Configuration configuration = configurationAdmin.getConfiguration(PAX_LOGGING_PID, null);
+                LoggingConfiguration.getInstance().register(managedService, configuration);
+            } catch (IOException | ConfigurationException e) {
                 logger.error("Error occurred while configuring logging framework", e);
             }
             if (logger.isDebugEnabled()) {
