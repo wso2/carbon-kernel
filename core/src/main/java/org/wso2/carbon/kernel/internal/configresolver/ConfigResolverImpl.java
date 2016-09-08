@@ -388,11 +388,10 @@ public class ConfigResolverImpl implements ConfigResolver {
                     inputString = processValue(System::getProperty, value, inputString, defaultValue, Placeholder.SYS);
                     break;
                 case "sec":
-                    inputString = defaultValue;
                     try {
                         inputString = new String(ConfigResolverDataHolder.getInstance().getOptSecureVault()
                                 .orElseThrow(() -> new RuntimeException("Secure Vault service is not available"))
-                                .resolve(inputString));
+                                .resolve(value));
                     } catch (SecureVaultException e) {
                         throw new RuntimeException("Unable to resolve the given alias", e);
                     }
