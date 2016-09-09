@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * EnvironmentUtils
+ * EnvironmentUtils.
  *
  * @since 5.2.0
  */

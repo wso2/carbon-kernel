@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * This service component creates a carbon runtime based on the carbon configuration file and registers it as a
- * ${@link CarbonRuntime}
+ * ${@link CarbonRuntime}.
  *
  * @since 5.2.0
  */

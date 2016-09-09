@@ -39,7 +39,7 @@ public abstract class AbstractConfigFile {
     }
 
     /**
-     * This method returns the content represented by this ${@link AbstractConfigFile}
+     * This method returns the content represented by this ${@link AbstractConfigFile}.
      *
      * @return content
      */
@@ -49,7 +49,7 @@ public abstract class AbstractConfigFile {
 
     /**
      * An implementation of this method is expected to convert the provided ${@code canonicalContent} in XML in to File
-     * specific format and assign it to filed ${@code content}
+     * specific format and assign it to filed ${@code content}.
      *
      * @param content content in XML format
      */
@@ -60,14 +60,14 @@ public abstract class AbstractConfigFile {
     /**
      * An implementation of this method is expected to convert the provided ${@code canonicalContent} in XML in to File
      * specific format and call the ${@link AbstractConfigFile#setContent(String)} to update the file with the
-     * new content
+     * new content.
      *
      * @param canonicalContent content in XML format
      */
     public abstract void updateContent(String canonicalContent);
 
     /**
-     * This method returns the ${@code canonicalContent}, which was initialized in the object creation
+     * This method returns the ${@code canonicalContent}, which was initialized in the object creation.
      *
      * @return canonicalContent
      */
@@ -77,7 +77,7 @@ public abstract class AbstractConfigFile {
 
     /**
      * This method is expected to be called in the sub class constructor, which set the XML representation of the
-     * content into filed ${@code canonicalContent}
+     * content into filed ${@code canonicalContent}.
      *
      * @param canonicalContent XML representation of the content
      */
@@ -86,7 +86,7 @@ public abstract class AbstractConfigFile {
     }
 
     /**
-     * This method returns the filename of the content that is represented by this ${@link AbstractConfigFile}
+     * This method returns the filename of the content that is represented by this ${@link AbstractConfigFile}.
      *
      * @return filename
      */

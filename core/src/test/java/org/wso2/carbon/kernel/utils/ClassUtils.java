@@ -19,7 +19,7 @@ package org.wso2.carbon.kernel.utils;
 import java.lang.reflect.Field;
 
 /**
- * ClassUtils
+ * ClassUtils.
  *
  * @since 5.2.0
  */

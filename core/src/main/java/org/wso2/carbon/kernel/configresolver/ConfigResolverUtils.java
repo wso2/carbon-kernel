@@ -32,7 +32,7 @@ public class ConfigResolverUtils {
 
 
     /**
-     * This method converts a given YAML String to XML format
+     * This method converts a given YAML String to XML format.
      *
      * @param yamlString YAML String that needs to be converted to XML format
      * @return String in XML format
@@ -43,7 +43,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a given XML String to YAML format
+     * This method converts a given XML String to YAML format.
      *
      * @param xmlString XML String that needs to be converted to YAML format
      * @return String in YAML format
@@ -54,7 +54,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a given YAML String to JSON format
+     * This method converts a given YAML String to JSON format.
      *
      * @param yamlString YAML String that needs to be converted to JSON format
      * @return String in JSON format
@@ -69,7 +69,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a given JSON String to YAML format
+     * This method converts a given JSON String to YAML format.
      *
      * @param jsonString JSON String that needs to be converted to YAML format
      * @return String in YAML format
@@ -87,7 +87,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a given JSON String to XML format
+     * This method converts a given JSON String to XML format.
      *
      * @param jsonString JSON String that needs to be converted to XML format
      * @return String in XML format
@@ -107,7 +107,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method creates and returns a String formatted XML element
+     * This method creates and returns a String formatted XML element.
      *
      * @param tagName Tag name of the element
      * @param text    Text of the element
@@ -118,7 +118,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a given XML String to JSON format
+     * This method converts a given XML String to JSON format.
      *
      * @param xmlString XML String that needs to be converted to JSON format
      * @return String in JSON format
@@ -136,7 +136,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a Properties file to XML formatted String
+     * This method converts a Properties file to XML formatted String.
      *
      * @param inputStream InputStream of the Properties file
      * @return String in XML format
@@ -160,7 +160,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts a given XML String to Properties format
+     * This method converts a given XML String to Properties format.
      *
      * @param xmlString XML String that needs to be converted to Properties format
      * @return String in Properties format
@@ -184,7 +184,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method properly formats a given XML String
+     * This method properly formats a given XML String.
      *
      * @param xmlString XML String that needs to be formatted
      * @return Properly formatted XML formatted String
@@ -195,7 +195,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts the given Document to String format
+     * This method converts the given Document to String format.
      *
      * @param doc Document that needs to be converted to XML formatted String
      * @return XML formatted String
@@ -206,7 +206,7 @@ public class ConfigResolverUtils {
     }
 
     /**
-     * This method converts the given Source to XML formatted String
+     * This method converts the given Source to XML formatted String.
      *
      * @param source Source that needs to be converted to XML formatted String
      * @return XML formatted String

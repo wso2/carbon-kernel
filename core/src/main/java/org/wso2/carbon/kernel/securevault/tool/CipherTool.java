@@ -27,7 +27,7 @@ import java.net.URLClassLoader;
 import java.util.logging.Logger;
 
 /**
- * The Java class which defines the CipherTool
+ * The Java class which defines the CipherTool.
  *
  * @since 5.2.0
  */

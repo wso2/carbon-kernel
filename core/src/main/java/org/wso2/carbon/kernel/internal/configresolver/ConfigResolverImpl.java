@@ -117,7 +117,7 @@ public class ConfigResolverImpl implements ConfigResolver {
     }
 
     /**
-     * Enum to hold the supported placeholder types
+     * Enum to hold the supported placeholder types.
      */
     private enum Placeholder {
 
@@ -248,7 +248,7 @@ public class ConfigResolverImpl implements ConfigResolver {
     }
 
     /**
-     * This method iterates through the given node list and replaces the placeholders with corresponding values
+     * This method iterates through the given node list and replaces the placeholders with corresponding values.
      *
      * @param nodeList Node list that needs to be checked for placeholders
      */
@@ -309,7 +309,7 @@ public class ConfigResolverImpl implements ConfigResolver {
     }
 
     /**
-     * This method read the {@link ConfigResolverImpl#CONFIG_FILE_NAME} on when this class loads
+     * This method read the {@link ConfigResolverImpl#CONFIG_FILE_NAME} on when this class loads.
      *
      * @return Configurations in the {@link ConfigResolverImpl#CONFIG_FILE_NAME} in Map format
      */
