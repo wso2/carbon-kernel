@@ -49,7 +49,7 @@ public class SecureVaultDataHolder {
     }
 
     /**
-     * Setter method of {@link SecretRepository}
+     * Setter method of {@link SecretRepository}.
      *
      * @param secretRepository SecretRepository instance to be set
      */
@@ -67,7 +67,7 @@ public class SecureVaultDataHolder {
     }
 
     /**
-     * Setter method of {@link MasterKeyReader}
+     * Setter method of {@link MasterKeyReader}.
      *
      * @param masterKeyReader MasterKeyReader instance to be set
      */

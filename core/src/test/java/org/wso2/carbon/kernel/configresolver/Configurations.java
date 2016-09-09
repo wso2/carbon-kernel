@@ -21,9 +21,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @since 5.2.0
- */
 @XmlRootElement
 class Transport {
 
@@ -95,6 +92,9 @@ class Transports {
 
 }
 
+/**
+ * @since 5.2.0.
+ */
 @XmlRootElement
 public class Configurations {
 

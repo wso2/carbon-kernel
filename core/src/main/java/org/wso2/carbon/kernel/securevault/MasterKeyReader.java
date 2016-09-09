@@ -35,7 +35,7 @@ public interface MasterKeyReader {
 
     /**
      * An implementation of this method should initialize the MasterKeyReader, so that it could perform the
-     * {@code readMasterKeys}
+     * {@code readMasterKeys}.
      *
      * @param masterKeyReaderConfiguration  {@link MasterKeyReaderConfiguration}
      * @throws SecureVaultException     on an error while trying to initialize the MasterKeyReader

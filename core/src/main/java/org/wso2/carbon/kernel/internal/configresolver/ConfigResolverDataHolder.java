@@ -5,7 +5,7 @@ import org.wso2.carbon.kernel.securevault.SecureVault;
 import java.util.Optional;
 
 /**
- * Config Resolver Data Holder
+ * Config Resolver Data Holder.
  *
  * @since 5.2.0
  */

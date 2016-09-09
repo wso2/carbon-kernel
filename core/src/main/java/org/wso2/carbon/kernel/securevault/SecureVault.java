@@ -27,7 +27,7 @@ import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 public interface SecureVault {
 
     /**
-     * Resolves the given alias in to a plain text password
+     * Resolves the given alias in to a plain text password.
      *
      * @param alias alias of the secret
      * @return      if the alias exist return the plain text password else return an empty char[]

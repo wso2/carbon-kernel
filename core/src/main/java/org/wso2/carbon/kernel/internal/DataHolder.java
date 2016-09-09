@@ -65,7 +65,7 @@ public class DataHolder {
     }
 
     /**
-     * Getter method of ${@link ConfigResolver}
+     * Getter method of ${@link ConfigResolver}.
      *
      * @return optConfigResolver
      */
@@ -74,7 +74,7 @@ public class DataHolder {
     }
 
     /**
-     * Setter method of ${@link ConfigResolver}
+     * Setter method of ${@link ConfigResolver}.
      *
      * @param optConfigResolver
      */
