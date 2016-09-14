@@ -253,7 +253,10 @@ public class AuthorizationCache {
      */
     public void clearCacheByTenant(int tenantId) {
         Cache<AuthorizationKey, AuthorizeCacheEntry> cache = this.getAuthorizationCache();
-        cache.removeAll();
+
+        if (!isCacheNull(cache)) {
+            cache.removeAll();
+        }
     }
 
     /**
