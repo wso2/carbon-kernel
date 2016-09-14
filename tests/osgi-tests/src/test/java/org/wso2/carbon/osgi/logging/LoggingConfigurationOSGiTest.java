@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.osgi.logging;
 
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
@@ -49,30 +51,28 @@ import javax.inject.Inject;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class LoggingConfigurationOSGiTest {
     private static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
     private static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";
     private static final String LOG4J2_CONFIG_FILE = "log4j2.xml";
-
-    @Inject
-    private ConfigurationAdmin configAdmin;
-
-    @Inject
-    @Filter("(service.pid=org.ops4j.pax.logging)")
-    private ManagedService managedService;
-
-    @Inject
-    private CarbonServerInfo carbonServerInfo;
-
     private static String loggingConfigDirectory;
 
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = Paths.get(".").toString();
+            basedir = Paths.get("..", "..").toString();
         }
         loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }
+
+    @Inject
+    private ConfigurationAdmin configAdmin;
+    @Inject
+    @Filter("(service.pid=org.ops4j.pax.logging)")
+    private ManagedService managedService;
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testConfigAdminService() throws IOException {
@@ -103,7 +103,7 @@ public class LoggingConfigurationOSGiTest {
         Assert.assertEquals(logger.isDebugEnabled(), true);
     }
 
-    @Test (dependsOnMethods = "testLog4j2ConfigUpdate")
+    @Test(dependsOnMethods = "testLog4j2ConfigUpdate")
     public void testAuditLog() throws IOException, ConfigurationException {
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext();
         Principal principal = () -> "Banda";

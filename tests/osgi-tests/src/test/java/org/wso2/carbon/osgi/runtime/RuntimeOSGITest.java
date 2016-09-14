@@ -18,6 +18,7 @@ package org.wso2.carbon.osgi.runtime;
 
 import org.eclipse.osgi.internal.serviceregistry.ServiceReferenceImpl;
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -27,15 +28,14 @@ import org.osgi.framework.ServiceReference;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.inject.Inject;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
  * A test strategy to test and verify the runtime service.
@@ -44,27 +44,25 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class RuntimeOSGITest {
 
     @Inject
-    private CarbonServerInfo carbonServerInfo;
-
-    @Inject
     BundleContext bundleContext;
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.runtime.service").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyDropinsBundle(
+                maven().artifactId("org.wso2.carbon.sample.runtime.service").groupId("org.wso2.carbon")
+                        .versionAsInProject()) };
     }
 
     @Test
     public void testSampleCarbonRuntime() {
         ServiceReference reference = bundleContext.getServiceReference(Runtime.class.getName());
-        String runtimeBundle =  ((ServiceReferenceImpl) reference).getBundle().toString();
+        String runtimeBundle = ((ServiceReferenceImpl) reference).getBundle().toString();
         Assert.assertEquals(runtimeBundle.contains("org.wso2.carbon.sample.runtime.service"), true,
                 "Sample Runtime has not been registered");
     }

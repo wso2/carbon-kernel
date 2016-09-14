@@ -1,5 +1,6 @@
 package org.wso2.carbon.osgi.runtime;
 
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -7,6 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
@@ -24,6 +26,7 @@ import javax.inject.Inject;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class PluggableRuntimeServiceOSGiTest {
 
     @Inject

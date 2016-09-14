@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.runtime;
 
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -27,19 +28,17 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
 import javax.inject.Inject;
+
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 
 /**
  * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service.
@@ -48,6 +47,7 @@ import javax.inject.Inject;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class CarbonRuntimeOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CarbonRuntimeOSGiTest.class);
@@ -64,9 +64,7 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        copyCarbonYAML();
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyCarbonYAMLOption() };
     }
 
     @Test
@@ -77,7 +75,7 @@ public class CarbonRuntimeOSGiTest {
         Assert.assertNotNull(carbonConfiguration, "Carbon Configuration is null");
     }
 
-    @Test(dependsOnMethods = {"testCarbonRuntimeService"})
+    @Test(dependsOnMethods = { "testCarbonRuntimeService" })
     public void testCarbonConfiguration() {
 
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
@@ -108,19 +106,14 @@ public class CarbonRuntimeOSGiTest {
     /**
      * Replace the existing carbon.yaml file with populated carbon.yaml file.
      */
-    private static void copyCarbonYAML() {
+    private Option copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yaml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
-                    "carbon.yaml"), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.error("Unable to copy the carbon.yaml file", e);
-        }
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yaml");
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yaml"));
     }
 }

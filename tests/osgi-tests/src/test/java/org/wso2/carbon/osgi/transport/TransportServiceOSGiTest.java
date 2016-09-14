@@ -1,5 +1,6 @@
 package org.wso2.carbon.osgi.transport;
 
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
@@ -9,6 +10,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
@@ -21,6 +23,7 @@ import javax.inject.Inject;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class TransportServiceOSGiTest {
     private static final String TRANSPORT_ID = "DummyTransport";
 
@@ -32,8 +35,8 @@ public class TransportServiceOSGiTest {
 
     @Test
     public void testRegisterTransport() {
-        ServiceRegistration serviceRegistration = bundleContext.registerService(CarbonTransport.class,
-                new CustomCarbonTransport(TRANSPORT_ID), null);
+        ServiceRegistration serviceRegistration = bundleContext
+                .registerService(CarbonTransport.class, new CustomCarbonTransport(TRANSPORT_ID), null);
         ServiceReference reference = bundleContext.getServiceReference(CarbonTransport.class.getName());
         Assert.assertNotNull(reference, "Custom Carbon Transport Service Reference is null");
         CustomCarbonTransport customCarbonTransport = (CustomCarbonTransport) bundleContext.getService(reference);

@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.context;
 
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -25,23 +26,22 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.container.options.CopyFileOption;
 import org.wso2.carbon.context.test.CarbonContextInvoker;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
-import java.util.List;
 import javax.inject.Inject;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
  * CarbonContextOSGiTest class is to test the functionality of the Carbon Context API.
@@ -50,6 +50,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class CarbonContextOSGiTest {
     private static final Logger logger = LoggerFactory.getLogger(CarbonContextOSGiTest.class);
     private static final String TEST_TENANT_NAME = "test.tenant";
@@ -59,14 +60,9 @@ public class CarbonContextOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        System.setProperty(Constants.TENANT_NAME, TEST_TENANT_NAME);
-        List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-        copyConfigFiles();
-        optionList.add(mavenBundle()
-                .artifactId("carbon-context-test-artifact")
-                .groupId("org.wso2.carbon")
-                .versionAsInProject());
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyCarbonYAMLOption(), copyDropinsBundle(
+                maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon").versionAsInProject()),
+                systemProperty(Constants.TENANT_NAME).value(TEST_TENANT_NAME) };
     }
 
     @Test
@@ -131,19 +127,14 @@ public class CarbonContextOSGiTest {
     /**
      * Replace the existing carbon.yaml file with the file found at runtime resources directory.
      */
-    private void copyConfigFiles() {
+    private CopyFileOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        try {
-            carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yaml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
-                    "carbon.yaml"), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            logger.error("Unable to copy the tenant.xml file", e);
-        }
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yaml");
+        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "carbon.yaml"));
     }
 }

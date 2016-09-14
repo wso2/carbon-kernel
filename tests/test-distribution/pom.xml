@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel-tests</artifactId>
+        <version>5.2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>wso2carbon-kernel-test</artifactId>
+    <name>WSO2 Carbon Kernel - Test - Distribution</name>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>1-unpack-p2-agent-distribution</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>wso2carbon-kernel</artifactId>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.wso2.carbon.maven</groupId>
+                <artifactId>carbon-feature-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>p2-repo-generation</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate-repo</goal>
+                        </goals>
+                        <configuration>
+                            <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
+                            <features>
+                                <feature>
+                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                            </features>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>feature-installation</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                        <configuration>
+                            <profile>profiles/default</profile>
+                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
+                            <destination>${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/osgi/</destination>
+                            <deleteOldProfileFiles>true</deleteOldProfileFiles>
+                            <features>
+                                <feature>
+                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                            </features>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <tasks>
+                                <replace token="false" value="true"
+                                         dir="${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/osgi">
+                                    <include name="**/bundles.info"/>
+                                </replace>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>clean_target</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="target/archive-tmp"/>
+                                <delete dir="target/dependency-maven-plugin-markers"/>
+                                <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart"/>
+                                <delete dir="target/p2-repo"/>
+                                <delete file="target/tmp"/>
+                                <delete dir="target/antrun"/>
+                                <delete dir="target/wso2carbon-kernel-${carbon.kernel.version}"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
+                    </descriptors>
+                    <finalName>wso2carbon-kernel-test-${carbon.kernel.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

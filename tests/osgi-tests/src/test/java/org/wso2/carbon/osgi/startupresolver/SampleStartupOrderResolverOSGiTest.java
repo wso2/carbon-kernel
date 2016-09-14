@@ -16,6 +16,7 @@
 package org.wso2.carbon.osgi.startupresolver;
 
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -23,8 +24,8 @@ import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
 import org.wso2.carbon.sample.deployer.mgt.DeployerServicesListener;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
@@ -33,11 +34,10 @@ import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 import org.wso2.carbon.sample.transport.mgt.TransportServicesListener;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.inject.Inject;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
  * A test strategy to test and verify the startup order resolving for both intra-component and inter-component
@@ -56,6 +56,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class SampleStartupOrderResolverOSGiTest {
 
     @Inject
@@ -70,28 +71,24 @@ public class SampleStartupOrderResolverOSGiTest {
     @Inject
     private CarbonServerInfo carbonServerInfo;
 
-
     @Configuration
     public Option[] createConfiguration() {
-
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
-                .versionAsInProject());
-
-        optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] {
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mss").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
+                        .versionAsInProject()),
+                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                        .versionAsInProject())
+        };
     }
 
     @Test

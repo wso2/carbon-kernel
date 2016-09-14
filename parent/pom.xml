@@ -90,6 +90,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
                     <configuration>
                         <systemPropertyVariables>
                             <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
@@ -183,9 +184,14 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>osgi-test-util</artifactId>
+                <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <scope>test</scope>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.container</artifactId>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -346,12 +352,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
-                <artifactId>pax-exam-container-native</artifactId>
+                <artifactId>pax-exam-testng</artifactId>
                 <version>${pax.exam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
-                <artifactId>pax-exam-testng</artifactId>
+                <artifactId>pax-exam-container-remote</artifactId>
                 <version>${pax.exam.version}</version>
             </dependency>
             <dependency>
@@ -385,9 +391,19 @@
                 <version>${commons.io.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons.compress.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.orbit.org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kohsuke.metainf-services</groupId>
+                <artifactId>metainf-services</artifactId>
+                <version>${org.kohsuke.metainf.services.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -482,9 +498,10 @@
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <maven.archetype.version>2.4</maven.archetype.version>
+        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
 
         <!--Pax Exam Versions-->
-        <pax.exam.version>4.8.0</pax.exam.version>
+        <pax.exam.version>4.9.1</pax.exam.version>
         <pax.url.aether.version>1.6.0</pax.url.aether.version>
         <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
@@ -501,6 +518,8 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <commons.compress.version>1.4.1</commons.compress.version>
+        <org.kohsuke.metainf.services.version>1.2</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
         <easymock.version>3.4</easymock.version>
         <powermock.api.easymock.version>1.6.5</powermock.api.easymock.version>

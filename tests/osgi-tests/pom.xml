@@ -14,7 +14,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>carbon-kernel-tests</artifactId>
         <groupId>org.wso2.carbon</groupId>
@@ -31,159 +32,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi.services</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.cm</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.jacoco</groupId>
-            <artifactId>org.jacoco.agent</artifactId>
-            <classifier>runtime</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-log4j2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.gogo.command</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.gogo.shell</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.gogo.runtime</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.common</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.concurrent</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.console</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.ds</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.frameworkadmin</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.launcher</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.preferences</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.util</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Pax Exam Dependencies-->
-        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-inject</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-extender-service</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.base</groupId>
-            <artifactId>ops4j-base</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-atinject_1.0_spec</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-native</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -194,11 +49,6 @@
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-aether</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -215,6 +65,34 @@
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.ant</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-log4j2</artifactId>
+        </dependency>
+
+        <!--Test Distribution-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>wso2carbon-kernel-test</artifactId>
+            <version>${carbon.kernel.version}</version>
+            <type>zip</type>
+        </dependency>
+
+        <!--Pax exam Container Carbon-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.container</artifactId>
         </dependency>
 
         <!-- Test artifacts -->
@@ -310,10 +188,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>osgi-test-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.sample.transport.service</artifactId>
             <scope>test</scope>
         </dependency>
@@ -347,25 +221,12 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>org.wso2.carbon</groupId>
-                                            <artifactId>wso2carbon-kernel</artifactId>
+                                            <artifactId>wso2carbon-kernel-test</artifactId>
                                             <type>zip</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}</outputDirectory>
-                                            </artifactItem>
+                                        </artifactItem>
                                     </artifactItems>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>copy-jacoco-dependencies</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <includeTypes>jar</includeTypes>
-                                    <includeArtifactIds>org.jacoco.ant</includeArtifactIds>
                                 </configuration>
                             </execution>
                         </executions>
@@ -375,20 +236,20 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}</org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
-                                <pax.exam.system>default</pax.exam.system>
+                                <org.wso2.carbon.test.default.distribution>
+                                    org.wso2.carbon:wso2carbon-kernel-test
+                                </org.wso2.carbon.test.default.distribution>
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>
+                                <carbon.kernel.version>${carbon.kernel.version}</carbon.kernel.version>
+                                <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}</org.ops4j.pax.url.mvn.localRepository>
                             </systemPropertyVariables>
-                            <systemProperties>
-                                <property>
-                                    <name>carbon.home</name>
-                                    <value>${basedir}/target/wso2carbon-kernel-${project.version}</value>
-                                </property>
-                            </systemProperties>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <environmentVariables>
+                                <JAVA_OPTS>${jcoverage.command}</JAVA_OPTS>
+                            </environmentVariables>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -396,14 +257,16 @@
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>default-prepare-agent</id>
+                                <id>prepare-agent</id>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
                                 <configuration>
+                                    <propertyName>jcoverage.command</propertyName>
                                     <includes>
                                         <include>org.wso2.carbon*</include>
                                     </includes>
+                                    <append>true</append>
                                 </configuration>
                             </execution>
                             <execution>
@@ -420,7 +283,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -431,21 +293,21 @@
                                     <target xmlns:jacoco="antlib:org.jacoco.ant">
                                         //this task is to provide class/src files locations for jacoco report generation
                                         <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-                                            <classpath path="${project.build.directory}" />
+                                            <classpath path="${project.build.directory}"/>
                                         </taskdef>
                                         <jacoco:report>
                                             <executiondata>
-                                                <file file="${project.build.directory}/jacoco.exec" />
+                                                <file file="${project.build.directory}/jacoco.exec"/>
                                             </executiondata>
                                             <structure name="Carbon Core OSGi Tests">
                                                 <classfiles>
-                                                    <fileset dir="../../core/target/classes" />
+                                                    <fileset dir="../../core/target/classes"/>
                                                 </classfiles>
                                                 <sourcefiles encoding="UTF-8">
-                                                    <fileset dir="../../core/src" />
+                                                    <fileset dir="../../core/src"/>
                                                 </sourcefiles>
                                             </structure>
-                                            <html destdir="${project.build.directory}/site/jacoco" />
+                                            <html destdir="${project.build.directory}/site/jacoco"/>
                                         </jacoco:report>
                                     </target>
                                 </configuration>
@@ -462,7 +324,6 @@
                             </dependency>
                         </dependencies>
                     </plugin>
-
                     <plugin>
                         <groupId>org.ops4j.pax.exam</groupId>
                         <artifactId>maven-paxexam-plugin</artifactId>

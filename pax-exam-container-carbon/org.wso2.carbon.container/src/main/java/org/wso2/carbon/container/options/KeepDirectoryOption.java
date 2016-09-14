@@ -13,16 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.osgi.test.util;
+package org.wso2.carbon.container.options;
+
+import org.ops4j.pax.exam.Option;
 
 /**
- * Carbon OSGi Test Constants.
- *
- * @since 5.1.0
+ * Per default pax-exam is deleting the test directories after a test is over. To keep those
+ * directories (for later evaluation) set this option.
  */
-public final class Constants {
+public class KeepDirectoryOption implements Option {
 
-    public static final String PAX_EXAM_SYSTEM = "pax.exam.system";
-    public static final String PAX_EXAM_SYSTEM_TEST = "test";
-    public static final String PAX_EXAM_SYSTEM_DEFAULT = "default";
 }

@@ -17,6 +17,7 @@
 package org.wso2.carbon.osgi.transport;
 
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -26,15 +27,14 @@ import org.osgi.framework.ServiceReference;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.inject.Inject;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 
 /**
  * A test strategy to test and verify the transport service.
@@ -43,6 +43,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
+@ExamFactory(CarbonContainerFactory.class)
 public class TransportOSGITest {
 
     @Inject
@@ -53,11 +54,9 @@ public class TransportOSGITest {
 
     @Configuration
     public Option[] createConfiguration() {
-        List<Option> optionList = new ArrayList<>();
-        optionList.add(mavenBundle().artifactId("org.wso2.carbon.sample.transport.service").groupId("org.wso2.carbon")
-                .versionAsInProject());
-        optionList = OSGiTestConfigurationUtils.getConfiguration(optionList, null);
-        return optionList.toArray(new Option[optionList.size()]);
+        return new Option[] { copyDropinsBundle(
+                maven().artifactId("org.wso2.carbon.sample.transport.service").groupId("org.wso2.carbon")
+                        .versionAsInProject()) };
     }
 
     @Test
