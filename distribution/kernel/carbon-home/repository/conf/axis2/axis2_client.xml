@@ -193,6 +193,8 @@
         <parameter name="Transfer-Encoding">chunked</parameter>
         <parameter name="SO_TIMEOUT">60000</parameter>
         <parameter name="CONNECTION_TIMEOUT">60000</parameter>
+        <!--<parameter name="HostnameVerifier">DefaultAndLocalhost</parameter>-->
+        <!--supports Strict|AllowAll|DefaultAndLocalhost or the default if none specified -->
     </transportSender>
     <!--<transportSender name="java"-->
     <!--class="org.apache.axis2.transport.java.JavaTransportSender"/>-->
