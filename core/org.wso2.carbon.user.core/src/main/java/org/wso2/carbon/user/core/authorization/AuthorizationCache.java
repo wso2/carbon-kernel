@@ -253,17 +253,7 @@ public class AuthorizationCache {
      */
     public void clearCacheByTenant(int tenantId) {
         Cache<AuthorizationKey, AuthorizeCacheEntry> cache = this.getAuthorizationCache();
-        // check for null
-        if (isCacheNull(cache)) {
-            return;
-        }
-
-        for (Cache.Entry<AuthorizationKey, AuthorizeCacheEntry> entry : cache) {
-            AuthorizationKey authorizationKey = entry.getKey();
-            if (tenantId == (authorizationKey.getTenantId())) {
-                cache.remove(authorizationKey);
-            }
-        }
+        cache.removeAll();
     }
 
     /**
