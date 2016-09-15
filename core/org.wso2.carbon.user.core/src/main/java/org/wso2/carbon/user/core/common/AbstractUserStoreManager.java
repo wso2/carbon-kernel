@@ -2456,8 +2456,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return new String[]{CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME};
         }
 
+	// Check whether roles exist in cache for the user with domain name
+        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
         // Check whether roles exist in cache
-        roleNames = getRoleListOfUserFromCache(this.tenantId, userName);
+        roleNames = getRoleListOfUserFromCache(this.tenantId, usernameWithDomain);
         if (roleNames != null && roleNames.length > 0) {
             return roleNames;
         }
