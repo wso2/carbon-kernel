@@ -22,6 +22,7 @@ import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
 import org.wso2.carbon.kernel.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.nio.file.Paths;
@@ -61,7 +62,8 @@ public class SecureVaultConfigurationProvider {
         String configFileLocation = SecureVaultUtils.getSecureVaultYAMLLocation();
         String resolvedFileContent = SecureVaultUtils.resolveFileToString(Paths.get(configFileLocation).toFile());
 
-        Yaml yaml = new Yaml();
+        Yaml yaml = new Yaml(new CustomClassLoaderConstructor(SecureVaultConfiguration.class,
+                SecureVaultConfiguration.class.getClassLoader()));
         yaml.setBeanAccess(BeanAccess.FIELD);
         secureVaultConfiguration = yaml.loadAs(resolvedFileContent, SecureVaultConfiguration.class);
 

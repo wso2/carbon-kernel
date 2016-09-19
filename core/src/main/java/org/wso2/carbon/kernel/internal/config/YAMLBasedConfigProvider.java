@@ -23,6 +23,7 @@ import org.wso2.carbon.kernel.configresolver.ConfigResolver;
 import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
 import org.wso2.carbon.kernel.internal.utils.Utils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.io.File;
@@ -58,7 +59,8 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
             String yamlFileString = carbonYaml.getContent();
             yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
 
-            Yaml yaml = new Yaml();
+            Yaml yaml = new Yaml(new CustomClassLoaderConstructor(CarbonConfiguration.class,
+                    CarbonConfiguration.class.getClassLoader()));
             yaml.setBeanAccess(BeanAccess.FIELD);
             return yaml.loadAs(yamlFileString, CarbonConfiguration.class);
         } catch (IOException e) {

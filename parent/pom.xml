@@ -396,7 +396,7 @@
                 <version>${commons.compress.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.org.yaml</groupId>
+                <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
@@ -512,8 +512,8 @@
 
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>2.1.0</carbon.feature.plugin.version>
-        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
-        <org.snakeyaml.package.import.version.range>[1.16.0,2.0.0)</org.snakeyaml.package.import.version.range>
+        <org.snakeyaml.version>1.17</org.snakeyaml.version>
+        <org.snakeyaml.package.import.version.range>[1.17.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>

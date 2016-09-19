@@ -39,7 +39,7 @@
             <artifactId>org.wso2.carbon.base</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
@@ -172,7 +172,7 @@
                                     <version>${carbon.kernel.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>snakeyaml</symbolicName>
+                                    <symbolicName>org.yaml.snakeyaml</symbolicName>
                                     <version>${org.snakeyaml.version}</version>
                                 </bundle>
                                 <bundle>
