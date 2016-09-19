@@ -28,6 +28,7 @@ import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfig
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.io.BufferedReader;
@@ -121,7 +122,8 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
              BufferedReader bufferedReader = new BufferedReader(
                      new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
 
-            Yaml yaml = new Yaml();
+            Yaml yaml = new Yaml(new CustomClassLoaderConstructor(MasterKeyConfiguration.class,
+                    MasterKeyConfiguration.class.getClassLoader()));
             yaml.setBeanAccess(BeanAccess.FIELD);
             MasterKeyConfiguration masterKeyConfiguration =
                     Optional.ofNullable(yaml.loadAs(bufferedReader, MasterKeyConfiguration.class))
