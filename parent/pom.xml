@@ -27,7 +27,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-kernel-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>5.2.0-m2</version>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.com</url>
@@ -445,7 +445,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon platform version comes here-->
-        <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>5.2.0-m2</carbon.kernel.version>
         <carbon.kernel.package.export.version>5.2.0</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
@@ -532,4 +532,8 @@
         <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
         <javax.crypto.version.range>[0.0.0,1.0.0)</javax.crypto.version.range>
     </properties>
+
+  <scm>
+    <tag>v5.2.0-m2</tag>
+  </scm>
 </project>
