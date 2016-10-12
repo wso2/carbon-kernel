@@ -38,7 +38,7 @@ public class URLBasedCachePreventionFilter extends AbstractCachePreventionFilter
 
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        if (isApplyCachePreventionHeaders(((HttpServletRequest) request).getRequestURI())) {
+        if (canApplyCachePreventionHeaders(((HttpServletRequest) request).getRequestURI())) {
             applyCachePreventionHeaders(httpServletResponse);
         }
 

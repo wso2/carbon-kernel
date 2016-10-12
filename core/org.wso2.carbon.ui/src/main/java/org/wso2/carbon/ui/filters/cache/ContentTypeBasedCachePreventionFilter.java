@@ -43,7 +43,7 @@ public class ContentTypeBasedCachePreventionFilter extends AbstractCachePreventi
              * {@inheritDoc}
              */
             public void setContentType(String contentType) {
-                if (isApplyCachePreventionHeaders(contentType)) {
+                if (canApplyCachePreventionHeaders(contentType)) {
                     applyCachePreventionHeaders(this);
                 }
                 super.setContentType(contentType);

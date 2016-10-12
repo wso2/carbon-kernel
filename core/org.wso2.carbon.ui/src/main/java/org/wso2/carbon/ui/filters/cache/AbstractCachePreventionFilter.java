@@ -42,33 +42,35 @@ import org.apache.commons.logging.LogFactory;
  * protocols HTTP 1.0 through HTTP 1.1.
  * In order to accommodate future modifications to protocol specifications and introduction of custom cache prevention
  * headers and values, the filter can utilize headers and values that are defined in the web.xml file.
+ *
+ * @since 4.2.0
  */
 public abstract class AbstractCachePreventionFilter implements Filter {
 
     private static Log log = LogFactory.getLog(AbstractCachePreventionFilter.class);
 
     // Headers to be sent in the response
-    protected static final String HEADER_NAME_CACHE_CONTROL = "Cache-Control";
-    protected static final String HEADER_VALUE_CACHE_CONTROL = "no-store, no-cache, must-revalidate";
-    protected static final String HEADER_NAME_EXPIRES = "Expires";
-    protected static final String HEADER_VALUE_EXPIRES = "0";
-    protected static final String HEADER_NAME_PRAGMA = "Pragma";
-    protected static final String HEADER_VALUE_PRAGMA = "no-cache";
+    private static final String HEADER_NAME_CACHE_CONTROL = "Cache-Control";
+    private static final String HEADER_VALUE_CACHE_CONTROL = "no-store, no-cache, must-revalidate";
+    private static final String HEADER_NAME_EXPIRES = "Expires";
+    private static final String HEADER_VALUE_EXPIRES = "0";
+    private static final String HEADER_NAME_PRAGMA = "Pragma";
+    private static final String HEADER_VALUE_PRAGMA = "no-cache";
 
     // Configurations in the web.xml
-    protected static final String PARAM_NAME_HTTP_HEADERS = "httpHeaders";
-    protected static final String PARAM_NAME_PATTERNS = "patterns";
-    protected static final String PARAM_NAME_PATTERNS_ACTION = "patternsAction";
-    protected static final String PARAM_VALUE_PATTERNS_ACTION_SKIP = "skip";
-    protected static final String PARAM_VALUE_PATTERNS_ACTION_ENFORCE = "enforce";
+    private static final String PARAM_NAME_HTTP_HEADERS = "httpHeaders";
+    private static final String PARAM_NAME_PATTERNS = "patterns";
+    private static final String PARAM_NAME_PATTERNS_ACTION = "patternsAction";
+    private static final String PARAM_VALUE_PATTERNS_ACTION_SKIP = "skip";
+    private static final String PARAM_VALUE_PATTERNS_ACTION_ENFORCE = "enforce";
 
     // Delimiters in the web.xml
-    protected static final String DELIMITER_NEW_LINE = "\r\n|\r|\n";
-    protected static final String DELIMITER_HEADER_NAME_VALUE = ":";
+    private static final String DELIMITER_NEW_LINE = "\r\n|\r|\n";
+    private static final String DELIMITER_HEADER_NAME_VALUE = ":";
 
-    protected String patternAction;
-    protected ArrayList<Pattern> patternsList = new ArrayList<Pattern>();
-    protected Map<String, String> headersMap = new HashMap<String, String>();
+    private String patternAction;
+    private ArrayList<Pattern> patternsList = new ArrayList<Pattern>();
+    private Map<String, String> headersMap = new HashMap<String, String>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -81,7 +83,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
      * If any headers are found in the web.xml, those headers with the corresponding values will be set to prevent caching.
      * If any headers aren't found in the web.xml, the default headers with values will be set for cache prevention.
      *
-     * @param filterConfig
+     * @param filterConfig Configurations specific to this filter in the web.xml
      */
     protected void initHeaders(FilterConfig filterConfig) throws ServletException {
 
@@ -123,7 +125,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
      * The pattern is a regex that could define content types or URLs.
      * Multiple patterns can be defined in each new line.
      *
-     * @param filterConfig
+     * @param filterConfig Configurations specific to this filter in the web.xml
      */
     protected void initPatternsAndAction(FilterConfig filterConfig) {
 
@@ -149,10 +151,10 @@ public abstract class AbstractCachePreventionFilter implements Filter {
     /**
      * Checks for a match with the filtering pattern and the Content Type/ URL.
      *
-     * @param stringToBeMatched
-     * @return
+     * @param stringToBeMatched Requested URL or the Content Type in the response
+     * @return true for either to set headers for a match, or skip setting headers to a match
      */
-    protected boolean isApplyCachePreventionHeaders(String stringToBeMatched) {
+    protected boolean canApplyCachePreventionHeaders(String stringToBeMatched) {
 
         // If no patterns are defined, headers would be applied by default.
         if (patternsList.isEmpty()) {
@@ -179,7 +181,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
     /**
      * Iterate through the a map to get the headers and values to be set in the response.
      *
-     * @param response
+     * @param response HTTP Servlet Response
      */
     protected void applyCachePreventionHeaders(HttpServletResponse response) {
         for (Map.Entry<String, String> headerEntry : headersMap.entrySet()) {
