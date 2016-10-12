@@ -491,8 +491,8 @@
         <org.eclipse.equinox.cm.version>1.1.200.v20160324-1850</org.eclipse.equinox.cm.version>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>1.8.5</pax.logging.api.version>
-        <pax.logging.log4j2.version>1.8.5</pax.logging.log4j2.version>
+        <pax.logging.api.version>1.9.0</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.9.0</pax.logging.log4j2.version>
 
         <!--Maven Plugins -->
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
