@@ -44,7 +44,6 @@
                 <module>parent</module>
                 <module>archetypes</module>
                 <module>launcher</module>
-                <module>base</module>
                 <module>core</module>
                 <module>tools</module>
                 <module>pax-exam-container-carbon</module>

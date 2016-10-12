@@ -43,6 +43,8 @@ public class Constants {
     public static final String OSGI_INSTANCE_AREA = "osgi.instance.area";
     public static final String ECLIPSE_P2_DATA_AREA = "eclipse.p2.data.area";
 
+    public static final String PAX_LOGGING_PROPERTY_FILE_KEY = "org.ops4j.pax.logging.property.file";
+    public static final String PAX_LOGGING_PROPERTIES_FILE = "pax-logging.properties";
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
     static final String PAX_LOG_SERVICE_RANKING_LEVEL = "org.ops4j.pax.logging.ranking";
 
