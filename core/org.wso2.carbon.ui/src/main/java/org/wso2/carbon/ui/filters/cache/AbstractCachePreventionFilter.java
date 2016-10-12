@@ -49,10 +49,10 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
     // Headers to be sent in the response
     protected static final String HEADER_NAME_CACHE_CONTROL = "Cache-Control";
-    protected static final String HEADER_NAME_EXPIRES = "Expires";
-    protected static final String HEADER_NAME_PRAGMA = "Pragma";
     protected static final String HEADER_VALUE_CACHE_CONTROL = "no-store, no-cache, must-revalidate";
+    protected static final String HEADER_NAME_EXPIRES = "Expires";
     protected static final String HEADER_VALUE_EXPIRES = "0";
+    protected static final String HEADER_NAME_PRAGMA = "Pragma";
     protected static final String HEADER_VALUE_PRAGMA = "no-cache";
 
     // Configurations in the web.xml
