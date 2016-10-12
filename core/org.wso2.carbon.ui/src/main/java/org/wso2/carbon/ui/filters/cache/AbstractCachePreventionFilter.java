@@ -173,13 +173,15 @@ public abstract class AbstractCachePreventionFilter implements Filter {
         //Checking to skip or apply headers to the matching URL/Content Type.
         if (patternMatched) {
             return PARAM_VALUE_PATTERNS_ACTION_ENFORCE.equals(patternAction) ? true : false;
-        } else {
+        }
+        //Checking to skip or apply headers to URLs/Content Types that doesn't mactch.
+        else {
             return PARAM_VALUE_PATTERNS_ACTION_SKIP.equals(patternAction) ? true : false;
         }
     }
 
     /**
-     * Iterate through the a map to get the headers and values to be set in the response.
+     * Setting cache prevention headers to responses.
      *
      * @param response HTTP Servlet Response
      */
