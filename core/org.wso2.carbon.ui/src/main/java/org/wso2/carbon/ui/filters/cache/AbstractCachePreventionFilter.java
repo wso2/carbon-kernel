@@ -60,7 +60,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
     // Configurations in the web.xml
     private static final String PARAM_NAME_HTTP_HEADERS = "httpHeaders";
     private static final String PARAM_NAME_PATTERNS = "patterns";
-    private static final String PARAM_NAME_PATTERNS_ACTION = "patternsAction";
+    private static final String PARAM_NAME_FILTER_ACTION = "filterAction";
     private static final String PARAM_VALUE_PATTERNS_ACTION_SKIP = "skip";
     private static final String PARAM_VALUE_PATTERNS_ACTION_ENFORCE = "enforce";
 
