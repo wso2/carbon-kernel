@@ -500,7 +500,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             try {
                 membershipScheme = (HazelcastMembershipScheme) membershipSchemeClass.getConstructor(
                         Map.class, String.class, Config.class, HazelcastInstance.class, List.class).newInstance(
-                        parameters, primaryDomain, this.primaryHazelcastConfig, primaryHazelcastInstance,
+                        parameters, primaryDomain, primaryHazelcastConfig, primaryHazelcastInstance,
                         sentMsgsBuffer);
                 membershipScheme.init();
             } catch (InstantiationException e) {
