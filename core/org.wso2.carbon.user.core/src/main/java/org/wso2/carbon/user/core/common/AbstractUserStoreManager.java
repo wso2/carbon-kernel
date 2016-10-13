@@ -353,7 +353,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
                 Map<String, String> map = getUserPropertyValues(userName, new String[]{userNameAttribute}, null);
-                userName = map.get(userNameAttribute);
+                String tempUserName = map.get(userNameAttribute);
+                if (tempUserName != null) {
+                    userName = tempUserName;
+                    if (log.isDebugEnabled()) {
+                        log.debug("Replaced user name : " + userName + " from user property value : " + tempUserName);
+                    }
+                }
             }
         }
         log.debug("Retrieving internal roles for user name :  " + userName + " and search filter " + filter);
