@@ -1464,7 +1464,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     throw new UserStoreException(errorMessage, e);
                 }
                 if (claimMapping == null) {
-                    String errorMessage = INVALID_CLAIM_URL + " Invalid claim uri has been provided.";
+                    String errorMessage = "Invalid claim uri has been provided: " + entry.getKey();
                     throw new UserStoreException(errorMessage);
                 }
             }
