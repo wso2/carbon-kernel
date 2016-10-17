@@ -27,6 +27,18 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This filter implements browser/proxy cache prevention based on URLs. That is
+ * done by whitelisting or blacklisting a defined set of URL patterns.
+ *
+ * It would prevent sensitive information being cached on web browsers and
+ * intermediate network devices that adhere to protocols HTTP 1.0 through HTTP
+ * 1.1. In order to accommodate future modifications to protocol specifications
+ * and introduction of custom cache prevention headers and values, the filter
+ * can also utilize headers and values that are defined in the web.xml file.
+ *
+ * @since 4.2.0
+ */
 public class URLBasedCachePreventionFilter extends AbstractCachePreventionFilter {
 
     /**
