@@ -65,7 +65,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
     private static final String PARAM_VALUE_PATTERNS_ACTION_ENFORCE = "enforce";
 
     // Delimiters in the web.xml
-    private static final String DELIMITER_NEW_LINE = "\r\n|\r|\n";
+    private static final String DELIMITER_MULTI_VALUE = "\"\\s*,";
     private static final String DELIMITER_HEADER_NAME_VALUE = ":";
 
     private String patternAction;
@@ -90,10 +90,11 @@ public abstract class AbstractCachePreventionFilter implements Filter {
         String httpHeadersParam = filterConfig.getInitParameter(PARAM_NAME_HTTP_HEADERS);
 
         if (StringUtils.isNotBlank(httpHeadersParam)) {
-            String[] httpHeadersArray = httpHeadersParam.split(DELIMITER_NEW_LINE);
+            String[] httpHeadersArray = httpHeadersParam.split(DELIMITER_MULTI_VALUE);
 
             for (String header : httpHeadersArray) {
                 header = header.trim();
+                header = header.replaceAll("\"", "");
 
                 if (StringUtils.isNotBlank(header)) {
                     String[] entry = header.split(DELIMITER_HEADER_NAME_VALUE);
@@ -133,7 +134,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
         //If a filtering pattern is available split the pattern using carriage return and line feed  characters and put into an array.
         if (!StringUtils.isBlank(patternsParam)) {
-            String[] patternsArray = patternsParam.split(DELIMITER_NEW_LINE);
+            String[] patternsArray = patternsParam.split(DELIMITER_MULTI_VALUE);
 
             // Iterate through the filtering patterns array and put into an arrayList.
             for (String pattern : patternsArray) {
@@ -143,7 +144,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
         //Read the action to be performed from the web.xml.
         // The action could be either enforce or skip.
-        String patternActionConfig = filterConfig.getInitParameter(PARAM_NAME_PATTERNS_ACTION);
+        String patternActionConfig = filterConfig.getInitParameter(PARAM_NAME_FILTER_ACTION);
         patternAction = StringUtils.equals(PARAM_VALUE_PATTERNS_ACTION_ENFORCE, patternActionConfig)
                 ? PARAM_VALUE_PATTERNS_ACTION_ENFORCE : PARAM_VALUE_PATTERNS_ACTION_SKIP;
     }
