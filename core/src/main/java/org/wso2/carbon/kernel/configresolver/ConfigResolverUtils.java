@@ -60,12 +60,10 @@ public class ConfigResolverUtils {
      * @return String in JSON format
      */
     public static String convertYAMLToJSON(String yamlString) {
-        String jsonString;
         Yaml yaml = new Yaml();
         Map map = (Map) yaml.load(yamlString);
         JSONObject jsonObject = new JSONObject(map);
-        jsonString = jsonObject.toString();
-        return jsonString;
+        return jsonObject.toString();
     }
 
     /**
