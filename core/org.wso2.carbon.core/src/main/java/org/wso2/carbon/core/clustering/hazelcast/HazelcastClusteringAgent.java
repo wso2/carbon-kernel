@@ -483,7 +483,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         } else {
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter != null) {
-                initiateCustomMembershipScheme(classNameParameter);
+                initiateCustomMembershipScheme(classNameParameter, primaryHazelcastConfig);
             } else {
                 String msg = "Invalid membership scheme '" + scheme +
                         "'. Supported schemes are multicast & wka";
@@ -493,7 +493,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         } //TODO: AWS membership scheme support
     }
 
-    private void initiateCustomMembershipScheme(Parameter classNameParameter) throws ClusteringFault {
+    private void initiateCustomMembershipScheme(Parameter classNameParameter, Config primaryHazelcastConfig) throws ClusteringFault {
         String className = (String) classNameParameter.getValue();
         try {
             Class membershipSchemeClass = Class.forName(className);
