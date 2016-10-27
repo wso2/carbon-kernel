@@ -210,10 +210,7 @@ public class ConfigResolverUtils {
      * @return XML formatted String
      */
     public static String convertXMLSourceToString(Source source) {
-        StringWriter stringWriter = null;
-        String xmlString;
-        try {
-            stringWriter = new StringWriter();
+        try (StringWriter stringWriter = new StringWriter()) {
             StreamResult xmlOutput = new StreamResult(stringWriter);
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             transformerFactory.setAttribute("indent-number", 4);
@@ -223,19 +220,13 @@ public class ConfigResolverUtils {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.transform(source, xmlOutput);
-            xmlString = xmlOutput.getWriter().toString();
+            return xmlOutput.getWriter().toString();
         } catch (TransformerException e) {
             logger.error("Exception occurred while converting doc to string: ", e);
             throw new RuntimeException("Exception occurred while converting doc to string: ", e);
-        } finally {
-            if (stringWriter != null) {
-                try {
-                    stringWriter.close();
-                } catch (IOException ignored) {
-                    //We ignore this because at this point, we have retrieved the xmlString and and can proceed.
-                }
-            }
+        } catch (IOException e) {
+            logger.error("Exception occurred while closing the StringWriter: ", e);
+            throw new RuntimeException("Exception occurred while closing the StringWriter: ", e);
         }
-        return xmlString;
     }
 }
