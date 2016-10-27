@@ -60,12 +60,10 @@ public class ConfigResolverUtils {
      * @return String in JSON format
      */
     public static String convertYAMLToJSON(String yamlString) {
-        String jsonString;
         Yaml yaml = new Yaml();
         Map map = (Map) yaml.load(yamlString);
         JSONObject jsonObject = new JSONObject(map);
-        jsonString = jsonObject.toString();
-        return jsonString;
+        return jsonObject.toString();
     }
 
     /**
@@ -212,9 +210,7 @@ public class ConfigResolverUtils {
      * @return XML formatted String
      */
     public static String convertXMLSourceToString(Source source) {
-        String xmlString;
-        try {
-            StringWriter stringWriter = new StringWriter();
+        try (StringWriter stringWriter = new StringWriter()) {
             StreamResult xmlOutput = new StreamResult(stringWriter);
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             transformerFactory.setAttribute("indent-number", 4);
@@ -224,11 +220,13 @@ public class ConfigResolverUtils {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.transform(source, xmlOutput);
-            xmlString = xmlOutput.getWriter().toString();
+            return xmlOutput.getWriter().toString();
         } catch (TransformerException e) {
             logger.error("Exception occurred while converting doc to string: ", e);
             throw new RuntimeException("Exception occurred while converting doc to string: ", e);
+        } catch (IOException e) {
+            logger.error("Exception occurred while closing the StringWriter: ", e);
+            throw new RuntimeException("Exception occurred while closing the StringWriter: ", e);
         }
-        return xmlString;
     }
 }
