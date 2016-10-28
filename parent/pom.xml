@@ -154,7 +154,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.9</carbon.kernel.version>
+        <carbon.kernel.version>4.4.10-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
@@ -1527,8 +1527,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-  <scm>
-    <tag>v4.4.9-rc3</tag>
-  </scm>
 </project>

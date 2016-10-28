@@ -19,8 +19,4 @@
     <modules>
         <module>student-manager</module>
     </modules>
-
-  <scm>
-    <tag>v4.4.9-rc3</tag>
-  </scm>
 </project>
