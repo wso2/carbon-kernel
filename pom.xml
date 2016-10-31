@@ -1627,6 +1627,10 @@
         <org.apache.cxf.cxf-rt-transports-jetty.version>2.7.15</org.apache.cxf.cxf-rt-transports-jetty.version>
         <io.swagger.version>1.5.8</io.swagger.version>
 
+        <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
+        <org.apache.xml.security.range>[0.0.0,2.0.0)</org.apache.xml.security.range>
+
+
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
