@@ -90,7 +90,7 @@ public class AuthenticationHandler extends AbstractHandler {
                     throw new AxisFault(msg, ServerConstants.AUTHENTICATION_FAULT_CODE);
                 }
                 msgContext.setProperty(MultitenantConstants.TENANT_DOMAIN, userTenantDomain);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(userTenantDomain);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(userTenantDomain, true);
             }
             if (userName != null) {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(userName);
