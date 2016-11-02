@@ -35,6 +35,8 @@ import org.wso2.carbon.application.deployer.handler.DefaultAppDeployer;
 import org.wso2.carbon.application.deployer.handler.RegistryResourceDeployer;
 import org.wso2.carbon.application.deployer.persistence.CarbonAppPersistenceManager;
 import org.wso2.carbon.application.deployer.service.ApplicationManagerService;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.FileManipulator;
 
@@ -45,8 +47,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,9 +130,15 @@ public final class ApplicationManager implements ApplicationManagerService {
             //if we have cApps waiting to be deployed, deploy those as well
             for (PendingApplication application : pendingCarbonApps) {
                 try {
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext cc = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                    cc.setTenantDomain(application.getTenantDomain());
+                    cc.setTenantId(application.getTenantId());
                     this.deployCarbonApp(application.getPath(), application.getAxisConfig());
                 } catch (Exception e) {
                     log.error("Error while deploying stored cApp : " + application, e);
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
                 }
             }
             pendingCarbonApps.clear();
@@ -158,7 +166,8 @@ public final class ApplicationManager implements ApplicationManagerService {
             axisConfig) throws Exception {
         //if all handlers are not yet registered, we store the cApp to deploy later
         if (initialHandlers != handlerCount) {
-            pendingCarbonApps.add(new PendingApplication(archPath, axisConfig));
+            CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
+            pendingCarbonApps.add(new PendingApplication(archPath, axisConfig, cc.getTenantDomain(), cc.getTenantId()));
             return;
         }
 
@@ -803,10 +812,14 @@ public final class ApplicationManager implements ApplicationManagerService {
 
         private String path;
         private AxisConfiguration axisConfig;
+        private String tenantDomain;
+        private int tenantId;
 
-        private PendingApplication(String path, AxisConfiguration configCtx) {
+        private PendingApplication(String path, AxisConfiguration configCtx, String tenantDomain, int tenantId) {
             this.path = path;
             this.axisConfig = configCtx;
+            this.tenantDomain = tenantDomain;
+            this.tenantId = tenantId;
         }
 
         public String getPath() {
@@ -815,6 +828,14 @@ public final class ApplicationManager implements ApplicationManagerService {
 
         public AxisConfiguration getAxisConfig() {
             return axisConfig;
+        }
+
+        public String getTenantDomain() {
+            return tenantDomain;
+        }
+
+        public int getTenantId() {
+            return tenantId;
         }
     }
 
