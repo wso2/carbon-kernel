@@ -254,8 +254,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         // String searchFilter =
         // realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        String searchFilter = "(&" + userListFilter + "(" + userNameAttribute + "=" +
-                escapeSpecialCharactersForFilter(userName) + "))";
+        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControl = new SearchControls();
         String[] returningAttributes = {"CN"};
