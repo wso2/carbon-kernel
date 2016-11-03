@@ -21,6 +21,14 @@ The Carbon transport management feature provides a pluggable extension point, wh
 ### Pluggable Runtime Management
 The pluggable runtime framework in Carbon can be used to manage third-party runtimes in the Carbon server. This framework provides a good deal of flexibility when managing the lifecycle of a runtime. This is useful in situations where it is necessary to use the server in maintenance mode etc. In this case, each runtime needs to be set to maintenance mode. WSO2 Carbon will use this extension point to trigger a lifecycle change to enable the maintenance mode of the runtime. For example, in case of the Tomcat runtime, you need to stop the Tomcat connectors when the server goes into maintenance mode. Read more about pluggable runtime management.
 
+# Getting Started
+### Downloading the Kernel
+...
+### Installing the Kernel
+...
+### Launching the Kernel
+...
+
 # How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
 * Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master).
