@@ -1,10 +1,7 @@
 # Welcome to WSO2 Carbon Kernel
-WSO2 Carbon Kernel 5.2.0 is the core of the next-generation WSO2 Carbon platform
+WSO2 Carbon Kernel 5.2.0 is the core of the next-generation WSO2 Carbon platform. 
 
-### Introduction
-WSO2 Carbon Kernel 5.2.0 is the core of the next-generation WSO2 Carbon platform. It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
-
-The WSO2 Carbon Kernel includes the following key features. For further details please see the [documentation](https://docs.wso2.com/display/Carbon520).
+It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
 
 ### Key Features
 * Java 8 Support
@@ -23,8 +20,8 @@ The WSO2 Carbon Kernel includes the following key features. For further details 
 
 ### How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
-* Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master)
-* You can find more instructions on how to contribute on our [documentation](https://docs.wso2.com/display/Carbon520) site.
+* Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master).
+* You can find more instructions on how to contribute on community site(http://wso2.com/community).
 
 ### Contact Us
 WSO2 developers can be contacted via the mailing lists:
