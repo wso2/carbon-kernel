@@ -29,4 +29,97 @@ The startup order resolver component in Carbon ensures that a particular compone
   1. Startup listener components: Components that need to hold its initialization, until all the required OSGi services or capabilities are available during server startup. For example, the Microservice engine needs to hold it’s initialization until all the microservices from OSGi bundles that are available during server startup are registered as OSGi services. 
   2. OSGi service components: Components that register OSGi services. For example, user management components expose it’s capabilities via a microservice. JMS transport module registers the JMS transport as OSGi services. 
   
-#### Test
+#### Defining a startup listener component
+A component has to be defined as a listener component, if there are other components that should be initialized before the listener component is initialized. For example, in the above scenario the Transport Manager component should be defined as a listener component, because it requires other transport components to be initialized before it. 
+An OSGi listener component is defined as shown below.
+
+The startup order resolver identifies a startup listener component from the following manifest header:
+Carbon-Component: startup.listener;
+componentName=”transport-mgt”;
+requiredService=”org.wso2.carbon.kernel.transports.CarbonTransport”;
+startup.listener : Marks this component as a startup listener.
+componentName : This is a unique name to identify the component. Each and every startup listener component should have a unique name.
+requiredService : A comma separated list of OSGi service keys. These are the OSGi services that the listener component should wait for. That is, the startup listener component should hold it’s initialization until all the services of specified keys are available.
+The startup order resolver notifies a startup listener component when all the required services are available. In order to get this notification, the startup listener component should register an OSGi service with the following interface: org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener.
+An implementation of the RequiredCapabilityListener interface is shown below.
+public class TransportStartupListener implements RequiredCapabilityListener {
+    
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        // This method is invoked by the startup 
+           order resolver when all the required 
+           services are available
+    }
+}
+
+Shown below is how you register the RequiredCapabilityListener implementation given above as an OSGi service in your BundleActivator.
+public class TransportBundleActivator implements BundleActivator {
+public void start(BundleContext bundleContext)
+            throws Exception {
+
+        Dictionary<String, String> properties = new Hashtable<>();
+        properties.put("componentName", "transport-mgt");
+        bundleContext.registerService(
+                TransportStartupListener.class,
+                new TransportStartupListener(), properties);
+    }
+
+    public void stop(BundleContext bundleContext) throws Exception {
+
+    }
+}
+The value given for the componentName property should be equal to the componentName property value of the startup listener component that was defined earlier. This is how the startup order resolver maps the RequiredCapabilityListener with corresponding startup listener components (startup.listener).
+
+#### Defining an OSGi service component
+A component is required to be defined as an OSGi service component when there are other components depending on the initialization of this component. For example, the Transport Manager component will only be started once the relevant transports are already initialized. Therefore, the transport implementation should be defined as OSGi service components.
+Registering a single OSGi service from a component
+The startup order resolver identifies an OSGi service component from the following manifest header:
+Carbon-Component: osgi.service; 
+objectClass=”org.wso2.carbon.kernel.transports.CarbonTransport”
+osgi.service: This property marks this component as an OSGi service component.
+objectClass: This property indicates the type of OSGi service that will be registered by the component. 
+Please note that all components that register OSGi services do not need to include this manifest header. You need to include this header only if there are other components waiting for your OSGi service. For example, the Transport Manager component waits for all the transport OSGi services. If you are developing a transport, you need to put this header into your bundle’s MANIFEST.MF.
+Registering multiple OSGI services from a component
+When you define an OSGi service component, the component bundle may need to register more than one OSGi service of the same type. This can be done in two ways as explained below.
+Registering a known number of services
+You can use the serviceCount manifest attribute to specify the number of services that you register from your bundle as shown below. Here you know the exact number of services that your register at development time.
+Carbon-Component: osgi.service; 
+objectClass=”org.wso2.carbon.kernel.transports.CarbonTransport”; 
+serviceCount="4"
+
+Registering an indefinite number of services 
+In certain scenarios, you may not know the number of OSGi services you register from your bundle at the time of development. However, during server startup, you can calculate the number of OSGi services that need to be registered. You may obtain this value from a configuration file, from another OSGi service or from any source. In this scenario, you cannot use the serviceCount manifest attribute, since you don’t know the count at development time.
+In order to solve this problem, we have introduced an interface called CapabilityProvider from the org.wso2.carbon.kernel.startupresolver package. 
+You can register the OSGi service as shown below.
+public class HTTPTransportProvider implements CapabilityProvider {
+    
+    @Override
+    public int getCount() {
+        return 4;
+    }
+}Now you need specify the Carbon-Component manifest header as follows.
+
+Now you need to specify the "Carbon-Component" manifest header as shown below.
+Carbon-Component: osgi.service; 
+objectClass=”org.wso2.carbon.kernel.startupresolver.CapabilityProvider”;
+capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport";
+
+Shown below is how you can register the CapabilityProvider implementation shown above as an OSGi service in your BundleActivator.
+public class HTTPBundleActivator implements BundleActivator {
+    public void start(BundleContext bundleContext)
+            throws Exception {
+
+        Dictionary<String, String> properties = new Hashtable<>();
+        properties.put("capabilityName",
+              "org.wso2.carbon.kernel.transports.CarbonTransport");
+        bundleContext.registerService(
+                HTTPTransportProvider.class,
+                new HTTPTransportProvider(), properties);
+    }
+
+    public void stop(BundleContext bundleContext) throws Exception {
+
+    }
+}
+
+As explained above, the startup order resolver processes the Carbon-Component manifest headers, and figures out the components that need to be notified when all requirements are satisfied. Similarly, the startup order resolver figures out the expected number of OSGi services for each startup listener component. The startup order resolver listens to OSGi service events, and notifies startup listener components, as and when their requirements are satisfied.
