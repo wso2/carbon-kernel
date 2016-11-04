@@ -248,12 +248,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userListFilter = realmConfig
-                .getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-        String userNameAttribute = realmConfig
-                .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-        // String searchFilter =
-        // realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
@@ -325,12 +319,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userListFilter = realmConfig
-                .getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-        String userNameAttribute = realmConfig
-                .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-        String searchFilter = "(&" + userListFilter + "(" + userNameAttribute + "=" +
-                escapeSpecialCharactersForFilter(userName) + "))";
+        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
         SearchControls searchControl = new SearchControls();
         String[] returningAttributes = {"CN"};
         searchControl.setReturningAttributes(returningAttributes);
