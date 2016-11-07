@@ -28,6 +28,7 @@ public final class Constants {
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
     public static final String CARBON_CONFIG_YAML = "carbon.yaml";
+    public static final String DEPLOYMENT_CONFIG_YAML = "deployment.yaml";
 
     public static final String START_TIME = "carbon.start.time";
 

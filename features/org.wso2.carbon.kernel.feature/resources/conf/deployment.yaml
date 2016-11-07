@@ -1,0 +1,23 @@
+wso2.carbon:
+  jmx:
+    hostName: 127.0.0.1
+    rmiServerPort: 11111
+    enabled: true
+    rmiRegistryPort: 9999
+  startupResolver:
+    capabilityListenerTimer:
+      period: 5000
+      delay: 5000
+    pendingCapabilityTimer:
+      period: 5000
+      delay: 5000
+  name: WSO2 Carbon Kernel
+  id: carbon-kernel
+  ports:
+    offset: 0
+  version: 5.0.0
+  tenant: default
+  deployment:
+    schedule: scheduled
+    repositoryLocation: ${carbon.home}/deployment/
+    updateInterval: 15

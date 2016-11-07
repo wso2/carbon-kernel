@@ -17,8 +17,8 @@ package org.wso2.carbon.kernel.internal.context;
 
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.configprovider.CarbonConfigurationFactory;
 
 /**
  * This is a factory class which creates a DefaultCarbonRuntime using a provided CarbonConfigProvider,
@@ -31,10 +31,12 @@ public class CarbonRuntimeFactory {
     private CarbonRuntimeFactory() {
     }
 
-    public static CarbonRuntime createCarbonRuntime(CarbonConfigProvider carbonConfigProvider) throws Exception {
+    public static CarbonRuntime createCarbonRuntime() throws Exception {
 
         //TODO Remove hardcoded implementations.
-        CarbonConfiguration carbonConfiguration = carbonConfigProvider.getCarbonConfiguration();
+        CarbonConfiguration carbonConfiguration =
+                (CarbonConfiguration) CarbonConfigurationFactory.getConfigurationInstance(
+                        CarbonConfiguration.class.getName());
 
         PrivilegedCarbonRuntime carbonRuntime = new DefaultCarbonRuntime();
         carbonRuntime.setCarbonConfiguration(carbonConfiguration);

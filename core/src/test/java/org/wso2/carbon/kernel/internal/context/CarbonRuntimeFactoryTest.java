@@ -30,7 +30,7 @@ public class CarbonRuntimeFactoryTest {
 
     @BeforeTest
     public void setup() throws Exception {
-        carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(new CarbonConfigProviderImpl());
+        carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime();
     }
 
     @Test

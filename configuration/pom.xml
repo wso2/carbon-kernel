@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>carbon-kernel</artifactId>
+        <groupId>org.wso2.carbon</groupId>
+        <version>5.2.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.configuration</artifactId>
+    <name>WSO2 Carbon Kernel - Configuration</name>
+    <modules>
+        <module>annotations</module>
+        <module>annotation-processors</module>
+    </modules>
+    <packaging>pom</packaging>
+    <description>
+        This is the module for all the Carbon configurations
+    </description>
+    <url>http://wso2.com</url>
+
+
+</project>

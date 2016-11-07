@@ -27,7 +27,7 @@ import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
  * @since 5.0.0
  */
 @Configuration(key = "wso2.carbon", level = 0)
-public class CarbonConfiguration {
+public class CarbonConfiguration2 {
 
     @Element(name = "id", value = "carbon-kernel")
     private String id = "carbon-kernel";

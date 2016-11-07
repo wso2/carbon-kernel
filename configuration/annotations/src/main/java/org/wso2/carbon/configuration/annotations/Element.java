@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,24 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.config.model;
+package org.wso2.carbon.configuration.annotations;
 
-
-import org.wso2.carbon.configuration.annotations.Configuration;
-import org.wso2.carbon.configuration.annotations.Element;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Ports Config bean.
+ * Element annotation for configuration tool
  *
- * @since 5.0.0
+ * @since 5.2.0
  */
-@Configuration(key = "ports", level = 1)
-public class PortsConfig {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface Element {
+    String name();
 
-    @Element(name = "offset", value = "0")
-    private int offset = 0;
-
-    public int getOffset() {
-        return offset;
-    }
+    String value();
 }

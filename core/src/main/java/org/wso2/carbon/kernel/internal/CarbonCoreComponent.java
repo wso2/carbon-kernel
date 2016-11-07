@@ -9,9 +9,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
-import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
 import java.util.Optional;
@@ -34,14 +32,10 @@ public class CarbonCoreComponent {
         try {
             logger.debug("Activating CarbonCoreComponent");
 
-            // 1) Find to initialize the Carbon configuration provider
-            CarbonConfigProvider configProvider = new YAMLBasedConfigProvider(DataHolder.getInstance()
-                    .getOptConfigResolver().get());
+            // 1) Creates the CarbonRuntime instance using the Carbon configuration provider.
+            CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime();
 
-            // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
-            CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
-
-            // 3) Register CarbonRuntime instance as an OSGi bundle.
+            // 2) Register CarbonRuntime instance as an OSGi bundle.
             DataHolder.getInstance().getBundleContext()
                     .registerService(CarbonRuntime.class.getName(), carbonRuntime, null);
 

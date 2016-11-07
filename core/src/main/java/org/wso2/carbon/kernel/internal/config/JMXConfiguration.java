@@ -15,15 +15,24 @@
  */
 package org.wso2.carbon.kernel.internal.config;
 
+
+import org.wso2.carbon.configuration.annotations.Configuration;
+import org.wso2.carbon.configuration.annotations.Element;
+
 /**
  * JMX Configuration bean.
  *
  * @since 5.1.0
  */
+@Configuration(key = "jmx", level = 1)
 public class JMXConfiguration {
+    @Element(name = "enabled", value = "false")
     private boolean enabled;
+    @Element(name = "hostName", value = "127.0.0.1")
     private String hostName;
+    @Element(name = "rmiServerPort", value = "11111")
     private int rmiServerPort;
+    @Element(name = "rmiRegistryPort", value = "9999")
     private int rmiRegistryPort;
 
     public boolean isEnabled() {

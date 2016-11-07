@@ -17,13 +17,20 @@
 */
 package org.wso2.carbon.kernel.config.model;
 
+
+import org.wso2.carbon.configuration.annotations.Configuration;
+import org.wso2.carbon.configuration.annotations.Element;
+
 /**
  * Config bean for pendingCapabilityTimer in carbon.yaml file.
  */
+@Configuration(key = "pendingCapabilityTimer", level = 2)
 public class PendingCapabilityTimer {
 
+    @Element(name = "delay", value = "5000")
     private long delay = 60000;
 
+    @Element(name = "period", value = "5000")
     private long period = 30000;
 
     public long getDelay() {

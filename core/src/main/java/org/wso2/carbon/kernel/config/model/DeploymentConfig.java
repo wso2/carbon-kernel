@@ -15,17 +15,25 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
+
+import org.wso2.carbon.configuration.annotations.Configuration;
+import org.wso2.carbon.configuration.annotations.Element;
+
 /**
  * Deployment Config bean.
  *
  * @since 5.0.0
  */
+@Configuration(key = "deployment", level = 1)
 public class DeploymentConfig {
 
+    @Element(name = "schedule", value = "scheduled")
     private DeploymentModeEnum mode = DeploymentModeEnum.scheduled;
 
+    @Element(name = "repositoryLocation", value = "${carbon.home}/deployment/")
     private String repositoryLocation = "${carbon.home}/deployment/";
 
+    @Element(name = "updateInterval", value = "15")
     private int updateInterval = 15;
 
     public DeploymentModeEnum getMode() {
