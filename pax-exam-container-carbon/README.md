@@ -143,15 +143,15 @@ Follow the instructions given below when you write test cases for your Carbon co
 
 2. If you need any bundles other than those defined here, you can add them to the test case class. The following are the list of APIs provided by the OSGi Test Utils that you can use:
 
-	getConfiguration() : (returns List<Option>)
+		getConfiguration() : (returns List<Option>)
 	
  This method is used to get the Pax Exam configuration with the default (minimum) Pax Exam options required for booting up the Carbon Kernel.
  
-	getConfiguration(List<Option> customOptions, CarbonSysPropConfiguration sysPropConfiguration) : (returns List<Option>)
+		getConfiguration(List<Option> customOptions, CarbonSysPropConfiguration sysPropConfiguration) : (returns List<Option>)
 	
  This method is used to pass custom options (customOptions) and systemproperty configurations (sysPropConfiguration). Here, the custom options are merged with the default set of options required to boot up Carbon Kernel. Using sysPropConfiguration, you can set the server key,  server name,  server version and carbon home.  
  
-	getBaseOptions(String carbonHome, String serverKey, String serverName, String serverVersion) : (returns List<Option>)
+		getBaseOptions(String carbonHome, String serverKey, String serverName, String serverVersion) : (returns List<Option>)
 	
  This method is used to set a systemproperty such as 'carbon home', 'server key', 'server name' and 'server version' while using the default (minimum) Pax Exam options required to start the server.
  
