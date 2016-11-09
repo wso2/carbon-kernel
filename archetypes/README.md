@@ -16,3 +16,43 @@ A Carbon component that includes a sample implementation of a service component,
  .......
  
 To read more on other properties that you can use when generating a project from an archetype, see this link. 
+
+## Example 
+
+Follow the steps given below to see how a Carbon component is generated using this archetype.
+
+1. Execute the following command:
+
+       mvn archetype:generate 
+       -DarchetypeGroupId=org.wso2.carbon 
+       -DarchetypeArtifactId=org.wso2.carbon.archetypes.component
+       -DarchetypeVersion=5.0.0  
+       -DgroupId=org.sample 
+       -DartifactId=org.sample.project 
+       -Dversion=1.0.0 
+       -Dpackage=org.sample.project
+       
+ In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (org.wso2.carbon.archetypes.component). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
+ 
+2. You will see a result similar to the following, which notifies that the component generation is successful.
+
+       [INFO] project created from Archetype in dir:        /home/manurip/Documents/Work/archetypeGeneration/usingCreatedArchetype/temp/org.sample.project
+       [INFO] ------------------------------------------------------------------------
+       [INFO] BUILD SUCCESS
+       [INFO] ------------------------------------------------------------------------ 
+       
+3. See that the following project is created:
+
+       org.sample.project 
+        ├── pom.xml 
+        └── src 
+          └── main
+           └── java
+             └── org
+                └── sample
+                    └── project
+                        ├── GreeterImpl.java
+                        ├── Greeter.java 
+                        └── internal
+                            ├── DataHolder.java
+                            └── ServiceComponent.java
