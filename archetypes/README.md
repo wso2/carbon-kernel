@@ -56,3 +56,33 @@ Follow the steps given below to see how a Carbon component is generated using th
                         └── internal
                             ├── DataHolder.java
                             └── ServiceComponent.java
+                            
+# Creating a Generic OSGi Bundle in One Step
+
+An OSGi bundle can be created with one command using the following archetype: carbon-bundle-archetype. The details of the archetype and the details of the project you are creating should be passed as properties when you execute the command. These properties are explained below.
+
+ *The following properties are used to specify the details of the archetype:*
+ 
+ ......
+ 
+ *Given below are the properties that will set the project details. You can specify the required values for these properties. However, if these properties are not used, the default values given below will be used to create the project.*
+ 
+ ..........
+ 
+To read more on other properties you can use when generating a project from an archetype, see this link. 
+
+# Example
+
+Follow the steps given below to see how an OSGi bundle is generated using this archetype.
+
+1. Execute the following command.
+
+        mvn archetype:generate \
+        -DarchetypeGroupId=org.wso2.carbon \
+        -DarchetypeArtifactId=org.wso2.carbon.archetypes.bundle \
+        -DarchetypeVersion=5.0.0 \ 
+        -DgroupId=org.sample \ 
+        -DartifactId=org.sample.project \
+        -Dversion=1.0.0 \
+        -Dpackage=org.sample.project \
+
