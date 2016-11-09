@@ -50,3 +50,27 @@ As mentioned in the Pax Exam Configuration Documentation, Pax Exam starts the OS
  Other required dependencies for your component.
 
 3. Optionally, you can change the default log level in Pax Exam (which is 'debug') by adding the “org.ops4j.pax.logging.DefaultServiceLog.level” system property to the pom.xml file of the OSGi test component as shown below.
+
+        <build>
+        …….
+         <plugins>
+         …….
+         <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                 <systemPropertyVariables>
+                 …….
+                 <org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>
+                 …….
+                 </systemPropertyVariables>
+                   …….
+                 <systemProperties>
+                 …….
+                 </configuration>
+         …….
+          </plugin>
+         …….
+         </plugins>
+        …….
+        </build>
