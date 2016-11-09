@@ -16,8 +16,8 @@ Follow the steps given below to implement a new transport.
 2. write your own transport implementation.
 Register the implemented server as an OSGi service. For example, If you have extended the CarbonTransport class and implemented JettyCarbonTransport, you need to register the implemented Carbon Transport as follows:
 
-    NettyListener nettyCarbonTransport = new NettyListener("netty");
-    bundleContext.registerService(CarbonTransport.class.getName(), nettyCarbonTransport, null);
+        NettyListener nettyCarbonTransport = new NettyListener("netty");
+        bundleContext.registerService(CarbonTransport.class.getName(), nettyCarbonTransport, null);
 
  Refer registration of NettyListener. You have now registered your transport to the server.
 
