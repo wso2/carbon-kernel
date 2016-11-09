@@ -36,21 +36,21 @@ Follow the steps given below to see how a Carbon component is generated using th
  
 2. You will see a result similar to the following, which notifies that the component generation is successful.
 
-         [INFO] project created from Archetype in dir:        /home/manurip/Documents/Work/archetypeGeneration/usingCreatedArchetype/temp/org.sample.project
+         [INFO] project created from Archetype in dir:     /home/manurip/Documents/Work/archetypeGeneration/usingCreatedArchetype/temp/org.sample.project
          [INFO] ------------------------------------------------------------------------
          [INFO] BUILD SUCCESS
          [INFO] ------------------------------------------------------------------------ 
        
 3. See that the following project is created:
 
-       org.sample.project 
-        ├── pom.xml 
-        └── src 
-          └── main
-           └── java
-             └── org
-                └── sample
-                    └── project
+          org.sample.project 
+           ├── pom.xml 
+           └── src 
+             └── main
+              └── java
+                └── org
+                   └── sample
+                      └── project
                         ├── GreeterImpl.java
                         ├── Greeter.java 
                         └── internal
