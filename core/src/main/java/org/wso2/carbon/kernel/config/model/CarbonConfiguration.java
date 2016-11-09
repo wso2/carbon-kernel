@@ -17,7 +17,7 @@ package org.wso2.carbon.kernel.config.model;
 
 import org.wso2.carbon.configuration.annotations.Configuration;
 import org.wso2.carbon.configuration.annotations.Element;
-import org.wso2.carbon.configuration.annotations.Reference;
+import org.wso2.carbon.configuration.annotations.Ignore;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 
@@ -26,31 +26,31 @@ import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
  *
  * @since 5.0.0
  */
-@Configuration(key = "wso2.carbon", level = 0)
+@Configuration(namespace = "wso2.carbon", description = "Carbon Configuration Parameters")
 public class CarbonConfiguration {
 
-    @Element(name = "id", value = "carbon-kernel")
-    private String id = "carbon-kernel";
+    @Element(description = "value to uniquely identify a server", required = true, defaultValue = "carbon-kernel")
+    private String id;
 
-    @Element(name = "name", value = "WSO2 Carbon Kernel")
-    private String name = "WSO2 Carbon Kernel";
+    @Element(description = "server name", defaultValue = "WSO2 Carbon Kernel")
+    private String name;
 
-    @Element(name = "version", value = "5.0.0")
-    private String version = "5.0.0";
+    @Element(description = "server version", defaultValue = "5.2.0-SNAPSHOT")
+    private String version;
 
-    @Element(name = "tenant", value = "default")
+    @Ignore
     private String tenant = Constants.DEFAULT_TENANT;
 
-    @Reference(name = "ports", value = PortsConfig.class)
+    @Element(description = "ports used by this server")
     private PortsConfig ports = new PortsConfig();
 
-    @Reference(name = "deployment", value = DeploymentConfig.class)
+    @Element(description = "deployment engine related configurations")
     private DeploymentConfig deployment = new DeploymentConfig();
 
-    @Reference(name = "startupResolver", value = StartupResolverConfig.class)
+    @Element(description = "StartupOrderResolver related configurations")
     private StartupResolverConfig startupResolver = new StartupResolverConfig();
 
-    @Reference(name = "jmx", value = JMXConfiguration.class)
+    @Element(description = "JMX Configuration")
     private JMXConfiguration jmx = new JMXConfiguration();
 
     public String getId() {

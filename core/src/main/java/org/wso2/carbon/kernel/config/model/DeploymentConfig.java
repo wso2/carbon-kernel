@@ -24,17 +24,24 @@ import org.wso2.carbon.configuration.annotations.Element;
  *
  * @since 5.0.0
  */
-@Configuration(key = "deployment", level = 1)
+@Configuration(namespace = "deployment", description = "Deployment Engine related configurations")
 public class DeploymentConfig {
 
-    @Element(name = "schedule", value = "scheduled")
-    private DeploymentModeEnum mode = DeploymentModeEnum.scheduled;
+    @Element(description = "Currently there can be two modes\n" +
+            " 1. Scheduled Mode - (enable below property to \"scheduled\") - where the task runs periodically and " +
+            "trigger deployment\n" +
+            " 2. Triggered Mode - (enable below property to \"triggered\") - the deployment has to be triggered " +
+            "externally,\n" +
+            "  eg : in a worker node we don't need the task to run, but rather when we receive a cluster msg,\n" +
+            "the deployment has to be triggered manually.", defaultValue = "scheduled")
+    private DeploymentModeEnum mode;
 
-    @Element(name = "repositoryLocation", value = "${carbon.home}/deployment/")
-    private String repositoryLocation = "${carbon.home}/deployment/";
+    @Element(description = "Location of the artifact repository", defaultValue = "${carbon.home}/deployment/")
+    private String repositoryLocation;
 
-    @Element(name = "updateInterval", value = "15")
-    private int updateInterval = 15;
+    @Element(description = "Deployment update interval in seconds. This is the interval between repository listener " +
+            "executions.", defaultValue = "15")
+    private int updateInterval;
 
     public DeploymentModeEnum getMode() {
         return mode;

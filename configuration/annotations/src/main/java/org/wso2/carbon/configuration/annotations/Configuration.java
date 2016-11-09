@@ -28,8 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Configuration {
-
-    int level();
-
-    String key();
+    String namespace();
+    String description() default NULL;
+    public static final String NULL = "NULL";
 }

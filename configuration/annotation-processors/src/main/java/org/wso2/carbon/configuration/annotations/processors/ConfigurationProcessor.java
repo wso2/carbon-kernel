@@ -16,12 +16,12 @@
 package org.wso2.carbon.configuration.annotations.processors;
 
 import org.wso2.carbon.configuration.annotations.Configuration;
-import org.wso2.carbon.configuration.annotations.Reference;
+import org.wso2.carbon.configuration.annotations.Ignore;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,11 +30,12 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -42,11 +43,13 @@ import javax.tools.StandardLocation;
 /**
  * Configuration annotation processor extending AbstractProcessor
  *
- * @since 5.0.0
+ * @since 5.2.0
  */
 @SupportedAnnotationTypes("org.wso2.carbon.configuration.annotations.Configuration")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ConfigurationProcessor extends AbstractProcessor {
+
+    Map<String, String> descriptionMap = new LinkedHashMap<>();
 
     public ConfigurationProcessor() {
         super();
@@ -57,7 +60,7 @@ public class ConfigurationProcessor extends AbstractProcessor {
      * It reads all annotation values and set as the default values.
      *
      * @param annotations set of annotations
-     * @param roundEnv annotation object to process
+     * @param roundEnv    annotation object to process
      * @return return true if processing is completed, false otherwise
      */
     @Override
@@ -65,18 +68,28 @@ public class ConfigurationProcessor extends AbstractProcessor {
         Set<Element> configSet = (Set<Element>) roundEnv.getElementsAnnotatedWith(Configuration.class);
         for (Element element : configSet) {
             Configuration configuration = element.getAnnotation(Configuration.class);
-            if (configuration.level() == 0) {
-                Map<String, Object> finalMap = new HashMap<>();
-                finalMap.put(configuration.key(), readElementAnnotation(element, configSet));
+            if (configuration.namespace().startsWith("wso2")) {
+                Map<String, Object> finalMap = new LinkedHashMap<>();
+
+                if (!configuration.description().equals(Configuration.NULL)) {
+                    descriptionMap.put(configuration.namespace(), configuration.description());
+                    finalMap.put("comment-" + configuration.namespace(), createDescriptionComment(configuration
+                            .description()));
+                }
+                descriptionMap.put(configuration.namespace(), configuration.description());
+                finalMap.put(configuration.namespace(), readConfigurationElements(element, configSet));
                 Yaml yaml = new Yaml();
                 String content = yaml.dumpAsMap(finalMap);
+                content = content.replaceAll("comment.*", "");
+                content = content.replaceAll("(?m)^[ \t]*\r?\n", "");
                 Writer writer = null;
                 try {
                     FileObject file = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "",
-                            configuration.key() + ".yaml");
+                            configuration.namespace() + ".yaml");
                     content = content.replace("'", "");
                     writer = file.openWriter();
-                    writer.write(content);
+                    writer.write(createConfigurationDescription());
+                    writer.append(content);
                 } catch (IOException e) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
                 } finally {
@@ -92,44 +105,78 @@ public class ConfigurationProcessor extends AbstractProcessor {
         return true;
     }
 
-    private Map<String, Object> readElementAnnotation(Element element, Set<Element> configSet) {
-        Map<String, Object> elementMap = new HashMap<>();
-        for (Element child : element.getEnclosedElements()) {
-            org.wso2.carbon.configuration.annotations.Element childElem = child
-                    .getAnnotation(org.wso2.carbon.configuration.annotations.Element.class);
-            if (childElem != null) {
-                elementMap.put(childElem.name(), childElem.value());
-            } else {
-                if (child.getAnnotation(Reference.class) != null) {
-                    readReferenceAnnotation(configSet, elementMap, child);
-                }
+    private Map<String, Object> readConfigurationElements(Element element, Set<Element> configSet) {
+        Map<String, Object> elementMap = new LinkedHashMap<>();
+        List<VariableElement> fields = ElementFilter.fieldsIn(element.getEnclosedElements());
+        for (VariableElement field : fields) {
+            if (field.getAnnotation(Ignore.class) != null) {
+                continue;
             }
 
+            Element fieldElement = null;
+            TypeMirror fieldType = field.asType();
+
+            if (!fieldType.getKind().isPrimitive()) {
+                fieldElement = ((DeclaredType) fieldType).asElement();
+            }
+
+            if (fieldElement != null && configSet.contains(fieldElement)) {
+                Configuration configuration = fieldElement.getAnnotation(Configuration.class);
+                if (!configuration.description().equals(Configuration.NULL)) {
+                    descriptionMap.put(configuration.namespace(), configuration.description());
+                    elementMap.put("comment-" + configuration.namespace(), createDescriptionComment(configuration
+                            .description()));
+                }
+                elementMap.put(configuration.namespace(), readConfigurationElements(fieldElement, configSet));
+            } else {
+                org.wso2.carbon.configuration.annotations.Element fieldElem = field.getAnnotation(org.wso2.carbon
+                        .configuration.annotations.Element.class);
+                String description = "";
+                String defaultValue = "";
+                boolean required = false;
+                if (fieldElem != null) {
+                    description = fieldElem.description();
+                    defaultValue = fieldElem.defaultValue();
+                    required = fieldElem.required();
+
+                    if (!description.equals(org.wso2.carbon.configuration.annotations.Element.NULL)) {
+                        descriptionMap.put(field.getSimpleName().toString(), description);
+                        elementMap.put("comment-" + field.getSimpleName().toString(),
+                                createDescriptionComment(description));
+                    }
+                }
+                if (required) {
+                    defaultValue = defaultValue + " # THIS IS A MANDATORY FIELD";
+                }
+                elementMap.put(field.getSimpleName().toString(), defaultValue);
+            }
         }
         return elementMap;
     }
 
-    private void readReferenceAnnotation(Set<Element> configSet, Map<String, Object> elementMap, Element child) {
-        List<? extends AnnotationMirror> annotationMirrors = child.getAnnotationMirrors();
-        for (AnnotationMirror mirror : annotationMirrors) {
-            Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues
-                    = mirror.getElementValues();
-            String value = null;
-            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
-                    elementValues.entrySet()) {
-                if ("value".equals(entry.getKey().getSimpleName().toString())) {
-                    value = String.valueOf(entry.getValue());
-                }
-            }
-            if (value == null) {
-                continue;
-            }
-            for (Element elem : configSet) {
-                if (value.contains(elem.toString())) {
-                    Configuration configuration = elem.getAnnotation(Configuration.class);
-                    elementMap.put(configuration.key(), readElementAnnotation(elem, configSet));
-                }
-            }
+    private String createConfigurationDescription() {
+        Yaml yaml = new Yaml();
+        String content = yaml.dumpAsMap(descriptionMap);
+        String lines[] = content.split("\\r?\\n");
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("# Please read the comments related to below configuration before using them\n" +
+                "#\n");
+        for (String line : lines) {
+            builder.append("# " + line + "\n");
         }
+        builder.append("#\n")
+                .append("################################################################################\n");
+
+        return builder.toString();
+    }
+
+    private String createDescriptionComment(String description) {
+        StringBuilder builder = new StringBuilder();
+        String lines[] = description.split("\\r?\\n");
+        for (String line : lines) {
+            builder.append("# " + line + "\n");
+        }
+        return builder.toString();
     }
 }

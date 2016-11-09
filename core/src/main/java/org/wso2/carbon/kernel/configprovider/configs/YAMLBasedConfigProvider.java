@@ -22,14 +22,15 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.configprovider.DeploymentConfigProvider;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.kernel.configresolver.ConfigResolverUtils;
-import org.wso2.carbon.kernel.configresolver.configfiles.YAML;
-import org.yaml.snakeyaml.Yaml;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -42,8 +43,7 @@ public class YAMLBasedConfigProvider implements DeploymentConfigProvider {
         org.wso2.carbon.kernel.utils.Utils.checkSecurity();
         File configFile = ConfigurationUtils.getDeploymentYAMLLocation().toFile();
         try (FileInputStream fileInputStream = new FileInputStream(configFile)) {
-            YAML deploymentYaml = new YAML(fileInputStream, configFile.getName());
-            String yamlFileString = deploymentYaml.getContent();
+            String yamlFileString = getDeploymentContent(fileInputStream);
             yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
             String jsonString = ConfigResolverUtils.convertYAMLToJSON(yamlFileString);
             return getDeploymentConfigTable(jsonString);
@@ -55,14 +55,19 @@ public class YAMLBasedConfigProvider implements DeploymentConfigProvider {
     }
 
     private Hashtable<String, String> getDeploymentConfigTable(String jsonString) {
-        Yaml yaml = new Yaml();
         Hashtable<String, String> deploymentConfigs = new Hashtable<>();
         JSONObject jsonObject = new JSONObject(jsonString);
         for (Object key : jsonObject.keySet()) {
             String keyContent = jsonObject.get((String) key).toString();
-            Map map = yaml.loadAs(keyContent, Map.class);
-            deploymentConfigs.put((String) key, yaml.dumpAsMap(map));
+            deploymentConfigs.put((String) key, keyContent);
         }
         return deploymentConfigs;
+    }
+
+    private String getDeploymentContent(FileInputStream fileInputStream) throws IOException {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream,
+                StandardCharsets.UTF_8))) {
+            return bufferedReader.lines().collect(Collectors.joining("\n"));
+        }
     }
 }

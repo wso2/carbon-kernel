@@ -24,16 +24,16 @@ import org.wso2.carbon.configuration.annotations.Element;
  *
  * @since 5.1.0
  */
-@Configuration(key = "jmx", level = 1)
+@Configuration(namespace = "jmx", description = "JMX Configuration")
 public class JMXConfiguration {
-    @Element(name = "enabled", value = "false")
-    private boolean enabled;
-    @Element(name = "hostName", value = "127.0.0.1")
-    private String hostName;
-    @Element(name = "rmiServerPort", value = "11111")
-    private int rmiServerPort;
-    @Element(name = "rmiRegistryPort", value = "9999")
-    private int rmiRegistryPort;
+    @Element(description = "To enable JMX Monitoring, change this value to true", defaultValue = "false")
+    private boolean enabled = false;
+    @Element(description = "Server HostName", defaultValue = "127.0.0.1")
+    private String hostName = "127.0.0.1";
+    @Element(description = "The port RMI server should be exposed", defaultValue = "11111")
+    private int rmiServerPort = 11111;
+    @Element(description = "The port RMI registry is exposed", defaultValue = "9999")
+    private int rmiRegistryPort = 9999;
 
     public boolean isEnabled() {
         return enabled;

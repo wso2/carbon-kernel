@@ -24,11 +24,14 @@ import org.wso2.carbon.configuration.annotations.Element;
  *
  * @since 5.0.0
  */
-@Configuration(key = "ports", level = 1)
+@Configuration(namespace = "ports", description =
+        "Ports offset. This entry will set the value of the ports defined below to\n" +
+                "the define value + Offset.\n" +
+                "e.g. Offset=2 and HTTPS port=9443 will set the effective HTTPS port to 9445")
 public class PortsConfig {
 
-    @Element(name = "offset", value = "0")
-    private int offset = 0;
+    @Element(defaultValue = "0")
+    private int offset;
 
     public int getOffset() {
         return offset;

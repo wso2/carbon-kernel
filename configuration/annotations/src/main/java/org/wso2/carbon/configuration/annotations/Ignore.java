@@ -27,8 +27,5 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Reference {
-    String name();
-
-    Class<?> value();
+public @interface Ignore {
 }

@@ -32,10 +32,17 @@ public class CarbonCoreComponent {
         try {
             logger.debug("Activating CarbonCoreComponent");
 
-            // 1) Creates the CarbonRuntime instance using the Carbon configuration provider.
-            CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime();
+            // 1) Find to initialize the Carbon configuration provider
+//            CarbonConfigProvider configProvider = new YAMLBasedConfigProvider(DataHolder.getInstance()
+//                    .getOptConfigResolver().get());
 
-            // 2) Register CarbonRuntime instance as an OSGi bundle.
+            // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
+//            CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
+
+            // 1) Creates the CarbonRuntime instance using the Carbon configuration provider.
+             CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime();
+
+            // 3) Register CarbonRuntime instance as an OSGi bundle.
             DataHolder.getInstance().getBundleContext()
                     .registerService(CarbonRuntime.class.getName(), carbonRuntime, null);
 

@@ -28,7 +28,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Element {
-    String name();
+    String description() default NULL;
 
-    String value();
+    boolean required() default false;
+
+    String defaultValue() default NULL;
+
+    public static final String NULL = "NULL";
 }
