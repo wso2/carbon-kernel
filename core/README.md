@@ -3,12 +3,13 @@ From Carbon 5.0.0 Kernel onwards, we are providing a pluggable interface to add 
 
 ### Adding a new transport to the Carbon server
 Follow the steps given below to implement a new transport.
-Implement the CarbonTransport abstract class with the following methods:
 
-protected abstract void start();
-protected abstract void stop();
-protected abstract void beginMaintenance();
-protected abstract void endMaintenance();
+1. Implement the CarbonTransport abstract class with the following methods:
+
+  protected abstract void start();
+  protected abstract void stop();
+  protected abstract void beginMaintenance();
+  protected abstract void endMaintenance();
 
 Refer the carbon-transport project NettyListener implementation for more details and examples on how to extend the CarbonTransport and 
 write your own transport implementation.
