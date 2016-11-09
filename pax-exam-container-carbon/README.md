@@ -157,7 +157,7 @@ Follow the instructions given below when you write test cases for your Carbon co
  
  All of the above will return a list of options (org.ops4j.pax.exam.Option) that you have returned as an array. Note that you need to use the method inside @Configuration method (org.ops4j.pax.exam.Configuration).
  
- Example 1:   
+ *Example 1:*   
  
 		 import org.ops4j.pax.exam.Configuration;
 		import org.ops4j.pax.exam.Option;
@@ -168,3 +168,48 @@ Follow the instructions given below when you write test cases for your Carbon co
   		 List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
    		copyCarbonYAML();	//Custom method to change carbon.yml file
    		return optionList.toArray(new Option[optionList.size()]);
+		
+ *Example 2:*   
+ 
+		 import org.ops4j.pax.exam.Configuration;
+		import org.ops4j.pax.exam.Option;
+		import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+		…….
+		@Configuration
+		public Option[] createConfiguration() {
+  		 System.setProperty(Constants.TENANT_NAME, TEST_TENANT_NAME);
+  		 List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+  		 copyConfigFiles();
+  		 optionList.add(mavenBundle()
+          		 .artifactId("carbon-context-test-artifact")
+          		 .groupId("org.wso2.carbon")
+         		  .versionAsInProject());
+ 		  return optionList.toArray(new Option[optionList.size()]);
+		}
+
+3. The carbon.home (system property) should be set for OSGi tests. This location will vary depending on the repository that is used. Therefore, this property should be defined in the pom.xml of the OSGi test as shown below:
+
+		<build>
+		…….
+ 		  <plugins>
+		   …….
+		      <plugin>
+  		       <groupId>org.apache.maven.plugins</groupId>
+  		       <artifactId>maven-surefire-plugin</artifactId>
+   		      <configuration>
+  		          <systemProperties>
+  		             …….
+   		            <property>
+    		                <name>carbon.home</name>
+   		                 <value>${basedir}/target/wso2carbon-kernel-${project.version}</value>
+       		        </property>
+   		            …….
+      		      </systemProperties>
+     		    …….
+   		      </configuration>
+  		    …….
+ 		     </plugin>
+ 		  …….
+ 		  </plugins>
+		…….
+		</build>
