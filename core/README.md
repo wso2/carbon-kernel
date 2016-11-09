@@ -202,18 +202,18 @@ The following example illustrates how you can plug your own runtime and register
             org.wso2.carbon.tomcat.jndi.* 
         </private.package>
         <export.package>
-       !org.wso2.carbon.tomcat.internal.*,
-       org.wso2.carbon.tomcat.*,
-       org.wso2.carbon.tomcat.api.*,
-       org.wso2.carbon.tomcat.server.*; version="${project.version}"
-        </export.package>
-        <import.package>
-       org.apache.tomcat.*;version="[1.7.0,2.0.0)",
-       org.apache.catalina.*;version="[1.7.0,2.0.0)",
-       org.apache.naming.*;version="[1.7.0,2.0.0)",
-       *;resolution:=optional
-        </import.package>
-        </properties>
+                !org.wso2.carbon.tomcat.internal.*,
+                org.wso2.carbon.tomcat.*,
+                org.wso2.carbon.tomcat.api.*,
+                org.wso2.carbon.tomcat.server.*; version="${project.version}"
+                </export.package>
+                <import.package>
+                org.apache.tomcat.*;version="[1.7.0,2.0.0)",
+                org.apache.catalina.*;version="[1.7.0,2.0.0)",
+                org.apache.naming.*;version="[1.7.0,2.0.0)",
+                *;resolution:=optional
+                </import.package>
+                </properties>
 
 ### Testing your New Runtime
 
