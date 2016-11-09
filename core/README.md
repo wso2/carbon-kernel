@@ -51,7 +51,9 @@ An OSGi listener component is defined as shown below.
         requiredService=”org.wso2.carbon.kernel.transports.CarbonTransport”;
 
  *startup.listener:* Marks this component as a startup listener.
+ 
  *componentName:* This is a unique name to identify the component. Each and every startup listener component should have a unique name.
+ 
  *requiredService:* A comma separated list of OSGi service keys. These are the OSGi services that the listener component should wait for. That is, the startup listener component should hold it’s initialization until all the services of specified keys are available.
 
 2. The startup order resolver notifies a startup listener component when all the required services are available. In order to get this notification, the startup listener component should register an OSGi service with the following interface: org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener.
