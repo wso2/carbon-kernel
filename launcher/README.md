@@ -107,8 +107,8 @@ osgi.instance.area	The instance data location for this session. Plug-ins use thi
 
 During the server startup process, the launcher component uses the java-util-logging API to publish records to the product startup console or the <CARBON_HOME>/logs/carbon.log file. Bootstrap logger maintains two separate handlers: 
 
-    ConsoleLogHandler for configuring java.util.logging, which appends to the Carbon console. This can be used for bootstrap logging via java.util.logging prior to the startup of pax logging.
+ ConsoleLogHandler for configuring java.util.logging, which appends to the Carbon console. This can be used for bootstrap logging via java.util.logging prior to the startup of pax logging.
 
-    FileLogHandler for configuring java.util.logging, which appends to the wso2carbon.log file. This could be used for bootstrap logging prior to framework startup.
+ FileLogHandler for configuring java.util.logging, which appends to the wso2carbon.log file. This could be used for bootstrap logging prior to framework startup.
 
 For instructions on how to configure this logging facility, see the documentation on monitoring Carbon startup logs.
