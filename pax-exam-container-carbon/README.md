@@ -133,10 +133,10 @@ Follow the instructions given below when you write test cases for your Carbon co
 
  Using Dependency Injection, your test method can access the BundleContext of the probe bundle or any service obtained from the OSGi service registry.
  
-	@Inject
-	private BundleContext bundleContext;
+		@Inject
+		private BundleContext bundleContext;
 
  Alternatively, you can directly access the OSGi services using the following:
  
-	 @Inject
-	private SomeSampleOsgiService service; 
+		 @Inject
+		private SomeSampleOsgiService service; 
