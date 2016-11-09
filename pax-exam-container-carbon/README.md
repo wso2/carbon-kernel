@@ -155,4 +155,16 @@ Follow the instructions given below when you write test cases for your Carbon co
 	
  This method is used to set a systemproperty such as 'carbon home', 'server key', 'server name' and 'server version' while using the default (minimum) Pax Exam options required to start the server.
  
-All of the above will return a list of options (org.ops4j.pax.exam.Option) that you have returned as an array. Note that you need to use the method inside @Configuration method (org.ops4j.pax.exam.Configuration).
+ All of the above will return a list of options (org.ops4j.pax.exam.Option) that you have returned as an array. Note that you need to use the method inside @Configuration method (org.ops4j.pax.exam.Configuration).
+ 
+ Example 1:   
+ 
+	 import org.ops4j.pax.exam.Configuration;
+	import org.ops4j.pax.exam.Option;
+	import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+	…….
+	@Configuration
+	public Option[] createConfiguration() {
+  	 List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+   	copyCarbonYAML();	//Custom method to change carbon.yml file
+   	return optionList.toArray(new Option[optionList.size()]);
