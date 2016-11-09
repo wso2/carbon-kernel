@@ -120,8 +120,7 @@ In order to solve this problem, we have introduced an interface called Capabilit
 
  1. You can register the OSGi service as shown below.
 
-    public class HTTPTransportProvider implements CapabilityProvider {
-    
+        public class HTTPTransportProvider implements CapabilityProvider {   
         @Override
         public int getCount() {
             return 4;
