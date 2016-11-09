@@ -39,14 +39,4 @@ As mentioned in the Pax Exam Configuration Documentation, Pax Exam starts the OS
 
 2. Update the pom.xml of your Carbon component with the following dependencies:
 
-Dependency for OSGi Test Utils:
-
-    <dependency>
-       <groupId>org.wso2.carbon</groupId>
-       <artifactId>osgi-test-util</artifactId>
-       <version>5.1.0</version>
-    </dependency>
-
-Other required dependencies for your component.
-
 3. Optionally, you can change the default log level in Pax Exam (which is 'debug') by adding the “org.ops4j.pax.logging.DefaultServiceLog.level” system property to the pom.xml file of the OSGi test component as shown below.
