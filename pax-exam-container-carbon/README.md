@@ -159,12 +159,12 @@ Follow the instructions given below when you write test cases for your Carbon co
  
  Example 1:   
  
-	 import org.ops4j.pax.exam.Configuration;
-	import org.ops4j.pax.exam.Option;
-	import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-	…….
-	@Configuration
-	public Option[] createConfiguration() {
-  	 List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
-   	copyCarbonYAML();	//Custom method to change carbon.yml file
-   	return optionList.toArray(new Option[optionList.size()]);
+		 import org.ops4j.pax.exam.Configuration;
+		import org.ops4j.pax.exam.Option;
+		import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+		…….
+		@Configuration
+		public Option[] createConfiguration() {
+  		 List<Option> optionList = OSGiTestConfigurationUtils.getConfiguration();
+   		copyCarbonYAML();	//Custom method to change carbon.yml file
+   		return optionList.toArray(new Option[optionList.size()]);
