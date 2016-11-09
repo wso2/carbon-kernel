@@ -63,12 +63,12 @@ An OSGi listener component is defined as shown below.
       public class TransportStartupListener implements RequiredCapabilityListener {
     
       @Override
-     public void onAllRequiredCapabilitiesAvailable() {
-        // This method is invoked by the startup 
-           order resolver when all the required 
-           services are available
-        }
-        }
+        public void onAllRequiredCapabilitiesAvailable() {
+           // This method is invoked by the startup 
+              order resolver when all the required 
+               services are available
+           }
+           }
 
   Shown below is how you register the RequiredCapabilityListener implementation given above as an OSGi service in your BundleActivator.
 
