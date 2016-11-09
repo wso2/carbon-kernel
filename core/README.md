@@ -97,6 +97,7 @@ The startup order resolver identifies an OSGi service component from the followi
     objectClass=”org.wso2.carbon.kernel.transports.CarbonTransport”
     
  *osgi.service:* This property marks this component as an OSGi service component.
+ 
  *objectClass:* This property indicates the type of OSGi service that will be registered by the component. 
 
 Please note that all components that register OSGi services do not need to include this manifest header. You need to include this header only if there are other components waiting for your OSGi service. For example, the Transport Manager component waits for all the transport OSGi services. If you are developing a transport, you need to put this header into your bundle’s MANIFEST.MF.
