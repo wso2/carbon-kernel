@@ -40,11 +40,12 @@ As mentioned in the Pax Exam Configuration Documentation, Pax Exam starts the OS
 2. Update the pom.xml of your Carbon component with the following dependencies:
 
  Dependency for OSGi Test Utils:
- <dependency>
-   <groupId>org.wso2.carbon</groupId>
-   <artifactId>osgi-test-util</artifactId>
-   <version>5.1.0</version>
-</dependency>
+ 
+        <dependency>
+         <groupId>org.wso2.carbon</groupId>
+         <artifactId>osgi-test-util</artifactId>
+         <version>5.1.0</version>
+        </dependency>
  
  Other required dependencies for your component.
 
