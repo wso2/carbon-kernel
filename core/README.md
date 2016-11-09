@@ -90,12 +90,12 @@ The following example illustrates how you can plug your own runtime and register
         carbonTomcatService = new CarbonTomcatService();
         carbonTomcatService.configure(catalinaHome, inputStream);
         state = RuntimeState.INACTIVE;
-    }
+         }
 
-        /**
-     * starting the a carbonTomcatService instance in a new thread. Otherwise activator gets blocked.
-     */
-        @Override
+         /**
+        * starting the a carbonTomcatService instance in a new thread. Otherwise activator gets blocked.
+        */
+         @Override
         public synchronized void start() {
         new Thread(new Runnable() {
             public void run() {
@@ -108,7 +108,7 @@ The following example illustrates how you can plug your own runtime and register
                 }
             }
         }).start();
-    }
+        }
 
         /**
      * stopping the carbonTomcatService instance
