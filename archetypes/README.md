@@ -23,14 +23,14 @@ Follow the steps given below to see how a Carbon component is generated using th
 
 1. Execute the following command:
 
-       mvn archetype:generate 
-       -DarchetypeGroupId=org.wso2.carbon 
-       -DarchetypeArtifactId=org.wso2.carbon.archetypes.component
-       -DarchetypeVersion=5.0.0  
-       -DgroupId=org.sample 
-       -DartifactId=org.sample.project 
-       -Dversion=1.0.0 
-       -Dpackage=org.sample.project
+        mvn archetype:generate 
+        -DarchetypeGroupId=org.wso2.carbon 
+        -DarchetypeArtifactId=org.wso2.carbon.archetypes.component
+        -DarchetypeVersion=5.0.0  
+        -DgroupId=org.sample 
+        -DartifactId=org.sample.project 
+        -Dversion=1.0.0 
+        -Dpackage=org.sample.project
        
  In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (org.wso2.carbon.archetypes.component). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
  
