@@ -13,28 +13,28 @@ You can change the default Pax Exam configurations by following the steps given 
 1. Change the pax.exam.system property in the pom.xml file of the OSGi test component from 'test' to 'default' as shown below. 
 As mentioned in the Pax Exam Configuration Documentation, Pax Exam starts the OSGi container in 'test' mode with a standard set of options that are compatible with Pax Exam 2.3.0. This setting will provision only the default set of bundles listed here for your component. Therefore, using the 'default' mode allows you to add other dependencies for your component, in addition to the default bundles.
 
-    <build>
-    …….
-       <plugins>
-       …….
-          <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-surefire-plugin</artifactId>
-             <configuration>
-                <systemPropertyVariables>
-                   …….
-                   <pax.exam.system>default</pax.exam.system>
-                   …….
-                </systemPropertyVariables>
-                   …….
-                <systemProperties>
-             …….
-             </configuration>
-          …….
-          </plugin>
-       …….
-       </plugins>
-    …….
-    </build>
+        <build>
+        …….
+           <plugins>
+           …….
+              <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-surefire-plugin</artifactId>
+                 <configuration>
+                    <systemPropertyVariables>
+                       …….
+                       <pax.exam.system>default</pax.exam.system>
+                       …….
+                    </systemPropertyVariables>
+                       …….
+                    <systemProperties>
+                 …….
+                 </configuration>
+              …….
+              </plugin>
+           …….
+           </plugins>
+        …….
+        </build>
 
 2. Update the pom.xml of your Carbon component with the following dependencies:
