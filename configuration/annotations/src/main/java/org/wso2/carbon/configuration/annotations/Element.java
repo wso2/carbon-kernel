@@ -30,6 +30,6 @@ import java.lang.annotation.Target;
 public @interface Element {
     String description() default NULL;
     boolean required() default false;
-    String defaultValue() default NULL;
+    String defaultValue() default "";
     public static final String NULL = "NULL";
 }

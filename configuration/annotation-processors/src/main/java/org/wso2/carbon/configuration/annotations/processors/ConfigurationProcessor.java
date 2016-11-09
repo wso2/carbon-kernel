@@ -49,7 +49,28 @@ import javax.tools.StandardLocation;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ConfigurationProcessor extends AbstractProcessor {
 
-    Map<String, String> descriptionMap = new LinkedHashMap<>();
+    private static final String LICENSE_HEADER =
+            "################################################################################\n" +
+            "#   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.\n" +
+            "#\n" +
+            "#   Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+            "#   you may not use this file except in compliance with the License.\n" +
+            "#   You may obtain a copy of the License at\n" +
+            "#\n" +
+            "#   http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "#\n" +
+            "#   Unless required by applicable law or agreed to in writing, software\n" +
+            "#   distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+            "#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+            "#   See the License for the specific language governing permissions and\n" +
+            "#   limitations under the License.\n" +
+            "################################################################################\n";
+    private static final String COMMENT_KEY_PREFIX = "comment-";
+    private static final String COMMENT_KEY_REGEX_PATTERN = COMMENT_KEY_PREFIX + ".*";
+    private static final String EMPTY_LINE_REGEX_PATTERN = "(?m)^[ \t]*\r?\n";
+    private static final String YAML_FILE_EXTENTION = ".yaml";
+    private static final String MANDATORY_FIELD_COMMENT = " # THIS IS A MANDATORY FIELD";
+    private static final String NEW_LINE_REGEX_PATTERN = "\\r?\\n";
 
     public ConfigurationProcessor() {
         super();
@@ -72,23 +93,21 @@ public class ConfigurationProcessor extends AbstractProcessor {
                 Map<String, Object> finalMap = new LinkedHashMap<>();
 
                 if (!configuration.description().equals(Configuration.NULL)) {
-                    descriptionMap.put(configuration.namespace(), configuration.description());
-                    finalMap.put("comment-" + configuration.namespace(), createDescriptionComment(configuration
+                    finalMap.put(COMMENT_KEY_PREFIX + configuration.namespace(), createDescriptionComment(configuration
                             .description()));
                 }
-                descriptionMap.put(configuration.namespace(), configuration.description());
                 finalMap.put(configuration.namespace(), readConfigurationElements(element, configSet));
                 Yaml yaml = new Yaml();
                 String content = yaml.dumpAsMap(finalMap);
-                content = content.replaceAll("comment.*", "");
-                content = content.replaceAll("(?m)^[ \t]*\r?\n", "");
+                content = content.replaceAll(COMMENT_KEY_REGEX_PATTERN, "");
+                content = content.replaceAll(EMPTY_LINE_REGEX_PATTERN, "");
                 Writer writer = null;
                 try {
                     FileObject file = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "",
-                            configuration.namespace() + ".yaml");
+                            configuration.namespace() + YAML_FILE_EXTENTION);
                     content = content.replace("'", "");
                     writer = file.openWriter();
-                    writer.write(createConfigurationDescription());
+                    writer.write(LICENSE_HEADER);
                     writer.append(content);
                 } catch (IOException e) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
@@ -123,9 +142,8 @@ public class ConfigurationProcessor extends AbstractProcessor {
             if (fieldElement != null && configSet.contains(fieldElement)) {
                 Configuration configuration = fieldElement.getAnnotation(Configuration.class);
                 if (!configuration.description().equals(Configuration.NULL)) {
-                    descriptionMap.put(configuration.namespace(), configuration.description());
-                    elementMap.put("comment-" + configuration.namespace(), createDescriptionComment(configuration
-                            .description()));
+                    elementMap.put(COMMENT_KEY_PREFIX + configuration.namespace(), createDescriptionComment
+                            (configuration.description()));
                 }
                 elementMap.put(configuration.namespace(), readConfigurationElements(fieldElement, configSet));
             } else {
@@ -140,13 +158,12 @@ public class ConfigurationProcessor extends AbstractProcessor {
                     required = fieldElem.required();
 
                     if (!description.equals(org.wso2.carbon.configuration.annotations.Element.NULL)) {
-                        descriptionMap.put(field.getSimpleName().toString(), description);
-                        elementMap.put("comment-" + field.getSimpleName().toString(),
+                        elementMap.put(COMMENT_KEY_PREFIX + field.getSimpleName().toString(),
                                 createDescriptionComment(description));
                     }
                 }
                 if (required) {
-                    defaultValue = defaultValue + " # THIS IS A MANDATORY FIELD";
+                    defaultValue = defaultValue + MANDATORY_FIELD_COMMENT;
                 }
                 elementMap.put(field.getSimpleName().toString(), defaultValue);
             }
@@ -154,26 +171,9 @@ public class ConfigurationProcessor extends AbstractProcessor {
         return elementMap;
     }
 
-    private String createConfigurationDescription() {
-        Yaml yaml = new Yaml();
-        String content = yaml.dumpAsMap(descriptionMap);
-        String lines[] = content.split("\\r?\\n");
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("# Please read the comments related to below configuration before using them\n" +
-                "#\n");
-        for (String line : lines) {
-            builder.append("# " + line + "\n");
-        }
-        builder.append("#\n")
-                .append("################################################################################\n");
-
-        return builder.toString();
-    }
-
     private String createDescriptionComment(String description) {
         StringBuilder builder = new StringBuilder();
-        String lines[] = description.split("\\r?\\n");
+        String lines[] = description.split(NEW_LINE_REGEX_PATTERN);
         for (String line : lines) {
             builder.append("# " + line + "\n");
         }
