@@ -16,6 +16,7 @@ Things get complicated when you think about other dependencies of the Microservi
 
   1. The Microservice Manager component should only be initialized after all the required microservices are registered.
   2. The Transport Manager component should only be initialized:
+  
         a. after the Microservice Manager component is fully initialized.
         b. after all the transport services are registered from individual bundles during the server startup. For example, the HTTPS transport bundle registers a transport as an OSGi service. There are five such transport bundles shown in the above figure. Therefore, during server startup, you can expect five different OSGi services of type 'transport'. Now, the Transport Manager has to wait until all five OSGi services are available.
        
