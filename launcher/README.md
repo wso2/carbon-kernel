@@ -56,3 +56,59 @@ Shown below are the default properties given in the launch.properties file.
     org.eclipse.equinox.simpleconfigurator.configUrl=file\:org.eclipse.equinox.simpleconfigurator/bundles.info
  
     #carbon.server.listeners=
+
+The properties in the launch.properties file are explained below.
+
+Property	Description
+carbon.osgi.repository=file\:osgi	The location of the OSGi repository for Carbon kernel.
+carbon.osgi.framework=file\:plugins/org.eclipse.osgi_3.10.2.v20150203-1939.jar	This property specifies the OSGi framework implementation bundle, which starts during the Carbon server startup.
+carbon.initial.osgi.bundles=\file\:plugins/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar@1\:true
+Set of bundles (in a comma separated list) that need to be populated when starting the server. This allows a preferred runtime implementation of the OSGi framework to be plugged.
+carbon.server.listeners=org.wso2.carbon.launcher.extensions.DropinsBundleDeployer	
+The Carbon server listeners (in a comma separated list) that get notified when the server startup and server stop events are executed. You can add new Carbon server listeners by implementing the org.wso2.carbon.launcher.CarbonServerListener interface.
+org.osgi.framework.startlevel.beginning=10	The initial start level of the framework once it begins execution.
+osgi.install.area	The location where the platform is installed. This setting indicates the location of the basic Eclipse plug-ins, which are used by the OSGi runtime during installation.
+osgi.configuration.area	The configuration location for this platform runtime. The configuration determines the location where the OSGi runtime should store configuration information about the bundles you install during run time.
+osgi.instance.area	The instance data location for this session. Plug-ins use this location to store their data eg:workspace
+
+### Server startup process
+
+1. Before loading the configurations from the launch configuration (launch.properties) file, as the first step the required system properties (eg: carbon.home, profile) will be initialized and verified.
+2. The default launch configuration from the classpath will be loaded, followed by the configurations in the launch.properties file. This process completes after initializing the required properties from the property list and registering Carbon server listeners and OSGi runtime implementations.
+3. Starts the carbon server that launches the OSGi framework and loads all the bundles. The Carbon server is now completely started.
+4. Based on the loaded configurations, an OSGi framework instance (which is an installed bundled) is created. This framework instance is then initialized, started and all the bundles are resolved if their requirements can be satisfied.
+5. Bundles (read from the launch.properties file with key “carbon.initial.osgi.bundles”) are then installed in the bundle's execution context within the framework. This enables bundles to interact with the framework.
+6. Carbon server listeners will be notified during the server start and server stop events.
+
+ A Carbon Server Listener is an extension point that may be implemented by a Carbon developer. This can be done by implementing the notify() method of the org.wso2.carbon.launcher.CarbonServerListener interface. This is a useful feature for scenarios where you need to perform certain tasks before launching the OSGi framework as well as after the OSGi framework shuts down. These listeners will get notified before initializing the OSGi framework and after shutting down the OSGi framework. You can register Carbon listener implementations in the launch.properties with the key “carbon.server.listeners”.
+
+ Shown below is how a Carbon Server Listener is implemented.
+ 
+        /**
+        * This is an interface which may be implemented by a Carbon developer to get notified of the Carbon server startup and
+         * the Carbon server shutdown. These listener implementations will get notified before launching the OSGi framework
+         * as well as after shutting down the OSGi framework. CarbonServer notifies these listeners synchronously.
+         *
+        * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
+         * launch.properties file. This property accepts a list of comma separated fully qualified class names.
+        */
+        public interface CarbonServerListener {
+          /**
+           * Receives notification of a CarbonServerEvent.
+           *
+            * @param event CarbonServerEvent
+            */
+            public void notify(CarbonServerEvent event);
+            }
+            
+7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
+
+### Server startup logs
+
+During the server startup process, the launcher component uses the java-util-logging API to publish records to the product startup console or the <CARBON_HOME>/logs/carbon.log file. Bootstrap logger maintains two separate handlers: 
+
+    ConsoleLogHandler for configuring java.util.logging, which appends to the Carbon console. This can be used for bootstrap logging via java.util.logging prior to the startup of pax logging.
+
+    FileLogHandler for configuring java.util.logging, which appends to the wso2carbon.log file. This could be used for bootstrap logging prior to framework startup.
+
+For instructions on how to configure this logging facility, see the documentation on monitoring Carbon startup logs.
