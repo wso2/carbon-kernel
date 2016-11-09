@@ -60,6 +60,7 @@ To manually update the bundles.info file:
 2. Run the dropins tool by executing the following script:
 
       *On Unix:* sh dropins.sh [Carbon_Profile]
+      
       *On Windows:* dropins.bat [Carbon_Profile]
       
 Note that Carbon_Profile should be replaced with the name of the required Carbon profile. The bundles.info file of this profile will be updated as a result. You can use the ‘ALL’ keyword for the Carbon_Profile if you want to update the bundles.info files of all Carbon profiles. For example, use sh dropins.sh ALL.
