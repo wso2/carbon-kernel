@@ -110,50 +110,50 @@ The following example illustrates how you can plug your own runtime and register
         }).start();
         }
 
-        /**
-     * stopping the carbonTomcatService instance
-     */
-        @Override
-        public void stop() {
-        try {
-            carbonTomcatService.stop();
-            state = RuntimeState.INACTIVE;
-        } catch (LifecycleException e) {
-            log.error("Error while stopping carbonTomcatService", e);
-        }
-        }
+         /**
+         * stopping the carbonTomcatService instance
+        */
+                @Override
+                public void stop() {
+                try {
+                 carbonTomcatService.stop();
+                 state = RuntimeState.INACTIVE;
+                 } catch (LifecycleException e) {
+                log.error("Error while stopping carbonTomcatService", e);
+                }
+                }
 
-        @Override
-        public void startMaintenance() {
-        // work specific to startMaintenance
-        state = RuntimeState.MAINTENANCE;
-        }
-        @Override
-        public void stopMaintenance() {
-        // work specific to stopMaintenance
-        state = RuntimeState.INACTIVE;
-        }
+                 @Override
+                public void startMaintenance() {
+                // work specific to startMaintenance
+                state = RuntimeState.MAINTENANCE;
+                 }
+                @Override
+                public void stopMaintenance() {
+                // work specific to stopMaintenance
+                state = RuntimeState.INACTIVE;
+                }
 
-        @Override
-        public Enum<RuntimeState> getState() {
-        return state;
-        }
+                @Override
+                public Enum<RuntimeState> getState() {
+                return state;
+                }
 
-        @Override
-        public void setState(RuntimeState runtimeState) {
-        this.state = runtimeState;
-        }
+                @Override
+                public void setState(RuntimeState runtimeState) {
+                this.state = runtimeState;
+                }
 
-        /**
-     * we are not expecting others to access this service. The only use case would be activator.
-     * hence package private access modifier
-     *
-     * @return
-     */
-        CarbonTomcatService getTomcatInstance() {
-        return carbonTomcatService;
-        }
-        }
+                /**
+                * we are not expecting others to access this service. The only use case would be activator.
+                * hence package private access modifier
+                *
+                * @return
+                */
+                CarbonTomcatService getTomcatInstance() {
+                return carbonTomcatService;
+                }
+                }
 
 3. Write a bundle activator for the above runtime as shown below.
 
