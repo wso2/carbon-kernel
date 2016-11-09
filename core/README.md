@@ -191,7 +191,7 @@ The following example illustrates how you can plug your own runtime and register
         serviceRegistration.unregister();
         tomcatRuntime = null;
         }
-    }
+        }
 
 4. Once the above points are addressed in your project, we need to add the Maven bundle plugin properties to generate the component-level metadata for scr annotations and bundle info. An example of the POM file is given below. The packaging should be 'bundle' in the pom.xml.
 
@@ -213,7 +213,7 @@ The following example illustrates how you can plug your own runtime and register
        org.apache.naming.*;version="[1.7.0,2.0.0)",
        *;resolution:=optional
         </import.package>
-    </properties>
+        </properties>
 
 ### Testing your New Runtime
 
