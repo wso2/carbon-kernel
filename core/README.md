@@ -136,8 +136,8 @@ In order to solve this problem, we have introduced an interface called Capabilit
 
  3. Shown below is how you can register the CapabilityProvider implementation shown above as an OSGi service in your BundleActivator.
 
-        public class HTTPBundleActivator implements BundleActivator {
-        public void start(BundleContext bundleContext)
+          public class HTTPBundleActivator implements BundleActivator {
+          public void start(BundleContext bundleContext)
                 throws Exception {
 
             Dictionary<String, String> properties = new Hashtable<>();
