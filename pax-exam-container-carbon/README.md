@@ -81,11 +81,11 @@ Follow the instructions given below when you write test cases for your Carbon co
 
 1. Start writing your test case as shown in the sample test case given below. From this sample, you can see that the test case is similar to a normal test case while it contains some annotations related to Pax Exam.
 
-Pax Exam will boot the OSGi framework with the necessary bundles for your test environment. You have to use the @RunWith(PaxExam.class) annotation to hook Pax Exam into testing. Pax Exam will then set up a test container with an OSGi framework and your bundles to run the tests.
+ Pax Exam will boot the OSGi framework with the necessary bundles for your test environment. You have to use the @RunWith(PaxExam.class) annotation to hook Pax Exam into testing. Pax Exam will then set up a test container with an OSGi framework and your bundles to run the tests.
 
-Be sure to inject the carbonServerInfo service when you write your test case. Without this service, the framework will not fully start. The sample test case shown below illustrates how this service is injected. 
+ Be sure to inject the carbonServerInfo service when you write your test case. Without this service, the framework will not fully start. The sample test case shown below illustrates how this service is injected. 
 
-*Sample test case:* 
+ *Sample test case:* 
 
         package org.wso2.carbon.osgi;
 
