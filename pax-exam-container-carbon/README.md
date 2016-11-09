@@ -74,3 +74,59 @@ As mentioned in the Pax Exam Configuration Documentation, Pax Exam starts the OS
          </plugins>
         …….
         </build>
+
+#### *Step 2: Writing test cases for the Carbon component*
+
+Follow the instructions given below when you write test cases for your Carbon component.
+
+1. Start writing your test case as shown in the sample test case given below. From this sample, you can see that the test case is similar to a normal test case while it contains some annotations related to Pax Exam.
+
+Pax Exam will boot the OSGi framework with the necessary bundles for your test environment. You have to use the @RunWith(PaxExam.class) annotation to hook Pax Exam into testing. Pax Exam will then set up a test container with an OSGi framework and your bundles to run the tests.
+
+Be sure to inject the carbonServerInfo service when you write your test case. Without this service, the framework will not fully start. The sample test case shown below illustrates how this service is injected. 
+
+*Sample test case:* 
+
+        package org.wso2.carbon.osgi;
+
+        import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+        import org.ops4j.pax.exam.spi.reactors.PerClass;
+        import org.ops4j.pax.exam.testng.listener.PaxExam;
+        import org.osgi.framework.Bundle;
+        import org.osgi.framework.BundleContext;
+        import org.testng.Assert;
+        import org.testng.annotations.Listeners;
+        import org.testng.annotations.Test;
+
+        import javax.inject.Inject;
+
+        @Listeners(PaxExam.class)
+        @ExamReactorStrategy(PerClass.class)
+        public class BaseOSGiTest {
+
+        @Inject
+        private BundleContext bundleContext;
+
+         @Inject
+        private CarbonServerInfo carbonServerInfo;
+
+	        @Test
+        public void testBundleContextStatus() {
+          Assert.assertNotNull(bundleContext, "Bundle Context is null");
+         }
+
+        @Test
+        public void testCarbonCoreBundleStatus() {
+
+          Bundle coreBundle = null;
+         for (Bundle bundle : bundleContext.getBundles()) {
+                if (bundle.getSymbolicName().equals("org.wso2.carbon.core")) {
+                 coreBundle = bundle;
+                 break;
+                }
+          }
+         Assert.assertNotNull(coreBundle, "Carbon Core bundle not found");
+         Assert.assertEquals(coreBundle.getState(), Bundle.ACTIVE, "Carbon Core
+                                                             Bundle  is not activated") ;
+        }
+        }
