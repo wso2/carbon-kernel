@@ -408,5 +408,6 @@ This is the ReadWrite API, which is secured using java security permission. This
 
 As shown above, the PrivilegedCarbonContext class is used to set the following information:
 
- *The User Principal value.*
- *Property values.*
+ The User Principal value.
+
+ Property values.
