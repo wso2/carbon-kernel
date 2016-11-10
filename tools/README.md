@@ -107,3 +107,13 @@ Given below are the steps for developing a sample custom tool.
 		// the tool execution implementation goes here
     		}
 		}
+
+2. To make sure that the custom tool is executable, you need to initialize it within the executeTool(String toolIdentifier, String... toolArgs) method of the org.wso2.carbon.tools.CarbonToolExecutor Java class. The tool identifier in this example is custom-tool, which is indicated using the case property.
+
+		case “custom-tool”:
+		carbonTool = new CustomTool();
+		break;
+		
+3. Create a shell script or a batch file that executes the org.wso2.carbon.tools*.jar file that is stored in the <CARBON_HOME>/bin/bootstrap/tools directory. Make sure that the wso2.carbon.tool system property is set to the custom-tool identifier (which corresponds to the case value you specified in step 2).
+
+		-Dwso2.carbon.tool="custom-tool"
