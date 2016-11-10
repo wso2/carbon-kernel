@@ -18,7 +18,7 @@ The folder structure within the OSGi bundle is as follows:
 * **p2.inf**
 * **original_jar_file.jar**
 
-This functionality was previously implemented (for example in wso2/carbon-kernel master 4.5.0) as part of the https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server module and was executed during server startup. However, with the increasing need to improve the server startup time, we have decided to separate this functionality from the https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server module and integrate it to the WSO2 Carbon 5.x.x platform as a separate tool under the freshly introduced https://github.com/wso2/carbon-kernel/tree/master/tools module.
+> This functionality was previously implemented (for example in wso2/carbon-kernel master 4.5.0) as part of the https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server module and was executed during server startup. However, with the increasing need to improve the server startup time, we have decided to separate this functionality from the https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server module and integrate it to the WSO2 Carbon 5.x.x platform as a separate tool under the freshly introduced https://github.com/wso2/carbon-kernel/tree/master/tools module.
 
 ## To convert JARs to OSGi bundles:
 
@@ -31,7 +31,7 @@ The 'Jar to Bundle Converter' tool that is shipped with Carbon Kernel can be exe
 * In a Unix system:  sh jartobundle.sh [source jar file/source directory containing jar files] [destination directory] 
 * Windows platform: jartobundle.bat [source jar file/source directory containing jar files] [destination directory]
 
-Restrictions: Note that the required file permissions are considered when reading source JARs and the destination directory.
+> Restrictions: Note that the required file permissions are considered when reading source JARs and the destination directory.
 
 # Dropins Support for OSGi Bundles
 
