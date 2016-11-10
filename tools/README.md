@@ -95,16 +95,15 @@ Given below are the steps for developing a sample custom tool.
 
 1. You must implement the org.wso2.carbon.tools.CarbonTool Java interface in order to develop your custom tool. Given below is an example that implements a tool named CustomTool.
 
-public class CustomTool implements CarbonTool {
+		public class CustomTool implements CarbonTool {
   
-   /**
-    * Executes the WSO2 Custom Tool based on the specified arguments.
-    *
-    * @param toolArgs the arguments required for the tool execution
-    */
-   @Override
-   public void execute(String... toolArgs) {
-	// the tool execution implementation goes here
-    }
-
-}
+   		/**
+   		 * Executes the WSO2 Custom Tool based on the specified arguments.
+    		*
+    		* @param toolArgs the arguments required for the tool execution
+    		*/
+   		@Override
+   		public void execute(String... toolArgs) {
+		// the tool execution implementation goes here
+    		}
+		}
