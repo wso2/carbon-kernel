@@ -20,7 +20,7 @@ The folder structure within the OSGi bundle is as follows:
 
 > This functionality was previously implemented (for example in wso2/carbon-kernel master 4.5.0) as part of the https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server module and was executed during server startup. However, with the increasing need to improve the server startup time, we have decided to separate this functionality from the https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server module and integrate it to the WSO2 Carbon 5.x.x platform as a separate tool under the freshly introduced https://github.com/wso2/carbon-kernel/tree/master/tools module.
 
-## To convert JARs to OSGi bundles:
+### To convert JARs to OSGi bundles:
 
 The 'Jar to Bundle Converter' tool that is shipped with Carbon Kernel can be executed to convert the desired Java archive (.jar) file(s) to their corresponding OSGi bundle form, at a desired destination in the file system. You can execute the relevant script using the following steps:
 
@@ -39,11 +39,11 @@ The Dropins capability allows you to apply new OSGi bundles by simply adding the
 
 The server uses the information in the bundles.info file of the relevant profile to install and start the OSGi bundles from the dropins directory. Therefore, when you add new OSGi bundles to the dropins directory, the bundles.info file (relevant to the profile) should be updated. There are two ways of updating this file as follows:
 
-## Update the bundles.info file during server launch
+### Update the bundles.info file during server launch
 
 The bundle.info file will be automatically updated during server startup if you have the required configurations in the server launcher. That is, you need to have the Dropins capability enabled as a Carbon startup event listener (implementation of the org.wso2.carbon.launcher.CarbonServerListener Java interface) in the launch.properties file (stored in the <CARBON_HOME>/osgi/conf directory). When the server starts up, the dropins capability listens to a CarbonServerEvent of type STARTING and is thereby executed during server launch.
 
-## Update the bundles.info file manually using tool
+### Update the bundles.info file manually using tool
 
 You can update the bundles.info file with the latest bundle information from the dropins directory at any given time as explained below. This means, you can decouple the function of updating the bundles.info file from the server startup process. Note that this will improve the server startup speed.
 
@@ -64,7 +64,7 @@ To manually update the bundles.info file:
 
 See the topics given below for information on Carbon tools.
 
-## About Carbon tools
+### About Carbon tools
 
 Carbon tools provide you the option of using various features as standalone functionalities that are detached from the server startup process. That is, you will be able to use these functions easily by executing a simple tool. These tools can be executed at any point, irrespective of whether the server is started.  
 
@@ -81,9 +81,9 @@ Given below are the optional tools that are available by default with the Carbon
 * Java Archive (JAR) file to OSGi bundle converter
 * Dropins deployer tool
  
-## Developing a Carbon tool
+### Developing a Carbon tool
 
-The Java Archive (JAR) file that contains these tool implementations is org.wso2.carbon.tools*.jar. This JAR is stored in the <CARBON_HOME>/bin/bootstrap/tools directory. 
+> The Java Archive (JAR) file that contains these tool implementations is org.wso2.carbon.tools*.jar. This JAR is stored in the <CARBON_HOME>/bin/bootstrap/tools directory. 
 
 Given below are the steps for developing a sample custom tool.
 
