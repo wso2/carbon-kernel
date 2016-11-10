@@ -596,33 +596,10 @@ public class JDBCTenantManager implements TenantManager {
     public boolean isTenantActive(int tenantId) throws UserStoreException {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             return true;
+        } else {
+            Tenant tenant = getTenant(tenantId);
+            return tenant.isActive();
         }
-        Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
-        try {
-            dbConnection = getDBConnection();
-            String sqlStmt = TenantConstants.IS_TENANT_ACTIVE_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, tenantId);
-            ResultSet result = prepStmt.executeQuery();
-            if (result.next()) {
-                return result.getBoolean("UM_ACTIVE");
-            }
-            dbConnection.commit();
-        } catch (SQLException e) {
-
-            DatabaseUtil.rollBack(dbConnection);
-
-            String msg = "Error in getting the tenant status with " + "tenant id: "
-                    + tenantId + ".";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
-        }
-        return false;
     }
 
     /**
