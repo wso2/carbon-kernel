@@ -47,7 +47,7 @@ The bundle.info file will be automatically updated during server startup if you 
 
 You can update the bundles.info file with the latest bundle information from the dropins directory at any given time as explained below. This means, you can decouple the function of updating the bundles.info file from the server startup process. Note that this will improve the server startup speed.
 
-Read more about Carbon tools and the instructions for developing new tools from here. 
+> Read more about Carbon tools and the instructions for developing new tools from here. 
 
 To manually update the bundles.info file:
 
@@ -58,7 +58,7 @@ To manually update the bundles.info file:
       
      * *On Windows:* dropins.bat [Carbon_Profile]
       
-Note that Carbon_Profile should be replaced with the name of the required Carbon profile. The bundles.info file of this profile will be updated as a result. You can use the ‘ALL’ keyword for the Carbon_Profile if you want to update the bundles.info files of all Carbon profiles. For example, use sh dropins.sh ALL.
+   > Note that Carbon_Profile should be replaced with the name of the required Carbon profile. The bundles.info file of this profile will be updated as a result. You can use the ‘ALL’ keyword for the Carbon_Profile if you want to update the bundles.info files of all Carbon profiles. For example, use sh dropins.sh ALL.
 
 # Developing a Carbon Tool
 
