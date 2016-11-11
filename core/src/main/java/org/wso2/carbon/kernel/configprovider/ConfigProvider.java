@@ -13,23 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.configuration.annotations;
+package org.wso2.carbon.kernel.configprovider;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Map;
 
 /**
- * Element annotation for configuration tool
+ * ConfigResolver helps to parse and update the configuration files. This will update the configuration values with
+ * following placeholders ${env:alias}, ${sys:alias} and ${sec:alias}
  *
  * @since 5.2.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Element {
-    String description() default NULL;
-    boolean required() default false;
-    String defaultValue() default NULL;
-    public static final String NULL = "NULL";
+public interface ConfigProvider {
+
+    public Object getConfigurationInstance(String configClassName) throws CarbonConfigurationException;
+
+    public Map getConfigurationMap(String namespace) throws CarbonConfigurationException;
 }

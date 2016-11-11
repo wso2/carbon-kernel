@@ -48,7 +48,7 @@ public class YAMLBasedConfigProvider implements DeploymentConfigProvider {
             String jsonString = ConfigResolverUtils.convertYAMLToJSON(yamlFileString);
             return getDeploymentConfigTable(jsonString);
         } catch (IOException e) {
-            String errorMessage = "Failed populate CarbonConfiguration from " + configFile.getName();
+            String errorMessage = "Failed populate Deployment Configuration from " + configFile.getName();
             logger.error(errorMessage, e);
             throw new RuntimeException(errorMessage);
         }

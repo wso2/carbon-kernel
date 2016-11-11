@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
@@ -56,7 +57,7 @@ public class CarbonCoreComponent {
         logger.debug("Deactivating CarbonCoreComponent");
     }
 
-    @Reference(
+/*    @Reference(
             name = "carbon.core.config.resolver",
             service = ConfigResolver.class,
             cardinality = ReferenceCardinality.AT_LEAST_ONE,
@@ -69,5 +70,20 @@ public class CarbonCoreComponent {
 
     protected void unregisterConfigResolver(ConfigResolver configResolver) {
         DataHolder.getInstance().setOptConfigResolver(Optional.empty());
+    }*/
+
+    @Reference(
+            name = "carbon.core.config.provider",
+            service = ConfigProvider.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterConfigProvider"
+    )
+    protected void registerConfigProvider(ConfigProvider configProvider) {
+        DataHolder.getInstance().setOptConfigProvider(Optional.ofNullable(configProvider));
+    }
+
+    protected void unregisterConfigProvider(ConfigProvider configProvider) {
+        DataHolder.getInstance().setOptConfigProvider(Optional.empty());
     }
 }

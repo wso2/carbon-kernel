@@ -21,6 +21,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,9 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
@@ -133,10 +136,12 @@ public class ConfigurationProcessor extends AbstractProcessor {
             }
 
             Element fieldElement = null;
+            List<TypeMirror> argumentTypes = null;
             TypeMirror fieldType = field.asType();
 
-            if (!fieldType.getKind().isPrimitive()) {
+            if (fieldType.getKind() == TypeKind.DECLARED) {
                 fieldElement = ((DeclaredType) fieldType).asElement();
+                argumentTypes = (List<TypeMirror>) ((DeclaredType) fieldType).getTypeArguments();
             }
 
             if (fieldElement != null && configSet.contains(fieldElement)) {
@@ -146,29 +151,66 @@ public class ConfigurationProcessor extends AbstractProcessor {
                             (configuration.description()));
                 }
                 elementMap.put(configuration.namespace(), readConfigurationElements(fieldElement, configSet));
+            } else if (fieldType.getKind() == TypeKind.ARRAY) {
+                ArrayType asArrayType = (ArrayType) fieldType;
+                TypeMirror arrayFieldType = asArrayType.getComponentType();
+                addFieldDescription(elementMap, field);
+                elementMap.put(field.getSimpleName().toString(), getElementArrayObject(configSet, arrayFieldType));
+            } else if (fieldType.getKind() == TypeKind.DECLARED && argumentTypes != null && !argumentTypes.isEmpty()) {
+                if (argumentTypes.size() == 1) {
+                    //(such as {@code Outer<String>.Inner<Number>})
+                    TypeMirror argumentType = argumentTypes.get(0);
+                    addFieldDescription(elementMap, field);
+                    elementMap.put(field.getSimpleName().toString(), getElementArrayObject(configSet, argumentType));
+                }
             } else {
-                org.wso2.carbon.configuration.annotations.Element fieldElem = field.getAnnotation(org.wso2.carbon
-                        .configuration.annotations.Element.class);
-                String description = "";
                 String defaultValue = "";
                 boolean required = false;
+                org.wso2.carbon.configuration.annotations.Element fieldElem = field.getAnnotation(org.wso2.carbon
+                        .configuration.annotations.Element.class);
                 if (fieldElem != null) {
-                    description = fieldElem.description();
-                    defaultValue = fieldElem.defaultValue();
-                    required = fieldElem.required();
-
-                    if (!description.equals(org.wso2.carbon.configuration.annotations.Element.NULL)) {
-                        elementMap.put(COMMENT_KEY_PREFIX + field.getSimpleName().toString(),
-                                createDescriptionComment(description));
+                    if (!fieldElem.defaultValue().equals(org.wso2.carbon.configuration.annotations.Element.NULL)) {
+                        defaultValue = fieldElem.defaultValue();
                     }
+                    required = fieldElem.required();
                 }
+
                 if (required) {
                     defaultValue = defaultValue + MANDATORY_FIELD_COMMENT;
                 }
+                addFieldDescription(elementMap, field);
                 elementMap.put(field.getSimpleName().toString(), defaultValue);
             }
         }
         return elementMap;
+    }
+
+    private void addFieldDescription(Map<String, Object> elementMap, VariableElement field) {
+        org.wso2.carbon.configuration.annotations.Element fieldElem = field.getAnnotation(org.wso2.carbon
+                .configuration.annotations.Element.class);
+        if (fieldElem != null) {
+            String description = fieldElem.description();
+            if (!description.equals(org.wso2.carbon.configuration.annotations.Element.NULL)) {
+                elementMap.put(COMMENT_KEY_PREFIX + field.getSimpleName().toString(),
+                        createDescriptionComment(description));
+            }
+        }
+    }
+
+    private Object[] getElementArrayObject(Set<Element> configSet, TypeMirror argumentType) {
+        Element argElement = null;
+        if (argumentType.getKind() == TypeKind.DECLARED) {
+            argElement = ((DeclaredType) argumentType).asElement();
+        }
+        Object[] elementArray;
+        if (configSet.contains(argElement)) {
+            elementArray = new HashMap[1];
+            elementArray[0] = readConfigurationElements(argElement, configSet);
+        } else {
+            elementArray = new Object[1];
+            elementArray[0] = "# add possible values here";
+        }
+        return elementArray;
     }
 
     private String createDescriptionComment(String description) {

@@ -16,9 +16,11 @@
 package org.wso2.carbon.kernel.configprovider.utils;
 
 import org.wso2.carbon.kernel.Constants;
+import org.yaml.snakeyaml.Yaml;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Configuration internal utils.
@@ -38,5 +40,17 @@ public class ConfigurationUtils {
     public static Path getDeploymentYAMLLocation() {
         return Paths.get(org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().toString(),
                 Constants.DEPLOYMENT_CONFIG_YAML);
+    }
+
+    /**
+     * This method converts a given JSON String to YAML format.
+     *
+     * @param jsonString JSON String that needs to be converted to YAML format
+     * @return String in YAML format
+     */
+    public static String convertJSONToYAML(String jsonString) {
+        Yaml yaml = new Yaml();
+        Map map = yaml.loadAs(jsonString, Map.class);
+        return yaml.dumpAsMap(map);
     }
 }

@@ -41,10 +41,14 @@ public class CarbonConfigurationFactory {
     private CarbonConfigurationFactory() {
     }
 
-    public static Object getConfigurationInstance(String configClassName) throws CarbonConfigurationException,
-            ClassNotFoundException {
+    public static Object getConfigurationInstance(String configClassName) throws CarbonConfigurationException {
         //load the class using reflection and yaml instance from the class loader
-        Class configClass = Class.forName(configClassName);
+        Class configClass;
+        try {
+            configClass = Class.forName(configClassName);
+        } catch (ClassNotFoundException e) {
+            throw new CarbonConfigurationException("Config Class : " + configClassName + "does not exists.", e);
+        }
         Yaml yaml = new Yaml(new CustomClassLoaderConstructor(configClass,
                 configClass.getClassLoader()));
         yaml.setBeanAccess(BeanAccess.FIELD);
@@ -59,14 +63,7 @@ public class CarbonConfigurationFactory {
         }
 
         //lazy loading deployment.yaml configuration, if it is not exists
-        if (deploymentConfigs.isEmpty()) {
-            synchronized (deploymentConfigs) {
-                if (deploymentConfigs.isEmpty()) {
-                    DeploymentConfigProvider configProvider = new YAMLBasedConfigProvider();
-                    deploymentConfigs = configProvider.getDeploymentConfiguration();
-                }
-            }
-        }
+        loadDeploymentConfiguration();
 
         try {
             if (configuration != null && deploymentConfigs.containsKey(configuration.namespace())) {
@@ -100,6 +97,17 @@ public class CarbonConfigurationFactory {
             }
         } catch (InstantiationException | IllegalAccessException e) {
             throw new CarbonConfigurationException("Error while creating configuration Instance", e);
+        }
+    }
+
+    private static void loadDeploymentConfiguration() {
+        if (deploymentConfigs.isEmpty()) {
+            synchronized (deploymentConfigs) {
+                if (deploymentConfigs.isEmpty()) {
+                    DeploymentConfigProvider configProvider = new YAMLBasedConfigProvider();
+                    deploymentConfigs = configProvider.getDeploymentConfiguration();
+                }
+            }
         }
     }
 
