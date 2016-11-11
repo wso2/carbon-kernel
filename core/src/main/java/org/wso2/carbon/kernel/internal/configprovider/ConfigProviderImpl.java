@@ -98,6 +98,7 @@ public class ConfigProviderImpl implements ConfigProvider {
         loadDeploymentConfiguration();
 
         try {
+            String yamlConfigString;
             if (configuration != null && deploymentConfigs.containsKey(configuration.namespace())) {
                 String jsonConfigString = deploymentConfigs.get(configuration.namespace());
                 if (logger.isDebugEnabled()) {
@@ -110,28 +111,25 @@ public class ConfigProviderImpl implements ConfigProvider {
                     logger.info("class name: " + configClass.getSimpleName() + " | modified configurations:: \n" +
                             modifiedObject.toString());
                 }
-                String yamlModifiedString = ConfigurationUtils.convertJSONToYAML(modifiedObject.toString());
-                String yamlProcessedString = processPlaceholder(yamlModifiedString);
-                yamlProcessedString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlProcessedString);
-                Map map = yaml.loadAs(yamlProcessedString, Map.class);
-                return yaml.loadAs(yaml.dumpAsMap(map), configClass);
+                yamlConfigString = ConfigurationUtils.convertJSONToYAML(modifiedObject.toString());
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Deployment configuration mapping doesn't exist: " +
                             "creating configuration instance with default values");
                 }
-                if (!defaultElementMap.isEmpty()) {
-                    String defaultContent = yaml.dumpAsMap(defaultElementMap);
-                    String yamlProcessedString = processPlaceholder(defaultContent);
-                    yamlProcessedString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlProcessedString);
-                    return yaml.loadAs(yamlProcessedString, configClass);
+
+                if (defaultElementMap.isEmpty()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Default configuration doesn't exist: " +
+                                "creating configuration instance without values");
+                    }
+                    return configClass.newInstance();
                 }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Default configuration doesn't exist: " +
-                            "creating configuration instance without values");
-                }
-                return configClass.newInstance();
+                yamlConfigString = yaml.dumpAsMap(defaultElementMap);
             }
+            String yamlProcessedString = processPlaceholder(yamlConfigString);
+            yamlProcessedString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlProcessedString);
+            return yaml.loadAs(yamlProcessedString, configClass);
         } catch (InstantiationException | IllegalAccessException e) {
             throw new CarbonConfigurationException("Error while creating configuration Instance", e);
         }

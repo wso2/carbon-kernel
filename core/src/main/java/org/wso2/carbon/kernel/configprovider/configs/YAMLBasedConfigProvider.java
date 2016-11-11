@@ -44,7 +44,6 @@ public class YAMLBasedConfigProvider implements DeploymentConfigProvider {
         File configFile = ConfigurationUtils.getDeploymentYAMLLocation().toFile();
         try (FileInputStream fileInputStream = new FileInputStream(configFile)) {
             String yamlFileString = getDeploymentContent(fileInputStream);
-            yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
             String jsonString = ConfigResolverUtils.convertYAMLToJSON(yamlFileString);
             return getDeploymentConfigTable(jsonString);
         } catch (IOException e) {
