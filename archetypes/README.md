@@ -1,7 +1,8 @@
 
-# Using Maven Archetypes
+The following sections explain some Maven archetypes that simplify the process of building OSGi bundles/Carbon components:
 
-The following sections explain some Maven archetypes that will simplify the process of building OSGi bundles/Carbon components:
+* **[Creating a Carbon Component in One Step](#creating-a-carbon-component-in-one-step)**
+* **[Creating a Generic OSGi Bundle in One Step](#creating-a-generic-osgi-bundle-in-one-step)**
 
 ## Creating a Carbon Component in One Step
 
