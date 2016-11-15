@@ -4,7 +4,7 @@ Given below are the core capabilities that are available at Carbon Kernel-level.
 * **[Adding New Transports](#adding-new-transports)**
 * **[Plugging a New Runtime](#plugging-a-new-runtime)**
 * **[Using the CarbonContext API](#using-the-carboncontext-api)**
-* **[Developing a Carbon Tool](#developing-a-carbon-tool)
+* **[Developing a Carbon Tool](#developing-a-carbon-tool)**
 
 # Resolving the Component Startup Order
 WSO2 introduces a Carbon component startup order resolver implementation that does not need to leverage the existing startup ordering mechanism in OSGi. This new implementation resolves the startup order among multiple components. Further, it notifies a component when all of its dependencies (OSGi services, OSGi bundle etc.) are available. The following sections explain how this solution works, and how it can be implemented for your components.
