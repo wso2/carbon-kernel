@@ -9,20 +9,12 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 .......
 
 # Key Features
-### Carbon Launcher
-The Carbon launcher boots up the Carbon server. This Launcher component implementation resolves the initialization of the Carbon server instance: Before starting the Carbon server, the launcher component performs a set of steps that loads the initial startup configurations. Read about how the Carbon Launcher is used for development.
 
-### Logging Framework with Log4j 2.0 as the backend
-The Carbon logging framework is implemented using the PaxLogging framework, which is a well known open-source project that implements strong backend functionalities for logging inside the Carbon server. High performing Log4j 2.0 is used as the logging backend with this framework. For more information on the supported logging API's and configurations, see Configuring the Logging Framework.
-
-### Component Startup Order Resolver
-The Carbon startup order resolver implementation resolves the startup order among multiple components. It also notifies a component when all of its dependencies (OSGi services, OSGi bundle, etc) are available. This implementation leverages some of the OSGi constructs, such as Require-Capability and Provider-Capability manifest header entries, to resolve the ordering among components. Read more about the Startup Order Resolver Framework.
-
-### Transport Management
-The Carbon transport management feature provides a pluggable extension point, which allows users to add new transports to the existing server. It also manages the lifecycle of all the transports. Read more about transport management.
-
-### Pluggable Runtime Management
-The pluggable runtime framework in Carbon can be used to manage third-party runtimes in the Carbon server. This framework provides a good deal of flexibility when managing the lifecycle of a runtime. This is useful in situations where it is necessary to use the server in maintenance mode etc. In this case, each runtime needs to be set to maintenance mode. WSO2 Carbon will use this extension point to trigger a lifecycle change to enable the maintenance mode of the runtime. For example, in case of the Tomcat runtime, you need to stop the Tomcat connectors when the server goes into maintenance mode. Read more about pluggable runtime management.
+* Carbon Launcher
+* Logging Framework with Log4j 2.0 as the backend
+* Component Startup Order Resolver
+* Transport Management
+* Pluggable Runtime Management
 
 # Getting Started
 ### Downloading the Kernel
