@@ -53,7 +53,7 @@ The following applications are required for running the product and its samples 
 | ------------- |:-------------:| -----:|-----:|
 | Oracle Java SE Development Kit (JDK)*      | To launch the product, as each product is a Java application. If you want to build the product from the source distribution, you must use JDK 1.8.*.  | 1.8 | http://www.oracle.com/technetwork/java/javase/downloads/index.html |
 | Apache Maven     | To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
-To build samples.      | 3.3.x | http://maven.apache.org/ |
+To build samples. | 3.3.x | http://maven.apache.org/ |
 
 ### Installing on Linux
 
