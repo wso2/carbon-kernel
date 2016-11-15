@@ -73,7 +73,7 @@ http://maven.apache.org/
 
 You must set your JAVA_HOME environment variable to point to the directory where the Java Development Kit (JDK) is installed on the computer. The way you set the JAVA_HOME depends on the operating system and the shell you are using. Given below is a sample configuration for bash shell.
 
-Environment variables are global system variables accessible to all the processes running under the operating system.
+>Environment variables are global system variables accessible to all the processes running under the operating system.
 
 1. In your home directory, open the .bashrc file in your favorite Linux text editor.
 2. Add the following two lines at the bottom of the file, replacing /opt/java/jdk1.8.* with the actual directory where the JDK is installed.
@@ -135,7 +135,27 @@ You can set JAVA_HOME using the system properties, as described below. Alternati
  The system returns the JDK installation path.
 
 ### Launching the Kernel
-...
+
+#### Starting the server
+
+To start the server, you need to run the carbon.bat (on Windows) script or the carbon.sh (on Linux) script from the <PRODUCT_HOME>/bin folder:
+
+>To start and stop the server in the daemon mode in Linux, run carbon.sh start and carbon.sh stop commands.
+
+1. Open a command prompt.
+
+(On Windows, choose Start -> Run, type cmd at the prompt, and press Enter).
+Execute one of the following commands, where <PRODUCT_HOME> is the directory where you installed the product distribution:
+OS	Command
+On Windows	
+<PRODUCT_HOME>\bin\carbon.bat
+On Linux/Solaris	
+sh <PRODUCT_HOME>/bin/carbon.sh
+
+Now, the server startup logs will get printed. When the server has completed the server startup, the log will display the message "WSO2 Carbon started in 'n' seconds."
+
+#### Stopping the server
+To stop the server, press Ctrl+C in the command window. If you have started the server in daemon mode in Linux, run carbon.sh stop command.
 
 # How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
