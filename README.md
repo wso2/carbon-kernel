@@ -16,6 +16,8 @@ Given below are details of the core capabilities of Carbon Kernel.
 * Plugging a new runtime
 * Using the CarbonContext API
 * Developing a Carbon tool
+* Configuring Logging for a Carbon Server
+* Monitoring Carbon Servers
 
 * Setting up the Carbon Launcher
 * Using in-container OSGi testing for development
