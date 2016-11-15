@@ -10,7 +10,7 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 
 # Key Features
 
-* Carbon Launcher
+* Setting up the Carbon Launcher
 * Logging Framework with Log4j 2.0 as the backend
 * Component Startup Order Resolver
 * Transport Management
