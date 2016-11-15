@@ -32,6 +32,7 @@ Given below are details of tools and archetypes that can be used for developing 
 # Getting Started
 ### Downloading the Kernel
 You can download the product distribution from here.
+Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as <PRODUCT_HOME>.
 
 ### Installing the Kernel
 #### Installation prerequisites
@@ -67,7 +68,24 @@ To build samples.
 3.3.x
 http://maven.apache.org/
 
-#### Installing the server
+#### Installing on Linux
+*Setting the JAVA_HOME*
+You must set your JAVA_HOME environment variable to point to the directory where the Java Development Kit (JDK) is installed on the computer. The way you set the JAVA_HOME depends on the operating system and the shell you are using. Given below is a sample configuration for bash shell.
+
+Environment variables are global system variables accessible to all the processes running under the operating system.
+
+1. In your home directory, open the .bashrc file in your favorite Linux text editor.
+2. Add the following two lines at the bottom of the file, replacing /opt/java/jdk1.8.* with the actual directory where the JDK is installed.
+
+'''export JAVA_HOME=<jdk-install-dir>
+'''export PATH=$JAVA_HOME/bin:$PATH
+
+To get the changes reflected, run the following command:
+source ~/.bashrc
+
+To verify that the JAVA_HOME variable is set correctly, execute the following command:
+echo $JAVA_HOME
+The above command should return the JDK installation path.
 
 ### Launching the Kernel
 ...
