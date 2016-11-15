@@ -77,14 +77,17 @@ Environment variables are global system variables accessible to all the processe
 1. In your home directory, open the .bashrc file in your favorite Linux text editor.
 2. Add the following two lines at the bottom of the file, replacing /opt/java/jdk1.8.* with the actual directory where the JDK is installed.
 
-```export JAVA_HOME=<jdk-install-dir>
-export PATH=$JAVA_HOME/bin:$PATH```
+ ```export JAVA_HOME=<jdk-install-dir>
+ export PATH=$JAVA_HOME/bin:$PATH```
 
-To get the changes reflected, run the following command:
-source ~/.bashrc
+3. To get the changes reflected, run the following command:
 
-To verify that the JAVA_HOME variable is set correctly, execute the following command:
-echo $JAVA_HOME
+ ```source ~/.bashrc```
+
+4. To verify that the JAVA_HOME variable is set correctly, execute the following command:
+
+ ```echo $JAVA_HOME```
+
 The above command should return the JDK installation path.
 
 ### Launching the Kernel
