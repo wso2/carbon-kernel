@@ -10,11 +10,23 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 
 # Key Features
 
+Given below are details of the core capabilities of Carbon Kernel.
+
+* Resolving the component startup order
+* Adding new transports
+* Plugging a new runtime
+* Using the CarbonContext API
+* Developing a Carbon tool
+
 * Setting up the Carbon Launcher
-* Logging Framework with Log4j 2.0 as the backend
-* Component Startup Order Resolver
-* Transport Management
-* Pluggable Runtime Management
+* Using in-container OSGi testing for development
+
+Given below are details of tools and archetypes that can be used for developing Carbon products.
+
+* Creating a Carbon component in one step using Maven archetypes
+* Creating a generic OSGi bundle in one step using Maven archetypes
+* Converting JARs to OSGi bundles
+* Using the dropins support for OSGi bundles
 
 # Getting Started
 ### Downloading the Kernel
