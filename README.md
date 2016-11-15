@@ -38,11 +38,11 @@ Extract the archive file to a dedicated directory for the product, which will he
 Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
 
 *System requirements*
- Memory 
-~ 256 MB minimum
- Disk 
- ~ 50 MB, excluding space allocated for log files. 
- 
+
+
+| Memory     | ~ 256 MB minimum | 
+| Disk      | ~ 50 MB, excluding space allocated for log files.    |
+  
 *Environment compatibility*
  Operating Systems / Databases 
  
