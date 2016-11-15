@@ -39,26 +39,29 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
 
 *System requirements*
 
-|----------- |:--------------------------------------------------| 
-| Memory     | ~ 256 MB minimum                                  | 
-| Disk       | ~ 50 MB, excluding space allocated for log files. |
+* Memory : ~ 256 MB minimum   
+* Disk : ~ 50 MB, excluding space allocated for log files.
   
 *Environment compatibility*
- Operating Systems / Databases 
- 
-WSO2 Carbon Kernel can be run on Windows / Linux and MacOS platforms that are Oracle/Open JDK 1.8.* compliant.      
+ Operating Systems / Databases : WSO2 Carbon Kernel can be run on Windows / Linux and MacOS platforms that are Oracle/Open JDK 1.8.* compliant.      
 
 *Supporting applications*
 
 The following applications are required for running the product and its samples or for building from the source code. Mandatory installs are marked with an asterisk (*).
-Application
-Purpose
-Version
-Download Links
-Oracle Java SE Development Kit (JDK)*
-To launch the product, as each product is a Java application.
-To build the product from the source distribution (both JDK and Apache Maven are required).
-1.8.*
+
+| Application        | Purpose           | Version  | Download Links  |
+| ------------- |:-------------:| -----:|-----:|
+| Oracle Java SE Development Kit (JDK)*      | * To launch the product, as each product is a Java application. * | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
+
+
+
+
+
+
+
+
 If you want to build the product from the source distribution, you must use JDK 1.8.*.
 http://www.oracle.com/technetwork/java/javase/downloads/index.html
 Apache Maven
