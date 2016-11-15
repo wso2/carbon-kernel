@@ -3,9 +3,12 @@ WSO2 Carbon Kernel 5.2.0 is the core of the next-generation WSO2 Carbon platform
 
 It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
 
-# Architecture and Key Features
+# Architecture
 Carbon Kernel is a modular, light-weight, OSGi-based server development framework, which provides the base for developing servers. Eclipse Equinox is used as the OSGi runtime from Kernel 5.0.0 onwards. However, you can plug in any OSGi implementation to your Carbon server. The diagram below depicts the architecture of WSO2 Carbon Kernel and its key components.
+
 .......
+
+# Key Features
 ### Carbon Launcher
 The Carbon launcher boots up the Carbon server. This Launcher component implementation resolves the initialization of the Carbon server instance: Before starting the Carbon server, the launcher component performs a set of steps that loads the initial startup configurations. Read about how the Carbon Launcher is used for development.
 
