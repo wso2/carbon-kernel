@@ -39,7 +39,7 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
 
 *System requirements*
 
-|----------- |---------------------------------------------------| 
+|----------- |:--------------------------------------------------| 
 | Memory     | ~ 256 MB minimum                                  | 
 | Disk       | ~ 50 MB, excluding space allocated for log files. |
   
