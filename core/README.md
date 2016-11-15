@@ -1,3 +1,5 @@
+Given below are the core features that are available Carbon Kernel-level.
+
 * **[Resolving the Component Startup Order](#resolving-the-component-startup-order)**
 * **[Adding New Transports](#adding-new-transports)**
 * **[Plugging a New Runtime](#plugging-a-new-runtime)**
