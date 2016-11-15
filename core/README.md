@@ -576,3 +576,133 @@ org.ops4j.pax.logging.log4j2.async parameter to true as shown below.
                 </Root>
             </Loggers>
         </Configuration>
+
+# Monitoring Carbon Servers
+
+You can monitor the Carbon server using the following options:
+
+## Monitoring Server Startup Logs
+
+The WSO2 Carbon Launcher is responsible for initializing and starting the Carbon server. During the server startup process, the launcher component uses the java-util-logging API to publish records to the product startup console or the carbon.log file (stored in the <CARBON_HOME>/logs directory). 
+
+WSO2 Carbon maintains a separate configuration file (logging.properties) to control the logging details of the java.util.logging framework. This file is stored in the <CARBON_HOME>/bin/bootstrap directory. There are two handlers defined in the default configuration:
+
+* `java.util.logging.FileHandler`: For configuring java.util.logging to append to carbon.log.
+* `java.util.logging.ConsoleHandler`: For configuring java.util.logging to append to carbon console.
+
+The global level of the configuration is set to INFO. 
+
+The default values for the handlers are set as shown in the below table.
+ 
+|                     | java.util.logging.FileHandler     | java.util.logging.ConsoleHandler  |
+| ------------------- |:---------------------------------:| ---------------------------------:|
+| Default level       | INFO                              | INFO                              |
+| Default Formatter   | java.util.logging.SimpleFormatter | java.util.logging.SimpleFormatter |
+| Logging destination | <CARBON-HOME>/log/carbon.log      | Console                           |
+
+See the following topics for instructions on changing the default configuration:
+
+### Changing the log levels of a default handler
+Consider a scenario where you need to save all the logs of level FINE in java.util.logging only to the carbon.log file (not to the Console). To achieve this, you can do the following:
+
+* Set the global logging level to FINE (or a lower level than FINE).
+* Set the logging level of the FileHandler to 'FINE'.
+* Set the logging level of the ConsoleHandler to 'INFO' (default value).
+
+Please find the sample logging.properties file below:
+
+    handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+
+    .level= FINE
+
+    java.util.logging.FileHandler.level = FINE
+    java.util.logging.FileHandler.pattern = logs/carbon.log
+    java.util.logging.FileHandler.limit = 50000
+    java.util.logging.FileHandler.count = 1
+    java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+    java.util.logging.SimpleFormatter.format = [%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %4$s {%2$s} - %5$s %6$s %n
+
+    java.util.logging.ConsoleHandler.level = INFO
+    java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+### Changing the log levels of a single package/class
+
+As explained above, changing the log level of a handler will cause the logs of all java.util.logging to be logged to the configured destination (carbon.log file or the Console). If you need to change the log level of one specific class, you can update the logging configuration at class level as explained below:
+
+* Consider a scenario where you need to skip the FINE logs from the org.wso2.carbon.launcher.CarbonServer class, but you need to log all the FINE logs from other classes. A sample configuration for this scenario is as follows:
+
+        .level= FINE
+        java.util.logging.FileHandler.level = INFO
+        …
+        java.util.logging.ConsoleHandler.level = FINE  <- - -  prints FINE logs to the Console
+        …
+        org.wso2.carbon.launcher.CarbonServer.level=INFO    <- - - prints only info logs of this class 
+
+* Given below is a sample configuration where only the severe logs of a class/package will be logged.
+
+        .level= INFO
+        java.util.logging.FileHandler.level = INFO
+        …
+        java.util.logging.ConsoleHandler.level = INFO 
+        …
+        com.xyz.foo.level = SEVERE    <- - - prints only SEVERE logs of this class
+
+## Using Audit Logs
+
+Auditing is a primary requirement when it comes to monitoring production servers. For examples, DevOps need to have a clear mechanism for identifying who did what, and to filter possible system violations or breaches. Further, when you are developing a Carbon component, you need an API provided by Carbon Kernel to use this auditing feature.
+Audit logs or audit trails contain a set of log entries that describe a sequence of actions that occurred over a period of time. Audit logs allow you to trace all the actions of a single user, or all the actions or changes introduced to a certain module in the system etc. over a period of time. For example, it captures all the actions of a single user from the first point of logging in to the server.
+
+Audit logs are stored in the audit.log file, located in the <CARBON_HOME>/logs directory.
+
+See the following topics for details:
+
+### Adding audit logs to a Carbon component
+
+The following steps will guide you on how to add new audit logs when developing a Carbon component:
+
+1. Add the required audit logs for your component by using the org.wso2.carbon.kernel.Constants.AUDIT_LOG logger that is available in Carbon Kernel by default. Note that there is a separate log4j daily rolling appender named AUDIT_LOG for adding audit logs to the <CARBON_HOME>/logs/audit.log file. The org.wso2.carbon.kernel.Constants.AUDIT_LOG logger is an instance of this logger. Shown below is an example of an audit log that can be added to a Carbon component. 
+
+        final Logger audit = org.wso2.carbon.kernel.Constants.AUDIT_LOG;
+        audit.info("Attempting to test the audit logs.");
+
+ For a test case on this log appender, see LoggingConfigurationOSGiTest.java.
+
+2. If it is necessary to capture the contextual information (such as the logged in user details, remote IP address of client etc.) from a logging instance in your audit logs, you can specify the required contextual information for your component using SLF4J MDC.
+
+Shown below is the default configuration in Carbon Kernel, where the "user-name" key is added to the MDC for the purpose of capturing the user name of the logged in user. This will ensure that the user name of the logged in user is added to the audit logs, and thereby, you do not need any additional configurations to get this information logged. 
+
+    org.slf4j.MDC.put("user-name", userPrincipal.getName());
+
+Note that the "user-name" key will be effective when the javax.security.Principal user gets set in the PrivilegedCarbonContext. Find more information about using the CarbonContext API.
+
+Prior to Carbon 5.x.x, it was necessary for developers to manually capture any required contextual information (such as the logged in user details, remote IP address of client etc.) at every logging instance. These contextual details then had to be manually added to the audit logs. With the new approach introduced in WSO2 Carbon 5.1.0, SLF4J Mapped Diagnostic Context (MDC) will capture the contextual information when you specify the relevant keys as shown in the above example. Therefore, there is no need to capture the contextual information for every logging instance because the values added to the MDC in the first instance will remain within the thread.
+
+### Viewing audit logs
+
+Carbon users and component developers can view local audit logs using the <CARBON_HOME>/logs/audit.log file. This file can be configured as a daily, rolling log file.
+
+## Using MBeans for Monitoring
+Java Management Extensions (JMX) is a standard technology in the Java platform. It provides a simple mechanism for managing resources such as applications, devices, and services. The Carbon 5.1.0 Kernel leverages the features of the existing JMX Platform MBean Server by providing Carbon 5.1.0-based authentication for additional security and by making JMX resources available for remote access. Components inherit the platform MBean server from the Carbon 5.1.0 Kernel. Therefore, you can simply register the resources of your Carbon component in this MBean server and expose them to remote users.
+Note that javax.management.* is the only required dependency.
+
+See the following topics for instructions:
+
+### About the JMX monitoring implementation in WSO2 Carbon
+
+The CarbonJMXComponent implementation in Carbon 5.1.0 Kernel uses the existing JMX platform MBean server in Carbon and exposes the registered MBeans to remote users via the JMXConnectorServer implementation. In this process, user authentication is performed by the CarbonJMXAuthenticator implementation. A user can modify the service configuration in the jmx.yaml file, located in the <CARBON_HOME>/conf directory. The connection URL that exposes the MBeans is as follows: service:jmx:rmi://localhost:9700/jndi/rmi://localhost:9800/jmxrmi.
+
+#### **Registering MBeans in Carbon**
+Once you register the MBeans for your Carbon component, they will be exposed for monitoring as explained above. The code given below illustrates how you can register an MBean in a Carbon component. In the following example, we have registered “TestMBean” in the PlatformMBeanServer.
+
+    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    ObjectName mbeanName = new ObjectName("org.wso2.carbon.jmx.sample:type=Test");
+    mBeanServer.registerMBean(new Test(), mbeanName);
+
+#### **Monitoring MBeans in Carbon using a JMS client**
+
+Monitoring MBeans is easy with jconsole. Follow the steps given below.
+Go to the New Connection window. 
+
+1. Select Remote Process and provide the connection URL with proper hostname and ports.
+2. Type in a valid username and a password (Username: ”username”, Password: “password”). 
+3. Finally, click Connect.
