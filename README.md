@@ -31,9 +31,44 @@ Given below are details of tools and archetypes that can be used for developing 
 
 # Getting Started
 ### Downloading the Kernel
-...
+You can download the product distribution from here.
+
 ### Installing the Kernel
-...
+#### Installation prerequisites
+Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
+
+*System requirements*
+ Memory 
+~ 256 MB minimum
+ Disk 
+ ~ 50 MB, excluding space allocated for log files. 
+ 
+*Environment compatibility*
+ Operating Systems / Databases 
+ 
+WSO2 Carbon Kernel can be run on Windows / Linux and MacOS platforms that are Oracle/Open JDK 1.8.* compliant.      
+
+*Supporting applications*
+
+The following applications are required for running the product and its samples or for building from the source code. Mandatory installs are marked with an asterisk (*).
+Application
+Purpose
+Version
+Download Links
+Oracle Java SE Development Kit (JDK)*
+To launch the product, as each product is a Java application.
+To build the product from the source distribution (both JDK and Apache Maven are required).
+1.8.*
+If you want to build the product from the source distribution, you must use JDK 1.8.*.
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
+Apache Maven
+To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
+To build samples.
+3.3.x
+http://maven.apache.org/
+
+#### Installing the server
+
 ### Launching the Kernel
 ...
 
