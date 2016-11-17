@@ -145,7 +145,8 @@
                                         <include>bin/**</include>
                                         <include>conf/**</include>
                                         <include>logs/**</include>
-                                        <include>osgi/**</include>
+                                        <include>wso2/lib/**</include>
+                                        <include>lib/**</include>
                                         <include>resources/**</include>
                                         <include>securevault/**</include>
                                         <include>tmp/**</include>

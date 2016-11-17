@@ -23,7 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class defines a tool which can deploy the OSGi bundles added to CARBON_HOME/osgi/dropins directory
+ * This class defines a tool which can deploy the OSGi bundles added to CARBON_HOME/lib directory
  * in WSO2 Carbon Server.
  *
  * @since 5.1.0

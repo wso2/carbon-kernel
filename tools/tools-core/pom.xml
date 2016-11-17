@@ -168,7 +168,7 @@
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>tool-test-artifact</artifactId>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/lib</outputDirectory>
                                     <destFileName>tool-test-artifact-${carbon.kernel.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -176,7 +176,7 @@
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/lib</outputDirectory>
                                     <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -184,7 +184,7 @@
                                     <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/lib</outputDirectory>
                                     <destFileName>
                                         org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
                                     </destFileName>
@@ -194,7 +194,7 @@
                                     <artifactId>org.eclipse.equinox.util</artifactId>
                                     <version>${equinox.util.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/lib</outputDirectory>
                                     <destFileName>org.eclipse.equinox.util_${equinox.util.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -202,7 +202,7 @@
                                     <artifactId>org.eclipse.equinox.launcher</artifactId>
                                     <version>${equinox.launcher.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/test-resources/dropins</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/test-resources/lib</outputDirectory>
                                     <destFileName>org.eclipse.equinox.launcher_${equinox.launcher.version}.jar
                                     </destFileName>
                                 </artifactItem>

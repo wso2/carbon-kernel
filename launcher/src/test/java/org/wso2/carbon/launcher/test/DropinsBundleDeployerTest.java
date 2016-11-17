@@ -40,7 +40,7 @@ import java.util.List;
 public class DropinsBundleDeployerTest extends BaseTest {
     //  dropins deployer unit-test constants
     private static final List<String> profileNames = new ArrayList<>();
-    private static final String dropinsDirectory = "dropins";
+    private static final String dropinsDirectory = Constants.DROPINS;
     private static final String profileMSS = "mss";
     private static final String bundlesInfoFile = "bundles.info";
 
@@ -51,14 +51,15 @@ public class DropinsBundleDeployerTest extends BaseTest {
         setupCarbonHome();
         carbonHome = System.getProperty(Constants.CARBON_HOME);
         //  deletes the profiles directory, if present
-        delete(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH));
+        delete(Paths.get(carbonHome, Constants.PROFILE_REPOSITORY));
     }
 
-    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
-            expectedExceptions = { IOException.class })
-    public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
-        DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
-    }
+//TODO: This test case is not valid for current directory structure because wso2 directory will be there always
+//@Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
+//        expectedExceptions = { IOException.class })
+//public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
+//    DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+//}
 
     @Test(description = "Attempts to execute dropins capability with profile system property not explicitly set",
             priority = 1)
@@ -70,8 +71,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
 
         List<BundleInfo> expected = getExpectedBundleInfo();
         Path bundlesInfo = Paths.
-                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
-                        "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+                get(carbonHome, Constants.PROFILE_REPOSITORY, Constants.DEFAULT_PROFILE, "configuration",
+                        "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
@@ -83,8 +84,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path bundlesInfo = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
-                profileMSS, "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+        Path bundlesInfo = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY, profileMSS, "configuration",
+                "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         System.clearProperty(Constants.PROFILE);
         Assert.assertTrue(compareBundleInfo(expected, actual));
@@ -93,7 +94,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
-        Path dropins = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
+        Path dropins = Paths.get(carbonHome, dropinsDirectory);
         Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
@@ -122,7 +123,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
                 "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + dropinsDirectory
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true");
 
-        Path dropins = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory);
+        Path dropins = Paths.get(carbonHome, dropinsDirectory);
         Files.deleteIfExists(
                 Paths.get(dropins.toString(), "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar"));
 
@@ -133,8 +134,8 @@ public class DropinsBundleDeployerTest extends BaseTest {
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         Path bundlesInfo = Paths.
-                get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, Constants.DEFAULT_PROFILE,
-                        "configuration", "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
+                get(carbonHome, Constants.PROFILE_REPOSITORY, Constants.DEFAULT_PROFILE, "configuration",
+                        "org.eclipse.equinox.simpleconfigurator", bundlesInfoFile);
         List<BundleInfo> actual = getActualBundleInfo(bundlesInfo);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
@@ -157,7 +158,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
             priority = 5,
             expectedExceptions = { IOException.class })
     public void testLoadingNewBundleInfoFromNonExistingFolder() throws IOException {
-        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, dropinsDirectory));
+        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory));
     }
 
     /**
@@ -173,7 +174,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
 
         for (String profileName : profileNames) {
             Path profile = Paths.
-                    get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName, "configuration",
+                    get(carbonHome, Constants.PROFILE_REPOSITORY, profileName, "configuration",
                             "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {
@@ -240,11 +241,13 @@ public class DropinsBundleDeployerTest extends BaseTest {
             List<Path> children = listFiles(path);
             if (children.size() > 0) {
                 for (Path aChild : children) {
-                    delete(aChild);
+                    if (!aChild.equals(Paths.get(carbonHome, Constants.OSGI_REPOSITORY))) {
+                        delete(aChild);
+                    }
                 }
             }
         }
-        return Files.deleteIfExists(path);
+        return true;
     }
 
     private static List<Path> listFiles(Path directory) throws IOException {

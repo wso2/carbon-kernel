@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class deploys the OSGi bundles in CARBON_HOME/osgi/dropins directory in the Carbon Server.
+ * This class deploys the OSGi bundles in CARBON_HOME/lib directory in the Carbon Server.
  * <p>
  * For this purpose, the OSGi bundle information retrieved from the dropins directory bundles are updated in
  * the bundles.info file of each and every, existing Carbon profile, along with the bundle startup information
@@ -45,7 +45,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            Path dropinsDirectoryPath = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.DROPINS);
+            Path dropinsDirectoryPath = Paths.get(carbonHome.toString(), Constants.DROPINS);
             String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE))
                     .orElse(Constants.DEFAULT_PROFILE);
 

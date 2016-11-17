@@ -129,7 +129,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     public void loadLaunchConfigOsgiRepoTestCase() throws MalformedURLException {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
-        Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "osgi");
+        Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "wso2/lib");
         if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
             Assert.assertEquals(Paths.get(osgiRepoURL.getPath()).toUri().toURL().toString(),
                     expectedPath.toUri().toURL().toString());

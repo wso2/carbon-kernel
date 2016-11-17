@@ -49,7 +49,7 @@ class DropinsDeployerToolUtils {
         }
 
         if (profile != null) {
-            Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.DROPINS);
+            Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.DROPINS);
             logger.log(Level.FINE,
                     "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
             List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(dropinsDirectoryPath);

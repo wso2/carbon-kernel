@@ -43,7 +43,7 @@ public class DropinsDeployerToolTest {
 
     @BeforeClass
     public static void initTestClass() throws IOException {
-        createDirectories(Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.DROPINS));
+        createDirectories(Paths.get(carbonHome.toString(), Constants.DROPINS));
     }
 
     @Test(description = "Attempts to execute dropins tool when no profiles directory exists", expectedExceptions = {
@@ -67,7 +67,7 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile "
             + "with a non-OSGi bundle in dropins", priority = 1)
     public void testExecutingDropinsCapabilityWithANonOSGiJAR() throws CarbonToolException, IOException {
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+        Path profile = Paths.get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                 Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator");
         createDirectories(profile);
 
@@ -82,7 +82,7 @@ public class DropinsDeployerToolTest {
         CarbonToolExecutor.main(args);
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path defaultBundleInfo = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+        Path defaultBundleInfo = Paths.get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                 Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator",
                 Constants.BUNDLES_INFO);
 
@@ -92,14 +92,13 @@ public class DropinsDeployerToolTest {
 
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile", priority = 2)
     public void testExecutingDropinsCapabilityWithASingleProfile() throws CarbonToolException, IOException {
-        Files.deleteIfExists(Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.DROPINS,
-                TestConstants.ARTIFACT_FIVE));
+        Files.deleteIfExists(Paths.get(carbonHome.toString(), Constants.DROPINS, TestConstants.ARTIFACT_FIVE));
 
         String[] args = {Constants.DEFAULT_PROFILE, carbonHome.toString()};
         CarbonToolExecutor.main(args);
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        Path defaultBundleInfo = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+        Path defaultBundleInfo = Paths.get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                 Constants.DEFAULT_PROFILE, "configuration", "org.eclipse.equinox.simpleconfigurator",
                 Constants.BUNDLES_INFO);
 
@@ -119,7 +118,7 @@ public class DropinsDeployerToolTest {
 
         for (String profileName : profileNames) {
             Path bundlesInfo = Paths.
-                    get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
+                    get(carbonHome.toString(), Constants.PROFILE_REPOSITORY, profileName,
                             "configuration", "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
             actual = getActualBundleInfo(bundlesInfo);
             boolean matching = compareBundleInfo(expected, actual);
@@ -133,7 +132,7 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability with an empty Carbon Profile name", priority = 4)
     public void testExecutingDropinsCapabilityForEmptyProfile() throws IOException {
         Path profile = Paths.
-                get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+                get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                         TestConstants.APP_MANAGER_PROFILE, "configuration", "org.eclipse.simpleconfigurator");
         createDirectories(profile);
 
@@ -153,7 +152,7 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability with null tool arguments", priority = 5)
     public void testExecutingDropinsCapabilityForInvalidToolArgs() throws IOException {
         Path profile = Paths.
-                get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+                get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                         TestConstants.APP_MANAGER_PROFILE, "configuration", "org.eclipse.simpleconfigurator");
 
         CarbonToolExecutor.main(null);
@@ -165,7 +164,7 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability for an invalidly structured Profile bundles.info file "
             + "path. Dropins capability executed on a single Profile.", priority = 6)
     public void testExecutingDropinsCapabilityForInvalidBundlesInfoPath() throws IOException {
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+        Path profile = Paths.get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                 TestConstants.APP_MANAGER_PROFILE, "configuration", "org.eclipse.simpleconfigurator");
 
         String[] args = { TestConstants.APP_MANAGER_PROFILE, carbonHome.toString()};
@@ -179,7 +178,7 @@ public class DropinsDeployerToolTest {
     @Test(description = "Attempts to execute dropins capability for an invalidly structured Profile bundles.info file "
             + "path. Dropins capability executed on multiple Profiles.", priority = 6)
     public void testExecutingDropinsCapabilityForMultipleProfilesWithInvalidBundlesInfoPath() throws IOException {
-        Path profile = Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
+        Path profile = Paths.get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
                 TestConstants.APP_MANAGER_PROFILE, "configuration", "org.eclipse.simpleconfigurator");
 
         String[] args = { TestConstants.ALL_CARBON_PROFILES, carbonHome.toString()};
@@ -202,7 +201,7 @@ public class DropinsDeployerToolTest {
 
         for (String profileName : profileNames) {
             Path profile = Paths.
-                    get(carbonHome.toString(), Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH, profileName,
+                    get(carbonHome.toString(), Constants.PROFILE_REPOSITORY, profileName,
                             "configuration", "org.eclipse.equinox.simpleconfigurator");
             createDirectories(profile);
             if (Files.exists(profile)) {
@@ -218,22 +217,19 @@ public class DropinsDeployerToolTest {
         String dropinsFolder = Constants.DROPINS;
         Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
                 TestConstants.ARTIFACT_ONE),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder, TestConstants.ARTIFACT_ONE));
+                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_ONE));
         Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
                 TestConstants.ARTIFACT_TWO),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder, TestConstants.ARTIFACT_TWO));
+                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_TWO));
         Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
                 TestConstants.ARTIFACT_THREE),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
-                        TestConstants.ARTIFACT_THREE));
+                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_THREE));
         Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
                 TestConstants.ARTIFACT_FOUR),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
-                        TestConstants.ARTIFACT_FOUR));
+                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_FOUR));
         Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
                 TestConstants.ARTIFACT_FIVE),
-                Paths.get(carbonHome.toString(), Constants.OSGI_REPOSITORY, dropinsFolder,
-                        TestConstants.ARTIFACT_FIVE));
+                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_FIVE));
     }
 
     private static List<BundleInfo> getExpectedBundleInfo() {

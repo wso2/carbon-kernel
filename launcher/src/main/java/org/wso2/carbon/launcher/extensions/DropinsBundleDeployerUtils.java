@@ -81,8 +81,8 @@ public class DropinsBundleDeployerUtils {
                     "Carbon Profile: " + carbonProfile);
         }
 
-        Path bundlesInfoFile = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH,
-                carbonProfile, "configuration", "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
+        Path bundlesInfoFile = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY, carbonProfile, "configuration",
+                "org.eclipse.equinox.simpleconfigurator", Constants.BUNDLES_INFO);
         //  retrieves the OSGi bundle information defined in the existing bundles.info file
         Map<BundleLocation, List<BundleInfo>> existingBundlesInfo = Files.readAllLines(bundlesInfoFile)
                 .stream()
@@ -296,7 +296,7 @@ public class DropinsBundleDeployerUtils {
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
-        Path carbonProfilesHome = Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.PROFILE_PATH);
+        Path carbonProfilesHome = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY);
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
@@ -305,11 +305,14 @@ public class DropinsBundleDeployerUtils {
                     .parallel()
                     .forEach(profile -> Optional.ofNullable(profile.getFileName())
                             .ifPresent(name -> profileNames.add(name.toString())));
+            if (profileNames.size() == 0) {
+                throw new IOException("No profiles found in " + carbonHome + "/" + Constants.PROFILE_REPOSITORY);
+            }
 
             return profileNames;
         } else {
-            throw new IOException("The " + carbonHome + "/" + Constants.OSGI_REPOSITORY + "/" + Constants.PROFILE_PATH +
-                    " directory does not exist");
+            throw new IOException("The " + carbonHome + "/" + Constants.PROFILE_REPOSITORY + " directory does not "
+                    + "exist");
         }
     }
 

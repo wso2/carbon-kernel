@@ -38,10 +38,10 @@ public class BundleInfo {
         this.startLevel = startLevel;
         this.isFragment = isFragment;
 
-        if (bundlePath.contains(Constants.DROPINS + "/")) {
-            isFromDropins = BundleLocation.DROPINS_BUNDLE;
-        } else {
+        if (bundlePath.contains(Constants.PLUGINS + "/")) {
             isFromDropins = BundleLocation.NON_DROPINS_BUNDLE;
+        } else {
+            isFromDropins = BundleLocation.DROPINS_BUNDLE;
         }
     }
 

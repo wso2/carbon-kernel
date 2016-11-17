@@ -26,14 +26,17 @@ public class Constants {
     public static final String CARBON_HOME = "carbon.home";
     static final String CARBON_START_TIME = "carbon.start.time";
 
-    public static final String OSGI_REPOSITORY = "osgi";
+    public static final String OSGI_REPOSITORY = "wso2/lib";
+    public static final String LAUNCH_CONF_DIRECTORY = "conf/osgi";
+    public static final String PROFILE_REPOSITORY = "wso2";
     public static final String PROFILE = "profile";
-    public static final String PROFILE_PATH = "profiles";
     public static final String DEFAULT_PROFILE = "default";
-    public static final String DROPINS = "dropins";
+    public static final String DROPINS = "lib";
+    public static final String PLUGINS = "plugins";
     public static final String BUNDLES_INFO = "bundles.info";
 
     public static final String CARBON_OSGI_REPOSITORY = "carbon.osgi.repository";
+    public static final String CARBON_PROFILE_REPOSITORY = "carbon.profile.repository";
     public static final String CARBON_OSGI_FRAMEWORK = "carbon.osgi.framework";
     public static final String CARBON_INITIAL_OSGI_BUNDLES = "carbon.initial.osgi.bundles";
     public static final String CARBON_SERVER_LISTENERS = "carbon.server.listeners";

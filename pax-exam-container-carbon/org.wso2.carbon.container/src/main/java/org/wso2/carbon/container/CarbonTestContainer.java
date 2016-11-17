@@ -172,7 +172,7 @@ public class CarbonTestContainer implements TestContainer {
      * @param carbonHome carbon home dir
      */
     private void copyDropinsBundles(Path carbonHome) {
-        Path targetDirectory = carbonHome.resolve("osgi").resolve("dropins");
+        Path targetDirectory = carbonHome.resolve("lib");
 
         Arrays.asList(system.getOptions(CopyDropinsBundleOption.class)).forEach(option -> {
             try {
