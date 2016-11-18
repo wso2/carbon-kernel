@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.kernel.configprovider.utils;
 
-import org.wso2.carbon.kernel.Constants;
 import org.yaml.snakeyaml.Yaml;
 
 import java.nio.file.Path;
@@ -33,13 +32,13 @@ public class ConfigurationUtils {
     }
 
     /**
-     * Returns the deployment.yaml location.
+     * Returns the configuration file location.
      *
-     * @return Path deployment.yaml location
+     * @return Path configuration file location
      */
-    public static Path getDeploymentYAMLLocation() {
+    public static Path getConfigurationFileLocation(String filename) {
         return Paths.get(org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().toString(),
-                Constants.DEPLOYMENT_CONFIG_YAML);
+                filename);
     }
 
     /**

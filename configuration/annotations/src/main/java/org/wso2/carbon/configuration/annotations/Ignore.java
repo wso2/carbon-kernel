@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Element annotation for configuration tool
+ * Ignore annotation for configuration tool
  *
  * @since 5.2.0
  */

@@ -28,7 +28,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Configuration {
-    String namespace();
-    String description() default NULL;
+    // needed only for root configuration bean
+    String namespace() default NULL;
+    // field description, required
+    String description();
     public static final String NULL = "NULL";
 }

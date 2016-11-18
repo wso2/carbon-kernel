@@ -15,31 +15,25 @@
  */
 package org.wso2.carbon.kernel.internal.configprovider;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.configuration.annotations.Configuration;
-import org.wso2.carbon.configuration.annotations.Ignore;
 import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
+import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
-import org.wso2.carbon.kernel.configprovider.DeploymentConfigProvider;
-import org.wso2.carbon.kernel.configprovider.configs.YAMLBasedConfigProvider;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
-import java.lang.reflect.Field;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This util class provide the ability to override configurations in various components using a single file which has
+ * This impl class provide the ability to override configurations in various components using a single file which has
  * the name {@link ConfigProviderImpl}.
  *
  * @since 5.2.0
@@ -47,11 +41,13 @@ import java.util.regex.Pattern;
 public class ConfigProviderImpl implements ConfigProvider {
     private static final Logger logger = LoggerFactory.getLogger(ConfigProviderImpl.class.getName());
 
-    private static Hashtable<String, String> deploymentConfigs = new Hashtable<>();
+    private static volatile Map<String, String>  deploymentConfigs = null;
     //This regex is used to identify placeholders
     private static final String PLACEHOLDER_REGEX;
     //This is used to match placeholders
     private static final Pattern PLACEHOLDER_PATTERN;
+
+    private ConfigFileReader configFileReader;
 
     static {
         PLACEHOLDER_REGEX = "(.*?)(\\$\\{(" + getPlaceholderString() + "):([^,]+?)((,)(.+?))?\\})(.*?)";
@@ -72,74 +68,54 @@ public class ConfigProviderImpl implements ConfigProvider {
         }
     }
 
+    public ConfigProviderImpl(ConfigFileReader configFileReader) {
+        this.configFileReader = configFileReader;
+    }
+
     @Override
-    public Object getConfigurationInstance(String configClassName) throws CarbonConfigurationException {
-        //load the class using reflection and yaml instance from the class loader
-        Class configClass;
-        try {
-            configClass = Class.forName(configClassName);
-        } catch (ClassNotFoundException e) {
-            throw new CarbonConfigurationException("Config Class : " + configClassName + "does not exists.", e);
-        }
-        Yaml yaml = new Yaml(new CustomClassLoaderConstructor(configClass,
-                configClass.getClassLoader()));
-        yaml.setBeanAccess(BeanAccess.FIELD);
-
-        //read default configuration values from annotations
-        Map<String, Object> defaultElementMap = readConfigurationElements(configClass);
-
+    public <T> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException {
         //get configuration namespace from the class annotation
-        Configuration configuration = null;
+        String namespace = null;
         if (configClass.isAnnotationPresent(Configuration.class)) {
-            configuration = (Configuration) configClass.getAnnotation(Configuration.class);
+            Configuration configuration = configClass.getAnnotation(Configuration.class);
+            if (!Configuration.NULL.equals(configuration.namespace())) {
+                namespace = configuration.namespace();
+            }
         }
+        // lazy loading deployment.yaml configuration.
+        loadDeploymentConfiguration(configFileReader);
 
-        //lazy loading deployment.yaml configuration, if it is not exists
-        loadDeploymentConfiguration();
-
-        try {
-            String yamlConfigString;
-            if (configuration != null && deploymentConfigs.containsKey(configuration.namespace())) {
-                String jsonConfigString = deploymentConfigs.get(configuration.namespace());
-                if (logger.isDebugEnabled()) {
-                    logger.info("class name: " + configClass.getSimpleName() + " | new configurations : \n" +
-                            jsonConfigString);
-                }
-                JSONObject modifiedObject = overrideDefaultConfigurations(new JSONObject(defaultElementMap),
-                        new JSONObject(jsonConfigString));
-                if (logger.isDebugEnabled()) {
-                    logger.info("class name: " + configClass.getSimpleName() + " | modified configurations:: \n" +
-                            modifiedObject.toString());
-                }
-                yamlConfigString = ConfigurationUtils.convertJSONToYAML(modifiedObject.toString());
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Deployment configuration mapping doesn't exist: " +
-                            "creating configuration instance with default values");
-                }
-
-                if (defaultElementMap.isEmpty()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Default configuration doesn't exist: " +
-                                "creating configuration instance without values");
-                    }
-                    return configClass.newInstance();
-                }
-                yamlConfigString = yaml.dumpAsMap(defaultElementMap);
+        if (namespace != null && deploymentConfigs.containsKey(namespace)) {
+            String jsonConfigString = deploymentConfigs.get(namespace);
+            String yamlConfigString = ConfigurationUtils.convertJSONToYAML(jsonConfigString);
+            if (logger.isDebugEnabled()) {
+                logger.debug("class name: " + configClass.getSimpleName() + " | new configurations : \n" +
+                        yamlConfigString);
             }
             String yamlProcessedString = processPlaceholder(yamlConfigString);
             yamlProcessedString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlProcessedString);
+            Yaml yaml = new Yaml(new CustomClassLoaderConstructor(configClass, configClass.getClassLoader()));
+            yaml.setBeanAccess(BeanAccess.FIELD);
             return yaml.loadAs(yamlProcessedString, configClass);
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new CarbonConfigurationException("Error while creating configuration Instance", e);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Deployment configuration mapping doesn't exist: " +
+                        "creating configuration instance with default values");
+            }
+            try {
+                return configClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new CarbonConfigurationException("Error while creating configuration Instance : "
+                        + configClass.getSimpleName(), e);
+            }
         }
     }
 
     @Override
     public Map getConfigurationMap(String namespace) throws CarbonConfigurationException {
-        //lazy loading deployment.yaml configuration, if it is not exists
-        loadDeploymentConfiguration();
-        //check for json configuration from deployment configs of namespace.
+        // lazy loading deployment.yaml configuration, if it is not exists
+        loadDeploymentConfiguration(configFileReader);
+        // check for json configuration from deployment configs of namespace.
         if (deploymentConfigs.containsKey(namespace)) {
             String jsonConfigString = deploymentConfigs.get(namespace);
             String jsonProcessedString = processPlaceholder(jsonConfigString);
@@ -153,69 +129,18 @@ public class ConfigProviderImpl implements ConfigProvider {
     }
 
 
-    private void loadDeploymentConfiguration() {
-        if (deploymentConfigs.isEmpty()) {
+    /**
+     * This method loads deployment configs in deployment.yaml. loads only if config
+     */
+    private void loadDeploymentConfiguration(ConfigFileReader configFileReader) {
+        if (deploymentConfigs == null) {
             synchronized (this) {
-                if (deploymentConfigs.isEmpty()) {
-                    DeploymentConfigProvider configProvider = new YAMLBasedConfigProvider();
-                    deploymentConfigs = configProvider.getDeploymentConfiguration();
+                if (deploymentConfigs == null) {
+                    deploymentConfigs = configFileReader.getDeploymentConfiguration();
                 }
             }
         }
     }
-
-    private Map<String, Object> readConfigurationElements(Class configClass) {
-        Map<String, Object> elementMap = new LinkedHashMap<>();
-        Field[] fields = configClass.getDeclaredFields();
-        for (Field field : fields) {
-            if (field.getAnnotation(Ignore.class) != null) {
-                continue;
-            }
-
-            Class fieldTypeClass = null;
-            if (!field.getType().isPrimitive()) {
-                fieldTypeClass = field.getType();
-            }
-
-            if (fieldTypeClass != null && fieldTypeClass.isAnnotationPresent(Configuration.class)) {
-                Configuration configuration = (Configuration) fieldTypeClass.getAnnotation(Configuration.class);
-                elementMap.put(configuration.namespace(), readConfigurationElements(fieldTypeClass));
-            } else {
-                org.wso2.carbon.configuration.annotations.Element fieldElem = field.getAnnotation(org.wso2.carbon
-                        .configuration.annotations.Element.class);
-                if (fieldElem != null) {
-                    if (!fieldElem.defaultValue().equals(org.wso2.carbon.configuration.annotations.Element.NULL)) {
-                        elementMap.put(field.getName(), fieldElem.defaultValue());
-                    }
-                }
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("class name: " + configClass.getSimpleName() + " | default configurations :: " + elementMap
-                    .toString());
-        }
-        return elementMap;
-    }
-
-    private JSONObject overrideDefaultConfigurations(JSONObject defaultConfig, JSONObject newConfig) {
-        for (Object key : newConfig.keySet()) {
-            //based on you key types
-            String keyStr = (String) key;
-            Object keyvalue = newConfig.get(keyStr);
-            //for nested objects iteration if required
-            if (keyvalue instanceof JSONObject) {
-                if (defaultConfig.has(keyStr)) {
-                    overrideDefaultConfigurations((JSONObject) defaultConfig.get(keyStr), (JSONObject) keyvalue);
-                } else {
-                    defaultConfig.put(keyStr, keyvalue);
-                }
-            } else {
-                defaultConfig.put(keyStr, keyvalue);
-            }
-        }
-        return defaultConfig;
-    }
-
 
     /**
      * This method will concatenate and return the placeholder types.. Placeholder types will be separated
@@ -260,9 +185,10 @@ public class ConfigProviderImpl implements ConfigProvider {
                     break;
                 case "sec":
                     try {
-                        inputString = new String(ConfigProviderDataHolder.getInstance().getOptSecureVault()
+                        String newValue = new String(ConfigProviderDataHolder.getInstance().getOptSecureVault()
                                 .orElseThrow(() -> new RuntimeException("Secure Vault service is not available"))
                                 .resolve(value));
+                        inputString = inputString.replaceFirst(PLACEHOLDER_REGEX, "$1" + newValue + "$8");
                     } catch (SecureVaultException e) {
                         throw new RuntimeException("Unable to resolve the given alias", e);
                     }

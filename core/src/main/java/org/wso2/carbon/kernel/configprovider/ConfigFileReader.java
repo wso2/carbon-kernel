@@ -16,22 +16,22 @@
 package org.wso2.carbon.kernel.configprovider;
 
 
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
- * DeploymentConfigProvider allows CarbonRuntime implementations to retrieve a DeploymentConfiguration instance.
- * DeploymentConfiguration can be populated from different sources. For an example, from a file or from a URL. This
+ * ConfigFileReader allows CarbonRuntime implementations to retrieve a Deployment Configuration map.
+ * Configuration map can be populated from different sources. For an example, from a file or from a URL. This
  * class provides a way abstract out the different sources and provide a generic interface to the CarbonRuntime
  * implementers.
  *
  * @since 5.2.0
  */
-public interface DeploymentConfigProvider {
+public interface ConfigFileReader {
 
     /**
-     * Returns a populated CarbonConfiguration instance.
+     * Returns a populated Deployment Configuration Map which overrides default configuration.
      *
-     * @return a instance of the CarbonConfiguration
+     * @return a instance of the Configuration Map, key: String, value: JSON string
      */
-    public Hashtable<String, String> getDeploymentConfiguration();
+    public Map<String, String> getDeploymentConfiguration();
 }

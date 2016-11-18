@@ -16,7 +16,10 @@
 package org.wso2.carbon.kernel.configprovider;
 
 /**
+ * CarbonConfigurationException throws when server cannot provide the configuration.
+ * Carbon configuration related exceptions.
  *
+ * @since 5.2.0
  */
 public class CarbonConfigurationException extends Exception {
     public CarbonConfigurationException(String message) {

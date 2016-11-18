@@ -21,6 +21,10 @@ import org.wso2.carbon.configuration.annotations.Ignore;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * CarbonConfiguration class holds static configuration parameters specified in the carbon.yaml file.
  *
@@ -29,14 +33,14 @@ import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 @Configuration(namespace = "wso2.carbon", description = "Carbon Configuration Parameters")
 public class CarbonConfiguration {
 
-    @Element(description = "value to uniquely identify a server", required = true, defaultValue = "carbon-kernel")
-    private String id;
+    @Element(description = "value to uniquely identify a server", required = true)
+    private String id = "carbon-kernel";
 
-    @Element(description = "server name", defaultValue = "WSO2 Carbon Kernel")
-    private String name;
+    @Element(description = "server name")
+    private String name = "WSO2 Carbon Kernel";
 
-    @Element(description = "server version", defaultValue = "5.2.0-SNAPSHOT")
-    private String version;
+    @Element(description = "server version")
+    private String version = "5.2.0-SNAPSHOT";
 
     @Ignore
     private String tenant = Constants.DEFAULT_TENANT;
@@ -52,6 +56,18 @@ public class CarbonConfiguration {
 
     @Element(description = "JMX Configuration")
     private JMXConfiguration jmx = new JMXConfiguration();
+
+    @Element(description = "Testing String array")
+    private String[] keys;
+
+    @Element(description = "Testing String List")
+    private List<String> names;
+
+    @Element(description = "Testing declared type array")
+    private PortsConfig[] portsConfigs;
+
+    @Element(description = "Testing declared type list")
+    private List<JMXConfiguration> jmxConfigurations;
 
     public String getId() {
         return id;
@@ -83,5 +99,22 @@ public class CarbonConfiguration {
 
     public JMXConfiguration getJmxConfiguration() {
         return jmx;
+    }
+
+    public String getKey(int index) {
+        return keys[index];
+    }
+
+    public String getName(int index) {
+        return names.get(index);
+    }
+
+    public CarbonConfiguration() {
+        keys = new String[]{"key1", "keys2"};
+        names = Arrays.asList("sup1", "sup2", "sup3");
+        portsConfigs = new PortsConfig[]{new PortsConfig(), new PortsConfig()};
+        jmxConfigurations = new ArrayList<>();
+        jmxConfigurations.add(new JMXConfiguration());
+        jmxConfigurations.add(new JMXConfiguration());
     }
 }

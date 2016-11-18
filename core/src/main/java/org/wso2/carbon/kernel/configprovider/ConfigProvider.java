@@ -18,14 +18,29 @@ package org.wso2.carbon.kernel.configprovider;
 import java.util.Map;
 
 /**
- * ConfigResolver helps to parse and update the configuration files. This will update the configuration values with
+ * ConfigProvider provides the configuration mapping of the class namespace.
+ * This will update the configuration values with
  * following placeholders ${env:alias}, ${sys:alias} and ${sec:alias}
  *
  * @since 5.2.0
  */
 public interface ConfigProvider {
 
-    public Object getConfigurationInstance(String configClassName) throws CarbonConfigurationException;
+    /**
+     * returns configuration object of the class with overriding the values of deployment.yaml, if configuration
+     * exists for the given namespace in deployment.yaml
+     * @param configClass configuration bean class
+     * @param <T> object type
+     * @return configuration bean object of given type
+     * @throws CarbonConfigurationException
+     */
+    public <T extends Object> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException;
 
+    /**
+     * returns configuration map of the namespace, if configuration exists for the given namespace in deployment.yaml
+     * @param namespace config namespace
+     * @return configuration map
+     * @throws CarbonConfigurationException
+     */
     public Map getConfigurationMap(String namespace) throws CarbonConfigurationException;
 }

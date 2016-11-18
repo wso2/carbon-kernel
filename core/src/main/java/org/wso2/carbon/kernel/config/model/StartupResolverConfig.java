@@ -23,7 +23,7 @@ import org.wso2.carbon.configuration.annotations.Configuration;
 /**
  * Config bean for startupOrderResolver in carbon.yaml file.
  */
-@Configuration(namespace = "startupResolver", description = "StartupOrderResolver related configurations")
+@Configuration(description = "StartupOrderResolver related configurations")
 public class StartupResolverConfig {
 
     private CapabilityListenerTimer capabilityListenerTimer = new CapabilityListenerTimer();

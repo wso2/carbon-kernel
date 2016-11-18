@@ -24,7 +24,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.kernel.configprovider.YAMLBasedConfigFileReader;
 import org.wso2.carbon.kernel.securevault.SecureVault;
 
 import java.util.Optional;
@@ -44,7 +47,8 @@ public class ConfigProviderComponent {
     @Activate
     protected void start(BundleContext bundleContext) {
         try {
-            ConfigProvider configProvider = new ConfigProviderImpl();
+            ConfigFileReader configFileReader = new YAMLBasedConfigFileReader(Constants.DEPLOYMENT_CONFIG_YAML);
+            ConfigProvider configProvider = new ConfigProviderImpl(configFileReader);
             bundleContext.registerService(ConfigProvider.class, configProvider, null);
             logger.debug("ConfigProvider OSGi service registered");
         } catch (Throwable throwable) {
