@@ -62,7 +62,7 @@ public class ConfigurationProcessor extends AbstractProcessor {
         StringBuilder builder = new StringBuilder();
         for (Element element : configSet) {
             Configuration configuration = element.getAnnotation(Configuration.class);
-            if (!configuration.namespace().equals(Configuration.NULL)) {
+            if (configuration != null && !Configuration.NULL.equals(configuration.namespace())) {
                 builder.append(((TypeElement) element).getQualifiedName()).append(",");
             }
         }
@@ -77,7 +77,8 @@ public class ConfigurationProcessor extends AbstractProcessor {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
             }
         } else {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "NA .. ");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Configuration classes doesn't exist in " +
+                    "the project");
         }
         return true;
     }
