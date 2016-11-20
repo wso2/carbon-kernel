@@ -17,7 +17,7 @@ package org.wso2.carbon.kernel.internal.configprovider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.configuration.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Configuration;
 import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
 import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;

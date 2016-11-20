@@ -52,21 +52,6 @@ public class CarbonCoreComponent {
         logger.debug("Deactivating CarbonCoreComponent");
     }
 
-/*    @Reference(
-            name = "carbon.core.config.resolver",
-            service = ConfigResolver.class,
-            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unregisterConfigResolver"
-    )
-    protected void registerConfigResolver(ConfigResolver configResolver) {
-        DataHolder.getInstance().setOptConfigResolver(Optional.ofNullable(configResolver));
-    }
-
-    protected void unregisterConfigResolver(ConfigResolver configResolver) {
-        DataHolder.getInstance().setOptConfigResolver(Optional.empty());
-    }*/
-
     @Reference(
             name = "carbon.core.config.provider",
             service = ConfigProvider.class,

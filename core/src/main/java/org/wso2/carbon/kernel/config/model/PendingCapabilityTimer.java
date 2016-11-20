@@ -18,8 +18,8 @@
 package org.wso2.carbon.kernel.config.model;
 
 
-import org.wso2.carbon.configuration.annotations.Configuration;
-import org.wso2.carbon.configuration.annotations.Element;
+import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Element;
 
 /**
  * Config bean for pendingCapabilityTimer in carbon.yaml file.

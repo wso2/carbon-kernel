@@ -81,7 +81,7 @@ public class CarbonRuntimeOSGiTest {
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
-        Assert.assertEquals(carbonConfiguration.getVersion(), "5.0.0");
+        Assert.assertEquals(carbonConfiguration.getVersion(), "5.2.0-SNAPSHOT");
 
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
 

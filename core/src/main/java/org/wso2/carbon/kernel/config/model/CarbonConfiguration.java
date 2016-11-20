@@ -15,18 +15,14 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
-import org.wso2.carbon.configuration.annotations.Configuration;
-import org.wso2.carbon.configuration.annotations.Element;
-import org.wso2.carbon.configuration.annotations.Ignore;
 import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Element;
+import org.wso2.carbon.kernel.annotations.Ignore;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * CarbonConfiguration class holds static configuration parameters specified in the carbon.yaml file.
+ * CarbonConfiguration class holds static configuration parameters.
  *
  * @since 5.0.0
  */
@@ -56,18 +52,6 @@ public class CarbonConfiguration {
 
     @Element(description = "JMX Configuration")
     private JMXConfiguration jmx = new JMXConfiguration();
-
-    @Element(description = "Testing String array")
-    private String[] keys;
-
-    @Element(description = "Testing String List")
-    private List<String> names;
-
-    @Element(description = "Testing declared type array")
-    private PortsConfig[] portsConfigs;
-
-    @Element(description = "Testing declared type list")
-    private List<JMXConfiguration> jmxConfigurations;
 
     public String getId() {
         return id;
@@ -99,22 +83,5 @@ public class CarbonConfiguration {
 
     public JMXConfiguration getJmxConfiguration() {
         return jmx;
-    }
-
-    public String getKey(int index) {
-        return keys[index];
-    }
-
-    public String getName(int index) {
-        return names.get(index);
-    }
-
-    public CarbonConfiguration() {
-        keys = new String[]{"key1", "keys2"};
-        names = Arrays.asList("sup1", "sup2", "sup3");
-        portsConfigs = new PortsConfig[]{new PortsConfig(), new PortsConfig()};
-        jmxConfigurations = new ArrayList<>();
-        jmxConfigurations.add(new JMXConfiguration());
-        jmxConfigurations.add(new JMXConfiguration());
     }
 }

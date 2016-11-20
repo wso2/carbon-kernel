@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.kernel.configprovider;
 
-import org.wso2.carbon.configuration.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Configuration;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
