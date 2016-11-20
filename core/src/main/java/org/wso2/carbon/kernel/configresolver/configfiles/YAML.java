@@ -43,7 +43,6 @@ public final class YAML extends AbstractConfigFile {
                 StandardCharsets.UTF_8))) {
             String input = bufferedReader.lines().collect(Collectors.joining("\n"));
             setCanonicalContent(ConfigResolverUtils.convertYAMLToXML(input, ROOT_ELEMENT));
-            setContent(input);
         }
     }
 

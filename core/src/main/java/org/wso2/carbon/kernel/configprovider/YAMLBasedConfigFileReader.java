@@ -61,7 +61,7 @@ public class YAMLBasedConfigFileReader implements ConfigFileReader {
         } catch (IOException e) {
             String errorMessage = "Failed populate Deployment Configuration from " + configFile.getName();
             logger.error(errorMessage, e);
-            throw new RuntimeException(errorMessage);
+            throw new RuntimeException(errorMessage, e);
         }
     }
 
