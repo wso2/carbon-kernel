@@ -22,7 +22,7 @@ import org.wso2.carbon.kernel.annotations.Configuration;
 import org.wso2.carbon.kernel.annotations.Element;
 
 /**
- * Config bean for pendingCapabilityTimer in carbon.yaml file.
+ * Config bean for pendingCapabilityTimer.
  */
 @Configuration(description = "Configuration for the timer task which checks " +
         "for satisfiable RequiredCapabilityListeners periodically")

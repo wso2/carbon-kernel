@@ -23,6 +23,7 @@ wso2.carbon:
   name: WSO2 Carbon Kernel
     # server version
   version: 5.2.0-SNAPSHOT
+  tenant: default
     # ports used by this server
   ports:
       # port offset
@@ -43,9 +44,9 @@ wso2.carbon:
   startupResolver:
     capabilityListenerTimer:
         # delay in milliseconds before task is to be executed
-      delay: 20
+      delay: 200
         # time in milliseconds between successive task executions
-      period: 20
+      period: 200
     pendingCapabilityTimer:
         # delay in milliseconds before task is to be executed
       delay: 60000

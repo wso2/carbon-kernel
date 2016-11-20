@@ -18,11 +18,12 @@
 wso2.carbon:
     # value to uniquely identify a server
     # THIS IS A MANDATORY FIELD
-  id: carbon-kernel
+  id: ${server.key}
     # server name
-  name: WSO2 Carbon Kernel
+  name: ${server.name}
     # server version
-  version: 5.2.0-SNAPSHOT
+  version: ${server.version}
+  tenant: default
     # ports used by this server
   ports:
       # port offset
@@ -48,13 +49,13 @@ wso2.carbon:
       period: 20
     pendingCapabilityTimer:
         # delay in milliseconds before task is to be executed
-      delay: 60000
+      delay: 30000
         # time in milliseconds between successive task executions
       period: 30000
     # JMX Configuration
   jmx:
       # To enable JMX Monitoring, change this value to true
-    enabled: false
+    enabled: true
       # Server HostName
     hostName: 127.0.0.1
       # The port RMI server should be exposed

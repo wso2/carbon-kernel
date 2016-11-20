@@ -78,7 +78,7 @@ public class BaseOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.yaml file with populated carbon.yaml file.
+     * Replace the existing deployment.yaml file with populated deployment.yaml file.
      */
     private Option copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
@@ -87,7 +87,7 @@ public class BaseOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yaml");
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "carbon.yaml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "deployment.yaml");
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "deployment.yaml"));
     }
 }

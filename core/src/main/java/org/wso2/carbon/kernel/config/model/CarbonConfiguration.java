@@ -38,7 +38,6 @@ public class CarbonConfiguration {
     @Element(description = "server version")
     private String version = "5.2.0-SNAPSHOT";
 
-    @Ignore
     private String tenant = Constants.DEFAULT_TENANT;
 
     @Element(description = "ports used by this server")

@@ -31,8 +31,7 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 public interface CarbonRuntime {
 
     /**
-     * Returns the CarbonConfiguration instance. It holds static configuration items specified
-     * in the carbon.yaml file.
+     * Returns the CarbonConfiguration instance. It holds static configuration items.
      *
      * @return the carbon configuration
      * @see CarbonConfiguration
