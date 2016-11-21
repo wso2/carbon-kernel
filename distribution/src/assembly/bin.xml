@@ -29,7 +29,6 @@
             <outputDirectory></outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
-                <!--<exclude>**/eclipse.ini</exclude>-->
                 <exclude>**/*.lock</exclude>
                 <exclude>**/.data</exclude>
                 <exclude>**/.settings</exclude>
