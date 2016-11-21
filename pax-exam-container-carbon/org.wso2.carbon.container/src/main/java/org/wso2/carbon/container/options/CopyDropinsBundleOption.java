@@ -19,7 +19,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
 /**
- * Install any bundle to dropins directory.
+ * Install any bundle to lib directory.
  */
 public class CopyDropinsBundleOption implements Option {
 

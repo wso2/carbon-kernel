@@ -30,11 +30,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class deploys the OSGi bundles in CARBON_HOME/lib directory in the Carbon Server.
+ * This class deploys the OSGi bundles in CARBON_HOME/{@value org.wso2.carbon.launcher.Constants#LIB} directory in
+ * the Carbon Server.
  * <p>
- * For this purpose, the OSGi bundle information retrieved from the dropins directory bundles are updated in
- * the bundles.info file of each and every, existing Carbon profile, along with the bundle startup information
- * of each bundle.
+ * For this purpose, the OSGi bundle information retrieved from the {@value org.wso2.carbon.launcher.Constants#LIB}
+ * directory bundles are
+ * updated in the bundles.info file of each and every, existing Carbon profile, along with the bundle startup
+ * information of each bundle.
  *
  * @since 5.0.0
  */
@@ -45,15 +47,15 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            Path dropinsDirectoryPath = Paths.get(carbonHome.toString(), Constants.DROPINS);
+            Path libDirectoryPath = Paths.get(carbonHome.toString(), Constants.LIB);
             String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE))
                     .orElse(Constants.DEFAULT_PROFILE);
 
             try {
                 logger.log(Level.FINE,
-                        "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
-                List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(dropinsDirectoryPath);
-                logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
+                        "Loading the new OSGi bundle information from " + Constants.LIB + " folder...");
+                List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(libDirectoryPath);
+                logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.LIB +
                         " folder");
 
                 DropinsBundleDeployerUtils.updateDropins(carbonHome.toString(), profile, newBundlesInfo);

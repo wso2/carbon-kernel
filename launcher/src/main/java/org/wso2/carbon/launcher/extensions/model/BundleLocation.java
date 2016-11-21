@@ -16,7 +16,8 @@
 package org.wso2.carbon.launcher.extensions.model;
 
 /**
- * This enum type indicates whether a particular OSGi bundle belongs to dropins directory or not.
+ * This enum type indicates whether a particular OSGi bundle belongs to {@value org.wso2.carbon.launcher.Constants#LIB}
+ * directory or not.
  *
  * @since 5.1.0
  */

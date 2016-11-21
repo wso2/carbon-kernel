@@ -46,9 +46,10 @@ public class DropinsBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
 
     /**
-     * Updates the bundles.info file of the specified Carbon Profile based on the OSGi bundles deployed in the dropins
-     * directory. The OSGi bundle information in the bundles.info file in a Carbon profile is used to install and
-     * start the bundles at the server startup for the particular profile.
+     * Updates the bundles.info file of the specified Carbon Profile based on the OSGi bundles deployed in the
+     * {@value org.wso2.carbon.launcher.Constants#LIB} directory. The OSGi bundle information in the bundles.info file
+     * in a Carbon profile is
+     * used to install and start the bundles at the server startup for the particular profile.
      * <p>
      * The mechanism used in updating the bundles.info file is as follows:
      * 1. The existing OSGi bundle information within the specified Carbon Profile are read.
@@ -105,8 +106,9 @@ public class DropinsBundleDeployerUtils {
             logger.log(Level.INFO,
                     "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
         } else {
-            logger.log(Level.FINE, "No changes detected in the dropins directory in comparison with the profile, " +
-                    "skipped the OSGi bundle information update for Carbon Profile: " + carbonProfile);
+            logger.log(Level.FINE, String.format("No changes detected in the %s directory in comparison with the "
+                    + "profile, skipped the OSGi bundle information update for Carbon Profile: %s", Constants.LIB,
+                    carbonProfile));
         }
     }
 
@@ -171,7 +173,7 @@ public class DropinsBundleDeployerUtils {
             Manifest manifest = jarFile.getManifest();
 
             if ((manifest == null) || (manifest.getMainAttributes() == null)) {
-                throw new IOException("Invalid OSGi bundle found in the " + Constants.DROPINS + " folder");
+                throw new IOException("Invalid OSGi bundle found in the " + Constants.LIB + " folder");
             }
 
             String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
@@ -192,7 +194,7 @@ public class DropinsBundleDeployerUtils {
             boolean isFragment = (manifest.getMainAttributes().getValue("Fragment-Host") != null);
             int defaultBundleStartLevel = 4;
             BundleInfo generated = new BundleInfo(bundleSymbolicName, bundleVersion,
-                    "../../" + Constants.DROPINS + "/" + fileName, defaultBundleStartLevel, isFragment);
+                    "../../" + Constants.LIB + "/" + fileName, defaultBundleStartLevel, isFragment);
             logger.log(Level.FINE,
                     "Successfully loaded information from OSGi bundle: " + bundleSymbolicName + ":" + bundleVersion);
             return Optional.of(generated);
@@ -297,12 +299,14 @@ public class DropinsBundleDeployerUtils {
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
         Path carbonProfilesHome = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY);
+        Path osgiRepoPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY);
         if (Files.exists(carbonProfilesHome)) {
             Stream<Path> profiles = Files.list(carbonProfilesHome);
             List<String> profileNames = new ArrayList<>();
 
             profiles
                     .parallel()
+                    .filter(profile -> !osgiRepoPath.equals(profile))
                     .forEach(profile -> Optional.ofNullable(profile.getFileName())
                             .ifPresent(name -> profileNames.add(name.toString())));
             if (profileNames.size() == 0) {

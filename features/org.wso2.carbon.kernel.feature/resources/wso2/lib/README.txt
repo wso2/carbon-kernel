@@ -6,10 +6,3 @@ every directory are as follows.
 
 2. p2
    Contains Carbon provisioning (p2) related configuration files.
-
-3. configuration
-   OSGi specific configuration files.
-
-4. extensions
-   Directory to drop non-OSGi libraries which should become system extensions
-   in the OSGi environment.

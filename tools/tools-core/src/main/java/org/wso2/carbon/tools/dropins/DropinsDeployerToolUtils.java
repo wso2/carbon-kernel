@@ -49,11 +49,11 @@ class DropinsDeployerToolUtils {
         }
 
         if (profile != null) {
-            Path dropinsDirectoryPath = Paths.get(carbonHome, Constants.DROPINS);
+            Path libDirectoryPath = Paths.get(carbonHome, Constants.LIB);
             logger.log(Level.FINE,
-                    "Loading the new OSGi bundle information from " + Constants.DROPINS + " folder...");
-            List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(dropinsDirectoryPath);
-            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.DROPINS +
+                    "Loading the new OSGi bundle information from " + Constants.LIB + " folder...");
+            List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(libDirectoryPath);
+            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.LIB +
                     " folder");
 
             if (profile.equals("ALL")) {

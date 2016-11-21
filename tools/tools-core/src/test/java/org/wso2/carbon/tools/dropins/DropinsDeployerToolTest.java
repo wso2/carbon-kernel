@@ -43,7 +43,7 @@ public class DropinsDeployerToolTest {
 
     @BeforeClass
     public static void initTestClass() throws IOException {
-        createDirectories(Paths.get(carbonHome.toString(), Constants.DROPINS));
+        createDirectories(Paths.get(carbonHome.toString(), Constants.LIB));
     }
 
     @Test(description = "Attempts to execute dropins tool when no profiles directory exists", expectedExceptions = {
@@ -92,7 +92,7 @@ public class DropinsDeployerToolTest {
 
     @Test(description = "Attempts to execute dropins capability with a single available Carbon Profile", priority = 2)
     public void testExecutingDropinsCapabilityWithASingleProfile() throws CarbonToolException, IOException {
-        Files.deleteIfExists(Paths.get(carbonHome.toString(), Constants.DROPINS, TestConstants.ARTIFACT_FIVE));
+        Files.deleteIfExists(Paths.get(carbonHome.toString(), Constants.LIB, TestConstants.ARTIFACT_FIVE));
 
         String[] args = {Constants.DEFAULT_PROFILE, carbonHome.toString()};
         CarbonToolExecutor.main(args);
@@ -214,38 +214,38 @@ public class DropinsDeployerToolTest {
     }
 
     private static void prepareCarbonHomeForDropinsTests() throws IOException {
-        String dropinsFolder = Constants.DROPINS;
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+        String libFolder = Constants.LIB;
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
                 TestConstants.ARTIFACT_ONE),
-                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_ONE));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_ONE));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
                 TestConstants.ARTIFACT_TWO),
-                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_TWO));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_TWO));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
                 TestConstants.ARTIFACT_THREE),
-                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_THREE));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_THREE));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
                 TestConstants.ARTIFACT_FOUR),
-                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_FOUR));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, dropinsFolder,
+                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_FOUR));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
                 TestConstants.ARTIFACT_FIVE),
-                Paths.get(carbonHome.toString(), dropinsFolder, TestConstants.ARTIFACT_FIVE));
+                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_FIVE));
     }
 
     private static List<BundleInfo> getExpectedBundleInfo() {
-        String dropinsFolder = Constants.DROPINS;
+        String libFolder = Constants.LIB;
 
         List<BundleInfo> bundleInfo = new ArrayList<>();
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + TestConstants.EQUINOX_OSGI_VERSION + ",../../" +
-                dropinsFolder + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
+                libFolder + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
-                TestConstants.EQUINOX_SMP_CONFIGURATOR_VERSION + ",../../" + dropinsFolder +
+                TestConstants.EQUINOX_SMP_CONFIGURATOR_VERSION + ",../../" + libFolder +
                 "/" + TestConstants.ARTIFACT_TWO + ",4,true"));
         bundleInfo.add(BundleInfo
                 .getInstance("org.eclipse.equinox.util," + TestConstants.EQUINOX_UTIL_VERSION + ",../../" +
-                        dropinsFolder + "/" + TestConstants.ARTIFACT_THREE + ",4,true"));
+                        libFolder + "/" + TestConstants.ARTIFACT_THREE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + TestConstants.EQUINOX_LAUNCHER_VERSION + ",../../" + dropinsFolder
+                "org.eclipse.equinox.launcher," + TestConstants.EQUINOX_LAUNCHER_VERSION + ",../../" + libFolder
                         + "/" + TestConstants.ARTIFACT_FOUR + ",4,true"));
 
         return bundleInfo;

@@ -71,6 +71,7 @@ public class CarbonTestContainer implements TestContainer {
 
     private static final String CARBON_TEST_CONTAINER = "CarbonTestContainer";
     private static final String EXAM_INJECT_PROPERTY = "pax.exam.inject";
+    private static final String libDirectory = "lib";
 
     private final Runner runner;
     private final ExamSystem system;
@@ -124,7 +125,7 @@ public class CarbonTestContainer implements TestContainer {
                 FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
             }
 
-            //install bundles to dropins if there are any
+            //install bundles if there are any
             copyDropinsBundles(targetDirectory);
 
             //copy files to the distributions if there are any
@@ -167,25 +168,25 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     /**
-     * Copy dependencies specified as carbon dropins bundle option in system to the dropins Directory.
+     * Copy dependencies specified as carbon dropins bundle option in system to the libDirectory.
      *
      * @param carbonHome carbon home dir
      */
     private void copyDropinsBundles(Path carbonHome) {
-        Path targetDirectory = carbonHome.resolve("lib");
+        Path targetDirectory = carbonHome.resolve(libDirectory);
 
         Arrays.asList(system.getOptions(CopyDropinsBundleOption.class)).forEach(option -> {
             try {
                 copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
                         targetDirectory);
             } catch (IOException e) {
-                throw new TestContainerException("Error while copying artifacts to dropins", e);
+                throw new TestContainerException(String.format("Error while copying artifacts to " + libDirectory), e);
             }
         });
     }
 
     /**
-     * Helper method to copy artifacts to the dropins.
+     * Helper method to copy artifacts to the target directory.
      *
      * @param url             url of the artifact
      * @param targetDirectory target directory

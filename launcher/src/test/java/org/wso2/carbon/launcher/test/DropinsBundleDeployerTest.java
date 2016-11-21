@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.launcher.test;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,7 +26,7 @@ import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,7 +41,7 @@ import java.util.List;
 public class DropinsBundleDeployerTest extends BaseTest {
     //  dropins deployer unit-test constants
     private static final List<String> profileNames = new ArrayList<>();
-    private static final String dropinsDirectory = Constants.DROPINS;
+    private static final String libDirectory = Constants.LIB;
     private static final String profileMSS = "mss";
     private static final String bundlesInfoFile = "bundles.info";
 
@@ -50,16 +51,15 @@ public class DropinsBundleDeployerTest extends BaseTest {
     public void initTestClass() throws IOException {
         setupCarbonHome();
         carbonHome = System.getProperty(Constants.CARBON_HOME);
-        //  deletes the profiles directory, if present
+        //  deletes the profile directories, if present
         delete(Paths.get(carbonHome, Constants.PROFILE_REPOSITORY));
     }
 
-//TODO: This test case is not valid for current directory structure because wso2 directory will be there always
-//@Test(description = "Attempts to get Carbon Profiles when profiles directory is absent",
-//        expectedExceptions = { IOException.class })
-//public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
-//    DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
-//}
+    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent", expectedExceptions = {
+        IOException.class })
+    public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
+        DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+    }
 
     @Test(description = "Attempts to execute dropins capability with profile system property not explicitly set",
             priority = 1)
@@ -94,11 +94,11 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
-        Path dropins = Paths.get(carbonHome, dropinsDirectory);
-        Files.createFile(Paths.get(dropins.toString(), "sample.txt"));
+        Path lib = Paths.get(carbonHome, libDirectory);
+        Files.createFile(Paths.get(lib.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        List<BundleInfo> actual = DropinsBundleDeployerUtils.getBundlesInfo(dropins);
+        List<BundleInfo> actual = DropinsBundleDeployerUtils.getBundlesInfo(lib);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
@@ -120,12 +120,12 @@ public class DropinsBundleDeployerTest extends BaseTest {
     public void testRemovingExistingBundle() throws IOException {
         String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         BundleInfo bundleInfoRemoved = BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + dropinsDirectory
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + libDirectory
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true");
 
-        Path dropins = Paths.get(carbonHome, dropinsDirectory);
+        Path lib = Paths.get(carbonHome, libDirectory);
         Files.deleteIfExists(
-                Paths.get(dropins.toString(), "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar"));
+                Paths.get(lib.toString(), "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
         expected.remove(bundleInfoRemoved);
@@ -158,7 +158,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
             priority = 5,
             expectedExceptions = { IOException.class })
     public void testLoadingNewBundleInfoFromNonExistingFolder() throws IOException {
-        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, dropinsDirectory));
+        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, libDirectory));
     }
 
     /**
@@ -193,20 +193,20 @@ public class DropinsBundleDeployerTest extends BaseTest {
         List<BundleInfo> bundleInfo = new ArrayList<>();
         String equinoxOSGiVersion = System.getProperty("equinox.osgi.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + equinoxOSGiVersion + ",../../" +
-                dropinsDirectory + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
+                libDirectory + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
 
         String equinoxSimpleConfiguratorVersion = System.getProperty("equinox.simpleconfigurator.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
-                equinoxSimpleConfiguratorVersion + ",../../" + dropinsDirectory +
+                equinoxSimpleConfiguratorVersion + ",../../" + libDirectory +
                 "/org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar,4,true"));
 
         String equinoxUtilVersion = System.getProperty("equinox.util.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.util," + equinoxUtilVersion + ",../../" +
-                dropinsDirectory + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
+                libDirectory + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
 
         String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + dropinsDirectory
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + libDirectory
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true"));
 
         return bundleInfo;
@@ -236,26 +236,17 @@ public class DropinsBundleDeployerTest extends BaseTest {
                         .count()) == expected.size());
     }
 
-    private static boolean delete(Path path) throws IOException {
-        if (Files.isDirectory(path)) {
-            List<Path> children = listFiles(path);
-            if (children.size() > 0) {
-                for (Path aChild : children) {
-                    if (!aChild.equals(Paths.get(carbonHome, Constants.OSGI_REPOSITORY))) {
-                        delete(aChild);
+    private static void delete(Path path) throws IOException {
+        Path osgiRepoPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY);
+        Files.list(path)
+                .filter(child -> !osgiRepoPath.equals(child) && Files.isDirectory(child))
+                .forEach(child -> {
+                    try {
+                        FileUtils.deleteDirectory(child.toFile());
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
                     }
-                }
-            }
-        }
-        return true;
+                });
     }
 
-    private static List<Path> listFiles(Path directory) throws IOException {
-        List<Path> files = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-            directoryStream
-                    .forEach(files::add);
-        }
-        return files;
-    }
 }
