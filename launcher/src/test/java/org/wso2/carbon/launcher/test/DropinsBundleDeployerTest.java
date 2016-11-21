@@ -41,7 +41,6 @@ import java.util.List;
 public class DropinsBundleDeployerTest extends BaseTest {
     //  dropins deployer unit-test constants
     private static final List<String> profileNames = new ArrayList<>();
-    private static final String libDirectory = Constants.LIB;
     private static final String profileMSS = "mss";
     private static final String bundlesInfoFile = "bundles.info";
 
@@ -94,7 +93,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
-        Path lib = Paths.get(carbonHome, libDirectory);
+        Path lib = Paths.get(carbonHome, Constants.LIB);
         Files.createFile(Paths.get(lib.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
@@ -120,10 +119,10 @@ public class DropinsBundleDeployerTest extends BaseTest {
     public void testRemovingExistingBundle() throws IOException {
         String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         BundleInfo bundleInfoRemoved = BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + libDirectory
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + Constants.LIB
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true");
 
-        Path lib = Paths.get(carbonHome, libDirectory);
+        Path lib = Paths.get(carbonHome, Constants.LIB);
         Files.deleteIfExists(
                 Paths.get(lib.toString(), "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar"));
 
@@ -158,7 +157,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
             priority = 5,
             expectedExceptions = { IOException.class })
     public void testLoadingNewBundleInfoFromNonExistingFolder() throws IOException {
-        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, libDirectory));
+        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.LIB));
     }
 
     /**
@@ -193,20 +192,20 @@ public class DropinsBundleDeployerTest extends BaseTest {
         List<BundleInfo> bundleInfo = new ArrayList<>();
         String equinoxOSGiVersion = System.getProperty("equinox.osgi.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + equinoxOSGiVersion + ",../../" +
-                libDirectory + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
+                Constants.LIB + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
 
         String equinoxSimpleConfiguratorVersion = System.getProperty("equinox.simpleconfigurator.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
-                equinoxSimpleConfiguratorVersion + ",../../" + libDirectory +
+                equinoxSimpleConfiguratorVersion + ",../../" + Constants.LIB +
                 "/org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar,4,true"));
 
         String equinoxUtilVersion = System.getProperty("equinox.util.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.util," + equinoxUtilVersion + ",../../" +
-                libDirectory + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
+                Constants.LIB + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
 
         String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + libDirectory
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + Constants.LIB
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true"));
 
         return bundleInfo;

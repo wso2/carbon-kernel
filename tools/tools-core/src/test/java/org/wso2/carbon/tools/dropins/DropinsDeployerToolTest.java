@@ -214,38 +214,35 @@ public class DropinsDeployerToolTest {
     }
 
     private static void prepareCarbonHomeForDropinsTests() throws IOException {
-        String libFolder = Constants.LIB;
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, Constants.LIB,
                 TestConstants.ARTIFACT_ONE),
-                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_ONE));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
+                Paths.get(carbonHome.toString(), Constants.LIB, TestConstants.ARTIFACT_ONE));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, Constants.LIB,
                 TestConstants.ARTIFACT_TWO),
-                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_TWO));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
+                Paths.get(carbonHome.toString(), Constants.LIB, TestConstants.ARTIFACT_TWO));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, Constants.LIB,
                 TestConstants.ARTIFACT_THREE),
-                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_THREE));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
+                Paths.get(carbonHome.toString(), Constants.LIB, TestConstants.ARTIFACT_THREE));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, Constants.LIB,
                 TestConstants.ARTIFACT_FOUR),
-                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_FOUR));
-        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, libFolder,
+                Paths.get(carbonHome.toString(), Constants.LIB, TestConstants.ARTIFACT_FOUR));
+        Files.copy(Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES, Constants.LIB,
                 TestConstants.ARTIFACT_FIVE),
-                Paths.get(carbonHome.toString(), libFolder, TestConstants.ARTIFACT_FIVE));
+                Paths.get(carbonHome.toString(), Constants.LIB, TestConstants.ARTIFACT_FIVE));
     }
 
     private static List<BundleInfo> getExpectedBundleInfo() {
-        String libFolder = Constants.LIB;
-
         List<BundleInfo> bundleInfo = new ArrayList<>();
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + TestConstants.EQUINOX_OSGI_VERSION + ",../../" +
-                libFolder + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
+                Constants.LIB + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
-                TestConstants.EQUINOX_SMP_CONFIGURATOR_VERSION + ",../../" + libFolder +
+                TestConstants.EQUINOX_SMP_CONFIGURATOR_VERSION + ",../../" + Constants.LIB +
                 "/" + TestConstants.ARTIFACT_TWO + ",4,true"));
         bundleInfo.add(BundleInfo
                 .getInstance("org.eclipse.equinox.util," + TestConstants.EQUINOX_UTIL_VERSION + ",../../" +
-                        libFolder + "/" + TestConstants.ARTIFACT_THREE + ",4,true"));
+                        Constants.LIB + "/" + TestConstants.ARTIFACT_THREE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + TestConstants.EQUINOX_LAUNCHER_VERSION + ",../../" + libFolder
+                "org.eclipse.equinox.launcher," + TestConstants.EQUINOX_LAUNCHER_VERSION + ",../../" + Constants.LIB
                         + "/" + TestConstants.ARTIFACT_FOUR + ",4,true"));
 
         return bundleInfo;

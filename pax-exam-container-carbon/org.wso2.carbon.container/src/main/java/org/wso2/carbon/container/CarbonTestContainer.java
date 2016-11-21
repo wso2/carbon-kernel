@@ -71,7 +71,7 @@ public class CarbonTestContainer implements TestContainer {
 
     private static final String CARBON_TEST_CONTAINER = "CarbonTestContainer";
     private static final String EXAM_INJECT_PROPERTY = "pax.exam.inject";
-    private static final String libDirectory = "lib";
+    private static final String LIB_DIRECTORY = "lib";
 
     private final Runner runner;
     private final ExamSystem system;
@@ -168,19 +168,19 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     /**
-     * Copy dependencies specified as carbon dropins bundle option in system to the libDirectory.
+     * Copy dependencies specified as carbon dropins bundle option in system to the LIB_DIRECTORY.
      *
      * @param carbonHome carbon home dir
      */
     private void copyDropinsBundles(Path carbonHome) {
-        Path targetDirectory = carbonHome.resolve(libDirectory);
+        Path targetDirectory = carbonHome.resolve(LIB_DIRECTORY);
 
         Arrays.asList(system.getOptions(CopyDropinsBundleOption.class)).forEach(option -> {
             try {
                 copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
                         targetDirectory);
             } catch (IOException e) {
-                throw new TestContainerException(String.format("Error while copying artifacts to " + libDirectory), e);
+                throw new TestContainerException(String.format("Error while copying artifacts to " + LIB_DIRECTORY), e);
             }
         });
     }
