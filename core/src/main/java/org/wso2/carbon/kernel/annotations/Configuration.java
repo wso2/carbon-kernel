@@ -33,5 +33,7 @@ public @interface Configuration {
     String namespace() default NULL;
     // field description, required
     String description();
+    // namespace default value constant. This is referred in execution time to check whether namespace value equals
+    // default value
     public static final String NULL = "NULL";
 }

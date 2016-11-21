@@ -18,7 +18,6 @@ package org.wso2.carbon.kernel.configprovider.utils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -37,8 +36,7 @@ public class ConfigurationUtils {
      * @return Path configuration file location
      */
     public static Path getConfigurationFileLocation(String filename) {
-        return Paths.get(org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().toString(),
-                filename);
+        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(filename);
     }
 
     /**

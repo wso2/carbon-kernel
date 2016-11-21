@@ -89,7 +89,7 @@ public class ConfigProviderImpl implements ConfigProvider {
             String jsonConfigString = deploymentConfigs.get(namespace);
             String yamlConfigString = ConfigurationUtils.convertJSONToYAML(jsonConfigString);
             if (logger.isDebugEnabled()) {
-                logger.debug("class name: " + configClass.getSimpleName() + " | new configurations : \n" +
+                logger.debug("class name: " + configClass.getSimpleName() + " | new configurations: \n" +
                         yamlConfigString);
             }
             String yamlProcessedString = processPlaceholder(yamlConfigString);
@@ -105,7 +105,7 @@ public class ConfigProviderImpl implements ConfigProvider {
             try {
                 return configClass.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new CarbonConfigurationException("Error while creating configuration Instance : "
+                throw new CarbonConfigurationException("Error while creating configuration instance: "
                         + configClass.getSimpleName(), e);
             }
         }
@@ -123,7 +123,7 @@ public class ConfigProviderImpl implements ConfigProvider {
             Yaml yaml = new Yaml();
             return yaml.loadAs(jsonProcessedString, Map.class);
         }
-        logger.error("configuration doesn't exist for the namespace: " + namespace + " in deployment yaml. hence " +
+        logger.error("configuration doesn't exist for the namespace: " + namespace + " in deployment yaml. Hence " +
                 "return null object");
         return null;
     }
@@ -132,7 +132,7 @@ public class ConfigProviderImpl implements ConfigProvider {
     /**
      * This method loads deployment configs in deployment.yaml. loads only if config
      */
-    private void loadDeploymentConfiguration(ConfigFileReader configFileReader) {
+    private void loadDeploymentConfiguration(ConfigFileReader configFileReader) throws CarbonConfigurationException {
         if (deploymentConfigs == null) {
             synchronized (this) {
                 if (deploymentConfigs == null) {

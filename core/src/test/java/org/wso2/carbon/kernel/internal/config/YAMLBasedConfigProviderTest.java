@@ -24,6 +24,7 @@ import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentConfig;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
+import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
 import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.configprovider.YAMLBasedConfigFileReader;
@@ -51,8 +52,8 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
         configProvider = new ConfigProviderImpl(fileReader);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "Failed populate Deployment Configuration from.*")
+    @Test(expectedExceptions = CarbonConfigurationException.class,
+            expectedExceptionsMessageRegExp = "Failed populate deployment configuration from.*")
     public void testGetCarbonConfigurationFailScenario() throws Exception {
         System.setProperty(Constants.CARBON_HOME, getTestResourceFile("wrongPath").getAbsolutePath());
         CarbonConfiguration carbonConfiguration = configProvider.getConfigurationObject(CarbonConfiguration.class);

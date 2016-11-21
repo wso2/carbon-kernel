@@ -33,5 +33,5 @@ public interface ConfigFileReader {
      *
      * @return a instance of the Configuration Map, key: String, value: JSON string
      */
-    public Map<String, String> getDeploymentConfiguration();
+    public Map<String, String> getDeploymentConfiguration() throws CarbonConfigurationException;
 }
