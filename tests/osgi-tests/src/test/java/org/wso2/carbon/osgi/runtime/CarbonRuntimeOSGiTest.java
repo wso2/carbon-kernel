@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.nio.file.Path;
@@ -85,12 +84,10 @@ public class CarbonRuntimeOSGiTest {
 
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
 
-        Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getMode(),
-                DeploymentModeEnum.fromValue("scheduled"));
-        Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getUpdateInterval(), 15);
-        String deploymentPath = Paths.get(System.getProperty("carbon.home"), "deployment").toString();
-        Assert.assertEquals(Paths.get(carbonConfiguration.getDeploymentConfig().getRepositoryLocation()).toString(),
-                deploymentPath);
+        Assert.assertEquals(carbonConfiguration.getStartupResolverConfig().getCapabilityListenerTimer().getDelay(),
+                200);
+        Assert.assertEquals(carbonConfiguration.getStartupResolverConfig().getCapabilityListenerTimer().getPeriod(),
+                200);
 
     }
 

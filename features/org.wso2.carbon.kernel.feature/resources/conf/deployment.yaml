@@ -27,18 +27,6 @@ wso2.carbon:
   ports:
       # port offset
     offset: 0
-    # deployment engine related configurations
-  deployment:
-      # Currently there can be two modes
-      #  1. Scheduled Mode - (enable below property to "scheduled") - where the task runs periodically and trigger deployment
-      #  2. Triggered Mode - (enable below property to "triggered") - the deployment has to be triggered externally,
-      #   eg : in a worker node we don't need the task to run, but rather when we receive a cluster msg,
-      # the deployment has to be triggered manually.
-    mode: scheduled
-      # Location of the artifact repository
-    repositoryLocation: ${carbon.home}/deployment/
-      # Deployment update interval in seconds. This is the interval between repository listener executions.
-    updateInterval: 15
     # StartupOrderResolver related configurations
   startupResolver:
     capabilityListenerTimer:

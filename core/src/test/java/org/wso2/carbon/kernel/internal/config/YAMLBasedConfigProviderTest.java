@@ -21,9 +21,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.BaseTest;
 import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.config.model.CapabilityListenerTimer;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.config.model.DeploymentConfig;
-import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
+import org.wso2.carbon.kernel.config.model.StartupResolverConfig;
 import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
 import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
@@ -74,11 +74,13 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
         // Test for system property substitution
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 10);
 
-        DeploymentConfig deploymentConfig = carbonConfiguration.getDeploymentConfig();
+        StartupResolverConfig startupResolverConfig = carbonConfiguration.getStartupResolverConfig();
+
+        CapabilityListenerTimer capabilityListenerTimer = startupResolverConfig.getCapabilityListenerTimer();
 
         // Test for default values
-        Assert.assertEquals(deploymentConfig.getUpdateInterval(), 15);
+        Assert.assertEquals(capabilityListenerTimer.getDelay(), 200);
 
-        Assert.assertEquals(deploymentConfig.getMode(), DeploymentModeEnum.scheduled);
+        Assert.assertEquals(capabilityListenerTimer.getPeriod(), 200);
     }
 }

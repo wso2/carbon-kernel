@@ -42,9 +42,6 @@ public class CarbonConfiguration {
     @Element(description = "ports used by this server")
     private PortsConfig ports = new PortsConfig();
 
-    @Element(description = "deployment engine related configurations")
-    private DeploymentConfig deployment = new DeploymentConfig();
-
     @Element(description = "StartupOrderResolver related configurations")
     private StartupResolverConfig startupResolver = new StartupResolverConfig();
 
@@ -69,10 +66,6 @@ public class CarbonConfiguration {
 
     public PortsConfig getPortsConfig() {
         return ports;
-    }
-
-    public DeploymentConfig getDeploymentConfig() {
-        return deployment;
     }
 
     public StartupResolverConfig getStartupResolverConfig() {
