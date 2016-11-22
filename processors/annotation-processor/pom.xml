@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.processors.annotation</artifactId>
-    <name>WSO2 Carbon Kernel - ANNOTATION PROCESSOR</name>
+    <name>WSO2 Carbon Kernel - Annotation Processor</name>
     <description>
         This module has annotation processor to process configuration annotation in carbon.
     </description>

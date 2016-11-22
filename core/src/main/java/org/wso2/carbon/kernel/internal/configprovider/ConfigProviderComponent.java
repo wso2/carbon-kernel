@@ -30,7 +30,6 @@ import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.configprovider.YAMLBasedConfigFileReader;
 import org.wso2.carbon.kernel.securevault.SecureVault;
 
-import java.util.Optional;
 
 /**
  * This service component is responsible for registering ConfigProvider OSGi service.
@@ -69,10 +68,10 @@ public class ConfigProviderComponent {
             unbind = "unRegisterSecureVault"
     )
     protected void registerSecureVault(SecureVault secureVault) {
-        ConfigProviderDataHolder.getInstance().setOptSecureVault(Optional.ofNullable(secureVault));
+        ConfigProviderDataHolder.getInstance().setSecureVault(secureVault);
     }
 
     protected void unRegisterSecureVault(SecureVault secureVault) {
-        ConfigProviderDataHolder.getInstance().setOptSecureVault(Optional.empty());
+        ConfigProviderDataHolder.getInstance().setSecureVault(null);
     }
 }

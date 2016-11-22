@@ -16,11 +16,10 @@
 package org.wso2.carbon.kernel.configprovider;
 
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
-import org.wso2.carbon.kernel.configresolver.ConfigResolverUtils;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -55,8 +54,7 @@ public class YAMLBasedConfigFileReader implements ConfigFileReader {
         try {
             byte[] contentBytes = Files.readAllBytes(ConfigurationUtils.getConfigurationFileLocation(filename));
             String yamlFileString = new String(contentBytes, StandardCharsets.UTF_8);
-            String jsonString = ConfigResolverUtils.convertYAMLToJSON(yamlFileString);
-            return getDeploymentConfigMap(jsonString);
+            return getDeploymentConfigMap(yamlFileString);
         } catch (IOException e) {
             String errorMessage = "Failed populate deployment configuration from " + filename;
             logger.error(errorMessage, e);
@@ -67,19 +65,18 @@ public class YAMLBasedConfigFileReader implements ConfigFileReader {
     /**
      * this method converts the json string to configuration map as,
      * key : json (root)key
-     * values  : json string of the key
-     * @param jsonString json string
+     * values  : yaml string of the key
+     * @param yamlString yaml string
      * @return configuration map
      */
-    private Map<String, String> getDeploymentConfigMap(String jsonString) {
+    private Map<String, String> getDeploymentConfigMap(String yamlString) {
         Map<String, String> deploymentConfigs = new HashMap<>();
-        JSONObject jsonObject = new JSONObject(jsonString);
-        jsonObject.keySet().stream()
-                .filter(key -> jsonObject.get((String) key) != null)
-                .forEach(key -> {
-                    String keyContent = jsonObject.get((String) key).toString();
-                    deploymentConfigs.put((String) key, keyContent);
-                });
+        Yaml yaml = new Yaml();
+        Map<String, Object> map = (Map<String, Object>) yaml.loadAs(yamlString, Map.class);
+
+        map.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .forEach(entry -> deploymentConfigs.put(entry.getKey(), yaml.dumpAsMap(entry.getValue())));
         return deploymentConfigs;
     }
 }

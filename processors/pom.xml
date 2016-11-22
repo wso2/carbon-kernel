@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.processors</artifactId>
-    <name>WSO2 Carbon Kernel - PROCESSORS</name>
+    <name>WSO2 Carbon Kernel - Processors</name>
     <packaging>pom</packaging>
     <description>
         This is the module for all the processors for carbon.core

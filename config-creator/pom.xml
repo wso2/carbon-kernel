@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>config-creator</artifactId>
-    <name>WSO2 Carbon Kernel - CONFIGURATION CREATOR</name>
+    <name>WSO2 Carbon Kernel - Configuration Creator</name>
     <description>The config creator module creates carbon configuration file
         this has carbon.core dependency and maven configuration plugin
     </description>
@@ -43,7 +43,6 @@
             <plugin>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.plugins.configuration</artifactId>
-                <version>${carbon.kernel.version}</version>
                 <executions>
                     <execution>
                         <goals>

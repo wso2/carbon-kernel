@@ -17,7 +17,6 @@ package org.wso2.carbon.kernel.internal.configprovider;
 
 import org.wso2.carbon.kernel.securevault.SecureVault;
 
-import java.util.Optional;
 
 /**
  * Config Provider Data Holder.
@@ -26,7 +25,7 @@ import java.util.Optional;
  */
 public class ConfigProviderDataHolder {
     private static ConfigProviderDataHolder instance = new ConfigProviderDataHolder();
-    Optional<SecureVault> optSecureVault = Optional.empty();
+    SecureVault secureVault;
 
     public static ConfigProviderDataHolder getInstance() {
         return instance;
@@ -35,11 +34,11 @@ public class ConfigProviderDataHolder {
     private ConfigProviderDataHolder() {
     }
 
-    public Optional<SecureVault> getOptSecureVault() {
-        return optSecureVault;
+    public SecureVault getSecureVault() {
+        return secureVault;
     }
 
-    public void setOptSecureVault(Optional<SecureVault> optSecureVault) {
-        this.optSecureVault = optSecureVault;
+    public void setSecureVault(SecureVault secureVault) {
+        this.secureVault = secureVault;
     }
 }

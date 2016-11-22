@@ -25,7 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.plugins.configuration</artifactId>
     <packaging>maven-plugin</packaging>
-    <name>WSO2 Carbon Kernel - CONFIGURATION PLUGIN</name>
+    <name>WSO2 Carbon Kernel - Configuration Plugin</name>
     <description>
         This module has mojo class for carbon configuration plugin.
     </description>

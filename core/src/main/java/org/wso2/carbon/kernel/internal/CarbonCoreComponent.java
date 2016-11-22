@@ -12,7 +12,6 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
-import java.util.Optional;
 
 /**
  * This service component creates a carbon runtime based on the carbon configuration file and registers it as a
@@ -33,10 +32,10 @@ public class CarbonCoreComponent {
             logger.debug("Activating CarbonCoreComponent");
 
             // 1) Get config provider from data holder
-            ConfigProvider configProvider = DataHolder.getInstance().getOptConfigProvider().get();
+            ConfigProvider configProvider = DataHolder.getInstance().getConfigProvider();
 
             // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
-             CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
+            CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
 
             // 3) Register CarbonRuntime instance as an OSGi bundle.
             DataHolder.getInstance().getBundleContext()
@@ -60,10 +59,10 @@ public class CarbonCoreComponent {
             unbind = "unregisterConfigProvider"
     )
     protected void registerConfigProvider(ConfigProvider configProvider) {
-        DataHolder.getInstance().setOptConfigProvider(Optional.ofNullable(configProvider));
+        DataHolder.getInstance().setConfigProvider(configProvider);
     }
 
     protected void unregisterConfigProvider(ConfigProvider configProvider) {
-        DataHolder.getInstance().setOptConfigProvider(Optional.empty());
+        DataHolder.getInstance().setConfigProvider(null);
     }
 }

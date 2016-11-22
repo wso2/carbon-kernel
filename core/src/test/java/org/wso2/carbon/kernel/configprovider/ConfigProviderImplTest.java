@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -69,7 +68,7 @@ public class ConfigProviderImplTest {
         }
 
         SecureVault secureVault = EasyMock.mock(SecureVault.class);
-        ConfigProviderDataHolder.getInstance().setOptSecureVault(Optional.ofNullable(secureVault));
+        ConfigProviderDataHolder.getInstance().setSecureVault(secureVault);
         EasyMock.expect(secureVault.resolve(EasyMock.anyString())).andReturn(PASSWORD.toCharArray()).anyTimes();
         EasyMock.replay(secureVault);
     }

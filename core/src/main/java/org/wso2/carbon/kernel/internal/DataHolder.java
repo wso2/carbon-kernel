@@ -35,7 +35,7 @@ public class DataHolder {
 
     private Optional<ConfigResolver> optConfigResolver = Optional.empty();
 
-    private Optional<ConfigProvider> optConfigProvider = Optional.empty();
+    private ConfigProvider configProvider;
 
     public static DataHolder getInstance() {
         return instance;
@@ -88,18 +88,18 @@ public class DataHolder {
     /**
      * Getter method of ${@link ConfigProvider}.
      *
-     * @return optConfigProvider
+     * @return configProvider
      */
-    public Optional<ConfigProvider> getOptConfigProvider() {
-        return optConfigProvider;
+    public ConfigProvider getConfigProvider() {
+        return configProvider;
     }
 
     /**
      * Setter method of ${@link ConfigProvider}.
      *
-     * @param optConfigProvider
+     * @param configProvider
      */
-    public void setOptConfigProvider(Optional<ConfigProvider> optConfigProvider) {
-        this.optConfigProvider = optConfigProvider;
+    public void setConfigProvider(ConfigProvider configProvider) {
+        this.configProvider = configProvider;
     }
 }
