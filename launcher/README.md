@@ -98,8 +98,9 @@ osgi.instance.area	The instance data location for this session. Plug-ins use thi
             * @param event CarbonServerEvent
             */
             public void notify(CarbonServerEvent event);
-            }
+            }```
             
+
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
 ### Server startup logs
