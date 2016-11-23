@@ -82,7 +82,6 @@ osgi.instance.area	The instance data location for this session. Plug-ins use thi
 6. Carbon server listeners will be notified during the server start and server stop events.
 
  > A Carbon Server Listener is an extension point that may be implemented by a Carbon developer. This can be done by implementing the `notify()` method of the `org.wso2.carbon.launcher.CarbonServerListener` interface. This is a useful feature for scenarios where you need to perform certain tasks before launching the OSGi framework as well as after the OSGi framework shuts down. These listeners will get notified before initializing the OSGi framework and after shutting down the OSGi framework. You can register Carbon listener implementations in the `launch.properties` with the key `“carbon.server.listeners”`.
-
  Shown below is how a Carbon Server Listener is implemented.
  
         /**
