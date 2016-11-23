@@ -6,7 +6,7 @@ The following sections explain some Maven archetypes that simplify the process o
 
 ## Creating a Carbon Component in One Step
 
-A Carbon component that includes a sample implementation of a service component, which consumes an OSGi service registered by Carbon Kernel can be created with one command using the following archetype: carbon-component-archetype. The details of the archetype and the details of the project you are creating should be passed as properties when you execute the command. These properties are explained below.
+A Carbon component that includes a sample implementation of a service component, which consumes an OSGi service registered by Carbon Kernel can be created with one command using the following archetype: `carbon-component-archetype`. The details of the archetype and the details of the project you are creating should be passed as properties when you execute the command. These properties are explained below.
 
 * The following properties are used to specify the details of the archetype:
  
@@ -42,7 +42,7 @@ Follow the steps given below to see how a Carbon component is generated using th
         -Dversion=1.0.0 
         -Dpackage=org.sample.project
        
- > In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (org.wso2.carbon.archetypes.component). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
+ > In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (`org.wso2.carbon.archetypes.component`). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
  
 2. You will see a result similar to the following, which notifies that the component generation is successful.
 
@@ -69,7 +69,7 @@ Follow the steps given below to see how a Carbon component is generated using th
                             
 # Creating a Generic OSGi Bundle in One Step
 
-An OSGi bundle can be created with one command using the following archetype: carbon-bundle-archetype. The details of the archetype and the details of the project you are creating should be passed as properties when you execute the command. These properties are explained below.
+An OSGi bundle can be created with one command using the following archetype: `carbon-bundle-archetype`. The details of the archetype and the details of the project you are creating should be passed as properties when you execute the command. These properties are explained below.
 
 * The following properties are used to specify the details of the archetype:
  
@@ -105,7 +105,7 @@ Follow the steps given below to see how an OSGi bundle is generated using this a
         -Dversion=1.0.0 \
         -Dpackage=org.sample.project \
 
-In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (org.wso2.carbon.archetypes.bundle). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
+ In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (`org.wso2.carbon.archetypes.bundle`). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
 
 2. You will see a result similar to the following, which notifies that the archetype generation is successful. 
 
