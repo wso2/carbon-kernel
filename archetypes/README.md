@@ -18,7 +18,12 @@ A Carbon component that includes a sample implementation of a service component,
  
 * Given below are the properties that will set the project details. You can specify the required values for these properties. However, if these properties are not used, the default values given below will be used to create the project.
  
- .......
+ | Property              | Description                               | Default Value                     |
+ | --------------------- |:-----------------------------------------:| ---------------------------------:|
+ | groupId               | The groupId of the project.               | org.wso2.carbon                   |
+ | artifactId            | The artifactId of the project.            | org.wso2.carbon.serviceconsumer   |
+ | version               | The version of the project.               | 1.0.0-SNAPSHOT                    |
+ | package               | The package hierarchy for the project.    | org.wso2.carbon.serviceconsumer   |
  
 > To read more on other properties that you can use when generating a project from an archetype, see this link. 
 
