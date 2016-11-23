@@ -1,15 +1,16 @@
 
 # Setting up the Carbon Launcher
 
-The WSO2 Carbon Launcher is responsible for initializing and booting up the Carbon server. This Launcher implementation resolves the initialization of the Carbon server instance. Before starting the Carbon server, the Launcher component performs a set of steps to load the initial startup configurations given in the default <CARBON_HOME>/bin/bootstrap/org.wso2.carbon.launcher-5.0.0.jar/launch.properties file.
-WSO2 Carbon Kernel 5.1.0 includes the <CARBON_HOME>/conf/osgi/launch.properties file, to change the default launch configurations. Therefore, if you want to customize the startup process by updating the configurations in the default launch.properties file, you can do so by updating this second file.
+The WSO2 Carbon Launcher is responsible for initializing and booting up the Carbon server. This Launcher implementation resolves the initialization of the Carbon server instance. Before starting the Carbon server, the Launcher component performs a set of steps to load the initial startup configurations given in the default `<CARBON_HOME>/bin/bootstrap/org.wso2.carbon.launcher-5.0.0.jar/launch.properties` file.
+WSO2 Carbon Kernel 5.1.0 includes the `<CARBON_HOME>/conf/osgi/launch.properties` file, to change the default launch configurations. Therefore, if you want to customize the startup process by updating the configurations in the default launch.properties file, you can do so by updating this second file.
+
 For detailed explanations on configuring the Launcher component, see the following topics.
 
 ### Configuring the Launcher
 
-The new <CARBON_HOME>/conf/osgi/launch.properties  file stores all the load configurations. This file contains the set of properties that are required by the Carbon server to start up. The default launch.properties file is available in the Carbon server classpath. It contains all the required properties and their default values. If you want to override these default values or add new properties, you can specify the required properties and values in the launch.properties file.
+The new `<CARBON_HOME>/conf/osgi/launch.properties` file stores all the load configurations. This file contains the set of properties that are required by the Carbon server to start up. The default `launch.properties` file is available in the Carbon server classpath. It contains all the required properties and their default values. If you want to override these default values or add new properties, you can specify the required properties and values in the `launch.properties` file.
 
-Shown below are the default properties given in the launch.properties file.
+Shown below are the default properties given in the `launch.properties` file.
 
     # OSGi repository location of the Carbon kernel.
     carbon.osgi.repository=file\:osgi
@@ -57,7 +58,7 @@ Shown below are the default properties given in the launch.properties file.
  
     #carbon.server.listeners=
 
-The properties in the launch.properties file are explained below.
+The properties in the `launch.properties` file are explained below.
 
 Property	Description
 carbon.osgi.repository=file\:osgi	The location of the OSGi repository for Carbon kernel.
@@ -73,14 +74,14 @@ osgi.instance.area	The instance data location for this session. Plug-ins use thi
 
 ### Server startup process
 
-1. Before loading the configurations from the launch configuration (launch.properties) file, as the first step the required system properties (eg: carbon.home, profile) will be initialized and verified.
-2. The default launch configuration from the classpath will be loaded, followed by the configurations in the launch.properties file. This process completes after initializing the required properties from the property list and registering Carbon server listeners and OSGi runtime implementations.
+1. Before loading the configurations from the launch configuration (`launch.properties`) file, as the first step the required system properties (eg: `carbon.home`, `profile`) will be initialized and verified.
+2. The default launch configuration from the classpath will be loaded, followed by the configurations in the `launch.properties` file. This process completes after initializing the required properties from the property list and registering Carbon server listeners and OSGi runtime implementations.
 3. Starts the carbon server that launches the OSGi framework and loads all the bundles. The Carbon server is now completely started.
 4. Based on the loaded configurations, an OSGi framework instance (which is an installed bundled) is created. This framework instance is then initialized, started and all the bundles are resolved if their requirements can be satisfied.
-5. Bundles (read from the launch.properties file with key “carbon.initial.osgi.bundles”) are then installed in the bundle's execution context within the framework. This enables bundles to interact with the framework.
+5. Bundles (read from the `launch.properties` file with key `“carbon.initial.osgi.bundles”`) are then installed in the bundle's execution context within the framework. This enables bundles to interact with the framework.
 6. Carbon server listeners will be notified during the server start and server stop events.
 
- A Carbon Server Listener is an extension point that may be implemented by a Carbon developer. This can be done by implementing the notify() method of the org.wso2.carbon.launcher.CarbonServerListener interface. This is a useful feature for scenarios where you need to perform certain tasks before launching the OSGi framework as well as after the OSGi framework shuts down. These listeners will get notified before initializing the OSGi framework and after shutting down the OSGi framework. You can register Carbon listener implementations in the launch.properties with the key “carbon.server.listeners”.
+ > A Carbon Server Listener is an extension point that may be implemented by a Carbon developer. This can be done by implementing the `notify()` method of the `org.wso2.carbon.launcher.CarbonServerListener` interface. This is a useful feature for scenarios where you need to perform certain tasks before launching the OSGi framework as well as after the OSGi framework shuts down. These listeners will get notified before initializing the OSGi framework and after shutting down the OSGi framework. You can register Carbon listener implementations in the `launch.properties` with the key `“carbon.server.listeners”`.
 
  Shown below is how a Carbon Server Listener is implemented.
  
