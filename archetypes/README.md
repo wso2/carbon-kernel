@@ -10,7 +10,11 @@ A Carbon component that includes a sample implementation of a service component,
 
 * The following properties are used to specify the details of the archetype:
  
- .......
+ | Property              | Description                      | Value                                | Optional/Mandatory  |
+ | --------------------- |:--------------------------------:| ------------------------------------:| -------------------:|
+ | archetypeGroupId      | The groupId of the archetype.    | org.wso2.carbon                      | Mandatory           |
+ | archetypeArtifactId   | The artifactId of the archetype. | org.wso2.carbon.archetypes.component | Mandatory           |
+ | archetypeVersion      | The version of the archetype.    | Example: 5.0.0                       | Optional            |
  
 * Given below are the properties that will set the project details. You can specify the required values for these properties. However, if these properties are not used, the default values given below will be used to create the project.
  
