@@ -58,7 +58,7 @@ Shown below are the default properties given in the `launch.properties` file.
  
     #carbon.server.listeners=
 
-The properties in the `launch.properties` file are explained below.
+The properties in the `launch.properties` file are explained below:
 
 * `carbon.osgi.repository=file\:osgi`: The location of the OSGi repository for Carbon kernel.
 * `carbon.osgi.framework=file\:plugins/org.eclipse.osgi_3.10.2.v20150203-1939.jar`: This property specifies the OSGi framework  implementation bundle, which starts during the Carbon server startup.
