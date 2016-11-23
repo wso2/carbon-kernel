@@ -10,7 +10,7 @@ For detailed explanations on configuring the Launcher component, see the followi
 * **[Server startup process](#server-startup-process)**
 * **[Server startup logs](#server-startup-logs)**
 
-### Configuring the Launcher
+## Configuring the Launcher
 
 The new `<CARBON_HOME>/conf/osgi/launch.properties` file stores all the load configurations. This file contains the set of properties that are required by the Carbon server to start up. The default `launch.properties` file is available in the Carbon server classpath. It contains all the required properties and their default values. If you want to override these default values or add new properties, you can specify the required properties and values in the `launch.properties` file.
 
@@ -73,7 +73,7 @@ The properties in the `launch.properties` file are explained below:
 * `osgi.configuration.area`: The configuration location for this platform runtime. The configuration determines the location where the OSGi runtime should store configuration information about the bundles you install during run time.
 * `osgi.instance.area`: The instance data location for this session. Plug-ins use this location to store their data eg:workspace
 
-### Server startup process
+## Server startup process
 
 1. Before loading the configurations from the launch configuration (`launch.properties`) file, as the first step the required system properties (eg: `carbon.home`, `profile`) will be initialized and verified.
 2. The default launch configuration from the classpath will be loaded, followed by the configurations in the `launch.properties` file. This process completes after initializing the required properties from the property list and registering Carbon server listeners and OSGi runtime implementations.
@@ -103,7 +103,7 @@ The properties in the `launch.properties` file are explained below:
             
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
-### Server startup logs
+## Server startup logs
 
 During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the `<CARBON_HOME>/logs/carbon.log` file. Bootstrap logger maintains two separate handlers: 
 
