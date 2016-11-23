@@ -300,24 +300,19 @@ public class DropinsBundleDeployerUtils {
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
         Path carbonProfilesHome = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY);
         Path osgiRepoPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY);
-        if (Files.exists(carbonProfilesHome)) {
-            Stream<Path> profiles = Files.list(carbonProfilesHome);
-            List<String> profileNames = new ArrayList<>();
+        Stream<Path> profiles = Files.list(carbonProfilesHome);
+        List<String> profileNames = new ArrayList<>();
 
-            profiles
-                    .parallel()
-                    .filter(profile -> !osgiRepoPath.equals(profile))
-                    .forEach(profile -> Optional.ofNullable(profile.getFileName())
-                            .ifPresent(name -> profileNames.add(name.toString())));
-            if (profileNames.size() == 0) {
-                throw new IOException("No profiles found in " + carbonHome + "/" + Constants.PROFILE_REPOSITORY);
-            }
-
-            return profileNames;
-        } else {
-            throw new IOException("The " + carbonHome + "/" + Constants.PROFILE_REPOSITORY + " directory does not "
-                    + "exist");
+        profiles
+                .parallel()
+                .filter(profile -> !osgiRepoPath.equals(profile))
+                .forEach(profile -> Optional.ofNullable(profile.getFileName())
+                        .ifPresent(name -> profileNames.add(name.toString())));
+        if (profileNames.size() == 0) {
+            throw new IOException("No profiles found in " + carbonHome + "/" + Constants.PROFILE_REPOSITORY);
         }
+
+        return profileNames;
     }
 
     /**

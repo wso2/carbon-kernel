@@ -54,7 +54,7 @@ public class DropinsBundleDeployerTest extends BaseTest {
         delete(Paths.get(carbonHome, Constants.PROFILE_REPOSITORY));
     }
 
-    @Test(description = "Attempts to get Carbon Profiles when profiles directory is absent", expectedExceptions = {
+    @Test(description = "Attempts to get Carbon profiles when there is no profiles", expectedExceptions = {
         IOException.class })
     public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
         DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);

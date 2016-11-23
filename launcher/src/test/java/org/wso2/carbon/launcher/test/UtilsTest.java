@@ -41,8 +41,9 @@ public class UtilsTest extends BaseTest {
     public void substituteVarsTest2() {
         System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
         System.setProperty(Constants.CARBON_HOME, "/home/user/wso2carbon-kernel-5.0.0");
-        String inputStr = "file:${carbon.home}/osgi/${profile}";
-        String expectedOutputStr = "file:/home/user/wso2carbon-kernel-5.0.0/osgi/default";
+        System.setProperty(Constants.CARBON_PROFILE_REPOSITORY, Constants.PROFILE_REPOSITORY);
+        String inputStr = "file:${carbon.home}/${carbon.profile.repository}/${profile}";
+        String expectedOutputStr = "file:/home/user/wso2carbon-kernel-5.0.0/wso2/default";
 
         String outputStr = Utils.initializeSystemProperties(inputStr);
         Assert.assertEquals(outputStr, expectedOutputStr);
