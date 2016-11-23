@@ -84,23 +84,22 @@ osgi.instance.area	The instance data location for this session. Plug-ins use thi
  > A Carbon Server Listener is an extension point that may be implemented by a Carbon developer. This can be done by implementing the `notify()` method of the `org.wso2.carbon.launcher.CarbonServerListener` interface. This is a useful feature for scenarios where you need to perform certain tasks before launching the OSGi framework as well as after the OSGi framework shuts down. These listeners will get notified before initializing the OSGi framework and after shutting down the OSGi framework. You can register Carbon listener implementations in the `launch.properties` with the key `“carbon.server.listeners”`.
  Shown below is how a Carbon Server Listener is implemented.
  ```/**
-        * This is an interface which may be implemented by a Carbon developer to get notified of the Carbon server startup and
-         * the Carbon server shutdown. These listener implementations will get notified before launching the OSGi framework
-         * as well as after shutting down the OSGi framework. CarbonServer notifies these listeners synchronously.
-         *
-        * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
-         * launch.properties file. This property accepts a list of comma separated fully qualified class names.
-        */
-        public interface CarbonServerListener {
-          /**
-           * Receives notification of a CarbonServerEvent.
-           *
-            * @param event CarbonServerEvent
-            */
-            public void notify(CarbonServerEvent event);
-            }```
+ * This is an interface which may be implemented by a Carbon developer to get notified of the Carbon server startup and
+ * the Carbon server shutdown. These listener implementations will get notified before launching the OSGi framework
+ * as well as after shutting down the OSGi framework. CarbonServer notifies these listeners synchronously.
+ *
+ * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
+ * launch.properties file. This property accepts a list of comma separated fully qualified class names.
+ */
+public interface CarbonServerListener {
+    /**
+     * Receives notification of a CarbonServerEvent.
+     *
+     * @param event CarbonServerEvent
+     */
+    public void notify(CarbonServerEvent event);
+}```
             
-
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
 ### Server startup logs
