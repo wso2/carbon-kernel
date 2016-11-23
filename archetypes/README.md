@@ -10,20 +10,20 @@ A Carbon component that includes a sample implementation of a service component,
 
 * The following properties are used to specify the details of the archetype:
  
- | Property              | Description                      | Value                                | Optional/Mandatory  |
- | --------------------- |:--------------------------------:| ------------------------------------:| -------------------:|
- | archetypeGroupId      | The groupId of the archetype.    | org.wso2.carbon                      | Mandatory           |
- | archetypeArtifactId   | The artifactId of the archetype. | org.wso2.carbon.archetypes.component | Mandatory           |
- | archetypeVersion      | The version of the archetype.    | Example: 5.0.0                       | Optional            |
+ | Property                | Description                      | Value                                  | Optional/Mandatory  |
+ | ----------------------- |:--------------------------------:| --------------------------------------:| -------------------:|
+ | `archetypeGroupId`      | The groupId of the archetype.    | `org.wso2.carbon`                      | Mandatory           |
+ | `archetypeArtifactId`   | The artifactId of the archetype. | `org.wso2.carbon.archetypes.component` | Mandatory           |
+ | `archetypeVersion`      | The version of the archetype.    | Example: 5.0.0                         | Optional            |
  
 * Given below are the properties that will set the project details. You can specify the required values for these properties. However, if these properties are not used, the default values given below will be used to create the project.
  
- | Property              | Description                               | Default Value                     |
- | --------------------- |:-----------------------------------------:| ---------------------------------:|
- | groupId               | The groupId of the project.               | org.wso2.carbon                   |
- | artifactId            | The artifactId of the project.            | org.wso2.carbon.serviceconsumer   |
- | version               | The version of the project.               | 1.0.0-SNAPSHOT                    |
- | package               | The package hierarchy for the project.    | org.wso2.carbon.serviceconsumer   |
+ | Property              | Description                               | Default Value                       |
+ | --------------------- |:-----------------------------------------:| -----------------------------------:|
+ | `groupId`             | The groupId of the project.               | `org.wso2.carbon`                   |
+ | `artifactId`          | The artifactId of the project.            | `org.wso2.carbon.serviceconsumer`   |
+ | `version`             | The version of the project.               | `1.0.0-SNAPSHOT`                    |
+ | `package`             | The package hierarchy for the project.    | `org.wso2.carbon.serviceconsumer`   |
  
 > To read more on other properties that you can use when generating a project from an archetype, see this link. 
 
@@ -71,13 +71,22 @@ Follow the steps given below to see how a Carbon component is generated using th
 
 An OSGi bundle can be created with one command using the following archetype: carbon-bundle-archetype. The details of the archetype and the details of the project you are creating should be passed as properties when you execute the command. These properties are explained below.
 
- *The following properties are used to specify the details of the archetype:*
+* The following properties are used to specify the details of the archetype:
  
- ......
+ | Property                | Description                      | Value                                | Optional/Mandatory  |
+ | ----------------------- |:--------------------------------:| ------------------------------------:| -------------------:|
+ | `archetypeGroupId`      | The groupId of the archetype.    | `org.wso2.carbon`                    | Mandatory           |
+ | `archetypeArtifactId`   | The artifactId of the archetype. | `org.wso2.carbon.archetypes.bundle`  | Mandatory           |
+ | `archetypeVersion`      | The version of the archetype.    | Example: 5.0.0                       | Optional            |
  
- *Given below are the properties that will set the project details. You can specify the required values for these properties. However, if these properties are not used, the default values given below will be used to create the project.*
+* Given below are the properties that will set the project details. You can specify the required values for these properties. However, if these properties are not used, the default values given below will be used to create the project.
  
- ..........
+ | Property              | Description                               | Default Value                     |
+ | --------------------- |:-----------------------------------------:| ---------------------------------:|
+ | `groupId`             | The groupId of the project.               | `org.wso2.carbon`                 |
+ | `artifactId`          | The artifactId of the project.            | `org.wso2.carbon.helloworld`      |
+ | `version`             | The version of the project.               | `1.0.0-SNAPSHOT`                  |
+ | `package`             | The package hierarchy for the project.    | `org.wso2.carbon.helloworld`      |
  
 To read more on other properties you can use when generating a project from an archetype, see this link. 
 
