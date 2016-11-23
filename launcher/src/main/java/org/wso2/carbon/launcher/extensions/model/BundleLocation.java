@@ -16,12 +16,12 @@
 package org.wso2.carbon.launcher.extensions.model;
 
 /**
- * This enum type indicates whether a particular OSGi bundle belongs to {@value org.wso2.carbon.launcher.Constants#LIB}
- * directory or not.
+ * This enum type indicates whether a particular OSGi bundle belongs to
+ * {@value org.wso2.carbon.launcher.Constants.OSGI_LIB}directory or not.
  *
  * @since 5.1.0
  */
 public enum  BundleLocation {
-    DROPINS_BUNDLE,
-    NON_DROPINS_BUNDLE
+    OSGI_LIB_BUNDLE,
+    NON_OSGI_LIB_BUNDLE
 }

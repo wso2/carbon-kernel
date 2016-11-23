@@ -31,8 +31,8 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
-import org.wso2.carbon.container.options.CopyDropinsBundleOption;
 import org.wso2.carbon.container.options.CopyFileOption;
+import org.wso2.carbon.container.options.CopyOSGiLibBundleOption;
 import org.wso2.carbon.container.options.DebugOption;
 import org.wso2.carbon.container.options.KeepDirectoryOption;
 import org.wso2.carbon.container.runner.CarbonRunner;
@@ -126,7 +126,7 @@ public class CarbonTestContainer implements TestContainer {
             }
 
             //install bundles if there are any
-            copyDropinsBundles(targetDirectory);
+            copyOSGiLibBundles(targetDirectory);
 
             //copy files to the distributions if there are any
             copyFiles(targetDirectory);
@@ -168,14 +168,14 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     /**
-     * Copy dependencies specified as carbon dropins bundle option in system to the LIB_DIRECTORY.
+     * Copy dependencies specified as carbon OSGi-lib option in system to the LIB_DIRECTORY.
      *
      * @param carbonHome carbon home dir
      */
-    private void copyDropinsBundles(Path carbonHome) {
+    private void copyOSGiLibBundles(Path carbonHome) {
         Path targetDirectory = carbonHome.resolve(LIB_DIRECTORY);
 
-        Arrays.asList(system.getOptions(CopyDropinsBundleOption.class)).forEach(option -> {
+        Arrays.asList(system.getOptions(CopyOSGiLibBundleOption.class)).forEach(option -> {
             try {
                 copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
                         targetDirectory);

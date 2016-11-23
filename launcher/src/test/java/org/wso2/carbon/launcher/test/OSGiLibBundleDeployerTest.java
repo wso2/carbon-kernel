@@ -21,8 +21,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.CarbonServerEvent;
 import org.wso2.carbon.launcher.Constants;
-import org.wso2.carbon.launcher.extensions.DropinsBundleDeployer;
-import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
+import org.wso2.carbon.launcher.extensions.OSGiLibBundleDeployer;
+import org.wso2.carbon.launcher.extensions.OSGiLibBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 
 import java.io.IOException;
@@ -34,12 +34,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This Java class defines the unit tests for dropins OSGi bundle deployment.
+ * This Java class defines the unit tests for OSGi-lib bundle deployment.
  *
  * @since 5.1.0
  */
-public class DropinsBundleDeployerTest extends BaseTest {
-    //  dropins deployer unit-test constants
+public class OSGiLibBundleDeployerTest extends BaseTest {
+    //  OSGi-lib deployer unit-test constants
     private static final List<String> profileNames = new ArrayList<>();
     private static final String profileMSS = "mss";
     private static final String bundlesInfoFile = "bundles.info";
@@ -57,15 +57,15 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempts to get Carbon profiles when there is no profiles", expectedExceptions = {
         IOException.class })
     public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
-        DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+        OSGiLibBundleDeployerUtils.getCarbonProfiles(carbonHome);
     }
 
-    @Test(description = "Attempts to execute dropins capability with profile system property not explicitly set",
+    @Test(description = "Attempts to execute OSGi-lib capability with profile system property not explicitly set",
             priority = 1)
-    public void testExecutingDropinsCapabilityForDefaultProfile() throws IOException {
+    public void testExecutingOSGiLibCapabilityForDefaultProfile() throws IOException {
         createProfiles();
 
-        DropinsBundleDeployer deployer = new DropinsBundleDeployer();
+        OSGiLibBundleDeployer deployer = new OSGiLibBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
@@ -76,10 +76,10 @@ public class DropinsBundleDeployerTest extends BaseTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to execute dropins capability for a chosen Carbon Profile", priority = 2)
-    public void testExecutingDropinsCapabilityForSelectedProfile() throws IOException {
+    @Test(description = "Attempts to execute OSGi-lib capability for a chosen Carbon Profile", priority = 2)
+    public void testExecutingOSGiLibCapabilityForSelectedProfile() throws IOException {
         System.setProperty(Constants.PROFILE, profileMSS);
-        DropinsBundleDeployer deployer = new DropinsBundleDeployer();
+        OSGiLibBundleDeployer deployer = new OSGiLibBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
@@ -93,17 +93,17 @@ public class DropinsBundleDeployerTest extends BaseTest {
     @Test(description = "Attempts to load OSGi bundle information from a source directory with files of multiple "
             + "formats", priority = 3)
     public void testGettingNewBundlesInfoFromMultipleFileFormats() throws IOException {
-        Path lib = Paths.get(carbonHome, Constants.LIB);
+        Path lib = Paths.get(carbonHome, Constants.OSGI_LIB);
         Files.createFile(Paths.get(lib.toString(), "sample.txt"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
-        List<BundleInfo> actual = DropinsBundleDeployerUtils.getBundlesInfo(lib);
+        List<BundleInfo> actual = OSGiLibBundleDeployerUtils.getBundlesInfo(lib);
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
     @Test(description = "Attempts loading the Carbon profile names", priority = 3)
     public void testLoadingCarbonProfiles() throws IOException {
-        List<String> actual = DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome);
+        List<String> actual = OSGiLibBundleDeployerUtils.getCarbonProfiles(carbonHome);
         boolean matching = ((profileNames
                 .stream()
                 .filter(expectedName -> actual
@@ -119,17 +119,17 @@ public class DropinsBundleDeployerTest extends BaseTest {
     public void testRemovingExistingBundle() throws IOException {
         String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         BundleInfo bundleInfoRemoved = BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + Constants.LIB
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + Constants.OSGI_LIB
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true");
 
-        Path lib = Paths.get(carbonHome, Constants.LIB);
+        Path lib = Paths.get(carbonHome, Constants.OSGI_LIB);
         Files.deleteIfExists(
                 Paths.get(lib.toString(), "org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar"));
 
         List<BundleInfo> expected = getExpectedBundleInfo();
         expected.remove(bundleInfoRemoved);
 
-        DropinsBundleDeployer deployer = new DropinsBundleDeployer();
+        OSGiLibBundleDeployer deployer = new OSGiLibBundleDeployer();
         deployer.notify(new CarbonServerEvent(CarbonServerEvent.STARTING, null));
 
         Path bundlesInfo = Paths.
@@ -143,25 +143,25 @@ public class DropinsBundleDeployerTest extends BaseTest {
             priority = 5,
             expectedExceptions = { IllegalArgumentException.class })
     public void testInstallingNewBundlesWithInvalidCarbonProfile() throws IOException {
-        DropinsBundleDeployerUtils.updateDropins(carbonHome, null, new ArrayList<>());
+        OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, null, new ArrayList<>());
     }
 
     @Test(description = "Attempts to install new OSGi bundles with invalid list of new OSGi bundles",
             priority = 5,
             expectedExceptions = { IllegalArgumentException.class })
     public void testInstallingNewBundlesWithInvalidBundlesInfo() throws IOException {
-        DropinsBundleDeployerUtils.updateDropins(carbonHome, Constants.DEFAULT_PROFILE, null);
+        OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, Constants.DEFAULT_PROFILE, null);
     }
 
     @Test(description = "Attempts to load the new OSGi bundle information from a non existing folder",
             priority = 5,
             expectedExceptions = { IOException.class })
     public void testLoadingNewBundleInfoFromNonExistingFolder() throws IOException {
-        DropinsBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.LIB));
+        OSGiLibBundleDeployerUtils.getBundlesInfo(Paths.get(carbonHome, Constants.OSGI_REPOSITORY, Constants.OSGI_LIB));
     }
 
     /**
-     * Utility functions for dropins unit-tests.
+     * Utility functions for OSGi-lib unit-tests.
      */
 
     private static void createProfiles() throws IOException {
@@ -192,20 +192,20 @@ public class DropinsBundleDeployerTest extends BaseTest {
         List<BundleInfo> bundleInfo = new ArrayList<>();
         String equinoxOSGiVersion = System.getProperty("equinox.osgi.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + equinoxOSGiVersion + ",../../" +
-                Constants.LIB + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
+                Constants.OSGI_LIB + "/org.eclipse.osgi_" + equinoxOSGiVersion + ".jar,4,true"));
 
         String equinoxSimpleConfiguratorVersion = System.getProperty("equinox.simpleconfigurator.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
-                equinoxSimpleConfiguratorVersion + ",../../" + Constants.LIB +
+                equinoxSimpleConfiguratorVersion + ",../../" + Constants.OSGI_LIB +
                 "/org.eclipse.equinox.simpleconfigurator_" + equinoxSimpleConfiguratorVersion + ".jar,4,true"));
 
         String equinoxUtilVersion = System.getProperty("equinox.util.version");
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.util," + equinoxUtilVersion + ",../../" +
-                Constants.LIB + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
+                Constants.OSGI_LIB + "/org.eclipse.equinox.util_" + equinoxUtilVersion + ".jar,4,true"));
 
         String equinoxLauncherVersion = System.getProperty("equinox.launcher.version");
         bundleInfo.add(BundleInfo.getInstance(
-                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + Constants.LIB
+                "org.eclipse.equinox.launcher," + equinoxLauncherVersion + ",../../" + Constants.OSGI_LIB
                         + "/org.eclipse.equinox.launcher_" + equinoxLauncherVersion + ".jar,4,true"));
 
         return bundleInfo;

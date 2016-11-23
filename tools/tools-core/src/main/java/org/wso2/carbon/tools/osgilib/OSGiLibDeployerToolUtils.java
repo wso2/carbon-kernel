@@ -13,10 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.dropins;
+package org.wso2.carbon.tools.osgilib;
 
 import org.wso2.carbon.launcher.Constants;
-import org.wso2.carbon.launcher.extensions.DropinsBundleDeployerUtils;
+import org.wso2.carbon.launcher.extensions.OSGiLibBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
@@ -28,15 +28,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A Java class which defines utility functions used within the OSGi dropins bundle deployer tool.
+ * A Java class which defines utility functions used within the OSGi-lib bundle deployer tool.
  *
  * @since 5.1.0
  */
-class DropinsDeployerToolUtils {
-    private static final Logger logger = Logger.getLogger(DropinsDeployerToolUtils.class.getName());
+class OSGiLibDeployerToolUtils {
+    private static final Logger logger = Logger.getLogger(OSGiLibDeployerToolUtils.class.getName());
 
     /**
-     * Executes the WSO2 Carbon dropins deployer tool.
+     * Executes the WSO2 Carbon OSGi-lib deployer tool.
      *
      * @param carbonHome the {@link String} value of carbon.home
      * @param profile    the Carbon Profile identifier
@@ -49,18 +49,18 @@ class DropinsDeployerToolUtils {
         }
 
         if (profile != null) {
-            Path libDirectoryPath = Paths.get(carbonHome, Constants.LIB);
+            Path osgiLibDirectoryPath = Paths.get(carbonHome, Constants.OSGI_LIB);
             logger.log(Level.FINE,
-                    "Loading the new OSGi bundle information from " + Constants.LIB + " folder...");
-            List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(libDirectoryPath);
-            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.LIB +
+                    "Loading the new OSGi bundle information from " + Constants.OSGI_LIB + " folder...");
+            List<BundleInfo> newBundlesInfo = OSGiLibBundleDeployerUtils.getBundlesInfo(osgiLibDirectoryPath);
+            logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.OSGI_LIB +
                     " folder");
 
             if (profile.equals("ALL")) {
-                DropinsBundleDeployerUtils.getCarbonProfiles(carbonHome)
+                OSGiLibBundleDeployerUtils.getCarbonProfiles(carbonHome)
                         .forEach(carbonProfile -> {
                             try {
-                                DropinsBundleDeployerUtils.updateDropins(carbonHome, carbonProfile, newBundlesInfo);
+                                OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, carbonProfile, newBundlesInfo);
                             } catch (IOException e) {
                                 logger.log(Level.SEVERE,
                                         "Failed to update the OSGi bundle information of Carbon Profile: "
@@ -69,7 +69,7 @@ class DropinsDeployerToolUtils {
                         });
             } else {
                 try {
-                    DropinsBundleDeployerUtils.updateDropins(carbonHome, profile, newBundlesInfo);
+                    OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, profile, newBundlesInfo);
                 } catch (IOException e) {
                     logger.log(Level.SEVERE,
                             "Failed to update the OSGi bundle information of Carbon Profile: " + profile, e);
@@ -79,15 +79,15 @@ class DropinsDeployerToolUtils {
     }
 
     /**
-     * Returns a help message for the dropins tool usage.
+     * Returns a help message for the OSGi-lib tool usage.
      *
-     * @return a help message for the dropins tool usage
+     * @return a help message for the OSGi-lib tool usage
      */
     static String getHelpMessage() {
-        return "Incorrect usage of the dropins deployer tool.\n\n" +
-                "Instructions: sh dropins.sh [profile]\n" + "profile - name of the Carbon Profile to be updated\n\n" +
+        return "Incorrect usage of the OSGi-lib deployer tool.\n\n" +
+                "Instructions: sh osgi-lib.sh [profile]\n" + "profile - name of the Carbon Profile to be updated\n\n" +
                 "Keyword option for profile:\n" +
-                "ALL\tUpdate dropins OSGi bundle information of all Carbon Profiles " +
-                "(ex: sh dropins.sh ALL/dropins.bat ALL)\n";
+                "ALL\tUpdate OSGi-lib bundle information of all Carbon Profiles " +
+                "(ex: sh osgi-lib.sh ALL/osgi-lib.bat ALL)\n";
     }
 }

@@ -24,7 +24,7 @@ import org.wso2.carbon.launcher.CarbonServerListener;
 import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
-import org.wso2.carbon.launcher.extensions.DropinsBundleDeployer;
+import org.wso2.carbon.launcher.extensions.OSGiLibBundleDeployer;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
@@ -144,7 +144,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     public void loadLaunchConfigServerListenersTestCase() throws MalformedURLException {
         //test if property "carbon.server.listeners" has set according to sample launch.properties file
         CarbonServerListener carbonServerListener = launchConfig.getCarbonServerListeners().get(0);
-        Assert.assertTrue(carbonServerListener instanceof DropinsBundleDeployer);
+        Assert.assertTrue(carbonServerListener instanceof OSGiLibBundleDeployer);
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})

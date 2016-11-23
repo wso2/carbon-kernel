@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.dropins;
+package org.wso2.carbon.tools.osgilib;
 
 import org.wso2.carbon.tools.CarbonTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
@@ -28,11 +28,11 @@ import java.util.logging.Logger;
  *
  * @since 5.1.0
  */
-public class DropinsDeployerTool implements CarbonTool {
-    private static final Logger logger = Logger.getLogger(DropinsDeployerTool.class.getName());
+public class OSGiLibDeployerTool implements CarbonTool {
+    private static final Logger logger = Logger.getLogger(OSGiLibDeployerTool.class.getName());
 
     /**
-     * Executes the WSO2 Carbon dropins deployer tool based on the specified arguments.
+     * Executes the WSO2 Carbon OSGi-lib deployer tool based on the specified arguments.
      *
      * @param toolArgs the {@link String} argument specifying the Carbon Profile and CARBON_HOME
      */
@@ -42,17 +42,17 @@ public class DropinsDeployerTool implements CarbonTool {
             String carbonProfile = toolArgs[0];
             String carbonHome = toolArgs[1];
             if (carbonProfile.isEmpty()) {
-                logger.log(Level.INFO, DropinsDeployerToolUtils.getHelpMessage());
+                logger.log(Level.INFO, OSGiLibDeployerToolUtils.getHelpMessage());
                 return;
             }
 
             try {
-                DropinsDeployerToolUtils.executeTool(carbonHome, carbonProfile);
+                OSGiLibDeployerToolUtils.executeTool(carbonHome, carbonProfile);
             } catch (CarbonToolException | IOException e) {
-                logger.log(Level.SEVERE, "Error when executing the dropins deployer tool", e);
+                logger.log(Level.SEVERE, "Error when executing the OSGi-lib deployer tool", e);
             }
         } else {
-            logger.log(Level.INFO, DropinsDeployerToolUtils.getHelpMessage());
+            logger.log(Level.INFO, OSGiLibDeployerToolUtils.getHelpMessage());
         }
     }
 }

@@ -68,7 +68,7 @@ goto runTool
 cd %CARBON_HOME%\bin
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
 echo CARBON_HOME environment variable is set to %CARBON_HOME%
-java -cp ".\*;..\bin\bootstrap\tools\*;..\bin\bootstrap\*" -Dwso2.carbon.tool="dropins-deployer" org.wso2.carbon.tools.CarbonToolExecutor "%1" "%CARBON_HOME%"
+java -cp ".\*;..\bin\bootstrap\tools\*;..\bin\bootstrap\*" -Dwso2.carbon.tool="osgi-lib-deployer" org.wso2.carbon.tools.CarbonToolExecutor "%1" "%CARBON_HOME%"
 
 :end
 goto endlocal

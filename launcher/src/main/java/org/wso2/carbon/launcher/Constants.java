@@ -31,7 +31,7 @@ public class Constants {
     public static final String PROFILE_REPOSITORY = "wso2";
     public static final String PROFILE = "profile";
     public static final String DEFAULT_PROFILE = "default";
-    public static final String LIB = "lib";
+    public static final String OSGI_LIB = "lib";
     public static final String PLUGINS = "plugins";
     public static final String BUNDLES_INFO = "bundles.info";
 

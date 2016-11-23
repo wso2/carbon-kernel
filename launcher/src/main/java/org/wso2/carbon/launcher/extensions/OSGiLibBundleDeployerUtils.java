@@ -38,18 +38,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * This class defines the utility functions used when implementing the dropins deployment capability.
+ * This class defines the utility functions used when implementing the OSGi-lib deployment capability.
  *
  * @since 5.1.0
  */
-public class DropinsBundleDeployerUtils {
-    private static final Logger logger = Logger.getLogger(DropinsBundleDeployerUtils.class.getName());
+public class OSGiLibBundleDeployerUtils {
+    private static final Logger logger = Logger.getLogger(OSGiLibBundleDeployerUtils.class.getName());
 
     /**
      * Updates the bundles.info file of the specified Carbon Profile based on the OSGi bundles deployed in the
-     * {@value org.wso2.carbon.launcher.Constants#LIB} directory. The OSGi bundle information in the bundles.info file
-     * in a Carbon profile is
-     * used to install and start the bundles at the server startup for the particular profile.
+     * {@value org.wso2.carbon.launcher.Constants.OSGI_LIB} directory. The OSGi bundle information in the
+     * bundles.info file in a Carbon profile is used to install and start the bundles at the server startup for the
+     * particular profile.
      * <p>
      * The mechanism used in updating the bundles.info file is as follows:
      * 1. The existing OSGi bundle information within the specified Carbon Profile are read.
@@ -58,7 +58,7 @@ public class DropinsBundleDeployerUtils {
      * bundle information are obtained.
      * 3. If the number of both installable and removable OSGi bundles are zero, then no Profile update is made. Else,
      * the Profile is updated.
-     * 4. During Profile update, the existing, non-dropins OSGi bundle information are merged with the new OSGi bundle
+     * 4. During Profile update, the existing, non OSGi-lib bundle information are merged with the new OSGi bundle
      * information.
      *
      * @param carbonHome     the {@link String} representation of carbon.home
@@ -66,7 +66,7 @@ public class DropinsBundleDeployerUtils {
      * @param newBundlesInfo the new OSGi bundle information
      * @throws IOException if an I/O error occurs
      */
-    public static synchronized void updateDropins(String carbonHome, String carbonProfile,
+    public static synchronized void updateOSGiLib(String carbonHome, String carbonProfile,
             List<BundleInfo> newBundlesInfo) throws IOException {
         //  validates the arguments provided
         if ((carbonHome == null) || (carbonHome.isEmpty())) {
@@ -89,17 +89,17 @@ public class DropinsBundleDeployerUtils {
                 .stream()
                 .filter(line -> !line.startsWith("#"))
                 .map(BundleInfo::getInstance)
-                .collect(Collectors.groupingBy(BundleInfo::isFromDropins));
+                .collect(Collectors.groupingBy(BundleInfo::isFromOSGiLib));
 
         Map<BundleInstallStatus, List<BundleInfo>> updatableBundles =
-                getUpdatableBundles(newBundlesInfo, existingBundlesInfo.get(BundleLocation.DROPINS_BUNDLE));
+                getUpdatableBundles(newBundlesInfo, existingBundlesInfo.get(BundleLocation.OSGI_LIB_BUNDLE));
 
         if ((updatableBundles.get(BundleInstallStatus.TO_BE_INSTALLED).size() > 0) || (
                 updatableBundles.get(BundleInstallStatus.TO_BE_REMOVED).size() > 0)) {
 
             logger.log(Level.FINE, getBundleInstallationSummary(updatableBundles));
 
-            List<BundleInfo> effectiveNewBundleInfo = mergeDropinsWithExistingBundlesInfo(newBundlesInfo,
+            List<BundleInfo> effectiveNewBundleInfo = mergeOSGiLibWithExistingBundlesInfo(newBundlesInfo,
                     existingBundlesInfo);
 
             updateBundlesInfoFile(effectiveNewBundleInfo, bundlesInfoFile);
@@ -107,7 +107,7 @@ public class DropinsBundleDeployerUtils {
                     "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
         } else {
             logger.log(Level.FINE, String.format("No changes detected in the %s directory in comparison with the "
-                    + "profile, skipped the OSGi bundle information update for Carbon Profile: %s", Constants.LIB,
+                    + "profile, skipped the OSGi bundle information update for Carbon Profile: %s", Constants.OSGI_LIB,
                     carbonProfile));
         }
     }
@@ -173,7 +173,7 @@ public class DropinsBundleDeployerUtils {
             Manifest manifest = jarFile.getManifest();
 
             if ((manifest == null) || (manifest.getMainAttributes() == null)) {
-                throw new IOException("Invalid OSGi bundle found in the " + Constants.LIB + " folder");
+                throw new IOException("Invalid OSGi bundle found in the " + Constants.OSGI_LIB + " folder");
             }
 
             String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
@@ -194,7 +194,7 @@ public class DropinsBundleDeployerUtils {
             boolean isFragment = (manifest.getMainAttributes().getValue("Fragment-Host") != null);
             int defaultBundleStartLevel = 4;
             BundleInfo generated = new BundleInfo(bundleSymbolicName, bundleVersion,
-                    "../../" + Constants.LIB + "/" + fileName, defaultBundleStartLevel, isFragment);
+                    "../../" + Constants.OSGI_LIB + "/" + fileName, defaultBundleStartLevel, isFragment);
             logger.log(Level.FINE,
                     "Successfully loaded information from OSGi bundle: " + bundleSymbolicName + ":" + bundleVersion);
             return Optional.of(generated);
@@ -245,9 +245,9 @@ public class DropinsBundleDeployerUtils {
      * @param existingBundleInfo the existing OSGi bundle information
      * @return merged result of the existing OSGi bundle information with the newly retrieved OSGi bundle information
      */
-    private static List<BundleInfo> mergeDropinsWithExistingBundlesInfo(List<BundleInfo> newBundlesInfo,
+    private static List<BundleInfo> mergeOSGiLibWithExistingBundlesInfo(List<BundleInfo> newBundlesInfo,
             Map<BundleLocation, List<BundleInfo>> existingBundleInfo) {
-        List<BundleInfo> effectiveBundlesInfo = existingBundleInfo.get(BundleLocation.NON_DROPINS_BUNDLE);
+        List<BundleInfo> effectiveBundlesInfo = existingBundleInfo.get(BundleLocation.NON_OSGI_LIB_BUNDLE);
 
         if (effectiveBundlesInfo != null) {
             effectiveBundlesInfo.addAll(newBundlesInfo);
@@ -322,7 +322,7 @@ public class DropinsBundleDeployerUtils {
      * @return a message depicting the OSGi bundle installation/removal summary information
      */
     private static String getBundleInstallationSummary(Map<BundleInstallStatus, List<BundleInfo>> updatableBundleInfo) {
-        StringBuilder message = new StringBuilder("\nInstallation/Removal Summary of OSGi bundles from dropins\n");
+        StringBuilder message = new StringBuilder("\nInstallation/Removal Summary of OSGi bundles from OSGi-lib\n");
 
         Optional.ofNullable(updatableBundleInfo.get(BundleInstallStatus.TO_BE_INSTALLED))
                 .ifPresent(list -> {

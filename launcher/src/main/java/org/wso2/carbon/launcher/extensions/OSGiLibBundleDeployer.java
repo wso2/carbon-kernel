@@ -30,35 +30,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class deploys the OSGi bundles in CARBON_HOME/{@value org.wso2.carbon.launcher.Constants#LIB} directory in
+ * This class deploys the OSGi bundles in CARBON_HOME/{@value org.wso2.carbon.launcher.Constants.OSGI_LIB} directory in
  * the Carbon Server.
  * <p>
- * For this purpose, the OSGi bundle information retrieved from the {@value org.wso2.carbon.launcher.Constants#LIB}
+ * For this purpose, the OSGi bundle information retrieved from the {@value org.wso2.carbon.launcher.Constants.OSGI_LIB}
  * directory bundles are
  * updated in the bundles.info file of each and every, existing Carbon profile, along with the bundle startup
  * information of each bundle.
  *
  * @since 5.0.0
  */
-public class DropinsBundleDeployer implements CarbonServerListener {
-    private static final Logger logger = Logger.getLogger(DropinsBundleDeployer.class.getName());
+public class OSGiLibBundleDeployer implements CarbonServerListener {
+    private static final Logger logger = Logger.getLogger(OSGiLibBundleDeployer.class.getName());
 
     @Override
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             Path carbonHome = Utils.getCarbonHomeDirectory();
-            Path libDirectoryPath = Paths.get(carbonHome.toString(), Constants.LIB);
+            Path libDirectoryPath = Paths.get(carbonHome.toString(), Constants.OSGI_LIB);
             String profile = Optional.ofNullable(System.getProperty(Constants.PROFILE))
                     .orElse(Constants.DEFAULT_PROFILE);
 
             try {
                 logger.log(Level.FINE,
-                        "Loading the new OSGi bundle information from " + Constants.LIB + " folder...");
-                List<BundleInfo> newBundlesInfo = DropinsBundleDeployerUtils.getBundlesInfo(libDirectoryPath);
-                logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " + Constants.LIB +
-                        " folder");
+                        "Loading the new OSGi bundle information from " + Constants.OSGI_LIB + " folder...");
+                List<BundleInfo> newBundlesInfo = OSGiLibBundleDeployerUtils.getBundlesInfo(libDirectoryPath);
+                logger.log(Level.FINE, "Successfully loaded the new OSGi bundle information from " +
+                        Constants.OSGI_LIB + " folder");
 
-                DropinsBundleDeployerUtils.updateDropins(carbonHome.toString(), profile, newBundlesInfo);
+                OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome.toString(), profile, newBundlesInfo);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed to update the OSGi bundle information of Carbon Profile: " + profile,
                         e);
