@@ -60,17 +60,14 @@ Shown below are the default properties given in the `launch.properties` file.
 
 The properties in the `launch.properties` file are explained below.
 
-Property	Description
-carbon.osgi.repository=file\:osgi	The location of the OSGi repository for Carbon kernel.
-carbon.osgi.framework=file\:plugins/org.eclipse.osgi_3.10.2.v20150203-1939.jar	This property specifies the OSGi framework implementation bundle, which starts during the Carbon server startup.
-carbon.initial.osgi.bundles=\file\:plugins/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar@1\:true
-Set of bundles (in a comma separated list) that need to be populated when starting the server. This allows a preferred runtime implementation of the OSGi framework to be plugged.
-carbon.server.listeners=org.wso2.carbon.launcher.extensions.DropinsBundleDeployer	
-The Carbon server listeners (in a comma separated list) that get notified when the server startup and server stop events are executed. You can add new Carbon server listeners by implementing the org.wso2.carbon.launcher.CarbonServerListener interface.
-org.osgi.framework.startlevel.beginning=10	The initial start level of the framework once it begins execution.
-osgi.install.area	The location where the platform is installed. This setting indicates the location of the basic Eclipse plug-ins, which are used by the OSGi runtime during installation.
-osgi.configuration.area	The configuration location for this platform runtime. The configuration determines the location where the OSGi runtime should store configuration information about the bundles you install during run time.
-osgi.instance.area	The instance data location for this session. Plug-ins use this location to store their data eg:workspace
+* `carbon.osgi.repository=file\:osgi`: The location of the OSGi repository for Carbon kernel.
+* `carbon.osgi.framework=file\:plugins/org.eclipse.osgi_3.10.2.v20150203-1939.jar`: This property specifies the OSGi framework  implementation bundle, which starts during the Carbon server startup.
+* `carbon.initial.osgi.bundles=\file\:plugins/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar@1\:true`: Set of bundles (in a comma separated list) that need to be populated when starting the server. This allows a preferred runtime implementation of the OSGi framework to be plugged.
+* `carbon.server.listeners=org.wso2.carbon.launcher.extensions.DropinsBundleDeployer`: The Carbon server listeners (in a comma separated list) that get notified when the server startup and server stop events are executed. You can add new Carbon server listeners by implementing the `org.wso2.carbon.launcher.CarbonServerListener` interface.
+* `org.osgi.framework.startlevel.beginning=10`: The initial start level of the framework once it begins execution.
+* `osgi.install.area`: The location where the platform is installed. This setting indicates the location of the basic Eclipse plug-ins, which are used by the OSGi runtime during installation.
+* `osgi.configuration.area`: The configuration location for this platform runtime. The configuration determines the location where the OSGi runtime should store configuration information about the bundles you install during run time.
+* `osgi.instance.area`: The instance data location for this session. Plug-ins use this location to store their data eg:workspace
 
 ### Server startup process
 
