@@ -91,14 +91,14 @@ osgi.instance.area	The instance data location for this session. Plug-ins use thi
  * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
  * launch.properties file. This property accepts a list of comma separated fully qualified class names.
  */
-public interface CarbonServerListener {
+  public interface CarbonServerListener {
     /**
      * Receives notification of a CarbonServerEvent.
      *
      * @param event CarbonServerEvent
      */
     public void notify(CarbonServerEvent event);
-}```
+   }
             
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
