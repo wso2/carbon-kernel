@@ -182,7 +182,8 @@ You can modify the above file to add the configurations of the plugin by adding 
  Example:
 
           <bundles>
-	      <bundle>   					     		                      <symbolicName>org.wso2.carbon.student.mgt.stub</symbolicName>
-                  <version>4.2.0</version>
+	      <bundle>   					     		                  
+                  <symbolicName>org.wso2.carbon.student.mgt.stub</symbolicName>
+		  <version>4.2.0</version>
 	     </bundle>
          </bundles>
