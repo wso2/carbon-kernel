@@ -1,4 +1,6 @@
-Given below are the core capabilities that are available at Carbon Kernel-level.
+The core capabilities that are available at Carbon Kernel-level are listed below. Follow the relevant link for information on each capability.
+
+> For the full list of capabilities available in Carbon Kernel 5.1.0, see the [root README.md file](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/README.md). 
 
 * **[Resolving the Component Startup Order](#resolving-the-component-startup-order)**
 * **[Adding New Transports](#adding-new-transports)**
