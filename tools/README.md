@@ -277,3 +277,22 @@ You can modify the above file to add the configurations of the plugin by adding 
               <version>4.2.0</version>
            </feature>
        <features>
+
+* `bundles`: The set of bundles to include into the repository. The Maven goal searches for the given artifact in the local `.m2` repository. If it is not found, then the goal searches for the configured remote repositories. Not finding the artifact may cause the Maven goal to terminate with a build failure.
+
+ > Specify artifacts representing each bundle as a Maven dependency. 
+ 
+ MANDATORY property.
+ Example:
+ 
+      <bundles>
+          <bundle>
+	       <symbolicName>org.wso2.carbon.student.mgt.stub</symbolicName>
+               <version>4.2.0</version>
+          </bundle>
+      <bundles>
+      
+* `archive`: Specifies whether the generated artifact should be archived or not. This is a boolean value. Thus, permitted values are either `true` or `false`. The default value is `false`. 
+
+ NOT MANDATORY property.
+ Example: `<archive>True</archive>`
