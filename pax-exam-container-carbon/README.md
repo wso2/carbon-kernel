@@ -47,11 +47,11 @@ You can change the default Pax Exam configurations by following the steps given 
 
  * Dependency for OSGi Test Utils:
  
-         <dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>osgi-test-util</artifactId>
-           <version>5.1.0</version>
-          </dependency>
+           <dependency>
+               <groupId>org.wso2.carbon</groupId>
+               <artifactId>osgi-test-util</artifactId>
+               <version>5.1.0</version>
+            </dependency>
  
  * Other required dependencies for your component.
 
