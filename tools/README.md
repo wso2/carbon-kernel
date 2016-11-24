@@ -511,3 +511,55 @@ You can modify the above file to add the configurations of the plugin by adding 
                 <version>4.4.0</version>
              </feature>
         </features>
+	
+## Using the Maven Bundle Plugin
+
+Carbon 5.0.0 Kernel (Carbon 5.x.x platform) introduced a new version of the Carbon parent project, i.e., carbon-parent-2. This new version includes the Maven Bundle plugin within the Carbon parent project. Therefore, it is no longer necessary to repeat all the configurations relevant to this plugin separately for all other child components. Instead, all the child components that use carbon-parent-2 as the parent project will inherit the common configurations of the plugin from the parent. However, even though the common configurations are inherited by all components, it is necessary to be able to change some configurations for each child component separately. It is possible to do this now, because all the changeable configurations are parameterized in the pom.xml of the carbon-parent-2. Therefore, the child components can freely configure the required parameters.
+
+Shown below is how the Maven Bundle plugin is included in the pom.xml file of carbon-parent-2.
+
+     <plugin>
+	<groupId>org.apache.felix</groupId>
+		<artifactId>maven-bundle-plugin</artifactId>
+		<version>${maven.bundle.plugin.version}</version>
+		<extensions>${maven.bundle.plugin.extensions}</extensions>
+		<configuration>
+			<obrRepository>NONE</obrRepository>
+			<instructions>
+				<Bundle-Activator>${bundle.activator}</Bundle-Activator>
+				<Bundle-ActivationPolicy>${bundle.activation.policy}</Bundle-ActivationPolicy>
+				<Bundle-ClassPath>${bundle.classpath}</Bundle-ClassPath>
+				<Bundle-Contributors>${bundle.contributors}</Bundle-Contributors>
+				<Bundle-Copyright>WSO2 Inc</Bundle-Copyright>
+				<Bundle-Description>${project.description}</Bundle-Description>
+				<Bundle-Developers>${bundle.developers}</Bundle-Developers>
+				<Bundle-DocURL>${bundle.docurl}</Bundle-DocURL>
+				<Bundle-License>http://www.apache.org/licenses/LICENSE-2.0.txt</Bundle-License>
+				<Bundle-Name>${bundle.name}</Bundle-Name>
+				<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+				<Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+				<Conditional-Package>${conditional.package}</Conditional-Package>
+				<DynamicImport-Package>${dynamic.import.package}</DynamicImport-Package>
+				<Export-Package>${export.package}</Export-Package>
+				<Fragment-Host>${fragment.host}</Fragment-Host>
+				<Import-Package>${import.package}</Import-Package>
+				<Include-Resource>${include.resource}</Include-Resource>
+				<Meta-Persistence>${meta.persistence}</Meta-Persistence>
+				<Private-Package>${private.package}</Private-Package>
+				<Provide-Capability>${provide.capability}</Provide-Capability>
+				<Require-Bundle>${require.bundle}</Require-Bundle>
+				<Require-Capability>${require.capability}</Require-Capability>
+				<Service-Component>${service.component}</Service-Component>
+				<Microservices>${microservices}</Microservices>
+				<_dsannotations>${dsannotations}</_dsannotations>
+			</instructions>
+	            </configuration>
+            </plugin>
+
+Following is the list of parameters you can use inside a child POM in order to override the configurations inherited from carbon-parent-2.
+
+| Configuration       | Parameter          | Default value  |
+| ------------- |:-------------:| -----:|
+| extensions     | maven.bundle.plugin.extensions | true |
+| Bundle-Activator      | bundle.activator     |   - |
+| Bundle-ActivationPolicy | bundle.activation.policy      |    The only policy defined is the lazy activation policy. If no Bundle-ActivationPolicy header is speci- fied, the bundle will use eager activation. |
