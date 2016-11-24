@@ -7,6 +7,10 @@ See the following topics for details on tools:
 * **[Converting JARs to OSGi Bundles](#converting-jars-to-osgi-bundles)**
 * **[Dropins Support for OSGi Bundles](#dropins-support-for-osgi-bundles)**
 
+See the following topics on Carbon plugin.
+
+* **[Using the Carbon Feature Plugin](#using-the-carbon-feature-plugin)**
+
 ## Converting JARs to OSGi Bundles
 
 Java archive (JAR) to OSGi bundle converter is a standalone tool that can be used for products based on Carbon Kernel 5.x.x versions (WSO2 Carbon 5.x.x platform). The implementation of this tool has been added to the freshly introduced tools Maven module of the WSO2 Carbon 5.x.x platform.
