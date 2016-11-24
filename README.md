@@ -28,6 +28,11 @@ Given below are details of tools and archetypes that can be used for developing 
 * [Converting JARs to OSGi bundles](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#converting-jars-to-osgi-bundles)
 * [Using the dropins support for OSGi bundles](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#dropins-support-for-osgi-bundles)
 
+Given below are details of plugins:
+
+* [Using the Carbon Feature Plugin](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#using-the-carbon-feature-plugin)
+* [Using the Maven Bundle Plugin](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#using-the-maven-bundle-plugin)
+
 # Getting Started
 
 ## Downloading the Kernel
