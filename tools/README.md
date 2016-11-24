@@ -146,3 +146,19 @@ You can modify the above file to add the configurations of the plugin by adding 
  > You can provide two optional property files. Define one through this `<propertyFile>` parameter. The plugin expects the other file to reside in the resources/ directory of the Maven project with the name as `feature.properties`. You need at least one file to exist for the tool to function properly. Once properties in these two files are merged, the plugin checks for mandatory keys (i.e. copyright, license keys). If these mandatory fields are not found, the plugin informs you and terminates the execution.
 
  NOT Mandatory. Example: `<propertyFile>PATH_FOR_THE_PROPERTY_FILE</propertyFile>`.
+* `properties`: A collection of key-value pairs passed into the Maven goal to write into the output `feature.properties` file. 
+
+ > These properties are merged with the properties taken from the properties file which you pass into the goal through the <propertyFile> parameter, and with the properties of the feature.properties file (if exists) which resides in the resources/ folder of the Maven project.
+ 
+ MANDATORY property. Example:
+ 
+ ```<properties>
+	    <property>
+		     <name>name1</name
+	     	<value>value1</value>
+     </property>
+	    <property>
+	     	<name>name2</name
+		     <value>value2</value>
+     </property>
+ </properties>```
