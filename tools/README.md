@@ -2,7 +2,10 @@
 
 > This README.md file explains the tools in Carbon 5.x.x that can be used for working with OSGi bundles. For the list of capabilities available in Carbon Kernel 5.1.0, see the [root README.md file](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/README.md).
 
+See the following topics for details on tools:
+
 * **[Converting JARs to OSGi Bundles](#converting-jars-to-osgi-bundles)**
+* **[Dropins Support for OSGi Bundles](#dropins-support-for-osgi-bundles)**
 
 ## Converting JARs to OSGi Bundles
 
