@@ -481,3 +481,29 @@ A sample pom.xml file configuration of the uninstall Maven goal is shown below.
           </build>
 	  
 You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
+
+* `destination`: Points to the `<CARBON_HOME>/repository/components/` directory.
+
+ MANDATORY property.
+ Example: `<destination>/home/Carbon/wso2carbon-4.4.0/repository/components</destination>`
+ 
+* `profile`: Which profile in the destination from where you need to uninstall the features. 
+
+ MANDATORY property.
+ Example: `<profile>default</profile>`
+ 
+* `features`: List of features to be uninstalled from the destination profile.
+
+ MANDATORY
+ Example:
+ 
+       <features>
+             <feature>
+                <id>org.wso2.carbon.registry.contentsearch.feature.group</id>
+                <version>4.4.0</version>
+             </feature>
+             <feature>
+                <id>org.wso2.ciphertool.feature.group</id>
+                <version>4.4.0</version>
+             </feature>
+        </features>
