@@ -114,18 +114,17 @@ You can set `JAVA_HOME` using the system properties, as described below. Alterna
 
  You can temporarily set the `JAVA_HOME` environment variable within a Windows command prompt window (CMD). This is useful when you have an existing command prompt window running and you do not want to restart it.
  
- 1. In the command prompt window, enter the following command where `<JDK_INSTALLATION_PATH>` is the JDK installation directory and press  Enter: 
-  `set JAVA_HOME=<JDK_INSTALLATION_PATH>`
+ 1. In the command prompt window, enter the following command where `<JDK_INSTALLATION_PATH>` is the JDK installation directory and press Enter: 
+    `set JAVA_HOME=<JDK_INSTALLATION_PATH>`
  
-  For example:
-  `set JAVA_HOME=c:\Program Files\java\jdk1.8.*`
- 
-  The `JAVA_HOME` variable is now set only for the current CMD session.
+     For example: `set JAVA_HOME=c:\Program Files\java\jdk1.8.*`
+     
+     The `JAVA_HOME` variable is now set only for the current CMD session.
 
  2. To verify that the `JAVA_HOME` variable is set correctly, execute the following command:
  set `JAVA_HOME`.
 
-  The system returns the JDK installation path.
+     The system returns the JDK installation path.
 
 ## Launching the Kernel
 
