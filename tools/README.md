@@ -322,3 +322,21 @@ A sample `pom.xml` file configuration of the `publish-product` Maven goal is sho
         	</plugin>
               </plugins>
          </build>
+
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the <configuration> element of it. 
+
+* `repositoryURL`: Points to the repository where the product needs to be published.
+
+ MANDATORY property.
+ Example: `<repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>`
+ 
+* `executable`: Points to the executable file.
+
+ MANDATORY property.
+ Example: `<executable>${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart</executable>`
+ 
+* `productConfiguration`: Location of the `.product` file. 
+
+ MANDATORY property.
+ Example: `<productConfigurationFile>${basedir}/carbon.product</productConfigurationFile>`.
+ 
