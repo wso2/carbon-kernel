@@ -32,7 +32,7 @@ Given below are details of tools and archetypes that can be used for developing 
 
 ## Downloading the Kernel
 You can download the product distribution from here.
-Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as <PRODUCT_HOME>.
+Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as `<PRODUCT_HOME>`.
 
 ## Installation prerequisites
 Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
