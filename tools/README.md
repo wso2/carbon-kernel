@@ -76,10 +76,60 @@ The Carbon feature plugin was formerly known as the Carbon P2 plugin. It has gon
 
 The WSO2 Carbon feature plugin is a Maven plugin, which is used within the WSO2 Carbon platform. The Maven goals that are achieved through this plugin are explained in the following table:
 
- | Purpose                | Maven goal                      | Formerly known term                      | Configurations  |
- | :---------------------: |:--------------------------------:| :-------------------------------------:| :------------------:|
- | Generate Carbon features      | The groupId of the archetype.    | `org.wso2.carbon`                      | Mandatory           |
- | Generate P2 repositories   | publish-product | `org.wso2.carbon.archetypes.component` | Mandatory           |
- | Generate product profiles      | generate-profile   | materialize-product  | Configuring the generate-profile Maven goal            |
- | Install Carbon features into a product profile | install | p2-profile-gen | Configuring the install Maven goal           |
- | Uninstall Carbon features from a product  | uninstall    | N/A   | Configuring the uninstall Maven goal   |
+* `generate`: For generating Carbon features. Formerly known as `P2-feature-gen`.
+* `generate-repo`: For generating P2 repositories. Formerly known as 'P2-repo-gen'.
+* `publish-product`: For publishing a product into a P2 repository.
+* `generate-profile`: For generating product profiles. Formerly known as `materialize-product`.
+* `install`: For installing Carbon features into a product profile. Formerly known as `p2-profile-gen`.
+* `uninstall`: For uninstalling Carbon features from a product.
+
+All these goals (except the generate Maven goal) are executed during the package phase in the default life cycle of the Maven build. The generate Maven goal follows a different life cycle. You have the flexibility to configure the behavior of the plugin by passing the relevant parameters to these Maven goals.
+
+### What is a Carbon feature?
+
+A Carbon feature is an installable form of one or more logically related Carbon components. You can create a Carbon feature by grouping one or more existing Carbon features together as well. You can install these features into Carbon-based products using the feature manager in the management console of the product, or via the install Maven goal of the Carbon feature plugin.
+
+### What is a P2 repository?
+
+A P2 repository is a collection of Carbon features. It acts as a feature aggregator. You can point a Carbon product to a P2 repository and install one or more feature(s) you find in that repository. Once a feature is installed, the feature is copied into the Carbon product.
+
+### What is a product profile?
+
+A product profile is a logical grouping of a set of features/components that creates a virtual boundary for execution. Every Carbon product has a default profile shipped with it. With the Carbon feature plugin, you can create profiles and install Carbon features to that profile.
+
+A Carbon product (WSO2 ESB, WSO2 AS etc.) is made by installing the relevant features on top of the Carbon kernel using the following steps:
+
+1. Create profiles on top of the Carbon kernel using the generate-profile Maven goal. 
+2. Install the relevant features using the install Maven goal.
+
+### Carbon feature plugin configurations
+
+The following sections describe the configurations of the Maven goals that are implemented in the Carbon feature plugin. 
+
+#### Configuring the generate Maven goal
+
+A sample pom.xml file configuration of the generate Maven goal is shown below.
+
+```<build>
+    	<plugins>
+        	<plugin>
+            	<groupId>org.wso2.carbon.maven</groupId>
+            	<artifactId>carbon-feature-plugin</artifactId>
+            	<version>${carbon.feature.plugin.version}</version>
+            	<executions>
+                	<execution>
+                    	<id>p2-feature-generation</id>
+                    	<phase>package</phase>
+                    	<goals>
+                        	<goal>generate</goal>
+                    	</goals>
+                    	<configuration>
+                        	//plugin configuration goes here.
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+    </plugins>
+</build>```
+
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the <configuration> element of it. 
