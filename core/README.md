@@ -623,7 +623,7 @@ The following steps will guide you on how to add new audit logs when developing 
 
  Shown below is the default configuration in Carbon Kernel, where the "user-name" key is added to the MDC for the purpose of capturing the user name of the logged in user. This will ensure that the user name of the logged in user is added to the audit logs, and thereby, you do not need any additional configurations to get this information logged. 
 
-    org.slf4j.MDC.put("user-name", userPrincipal.getName());
+     org.slf4j.MDC.put("user-name", userPrincipal.getName());
 
  > Note that the "user-name" key will be effective when the `javax.security.Principal` user gets set in the `PrivilegedCarbonContext`. Find more information about [using the `CarbonContext` API](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#using-the-carboncontext-api).
 
