@@ -9,6 +9,7 @@ For detailed explanations on configuring the Launcher component, see the followi
 * **[Configuring the Launcher](#configuring-the-launcher)**
 * **[Server startup process](#server-startup-process)**
 * **[Server startup logs](#server-startup-logs)**
+* **[Monitoring server startup logs](monitoring-server-startup-logs)**
 
 ## Configuring the Launcher
 
@@ -103,7 +104,7 @@ The properties in the `launch.properties` file are explained below:
             
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
-## Server startup logs
+## Monitoring server startup logs
 
 During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the `<CARBON_HOME>/logs/carbon.log` file. Bootstrap logger maintains two separate handlers: 
 
@@ -112,3 +113,69 @@ During the server startup process, the launcher component uses the `java-util-lo
 * FileLogHandler for configuring `java.util.logging`, which appends to the wso2carbon.log file. This could be used for bootstrap logging prior to framework startup.
 
 For instructions on how to configure this logging facility, see the documentation on monitoring Carbon startup logs.
+
+## Monitoring Server Startup Logs
+
+The WSO2 Carbon Launcher is responsible for initializing and starting the Carbon server. During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the carbon.log file (stored in the `<CARBON_HOME>/logs` directory). 
+
+WSO2 Carbon maintains a separate configuration file (`logging.properties`) to control the logging details of the java.util.logging framework. This file is stored in the `<CARBON_HOME>/bin/bootstrap` directory. There are two handlers defined in the default configuration:
+
+* `java.util.logging.FileHandler`: For configuring `java.util.logging` to append to `carbon.log`.
+* `java.util.logging.ConsoleHandler`: For configuring `java.util.logging` to append to carbon console.
+
+The global level of the configuration is set to INFO. 
+
+The default values for the handlers are set as shown in the below table.
+ 
+|                     | `java.util.logging.FileHandler`       | `java.util.logging.ConsoleHandler`    |
+| ------------------- |:-------------------------------------:| -------------------------------------:|
+| Default level       | `INFO`                                | `INFO`                                |
+| Default Formatter   | `java.util.logging.SimpleFormatter`   | `java.util.logging.SimpleFormatter`   |
+| Logging destination | `<CARBON-HOME>/log/carbon.log`        | `Console`                             |
+
+See the following topics for instructions on changing the default configuration:
+
+### Changing the log levels of a default handler
+Consider a scenario where you need to save all the logs of level FINE in `java.util.logging` only to the `carbon.log` file (not to the Console). To achieve this, you can do the following:
+
+* Set the global logging level to `FINE` (or a lower level than `FINE`).
+* Set the logging level of the `FileHandler` to `FINE`.
+* Set the logging level of the `ConsoleHandler` to `INFO` (default value).
+
+Please find the sample logging.properties file below:
+
+    handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+
+    .level= FINE
+
+    java.util.logging.FileHandler.level = FINE
+    java.util.logging.FileHandler.pattern = logs/carbon.log
+    java.util.logging.FileHandler.limit = 50000
+    java.util.logging.FileHandler.count = 1
+    java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+    java.util.logging.SimpleFormatter.format = [%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %4$s {%2$s} - %5$s %6$s %n
+
+    java.util.logging.ConsoleHandler.level = INFO
+    java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+### Changing the log levels of a single package/class
+
+As explained above, changing the log level of a handler will cause the logs of all `java.util.logging` to be logged to the configured destination (`carbon.log` file or the Console). If you need to change the log level of one specific class, you can update the logging configuration at class level as explained below:
+
+* Consider a scenario where you need to skip the FINE logs from the `org.wso2.carbon.launcher.CarbonServer` class, but you need to log all the `FINE` logs from other classes. A sample configuration for this scenario is as follows:
+
+        .level= FINE
+        java.util.logging.FileHandler.level = INFO
+        …
+        java.util.logging.ConsoleHandler.level = FINE  <- - -  prints FINE logs to the Console
+        …
+        org.wso2.carbon.launcher.CarbonServer.level=INFO    <- - - prints only info logs of this class 
+
+* Given below is a sample configuration where only the severe logs of a class/package will be logged.
+
+        .level= INFO
+        java.util.logging.FileHandler.level = INFO
+        …
+        java.util.logging.ConsoleHandler.level = INFO 
+        …
+        com.xyz.foo.level = SEVERE    <- - - prints only SEVERE logs of this class
