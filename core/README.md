@@ -222,7 +222,7 @@ The following example illustrates how you can plug your own runtime and register
 
 2. Implement the runtime interface. See the example given below.
 
- This code sample contains the implementation that was done for Carbon 4.2.0 components. In this code segment, the current Tomcat integration is re-factored to Carbon at `http://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/core/org.wso2.carbon.tomcat/4.2.0/`.
+ This code sample contains the implementation that was done for Carbon 4.2.0 components. In this code segment, the current Tomcat integration is re-factored to Carbon at [`http://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/core/org.wso2.carbon.tomcat/4.2.0/`](http://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/core/org.wso2.carbon.tomcat/4.2.0/).
 
         public class TomcatRuntime implements Runtime {
         private static Log log = LogFactory.getLog(TomcatRuntime.class);
