@@ -124,9 +124,9 @@ When you define an OSGi service component, the component bundle may need to regi
 
  * **Registering a known number of services:** You can use the serviceCount manifest attribute to specify the number of services that you register from your bundle as shown below. Here you know the exact number of services that your register at development time.
 
-      Carbon-Component: osgi.service; 
-      objectClass=”org.wso2.carbon.kernel.transports.CarbonTransport”; 
-      serviceCount="4"
+        Carbon-Component: osgi.service; 
+        objectClass=”org.wso2.carbon.kernel.transports.CarbonTransport”; 
+        serviceCount="4"
 
  * **Registering an indefinite number of services:** In certain scenarios, you may not know the number of OSGi services you register from your bundle at the time of development. However, during server startup, you can calculate the number of OSGi services that need to be registered. You may obtain this value from a configuration file, from another OSGi service or from any source. In this scenario, you cannot use the serviceCount manifest attribute, since you don’t know the count at development time.
  
