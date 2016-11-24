@@ -194,3 +194,32 @@ You can modify the above file to add the configurations of the plugin by adding 
 	 > * The `<version>` element is also mandatory. The value of it should be one of the following:
 	  1. The bundle version given in the MANIFEST.MF file of it.  
 	  2. The Maven artifact version provided that it is convertible to the bundle version. (E.g. If you use the Maven artifact version 5.0.0-SNAPSHOT when the bundle version is 5.0.0.SNAPSHOT, then the plugin will convert the Maven artifact version to the bundle version and continue.)
+
+* `includeFeatures`: Carbon features which you need to include in the feature being built. 
+
+ NOT MANDATORY property. 
+ Example:
+
+          <includeFeature>
+	     <feature>
+	        <id>org.wso2.carbon.jarservices.feature</id>
+                <version>4.4.0</version>
+             </feature>            
+          </includeFeature>
+	
+	
+	 > For any artifact which represents a Carbon feature, the artifact ID of it should end as `.feature`. Also, you need to specify the artifact representing each feature as a Maven dependency.
+	 
+* `importFeatures`: Features on which the feature being built depends on. These are included in the feature.xml file. However, the Maven artifacts for these features are not getting resolved and they are not copied into the final feature zip file. 
+
+ NOT MANDATORY property. 
+ Example:
+
+          <importFeatures>                            		
+              <feature>
+	        <id>org.wso2.carbon.jarservices.feature</id>
+                <version>4.4.0</version>
+              </feature>         
+          </importFeatures>	
+	
+	 > For any artifact which represents a Carbon feature, the artifact ID of it should end as .feature. Also, you need to specify the artifact representing each feature as a Maven dependency. 
