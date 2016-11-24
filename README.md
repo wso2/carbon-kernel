@@ -18,7 +18,6 @@ Given below are details of the core capabilities of Carbon Kernel.
 * [Developing a Carbon tool](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#developing-a-carbon-tool)
 * [Configuring Logging for a Carbon Server](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#configuring-logging-for-a-carbon-server)
 * [Monitoring Carbon Servers](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#monitoring-carbon-servers)
-
 * [Setting up the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md)
 * [Using in-container OSGi testing for development](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/pax-exam-container-carbon/README.md)
 
