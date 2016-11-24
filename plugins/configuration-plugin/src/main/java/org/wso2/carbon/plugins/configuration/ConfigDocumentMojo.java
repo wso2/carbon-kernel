@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.annotations.Configuration;
 import org.wso2.carbon.kernel.annotations.Element;
 import org.wso2.carbon.kernel.annotations.Ignore;
-import org.wso2.carbon.processors.annotation.ConfigurationProcessor;
+import org.wso2.carbon.kernel.annotations.processor.ConfigurationProcessor;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -84,6 +84,14 @@ public class ConfigDocumentMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // get the qualified names of all configuration bean in the project, if array is empty, return without further
+        // processing and we not create any configuration document file.
+        String[] configurationClasses = getConfigurationClasses();
+        if (configurationClasses == null || configurationClasses.length == 0) {
+            logger.info("Configuration classes doesn't exist in the component, hence configuration file not create");
+            return;
+        }
+
         List runtimeClasspathElements;
         try {
             runtimeClasspathElements = project.getRuntimeClasspathElements();
@@ -101,14 +109,6 @@ public class ConfigDocumentMojo extends AbstractMojo {
             } catch (MalformedURLException e) {
                 logger.error("Error while adding URI: " + elementFile.toURI().toString(), e);
             }
-        }
-
-        // get the qualified names of all configuration bean in the project, if array is empty, return without further
-        // processing and we not create any configuration document file.
-        String[] configurationClasses = getConfigurationClasses();
-        if (configurationClasses == null || configurationClasses.length == 0) {
-            logger.info("Configuration classes doesn't exist in the component, hence configuration file not create");
-            return;
         }
 
         // process configuration bean to create configuration document
