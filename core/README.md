@@ -590,7 +590,7 @@ WSO2 Carbon 5.x.x Kernel uses logging framework with Pax Logging. You can find o
 You can monitor the Carbon server using the following options:
 
 * **[Using Audit Logs](#using-audit-logs)**
-* **[Using MBeans for Monitoring](#using-mbeans-for-monitoring)
+* **[Using MBeans for Monitoring](#using-mbeans-for-monitoring)**
 
 > In addition to these monitoring capabilities, you can monitor server startup logs from the Carbon Launcher. Find out more from the [README.MD file of the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md#monitoring-server-startup-logs).
 
@@ -602,7 +602,7 @@ Audit logs or audit trails contain a set of log entries that describe a sequence
 
 > Audit logs are stored in the `audit.log` file, located in the `<CARBON_HOME>/logs` directory.
 
-See the following topics for details:
+See the following topics for details.
 
 ### Adding audit logs to a Carbon component
 
@@ -638,7 +638,7 @@ Java Management Extensions (JMX) is a standard technology in the Java platform. 
 
 > Note that `javax.management.*` is the only required dependency.
 
-See the following topics for instructions:
+See the following topics for instructions.
 
 ### About the JMX monitoring implementation in WSO2 Carbon
 
@@ -651,7 +651,7 @@ Once you register the MBeans for your Carbon component, they will be exposed for
     ObjectName mbeanName = new ObjectName("org.wso2.carbon.jmx.sample:type=Test");
     mBeanServer.registerMBean(new Test(), mbeanName);
 
-#### Monitoring MBeans in Carbon using a JMS client
+### Monitoring MBeans in Carbon using a JMS client
 
 Monitoring MBeans is easy with `jconsole`. Follow the steps given below.
 
