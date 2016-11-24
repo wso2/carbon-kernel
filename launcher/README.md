@@ -9,7 +9,7 @@ For detailed explanations on configuring the Launcher component, see the followi
 * **[Configuring the Launcher](#configuring-the-launcher)**
 * **[Server startup process](#server-startup-process)**
 * **[Server startup logs](#server-startup-logs)**
-* **[Monitoring server startup logs](monitoring-server-startup-logs)**
+* **[Monitoring server startup logs](#monitoring-server-startup-logs)**
 
 ## Configuring the Launcher
 
