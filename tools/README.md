@@ -249,3 +249,31 @@ A sample `pom.xml` file configuration of the `generate-repo` Maven goal is shown
         	</plugin>
               </plugins>
        </build>
+
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
+
+* `name`: Name of the newly created artifact repository. If you do not specify this, the artifact ID of the project is taken by default. 
+
+ MANDATORY property. 
+ Example: `<name>LOCATION_OF_THE_MANIFEST_FILE</name>`	
+ 
+* `targetRepository`: Location to create the repository in the form of a URL. 
+
+ MANDATORY property.
+ Example: `<targetRepository>file:/home/p2-repo</targetRepository>`
+ 
+ > Since this is a URL, give a location in the file system in this format.
+ 
+* `features`: The set of features to include in the repository. The Maven goal searches for the given artifact in the local `.m2` repository. If it is not found, then the goal searches for the configured remote repositories. Not finding the artifact may cause the maven goal to terminate with a build failure.
+
+ > Specify artifacts representing each feature as a Maven dependency. The <type> attribute of each dependency should hold the value as zip.
+ 
+ MANDATORY property.
+ Example:
+ 
+       <features>
+           <feature>
+	      <id>org.wso2.carbon.student.mgt.feature</id>
+              <version>4.2.0</version>
+           </feature>
+       <features>
