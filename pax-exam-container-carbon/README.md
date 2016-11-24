@@ -3,6 +3,7 @@
 From Carbon Kernel 5.0.0 onwards, the [Pax Exam framework](https://ops4j1.jira.com/wiki/display/PAXEXAM4/Getting+Started+with+OSGi+Tests) provides the infrastructure for composing unit test cases. See the following topics for details:
 
 * **[How Pax Exam works](#how-pax-exam-works)**
+* **[Writing unit tests for a Carbon component](#writing-unit-tests-for-a-carbon-component)**
 
 ## How Pax Exam works
 
@@ -136,7 +137,7 @@ Follow the instructions given below when you write test cases for your Carbon co
         }
         }
 
- Using Dependency Injection, your test method can access the BundleContext of the probe bundle or any service obtained from the OSGi service registry.
+ Using Dependency Injection, your test method can access the `BundleContext` of the probe bundle or any service obtained from the OSGi service registry.
  
 		@Inject
 		private BundleContext bundleContext;
@@ -150,15 +151,15 @@ Follow the instructions given below when you write test cases for your Carbon co
 
  * `getConfiguration() : (returns List<Option>)`
 	
-  This method is used to get the Pax Exam configuration with the default (minimum) Pax Exam options required for booting up the Carbon Kernel.
+    This method is used to get the Pax Exam configuration with the default (minimum) Pax Exam options required for booting up the Carbon Kernel.
  
  * `getConfiguration(List<Option> customOptions, CarbonSysPropConfiguration sysPropConfiguration) : (returns List<Option>)`
 	
-  This method is used to pass custom options (`customOptions`) and `systemproperty` configurations (`sysPropConfiguration`). Here, the custom options are merged with the default set of options required to boot up Carbon Kernel. Using `sysPropConfiguration`, you can set the server key,  server name,  server version and carbon home.  
+    This method is used to pass custom options (`customOptions`) and `systemproperty` configurations (`sysPropConfiguration`). Here, the custom options are merged with the default set of options required to boot up Carbon Kernel. Using `sysPropConfiguration`, you can set the server key,  server name,  server version and carbon home.  
  
  * `getBaseOptions(String carbonHome, String serverKey, String serverName, String serverVersion) : (returns List<Option>)`
 	
-  This method is used to set a systemproperty such as 'carbon home', 'server key', 'server name' and 'server version' while using the default (minimum) Pax Exam options required to start the server.
+    This method is used to set a systemproperty such as 'carbon home', 'server key', 'server name' and 'server version' while using the default (minimum) Pax Exam options required to start the server.
  
  All of the above will return a list of options (`org.ops4j.pax.exam.Option`) that you have returned as an array. Note that you need to use the method inside `@Configuration` method (`org.ops4j.pax.exam.Configuration`).
  
@@ -192,7 +193,7 @@ Follow the instructions given below when you write test cases for your Carbon co
  		  return optionList.toArray(new Option[optionList.size()]);
 		}
 
-3. The carbon.home (system property) should be set for OSGi tests. This location will vary depending on the repository that is used. Therefore, this property should be defined in the pom.xml of the OSGi test as shown below:
+3. The `carbon.home` (system property) should be set for OSGi tests. This location will vary depending on the repository that is used. Therefore, this property should be defined in the pom.xml of the OSGi test as shown below:
 
 		<build>
 		…….
