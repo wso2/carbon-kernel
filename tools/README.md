@@ -129,7 +129,18 @@ A sample pom.xml file configuration of the generate Maven goal is shown below.
                 	</execution>
             	</executions>
         	</plugin>
-    </plugins>
+     </plugins>
     </build>
 
 You can modify the above file to add the configurations of the plugin by adding the following parameters within the <configuration> element of it. 
+
+* `label`: Label to attach to the `feature.xml` file. Default value is set to the Maven project name of the feature being built. NOT Mandatory. Example: `<label>LABEL</label>`
+* `description`: Description to attach to the `feature.xml` file. Default value is set to the Maven project description of the feature being built. NOT Mandatory. Example: `<description>DESCRIPTION</description>`.
+* `providerName`: Provider name to attached to the `feature.xml` file. NOT Mandatory. Example: `<providerName>PROVIDER_NAME</providerName>`
+* `copyright`: Copyright text to attached to the `feature.xml` file. NOT Mandatory. Example: `<copyright>COPYRIGHT</copyright>`.
+* `licenceUrl`: License URL to attach to the `feature.xml` file. NOT Mandatory. Example: `<licenseUrl>LICENSE_URL</licenseUrl>`.
+* `licence`: License to attach to the `feature.xml` file. NOT Mandatory. Example: `<license>LICENSE</license>`.
+* `manifest`: This points to the location of the manifest file. The content is considered if the manifest is present when generating the `feature.xml` file. This manifest file is copied and its content will be updated as the `feature.xml` file. NOT Mandatory. Example: `<manifest>LOCATION_OF_THE_MANIFEST_FILE</manifest>`.
+* `propertyFile`: This points to the location of the properties file. Properties of the property file (if exists) are merged with the properties passed into the Maven goal through the `<properties>` parameter and with the `feature.properties` file located in the resources/ folder (if exists) of the Maven project. These merged properties are written into the `feature.properties` file. 
+> You can provide two optional property files. Define one through this `<propertyFile>` parameter. The plugin expects the other file to reside in the resources/ directory of the Maven project with the name as `feature.properties`. You need at least one file to exist for the tool to function properly. Once properties in these two files are merged, the plugin checks for mandatory keys (i.e. copyright, license keys). If these mandatory fields are not found, the plugin informs you and terminates the execution.
+NOT Mandatory. Example: `<propertyFile>PATH_FOR_THE_PROPERTY_FILE</propertyFile>`.
