@@ -223,3 +223,29 @@ You can modify the above file to add the configurations of the plugin by adding 
           </importFeatures>	
 	
 	 > For any artifact which represents a Carbon feature, the artifact ID of it should end as .feature. Also, you need to specify the artifact representing each feature as a Maven dependency. 
+
+#### Configuring the generate-repo Maven goal
+
+A sample `pom.xml` file configuration of the `generate-repo` Maven goal is shown below.
+
+      <build>
+    	     <plugins>
+        	<plugin>
+            	<groupId>org.wso2.carbon.maven</groupId>
+            	<artifactId>carbon-feature-plugin</artifactId>
+            	<version>${carbon.feature.plugin.version}</version>
+            	<executions>
+                	<execution>
+                    	<id>p2-feature-generation</id>
+                    	<phase>package</phase>
+                    	<goals>
+                        	<goal>generate-repo</goal>
+                    	</goals>
+                    	<configuration>
+                        	//plugin configuration goes here.
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+              </plugins>
+       </build>
