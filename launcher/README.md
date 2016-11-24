@@ -106,17 +106,7 @@ The properties in the `launch.properties` file are explained below:
 
 ## Monitoring server startup logs
 
-During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the `<CARBON_HOME>/logs/carbon.log` file. Bootstrap logger maintains two separate handlers: 
-
-* ConsoleLogHandler for configuring `java.util.logging`, which appends to the Carbon console. This can be used for bootstrap logging via `java.util.logging` prior to the startup of pax logging.
-
-* FileLogHandler for configuring `java.util.logging`, which appends to the wso2carbon.log file. This could be used for bootstrap logging prior to framework startup.
-
-For instructions on how to configure this logging facility, see the documentation on monitoring Carbon startup logs.
-
-## Monitoring Server Startup Logs
-
-The WSO2 Carbon Launcher is responsible for initializing and starting the Carbon server. During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the carbon.log file (stored in the `<CARBON_HOME>/logs` directory). 
+During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the carbon.log file (stored in the `<CARBON_HOME>/logs` directory). 
 
 WSO2 Carbon maintains a separate configuration file (`logging.properties`) to control the logging details of the java.util.logging framework. This file is stored in the `<CARBON_HOME>/bin/bootstrap` directory. There are two handlers defined in the default configuration:
 
