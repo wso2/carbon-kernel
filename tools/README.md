@@ -586,25 +586,25 @@ Following is the list of parameters you can use inside a child POM in order to o
 
 Shown below is a sample `pom.xml` file of a Carbon component, which has changed the default configurations inherited from the parent by using the parameters given above. 
 
-      <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-.........................
-<!-- This is where you have to include your configuration values for maven-bundle-plugin -->
-   <properties>
-	   <bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
-       <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
-       <export.package>
-           !org.wso2.carbon.kernel.internal,
-           org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
-       </export.package>
-       <import.package>
-           org.eclipse.osgi.util,
-           org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-           org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-           org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
-           javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
-           org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-           org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
-           org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-       </import.package>
-   </properties>
+      <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+            .........................
+                 <!-- This is where you have to include your configuration values for maven-bundle-plugin -->
+                      <properties>
+	                  <bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
+                          <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
+                          <export.package>
+                              !org.wso2.carbon.kernel.internal,
+                              org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+                          </export.package>
+                          <import.package>
+                              org.eclipse.osgi.util,
+                              org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+                              org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+                              org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+                              javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
+                              org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+                              org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
+                              org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+                          </import.package>
+                         </properties>
        </project> 
