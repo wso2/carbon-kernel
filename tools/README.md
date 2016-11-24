@@ -10,6 +10,7 @@ See the following topics for details on tools:
 See the following topics on Carbon plugin.
 
 * **[Using the Carbon Feature Plugin](#using-the-carbon-feature-plugin)**
+* **[Using the Maven Bundle Plugin](#using-the-maven-bundle-plugin)**
 
 ## Converting JARs to OSGi Bundles
 
@@ -559,7 +560,7 @@ Shown below is how the Maven Bundle plugin is included in the pom.xml file of ca
 Following is the list of parameters you can use inside a child POM in order to override the configurations inherited from carbon-parent-2.
 
 | Configuration       | Parameter          | Default value  |
-| ------------- |:-------------:| -----:|
+| :-----------: |:-------------:| :----:|
 | extensions     | maven.bundle.plugin.extensions | true |
 | Bundle-Activator      | bundle.activator     |   - |
 | Bundle-ActivationPolicy | bundle.activation.policy      |    The only policy defined is the lazy activation policy. If no Bundle-ActivationPolicy header is speci- fied, the bundle will use eager activation. |
