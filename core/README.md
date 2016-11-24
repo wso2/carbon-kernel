@@ -222,7 +222,7 @@ The following example illustrates how you can plug your own runtime and register
 
 2. Implement the runtime interface. See the example given below.
 
- This code sample contains the implementation that was done for Carbon 4.2.0 components. In this code segment, the current Tomcat integration is re-factored to Carbon at http://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/core/org.wso2.carbon.tomcat/4.2.0/.
+ This code sample contains the implementation that was done for Carbon 4.2.0 components. In this code segment, the current Tomcat integration is re-factored to Carbon at `http://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/core/org.wso2.carbon.tomcat/4.2.0/`.
 
         public class TomcatRuntime implements Runtime {
         private static Log log = LogFactory.getLog(TomcatRuntime.class);
@@ -360,7 +360,7 @@ The following example illustrates how you can plug your own runtime and register
         }
         }
 
-4. Once the above points are addressed in your project, we need to add the Maven bundle plugin properties to generate the component-level metadata for scr annotations and bundle info. An example of the POM file is given below. The packaging should be 'bundle' in the pom.xml.
+4. Once the above points are addressed in your project, we need to add the Maven bundle plugin properties to generate the `component-level` metadata for `scr` annotations and bundle info. An example of the POM file is given below. The packaging should be 'bundle' in the `pom.xml`.
 
         <properties>
         <bundle.activator>org.wso2.carbon.tomcat.internal.TomcatRuntimeActivator</bundle.activator>
@@ -387,7 +387,7 @@ The following example illustrates how you can plug your own runtime and register
 You can test the new runtime by following the steps given below.
 
 1. Build your component, which will generate an OSGi bundle.
-2. Now this bundle can be installed in a running Carbon server instance by adding the bundle to the dropins directory in the OSGi repository (which is <CARBON_HOME>/osgi). Once you have added your bundle to the dropins directory, it will be installed to the OSGi runtime by the Kernel launcher. Find out more about how the dropins directory is used for deploying bundles.
+2. Now this bundle can be installed in a running Carbon server instance by adding the bundle to the dropins directory in the OSGi repository (which is `<CARBON_HOME>/osgi`). Once you have added your bundle to the dropins directory, it will be installed to the OSGi runtime by the Kernel launcher. Find out more about how the dropins directory is used for deploying bundles.
 
 # Using the CarbonContext API
 
