@@ -17,7 +17,7 @@ See the following sub topics:
 * **[The solution](#the-solution)**
 * **[About the Carbon startup order resolver](#about-the-carbon-startup-order-resolver)**
  * **[Defining a startup listener component](#defining-a-startup-listener-component)**
- * **[Defining an OSGi service component](#Defining an OSGi service component)**
+ * **[Defining an OSGi service component](#defining-an-osgi-service-component)**
 
 ## Why we need a startup order resolver
 WSO2 Carbon Kernel provides an OSGi-based framework for developing enterprise-grade, server-side applications. Transport management, runtime management, centralized logging and deployment engine are some of its core features. When you start a Carbon server, there will be requirements where some components need to wait until other components are initialized (inter-component dependencies). Also, there will be requirements where a component needs to wait until all of its internal services and extensions are available (intra-component dependencies).
