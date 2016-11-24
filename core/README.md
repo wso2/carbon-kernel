@@ -582,7 +582,7 @@ org.ops4j.pax.logging.log4j2.async parameter to true as shown below.
 
 You can monitor the Carbon server using the following options:
 
-> In addition to these monitoring capabilities, see how you can monitor server startup logs from the [README.MD file of the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md#monitoring-server-startup-logs).
+> In addition to these monitoring capabilities, you can find information on how to monitor server startup logs from the [README.MD file of the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md#monitoring-server-startup-logs).
 
 ## Using Audit Logs
 
