@@ -448,10 +448,10 @@ As shown above, the `PrivilegedCarbonContext` class is used to set the following
 
 See the topics given below for information on Carbon tools.
 
-* **[About Carbon tools](#about-carbon-tools)**
+* **[About Carbon Tools](#about-carbon-tools)**
 * **[Developing a Carbon tool](#developing-a-carbon-tool)**
 
-## About Carbon tools
+## About Carbon Tools
 
 Carbon tools provide you the option of using various features as standalone functionalities that are detached from the server startup process. That is, you will be able to use these functions easily by executing a simple tool. These tools can be executed at any point, irrespective of whether the server is started.  
 
@@ -466,7 +466,7 @@ Given below are the optional tools that are available by default with the Carbon
 * [Java Archive (JAR) file to OSGi bundle converter](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/tools#converting-jars-to-osgi-bundles)
 * [Dropins deployer tool](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/tools#dropins-support-for-osgi-bundles)
  
-## Developing a Carbon tool
+## Developing a Carbon Tool
 
 > The Java Archive (JAR) file that contains these tool implementations is `org.wso2.carbon.tools*.jar`. This JAR is stored in the `<CARBON_HOME>/bin/bootstrap/tools` directory. 
 
