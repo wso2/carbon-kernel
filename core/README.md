@@ -13,11 +13,12 @@ WSO2 introduces a Carbon component startup order resolver implementation that do
 
 ### Why we need a startup order resolver
 WSO2 Carbon Kernel provides an OSGi-based framework for developing enterprise-grade, server-side applications. Transport management, runtime management, centralized logging and deployment engine are some of its core features. When you start a Carbon server, there will be requirements where some components need to wait until other components are initialized (inter-component dependencies). Also, there will be requirements where a component needs to wait until all of its internal services and extensions are available (intra-component dependencies).
+
 The following diagram depicts a scenario with both types of dependencies among Carbon components:
 
 .....
 
-The Microservice Manager and the Transport Manager are Carbon components. Both these components contain one or more related OSGi bundles. In this scenario, the Transport Manager component should be initialized after the Microservice Manager. This is because, the Transport Manager should not open any ports until all the microservices are properly deployed. You can easily handle this via OSGi services:
+The **Microservice Manager** and the **Transport Manager** are Carbon components. Both these components contain one or more related OSGi bundles. In this scenario, the Transport Manager component should be initialized after the Microservice Manager. This is because, the Transport Manager should not open any ports until all the microservices are properly deployed. You can easily handle this via OSGi services:
 
   1. The Microservice Manager component registers an OSGi service when it is fully initialized. 
   2. The Transport Manager component gets activated soon after that service is available.
@@ -27,8 +28,7 @@ Things get complicated when you think about other dependencies of the Microservi
   1. The Microservice Manager component should only be initialized after all the required microservices are registered.
   2. The Transport Manager component should only be initialized:
   
-   a. after the Microservice Manager component is fully initialized.
-   
+   a. after the Microservice Manager component is fully initialized. 
    b. after all the transport services are registered from individual bundles during the server startup. For example, the HTTPS transport bundle registers a transport as an OSGi service. There are five such transport bundles shown in the above figure. Therefore, during server startup, you can expect five different OSGi services of type 'transport'. Now, the Transport Manager has to wait until all five OSGi services are available.
        
 Transport Manager does not need to wait for OSGi services of type 'transport' that come from transport bundles that get installed after the server starts. Transport Manager only waits for OSGi services of type 'transport' that become available during server startup. Therefore, if someone adds a new transport, or removes an existing transport bundle, the number of transport OSGi services will change. Hence, it is not static, and thereby, you have to calculate the expected number of transport services at runtime. OSGi declarative services do not solve this problem.
