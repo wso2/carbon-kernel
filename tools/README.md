@@ -340,3 +340,50 @@ You can modify the above file to add the configurations of the plugin by adding 
  MANDATORY property.
  Example: `<productConfigurationFile>${basedir}/carbon.product</productConfigurationFile>`.
  
+#### Configuring the generate-profile Maven goal 
+
+A sample `pom.xml` file configuration of the `generate-profile` Maven goal is shown below.
+
+      <build>
+    	   <plugins>
+        	<plugin>
+            	<groupId>org.wso2.carbon.maven</groupId>
+            	<artifactId>carbon-feature-plugin</artifactId>
+            	<version>${carbon.feature.plugin.version}</version>
+            	<executions>
+                	<execution>
+                    	<id>p2-feature-generation</id>
+                    	<phase>package</phase>
+                    	<goals>
+                        	<goal>generate-profile</goal>
+                    	</goals>
+                    	<configuration>
+                        	//plugin configuration goes here.
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+           </plugins>
+         </build>
+	 
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
+
+* `repositoryURL`: Points the P2 repository from which the artifacts are taken from when generating the profile. 
+ 
+ MANDATORY property.
+ Example: `<repositoryURL>file://home/p2-repo</repositoryURL>`
+ 
+* `targetPath`: Points to the components folder of the Carbon product of which the profile is being created. 
+
+ MANDATORY property.
+ Example: `<targetPath>file:${basedir}/target/wso2carbon-core-${carbon.kernel.version}/repository/components</targetPath>`
+ 
+* `profile`: Name of the profile to be created..
+
+ MANDATORY property.
+ Example: `<profile>worker</profile>`
+ 
+* `productConfiguration`: Location of the `.product` file.
+
+ MANDATORY property.
+ Example: `<productConfigurationFile>${basedir}/carbon.product</productConfigurationFile>`.
