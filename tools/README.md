@@ -110,7 +110,7 @@ The following sections describe the configurations of the Maven goals that are i
 
 A sample pom.xml file configuration of the generate Maven goal is shown below.
 
-```<build>
+    <build>
     	<plugins>
         	<plugin>
             	<groupId>org.wso2.carbon.maven</groupId>
@@ -130,6 +130,6 @@ A sample pom.xml file configuration of the generate Maven goal is shown below.
             	</executions>
         	</plugin>
     </plugins>
-</build>```
+    </build>
 
 You can modify the above file to add the configurations of the plugin by adding the following parameters within the <configuration> element of it. 
