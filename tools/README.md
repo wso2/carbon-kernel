@@ -453,3 +453,31 @@ You can modify the above file to add the configurations of the plugin by adding 
 
  NOT MANDATORY.
  Example: `<deleteOldProfileFiles>False</deleteOldProfileFiles>`
+
+#### Configuring the uninstall Maven goal
+
+A sample pom.xml file configuration of the uninstall Maven goal is shown below.
+
+      <build>
+    	<plugins>
+        	<plugin>
+            	<groupId>org.wso2.carbon.maven</groupId>
+            	<artifactId>carbon-feature-plugin</artifactId>
+            	<version>${carbon.feature.plugin.version}</version>
+            	<executions>
+                	<execution>
+                    	<id>p2-feature-generation</id>
+                    	<phase>package</phase>
+                    	<goals>
+                        	<goal>uninstall</goal>
+                    	</goals>
+                    	<configuration>
+                        	//plugin configuration goes here.
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+            </plugins>
+          </build>
+	  
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
