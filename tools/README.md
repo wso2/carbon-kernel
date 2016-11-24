@@ -387,3 +387,69 @@ You can modify the above file to add the configurations of the plugin by adding 
 
  MANDATORY property.
  Example: `<productConfigurationFile>${basedir}/carbon.product</productConfigurationFile>`.
+
+#### Configuring the install Maven goal
+
+A sample `pom.xml` file configuration of the install Maven goal is shown below.
+
+     <build>
+    	<plugins>
+        	<plugin>
+            	<groupId>org.wso2.carbon.maven</groupId>
+            	<artifactId>carbon-feature-plugin</artifactId>
+            	<version>${carbon.feature.plugin.version}</version>
+            	<executions>
+                	<execution>
+                    	<id>p2-feature-generation</id>
+                    	<phase>package</phase>
+                    	<goals>
+                        	<goal>install</goal>
+                    	</goals>
+                    	<configuration>
+                        	//plugin configuration goes here.
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+            </plugins>
+        </build> 
+
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
+
+* `destination`: Points the `<CARBON_HOME>/repository/components/` directory. 
+
+ MANDATORY property.
+ Example: `<destination>/home/Carbon/wso2carbon-4.4.0/repository/components</destination>`
+ 
+* `profile`: The profile which needs to be updated with the new set of features in the destination. 
+
+ MANDATORY property.
+ Example: `<profile>default</profile>`
+ 
+* `repositoryURL`: Points the p2 repository from which artifacts are picked from to install. 
+
+ MANDATORY property.
+ Example: `<repositoryURL>file://home/p2-repo</repositoryURL>`
+ 
+* `features`: Features to be installed in the destination profile. Features that you add here should exist in the P2 repository to which the `<repositoryURL>` parameter of the plugin points. 
+
+ MANDATORY property.
+ Example:
+ 
+       <features>
+            <feature>
+               <id>org.wso2.carbon.registry.contentsearch.feature.group</id>
+               <version>4.4.0</version>
+               </feature>
+            <feature>
+               <id>org.wso2.ciphertool.feature.group</id>
+               <version>4.4.0</version>
+            </feature>
+        </features>
+ 
+ > Add the ID of the feature being installed as the value of the <ID> property, and add the version of the feature being installed as the value of the <version> property.
+ 
+* `deleteOldProfileFiles`: Whether to delete old `*.profile` folders located in the `<CARBON_HOME>/repository/components/p2/org.eclipse.equinox.p2.engine/profileRegistry/` directory. The default value is set to true.
+
+ NOT MANDATORY.
+ Example: `<deleteOldProfileFiles>False</deleteOldProfileFiles>`
