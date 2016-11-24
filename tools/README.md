@@ -151,6 +151,7 @@ You can modify the above file to add the configurations of the plugin by adding 
  > These properties are merged with the properties taken from the properties file which you pass into the goal through the <propertyFile> parameter, and with the properties of the feature.properties file (if exists) which resides in the resources/ folder of the Maven project.
  
  MANDATORY property. Example:
+ 
        <properties>
 	       <property>
 		     <name>name1</name
@@ -164,9 +165,9 @@ You can modify the above file to add the configurations of the plugin by adding 
 
 * `adviceFileContents`: Content to write into the output `p2.inf` file are fed into the generate Maven goal through this property. MANDATORY property. Example:
 
-         <adviceFileContent>
-	    <advice>
-	    <name>org.eclipse.equinox.p2.type.group</name>
-	    <value>true</value>
-            </advice>	
-         </adviceFile>
+          <adviceFileContent>
+	     <advice>
+	        <name>org.eclipse.equinox.p2.type.group</name>
+	        <value>true</value>
+             </advice>	
+          </adviceFile>
