@@ -150,7 +150,8 @@ You can modify the above file to add the configurations of the plugin by adding 
 
  > These properties are merged with the properties taken from the properties file which you pass into the goal through the <propertyFile> parameter, and with the properties of the feature.properties file (if exists) which resides in the resources/ folder of the Maven project.
  
- MANDATORY property. Example:
+ MANDATORY property. 
+ Example:
  
        <properties>
 	       <property>
@@ -163,7 +164,10 @@ You can modify the above file to add the configurations of the plugin by adding 
               </property>
         </properties>
 
-* `adviceFileContents`: Content to write into the output `p2.inf` file are fed into the generate Maven goal through this property. MANDATORY property. Example:
+* `adviceFileContents`: Content to write into the output `p2.inf` file are fed into the generate Maven goal through this property. 
+
+ MANDATORY property. 
+ Example:
 
           <adviceFileContent>
 	     <advice>
@@ -171,3 +175,14 @@ You can modify the above file to add the configurations of the plugin by adding 
 	        <value>true</value>
              </advice>	
           </adviceFile>
+
+* `bundles`: OSGI bundles including features in them. Specify the artifacts representing each bundle as a Maven dependency. 
+
+ NOT MANDATORY property. 
+ Example:
+
+          <bundles>
+	      <bundle>   					     		                      <symbolicName>org.wso2.carbon.student.mgt.stub</symbolicName>
+                  <version>4.2.0</version>
+	     </bundle>
+         </bundles>
