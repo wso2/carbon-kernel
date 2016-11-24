@@ -189,7 +189,9 @@ You can modify the above file to add the configurations of the plugin by adding 
          </bundles>
 	 
 	 > * The `<symbolicName>` element is mandatory. You can find the value of it in the MANIFEST.MF file of the OSGI bundle.
+	 
 	   * The `<version>` element is also mandatory. The value of it should be one of the following:
+	   
 	      1. The bundle version given in the MANIFEST.MF file of it.
 	      
 	      2.The Maven artifact version provided that it is convertible to the bundle version.
