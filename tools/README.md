@@ -162,3 +162,11 @@ You can modify the above file to add the configurations of the plugin by adding 
 		     <value>value2</value>
      </property>
  </properties>```
+
+* `adviceFileContents`: Content to write into the output `p2.inf` file are fed into the generate Maven goal through this property. MANDATORY property. Example:
+ ```<adviceFileContent>
+	<advice>
+	<name>org.eclipse.equinox.p2.type.group</name>
+	<value>true</value>
+</advice>	
+</adviceFile>```
