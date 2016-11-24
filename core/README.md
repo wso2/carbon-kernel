@@ -207,7 +207,7 @@ After registering the new transport, the transports can be managed by the osgi c
 # Plugging a New Runtime
 From Carbon 5.0.0 Kernel onwards, Carbon provides a pluggable interface to add runtimes to the existing server. Following are the instructions that you need to follow when adding a new runtime.
 
-### Adding a New Runtime
+## Adding a New Runtime
 The following example illustrates how you can plug your own runtime and register it with the Carbon runtime framework. In this example, we will run through the steps for plugging the Tomcat runtime (which is currently available with the Carbon 4.2.0 release) to Carbon 5.0.0.
 
 1. Create a simple maven project with the following dependencies. 
@@ -382,12 +382,13 @@ The following example illustrates how you can plug your own runtime and register
                 </import.package>
                 </properties>
 
-### Testing your New Runtime
+## Testing your New Runtime
 
 You can test the new runtime by following the steps given below.
 
 1. Build your component, which will generate an OSGi bundle.
 2. Now this bundle can be installed in a running Carbon server instance by adding the bundle to the dropins directory in the OSGi repository (which is `<CARBON_HOME>/osgi`). Once you have added your bundle to the dropins directory, it will be installed to the OSGi runtime by the Kernel launcher. 
+ 
  > Find out more about how the [dropins directory is used for deploying bundles](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/tools#dropins-support-for-osgi-bundles).
 
 # Using the CarbonContext API
