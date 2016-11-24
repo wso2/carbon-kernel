@@ -67,3 +67,19 @@ To manually update the `bundles.info` file:
      * *On Windows:* `dropins.bat [Carbon_Profile]`
       
    > Note that `Carbon_Profile` should be replaced with the name of the required Carbon profile. The `bundles.info` file of this profile will be updated as a result. You can use the ‘ALL’ keyword for the `Carbon_Profile` if you want to update the `bundles.info` files of all Carbon profiles. For example, use `sh dropins.sh ALL`.
+
+## Using the Carbon Feature Plugin
+
+The Carbon feature plugin was formerly known as the Carbon P2 plugin. It has gone through several development cycles in the previous WSO2 Carbon versions. However, the plugin introduced from WSO2 Carbon 5.0.0 (Carbon 5.x.x platform) is redesigned to update the Maven APIs, to redefine the configurations by removing any existing inconsistencies, to make its architecture solid, and also to improve the understandability and maintainability of its coding standards.
+
+### Introduction
+
+The WSO2 Carbon feature plugin is a Maven plugin, which is used within the WSO2 Carbon platform. The Maven goals that are achieved through this plugin are explained in the following table:
+
+ | Purpose                | Maven goal                      | Formerly known term                      | Configurations  |
+ | :---------------------: |:--------------------------------:| :-------------------------------------:| :------------------:|
+ | Generate Carbon features      | The groupId of the archetype.    | `org.wso2.carbon`                      | Mandatory           |
+ | Generate P2 repositories   | publish-product | `org.wso2.carbon.archetypes.component` | Mandatory           |
+ | Generate product profiles      | generate-profile   | materialize-product  | Configuring the generate-profile Maven goal            |
+ | Install Carbon features into a product profile | install | p2-profile-gen | Configuring the install Maven goal           |
+ | Uninstall Carbon features from a product  | uninstall    | N/A   | Configuring the uninstall Maven goal   |
