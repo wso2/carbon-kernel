@@ -451,7 +451,7 @@ Given below are the optional tools that are available by default with the Carbon
 
 Given below are the steps for developing a sample custom tool.
 
-1. You must implement the [`org.wso2.carbon.tools.CarbonTool`(https://github.com/wso2/carbon-kernel/blob/master/tools/tools-core/src/main/java/org/wso2/carbon/tools/CarbonTool.java) Java interface in order to develop your custom tool. Given below is an example that implements a tool named `CustomTool`.
+1. You must implement the [`org.wso2.carbon.tools.CarbonToo`](https://github.com/wso2/carbon-kernel/blob/master/tools/tools-core/src/main/java/org/wso2/carbon/tools/CarbonTool.java) Java interface in order to develop your custom tool. Given below is an example that implements a tool named `CustomTool`.
 
 		public class CustomTool implements CarbonTool {
   
