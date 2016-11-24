@@ -135,7 +135,7 @@ To start the server, you need to run the `carbon.bat` (on Windows) script or the
 > To start and stop the server in the daemon mode in Linux, run `carbon.sh start` and `carbon.sh stop` commands.
 
 1. Open a command prompt.
- (On Windows, choose Start -> Run, type cmd at the prompt, and press Enter).
+ (On **Windows**, choose `Start -> Run`, type `cmd` at the prompt, and press **Enter**).
 2. Execute one of the following commands, where `<PRODUCT_HOME>` is the directory where you installed the product distribution:
   * **On Windows:**	`<PRODUCT_HOME>\bin\carbon.bat`
   * **On Linux/Solaris:** `sh <PRODUCT_HOME>/bin/carbon.sh`
