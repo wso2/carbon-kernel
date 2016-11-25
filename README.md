@@ -7,7 +7,6 @@ It is completely rearchitected Carbon Kernel from the ground up with the latest 
 * **[Key Features](#key-features)**
 * **[Getting Started](#getting-started)**
 * **[Contact Us](#contact-us)**
-
 * **[How to Release a Git Repository](#how-to-release-a-git-repository)**
 * **[How To Contribute](#how-to-contribute)**
 
