@@ -113,7 +113,6 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
     4. Enter the following information:
       * In the **Variable name** field, enter: `JAVA_HOME`
       * In the **Variable value** field, enter the installation path of the Java Development Kit, such as: `c:\Program Files\Java jdk1.8.*`
-
      5. Click **OK**.
  
      The `JAVA_HOME` variable is now set and will apply to any subsequent command prompt windows that you open. If you have any command prompt windows currently running, you must close and reopen them for the `JAVA_HOME` variable to take effect, or manually set the `JAVA_HOME` variable in those command prompt windows as described in the next section. To verify that the `JAVA_HOME` variable is set correctly, open a command window (from the Start menu, click Run, and then type **CMD** and click **Enter**) and execute the following command:
@@ -122,7 +121,7 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
 
       The system returns the JDK installation path.
  
-     * Setting `JAVA_HOME` temporarily using the Windows command prompt (CMD)
+    * Setting `JAVA_HOME` temporarily using the Windows command prompt (CMD)
 
       You can temporarily set the `JAVA_HOME` environment variable within a Windows command prompt window (CMD). This is useful when you have an existing command prompt window running and you do not want to restart it.
  
