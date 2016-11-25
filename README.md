@@ -48,11 +48,11 @@ Follow the links given below for reference information.
 
 See the following sub topics on how to get started with WSO2 Carbon:
 
-* **[Downloading the Kernel](#downloading-the-kernel)**
 * **[Installation Prerequisites](#installation-prerequisites)**
 * **[Setting `JAVA_HOME`](#setting-java_home)**
  * **[On Linux: Setting `JAVA_HOME`](#on-linux:-setting-java_home)**
  * **[On Windows: Setting `JAVA_HOME`](#on-windows:-setting-java_home)**
+* **[Downloading the Kernel](#downloading-the-kernel)**
 * **[Launching the Kernel](#launching-the-kernel)**
 
 ### Installation Prerequisites
