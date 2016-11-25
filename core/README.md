@@ -26,7 +26,7 @@ WSO2 Carbon Kernel provides an OSGi-based framework for developing enterprise-gr
 
 The following diagram depicts a scenario with both types of dependencies among Carbon components:
 
-.....
+![startup-order-resolver - untitled page-3](https://cloud.githubusercontent.com/assets/21237558/20616362/bdb3d7dc-b307-11e6-9f4c-04331da88b9f.jpeg)
 
 The **Microservice Manager** and the **Transport Manager** are Carbon components. Both these components contain one or more related OSGi bundles. In this scenario, the Transport Manager component should be initialized after the Microservice Manager. This is because, the Transport Manager should not open any ports until all the microservices are properly deployed. You can easily handle this via OSGi services:
 
