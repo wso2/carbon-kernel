@@ -1166,7 +1166,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // in a one level above this.
             if (debug) {
                 log.debug("Authentication failed " + e);
+                log.debug("Clearing cache for DN: " + dn);
             }
+            userCache.remove(userName);
 
         } finally {
             JNDIUtil.closeContext(cxt);
