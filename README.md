@@ -70,32 +70,32 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
      * To build the product from the source distribution (both JDK and Apache Maven are required).
   
    * [Apache Maven](http://maven.apache.org/) version 3.3.x is required for the following:
-   * To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by  downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
-   * To build samples.
+     * To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by  downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
+     * To build samples.
 
- ### Installing on Linux
+### Installing on Linux
 
- #### Setting the `JAVA_HOME`
+ * #### Setting the `JAVA_HOME`
 
- You must set your `JAVA_HOME` environment variable to point to the directory where the Java Development Kit (JDK) is installed on the computer. The way you set the `JAVA_HOME` depends on the operating system and the shell you are using.
+  You must set your `JAVA_HOME` environment variable to point to the directory where the Java Development Kit (JDK) is installed on the computer. The way you set the `JAVA_HOME` depends on the operating system and the shell you are using.
 
- > Environment variables are global system variables accessible to all the processes running under the operating system.
+  > Environment variables are global system variables accessible to all the processes running under the operating system.
 
- 1. In your home directory, open the `.bashrc` file in your favorite Linux text editor.
- 2. Add the following two lines at the bottom of the file, replacing `/opt/java/jdk1.8.*` with the actual directory where the JDK is installed.
+    1. In your home directory, open the `.bashrc` file in your favorite Linux text editor.
+    2. Add the following two lines at the bottom of the file, replacing `/opt/java/jdk1.8.*` with the actual directory where the JDK is installed.
 
-  ```export JAVA_HOME=<jdk-install-dir>
- export PATH=$JAVA_HOME/bin:$PATH```
+           export JAVA_HOME=<jdk-install-dir>
+           export PATH=$JAVA_HOME/bin:$PATH
 
- 3. To get the changes reflected, run the following command:
+    3. To get the changes reflected, run the following command:
 
-  ```source ~/.bashrc```
+           source ~/.bashrc
 
- 4. To verify that the JAVA_HOME variable is set correctly, execute the following command:
+    4. To verify that the JAVA_HOME variable is set correctly, execute the following command:
 
- ```echo $JAVA_HOME```
+           echo $JAVA_HOME
 
- The above command should return the JDK installation path.
+       The above command should return the JDK installation path.
 
  ### Installing on Windows
 
