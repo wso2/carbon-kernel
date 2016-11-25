@@ -4,7 +4,7 @@ WSO2 Carbon Kernel 5.2.0 is the core of the next-generation WSO2 Carbon platform
 It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
 
 * **[Architecture](#architecture)**
-* **[Key Features](#key-features)**
+* **[Key Features and Tools](#key-features-and-tools)**
 * **[Getting Started](#getting-started)**
 * **[How to Release a Git Repository](#how-to-release-a-git-repository)**
 * **[How To Contribute](#how-to-contribute)**
@@ -15,7 +15,7 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 
 ![carbon-kernel-architecture-01](https://cloud.githubusercontent.com/assets/21237558/20616347/939893b6-b307-11e6-882f-4c3f302ada0c.png)
 
-## Key Features
+## Key Features and Tools
 Follow the links given below for details of the core capabilities of Carbon Kernel.
 
 * [Resolving the component startup order](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#resolving-the-component-startup-order)
