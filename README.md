@@ -6,9 +6,10 @@ It is completely rearchitected Carbon Kernel from the ground up with the latest 
 * **[Architecture](#Architecture)**
 * **[Key Features](#key-features)**
 * **[Getting Started](#getting-started)**
+* **[Contact Us](#contact-us)**
+
 * **[How to Release a Git Repository](#how-to-release-a-git-repository)**
 * **[How To Contribute](#how-to-contribute)**
-* **[Contact Us](#contact-us)**
 
 ## Architecture
 Carbon Kernel is a modular, light-weight, OSGi-based server development framework, which provides the base for developing servers. Eclipse Equinox is used as the OSGi runtime from Kernel 5.0.0 onwards. However, you can plug in any OSGi implementation to your Carbon server. The diagram below depicts the architecture of WSO2 Carbon Kernel and its key components.
@@ -155,6 +156,11 @@ Now, the server startup logs will get printed. When the server has completed the
 
 #### Stopping the server
 To stop the server, press **Ctrl+C** in the command window. If you have started the server in `daemon` mode in Linux, `run carbon.sh stop` command.
+
+## Contact Us
+WSO2 developers can be contacted via the mailing lists:
+* WSO2 Developers List : dev@wso2.org
+* WSO2 Architecture List : architecture@wso2.org
 
 ## How to Release a Git Repository
 
@@ -417,8 +423,3 @@ This will revert all the commits made during the preparation process.
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
 * Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master).
 * You can find more instructions on how to contribute on community site (http://wso2.com/community).
-
-## Contact Us
-WSO2 developers can be contacted via the mailing lists:
-* WSO2 Developers List : dev@wso2.org
-* WSO2 Architecture List : architecture@wso2.org
