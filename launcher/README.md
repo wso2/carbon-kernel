@@ -85,22 +85,23 @@ The properties in the `launch.properties` file are explained below:
 
  > A Carbon Server Listener is an extension point that may be implemented by a Carbon developer. This can be done by implementing the `notify()` method of the `org.wso2.carbon.launcher.CarbonServerListener` interface. This is a useful feature for scenarios where you need to perform certain tasks before launching the OSGi framework as well as after the OSGi framework shuts down. These listeners will get notified before initializing the OSGi framework and after shutting down the OSGi framework. You can register Carbon listener implementations in the `launch.properties` with the key `“carbon.server.listeners”`.
  Shown below is how a Carbon Server Listener is implemented.
- ```/**
- * This is an interface which may be implemented by a Carbon developer to get notified of the Carbon server startup and
- * the Carbon server shutdown. These listener implementations will get notified before launching the OSGi framework
- * as well as after shutting down the OSGi framework. CarbonServer notifies these listeners synchronously.
- *
- * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
- * launch.properties file. This property accepts a list of comma separated fully qualified class names.
- */
-  public interface CarbonServerListener {
-    /**
+ 
+       /**
+      * This is an interface which may be implemented by a Carbon developer to get notified of the Carbon server startup and
+      * the Carbon server shutdown. These listener implementations will get notified before launching the OSGi framework
+      * as well as after shutting down the OSGi framework. CarbonServer notifies these listeners synchronously.
+      *
+      * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
+      * launch.properties file. This property accepts a list of comma separated fully qualified class names.
+      */
+      public interface CarbonServerListener {
+        /**
      * Receives notification of a CarbonServerEvent.
      *
      * @param event CarbonServerEvent
      */
-    public void notify(CarbonServerEvent event);
-   }
+      public void notify(CarbonServerEvent event);
+     }
             
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
@@ -118,7 +119,7 @@ The global level of the configuration is set to INFO.
 The default values for the handlers are set as shown in the below table.
  
 |                     | `java.util.logging.FileHandler`       | `java.util.logging.ConsoleHandler`    |
-| ------------------- |:-------------------------------------:| -------------------------------------:|
+| :-----------------: |:-------------------------------------:| :------------------------------------:|
 | Default level       | `INFO`                                | `INFO`                                |
 | Default Formatter   | `java.util.logging.SimpleFormatter`   | `java.util.logging.SimpleFormatter`   |
 | Logging destination | `<CARBON-HOME>/log/carbon.log`        | `Console`                             |
@@ -154,7 +155,7 @@ As explained above, changing the log level of a handler will cause the logs of a
 
 * Consider a scenario where you need to skip the FINE logs from the `org.wso2.carbon.launcher.CarbonServer` class, but you need to log all the `FINE` logs from other classes. A sample configuration for this scenario is as follows:
 
-        .level= FINE
+         .level= FINE
         java.util.logging.FileHandler.level = INFO
         …
         java.util.logging.ConsoleHandler.level = FINE  <- - -  prints FINE logs to the Console
