@@ -46,33 +46,32 @@ Follow the links given below for reference information.
 
 ## Getting Started
 
- ### Downloading the Kernel
- You can download the product distribution from here.
+### Downloading the Kernel
+You can download the product distribution from here.
 Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as `<PRODUCT_HOME>`.
 
- ### Installation prerequisites
- Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
+### Installation prerequisites
+Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
 
- #### System requirements
-
- * **Memory:** ~ 256 MB minimum   
- * **Disk:** ~ 50 MB, excluding space allocated for log files.
+ * #### System requirements
+   * **Memory:** ~ 256 MB minimum   
+   * **Disk:** ~ 50 MB, excluding space allocated for log files.
   
- #### Environment compatibility
+ * #### Environment compatibility
 
- **Operating Systems/Databases:** WSO2 Carbon Kernel can be run on Windows / Linux and MacOS platforms that are Oracle/Open JDK 1.8.* compliant.      
+   **Operating Systems/Databases:** WSO2 Carbon Kernel can be run on Windows / Linux and MacOS platforms that are Oracle/Open JDK 1.8.* compliant.      
 
- #### Supporting applications
+ * #### Supporting applications
 
-  The following applications are required for running the product and its samples or for building from the source code. Mandatory installs are marked with an asterisk (*).
+   The following applications are required for running the product and its samples or for building from the source code. Mandatory installs are marked with an asterisk (*).
 
- * [Oracle Java SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) version 1.8 is required for the following: 
-   * To launch the product, as each product is a Java application.
-   * To build the product from the source distribution (both JDK and Apache Maven are required).
+   * [Oracle Java SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) version 1.8 is required for the following: 
+     * To launch the product, as each product is a Java application.
+     * To build the product from the source distribution (both JDK and Apache Maven are required).
   
- * [Apache Maven](http://maven.apache.org/) version 3.3.x is required for the following:
-  * To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by  downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
-  * To build samples.
+   * [Apache Maven](http://maven.apache.org/) version 3.3.x is required for the following:
+   * To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by  downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
+   * To build samples.
 
  ### Installing on Linux
 
