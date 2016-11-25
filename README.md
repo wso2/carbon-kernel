@@ -135,22 +135,21 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
 
  ### Launching the Kernel
 
- #### Starting the server
+  * #### Starting the server
+    To start the server, you need to run the `carbon.bat` (on Windows) script or the `carbon.sh` (on Linux) script from the `<PRODUCT_HOME>/bin` folder:
 
- To start the server, you need to run the `carbon.bat` (on Windows) script or the `carbon.sh` (on Linux) script from the `<PRODUCT_HOME>/bin` folder:
+    > To start and stop the server in the daemon mode in Linux, run `carbon.sh start` and `carbon.sh stop` commands.
 
- > To start and stop the server in the daemon mode in Linux, run `carbon.sh start` and `carbon.sh stop` commands.
+    1. Open a command prompt.
+    (On **Windows**, choose `Start -> Run`, type `cmd` at the prompt, and press **Enter**).
+    2. Execute one of the following commands, where `<PRODUCT_HOME>` is the directory where you installed the product distribution:
+      * **On Windows:**	`<PRODUCT_HOME>\bin\carbon.bat`
+      * **On Linux/Solaris:** `sh <PRODUCT_HOME>/bin/carbon.sh`
 
- 1. Open a command prompt.
- (On **Windows**, choose `Start -> Run`, type `cmd` at the prompt, and press **Enter**).
- 2. Execute one of the following commands, where `<PRODUCT_HOME>` is the directory where you installed the product distribution:
-   * **On Windows:**	`<PRODUCT_HOME>\bin\carbon.bat`
-   * **On Linux/Solaris:** `sh <PRODUCT_HOME>/bin/carbon.sh`
+    Now, the server startup logs will get printed. When the server has completed the server startup, the log will display the message "WSO2 Carbon started in 'n' seconds."
 
- Now, the server startup logs will get printed. When the server has completed the server startup, the log will display the message "WSO2 Carbon started in 'n' seconds."
-
- #### Stopping the server
- To stop the server, press **Ctrl+C** in the command window. If you have started the server in `daemon` mode in Linux, `run carbon.sh stop` command.
+  * #### Stopping the server
+    To stop the server, press **Ctrl+C** in the command window. If you have started the server in `daemon` mode in Linux, `run carbon.sh stop` command.
 
 ## How to Release a Git Repository
 
