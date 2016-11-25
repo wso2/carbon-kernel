@@ -156,11 +156,6 @@ Now, the server startup logs will get printed. When the server has completed the
 #### Stopping the server
 To stop the server, press **Ctrl+C** in the command window. If you have started the server in `daemon` mode in Linux, `run carbon.sh stop` command.
 
-## Contact Us
-WSO2 developers can be contacted via the mailing lists:
-* WSO2 Developers List : dev@wso2.org
-* WSO2 Architecture List : architecture@wso2.org
-
 ## How to Release a Git Repository
 
 The following are the steps for creating and releasing a Git repository:
@@ -422,3 +417,8 @@ This will revert all the commits made during the preparation process.
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
 * Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master).
 * You can find more instructions on how to contribute on community site (http://wso2.com/community).
+
+## Contact Us
+WSO2 developers can be contacted via the mailing lists:
+* WSO2 Developers List : dev@wso2.org
+* WSO2 Architecture List : architecture@wso2.org
