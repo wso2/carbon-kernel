@@ -16,8 +16,7 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 ![carbon-kernel-architecture-01](https://cloud.githubusercontent.com/assets/21237558/20616347/939893b6-b307-11e6-882f-4c3f302ada0c.png)
 
 ## Key Features
-
-Given below are details of the core capabilities of Carbon Kernel.
+Follow the links given below for details of the core capabilities of Carbon Kernel.
 
 * [Resolving the component startup order](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#resolving-the-component-startup-order)
 * [Adding new transports](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#adding-new-transports)
@@ -29,17 +28,21 @@ Given below are details of the core capabilities of Carbon Kernel.
 * [Setting up the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md)
 * [Using in-container OSGi testing for development](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/pax-exam-container-carbon/README.md)
 
-Given below are details of tools and archetypes that can be used for developing Carbon products.
+Follow the links given below for details of tools and archetypes that can be used for developing Carbon products.
 
 * [Creating a Carbon component in one step using Maven archetypes](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/archetypes/README.md#creating-a-carbon-component-in-one-step)
 * [Creating a generic OSGi bundle in one step using Maven archetypes](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/archetypes/README.md#creating-a-generic-osgi-bundle-in-one-step)
 * [Converting JARs to OSGi bundles](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#converting-jars-to-osgi-bundles)
 * [Using the dropins support for OSGi bundles](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#dropins-support-for-osgi-bundles)
 
-Given below are details of plugins:
+Follow the links given below for details of plugins:
 
 * [Using the Carbon Feature Plugin](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#using-the-carbon-feature-plugin)
 * [Using the Maven Bundle Plugin](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#using-the-maven-bundle-plugin)
+
+Follow the links given below for reference information.
+
+* [Using Annotations with OSGi Declarative Services](https://github.com/nilminiwso2/carbon-kernel-1/wiki/Using-Annotations-with-OSGi-Declarative-Services)
 
 ## Getting Started
 
