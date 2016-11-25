@@ -97,7 +97,7 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
 
        The above command should return the JDK installation path.
 
-  * #### On Windows: Setting `JAVA_HOME`
+ * #### On Windows: Setting `JAVA_HOME`
 
     You must set your `JAVA_HOME` environment variable to point to the directory where the Java Development Kit (JDK) is installed on the computer. Typically, the JDK is installed in a directory under `C:\Program Files\Java`, such as `C:\Program Files\Java\jdk1.8.*`.
 
