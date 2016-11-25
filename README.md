@@ -55,10 +55,6 @@ See the following sub topics on how to get started with WSO2 Carbon:
  * **[On Windows: Setting `JAVA_HOME`](#on-windows:-setting-java_home)**
 * **[Launching the Kernel](#launching-the-kernel)**
 
-### Downloading the Kernel
-You can download the product distribution from here.
-Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as `<PRODUCT_HOME>`.
-
 ### Installation Prerequisites
 Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
 
@@ -142,7 +138,11 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
  set `JAVA_HOME`.
        The system returns the JDK installation path.
 
- ### Launching the Kernel
+### Downloading the Kernel
+You can download the product distribution from here.
+Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as `<PRODUCT_HOME>`.
+
+### Launching the Kernel
 
   * #### Starting the server
     To start the server, you need to run the `carbon.bat` (on Windows) script or the `carbon.sh` (on Linux) script from the `<PRODUCT_HOME>/bin` folder:
