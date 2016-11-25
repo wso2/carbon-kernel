@@ -92,7 +92,7 @@ All these goals (except the generate Maven goal) are executed during the package
 
 ### What is a Carbon feature?
 
-A Carbon feature is an installable form of one or more logically related Carbon components. You can create a Carbon feature by grouping one or more existing Carbon features together as well. You can install these features into Carbon-based products using the feature manager in the management console of the product, or via the install Maven goal of the Carbon feature plugin.
+A Carbon feature is an installable form of one or more logically related Carbon components. You can create a Carbon feature by grouping one or more existing Carbon features together as well. You can install these features into Carbon-based products using the feature manager in the management console of the product, or via the [`install` Maven goal](#configuring-the-install-maven-goal) of the Carbon feature plugin.
 
 ### What is a P2 repository?
 
@@ -104,8 +104,8 @@ A product profile is a logical grouping of a set of features/components that cre
 
 A Carbon product (WSO2 ESB, WSO2 AS etc.) is made by installing the relevant features on top of the Carbon kernel using the following steps:
 
-1. Create profiles on top of the Carbon kernel using the generate-profile Maven goal. 
-2. Install the relevant features using the install Maven goal.
+1. Create profiles on top of the Carbon kernel using the [generate-profile Maven goal](#configuring-the-generate-profile-maven-goal). 
+2. Install the relevant features using the [`install` Maven goal](#configuring-the-install-maven-goal).
 
 ### Carbon feature plugin configurations
 
@@ -113,7 +113,7 @@ The following sections describe the configurations of the Maven goals that are i
 
 #### Configuring the generate Maven goal
 
-A sample pom.xml file configuration of the generate Maven goal is shown below.
+A sample pom.xml file configuration of the `generate` Maven goal is shown below.
 
     <build>
     	<plugins>
@@ -137,7 +137,7 @@ A sample pom.xml file configuration of the generate Maven goal is shown below.
      </plugins>
     </build>
 
-You can modify the above file to add the configurations of the plugin by adding the following parameters within the <configuration> element of it. 
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
 
 * `label`: Label to attach to the `feature.xml` file. Default value is set to the Maven project name of the feature being built. NOT Mandatory. Example: `<label>LABEL</label>`
 * `description`: Description to attach to the `feature.xml` file. Default value is set to the Maven project description of the feature being built. NOT Mandatory. Example: `<description>DESCRIPTION</description>`.
@@ -153,7 +153,7 @@ You can modify the above file to add the configurations of the plugin by adding 
  NOT Mandatory. Example: `<propertyFile>PATH_FOR_THE_PROPERTY_FILE</propertyFile>`.
 * `properties`: A collection of key-value pairs passed into the Maven goal to write into the output `feature.properties` file. 
 
- > These properties are merged with the properties taken from the properties file which you pass into the goal through the <propertyFile> parameter, and with the properties of the feature.properties file (if exists) which resides in the resources/ folder of the Maven project.
+ > These properties are merged with the properties taken from the properties file which you pass into the goal through the `<propertyFile>` parameter, and with the properties of the `feature.properties` file (if exists) which resides in the resources/ folder of the Maven project.
  
  MANDATORY property. 
  Example:
@@ -215,7 +215,7 @@ You can modify the above file to add the configurations of the plugin by adding 
 	
 	 > For any artifact which represents a Carbon feature, the artifact ID of it should end as `.feature`. Also, you need to specify the artifact representing each feature as a Maven dependency.
 	 
-* `importFeatures`: Features on which the feature being built depends on. These are included in the feature.xml file. However, the Maven artifacts for these features are not getting resolved and they are not copied into the final feature zip file. 
+* `importFeatures`: Features on which the feature being built depends on. These are included in the `feature.xml` file. However, the Maven artifacts for these features are not getting resolved and they are not copied into the final feature zip file. 
 
  NOT MANDATORY property. 
  Example:
@@ -260,18 +260,18 @@ You can modify the above file to add the configurations of the plugin by adding 
 * `name`: Name of the newly created artifact repository. If you do not specify this, the artifact ID of the project is taken by default. 
 
  MANDATORY property. 
- Example: `<name>LOCATION_OF_THE_MANIFEST_FILE</name>`	
+ Example: `<name>LOCATION_OF_THE_MANIFEST_FILE</name>`.	
  
 * `targetRepository`: Location to create the repository in the form of a URL. 
 
  MANDATORY property.
- Example: `<targetRepository>file:/home/p2-repo</targetRepository>`
+ Example: `<targetRepository>file:/home/p2-repo</targetRepository>`.
  
  > Since this is a URL, give a location in the file system in this format.
  
 * `features`: The set of features to include in the repository. The Maven goal searches for the given artifact in the local `.m2` repository. If it is not found, then the goal searches for the configured remote repositories. Not finding the artifact may cause the maven goal to terminate with a build failure.
 
- > Specify artifacts representing each feature as a Maven dependency. The <type> attribute of each dependency should hold the value as zip.
+ > Specify artifacts representing each feature as a Maven dependency. The `<type>` attribute of each dependency should hold the value as zip.
  
  MANDATORY property.
  Example:
@@ -328,17 +328,17 @@ A sample `pom.xml` file configuration of the `publish-product` Maven goal is sho
               </plugins>
          </build>
 
-You can modify the above file to add the configurations of the plugin by adding the following parameters within the <configuration> element of it. 
+You can modify the above file to add the configurations of the plugin by adding the following parameters within the `<configuration>` element of it. 
 
 * `repositoryURL`: Points to the repository where the product needs to be published.
 
  MANDATORY property.
- Example: `<repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>`
+ Example: `<repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>`.
  
 * `executable`: Points to the executable file.
 
  MANDATORY property.
- Example: `<executable>${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart</executable>`
+ Example: `<executable>${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart</executable>`.
  
 * `productConfiguration`: Location of the `.product` file. 
 
@@ -376,17 +376,17 @@ You can modify the above file to add the configurations of the plugin by adding 
 * `repositoryURL`: Points the P2 repository from which the artifacts are taken from when generating the profile. 
  
  MANDATORY property.
- Example: `<repositoryURL>file://home/p2-repo</repositoryURL>`
+ Example: `<repositoryURL>file://home/p2-repo</repositoryURL>`.
  
 * `targetPath`: Points to the components folder of the Carbon product of which the profile is being created. 
 
  MANDATORY property.
  Example: `<targetPath>file:${basedir}/target/wso2carbon-core-${carbon.kernel.version}/repository/components</targetPath>`
  
-* `profile`: Name of the profile to be created..
+* `profile`: Name of the profile to be created.
 
  MANDATORY property.
- Example: `<profile>worker</profile>`
+ Example: `<profile>worker</profile>`.
  
 * `productConfiguration`: Location of the `.product` file.
 
@@ -452,12 +452,12 @@ You can modify the above file to add the configurations of the plugin by adding 
             </feature>
         </features>
  
- > Add the ID of the feature being installed as the value of the <ID> property, and add the version of the feature being installed as the value of the <version> property.
+ > Add the ID of the feature being installed as the value of the `<ID>` property, and add the version of the feature being installed as the value of the `<version>` property.
  
 * `deleteOldProfileFiles`: Whether to delete old `*.profile` folders located in the `<CARBON_HOME>/repository/components/p2/org.eclipse.equinox.p2.engine/profileRegistry/` directory. The default value is set to true.
 
  NOT MANDATORY.
- Example: `<deleteOldProfileFiles>False</deleteOldProfileFiles>`
+ Example: `<deleteOldProfileFiles>False</deleteOldProfileFiles>`.
 
 #### Configuring the uninstall Maven goal
 
@@ -495,7 +495,7 @@ You can modify the above file to add the configurations of the plugin by adding 
 * `profile`: Which profile in the destination from where you need to uninstall the features. 
 
  MANDATORY property.
- Example: `<profile>default</profile>`
+ Example: `<profile>default</profile>`.
  
 * `features`: List of features to be uninstalled from the destination profile.
 
