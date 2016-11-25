@@ -83,10 +83,10 @@ The WSO2 Carbon feature plugin is a Maven plugin, which is used within the WSO2 
 
 * `generate`: For generating Carbon features. Formerly known as `P2-feature-gen`. See the instructions on [configuring the `generate` Maven goal](#configuring-the-generate-maven-goal). 
 * `generate-repo`: For generating P2 repositories. Formerly known as 'P2-repo-gen'. See the instructions on [configuring the `generate-repo` Maven goal](#configuring-the-generate-repo-maven-goal).
-* `publish-product`: For publishing a product into a P2 repository. See the instructions on [Configuring the `publish-product` Maven goal](#configuring-the-publish-product-maven-goal).
-* `generate-profile`: For generating product profiles. Formerly known as `materialize-product`. See the instructions on [Configuring the `generate-profile` Maven goal](#configuring-the-generate-profile-maven-goal).
-* `install`: For installing Carbon features into a product profile. Formerly known as `p2-profile-gen`. See the instructions on [Configuring the install Maven goal](#configuring-the-install-maven-goal).
-* `uninstall`: For uninstalling Carbon features from a product. See the instructions on [Configuring the uninstall Maven goal](#configuring-the-uninstall-maven-goal).
+* `publish-product`: For publishing a product into a P2 repository. See the instructions on [configuring the `publish-product` Maven goal](#configuring-the-publish-product-maven-goal).
+* `generate-profile`: For generating product profiles. Formerly known as `materialize-product`. See the instructions on [configuring the `generate-profile` Maven goal](#configuring-the-generate-profile-maven-goal).
+* `install`: For installing Carbon features into a product profile. Formerly known as `p2-profile-gen`. See the instructions on [configuring the install Maven goal](#configuring-the-install-maven-goal).
+* `uninstall`: For uninstalling Carbon features from a product. See the instructions on [configuring the uninstall Maven goal](#configuring-the-uninstall-maven-goal).
 
 All these goals (except the generate Maven goal) are executed during the package phase in the default life cycle of the Maven build. The generate Maven goal follows a different life cycle. You have the flexibility to configure the behavior of the plugin by passing the relevant parameters to these Maven goals.
 
