@@ -81,7 +81,7 @@ The Carbon feature plugin was formerly known as the Carbon P2 plugin. It has gon
 
 The WSO2 Carbon feature plugin is a Maven plugin, which is used within the WSO2 Carbon platform. The Maven goals that are achieved through this plugin are explained in the following table:
 
-* `generate`: For generating Carbon features. Formerly known as `P2-feature-gen`.
+* `generate`: For generating Carbon features. Formerly known as `P2-feature-gen`. See the instructions on [configuring the `generate` Maven goal](#configuring-the-`generate`-maven-goal). 
 * `generate-repo`: For generating P2 repositories. Formerly known as 'P2-repo-gen'.
 * `publish-product`: For publishing a product into a P2 repository.
 * `generate-profile`: For generating product profiles. Formerly known as `materialize-product`.
