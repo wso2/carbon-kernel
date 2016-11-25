@@ -42,7 +42,7 @@ Follow the links given below for details of plugins:
 
 Follow the links given below for reference information.
 
-* [Using Annotations with OSGi Declarative Services](https://github.com/nilminiwso2/carbon-kernel-1/wiki/Using-Annotations-with-OSGi-Declarative-Services)
+* [Using Annotations with OSGi Declarative Services](https://kishanthan.wordpress.com/2014/03/29/using-annotation-with-osgi-declarative-services/)
 
 ## Getting Started
 
