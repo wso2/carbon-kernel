@@ -12,7 +12,8 @@ It is completely rearchitected Carbon Kernel from the ground up with the latest 
 
 ## Architecture
 Carbon Kernel is a modular, light-weight, OSGi-based server development framework, which provides the base for developing servers. Eclipse Equinox is used as the OSGi runtime from Kernel 5.0.0 onwards. However, you can plug in any OSGi implementation to your Carbon server. The diagram below depicts the architecture of WSO2 Carbon Kernel and its key components.
-.......
+
+![startup-order-resolver - untitled page-3](https://cloud.githubusercontent.com/assets/21237558/20616310/5a4cbc9a-b307-11e6-9726-9156245b1da0.jpeg)
 
 ## Key Features
 
