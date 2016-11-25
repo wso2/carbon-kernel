@@ -46,11 +46,20 @@ Follow the links given below for reference information.
 
 ## Getting Started
 
+See the following sub topics on how to get started with WSO2 Carbon:
+
+* **[Downloading the Kernel](#downloading-the-kernel)**
+* **[Installation Prerequisites](#installation-prerequisites)**
+* **[Setting `JAVA_HOME`](#setting-java_home)**
+ * **[On Linux: Setting `JAVA_HOME`](#on-linux:-setting-java_home)**
+ * **[On Windows: Setting `JAVA_HOME`](#on-windows:-setting-java_home)**
+* **[Launching the Kernel](#launching-the-kernel)**
+
 ### Downloading the Kernel
 You can download the product distribution from here.
 Extract the archive file to a dedicated directory for the product, which will hereafter be referred to as `<PRODUCT_HOME>`.
 
-### Installation prerequisites
+### Installation Prerequisites
 Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
 
  * #### System requirements
@@ -73,7 +82,7 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
      * To build the product from the source distribution (both JDK and Apache Maven are required). If you are installing the product by  downloading and extracting the binary distribution instead of building from the source code, you do not need to install Maven.
      * To build samples.
 
-### Setting 'JAVA_HOME`
+### Setting `JAVA_HOME`
 
  * #### On Linux: Setting `JAVA_HOME`
 
