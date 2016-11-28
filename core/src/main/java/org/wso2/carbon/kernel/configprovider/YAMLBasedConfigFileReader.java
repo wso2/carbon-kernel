@@ -19,12 +19,10 @@ package org.wso2.carbon.kernel.configprovider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,29 +52,11 @@ public class YAMLBasedConfigFileReader implements ConfigFileReader {
         try {
             byte[] contentBytes = Files.readAllBytes(ConfigurationUtils.getConfigurationFileLocation(filename));
             String yamlFileString = new String(contentBytes, StandardCharsets.UTF_8);
-            return getDeploymentConfigMap(yamlFileString);
+            return ConfigurationUtils.getDeploymentConfigMap(yamlFileString);
         } catch (IOException e) {
             String errorMessage = "Failed populate deployment configuration from " + filename;
             logger.error(errorMessage, e);
             throw new CarbonConfigurationException(errorMessage, e);
         }
-    }
-
-    /**
-     * this method converts the json string to configuration map as,
-     * key : json (root)key
-     * values  : yaml string of the key
-     * @param yamlString yaml string
-     * @return configuration map
-     */
-    private Map<String, String> getDeploymentConfigMap(String yamlString) {
-        Map<String, String> deploymentConfigs = new HashMap<>();
-        Yaml yaml = new Yaml();
-        Map<String, Object> map = (Map<String, Object>) yaml.loadAs(yamlString, Map.class);
-
-        map.entrySet().stream()
-                .filter(entry -> entry.getValue() != null)
-                .forEach(entry -> deploymentConfigs.put(entry.getKey(), yaml.dumpAsMap(entry.getValue())));
-        return deploymentConfigs;
     }
 }

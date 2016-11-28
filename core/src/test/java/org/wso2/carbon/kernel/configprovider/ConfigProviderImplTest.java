@@ -110,7 +110,7 @@ public class ConfigProviderImplTest {
     }
 
     @Test(description = "This test will test functionality when using xml config file")
-    public void xmlExample() throws IOException, SecureVaultException {
+    public void xmlFileConfigObjectTestCase() throws IOException, SecureVaultException {
         try {
             Path resourcePath = Paths.get(basedir, "src", "test", "resources", "conf", "Example.xml");
             File file = resourcePath.toFile();
@@ -174,9 +174,88 @@ public class ConfigProviderImplTest {
         }
     }
 
+    @Test(description = "This test will test functionality when using xml config file and configuration map")
+    public void xmlFileConfigMapTestCase() throws IOException, SecureVaultException {
+        try {
+            Path resourcePath = Paths.get(basedir, "src", "test", "resources", "conf", "Example.xml");
+            File file = resourcePath.toFile();
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(Configurations.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            Configurations configurations = (Configurations) unmarshaller.unmarshal(file);
+
+            //Transport 1
+            Assert.assertEquals(configurations.getTenant(), "tenant");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getName(), "abc");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPort(), 8000);
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "false");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getDesc(),
+                    "This transport will use 8000 as its port");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPassword(),
+                    "${sec:conn.auth.password}");
+
+            //Transport 2
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getName(), "pqr");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getPort(), 0);
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).isSecure(), "${sys:pqr.secure}");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(1).getDesc(),
+                    "This transport will use ${env:pqr.http.port} as its port. Secure - ${sys:pqr.secure}");
+            //Transport 3
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getName(), "xyz");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getPort(), 0);
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).isSecure(),
+                    "${sys:xyz.secure,true}");
+            Assert.assertEquals(configurations.getTransports().getTransport().get(2).getDesc(),
+                    "This transport will use ${env:xyz.http.port,8888} as its port");
+
+            ConfigFileReader fileReader = new XMLBasedConfigFileReader("Example.xml");
+            ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+            Map configurationMap = configProvider.getConfigurationMap("configurations");
+
+            Map transportsMap = (Map) configurationMap.get("transports");
+            ArrayList transportList = (ArrayList) transportsMap.get("transport");
+            LinkedHashMap transport1 = (LinkedHashMap) transportList.get(0);
+            LinkedHashMap transport2 = (LinkedHashMap) transportList.get(1);
+            LinkedHashMap transport3 = (LinkedHashMap) transportList.get(2);
+
+            Assert.assertEquals(configurationMap.get("tenant"), "tenant");
+            //Transport 1
+            Assert.assertEquals(transport1.get("name"), "abc");
+            Assert.assertEquals(transport1.get("port"), 8000);
+            Assert.assertEquals(transport1.get("secure"), false);
+            Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(transport1.get("password"), PASSWORD);
+            //Transport 2
+            Assert.assertEquals(transport2.get("name"), "pqr");
+            Assert.assertEquals(transport2.get("port"), 8501);
+            Assert.assertEquals(transport2.get("secure"), true);
+            Assert.assertEquals(transport2.get("desc"),
+                    "This transport will use 8501 as its port. Secure - true");
+            //Transport 3
+            Assert.assertEquals(transport3.get("name"), "xyz");
+            Assert.assertEquals(transport3.get("port"), 9000);
+            Assert.assertEquals(transport3.get("secure"), true);
+            Assert.assertEquals(transport3.get("desc"),
+                    "This transport will use 8888 as its port");
+        } catch (JAXBException | CarbonConfigurationException e) {
+            logger.error(e.toString(), e);
+            Assert.fail();
+        }
+    }
+
+    @Test(expectedExceptions = CarbonConfigurationException.class, description = "This test will test functionality " +
+            "when " +
+            "xml config file not found")
+    public void xmlFileNotFoundTestCase() throws CarbonConfigurationException {
+        ConfigFileReader fileReader = new XMLBasedConfigFileReader("Example1.xml");
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        Configurations configurations = configProvider.getConfigurationObject(Configurations.class);
+        Assert.assertNull(configurations, "configurations object should be null");
+    }
+
 
     @Test(description = "This test will test functionality when using yaml config file")
-    public void yamlExample() throws IOException {
+    public void yamlFileConfigObjectTestCase() throws IOException {
         Path resourcePath = Paths.get(basedir, "src", "test", "resources", "conf", "Example.yaml");
         File file = resourcePath.toFile();
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -243,5 +322,134 @@ public class ConfigProviderImplTest {
             logger.error(e.toString());
             Assert.fail();
         }
+    }
+
+    @Test(description = "This test will test functionality when using yaml config file and configuration map")
+    public void yamlFileConfigMapTestCase() throws IOException {
+        Path resourcePath = Paths.get(basedir, "src", "test", "resources", "conf", "Example.yaml");
+        File file = resourcePath.toFile();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            Yaml yaml = new Yaml();
+            Map map = yaml.loadAs(fileInputStream, Map.class);
+            Map configurationMap = (Map) map.get("configurations");
+            Map transportsMap = (Map) configurationMap.get("transports");
+            ArrayList transportList = (ArrayList) transportsMap.get("transport");
+            LinkedHashMap transport1 = (LinkedHashMap) transportList.get(0);
+            LinkedHashMap transport2 = (LinkedHashMap) transportList.get(1);
+            LinkedHashMap transport3 = (LinkedHashMap) transportList.get(2);
+
+            Assert.assertEquals(configurationMap.get("tenant"), "tenant");
+            //Transport 1
+            Assert.assertEquals(transport1.get("name"), "abc");
+            Assert.assertEquals(transport1.get("port"), 8000);
+            Assert.assertEquals(transport1.get("secure"), false);
+            Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(transport1.get("password"), "${sec:conn.auth.password}");
+            //Transport 2
+            Assert.assertEquals(transport2.get("name"), "pqr");
+            Assert.assertEquals(transport2.get("port"), "${env:pqr.http.port}");
+            Assert.assertEquals(transport2.get("secure"), "${sys:pqr.secure}");
+            Assert.assertEquals(transport2.get("desc"),
+                    "This transport will use ${env:pqr.http.port} as its port. Secure - ${sys:pqr.secure}");
+            //Transport 3
+            Assert.assertEquals(transport3.get("name"), "xyz");
+            Assert.assertEquals(transport3.get("port"), "${env:xyz.http.port,9000}");
+            Assert.assertEquals(transport3.get("secure"), "${sys:xyz.secure,true}");
+            Assert.assertEquals(transport3.get("desc"),
+                    "This transport will use ${env:xyz.http.port,8888} as its port");
+        } catch (FileNotFoundException e) {
+            logger.error(e.toString());
+            Assert.fail();
+        }
+
+        try {
+            ConfigFileReader fileReader = new YAMLBasedConfigFileReader("Example.yaml");
+            ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+            Map configurationMap = configProvider.getConfigurationMap("configurations");
+
+            Map transportsMap = (Map) configurationMap.get("transports");
+            ArrayList transportList = (ArrayList) transportsMap.get("transport");
+            LinkedHashMap transport1 = (LinkedHashMap) transportList.get(0);
+            LinkedHashMap transport2 = (LinkedHashMap) transportList.get(1);
+            LinkedHashMap transport3 = (LinkedHashMap) transportList.get(2);
+
+            Assert.assertEquals(configurationMap.get("tenant"), "tenant");
+            //Transport 1
+            Assert.assertEquals(transport1.get("name"), "abc");
+            Assert.assertEquals(transport1.get("port"), 8000);
+            Assert.assertEquals(transport1.get("secure"), false);
+            Assert.assertEquals(transport1.get("desc"), "This transport will use 8000 as its port");
+            Assert.assertEquals(transport1.get("password"), PASSWORD);
+            //Transport 2
+            Assert.assertEquals(transport2.get("name"), "pqr");
+            Assert.assertEquals(transport2.get("port"), 8501);
+            Assert.assertEquals(transport2.get("secure"), true);
+            Assert.assertEquals(transport2.get("desc"),
+                    "This transport will use 8501 as its port. Secure - true");
+            //Transport 3
+            Assert.assertEquals(transport3.get("name"), "xyz");
+            Assert.assertEquals(transport3.get("port"), 9000);
+            Assert.assertEquals(transport3.get("secure"), true);
+            Assert.assertEquals(transport3.get("desc"),
+                    "This transport will use 8888 as its port");
+        } catch (CarbonConfigurationException e) {
+            logger.error(e.toString());
+            Assert.fail();
+        }
+    }
+
+    @Test(expectedExceptions = CarbonConfigurationException.class, description = "This test will test functionality " +
+            "when " +
+            "yaml config file not found")
+    public void yamlFileNotFoundTestCase() throws CarbonConfigurationException {
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader("Example1.yaml");
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        Configurations configurations = configProvider.getConfigurationObject(Configurations.class);
+        Assert.assertNull(configurations, "configurations object should be null");
+    }
+
+    @Test(description = "This test will test functionality when configurations are not found in yaml file and " +
+            "configuration map")
+    public void invalidYAMLConfigMapTestCase() throws CarbonConfigurationException {
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader("invalidconfiguration.yaml");
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        Map configurationMap = configProvider.getConfigurationMap("configurations");
+        Assert.assertNull(configurationMap, "configurations map should be null, since no configuration found in yaml");
+    }
+
+    @Test(description = "This test will test functionality when configurations are not found in yaml file and " +
+            "configuration object")
+    public void invalidYAMLConfigObjectTestCase() throws CarbonConfigurationException {
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader("invalidconfiguration.yaml");
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        Configurations configurations = configProvider.getConfigurationObject(Configurations.class);
+
+        Assert.assertEquals(configurations.getTenant(), "default");
+        Assert.assertEquals(configurations.getTransports().getTransport().get(0).getName(), "default transport");
+        Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPort(), 8000);
+        Assert.assertEquals(configurations.getTransports().getTransport().get(0).isSecure(), "false");
+        Assert.assertEquals(configurations.getTransports().getTransport().get(0).getDesc(),
+                "Default Transport Configurations");
+        Assert.assertEquals(configurations.getTransports().getTransport().get(0).getPassword(), "zzz");
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "System property.*",
+            description = "This test will test functionality when configurations are not found in yaml file and " +
+            "configuration object")
+    public void yamlConfigWithoutSystemValueTestCase() throws CarbonConfigurationException {
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader("systemconfigwithoutdefaults.yaml");
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        Configurations configurations = configProvider.getConfigurationObject(Configurations.class);
+        Assert.assertNull(configurations, "configurations object should be null");
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Environment variable.*",
+            description = "This test will test functionality when configurations are not found in yaml file and " +
+                    "configuration object")
+    public void yamlConfigWithoutEnvValueTestCase() throws CarbonConfigurationException {
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader("envconfigwithoutdefaults.yaml");
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        Configurations configurations = configProvider.getConfigurationObject(Configurations.class);
+        Assert.assertNull(configurations, "configurations object should be null");
     }
 }

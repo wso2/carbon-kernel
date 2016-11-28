@@ -53,6 +53,7 @@ limitations under the License.
             <class name="org.wso2.carbon.kernel.securevault.DefaultSecretRepositoryTest"/>
             <class name="org.wso2.carbon.kernel.securevault.SecureVaultConfigurationProviderTest"/>
             <class name="org.wso2.carbon.kernel.securevault.CipherToolTest"/>
+            <class name="org.wso2.carbon.kernel.annotationprocessor.AnnotationProcessorTest"/>
         </classes>
     </test>
 </suite>

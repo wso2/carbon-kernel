@@ -15,9 +15,13 @@
  */
 package org.wso2.carbon.kernel.configprovider.utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 import org.yaml.snakeyaml.Yaml;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,8 +31,7 @@ import java.util.Map;
  */
 public class ConfigurationUtils {
 
-    private ConfigurationUtils() {
-    }
+    private ConfigurationUtils() {}
 
     /**
      * Returns the configuration file location.
@@ -40,14 +43,39 @@ public class ConfigurationUtils {
     }
 
     /**
-     * This method converts a given JSON String to YAML format.
+     * This method converts a given XML String to YAML format.
      *
-     * @param jsonString JSON String that needs to be converted to YAML format
+     * @param xmlString XML String that needs to be converted to YAML format
      * @return String in YAML format
      */
-    public static String convertJSONToYAML(String jsonString) {
+    public static String convertXMLToYAML(String xmlString) {
+        String jsonString;
+        try {
+            JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
+            jsonString = xmlJSONObj.toString();
+            Yaml yaml = new Yaml();
+            Map map = yaml.loadAs(jsonString, Map.class);
+            return yaml.dumpAsMap(map);
+        } catch (JSONException e) {
+            throw new RuntimeException("Exception occurred while converting XML to JSON: ", e);
+        }
+    }
+
+    /**
+     * this method converts the yaml string to configuration map as,
+     * key : yaml (root)key
+     * values  : yaml string of the key
+     * @param yamlString yaml string
+     * @return configuration map
+     */
+    public static Map<String, String> getDeploymentConfigMap(String yamlString) {
+        Map<String, String> deploymentConfigs = new HashMap<>();
         Yaml yaml = new Yaml();
-        Map map = yaml.loadAs(jsonString, Map.class);
-        return yaml.dumpAsMap(map);
+        Map<String, Object> map = (Map<String, Object>) yaml.loadAs(yamlString, Map.class);
+
+        map.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .forEach(entry -> deploymentConfigs.put(entry.getKey(), yaml.dumpAsMap(entry.getValue())));
+        return deploymentConfigs;
     }
 }
