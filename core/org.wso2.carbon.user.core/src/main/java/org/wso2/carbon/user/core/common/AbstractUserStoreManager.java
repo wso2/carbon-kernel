@@ -1147,10 +1147,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (isReadOnly()) {
-            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
-        }
-
         if (!doCheckExistingUser(userName)) {
             throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
@@ -1164,6 +1160,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
+
+        //Check userstore is readonly or not
+
+        if (isReadOnly()) {
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
+        }
 
 
         doSetUserClaimValue(userName, claimURI, claimValue, profileName);
@@ -1194,10 +1196,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (isReadOnly()) {
-            throw new UserStoreException(INVALID_OPERATION + "Invalid operation. User store is read only");
-        }
-
         if (!doCheckExistingUser(userName)) {
             throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
@@ -1213,6 +1211,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
+
+        //Check userstore is readonly or not
+
+        if (isReadOnly()) {
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
+        }
+
 
         doSetUserClaimValues(userName, claims, profileName);
 
