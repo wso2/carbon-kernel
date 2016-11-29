@@ -19,6 +19,7 @@ package org.wso2.carbon.ui.taglibs;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.ui.BreadCrumbGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.deployment.beans.BreadCrumbItem;
@@ -28,7 +29,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
@@ -227,7 +227,7 @@ public class Breadcrumb extends BodyTagSupport {
 		}
 
         content.append("<script type=\"text/javascript\">\n");
-        content.append("    setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent) + "');\n");
+        content.append("    setCookie('current-breadcrumb', '" + Encode.forJavaScriptAttribute(cookieContent) + "');\n");
         content.append("    document.onload=setBreadcrumDiv();\n");
 		content.append("    function setBreadcrumDiv () {\n");
 		content.append("        var breadcrumbDiv = document.getElementById('breadcrumb-div');\n");

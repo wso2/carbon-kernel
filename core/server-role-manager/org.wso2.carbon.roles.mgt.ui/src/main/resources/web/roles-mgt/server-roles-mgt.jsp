@@ -16,6 +16,7 @@
 ~ under the License.
 -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.roles.mgt.ui.ServerRoleManagerClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -237,7 +238,7 @@
                 <td><fmt:message key="server-role.type.default"/></td>
                 <td>
                     <a href="#"
-                       onclick="deleteServerRole('<%=defaultServerRole %>',
+                       onclick="deleteServerRole('<%=Encode.forHtml(defaultServerRole)%>',
                        '<fmt:message key="server-role.type.default"/>')"
                        class="icon-link"
                        style="background-image:url(../roles-mgt/images/delete.gif);"><fmt:message
@@ -256,7 +257,7 @@
                 <td><fmt:message key="server-role.type.custom"/></td>
                 <td>
                     <a href="#"
-                       onclick="deleteServerRole('<%=customServerRole%>',
+                       onclick="deleteServerRole('<%=Encode.forHtml(customServerRole)%>',
                        '<fmt:message key="server-role.type.custom"/>')"
                        class="icon-link"
                        style="background-image:url(../roles-mgt/images/delete.gif);"><fmt:message
