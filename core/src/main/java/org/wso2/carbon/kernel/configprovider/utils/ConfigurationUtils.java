@@ -62,8 +62,8 @@ public class ConfigurationUtils {
     }
 
     /**
-     * this method converts the yaml string to configuration map as,
-     * key : yaml (root)key
+     * This method converts the yaml string to configuration map.
+     * Map contains, key : yaml (root)key
      * values  : yaml string of the key
      * @param yamlString yaml string
      * @return configuration map

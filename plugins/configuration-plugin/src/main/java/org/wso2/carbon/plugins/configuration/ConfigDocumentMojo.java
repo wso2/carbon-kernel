@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * This class will create configuration document from bean class annotated in the project
+ * This class will create configuration document from bean class annotated in the project.
  * Get all configuration bean classes in the project from the resource created from ConfigurationProcessor
  *
  * @since 5.2.0
@@ -190,8 +190,7 @@ public class ConfigDocumentMojo extends AbstractMojo {
     }
 
     /**
-     * Read the resource file created by ConfigurationProcessor and create array of qualified names of
-     * all configuration bean in the project
+     * Read the resource file created by ConfigurationProcessor and create array of qualified names of bean classes.
      * @return Array of qualified Name of configuration beans
      * @throws MojoExecutionException
      */

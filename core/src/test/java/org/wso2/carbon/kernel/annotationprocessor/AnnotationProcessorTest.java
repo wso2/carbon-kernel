@@ -39,6 +39,11 @@ import javax.tools.ToolProvider;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
+/**
+ * Tests the annotation processor logic in carbon core/annotations.
+ *
+ * @since 5.2.0
+ */
 public class AnnotationProcessorTest {
 
     private static JavaCompiler compiler;
