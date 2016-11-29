@@ -49,8 +49,7 @@ public class ConfigurationProcessor extends AbstractProcessor {
     }
 
     /**
-     * This method reads all Configuration classes in the project and create temp files with qualified names of root
-     * configuration classes
+     * This method reads all Configuration classes in the project and create temp files with qualified names of classes.
      *
      * @param annotations set of annotations
      * @param roundEnv    annotation object to process

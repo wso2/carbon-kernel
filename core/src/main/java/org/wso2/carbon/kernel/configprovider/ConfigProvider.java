@@ -27,8 +27,8 @@ import java.util.Map;
 public interface ConfigProvider {
 
     /**
-     * returns configuration object of the class with overriding the values of deployment.yaml, if configuration
-     * exists for the given namespace in deployment.yaml
+     * Returns configuration object of the class with overriding the values of deployment.yaml.
+     * if configuration doesn't exist in deployment.yaml, returns object with default values.
      * @param configClass configuration bean class
      * @param <T> object type
      * @return configuration bean object of given type
@@ -37,7 +37,7 @@ public interface ConfigProvider {
     public <T extends Object> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException;
 
     /**
-     * returns configuration map of the namespace, if configuration exists for the given namespace in deployment.yaml
+     * Returns configuration map of the namespace, if configuration exists for the given namespace in deployment.yaml.
      * @param namespace config namespace
      * @return configuration map
      * @throws CarbonConfigurationException
