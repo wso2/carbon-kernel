@@ -95,12 +95,12 @@ The properties in the `launch.properties` file are explained below:
       */
       public interface CarbonServerListener {
         /**
-     * Receives notification of a CarbonServerEvent.
-     *
-     * @param event CarbonServerEvent
-     */
-      public void notify(CarbonServerEvent event);
-     }
+       * Receives notification of a CarbonServerEvent.
+       *
+       * @param event CarbonServerEvent
+       */
+        public void notify(CarbonServerEvent event);
+       }
             
 7. After successfully starting the Carbon server, a thread is maintained until the OSGi framework completely shuts down. This thread will call the server start or server stop events, thereby monitoring the framework event status.
 
