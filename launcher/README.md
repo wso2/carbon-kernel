@@ -8,7 +8,6 @@ WSO2 Carbon Kernel 5.1.0 includes the `<CARBON_HOME>/conf/osgi/launch.properties
 For detailed explanations on configuring the Launcher component, see the following topics.
 * **[Configuring the Launcher](#configuring-the-launcher)**
 * **[Server startup process](#server-startup-process)**
-* **[Server startup logs](#server-startup-logs)**
 * **[Monitoring server startup logs](#monitoring-server-startup-logs)**
 
 ## Configuring the Launcher
