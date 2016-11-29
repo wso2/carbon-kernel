@@ -128,7 +128,8 @@ public class ConfigProviderImpl implements ConfigProvider {
 
 
     /**
-     * This method loads deployment configs in deployment.yaml. loads only if config
+     * This method loads deployment configs in deployment.yaml.
+     * loads only if deployment configuration not exists
      */
     private void loadDeploymentConfiguration(ConfigFileReader configFileReader) throws CarbonConfigurationException {
         if (deploymentConfigs == null) {

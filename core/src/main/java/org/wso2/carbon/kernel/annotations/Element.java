@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Element annotation for configuration tool. Field level annotation
+ * Field level annotation for configuration tool.
  * description : required, field comment
  * required : optional, only for the required field
  * @since 5.2.0

@@ -39,7 +39,7 @@ public class YAMLBasedConfigFileReader implements ConfigFileReader {
     }
 
     /**
-     * this method reads deployment.yaml file and return configuration map which is used for overriding default
+     * This method reads deployment.yaml file and return configuration map which is used for overriding default
      * values of the configuration bean classes.
      * @return configuration map
      */

@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Ignore annotation for configuration tool, Field level annotation
+ * Field level annotation for configuration tool.
  * annotated fields will not go to the configuration file.
  * @since 5.2.0
  */

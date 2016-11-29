@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Configuration annotation for configuration tool. Class level annotation
+ * Class level annotation for configuration tool.
  * namespace : optional, required only for root configuration classes
  * description : required, field comment
  * @since 5.2.0
