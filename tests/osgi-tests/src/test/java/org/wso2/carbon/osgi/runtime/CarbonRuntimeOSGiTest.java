@@ -30,11 +30,14 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 import javax.inject.Inject;
 
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
@@ -80,7 +83,8 @@ public class CarbonRuntimeOSGiTest {
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
-        Assert.assertEquals(carbonConfiguration.getVersion(), "5.2.0-SNAPSHOT");
+        Properties properties = ConfigurationUtils.loadProjectProperties();
+        Assert.assertEquals(carbonConfiguration.getVersion(), properties.getProperty(Constants.MAVEN_PROJECT_VERSION));
 
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
 

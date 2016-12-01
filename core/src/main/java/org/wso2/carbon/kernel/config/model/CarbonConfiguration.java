@@ -18,7 +18,11 @@ package org.wso2.carbon.kernel.config.model;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.annotations.Configuration;
 import org.wso2.carbon.kernel.annotations.Element;
+import org.wso2.carbon.kernel.annotations.Ignore;
+import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
+
+import java.util.Properties;
 
 /**
  * CarbonConfiguration class holds static configuration parameters.
@@ -28,14 +32,19 @@ import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 @Configuration(namespace = "wso2.carbon", description = "Carbon Configuration Parameters")
 public class CarbonConfiguration {
 
-    @Element(description = "value to uniquely identify a server", required = true)
+    public CarbonConfiguration() {
+        Properties properties = ConfigurationUtils.loadProjectProperties();
+        version = properties.getProperty(Constants.MAVEN_PROJECT_VERSION);
+    }
+
+    @Element(description = "value to uniquely identify a server")
     private String id = "carbon-kernel";
 
     @Element(description = "server name")
     private String name = "WSO2 Carbon Kernel";
 
-    @Element(description = "server version")
-    private String version = "5.2.0-SNAPSHOT";
+    @Ignore
+    private String version;
 
     private String tenant = Constants.DEFAULT_TENANT;
 

@@ -114,10 +114,10 @@ public class AnnotationProcessorTest {
         File file = Paths.get(System.getProperty("user.dir"), "temp_config_classnames.txt").toFile();
         FileUtils.forceDeleteOnExit(file);
         File classFile = Paths.get(System.getProperty("user.dir"), packagePath, "Configurations.class").toFile();
-        FileUtils.deleteQuietly(classFile);
+        FileUtils.forceDeleteOnExit(classFile);
         classFile = Paths.get(System.getProperty("user.dir"), packagePath, "Transport.class").toFile();
-        FileUtils.deleteQuietly(classFile);
+        FileUtils.forceDeleteOnExit(classFile);
         classFile = Paths.get(System.getProperty("user.dir"), packagePath, "Transports.class").toFile();
-        FileUtils.deleteQuietly(classFile);
+        FileUtils.forceDeleteOnExit(classFile);
     }
 }
