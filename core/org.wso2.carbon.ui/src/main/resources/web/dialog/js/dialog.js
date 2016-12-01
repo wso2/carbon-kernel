@@ -9,6 +9,15 @@ if (typeof CARBON == "undefined" || CARBON) {
 
 var pageLoaded = false;
 
+/**
+ * Encode html value using jQuery.
+ * @method htmlEncode
+ * @param {String} value html value to be encoded
+ */ 
+function htmlEncode(value){
+  return $('<div/>').text(value).html();
+}
+
 jQuery(document).ready(function() {
     pageLoaded = true;
 });
@@ -21,7 +30,7 @@ jQuery(document).ready(function() {
  */
 CARBON.showWarningDialog = function(message, callback, closeCallback) {
     var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox-warning'><p>" +
-                    message + "</p></div></div>";
+                    htmlEncode(message) + "</p></div></div>";
     //var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox'><img src='img/warning.gif'/><p>" +
     //                message + "</p></div></div>";
  	var func = function() {   
@@ -68,7 +77,7 @@ CARBON.showWarningDialog = function(message, callback, closeCallback) {
  */
 CARBON.showErrorDialog = function(message, callback, closeCallback) {
     var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox-error'><p>" +
-                    message + "</p></div></div>";
+                    htmlEncode(message) + "</p></div></div>";
     //var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox'><img src='img/error.gif'/><p>" +
     //                message + "</p></div></div>";
     var func = function() {   
@@ -115,7 +124,7 @@ CARBON.showErrorDialog = function(message, callback, closeCallback) {
  */
 CARBON.showInfoDialog = function(message, callback, closeCallback) {
     var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox-info'><p>" +
-                     message + "</p></div></div>";
+                     htmlEncode(message) + "</p></div></div>";
     //var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox'><img src='img/info.gif'/><p>" +
     //                message + "</p></div></div>";
     var func = function() {   
@@ -168,7 +177,7 @@ CARBON.showConfirmationDialog = function(message, handleYes, handleNo, closeCall
      * parameter.
      */
     var strDialog = "<div id='dialog' title='WSO2 Carbon'><div id='messagebox-confirm'><p>" +
-                    message + "</p></div></div>";
+                    htmlEncode(message) + "</p></div></div>";
 
     handleYes = handleYes || function(){return true};
 
@@ -219,7 +228,7 @@ CARBON.showConfirmationDialog = function(message, handleYes, handleNo, closeCall
  * @return {Boolean}
  */
 CARBON.showPopupDialog = function(message, title, windowHight, okButton, callback, windowWidth) {
-    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + message + "</div>";
+    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlEncode(message) + "</div>";
     var requiredWidth = 750;
     if (windowWidth) {
         requiredWidth = windowWidth;
@@ -353,7 +362,7 @@ CARBON.showLoadingDialog = function(message, handleRemoveMessage){
         var windowHeight = 20;
         var windowWidth = 100 + message.length*7;
         var strDialog = '<div class="ui-dialog-overlay" style="border-width: 0pt; margin: 0pt; padding: 0pt; position: absolute; top: 0pt; left: 0pt; width: ' + jQuery(document).width() + 'px; height: ' + jQuery(document).height() + 'px; z-index: 1001;">' +
-                        '<div class="loadingDialogBox" style="background-color:#fff;border-radious:5px; -moz-border-radious:5px;possition:absolute;margin-top:' + (( jQuery(window).height() - windowHeight ) / 2+jQuery(window).scrollTop()) + 'px;margin-left:' + (( jQuery(window).width() - windowWidth ) / 2+jQuery(window).scrollLeft()) + 'px;height:'+windowHeight+'px;width:'+windowWidth+'px;">' + message + '</div>' +
+                        '<div class="loadingDialogBox" style="background-color:#fff;border-radious:5px; -moz-border-radious:5px;possition:absolute;margin-top:' + (( jQuery(window).height() - windowHeight ) / 2+jQuery(window).scrollTop()) + 'px;margin-left:' + (( jQuery(window).width() - windowWidth ) / 2+jQuery(window).scrollLeft()) + 'px;height:'+windowHeight+'px;width:'+windowWidth+'px;">' + htmlEncode(message) + '</div>' +
                         '</div>';
         jQuery("#dcontainer").html(strDialog);
 
