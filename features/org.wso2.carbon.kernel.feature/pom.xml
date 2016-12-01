@@ -69,6 +69,9 @@
             <resource>
                 <directory>src/main/resources</directory>
             </resource>
+            <resource>
+                <directory>${project.build.directory}/docs/</directory>
+            </resource>
         </resources>
 
         <plugins>
@@ -101,6 +104,26 @@
                                     <artifactId>org.wso2.carbon.tools.core</artifactId>
                                     <version>${carbon.kernel.version}</version>
                                     <outputDirectory>${project.build.directory}/lib/tools</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon</groupId>
+                                    <artifactId>config-creator</artifactId>
+                                    <version>${carbon.kernel.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/docs</outputDirectory>
+                                    <includes>config-docs/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

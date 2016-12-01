@@ -33,6 +33,7 @@ import java.util.Properties;
 public class CarbonConfiguration {
 
     public CarbonConfiguration() {
+        // Reads the {@value Constants#PROJECT_DEFAULTS_PROPERTY_FILE} property file and assign project version.
         Properties properties = ConfigurationUtils.loadProjectProperties();
         version = properties.getProperty(Constants.MAVEN_PROJECT_VERSION);
     }

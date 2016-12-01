@@ -37,7 +37,7 @@ public class XMLBasedConfigFileReader implements ConfigFileReader {
         this.filename = filename;
     }
     /**
-     * this method reads deployment.yaml file and return configuration map which is used for overriding default
+     * This method reads configuration file and return configuration map which is used for overriding default
      * values of the configuration bean classes.
      * @return configuration map
      */

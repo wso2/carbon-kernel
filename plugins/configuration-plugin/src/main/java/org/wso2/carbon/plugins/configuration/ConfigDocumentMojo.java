@@ -70,7 +70,7 @@ public class ConfigDocumentMojo extends AbstractMojo {
     private static final String MANDATORY_FIELD_COMMENT = "# THIS IS A MANDATORY FIELD";
     private static final String UTF_8_CHARSET = "UTF-8";
     private static final String PLUGIN_DESCRIPTOR_KEY = "pluginDescriptor";
-    private static final String CONFIG_DIR = "config";
+    private static final String CONFIG_DIR = "config-docs";
     private static final String LICENSE_FILE = "LICENSE.txt";
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
