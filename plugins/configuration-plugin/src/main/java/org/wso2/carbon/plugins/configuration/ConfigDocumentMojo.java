@@ -50,6 +50,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -307,6 +308,12 @@ public class ConfigDocumentMojo extends AbstractMojo {
                         i++;
                     }
                     fieldValue = elementArray;
+                }
+            } else if (fieldValue instanceof Optional) {
+                if (((Optional) fieldValue).isPresent()) {
+                    fieldValue = ((Optional) fieldValue).get();
+                } else {
+                    fieldValue = null;
                 }
             }
 
