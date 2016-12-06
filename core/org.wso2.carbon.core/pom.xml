@@ -182,7 +182,7 @@
                         <Bundle-SymbolicName>org.wso2.carbon.core</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.core.internal.CarbonCoreActivator</Bundle-Activator>
                         <Private-Package>
-                            org.wso2.carbon.core.internal
+                            org.wso2.carbon.core.internal, org.wso2.carbon.core.encryption
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.core.internal,
