@@ -33,21 +33,27 @@ import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.ui.BundleBasedUIResourceProvider;
 import org.wso2.carbon.ui.deployment.beans.CarbonUIDefinitions;
 import org.wso2.carbon.ui.deployment.beans.Component;
 import org.wso2.carbon.ui.deployment.beans.CustomUIDefenitions;
 import org.wso2.carbon.ui.deployment.beans.FileUploadExecutorConfig;
+import org.wso2.carbon.ui.deployment.beans.Menu;
 import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
 import org.wso2.carbon.ui.transports.fileupload.FileUploadExecutorManager;
 import org.wso2.carbon.ui.util.UIResourceProvider;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 
 public class UIBundleDeployer implements SynchronousBundleListener {
 
@@ -58,6 +64,8 @@ public class UIBundleDeployer implements SynchronousBundleListener {
     private ServiceTracker fileUploadExecManagerTracker;
     private BundleBasedUIResourceProvider bundleBasedUIResourceProvider =
             new BundleBasedUIResourceProvider(bundleResourcePath);
+    //Used to hide the menus in the management console.
+    private List<String> hideMenuIds = new ArrayList<>();
 
     public UIResourceProvider getBundleBasedUIResourcePrvider() {
         return bundleBasedUIResourceProvider;
@@ -71,6 +79,9 @@ public class UIBundleDeployer implements SynchronousBundleListener {
                 FileUploadExecutorManager.class.getName(), null);
         fileUploadExecManagerTracker.open();
 
+        hideMenuIds.addAll(Arrays.asList(ServerConfiguration
+                .getInstance().getProperties("HideMenuItemIds.HideMenuItemId")));
+         
         //When Carbon starts up with existing set of bundles which contain component.xmls,
         //the bundleChanged() method does not get called. So calling processComponentXML()
         //method here seems to be the only solution.
@@ -205,7 +216,15 @@ public class UIBundleDeployer implements SynchronousBundleListener {
                     if (log.isDebugEnabled()) {
                         log.debug("Adding UI component using existing Carbon Definition");
                     }
-                    carbonUIDefinitions.addMenuItems(component.getMenus());
+                    List<Menu> menusToAdd = new ArrayList<>();
+                    for (Menu menu : component.getMenus()) {
+                        // Prevent adding the menu if it is defined to be hidden.
+                        if (!(hideMenuIds.contains(menu.getId()))) {
+                            menusToAdd.add(menu);
+                        }
+                    }
+
+                    carbonUIDefinitions.addMenuItems(menusToAdd.toArray(new Menu[menusToAdd.size()]));
                     carbonUIDefinitions.addServletItems(component.getServlets());
                     carbonUIDefinitions.addUnauthenticatedUrls(component.getUnauthenticatedUrlList());
                     carbonUIDefinitions.addSkipTilesUrls(component.getSkipTilesUrlList());
