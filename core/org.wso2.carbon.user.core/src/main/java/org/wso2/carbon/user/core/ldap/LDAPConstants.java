@@ -70,10 +70,10 @@ public class LDAPConstants {
     public static final String PASSWORD_HASH_METHOD = "PasswordHashMethod";
 
     // Active Directory specific constants
-    public static final String ACTIVE_DIRECTORY_LDS_ROLE = "isADLDSRole";
-    public static final String ACTIVE_DIRECTORY_USER_ACCOUNT_CONTROL = "userAccountControl";
-    public static final String ACTIVE_DIRECTORY_MSDS_USER_ACCOUNT_DISSABLED = "msDS-UserAccountDisabled";
-    public static final String ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE = "unicodePwd";
+    public static final String ACTIVE_DIRECTORY_LDS_ROLE = "IsADLDSRole";
+    public static final String ACTIVE_DIRECTORY_USER_ACCOUNT_CONTROL = "UserAccountControl";
+    public static final String ACTIVE_DIRECTORY_MSDS_USER_ACCOUNT_DISSABLED = "MSDS-UserAccountDisabled";
+    public static final String ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE = "UnicodePwd";
     public static final String ACTIVE_DIRECTORY_DISABLED_NORMAL_ACCOUNT = Integer.toString(514);
 
     //KDC specific constants
