@@ -38,8 +38,15 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class provides access to core registry configurations. Registry context is associated with
@@ -109,7 +116,7 @@ public class RegistryContext {
     private boolean enableCache = false;
 
     private List<String> systemResourcePaths = new ArrayList<String>();
-    private List<Pattern> noCachePaths = new ArrayList<Pattern>();
+    private List<String> noCachePaths = new CopyOnWriteArrayList<String>();
 
     /**
      * As long as this instance remains in memory, it will be used.
@@ -1082,12 +1089,7 @@ public class RegistryContext {
      * @return true if caching is disabled or false if not.
      */
     public boolean isNoCachePath(String path) {
-        for (Pattern noCachePath : noCachePaths) {
-            if (noCachePath.matcher(path).matches()) {
-                return true;
-            }
-        }
-        return false;
+        return noCachePaths.contains(path);
     }
 
     /**
@@ -1097,9 +1099,16 @@ public class RegistryContext {
      * @param path the path of a resource (or collection) for which caching is disabled.
      */
     public void registerNoCachePath(String path) {
-        noCachePaths.add(Pattern.compile(Pattern.quote(path) + "($|" +
-                RegistryConstants.PATH_SEPARATOR + ".*|" +
-                RegistryConstants.URL_SEPARATOR + ".*)"));
+        noCachePaths.add(path);
+    }
+
+    /**
+     * Method to remove resource path from the no-cache path list.
+     *
+     * @param path the path of a resource (or collection) for which caching to be enabled.
+     */
+    public void removeNoCachePath(String path) {
+        noCachePaths.remove(path);
     }
 
     /**
