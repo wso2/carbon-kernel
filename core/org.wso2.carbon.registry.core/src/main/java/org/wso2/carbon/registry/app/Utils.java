@@ -31,6 +31,7 @@ import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.EmbeddedRegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -160,6 +161,9 @@ public class Utils {
                             registry);
                 }
             } else {
+                if (calledTenantId != MultitenantConstants.SUPER_TENANT_ID) {
+                    RegistryUtils.initializeTenant(getEmbeddedRegistryService(), calledTenantId);
+                }
                 registry = getEmbeddedRegistryService().getRegistry(
                         CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME, calledTenantId);
             }
