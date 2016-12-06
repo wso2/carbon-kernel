@@ -17,7 +17,6 @@
   # Carbon Configuration Parameters
 wso2.carbon:
     # value to uniquely identify a server
-    # THIS IS A MANDATORY FIELD
   id: carbon-kernel
     # server name
   name: WSO2 Carbon Kernel

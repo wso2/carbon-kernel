@@ -17,12 +17,9 @@
   # Carbon Configuration Parameters
 wso2.carbon:
     # value to uniquely identify a server
-    # THIS IS A MANDATORY FIELD
   id: carbon-kernel
     # server name
   name: WSO2 Carbon Kernel
-    # server version
-  version: 5.2.0-SNAPSHOT
   tenant: ${tenant.name}
 
     # ports used by this server
