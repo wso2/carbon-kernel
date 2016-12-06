@@ -17,9 +17,9 @@
   # Carbon Configuration Parameters
 wso2.carbon:
     # value to uniquely identify a server
-  id: ${server.key}
+  id: carbon-kernel
     # server name
-  name: ${server.name}
+  name: WSO2 Carbon Kernel
     # ports used by this server
   ports:
       # port offset
