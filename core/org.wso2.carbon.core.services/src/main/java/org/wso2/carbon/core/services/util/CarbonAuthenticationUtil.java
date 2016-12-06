@@ -241,6 +241,22 @@ public class CarbonAuthenticationUtil {
                 .getConfigSystemRegistry(tenantId);
         loginSubscriptionManagerServiceImpl.triggerEvent(configRegistry, username, tenantId,tenantDomain);
 
+
+
+        // Load tenant : This is needed because we have removed ActivationHandler,
+        // which did the tenant loading part earlier with login. So we load tenant after successful login
+        try {
+            if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+                TenantAxisUtils.getTenantConfigurationContext(tenantDomain,
+                        CarbonServicesServiceComponent.
+                                getConfigurationContextService().
+                                getServerConfigContext());
+            }
+        } catch (Exception e) {
+            log.error("Error trying load tenant after successful login", e);
+        }
+
+
         if (log.isDebugEnabled()) {
             log.debug("User Registry instance is set in the session for user " + username);
         }
