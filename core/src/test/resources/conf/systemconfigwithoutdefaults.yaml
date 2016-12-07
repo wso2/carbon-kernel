@@ -1,0 +1,17 @@
+configurations:
+  tenant: tenant
+  transports:
+    transport:        #Transport with direct values
+      -  name: abc
+         port: 8000
+         secure: false
+         desc: This transport will use 8000 as its port
+         password: ${sec:conn.auth.password}
+      -  name: pqr
+         port: ${env:pqr.http.port}
+         secure: ${sys:pqr.secure}
+         desc: This transport will use ${env:pqr.http.port} as its port. Secure - ${sys:pqr.secure}
+      -  name: xyz
+         port: ${env:xyz.http.port,9000}
+         secure: ${sys:xyz.secure}
+         desc: This transport will use ${env:xyz.http.port,8888} as its port

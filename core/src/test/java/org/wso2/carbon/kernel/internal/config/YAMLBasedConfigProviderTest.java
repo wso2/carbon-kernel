@@ -21,11 +21,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.BaseTest;
 import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.config.model.CapabilityListenerTimer;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.config.model.DeploymentConfig;
-import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
-import org.wso2.carbon.kernel.configresolver.ConfigResolver;
-import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
+import org.wso2.carbon.kernel.config.model.StartupResolverConfig;
+import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
+import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.kernel.configprovider.YAMLBasedConfigFileReader;
+import org.wso2.carbon.kernel.internal.configprovider.ConfigProviderImpl;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProvider class.
@@ -34,7 +37,7 @@ import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
  */
 public class YAMLBasedConfigProviderTest extends BaseTest {
 
-    private YAMLBasedConfigProvider yamlBasedConfigProvider;
+    private ConfigProvider configProvider;
 
     public YAMLBasedConfigProviderTest(String testName) {
         super(testName);
@@ -45,22 +48,22 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
         System.setProperty("carbon.home", "/home/siripala/wso2carbon-5.0.0");
         System.setProperty("carbon.version", "1.0.0");
         System.setProperty("carbon.offset", "10");
-        ConfigResolver configResolver = new ConfigResolverImpl();
-        yamlBasedConfigProvider = new YAMLBasedConfigProvider(configResolver);
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader(Constants.DEPLOYMENT_CONFIG_YAML);
+        configProvider = new ConfigProviderImpl(fileReader);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "Failed populate CarbonConfiguration from.*")
+    @Test(expectedExceptions = CarbonConfigurationException.class,
+            expectedExceptionsMessageRegExp = "Failed populate deployment configuration from.*")
     public void testGetCarbonConfigurationFailScenario() throws Exception {
         System.setProperty(Constants.CARBON_HOME, getTestResourceFile("wrongPath").getAbsolutePath());
-        CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
+        CarbonConfiguration carbonConfiguration = configProvider.getConfigurationObject(CarbonConfiguration.class);
     }
 
     @Test(dependsOnMethods = "testGetCarbonConfigurationFailScenario")
     public void testGetCarbonConfiguration() throws Exception {
         System.setProperty(Constants.CARBON_HOME, getTestResourceFile("yaml").getAbsolutePath());
 
-        CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
+        CarbonConfiguration carbonConfiguration = configProvider.getConfigurationObject(CarbonConfiguration.class);
 
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
@@ -71,11 +74,13 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
         // Test for system property substitution
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 10);
 
-        DeploymentConfig deploymentConfig = carbonConfiguration.getDeploymentConfig();
+        StartupResolverConfig startupResolverConfig = carbonConfiguration.getStartupResolverConfig();
+
+        CapabilityListenerTimer capabilityListenerTimer = startupResolverConfig.getCapabilityListenerTimer();
 
         // Test for default values
-        Assert.assertEquals(deploymentConfig.getUpdateInterval(), 15);
+        Assert.assertEquals(capabilityListenerTimer.getDelay(), 200);
 
-        Assert.assertEquals(deploymentConfig.getMode(), DeploymentModeEnum.scheduled);
+        Assert.assertEquals(capabilityListenerTimer.getPeriod(), 200);
     }
 }

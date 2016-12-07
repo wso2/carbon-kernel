@@ -133,6 +133,19 @@
                     <artifactId>carbon-feature-plugin</artifactId>
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.wso2.carbon</groupId>
+                    <artifactId>org.wso2.carbon.plugins.configuration</artifactId>
+                    <version>${carbon.kernel.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>create-doc</goal>
+                            </goals>
+                            <phase>compile</phase>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -142,6 +155,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
 
@@ -438,6 +452,27 @@
                 <type>zip</type>
                 <scope>test</scope>
             </dependency>
+            <!-- maven plugin dependencies -->
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-project</artifactId>
+                <version>${maven-project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${maven-plugin-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>${maven-plugin-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven-core.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -499,6 +534,10 @@
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <maven.archetype.version>2.4</maven.archetype.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+        <maven-project.version>2.2.1</maven-project.version>
+        <maven-plugin-api.version>3.3.9</maven-plugin-api.version>
+        <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
+        <maven-core.version>3.3.9</maven-core.version>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.9.1</pax.exam.version>

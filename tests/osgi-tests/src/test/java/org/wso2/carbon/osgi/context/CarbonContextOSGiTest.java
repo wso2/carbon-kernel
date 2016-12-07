@@ -125,7 +125,7 @@ public class CarbonContextOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.yaml file with the file found at runtime resources directory.
+     * Replace the existing deployment.yaml file with the file found at runtime resources directory.
      */
     private CopyFileOption copyCarbonYAMLOption() {
         Path carbonYmlFilePath;
@@ -134,7 +134,7 @@ public class CarbonContextOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "carbon.yaml");
-        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "carbon.yaml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "deployment.yaml");
+        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "deployment.yaml"));
     }
 }

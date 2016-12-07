@@ -28,6 +28,13 @@ public final class Constants {
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
     public static final String CARBON_CONFIG_YAML = "carbon.yaml";
+    public static final String DEPLOYMENT_CONFIG_YAML = "deployment.yaml";
+
+    /**
+     * maven project properties related constants
+     */
+    public static final String PROJECT_DEFAULTS_PROPERTY_FILE = "project.defaults.properties";
+    public static final String MAVEN_PROJECT_VERSION = "MAVEN_PROJECT_VERSION";
 
     public static final String START_TIME = "carbon.start.time";
 

@@ -16,29 +16,46 @@
 package org.wso2.carbon.kernel.config.model;
 
 import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Element;
+import org.wso2.carbon.kernel.annotations.Ignore;
+import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
 
+import java.util.Properties;
+
 /**
- * CarbonConfiguration class holds static configuration parameters specified in the carbon.yaml file.
+ * CarbonConfiguration class holds static configuration parameters.
  *
  * @since 5.0.0
  */
+@Configuration(namespace = "wso2.carbon", description = "Carbon Configuration Parameters")
 public class CarbonConfiguration {
 
+    public CarbonConfiguration() {
+        // Reads the {@value Constants#PROJECT_DEFAULTS_PROPERTY_FILE} property file and assign project version.
+        Properties properties = ConfigurationUtils.loadProjectProperties();
+        version = properties.getProperty(Constants.MAVEN_PROJECT_VERSION);
+    }
+
+    @Element(description = "value to uniquely identify a server")
     private String id = "carbon-kernel";
 
+    @Element(description = "server name")
     private String name = "WSO2 Carbon Kernel";
 
-    private String version = "5.0.0";
+    @Ignore
+    private String version;
 
     private String tenant = Constants.DEFAULT_TENANT;
 
+    @Element(description = "ports used by this server")
     private PortsConfig ports = new PortsConfig();
 
-    private DeploymentConfig deployment = new DeploymentConfig();
-
+    @Element(description = "StartupOrderResolver related configurations")
     private StartupResolverConfig startupResolver = new StartupResolverConfig();
 
+    @Element(description = "JMX Configuration")
     private JMXConfiguration jmx = new JMXConfiguration();
 
     public String getId() {
@@ -59,10 +76,6 @@ public class CarbonConfiguration {
 
     public PortsConfig getPortsConfig() {
         return ports;
-    }
-
-    public DeploymentConfig getDeploymentConfig() {
-        return deployment;
     }
 
     public StartupResolverConfig getStartupResolverConfig() {

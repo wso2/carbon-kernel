@@ -17,14 +17,22 @@
 */
 package org.wso2.carbon.kernel.config.model;
 
+
+import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Element;
+
 /**
- * Config bean for pendingCapabilityTimer in carbon.yaml file.
+ * Config bean for pendingCapabilityTimer.
  */
+@Configuration(description = "Configuration for the timer task which checks " +
+        "for satisfiable RequiredCapabilityListeners periodically")
 public class CapabilityListenerTimer {
 
-    private long delay = 60000;
+    @Element(description = "delay in milliseconds before task is to be executed")
+    private long delay = 20;
 
-    private long period = 30000;
+    @Element(description = "time in milliseconds between successive task executions")
+    private long period = 20;
 
     public long getDelay() {
         return delay;

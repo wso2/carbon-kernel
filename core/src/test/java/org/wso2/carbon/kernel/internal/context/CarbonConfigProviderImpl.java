@@ -15,17 +15,33 @@
  */
 package org.wso2.carbon.kernel.internal.context;
 
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+
+import java.util.Map;
 
 /**
  * Custom implementation for CarbonConfigProvider to be used in unit test cases.
  *
  * @since 5.0.0
  */
-public class CarbonConfigProviderImpl implements CarbonConfigProvider {
+public class CarbonConfigProviderImpl implements ConfigProvider {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CarbonConfigProviderImpl.class);
+
     @Override
-    public CarbonConfiguration getCarbonConfiguration() {
-        return new CarbonConfiguration();
+    public <T> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException {
+        try {
+            return configClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new CarbonConfigurationException("Error while creating configuration Instance : "
+                    + configClass.getSimpleName(), e);
+        }
+    }
+
+    @Override
+    public Map getConfigurationMap(String namespace) throws CarbonConfigurationException {
+        return null;
     }
 }

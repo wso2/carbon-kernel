@@ -19,6 +19,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 
 /**
  * Unit test class for org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory.
@@ -30,7 +31,8 @@ public class CarbonRuntimeFactoryTest {
 
     @BeforeTest
     public void setup() throws Exception {
-        carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(new CarbonConfigProviderImpl());
+        ConfigProvider configProvider = new CarbonConfigProviderImpl();
+        carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
     }
 
     @Test

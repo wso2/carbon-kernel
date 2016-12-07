@@ -1,8 +1,8 @@
 CARBON_HOME/conf directory contains all the Carbon configuration files.
 Usage of the sub-directories of relevant configurations are as follows. 
 
-1. carbon.yaml
-   The Carbon server configuration file.
+1. deployment.yaml
+   The configuration file to override any server default configuration.
 
 2. etc <directory>
 

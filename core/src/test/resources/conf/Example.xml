@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurations>
+    <tenant>tenant</tenant>
+    <transports>
+        <!--Transport with direct values-->
+        <transport secure="false">
+            <name>abc</name>
+            <port>8000</port>
+            <desc>This transport will use 8000 as its port</desc>
+            <password>${sec:conn.auth.password}</password>
+        </transport>
+        <!--Transport with System properties as values-->
+        <transport secure="${sys:pqr.secure}">
+            <name>pqr</name>
+            <port>${env:pqr.http.port}</port>
+            <desc>This transport will use ${env:pqr.http.port} as its port. Secure - ${sys:pqr.secure}</desc>
+        </transport>
+        <!--Transport with System properties, default values as values-->
+        <transport secure="${sys:xyz.secure,true}">
+            <name>xyz</name>
+            <port>${sys:xyz.http.port,9000}</port>
+            <desc>This transport will use ${env:xyz.http.port,8888} as its port</desc>
+        </transport>
+    </transports>
+</configurations>

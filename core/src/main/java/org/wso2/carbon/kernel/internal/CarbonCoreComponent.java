@@ -9,12 +9,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
-import org.wso2.carbon.kernel.configresolver.ConfigResolver;
-import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
-import java.util.Optional;
 
 /**
  * This service component creates a carbon runtime based on the carbon configuration file and registers it as a
@@ -34,9 +31,8 @@ public class CarbonCoreComponent {
         try {
             logger.debug("Activating CarbonCoreComponent");
 
-            // 1) Find to initialize the Carbon configuration provider
-            CarbonConfigProvider configProvider = new YAMLBasedConfigProvider(DataHolder.getInstance()
-                    .getOptConfigResolver().get());
+            // 1) Get config provider from data holder
+            ConfigProvider configProvider = DataHolder.getInstance().getConfigProvider();
 
             // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
             CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
@@ -56,17 +52,17 @@ public class CarbonCoreComponent {
     }
 
     @Reference(
-            name = "carbon.core.config.resolver",
-            service = ConfigResolver.class,
+            name = "carbon.core.config.provider",
+            service = ConfigProvider.class,
             cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unregisterConfigResolver"
+            unbind = "unregisterConfigProvider"
     )
-    protected void registerConfigResolver(ConfigResolver configResolver) {
-        DataHolder.getInstance().setOptConfigResolver(Optional.ofNullable(configResolver));
+    protected void registerConfigProvider(ConfigProvider configProvider) {
+        DataHolder.getInstance().setConfigProvider(configProvider);
     }
 
-    protected void unregisterConfigResolver(ConfigResolver configResolver) {
-        DataHolder.getInstance().setOptConfigResolver(Optional.empty());
+    protected void unregisterConfigProvider(ConfigProvider configProvider) {
+        DataHolder.getInstance().setConfigProvider(null);
     }
 }

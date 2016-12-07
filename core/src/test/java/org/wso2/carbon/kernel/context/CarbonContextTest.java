@@ -19,10 +19,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.Constants;
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
-import org.wso2.carbon.kernel.configresolver.ConfigResolver;
-import org.wso2.carbon.kernel.internal.config.YAMLBasedConfigProvider;
-import org.wso2.carbon.kernel.internal.configresolver.ConfigResolverImpl;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.kernel.internal.context.CarbonConfigProviderImpl;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
 import java.nio.file.Path;
@@ -138,8 +136,7 @@ public class CarbonContextTest {
     private void setupCarbonConfig(String tenantName) throws Exception {
         System.setProperty(Constants.CARBON_HOME, Paths.get(testDir.toString(), "carbon-context").toString());
         System.setProperty(Constants.TENANT_NAME, tenantName);
-        ConfigResolver configResolver = new ConfigResolverImpl();
-        CarbonConfigProvider configProvider = new YAMLBasedConfigProvider(configResolver);
+        ConfigProvider configProvider = new CarbonConfigProviderImpl();
         CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
     }
 }

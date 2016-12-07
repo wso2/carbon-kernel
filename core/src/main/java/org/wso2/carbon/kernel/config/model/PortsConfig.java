@@ -15,16 +15,29 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
+
+import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Element;
+
 /**
  * Ports Config bean.
  *
  * @since 5.0.0
  */
+@Configuration(description =
+        "Ports offset. This entry will set the value of the ports defined below to\n" +
+                "the define value + Offset.\n" +
+                "e.g. Offset=2 and HTTPS port=9443 will set the effective HTTPS port to 9445")
 public class PortsConfig {
 
+    @Element(description = "port offset")
     private int offset = 0;
 
     public int getOffset() {
         return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 }

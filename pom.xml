@@ -45,7 +45,9 @@
                 <module>archetypes</module>
                 <module>launcher</module>
                 <module>core</module>
+                <module>plugins</module>
                 <module>tools</module>
+                <module>config-creator</module>
                 <module>pax-exam-container-carbon</module>
                 <module>features</module>
                 <module>distribution</module>

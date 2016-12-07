@@ -15,16 +15,25 @@
  */
 package org.wso2.carbon.kernel.internal.config;
 
+
+import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.kernel.annotations.Element;
+
 /**
  * JMX Configuration bean.
  *
  * @since 5.1.0
  */
+@Configuration(description = "JMX Configuration")
 public class JMXConfiguration {
-    private boolean enabled;
-    private String hostName;
-    private int rmiServerPort;
-    private int rmiRegistryPort;
+    @Element(description = "To enable JMX Monitoring, change this value to true")
+    private boolean enabled = false;
+    @Element(description = "Server HostName")
+    private String hostName = "127.0.0.1";
+    @Element(description = "The port RMI server should be exposed")
+    private int rmiServerPort = 11111;
+    @Element(description = "The port RMI registry is exposed")
+    private int rmiRegistryPort = 9999;
 
     public boolean isEnabled() {
         return enabled;
