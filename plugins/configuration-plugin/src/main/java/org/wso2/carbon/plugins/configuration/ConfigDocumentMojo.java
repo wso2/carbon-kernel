@@ -277,6 +277,8 @@ public class ConfigDocumentMojo extends AbstractMojo {
 
             // check whether the field type is another configuration bean
             if (fieldTypeClass != null && fieldTypeClass.isAnnotationPresent(Configuration.class)) {
+                Configuration configuration = (Configuration) fieldTypeClass.getAnnotation(Configuration.class);
+                fieldDescription = createDescriptionComment(configuration.description());
                 fieldValue = readConfigurationElements(fieldValue, Boolean.TRUE);
                 // check whether the field type is an enum
             } else if (fieldTypeClass != null && fieldTypeClass.isEnum()) {
