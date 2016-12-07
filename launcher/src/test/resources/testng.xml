@@ -28,7 +28,7 @@ limitations under the License.
             <class name="org.wso2.carbon.launcher.test.ConsoleLoggerTest"/>
             <class name="org.wso2.carbon.launcher.test.LaunchConfigExceptionsTest"/>
             <class name="org.wso2.carbon.launcher.test.LoadLaunchConfigTest"/>
-            <class name="org.wso2.carbon.launcher.test.DropinsBundleDeployerTest"/>
+            <class name="org.wso2.carbon.launcher.test.OSGiLibBundleDeployerTest"/>
             <class name="org.wso2.carbon.launcher.test.UtilsTest"/>
         </classes>
     </test>

@@ -42,12 +42,12 @@ import static org.wso2.carbon.launcher.Constants.CARBON_HOME;
 import static org.wso2.carbon.launcher.Constants.CARBON_INITIAL_OSGI_BUNDLES;
 import static org.wso2.carbon.launcher.Constants.CARBON_OSGI_FRAMEWORK;
 import static org.wso2.carbon.launcher.Constants.CARBON_OSGI_REPOSITORY;
+import static org.wso2.carbon.launcher.Constants.CARBON_PROFILE_REPOSITORY;
 import static org.wso2.carbon.launcher.Constants.CARBON_SERVER_LISTENERS;
 import static org.wso2.carbon.launcher.Constants.ECLIPSE_P2_DATA_AREA;
 import static org.wso2.carbon.launcher.Constants.OSGI_CONFIG_AREA;
 import static org.wso2.carbon.launcher.Constants.OSGI_INSTALL_AREA;
 import static org.wso2.carbon.launcher.Constants.OSGI_INSTANCE_AREA;
-
 
 /**
  * Loading properties from launch configuration (launch.properties) file
@@ -60,6 +60,7 @@ public class CarbonLaunchConfig {
     private static final Logger logger = Logger.getLogger(CarbonLaunchConfig.class.getName());
 
     private URL carbonOSGiRepository;
+    private URL carbonProfileRepository;
     private URL carbonOSGiFramework;
     private URL osgiInstallArea;
     private URL osgiConfigurationArea;
@@ -69,6 +70,7 @@ public class CarbonLaunchConfig {
     private String carbonHome;
 
     private String carbonOSGiRepositoryPath;
+    private String carbonProfileRepositoryPath;
 
     private List<CarbonInitialBundle> initialBundles = new ArrayList<>();
 
@@ -278,8 +280,8 @@ public class CarbonLaunchConfig {
 
         // Load the Map from the properties object.
         // Replace variables with proper value. eg. ${carbon.home}.
-        launchProps.forEach((key, value) ->
-                launchProps.put((String) key, Utils.initializeSystemProperties((String) value)));
+        launchProps.forEach(
+                (key, value) -> launchProps.put((String) key, Utils.initializeSystemProperties((String) value)));
         return launchProps;
     }
 
@@ -290,18 +292,21 @@ public class CarbonLaunchConfig {
         carbonHome = System.getProperty(CARBON_HOME);
 
         carbonOSGiRepository = resolvePath(properties.get(CARBON_OSGI_REPOSITORY), carbonHome, CARBON_OSGI_REPOSITORY);
+        carbonProfileRepository = resolvePath(properties.get(CARBON_PROFILE_REPOSITORY), carbonHome,
+                CARBON_PROFILE_REPOSITORY);
         carbonOSGiRepositoryPath = carbonOSGiRepository.toExternalForm().substring(5);
+        carbonProfileRepositoryPath = carbonProfileRepository.toExternalForm().substring(5);
 
-        carbonOSGiFramework =
-                resolvePath(properties.get(CARBON_OSGI_FRAMEWORK), carbonOSGiRepositoryPath, CARBON_OSGI_FRAMEWORK);
-        osgiInstallArea =
-                resolvePath(properties.get(OSGI_INSTALL_AREA), carbonOSGiRepositoryPath, OSGI_INSTALL_AREA);
-        osgiConfigurationArea =
-                resolvePath(properties.get(OSGI_CONFIG_AREA), carbonOSGiRepositoryPath, OSGI_CONFIG_AREA);
-        osgiInstanceArea =
-                resolvePath(properties.get(OSGI_INSTANCE_AREA), carbonOSGiRepositoryPath, OSGI_INSTANCE_AREA);
-        eclipseP2DataArea =
-                resolvePath(properties.get(ECLIPSE_P2_DATA_AREA), carbonOSGiRepositoryPath, ECLIPSE_P2_DATA_AREA);
+        carbonOSGiFramework = resolvePath(properties.get(CARBON_OSGI_FRAMEWORK), carbonOSGiRepositoryPath,
+                CARBON_OSGI_FRAMEWORK);
+        osgiInstallArea = resolvePath(properties.get(OSGI_INSTALL_AREA), carbonProfileRepositoryPath,
+                OSGI_INSTALL_AREA);
+        osgiConfigurationArea = resolvePath(properties.get(OSGI_CONFIG_AREA), carbonProfileRepositoryPath,
+                OSGI_CONFIG_AREA);
+        osgiInstanceArea = resolvePath(properties.get(OSGI_INSTANCE_AREA), carbonProfileRepositoryPath,
+                OSGI_INSTANCE_AREA);
+        eclipseP2DataArea = resolvePath(properties.get(ECLIPSE_P2_DATA_AREA), carbonOSGiRepositoryPath,
+                ECLIPSE_P2_DATA_AREA);
 
         populateInitialBundlesList(properties.get(CARBON_INITIAL_OSGI_BUNDLES));
         loadCarbonServerListeners(properties.get(CARBON_SERVER_LISTENERS));

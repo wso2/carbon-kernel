@@ -41,7 +41,7 @@ import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSGiLibBundle;
 
 /**
  * CarbonContextOSGiTest class is to test the functionality of the Carbon Context API.
@@ -60,7 +60,7 @@ public class CarbonContextOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyCarbonYAMLOption(), copyDropinsBundle(
+        return new Option[] { copyCarbonYAMLOption(), copyOSGiLibBundle(
                 maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon").versionAsInProject()),
                 systemProperty(Constants.TENANT_NAME).value(TEST_TENANT_NAME) };
     }

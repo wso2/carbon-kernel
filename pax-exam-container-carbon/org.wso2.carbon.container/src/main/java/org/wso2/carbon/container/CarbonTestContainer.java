@@ -31,8 +31,8 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.container.options.CarbonDistributionBaseOption;
-import org.wso2.carbon.container.options.CopyDropinsBundleOption;
 import org.wso2.carbon.container.options.CopyFileOption;
+import org.wso2.carbon.container.options.CopyOSGiLibBundleOption;
 import org.wso2.carbon.container.options.DebugOption;
 import org.wso2.carbon.container.options.KeepDirectoryOption;
 import org.wso2.carbon.container.runner.CarbonRunner;
@@ -71,6 +71,7 @@ public class CarbonTestContainer implements TestContainer {
 
     private static final String CARBON_TEST_CONTAINER = "CarbonTestContainer";
     private static final String EXAM_INJECT_PROPERTY = "pax.exam.inject";
+    private static final String LIB_DIRECTORY = "lib";
 
     private final Runner runner;
     private final ExamSystem system;
@@ -124,8 +125,8 @@ public class CarbonTestContainer implements TestContainer {
                 FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
             }
 
-            //install bundles to dropins if there are any
-            copyDropinsBundles(targetDirectory);
+            //install bundles if there are any
+            copyOSGiLibBundles(targetDirectory);
 
             //copy files to the distributions if there are any
             copyFiles(targetDirectory);
@@ -167,25 +168,25 @@ public class CarbonTestContainer implements TestContainer {
     }
 
     /**
-     * Copy dependencies specified as carbon dropins bundle option in system to the dropins Directory.
+     * Copy dependencies specified as carbon OSGi-lib option in system to the LIB_DIRECTORY.
      *
      * @param carbonHome carbon home dir
      */
-    private void copyDropinsBundles(Path carbonHome) {
-        Path targetDirectory = carbonHome.resolve("osgi").resolve("dropins");
+    private void copyOSGiLibBundles(Path carbonHome) {
+        Path targetDirectory = carbonHome.resolve(LIB_DIRECTORY);
 
-        Arrays.asList(system.getOptions(CopyDropinsBundleOption.class)).forEach(option -> {
+        Arrays.asList(system.getOptions(CopyOSGiLibBundleOption.class)).forEach(option -> {
             try {
                 copyReferencedArtifactsToDeployDirectory(option.getMavenArtifactUrlReference().getURL(),
                         targetDirectory);
             } catch (IOException e) {
-                throw new TestContainerException("Error while copying artifacts to dropins", e);
+                throw new TestContainerException(String.format("Error while copying artifacts to " + LIB_DIRECTORY), e);
             }
         });
     }
 
     /**
-     * Helper method to copy artifacts to the dropins.
+     * Helper method to copy artifacts to the target directory.
      *
      * @param url             url of the artifact
      * @param targetDirectory target directory

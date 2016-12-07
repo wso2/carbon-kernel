@@ -42,7 +42,7 @@ public class UtilsTest {
 
     @Test
     public void testGetCustomClassLoaderWithJarOnJar() throws ClassNotFoundException, IOException, CarbonToolException {
-        Path testResourses = Paths.get(targetPath.toString(), "test-resources", "dropins");
+        Path testResourses = Paths.get(targetPath.toString(), "test-resources", "lib");
         Path filePath = Files.list(testResourses)
                 .filter(path -> path.toString().toLowerCase().endsWith(".jar"))
                 .findFirst()

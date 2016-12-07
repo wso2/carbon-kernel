@@ -37,7 +37,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSGiLibBundle;
 
 /**
  * OSGi tests class to test org.wso2.carbon.kernel.utils.manifest.ManifestElement as OSGi service registration.
@@ -58,9 +58,9 @@ public class ManifestElementOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyDropinsBundle(
+        return new Option[] { copyOSGiLibBundle(
                 maven().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId("org.wso2.carbon")
-                        .versionAsInProject()), copyDropinsBundle(
+                        .versionAsInProject()), copyOSGiLibBundle(
                 maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
                         .versionAsInProject()) };
     }
