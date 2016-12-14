@@ -1,11 +1,10 @@
 # Monitoring Carbon Servers
+> In addition to monitoring capabilities explained below, you can monitor server startup logs from the Carbon Launcher. Find out more from the [README.MD file of the Carbon Launcher](SettingUptheCarbonLauncher.md#monitoring-server-startup-logs). For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md).  
 
 You can monitor the Carbon server using the following options:
 
 * **[Using Audit Logs](#using-audit-logs)**
 * **[Using MBeans for Monitoring](#using-mbeans-for-monitoring)**
-
-> In addition to these monitoring capabilities, you can monitor server startup logs from the Carbon Launcher. Find out more from the [README.MD file of the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md#monitoring-server-startup-logs).
 
 ## Using Audit Logs
 
