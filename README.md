@@ -18,14 +18,14 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 Follow the links given below for details of the core capabilities of Carbon Kernel.
 
 * [Resolving the component startup order](docs/KernelFeatures/ResolvingtheComponentStartupOrder.md)
-* [Adding new transports](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#adding-new-transports)
-* [Plugging a new runtime](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#plugging-a-new-runtime)
-* [Using the CarbonContext API](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#using-the-carboncontext-api)
-* [Developing a Carbon tool](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#developing-a-carbon-tool)
-* [Configuring Logging for a Carbon Server](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#configuring-logging-for-a-carbon-server)
-* [Monitoring Carbon Servers](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#monitoring-carbon-servers)
-* [Setting up the Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md)
-* [Using in-container OSGi testing for development](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/pax-exam-container-carbon/README.md)
+* [Adding new transports](docs/KernelFeatures/AddingNewTransports.md)
+* [Plugging a new runtime](docs/KernelFeatures/PluggingaNewRuntime.md)
+* [Using the CarbonContext API](docs/KernelFeatures/UsingtheCarbonContext.md)
+* [Developing a Carbon tool](docs/KernelFeatures/DevelopingaCarbonTool.md)
+* [Configuring Logging for a Carbon Server](docs/KernelFeatures/ConfiguringLogging.md)
+* [Monitoring Carbon Servers](docs/KernelFeatures/MonitoringCarbonServers.md)
+* [Setting up the Carbon Launcher](docs/KernelFeatures/SettingUptheCarbonLauncher.md)
+* [Using in-container OSGi testing for development](docs/DeveloperTools/InContainerOSGiTesting.md)
 
 Follow the links given below for details of tools and archetypes that can be used for developing Carbon products.
 
