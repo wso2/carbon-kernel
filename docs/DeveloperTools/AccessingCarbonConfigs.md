@@ -38,13 +38,17 @@ class SampleDSComponent {
     protected void unRegisterCarbonRuntime(CarbonRuntime runtime) {
         System.out.println("unregistered");
     }
-}```
+}
+```
+
 
 Shown below is a sample implementation for accessing the CarbonRuntime service via OSGi service registry lookup.
 
-```ServiceReference reference = bundleContext.getServiceReference(CarbonRuntime.class.getName());
+```
+ServiceReference reference = bundleContext.getServiceReference(CarbonRuntime.class.getName());
 CarbonRuntime carbonRuntime = (CarbonRuntime) bundleContext.getService(reference);
-CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();```
+CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
+```
 
 ## Step 2: Accessing the Carbon configurations
 After acquiring the CarbonRuntime service, the Carbon configurations can be acquired as shown below.
