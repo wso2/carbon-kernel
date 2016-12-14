@@ -1,4 +1,5 @@
 # Developing a Carbon Tool
+> The process of developing tools for a Carbon product is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
 
 See the topics given below for information on Carbon tools.
 
