@@ -150,7 +150,7 @@ With the usage of Maven dependencies and the plugin given in the 'Usage' section
                                   
 Given below are the descriptions of annotations.
                                   
-* **@Component**
+* **@Component:**
   This annotation identifies the annotated class as a service component.
    ```
     @Component(
