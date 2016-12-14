@@ -17,7 +17,7 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 ## Key Features and Tools
 Follow the links given below for details of the core capabilities of Carbon Kernel.
 
-* [Resolving the component startup order](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#resolving-the-component-startup-order)
+* [Resolving the component startup order](docs/KernelFeatures/ResolvingtheComponentStartupOrder.md)
 * [Adding new transports](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#adding-new-transports)
 * [Plugging a new runtime](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#plugging-a-new-runtime)
 * [Using the CarbonContext API](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#using-the-carboncontext-api)
