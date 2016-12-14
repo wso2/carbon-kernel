@@ -160,7 +160,8 @@ Given below are the descriptions of annotations.
     ```
     The component annotation can take multiple parameters as shown in the above example. These will be available for that component at run time. For example, if your component needs to register the component or service level properties, it can be done by using the “property” parameter and with one or many “key=value” pairs.
 
-* **@Reference**
+* **@Reference:**
+  The @Reference annotation should be applied to a method that will be used as a “bind” method of a service component. You can refer the sample class above. The “unbind” parameter specifies the unbind method in the service component, along with other parameters that are required by the reference.
 
     ```
     @Reference(
@@ -170,8 +171,6 @@ Given below are the descriptions of annotations.
             policy = ReferencePolicy.STATIC,
             unbind = "unsetHttpService")
      ```
-                                  
-     The @Reference annotation should be applied to a method that will be used as a “bind” method of a service component. You can refer the sample class above. The “unbind” parameter specifies the unbind method in the service component, along with other parameters that are required by the reference.
 
-* **@Acitvate, @Deactivate, @Modified**
+* **@Acitvate, @Deactivate, @Modified:**
   These three annotations are used with the respective methods that will be called when the status of a service component changes from one to another. For example, the @Activate annotated method gets invoked when the service component becomes satisfied with all the service references and their requirements.
