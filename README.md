@@ -43,6 +43,9 @@ Follow the links given below for reference information.
 
 * [Using Annotations with OSGi Declarative Services](https://kishanthan.wordpress.com/2014/03/29/using-annotation-with-osgi-declarative-services/)
 
+## Getting Started
+See the steps for [setting up and starting WSO2 Carbon server](docs/GettingStarted.md).
+
 ## How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
 * Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master).
