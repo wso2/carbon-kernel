@@ -173,5 +173,5 @@ Given below are the descriptions of annotations.
             unbind = "unsetHttpService")
      ```
 
-* **@Acitivate, @Deactivate, @Modified:**
+* **@Activate, @Deactivate, @Modified:**
   These three annotations are used with the respective methods that will be called when the status of a service component changes from one to another. For example, the @Activate annotated method gets invoked when the service component becomes satisfied with all the service references and their requirements.
