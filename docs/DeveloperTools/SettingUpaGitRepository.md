@@ -1,5 +1,5 @@
 # How to Release a Git Repository
-> The process of setting and releating a Git repository when you develop a WSO2 product is explained below. For the full list features and capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
+> The process of setting up and releasing a Git repository when you develop a WSO2 product is explained below. For the full list features and capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
 
 The following are the steps for creating and releasing a Git repository:
 
