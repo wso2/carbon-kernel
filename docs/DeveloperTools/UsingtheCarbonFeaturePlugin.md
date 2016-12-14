@@ -1,5 +1,5 @@
 # Using the Carbon Feature Plugin
-> The usage of the Carbon Featuer Plugin for development is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
+> The usage of the Carbon Feature Plugin for development in a WSO2 product is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
 
 The Carbon feature plugin was formerly known as the Carbon P2 plugin. It has gone through several development cycles in the previous WSO2 Carbon versions. However, the plugin introduced from WSO2 Carbon 5.0.0 (Carbon 5.x.x platform) is redesigned to update the Maven APIs, to redefine the configurations by removing any existing inconsistencies, to make its architecture solid, and also to improve the understandability and maintainability of its coding standards.
 
