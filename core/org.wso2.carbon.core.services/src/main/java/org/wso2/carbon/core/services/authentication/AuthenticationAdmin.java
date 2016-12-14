@@ -131,7 +131,13 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
         } catch (Exception e) {
             // remove login the exceptions.
             String msg = "System error while Authenticating/Authorizing User : " + e.getMessage();
-            log.error(msg);
+
+            if (log.isDebugEnabled()) {
+                log.error(msg, e);
+            } else {
+                log.error(msg);
+            }
+
             return false;
         }
     }
