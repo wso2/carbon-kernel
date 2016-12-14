@@ -41,7 +41,7 @@ Follow the links given below for details of plugins:
 
 Follow the links given below for reference information.
 
-* [Using Annotations with OSGi Declarative Services](https://kishanthan.wordpress.com/2014/03/29/using-annotation-with-osgi-declarative-services/)
+* [Using Annotations with OSGi Declarative Services](docs/DeveloperTools/UsingAnnotationswithOSGiDeclarativeServices.md)
 
 ## Getting Started
 See the steps for [setting up and starting a WSO2 Carbon server](docs/GettingStarted.md).
