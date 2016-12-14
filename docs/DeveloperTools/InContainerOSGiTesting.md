@@ -1,6 +1,5 @@
 # In-Container OSGi Testing
-
-> This section explains the Pax Exam container in Carbon, which is used for OSGi testing. For the list of capabilities available in Carbon Kernel 5.1.0, see the [root README.md file](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/README.md).
+> This section explains the Pax Exam container in Carbon, which is used for OSGi testing. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
 
 From Carbon Kernel 5.0.0 onwards, the [Pax Exam framework](https://ops4j1.jira.com/wiki/display/PAXEXAM4/Getting+Started+with+OSGi+Tests) provides the infrastructure for composing unit test cases. See the following topics for details:
 
