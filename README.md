@@ -29,15 +29,15 @@ Follow the links given below for details of the core capabilities of Carbon Kern
 
 Follow the links given below for details of tools and archetypes that can be used for developing Carbon products.
 
-* [Creating a Carbon component in one step using Maven archetypes](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/archetypes/README.md#creating-a-carbon-component-in-one-step)
-* [Creating a generic OSGi bundle in one step using Maven archetypes](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/archetypes/README.md#creating-a-generic-osgi-bundle-in-one-step)
-* [Converting JARs to OSGi bundles](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#converting-jars-to-osgi-bundles)
-* [Using the dropins support for OSGi bundles](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#dropins-support-for-osgi-bundles)
+* [Creating a Carbon component in one step using Maven archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-carbon-component-in-one-step)
+* [Creating a generic OSGi bundle in one step using Maven archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-generic-osgi-bundle-in-one-step)
+* [Converting JARs to OSGi bundles](docs/DeveloperTools/ConvertingJARsToOSGiBundles.md)
+* [Using the dropins support for OSGi bundles](docs/KernelFeatures/DropinsSupportforOSGiBundles.md)
 
 Follow the links given below for details of plugins:
 
-* [Using the Carbon Feature Plugin](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#using-the-carbon-feature-plugin)
-* [Using the Maven Bundle Plugin](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/tools/README.md#using-the-maven-bundle-plugin)
+* [Using the Carbon Feature Plugin](docs/DeveloperTools/UsingtheCarbonFeaturePlugin.md)
+* [Using the Maven Bundle Plugin](docs/DeveloperTools/UsingtheMavenBundlePlugin.md)
 
 Follow the links given below for reference information.
 
