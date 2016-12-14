@@ -1,4 +1,6 @@
 # Plugging a New Runtime
+> The process of adding a new runtime to a WSO2 product (based on Kernel 5.2.0) is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
+
 From Carbon 5.0.0 Kernel onwards, Carbon provides a pluggable interface to add runtimes to the existing server. Following are the instructions that you need to follow when adding a new runtime.
 
 * **[Adding a New Runtime](#adding-a-new-runtime)**
