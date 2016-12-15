@@ -1,5 +1,5 @@
 # Accessing the Carbon Configurations
-> The process of accessing the Carbon configurations in a WSO2 product is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
+> The process of accessing the Carbon configurations in a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 The instructions given below explain how you can programmatically access the Carbon configurations in an OSGi environment. Carbon configurations are stored in the carbon.yml file stored in the <PRODUCT_HOME>/conf directory. In order to acquire the Carbon configurations in the OSGi environment, the program first needs to acquire the CarbonRuntime service.
 Follow the steps given below.
