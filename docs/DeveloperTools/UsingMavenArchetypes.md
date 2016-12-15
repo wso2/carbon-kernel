@@ -1,6 +1,6 @@
 
 # Using Maven Archetypes for Development
-> This section explains some Maven archetypes that simplify the process of building OSGi bundles/Carbon components. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
+> This section explains some Maven archetypes that simplify the process of building OSGi bundles/Carbon components. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 * **[Creating a Carbon Component in One Step](#creating-a-carbon-component-in-one-step)**
 * **[Creating a Generic OSGi Bundle in One Step](#creating-a-generic-osgi-bundle-in-one-step)**
