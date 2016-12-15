@@ -1,5 +1,5 @@
 # Getting Started
-> The process of setting up and starting WSO2 Carbon server is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the features section in the [root README.md file](../README.md#key-features-and-tools). 
+> The process of setting up and starting WSO2 Carbon server is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the **features** section in the [root README.md file](../README.md#key-features-and-tools). 
 
 See the following sub topics on how to get started with WSO2 Carbon. 
 
