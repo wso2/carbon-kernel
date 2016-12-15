@@ -255,7 +255,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (passwordHashMethod == null) {
             passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
         }
-        userPassword.add(UserCoreUtil.getPasswordToStore((String) credential, passwordHashMethod, kdcEnabled));
+        byte[] passwordToStore = UserCoreUtil.getPasswordToStore(credential, this.realmConfig.getUserStoreProperty
+                (PASSWORD_HASH_METHOD), kdcEnabled);
+        userPassword.add(passwordToStore);
         basicAttributes.put(userPassword);
 
 		/* setting claims */
@@ -280,6 +282,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(dirContext);
+            // Clearing password byte array
+            UserCoreUtil.clearSensitiveBytes(passwordToStore);
         }
 
         if(roleList != null && roleList.length > 0) {
@@ -627,18 +631,23 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 String dnName = searchResult.getName();
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
 
-                Attribute passwordAttribute = new BasicAttribute("userPassword");
-                passwordAttribute.add(UserCoreUtil.getPasswordToStore((String) newCredential,
-                        passwordHashMethod, kdcEnabled));
-                BasicAttributes basicAttributes = new BasicAttributes(true);
-                basicAttributes.put(passwordAttribute);
-                subDirContext.modifyAttributes(dnName, DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+                byte[] passwordToStore = UserCoreUtil.getPasswordToStore(newCredential, passwordHashMethod, kdcEnabled);
+                try {
+                    Attribute passwordAttribute = new BasicAttribute("userPassword");
+                    passwordAttribute.add(passwordToStore);
+                    BasicAttributes basicAttributes = new BasicAttributes(true);
+                    basicAttributes.put(passwordAttribute);
+                    subDirContext.modifyAttributes(dnName, DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+                } finally {
+                    // Clearing password bytes
+                    UserCoreUtil.clearSensitiveBytes(passwordToStore);
+                }
             }
             // we check whether both carbon admin entry and ldap connection
             // entry are the same
             if (searchResult.getNameInNamespace()
                     .equals(realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME))) {
-                this.connectionSource.updateCredential((String) newCredential);
+                this.connectionSource.updateCredential(newCredential);
             }
 
         } catch (NamingException e) {
@@ -711,19 +720,23 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 String dnName = searchResult.getName();
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
 
-                Attribute passwordAttribute = new BasicAttribute("userPassword");
-                passwordAttribute.add(UserCoreUtil.getPasswordToStore((String) newCredential,
-                        passwordHashMethod, kdcEnabled));
-                BasicAttributes basicAttributes = new BasicAttributes(true);
-                basicAttributes.put(passwordAttribute);
-                subDirContext.modifyAttributes(dnName, DirContext.REPLACE_ATTRIBUTE,
-                        basicAttributes);
+                byte[] passwordToStore = UserCoreUtil.getPasswordToStore(newCredential, passwordHashMethod, kdcEnabled);
+                try {
+                    Attribute passwordAttribute = new BasicAttribute("userPassword");
+                    passwordAttribute.add(passwordToStore);
+                    BasicAttributes basicAttributes = new BasicAttributes(true);
+                    basicAttributes.put(passwordAttribute);
+                    subDirContext.modifyAttributes(dnName, DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+                } finally {
+                    // Clearing password bytes
+                    UserCoreUtil.clearSensitiveBytes(passwordToStore);
+                }
             }
             // we check whether both carbon admin entry and ldap connection
             // entry are the same
             if (searchResult.getNameInNamespace().equals(
                     realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME))) {
-                this.connectionSource.updateCredential((String) newCredential);
+                this.connectionSource.updateCredential(newCredential);
             }
 
         } catch (NamingException e) {
