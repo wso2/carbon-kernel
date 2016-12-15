@@ -1,4 +1,4 @@
-# Droping OSGi Bundles into a Carbon Server
+# Dropping OSGi Bundles into a Carbon Server
 > The process of directly adding OSGi bundles to a Carbon server is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 The Dropins capability allows you to apply new OSGi bundles by simply adding them to the `<CARBON_HOME>/osgi/dropins` directory. These bundles will be automatically fetched by the server launcher and executed during server startup. Carbon maintains a `bundles.info` file for every profile in the server and it contains information about all the bundles that exist in the dropins directory. This file is stored in the `<CARBON_HOME>/osgi/profiles/<Profile_Name>/configuration/org.eclipse.equinox.simpleconfigurator` directory.
