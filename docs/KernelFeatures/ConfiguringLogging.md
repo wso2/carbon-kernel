@@ -1,5 +1,5 @@
 # Configuring Logging for a Carbon Server
-> The configurations required for setting up logging in a Carbon server is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../README.md#key-features-and-tools). 
+> The configurations required for setting up logging in a Carbon server is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 See the following topics for details on logging related configurations in Carbon 5.x.x.
 
