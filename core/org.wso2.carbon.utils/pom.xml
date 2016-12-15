@@ -96,6 +96,10 @@
             <artifactId>org.wso2.carbon.registry.api</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-lang.wso2</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
