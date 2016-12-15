@@ -1,5 +1,5 @@
 # Adding New Transports
-> The process of adding new transports to a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../README.md#key-features-and-tools). 
+> The process of adding new transports to a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 From Carbon 5.0.0 Kernel onwards, we are providing a pluggable interface to add new transports to the existing server. Following are the steps that need to be carried out when adding a new transport to the server.
 
