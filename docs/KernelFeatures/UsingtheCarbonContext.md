@@ -1,5 +1,5 @@
 # Using the CarbonContext API
-> The usage of the CarbonContext API for development in a WSO2 product is explained below. For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md). 
+> The usage of the `CarbonContext` API for development in a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 The `CarbonContext` API is used for the purpose of storing and retrieving data that is thread local. This API implements the two classes named `CarbonContext` and `PrivilegedCarbonContext`.
 
