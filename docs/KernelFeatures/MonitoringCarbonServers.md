@@ -1,5 +1,5 @@
 # Monitoring Carbon Servers
-> In addition to monitoring capabilities explained below, you can monitor server startup logs from the Carbon Launcher. Find out more from the [README.MD file of the Carbon Launcher](SettingUptheCarbonLauncher.md#monitoring-server-startup-logs). For the full list of capabilities available in Carbon Kernel 5.2.0, see the [root README.md file](../../README.md).  
+> In addition to monitoring capabilities explained below, you can monitor server startup logs from the Carbon Launcher. Find out more from the [README.MD file of the Carbon Launcher](SettingUptheCarbonLauncher.md#monitoring-server-startup-logs). For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools).  
 
 You can monitor the Carbon server using the following options:
 
