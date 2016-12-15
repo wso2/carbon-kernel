@@ -25,7 +25,7 @@ Follow the links given below for details of the core capabilities of Carbon Kern
 * [Configuring Logging for a Carbon Server](docs/KernelFeatures/ConfiguringLogging.md)
 * [Monitoring Carbon Servers](docs/KernelFeatures/MonitoringCarbonServers.md)
 * [Setting up the Carbon Launcher](docs/KernelFeatures/SettingUptheCarbonLauncher.md)
-* [Using in-container OSGi testing for development](docs/DeveloperTools/InContainerOSGiTesting.md)
+* [Using in-container OSGi testing for development](docs/DeveloperTools/UsingIn-ContainerOSGiTesting.md)
 
 Follow the links given below for details of tools and archetypes that can be used for developing Carbon products.
 
