@@ -57,7 +57,6 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
             hazelcastInstance.getMap(mapName).removeEntryListener(map.getListenerId());
         }
         maps.remove(mapName);
-        hazelcastInstance.getMap(mapName).flush();
     }
 
     private class DistMap<K, V> implements Map<K, V> {
