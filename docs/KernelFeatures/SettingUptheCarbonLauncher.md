@@ -1,4 +1,4 @@
-# Setting up the Carbon Launcher
+# Setting Up the Carbon Launcher
 
 > The process of setting up the Carbon Launcher in a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
