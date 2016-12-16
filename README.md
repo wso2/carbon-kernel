@@ -27,7 +27,7 @@ Follow the links given below for details of the core capabilities of Carbon Kern
 * [Setting up the Carbon Launcher](docs/KernelFeatures/SettingUptheCarbonLauncher.md)
 * [Dropping OSGi Bundles into a Carbon Server](docs/KernelFeatures/DroppingOSGiBundlesintoaCarbonServer.md)
 
-Follow the links given below for details of tools and archetypes that can be used for developing Carbon products.
+Follow the links given below for details of tools, archetypes and other capabilities that can be used for developing Carbon products.
 
 * [Creating a Carbon Component in One Step using Maven Archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-carbon-component-in-one-step)
 * [Creating a Generic OSGi Bundle in One Step using Maven Archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-generic-osgi-bundle-in-one-step)
