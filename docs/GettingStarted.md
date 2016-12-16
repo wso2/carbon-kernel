@@ -108,7 +108,7 @@ Extract the archive file to a dedicated directory for the product, which will he
       * **On Windows:**	`<PRODUCT_HOME>\bin\carbon.bat`
       * **On Linux/Solaris:** `sh <PRODUCT_HOME>/bin/carbon.sh`
 
-    Now, the server startup logs will get printed. When the server has completed the server startup, the log will display the message "WSO2 Carbon started in 'n' seconds."
+    Now, the server startup logs will get printed. When the server has completed the server startup, the log will display the following message: "WSO2 Carbon started in 'n' seconds."
 
   * ### Stopping the server
     To stop the server, press **Ctrl+C** in the command window. If you have started the server in `daemon` mode in Linux, `run carbon.sh stop` command.
