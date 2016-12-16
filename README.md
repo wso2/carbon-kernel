@@ -32,7 +32,7 @@ Follow the links given below for details of tools, archetypes and other capabili
 * [Creating a Carbon Component in One Step using Maven Archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-carbon-component-in-one-step)
 * [Creating a Generic OSGi Bundle in One Step using Maven Archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-generic-osgi-bundle-in-one-step)
 * [Converting JARs to OSGi bundles](docs/DeveloperTools/ConvertingJARsToOSGiBundles.md)
-* [Using in-container OSGi testing for development](docs/DeveloperTools/UsingIn-ContainerOSGiTesting.md)
+* [Using In-Container OSGi Testing for Development](docs/DeveloperTools/UsingIn-ContainerOSGiTesting.md)
 * [Using Annotations with OSGi Declarative Services](docs/DeveloperTools/UsingAnnotationswithOSGiDeclarativeServices.md)
 * [Setting up a Git Repository](docs/DeveloperTools/SettingUpaGitRepository.md)
 * [Accessing the Carbon Configurations](docs/DeveloperTools/AccessingCarbonConfigs.md)
