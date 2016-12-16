@@ -89,7 +89,7 @@ An OSGi bundle can be created with one command using the following archetype: `c
  | `version`             | The version of the project.               | `1.0.0-SNAPSHOT`                  |
  | `package`             | The package hierarchy for the project.    | `org.wso2.carbon.helloworld`      |
  
-To read more on other properties you can use when generating a project from an archetype, see this [link](http://maven.apache.org/archetype/maven-archetype-plugin/generate-mojo.html). 
+> To read more on other properties you can use when generating a project from an archetype, see this [link](http://maven.apache.org/archetype/maven-archetype-plugin/generate-mojo.html). 
 
 ## Example
 
