@@ -5,8 +5,9 @@ The instructions given below explain how you can programmatically access the Car
 Follow the steps given below.
 
 ## Step 1: Accessing the `CarbonRuntime` service
-There are two ways to acquire the CarbonRuntime service reference: You can either define a declarative service and acquire the service dynamically or else you can use the OSGi service registry lookup and directly access the service. The following samples provide a comprehensive guide for both approaches:
-Shown below is a sample implementation for accessing the CarbonRuntime via the OSGi service component.
+There are two ways to acquire the `CarbonRuntime` service reference: You can either define a declarative service and acquire the service dynamically or else you can use the OSGi service registry lookup and directly access the service. The following samples provide a comprehensive guide for both approaches:
+
+* Shown below is a sample implementation for accessing the CarbonRuntime via the OSGi service component.
 
 ```
 @Component(
@@ -42,8 +43,7 @@ class SampleDSComponent {
 }
 ```
 
-
-Shown below is a sample implementation for accessing the CarbonRuntime service via OSGi service registry lookup.
+* Shown below is a sample implementation for accessing the `CarbonRuntime` service via OSGi service registry lookup.
 
 ```
 ServiceReference reference = bundleContext.getServiceReference(CarbonRuntime.class.getName());
@@ -52,7 +52,7 @@ CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
 ```
 
 ## Step 2: Accessing the Carbon configurations
-After acquiring the CarbonRuntime service, the Carbon configurations can be acquired as shown below.
+After acquiring the `CarbonRuntime` service, the Carbon configurations can be acquired as shown below.
 
 ```
 CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
