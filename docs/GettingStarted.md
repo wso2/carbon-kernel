@@ -21,7 +21,7 @@ Prior to installing any WSO2 Carbon-based product, it is necessary to have the a
 
  * ### Supporting applications
 
-   The following applications are required for running the product and its samples or for building from the source code. Mandatory installs are marked with an asterisk (*).
+   The following applications are required for running the product and its samples or for using the source code to build a product. Mandatory installs are marked with an asterisk (*).
 
    * [Oracle Java SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) version 1.8 is required for the following: 
      * To launch the product, as each product is a Java application.
