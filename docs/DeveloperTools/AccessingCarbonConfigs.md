@@ -9,7 +9,7 @@ There are two ways to acquire the `CarbonRuntime` service reference: You can eit
 
 * Shown below is a sample implementation for accessing the CarbonRuntime via the OSGi service component.
 
-```
+   ```
 @Component(
         name = "org.wso2.carbon.SampleDSComponent",
         immediate = true
@@ -45,7 +45,7 @@ class SampleDSComponent {
 
 * Shown below is a sample implementation for accessing the `CarbonRuntime` service via OSGi service registry lookup.
 
-```
+   ```
 ServiceReference reference = bundleContext.getServiceReference(CarbonRuntime.class.getName());
 CarbonRuntime carbonRuntime = (CarbonRuntime) bundleContext.getService(reference);
 CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
