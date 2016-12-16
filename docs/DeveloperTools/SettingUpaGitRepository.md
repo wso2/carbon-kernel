@@ -24,7 +24,7 @@ The following guidelines refer to carbon4-kernel as the sample project being rel
 
  * **Pattern Expression:** `.*/org/wso2/carbon/.*`
 
-2. Create a nexus “Staging Profile” for the project in [http://maven.wso2.org/nexus/](https://maven.wso2.org/nexus/#welcome), if it is not already created. The name of the profile should match the project's `groupID`. For example, the name of the profile for the `carbon4-kernel` project should be `org.wso2.carbon`.
+2. Create a nexus “Staging Profile” for the project in [http://maven.wso2.org/nexus/](https://maven.wso2.org/nexus/#welcome) if it is not already created. The name of the profile should match the project's `groupID`. For example, the name of the profile for the `carbon4-kernel` project should be `org.wso2.carbon`.
 
    a. Select the "Repository Target" that was created in step 1 above as the "Repository Target" for this profile.
 
@@ -34,9 +34,9 @@ The following guidelines refer to carbon4-kernel as the sample project being rel
 
    d. Finally, give the `wso2-nexus-deployer` user permissions to stage the repository as follows: 
      
-     i. “Staging: Repositories (`<staging-profile-name>`)”  
+      i. “Staging: Repositories (`<staging-profile-name>`)”  
   
-     ii. “Staging: Deployer (`<staging-profile-name>`)”
+      ii. “Staging: Deployer (`<staging-profile-name>`)”
 
  The main reason for creating a separate staging profile and repository target is for nexus to uniquely identify artifacts belonging to a staging profile. It uses the `groupID` of the artifacts. Nexus uses pattern matching for this purpose as explained above.
 
