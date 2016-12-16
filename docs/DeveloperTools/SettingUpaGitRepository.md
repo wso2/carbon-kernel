@@ -8,7 +8,7 @@ The following are the steps for creating and releasing a Git repository:
 
 ## Setting up a Git Repository
 
-With the git based model, releases can be made easy using the `maven-release-plugin` and nexus staging repository. The following are the common guidelines for releasing from any git repository under a WSO2 user:
+With the git-based model, releases can be made easy using the `maven-release-plugin` and the nexus staging repository. The following are the common guidelines for releasing from any git repository under a WSO2 user:
 
 > Note that WSO2 approval is required for setting up git repositories under a WSO2 user. Also, this is a one-time process, which does not have to be repeated.
 
