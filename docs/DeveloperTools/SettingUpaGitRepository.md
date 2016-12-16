@@ -30,7 +30,7 @@ The following guidelines refer to carbon4-kernel as the sample project being rel
 
    b. Select the `Releases` repository in [http://maven.wso2.org/nexus/content/repositories/releases/](http://maven.wso2.org/nexus/content/repositories/releases/) as the “Release Repository” for all staging profiles.
 
-   c. Add “WSO2 Staging” to Target Groups. Make sure that `org.wso2.carbon` staging profile is the last entry in that list. You will have to move up the newly created profiles.
+   c. Add “WSO2 Staging” to Target Groups. Make sure that the `org.wso2.carbon` staging profile is the last entry in that list. You will have to move up the newly created profiles.
 
    d. Finally, give the `wso2-nexus-deployer` user permissions to stage the repository as follows: 
      
