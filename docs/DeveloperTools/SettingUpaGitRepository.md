@@ -157,17 +157,17 @@ If a Git repository is already set up as explained in [Setting up a Git Reposito
 
          git checkout -b release-<release-version> master
 
-2. Maven release plug-in does not update some properties that we use, such as the osgi import and export versions. These properties also have the `SNAPSHOT` part in it. This has to be manually updated before performing the release preparation command.  
+2. The Maven release plugin does not update some properties that we use, such as the OSGi import and export versions. These properties also have the `SNAPSHOT` part in it. This has to be manually updated before performing the release preparation command.  
 
- > Also make sure that the project does not have any SNAPSHOT dependencies and update those with released versions. If there are any unreleased SNAPSHOT dependencies, we will have to release them separately. This will anyway be checked by the release plugin during the `release:prepare` stage.
+ > Also make sure that the project does not have any SNAPSHOT dependencies and update those with released versions. If there are unreleased SNAPSHOT dependencies, we will have to release them separately. This will anyway be checked by the release plugin during the `release:prepare` stage.
  
  To test the above, we can use the [“dryRun”](http://maven.apache.org/maven-release/maven-release-plugin/prepare-mojo.html#dryRun) option with the maven release plugin.
 
 3. Issue the following release preparation command: `mvn release:clean release:prepare`. 
 
- You can use the dedicated builder machine is used for the release purpose. Contact WSO2 Infra for credentials.
+ You can use the dedicated builder machine for the release purpose. Contact WSO2 Infra for credentials.
 
- The build artifacts will have this username in its `MANIFEST` file. Give appropriate values for the release, development, and tag versions as shown below when prompted for the release preparation command. Use the git tag versioning strategy `v1.x` when the tag version prompted: [http://git-scm.com/book/en/v2/Git-Basics-Tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
+ The build artifacts will have this username in its `MANIFEST` file. Give appropriate values for the release, development, and tag versions as shown below when prompted for the release preparation command. Use the git tag versioning strategy `v1.x` when the tag version is prompted: [http://git-scm.com/book/en/v2/Git-Basics-Tagging](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
 
       [INFO] Checking dependencies and plugins for snapshots …
       What is the release version for "WSO2 Carbon Kernel"? (org.wso2.carbon:carbon-kernel) 5.0.0: : 5.0.0
