@@ -106,7 +106,7 @@ Follow the steps given below to see how an OSGi bundle is generated using this a
         -Dversion=1.0.0 \
         -Dpackage=org.sample.project \
 
- In the above command, we have passed values for all the project parameters in additions to the parameters defining the archetype (`org.wso2.carbon.archetypes.bundle`). If you do not pass any of the project parameters, you will be provided with the option to choose default values for some or all of the variable parameters depending on your choice.
+ In the above command, we have passed values for all the project parameters in addition to the parameters defining the archetype (`org.wso2.carbon.archetypes.bundle`). If you do not pass any of the project parameters, you will have the option to choose default values for some or all of the variable parameters depending on your choice.
 
 2. You will see a result similar to the following, which notifies that the archetype generation is successful. 
 
