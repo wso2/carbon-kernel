@@ -1,7 +1,7 @@
 # Converting JARs to OSGi Bundles
 > The process of converting JARs to OSGi bundles in a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
-Java archive (JAR) to OSGi bundle converter is a standalone tool that can be used for products that are based on Carbon 5 (WSO2 Carbon 5 platform). The implementation of this tool has been added to the freshly introduced Maven module of the WSO2 Carbon 5 platform.
+Java archive (JAR) to OSGi bundle converter is a standalone tool that can be used for products that are based on Carbon 5 (WSO2 Carbon 5 platform). The implementation of this tool has been added to the freshly introduced Tools module (Maven module) of the WSO2 Carbon 5 platform.
 
 > Read more about Carbon tools and the instructions for developing new tools from [here](../KernelFeatures/DevelopingaCarbonTool.md). 
 
@@ -18,7 +18,7 @@ The folder structure within the OSGi bundle is as follows:
 * **p2.inf**
 * **original_jar_file.jar**
 
-> This functionality was previously implemented (for example in wso2/carbon-kernel master 4.5.0) as part of the `https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server` module and was executed during server startup. However, with the increasing need to improve the server startup time, we have decided to separate this functionality from the `https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server` module and integrate it to the WSO2 Carbon 5.x.x platform as a separate tool under the freshly introduced `https://github.com/wso2/carbon-kernel/tree/master/tools` module.
+> This functionality was previously implemented (for example in wso2/carbon-kernel master 4.5.0) as part of the `https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server` module and was executed during server startup. However, with the increasing need to improve the server startup time, we have decided to separate this functionality from the `https://github.com/wso2/carbon-kernel/tree/4.5.x/core/org.wso2.carbon.server` module and integrate it to the WSO2 Carbon 5 platform as a separate tool under the freshly introduced `https://github.com/wso2/carbon-kernel/tree/master/tools` module.
 
 ## To convert JARs to OSGi bundles:
 
