@@ -48,7 +48,7 @@ Follow the instructions given below to restructure the pom files. The following 
 
 > The top level pom file is the parent pom for your project and there is no real requirement to have a separate Maven module to host the parent POM file.
 
-1. Update the project parent pom with the [WSO2 Master parent pom](http://repo1.maven.org/maven2/org/wso2/wso2/2/wso2-2.pom) as shown below. The WSO2 Mater parent pom holds all the common things that are used in almost all the repositories, such as `distributionManagement`, `pluginManagement`, `repositories`, `pluginRepositories`, etc.
+1. Update the project parent pom with the [WSO2 Master parent pom](http://repo1.maven.org/maven2/org/wso2/wso2/2/wso2-2.pom) as shown below. The WSO2 Master parent pom holds all the common things that are used in almost all the repositories, such as `distributionManagement`, `pluginManagement`, `repositories`, `pluginRepositories`, etc.
 
             <parent>
                 <groupId>org.wso2</groupId>
@@ -58,9 +58,9 @@ Follow the instructions given below to restructure the pom files. The following 
  
  > Make sure that your parent-child pom hierarchy is followed in all the sub-modules. That is, a child sub-module cannot have a parent pom reference to an external pom. The parent pom references should be self-contained except in the above instance, where the project root pom’s parent reference is set to the WSO2 Master parent pom (`org.wso2:wso2:2`).
 
- > Also WSO2 carbon parent now is pre-configured with all the `maven-bundle-plugin` configurations as properties. Please refer this documentation on how to configure these properties for bundles that are coming from sub modules.
+ > Also WSO2 carbon parent is now pre-configured with all the `maven-bundle-plugin` configurations as properties. Please refer [this documentation](../DeveloperTools/UsingtheMavenBundlePlugin.md) on how to configure these properties for bundles that are coming from sub modules.
 
-2. The following is the composite maven multi-module pom of `carbon-kernel` project. It directly calls those maven modules. You can keep  a similar directory structure to enhance human readability.
+2. The following is the composite maven multi-module pom of the `carbon-kernel` project. It directly calls those maven modules. You can keep  a similar directory structure to enhance human readability.
 
             <modules>
                  <module>parent</module>
@@ -84,11 +84,11 @@ Follow the instructions given below to restructure the pom files. The following 
 
  Then, remove all the scm configurations from the child poms.
 
-4. You must have a `<dependencyManagement>` section on the project parent pom file, which defines all your project dependencies along with versions.
+4. You must have a `<dependencyManagement>` section in the project's parent pom file, which defines all your project dependencies along with versions.
 
  > Note that you cannot have `<dependencyManagement>` sections on any other pom file other than the parent pom. When you add dependencies in the pom files of sub-modules, ensure that you don't specify the version, because it is already specified in the parent pom file under the `<dependencyManagement>` section.
 
-5. Add the plugins given below to the `<build>` section in the project parent pom. The versions of these will be inherited from the [WSO2 Master parent pom](http://repo1.maven.org/maven2/org/wso2/wso2/2/wso2-2.pom).
+5. Add the plugins given below to the `<build>` section in the project's parent pom. The versions of these will be inherited from the [WSO2 Master parent pom](http://repo1.maven.org/maven2/org/wso2/wso2/2/wso2-2.pom).
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -118,7 +118,7 @@ Follow the instructions given below to restructure the pom files. The following 
 
  > Note: You can add the `autoVersionSubmodules` configuration parameter to release the plugin configuration section, which will automatically version the sub modules. However, please note that this will cause issues with versioning if your project has an orbit sub-module. This is because, for orbit modules, we follow a different versioning convention.
 
-6. Remove `<distributionManagement>` from the project parent pom, if there are any. This step is mandatory as the repositories for the `<distributionManagement>` section is inherited from the WSO2 Master parent pom.
+6. Remove `<distributionManagement>` from the project's parent pom, if it exists. This step is mandatory as the repositories for the `<distributionManagement>` section is inherited from the WSO2 Master parent pom.
 
 7. Add a server config element in the maven configuration (`<MVN_HOME>/conf/settings.xml`) for the `nexus-releases` server configuration given above. The nexus user credentials that will be used for remote artifact deployment are as follows:
 
@@ -138,7 +138,7 @@ Follow the instructions given below to restructure the pom files. The following 
             <password>password</password>
          </server>
 
- After adding the above, you have to update the parent pom properties section of your project with the following property: `project.scm.id`:
+ After adding the above, you have to update the properties section in the parent pom of your project with the following property: `project.scm.id`:
 
          <properties>
              <project.scm.id>scm-server</project.scm.id>
@@ -151,7 +151,7 @@ Follow the instructions given below to restructure the pom files. The following 
 
 ## Releasing a Git Repository
 
-If a Git repository is already set up as explained in setting up a git repository, the following steps can be followed to release the repository.
+If a Git repository is already set up as explained in [Setting up a Git Repository](#setting-up-a-git-repository), the following steps can be followed to release the repository:
 
 1. Create a git release branch from the master. The branch name would be `release-<release-version>`.
 
