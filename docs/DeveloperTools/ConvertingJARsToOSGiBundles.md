@@ -29,6 +29,6 @@ The 'Jar to Bundle Converter' tool that is shipped with Carbon Kernel can be exe
 3. Execute the relevant script:
 
   * In a Unix system:  `sh jartobundle.sh` [source jar file/source directory containing jar files] [destination directory] 
-  * Windows platform: `jartobundle.bat` [source jar file/source directory containing jar files] [destination directory]
+  * In the Windows platform: `jartobundle.bat` [source jar file/source directory containing jar files] [destination directory]
 
 > Restrictions: Note that the required file permissions are considered when reading source JARs and the destination directory.
