@@ -1,7 +1,7 @@
 # Welcome to WSO2 Carbon Kernel
-WSO2 Carbon Kernel 5.x.x is the core of the next-generation WSO2 Carbon platform. 
+WSO2 Carbon Kernel 5 is the core of the next-generation WSO2 Carbon platform. 
 
-It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
+Carbon Kernel 5 is completely rearchitected from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
 
 * **[Architecture](#architecture)**
 * **[Key Features and Tools](#key-features-and-tools)**
@@ -25,23 +25,22 @@ Follow the links given below for details of the core capabilities of Carbon Kern
 * [Configuring Logging for a Carbon Server](docs/KernelFeatures/ConfiguringLogging.md)
 * [Monitoring Carbon Servers](docs/KernelFeatures/MonitoringCarbonServers.md)
 * [Setting up the Carbon Launcher](docs/KernelFeatures/SettingUptheCarbonLauncher.md)
-* [Using in-container OSGi testing for development](docs/DeveloperTools/UsingIn-ContainerOSGiTesting.md)
+* [Dropping OSGi Bundles into a Carbon Server](docs/KernelFeatures/DroppingOSGiBundlesintoaCarbonServer.md)
 
 Follow the links given below for details of tools and archetypes that can be used for developing Carbon products.
 
 * [Creating a Carbon component in one step using Maven archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-carbon-component-in-one-step)
 * [Creating a generic OSGi bundle in one step using Maven archetypes](docs/DeveloperTools/UsingMavenArchetypes.md#creating-a-generic-osgi-bundle-in-one-step)
 * [Converting JARs to OSGi bundles](docs/DeveloperTools/ConvertingJARsToOSGiBundles.md)
-* [Dropping OSGi Bundles into a Carbon Server](docs/KernelFeatures/DroppingOSGiBundlesintoaCarbonServer.md)
+* [Using in-container OSGi testing for development](docs/DeveloperTools/UsingIn-ContainerOSGiTesting.md)
+* [Using Annotations with OSGi Declarative Services](docs/DeveloperTools/UsingAnnotationswithOSGiDeclarativeServices.md)
+* [Setting up a Git Repository](docs/DeveloperTools/SettingUpaGitRepository.md)
+* [Accessing the Carbon Configurations](docs/DeveloperTools/AccessingCarbonConfigs.md)
 
 Follow the links given below for details of plugins:
 
 * [Using the Carbon Feature Plugin](docs/DeveloperTools/UsingtheCarbonFeaturePlugin.md)
 * [Using the Maven Bundle Plugin](docs/DeveloperTools/UsingtheMavenBundlePlugin.md)
-
-Follow the links given below for reference information.
-
-* [Using Annotations with OSGi Declarative Services](docs/DeveloperTools/UsingAnnotationswithOSGiDeclarativeServices.md)
 
 ## Getting Started
 See the steps for [setting up and starting a WSO2 Carbon server](docs/GettingStarted.md).
