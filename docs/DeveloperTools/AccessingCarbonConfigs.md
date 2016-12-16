@@ -4,7 +4,7 @@
 The instructions given below explain how you can programmatically access the Carbon configurations in an OSGi environment. Carbon configurations are stored in the `carbon.yml` file stored in the `<PRODUCT_HOME>/conf` directory. In order to acquire the Carbon configurations in the OSGi environment, the program first needs to acquire the `CarbonRuntime` service.
 Follow the steps given below.
 
-## Step 1: Accessing the CarbonRuntime service
+## Step 1: Accessing the `CarbonRuntime` service
 There are two ways to acquire the CarbonRuntime service reference: You can either define a declarative service and acquire the service dynamically or else you can use the OSGi service registry lookup and directly access the service. The following samples provide a comprehensive guide for both approaches:
 Shown below is a sample implementation for accessing the CarbonRuntime via the OSGi service component.
 
