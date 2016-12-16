@@ -9,7 +9,7 @@ See the following sub topics on how to get started with WSO2 Carbon.
 * **[Launching the Kernel](#launching-the-kernel)**
 
 ## Installation Prerequisites
-Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platforms before starting the installation.
+Prior to installing any WSO2 Carbon-based product, it is necessary to have the appropriate prerequisite software installed on your system. Verify that the computer has the supported operating system and development platform before starting the installation.
 
  * ### System requirements
    * **Memory:** ~ 256 MB minimum   
