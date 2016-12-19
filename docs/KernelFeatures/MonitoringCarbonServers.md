@@ -46,7 +46,7 @@ Prior to Carbon 5, it was necessary for developers to manually capture any requi
 Carbon users and component developers can view local audit logs using the `<CARBON_HOME>/logs/audit.log` file. This file can be configured as a daily, rolling log file.
 
 ## Using MBeans for Monitoring
-Java Management Extensions (JMX) is a standard technology in the Java platform. It provides a simple mechanism for managing resources such as applications, devices, and services. The Carbon 5.1.0 Kernel leverages the features of the existing JMX Platform MBean Server by providing Carbon 5.1.0-based authentication for additional security and by making JMX resources available for remote access. Components inherit the platform MBean server from the Carbon 5.1.0 Kernel. Therefore, you can simply register the resources of your Carbon component in this MBean server and expose them to remote users.
+Java Management Extensions (JMX) is a standard technology in the Java platform. It provides a simple mechanism for managing resources such as applications, devices, and services. The Carbon Kernel leverages the features of the existing JMX Platform MBean Server by providing Carbon 5-based authentication for additional security and by making JMX resources available for remote access. Components inherit the platform MBean server from the Carbon Kernel. Therefore, you can simply register the resources of your Carbon component in this MBean server and expose them to remote users.
 
 > Note that `javax.management.*` is the only required dependency.
 
@@ -54,7 +54,7 @@ See the following topics for instructions.
 
 ### About the JMX monitoring implementation in WSO2 Carbon
 
-The `CarbonJMXComponent` implementation in Carbon 5.1.0 Kernel uses the existing JMX platform MBean server in Carbon and exposes the registered MBeans to remote users via the `JMXConnectorServer` implementation. In this process, user authentication is performed by the `CarbonJMXAuthenticator` implementation. A user can modify the service configuration in the `jmx.yaml` file, located in the `<CARBON_HOME>/conf` directory. The connection URL that exposes the MBeans is as follows: `service:jmx:rmi://localhost:9700/jndi/rmi://localhost:9800/jmxrmi`.
+The `CarbonJMXComponent` implementation in Carbon 5 Kernel uses the existing JMX platform MBean server in Carbon and exposes the registered MBeans to remote users via the `JMXConnectorServer` implementation. In this process, user authentication is performed by the `CarbonJMXAuthenticator` implementation. A user can modify the service configuration in the `jmx.yaml` file, located in the `<CARBON_HOME>/conf` directory. The connection URL that exposes the MBeans is as follows: `service:jmx:rmi://localhost:9700/jndi/rmi://localhost:9800/jmxrmi`.
 
 ### Registering MBeans in Carbon
 Once you register the MBeans for your Carbon component, they will be exposed for monitoring as explained above. The code given below illustrates how you can register an MBean in a Carbon component. In the following example, we have registered “TestMBean” in the `PlatformMBeanServer`.
