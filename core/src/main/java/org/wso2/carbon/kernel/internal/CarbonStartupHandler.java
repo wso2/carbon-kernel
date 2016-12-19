@@ -17,8 +17,6 @@ package org.wso2.carbon.kernel.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.text.DecimalFormat;
@@ -43,12 +41,8 @@ public class CarbonStartupHandler {
         double startupTime = (System.currentTimeMillis() - startTime) / 1000;
 
         DecimalFormat decimalFormatter = new DecimalFormat("#,##0.000");
-        try {
-            logger.info(DataHolder.getInstance().getConfigProvider().getConfigurationObject(CarbonConfiguration.class).
-                    getName() + " started in " + decimalFormatter.format(startupTime) + " sec");
-        } catch (CarbonConfigurationException e) {
-            logger.error("Error while getting configuration object.", e);
-        }
+        logger.info(DataHolder.getInstance().getCarbonRuntime().getConfiguration().getName() + " started in " +
+                decimalFormatter.format(startupTime) + " sec");
     }
 
     /**
