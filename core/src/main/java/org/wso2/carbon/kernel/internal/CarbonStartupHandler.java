@@ -17,6 +17,13 @@ package org.wso2.carbon.kernel.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
+import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
+import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.kernel.configprovider.YAMLBasedConfigFileReader;
+import org.wso2.carbon.kernel.internal.configprovider.ConfigProviderImpl;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.text.DecimalFormat;
@@ -41,7 +48,7 @@ public class CarbonStartupHandler {
         double startupTime = (System.currentTimeMillis() - startTime) / 1000;
 
         DecimalFormat decimalFormatter = new DecimalFormat("#,##0.000");
-        logger.info("WSO2 Carbon started in " + decimalFormatter.format(startupTime) + " sec");
+        logger.info(getCarbonConfigs().getName() + " started in " + decimalFormatter.format(startupTime) + " sec");
     }
 
     /**
@@ -51,6 +58,17 @@ public class CarbonStartupHandler {
     public static void registerCarbonServerInfoService() {
         DataHolder.getInstance().getBundleContext().registerService(CarbonServerInfo.class,
                 new CarbonServerInfo(), null);
+    }
+
+    private static CarbonConfiguration getCarbonConfigs() {
+        ConfigFileReader fileReader = new YAMLBasedConfigFileReader(Constants.DEPLOYMENT_CONFIG_YAML);
+        ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
+        try {
+           return configProvider.getConfigurationObject(CarbonConfiguration.class);
+        } catch (CarbonConfigurationException e) {
+            logger.error("Error while getting carbon configuration object.", e);
+        }
+        return null;
     }
 
 }
