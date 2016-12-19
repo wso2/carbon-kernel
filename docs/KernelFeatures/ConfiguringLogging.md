@@ -1,7 +1,7 @@
 # Configuring Logging for a Carbon Server
 > The configurations required for setting up logging in a Carbon server is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
-See the following topics for details on logging related configurations in Carbon 5.x.x.
+See the following topics for details on logging related configurations in Carbon 5.
 
 * **[Configuring the Logging Framework](#configuring-the-logging-framework)**
  * **[Configuring a logging API for your bundle](#configuring-a-logging-api-for-your-bundle)**
@@ -10,7 +10,7 @@ See the following topics for details on logging related configurations in Carbon
 
 ## Configuring the Logging Framework
 
-The Logging framework in Carbon Kernel 5.1.0 ( WSO2 Carbon 5.x.x platform) is implemented using [PaxLogging](https://ops4j1.jira.com/wiki/display/paxlogging/Pax+Logging), which is used as the underlying logging library. High performing log4j 2.0 is used as the logging backend with this framework. The Carbon Logging framework supports a number of logging APIs and this allows users to use any logging API in the components that they develop.
+The Logging framework in Carbon Kernel 5 is implemented using [PaxLogging](https://ops4j1.jira.com/wiki/display/paxlogging/Pax+Logging), which is used as the underlying logging library. High performing log4j 2.0 is used as the logging backend with this framework. The Carbon Logging framework supports a number of logging APIs and this allows users to use any logging API in the components that they develop.
 
 See the following topics for details:
 
@@ -70,10 +70,10 @@ For example, to enable debug logs on the `org.wso2.carbon.kernel.runtime` packag
         <Logger name="org.wso2.carbon.kernel.runtime" level="debug"/>
 
 The logs are published to both the console and the `carbon.log` file (located in the `<CARBON_HOME>/logs` directory). The `RollingFile` appender is used as the file logger, which is configured to use the default `TimeBasedTriggeringPolicy` policy as the rolling policy. This will rollout the `carbon.log` file at the start of each day with the file pattern : `carbon-%d{MM-dd-yyyy}.log`
-Most of the configuration related `log4j2` are available at the official documentation: https://logging.apache.org/log4j/2.x/manual/configuration.html
+Most of the configurations related to `log4j2` are available in the official documentation: https://logging.apache.org/log4j/2.x/manual/configuration.html
 
 ## Enabling Asynchronous Logging
-WSO2 Carbon 5.x.x Kernel uses logging framework with Pax Logging. You can find out more about this logging framework and the default configurations from here. You can follow the steps given below if you want to enable [asynchronous logging](https://logging.apache.org/log4j/2.x/manual/async.html) for your Carbon 5.x.x-based server.
+WSO2 Carbon 5 Kernel uses the logging framework with Pax Logging. You can find out more about this logging framework and the default configurations from [here](#configuring-the-logging-framework). You can follow the steps given below if you want to enable [asynchronous logging](https://logging.apache.org/log4j/2.x/manual/async.html) for your Carbon 5-based server.
 
 1. Download the disrupter OSGi bundle from [here](http://mvnrepository.com/artifact/com.lmax/disruptor/3.2.0) and copy it to the `<CARBON_HOME>/osgi/plugins` directory.
 2. Open the `launch.properties` file from the `<CARBON_HOME>/conf/osgi` folder and add the disrupter JAR to the initial bundles list as shown below.
