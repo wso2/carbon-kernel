@@ -39,7 +39,6 @@ Follow the links given below for details of tools, archetypes and other capabili
 
 Follow the links given below for details of plugins:
 
-* [Using the Carbon Feature Plugin](docs/DeveloperTools/UsingtheCarbonFeaturePlugin.md)
 * [Using the Maven Bundle Plugin](docs/DeveloperTools/UsingtheMavenBundlePlugin.md)
 
 ## Getting Started
