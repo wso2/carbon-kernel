@@ -1,13 +1,13 @@
 # Plugging a New Runtime
 > The process of adding a new runtime to a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
-From Carbon 5.0.0 Kernel onwards, Carbon provides a pluggable interface to add runtimes to the existing server. Following are the instructions that you need to follow when adding a new runtime.
+From Carbon 5 onwards, Carbon provides a pluggable interface to add runtimes to the existing server. Following are the instructions that you need to follow when adding a new runtime.
 
 * **[Adding a New Runtime](#adding-a-new-runtime)**
 * **[Testing your New Runtime](#testing-your-new-runtime)**
 
 ## Adding a New Runtime
-The following example illustrates how you can plug your own runtime and register it with the Carbon runtime framework. In this example, we will run through the steps for plugging the Tomcat runtime (which is currently available with the Carbon 4.2.0 release) to Carbon 5.0.0.
+The following example illustrates how you can plug your own runtime and register it with the Carbon runtime framework. In this example, we will run through the steps for plugging the Tomcat runtime (which is currently available with the Carbon 4.2.0 release) to Carbon 5.
 
 1. Create a simple maven project with the following dependencies. 
 
