@@ -16,7 +16,6 @@
 package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.configresolver.ConfigResolver;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
@@ -37,8 +36,6 @@ public class DataHolder {
     private Optional<ConfigResolver> optConfigResolver = Optional.empty();
 
     private ConfigProvider configProvider;
-
-    private CarbonRuntime carbonRuntime;
 
     public static DataHolder getInstance() {
         return instance;
@@ -104,13 +101,5 @@ public class DataHolder {
      */
     public void setConfigProvider(ConfigProvider configProvider) {
         this.configProvider = configProvider;
-    }
-
-    public CarbonRuntime getCarbonRuntime() {
-        return carbonRuntime;
-    }
-
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
     }
 }

@@ -37,8 +37,6 @@ public class CarbonCoreComponent {
             // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
             CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
 
-            DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
-
             // 3) Register CarbonRuntime instance as an OSGi bundle.
             DataHolder.getInstance().getBundleContext()
                     .registerService(CarbonRuntime.class.getName(), carbonRuntime, null);

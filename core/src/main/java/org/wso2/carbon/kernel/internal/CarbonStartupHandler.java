@@ -30,6 +30,8 @@ import java.text.DecimalFormat;
 public class CarbonStartupHandler {
     private static final Logger logger = LoggerFactory.getLogger(CarbonStartupHandler.class);
 
+    private static String serverName;
+
     private CarbonStartupHandler() {
     }
 
@@ -41,8 +43,7 @@ public class CarbonStartupHandler {
         double startupTime = (System.currentTimeMillis() - startTime) / 1000;
 
         DecimalFormat decimalFormatter = new DecimalFormat("#,##0.000");
-        logger.info(DataHolder.getInstance().getCarbonRuntime().getConfiguration().getName() + " started in " +
-                decimalFormatter.format(startupTime) + " sec");
+        logger.info(serverName + " started in " + decimalFormatter.format(startupTime) + " sec");
     }
 
     /**
@@ -52,5 +53,9 @@ public class CarbonStartupHandler {
     public static void registerCarbonServerInfoService() {
         DataHolder.getInstance().getBundleContext().registerService(CarbonServerInfo.class,
                 new CarbonServerInfo(), null);
+    }
+
+    public static void setServerName(String serverName) {
+        CarbonStartupHandler.serverName = serverName;
     }
 }

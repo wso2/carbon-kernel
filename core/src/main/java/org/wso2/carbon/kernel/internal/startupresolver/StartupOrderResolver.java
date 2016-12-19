@@ -188,6 +188,7 @@ public class StartupOrderResolver {
 
                         logger.debug("All the StartupComponents are satisfied. Cancelling the capabilityListenerTimer");
 
+                        CarbonStartupHandler.setServerName(carbonConfiguration.getName());
                         CarbonStartupHandler.logServerStartupTime();
                         CarbonStartupHandler.registerCarbonServerInfoService();
 
