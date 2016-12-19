@@ -3,7 +3,7 @@
 > The process of setting up the Carbon Launcher in a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 The WSO2 Carbon Launcher is responsible for initializing and booting up the Carbon server. This Launcher implementation resolves the initialization of the Carbon server instance. Before starting the Carbon server, the Launcher component performs a set of steps to load the initial startup configurations given in the default `<CARBON_HOME>/bin/bootstrap/org.wso2.carbon.launcher-5.0.0.jar/launch.properties` file.
-WSO2 Carbon Kernel 5.1.0 includes the `<CARBON_HOME>/conf/osgi/launch.properties` file, to change the default launch configurations. Therefore, if you want to customize the startup process by updating the configurations in the default launch.properties file, you can do so by updating this second file.
+WSO2 Carbon Kernel 5 includes the `<CARBON_HOME>/conf/osgi/launch.properties` file for changing the default launch configurations. Therefore, if you want to customize the startup process by updating the configurations in the default `launch.properties` file, you can do so by updating this second file.
 
 For detailed explanations on configuring the Launcher component, see the following topics.
 * **[Configuring the Launcher](#configuring-the-launcher)**
@@ -71,7 +71,7 @@ The properties in the `launch.properties` file are explained below:
 * `org.osgi.framework.startlevel.beginning=10`: The initial start level of the framework once it begins execution.
 * `osgi.install.area`: The location where the platform is installed. This setting indicates the location of the basic Eclipse plug-ins, which are used by the OSGi runtime during installation.
 * `osgi.configuration.area`: The configuration location for this platform runtime. The configuration determines the location where the OSGi runtime should store configuration information about the bundles you install during run time.
-* `osgi.instance.area`: The instance data location for this session. Plug-ins use this location to store their data eg:workspace
+* `osgi.instance.area`: The instance data location for this session. Plugins use this location to store their data eg:workspace.
 
 ## Server startup process
 
@@ -108,7 +108,7 @@ The properties in the `launch.properties` file are explained below:
 
 During the server startup process, the launcher component uses the `java-util-logging` API to publish records to the product startup console or the carbon.log file (stored in the `<CARBON_HOME>/logs` directory). 
 
-WSO2 Carbon maintains a separate configuration file (`logging.properties`) to control the logging details of the java.util.logging framework. This file is stored in the `<CARBON_HOME>/bin/bootstrap` directory. There are two handlers defined in the default configuration:
+WSO2 Carbon maintains a separate configuration file (`logging.properties`) to control the logging details of the `java.util.logging` framework. This file is stored in the `<CARBON_HOME>/bin/bootstrap` directory. There are two handlers defined in the default configuration:
 
 * `java.util.logging.FileHandler`: For configuring `java.util.logging` to append to `carbon.log`.
 * `java.util.logging.ConsoleHandler`: For configuring `java.util.logging` to append to carbon console.
