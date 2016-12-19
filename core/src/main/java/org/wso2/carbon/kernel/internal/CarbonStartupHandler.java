@@ -64,11 +64,10 @@ public class CarbonStartupHandler {
         ConfigFileReader fileReader = new YAMLBasedConfigFileReader(Constants.DEPLOYMENT_CONFIG_YAML);
         ConfigProvider configProvider = new ConfigProviderImpl(fileReader);
         try {
-           return configProvider.getConfigurationObject(CarbonConfiguration.class);
+            return configProvider.getConfigurationObject(CarbonConfiguration.class);
         } catch (CarbonConfigurationException e) {
             logger.error("Error while getting carbon configuration object.", e);
         }
         return null;
     }
-
 }
