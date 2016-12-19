@@ -63,7 +63,7 @@ Alternatively, by using the maven-bundle-plugin, you can use the “_dsannotatio
 
 The available annotation classes are explained below (based on the OSGi compendium specification).
 
-* **Activate:** Identifies the annotated method as the activate method of a Service component.
+* **Activate:** Identifies the annotated method as the active method of a Service component.
 * **Component:** Identifies the annotated class as a Service component.
 * **ConfigurationPolicy:** Configuration policy for the component annotation.
 * **Deactivate:** Identifies the annotated method as the deactivate method of a Service component.
