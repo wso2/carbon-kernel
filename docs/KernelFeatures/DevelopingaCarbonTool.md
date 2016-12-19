@@ -18,8 +18,8 @@ Carbon tools provide the following benefits:
 
 Given below are the optional tools that are available by default with the Carbon Kernel distribution. You can find more details on how to use these tools by following the given links.
 
-* [Java Archive (JAR) file to OSGi bundle converter](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/tools#converting-jars-to-osgi-bundles)
-* [Dropins deployer tool](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/tools#dropins-support-for-osgi-bundles)
+* [Java Archive (JAR) file to OSGi bundle converter](../DeveloperTools/ConvertingJARsToOSGiBundles.md)
+* [Dropins deployer tool](DroppingOSGiBundlesintoaCarbonServer.md)
  
 ## Creating a Carbon Tool
 
