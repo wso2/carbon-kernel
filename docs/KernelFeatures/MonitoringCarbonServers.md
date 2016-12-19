@@ -37,9 +37,9 @@ The following steps will guide you on how to add new audit logs when developing 
 
         org.slf4j.MDC.put("user-name", userPrincipal.getName());
 
- > Note that the "user-name" key will be effective when the `javax.security.Principal` user gets set in the `PrivilegedCarbonContext`. Find more information about [using the `CarbonContext` API](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#using-the-carboncontext-api).
+ > Note that the "user-name" key will be effective when the `javax.security.Principal` user gets set in the `PrivilegedCarbonContext`. Find more information about [using the `CarbonContext` API](UsingtheCarbonContext.md).
 
-Prior to Carbon 5.x.x, it was necessary for developers to manually capture any required contextual information (such as the logged in user details, remote IP address of client etc.) at every logging instance. These contextual details then had to be manually added to the audit logs. With the new approach introduced in WSO2 Carbon 5.1.0, [SLF4J Mapped Diagnostic Context (MDC)](http://www.slf4j.org/manual.html#mdc) will capture the contextual information when you specify the relevant keys as shown in the above example. Therefore, there is no need to capture the contextual information for every logging instance because the values added to the MDC in the first instance will remain within the thread.
+Prior to Carbon 5, it was necessary for developers to manually capture any required contextual information (such as the logged in user details, remote IP address of client etc.) at every logging instance. These contextual details then had to be manually added to the audit logs. With the new approach introduced in WSO2 Carbon 5.1.0, [SLF4J Mapped Diagnostic Context (MDC)](http://www.slf4j.org/manual.html#mdc) will capture the contextual information when you specify the relevant keys as shown in the above example. Therefore, there is no need to capture the contextual information for every logging instance because the values added to the MDC in the first instance will remain within the thread.
 
 ### Viewing audit logs
 
