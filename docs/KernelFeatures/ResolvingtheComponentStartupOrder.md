@@ -40,18 +40,18 @@ You need to know the number of OSGi services that are expected by the component.
 
 This may break the dynamism of OSGi because OSGi services can come and go at any time, and thereby depending on a specific number of OSGi services could be tricky. However, WSO2 develops middleware products and those are server-side components. You need to resolve the startup order of WSO2 components. These specific requirements cannot be satisfied using the default mechanisms in OSGi. 
 
-WSO2 recently introduced a framework called WSO2 Microservices Framework for Java (MSF4J), to develop microservices. You can develop and run microservices in a standalone mode and in WSO2 Carbon-based products as OSGi bundles. If you are using Carbon-based products to host your microservices, then you need to register your microservices as OSGi services. Now, when the microservices engine receives a request, engine dispatches it to the correct microservice. Neverthless, microservices engine cannot accept requests until it knows that all the microservices are available as OSGi services.
+WSO2 recently introduced a framework called WSO2 Microservices Framework for Java (MSF4J), to develop microservices. You can develop and run microservices in a standalone mode and in WSO2 Carbon-based products as OSGi bundles. If you are using Carbon-based products to host your microservices, then you need to register your microservices as OSGi services. Now, when the microservices engine receives a request, engine dispatches it to the correct microservice. Neverthless, the microservices engine cannot accept requests until it knows that all the microservices are available as OSGi services.
 
-Otherwise, during server startup, certain microservices will be available while other microservices are yet to be registered as OSGi services. You shouldn’t open ports until all the microservices are available. Microservices engine should notify when all the microservices are registered as OSGi services during the startup. Then only Transport Manager should open ports. All this should happen during the server startup. The Carbon startup order resolver component solves this problem in OSGi.
+Otherwise, during server startup, certain microservices will be available while other microservices are yet to be registered as OSGi services. You shouldn’t open ports until all the microservices are available. The microservices engine should notify when all the microservices are registered as OSGi services during the startup. Only then should the Transport Manager open ports. All this should happen during the server startup. The Carbon startup order resolver component solves this problem in OSGi.
 
 ## About the Carbon startup order resolver
 
-Startup order resolver component is available from WSO2 Carbon kernel 5.0.0 onwards, and its design handles startup ordering complexities in WSO2 Carbon-based products. This is a generic utility, which can resolve startup order of any other component such as microservice engine, Transport Manager etc. 
+The startup order resolver component is available from WSO2 Carbon kernel 5 onwards, and its design handles startup ordering complexities in WSO2 Carbon-based products. This is a generic utility, which can resolve startup order of any other component such as microservice engine, Transport Manager etc. 
 
 The startup order resolver component in Carbon ensures that a particular component is not started until all the other components required by that component are fully initialized. To achieve this, the components with dependencies are separated into two categories as shown below.
 
-* **Startup listener components:** Components that need to hold its initialization, until all the required OSGi services or capabilities are available during server startup. For example, the Microservice engine needs to hold it’s initialization until all the microservices from OSGi bundles that are available during server startup are registered as OSGi services. 
-* **OSGi service components:** Components that register OSGi services. For example, user management components expose it’s capabilities via a microservice. JMS transport module registers the JMS transport as OSGi services. 
+* **Startup listener components:** Components that need to hold its initialization, until all the required OSGi services or capabilities are available during server startup. For example, the microservice engine needs to hold its initialization until all the microservices from OSGi bundles that are available during server startup are registered as OSGi services. 
+* **OSGi service components:** Components that register OSGi services. For example, the user management components exposes its capabilities via a microservice. JMS transport module registers the JMS transport as OSGi services. 
   
 ### Defining a startup listener component
 
@@ -69,7 +69,7 @@ An OSGi listener component is defined as shown below.
  
  * `componentName`: This is a unique name to identify the component. Each and every startup listener component should have a unique name.
  
- * `requiredService`: A comma separated list of OSGi service keys. These are the OSGi services that the listener component should wait for. That is, the startup listener component should hold it’s initialization until all the services of specified keys are available.
+ * `requiredService`: A comma separated list of OSGi service keys. These are the OSGi services that the listener component should wait for. That is, the startup listener component should hold its initialization until all the services of specified keys are available.
 
 2. The startup order resolver notifies a startup listener component when all the required services are available. In order to get this notification, the startup listener component should register an OSGi service with the following interface: `org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener`.
 
@@ -123,7 +123,7 @@ Please note that all components that register OSGi services do not need to inclu
 
 When you define an OSGi service component, the component bundle may need to register more than one OSGi service of the same type. This can be done in two ways as explained below.
 
- * **Registering a known number of services:** You can use the serviceCount manifest attribute to specify the number of services that you register from your bundle as shown below. Here you know the exact number of services that your register at development time.
+ * **Registering a known number of services:** You can use the serviceCount manifest attribute to specify the number of services that you register from your bundle as shown below. Here you know the exact number of services that you register at development time.
 
         Carbon-Component: osgi.service; 
         objectClass=”org.wso2.carbon.kernel.transports.CarbonTransport”; 
