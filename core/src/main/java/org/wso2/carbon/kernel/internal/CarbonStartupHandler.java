@@ -30,15 +30,13 @@ import java.text.DecimalFormat;
 public class CarbonStartupHandler {
     private static final Logger logger = LoggerFactory.getLogger(CarbonStartupHandler.class);
 
-    private static String serverName;
-
     private CarbonStartupHandler() {
     }
 
     /**
      * Log the server start up time.
      */
-    public static void logServerStartupTime() {
+    public static void logServerStartupTime(String serverName) {
         double startTime = Long.parseLong(System.getProperty(org.wso2.carbon.kernel.Constants.START_TIME));
         double startupTime = (System.currentTimeMillis() - startTime) / 1000;
 
@@ -53,9 +51,5 @@ public class CarbonStartupHandler {
     public static void registerCarbonServerInfoService() {
         DataHolder.getInstance().getBundleContext().registerService(CarbonServerInfo.class,
                 new CarbonServerInfo(), null);
-    }
-
-    public static void setServerName(String serverName) {
-        CarbonStartupHandler.serverName = serverName;
     }
 }
