@@ -17,7 +17,7 @@ Follow the steps given below to implement a new transport.
         protected abstract void beginMaintenance();
         protected abstract void endMaintenance();
 
- Refer the `carbon-transport` project [`NettyListener`](https://github.com/wso2/carbon-transports/blob/v2.1.0/http/netty/components/org.wso2.carbon.transport.http.netty/src/main/java/org/wso2/carbon/transport/http/netty/internal/NettyTransportActivator.java#L47) implementation for more details and examples on how to extend the `CarbonTransport` and write your own transport implementation.
+ Refer the `carbon-transport` project's [`NettyListener`](https://github.com/wso2/carbon-transports/blob/v2.1.0/http/netty/components/org.wso2.carbon.transport.http.netty/src/main/java/org/wso2/carbon/transport/http/netty/internal/NettyTransportActivator.java#L47) implementation for more details. You can also find examples on how to extend the `CarbonTransport` and on how to write your own transport implementation.
  
 2. Register the implemented server as an OSGi service. For example, If you have extended the `CarbonTransport` class and implemented `JettyCarbonTransport`, you need to register the implemented Carbon Transport as follows:
 
@@ -30,7 +30,7 @@ Follow the steps given below to implement a new transport.
 The Startup Order Resolver component in Kernel allows you to add transports and resolve them statically as well as dynamically. The Transport Manager component in Carbon will only be started once the relevant transports are already initialized. Therefore, the transport implementation should be defined as OSGi service components. Note that your transport can be registered as a single OSGi service or as multiple services. See the instructions on [resolving the component startup order](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/core#resolving-the-component-startup-order).
 
 ## Managing transports using OSGi console commands
-After registering the new transport, the transports can be managed by the osgi command line. Use ‘help’ to list all the commands available. Following commands are available for the purpose of transport management.
+After registering the new transport, the transports can be managed by the osgi command line. Use ‘help’ to list all the commands available. The following commands are available for the purpose of transport management.
 
     --Transport Management---
      startTransport <transportName> - Start the specified transport with <transportName>.
