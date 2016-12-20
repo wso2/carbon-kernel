@@ -92,7 +92,6 @@
                        pattern="combined"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CarbonStuckThreadDetectionValve" threshold="600"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CompositeValve"/>
-                <Valve className="org.wso2.carbon.ui.valve.CSRFValve"/>
             </Host>
         </Engine>
     </Service>
