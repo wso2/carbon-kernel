@@ -16,10 +16,7 @@ The next section will explain the usage of wso2 subdirectory in detail.
 
 ## The wso2 directory
 
-CARBON-HOME/
-└── wso2
-    ├── <runtime>
-    └── lib
+![screen shot 2016-12-22 at 4 10 59 pm](https://cloud.githubusercontent.com/assets/21237558/21423153/72e163e0-c861-11e6-8cbb-e8c9185e49bb.png)
     
 This directory contains only the wso2 specific OSGi artifacts (lib directory) and carbon runtimes. There is a separate subdirectory named with runtime’s name  for each carbon runtime in addition to lib subdirectory.
 
