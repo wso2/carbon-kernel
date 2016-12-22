@@ -19,12 +19,16 @@ import org.ops4j.pax.exam.ExamFactory;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogReaderService;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
+import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.util.Enumeration;
@@ -39,13 +43,17 @@ import javax.inject.Inject;
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
 public class LoggingServiceOSGiTest {
-    private static final String START_UP_LOG_MESSAGE = "WSO2 Carbon started in";
+    private static final String START_UP_LOG_MESSAGE = " started in";
+    private static final String CARBON_RUNTIME_SERVICE = CarbonRuntime.class.getName();
 
     @Inject
     private CarbonServerInfo carbonServerInfo;
 
     @Inject
     private LogReaderService logReaderService;
+
+    @Inject
+    private BundleContext bundleContext;
 
     @Test
     public void testServerLogStatus() {
@@ -57,10 +65,20 @@ public class LoggingServiceOSGiTest {
         boolean flag = false;
         //iterate and check whether the startup finalization log message is found.
         while (entries.hasMoreElements()) {
-            if (((LogEntry) entries.nextElement()).getMessage().startsWith(START_UP_LOG_MESSAGE)) {
+            if (((LogEntry) entries.nextElement()).getMessage().startsWith(getCarbonConfiguration().getName() +
+                    START_UP_LOG_MESSAGE)) {
                 flag = true;
             }
         }
         Assert.assertEquals(flag, true, "Carbon Startup log not found");
+    }
+
+    /**
+     * @return Carbon Configuration reference
+     */
+    private CarbonConfiguration getCarbonConfiguration() {
+        ServiceReference reference = bundleContext.getServiceReference(CARBON_RUNTIME_SERVICE);
+        CarbonRuntime carbonRuntime = (CarbonRuntime) bundleContext.getService(reference);
+        return carbonRuntime.getConfiguration();
     }
 }
