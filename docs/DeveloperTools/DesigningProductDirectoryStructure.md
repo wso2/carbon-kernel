@@ -24,15 +24,7 @@ This directory contains only the wso2 specific OSGi artifacts (lib directory) an
 
 The carbon server can have multiple runtimes and for each runtime there will be a separate directory under CARBON-HOME/wso2 folder which will have the runtime’s specific configurations. The following is a sample runtime directory which contains the runtime’s configurations:
 
-CARBON-HOME/wso2/<runtime>/
-├── configuration
-│   ├── config.ini
-│   ├── org.eclipse.equinox.simpleconfigurator
-│   │   └── bundles.info
-│   ├── org.eclipse.osgi/
-│   └── org.eclipse.update
-│       └── platform.xml
-└── eclipse.ini
+![screen shot 2016-12-22 at 4 11 05 pm](https://cloud.githubusercontent.com/assets/21237558/21423145/6d68848e-c861-11e6-90d8-d9b0b04b398d.png)
 
 ### The lib directory
 This directory is referred as the OSGi repository which has artifacts related to installed features. It has features, p2 and plugins as its sub directories
