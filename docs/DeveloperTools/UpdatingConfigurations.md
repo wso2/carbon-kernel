@@ -19,7 +19,7 @@ wso2.carbon:
    offset: 0
    ```
 
-> Note the following changes introduced in Carbon Kernel 5.2.0:
+> Note the following changes introduced in this Kernel version:
  * The new `deployment.yaml` file contains all the Carbon runtime configurations and it replaces the `carbon.yaml` file that existed previously.
  * Three new annotations are introduced (Configuration, Element, Ignore) for configuration bean classes. Read below for details.
  * A new annotation processor is introduced (ConfigurationProcessor) for discovering configuration bean classes in the component.
