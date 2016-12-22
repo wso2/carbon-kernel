@@ -1,6 +1,6 @@
 # Using the global configuration model
 
-WSO2 Carbon 5 introduces a new configuration deployment model, which allows products to maintain all the server configurations in one configuration file. This global configuration file is named `deployment.yaml` and is stored in the `<PRODUCT_HOME>/conf` directory of your product pack. The below diagram illustrates the high-level picture of the configuration model.
+WSO2 Carbon 5 introduces a new configuration deployment model, which allows products to maintain all the server configurations in one configuration file. This global configuration file is named `deployment.yaml` and is stored in the `<PRODUCT_HOME>/conf` directory of your product pack. The below diagram illustrates the high-level picture of the configuration model. As shown in this diagram, individual components will have its own configurations defined within, and these configurations will be contained in a configuration document that is generated for each component. The global configuration file (`deployment.yaml`) of the server should be updated with the relevant configs from each configuration document (of the component) if you want to change the default configurations in that component.
 
 ![screen shot 2016-12-22 at 6 34 00 pm](https://cloud.githubusercontent.com/assets/21237558/21426531/60a7c61a-c875-11e6-8a8d-1a2fff9762ff.png)
 
