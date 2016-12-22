@@ -29,24 +29,13 @@ The carbon server can have multiple runtimes and for each runtime there will be 
 ### The lib directory
 This directory is referred as the OSGi repository which has artifacts related to installed features. It has features, p2 and plugins as its sub directories
 
-CARBON-HOME/wso2/lib/
-├── features
-├── p2
-└── plugins
+![screen shot 2016-12-22 at 4 11 14 pm](https://cloud.githubusercontent.com/assets/21237558/21423137/68e6cdee-c861-11e6-859f-12bb9093ee9d.png)
 
 #### The features directory
 
 It contains the installed features and each feature is added as a sub-directory with the feature name. Each feature directory contains the feature meta-data files and other resources added while creating the feature. The following is a sample feature directory which only contains the feature metadata files:
 
-CARBON-HOME/wso2/lib/features/<feature-name>/
-├── feature.properties
-├── feature.xml
-├── META-INF
-│   ├── DEPENDENCIES
-│   ├── LICENSE
-│   ├── MANIFEST.MF
-│   └── NOTICE
-└── p2.inf
+![screen shot 2016-12-22 at 4 11 22 pm](https://cloud.githubusercontent.com/assets/21237558/21423136/67058358-c861-11e6-8344-c40ff4004143.png)
 
 #### The p2 directory
 This directory contains Carbon provisioning (p2) related configuration files.
