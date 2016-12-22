@@ -34,7 +34,7 @@ When you develop a Carbon component, you do not need to bundle separate configur
  * `org.wso2.carbon.kernel.annotations.Element`: This is a field-level annotation, which corresponds to a field of the class.
  * `org.wso2.carbon.kernel.annotations.Ignore`: This is a field-level annotation, which specifies that the field needs to be ignored when the configuration is generated.
  
-If you have the Java beans defined accordingly, a configuration document will be generated when you build your component feature.
+If you have the Java beans defined accordingly, a configuration document will be generated when you build your Carbon component later.
 
 See the following example:
 
@@ -76,7 +76,7 @@ public class CarbonConfiguration {
 }
 ```
 
-The elements in the above are explained below
+The elements in the above example are explained below
 
 * **Configuration annotation:**
    * This is a class-level annotation, which needs to be added to all the configuration bean classes in the component.
