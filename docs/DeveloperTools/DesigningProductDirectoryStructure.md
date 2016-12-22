@@ -2,14 +2,7 @@
 
 New directory structure has been introduced in Carbon 5 which organizes the carbon server files in more cleaner and much user-friendly manner than the directory structure used in Carbon 4. This document will explain the new directory structure used in carbon 5 in detail. Carbon server has following main directories at the root level and, following that the purpose of each directory is explained briefly.
 
-CARBON-HOME/
-├── bin
-├── conf
-├── lib
-├── logs
-├── resources
-├── tmp
-└── wso2
+![screen shot 2016-12-22 at 4 10 51 pm](https://cloud.githubusercontent.com/assets/21237558/21423157/77f594fa-c861-11e6-8d56-133699cead2d.png)
 
 * bin - contains script files common to the all the carbon runtimes and kernel-version.txt file which indicates the carbon kernel version
 * conf - contains all the carbon configuration files
