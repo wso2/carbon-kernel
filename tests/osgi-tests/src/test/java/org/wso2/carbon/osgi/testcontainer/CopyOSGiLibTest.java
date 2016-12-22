@@ -17,15 +17,15 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSGiLibBundle;
 
 /**
- * To test pax exam container option copyDropinsBundle.
+ * To test pax exam container option copyOSGiLibBundle.
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
-public class CopyDropinsTest {
+public class CopyOSGiLibTest {
 
     @Inject
     protected BundleContext bundleContext;
@@ -36,7 +36,7 @@ public class CopyDropinsTest {
     @Configuration
     public Option[] config() {
         return new Option[] {
-                copyDropinsBundle(
+                copyOSGiLibBundle(
                         maven().artifactId("carbon-context-test-artifact").groupId("org.wso2.carbon")
                                 .versionAsInProject()) };
     }

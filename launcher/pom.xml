@@ -71,6 +71,11 @@
             <artifactId>org.eclipse.equinox.launcher</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>commons-io.wso2</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -129,7 +134,7 @@
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/osgi/plugins</outputDirectory>
+                                    <outputDirectory>${basedir}/target/carbon-home/wso2/lib/plugins</outputDirectory>
                                     <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -137,18 +142,18 @@
                                     <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/osgi/plugins</outputDirectory>
+                                    <outputDirectory>${basedir}/target/carbon-home/wso2/lib/plugins</outputDirectory>
                                     <destFileName>
                                         org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
                                     </destFileName>
                                 </artifactItem>
-                                <!-- artifacts for dropins tests -->
+                                <!-- artifacts for OSGi-lib tests -->
                                 <artifactItem>
                                     <groupId>org.wso2.eclipse.osgi</groupId>
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/lib
                                     </outputDirectory>
                                     <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
                                 </artifactItem>
@@ -157,7 +162,7 @@
                                     <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/lib
                                     </outputDirectory>
                                     <destFileName>
                                         org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
@@ -168,7 +173,7 @@
                                     <artifactId>org.eclipse.equinox.util</artifactId>
                                     <version>${equinox.util.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/lib
                                     </outputDirectory>
                                     <destFileName>org.eclipse.equinox.util_${equinox.util.version}.jar</destFileName>
                                 </artifactItem>
@@ -177,12 +182,12 @@
                                     <artifactId>org.eclipse.equinox.launcher</artifactId>
                                     <version>${equinox.launcher.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/lib
                                     </outputDirectory>
                                     <destFileName>org.eclipse.equinox.launcher_${equinox.launcher.version}.jar
                                     </destFileName>
                                 </artifactItem>
-                                <!-- artifacts for dropins tests -->
+                                <!-- artifacts for OSGi-lib tests -->
                             </artifactItems>
                         </configuration>
                     </execution>

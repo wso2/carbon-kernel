@@ -35,7 +35,7 @@ import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSGiLibBundle;
 
 /**
  * A test strategy to test and verify the runtime service.
@@ -54,7 +54,7 @@ public class RuntimeOSGITest {
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyDropinsBundle(
+        return new Option[] { copyOSGiLibBundle(
                 maven().artifactId("org.wso2.carbon.sample.runtime.service").groupId("org.wso2.carbon")
                         .versionAsInProject()) };
     }

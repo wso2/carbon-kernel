@@ -108,7 +108,7 @@ public class Utils {
      * @return launch configuration directory path
      */
     public static Path getLaunchConfigDirectory() {
-        return Paths.get(System.getProperty(Constants.CARBON_HOME), "conf", Constants.OSGI_REPOSITORY);
+        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.LAUNCH_CONF_DIRECTORY);
     }
 
     /**

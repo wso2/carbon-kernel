@@ -28,7 +28,7 @@ public class BundleInfo {
     private String bundlePath;
     private int startLevel;
     private boolean isFragment;
-    private BundleLocation isFromDropins;
+    private BundleLocation isFromOSGiLib;
 
     public BundleInfo(String bundleSymbolicName, String bundleVersion, String bundlePath, int startLevel,
             boolean isFragment) {
@@ -38,10 +38,10 @@ public class BundleInfo {
         this.startLevel = startLevel;
         this.isFragment = isFragment;
 
-        if (bundlePath.contains(Constants.DROPINS + "/")) {
-            isFromDropins = BundleLocation.DROPINS_BUNDLE;
+        if (bundlePath.contains(Constants.PLUGINS + "/")) {
+            isFromOSGiLib = BundleLocation.NON_OSGI_LIB_BUNDLE;
         } else {
-            isFromDropins = BundleLocation.NON_DROPINS_BUNDLE;
+            isFromOSGiLib = BundleLocation.OSGI_LIB_BUNDLE;
         }
     }
 
@@ -53,8 +53,8 @@ public class BundleInfo {
         return bundleVersion;
     }
 
-    public BundleLocation isFromDropins() {
-        return isFromDropins;
+    public BundleLocation isFromOSGiLib() {
+        return isFromOSGiLib;
     }
 
     /**

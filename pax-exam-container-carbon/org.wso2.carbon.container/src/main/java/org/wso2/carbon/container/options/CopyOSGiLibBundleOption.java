@@ -19,13 +19,13 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
 /**
- * Install any bundle to dropins directory.
+ * Install any bundle to lib directory.
  */
-public class CopyDropinsBundleOption implements Option {
+public class CopyOSGiLibBundleOption implements Option {
 
     private MavenArtifactUrlReference mavenArtifactUrlReference;
 
-    public CopyDropinsBundleOption(MavenArtifactUrlReference mavenArtifactUrlReference) {
+    public CopyOSGiLibBundleOption(MavenArtifactUrlReference mavenArtifactUrlReference) {
         this.mavenArtifactUrlReference = mavenArtifactUrlReference;
     }
 

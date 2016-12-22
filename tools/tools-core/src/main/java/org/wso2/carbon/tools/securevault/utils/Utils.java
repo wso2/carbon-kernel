@@ -68,8 +68,8 @@ public class Utils {
 
         Optional.ofNullable(System.getProperty("carbon.home"))
                 .ifPresent(carbonHome -> {
-                    urls.addAll(getJarURLs(Paths.get(carbonHome, "osgi", "dropins").toString()));
-                    urls.addAll(getJarURLs(Paths.get(carbonHome, "osgi", "plugins").toString()));
+                    urls.addAll(getJarURLs(Paths.get(carbonHome, "lib").toString()));
+                    urls.addAll(getJarURLs(Paths.get(carbonHome, "wso2/lib", "plugins").toString()));
                 });
 
         return (URLClassLoader) AccessController.doPrivileged(

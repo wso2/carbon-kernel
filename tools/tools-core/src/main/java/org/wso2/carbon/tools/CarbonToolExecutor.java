@@ -16,8 +16,8 @@
 package org.wso2.carbon.tools;
 
 import org.wso2.carbon.tools.converter.BundleGeneratorTool;
-import org.wso2.carbon.tools.dropins.DropinsDeployerTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.tools.osgilib.OSGiLibDeployerTool;
 import org.wso2.carbon.tools.securevault.CipherToolInitializer;
 
 import java.util.Optional;
@@ -68,17 +68,17 @@ public class CarbonToolExecutor {
 
         CarbonTool carbonTool;
         switch (toolIdentifier) {
-            case "jar-to-bundle-converter":
-                carbonTool = new BundleGeneratorTool();
-                break;
-            case "dropins-deployer":
-                carbonTool = new DropinsDeployerTool();
-                break;
-            case "secure-vault":
-                carbonTool = new CipherToolInitializer();
-                break;
-            default:
-                carbonTool = null;
+        case "jar-to-bundle-converter":
+            carbonTool = new BundleGeneratorTool();
+            break;
+        case "osgi-lib-deployer":
+            carbonTool = new OSGiLibDeployerTool();
+            break;
+        case "secure-vault":
+            carbonTool = new CipherToolInitializer();
+            break;
+        default:
+            carbonTool = null;
         }
 
         if (carbonTool != null) {

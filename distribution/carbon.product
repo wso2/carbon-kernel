@@ -10,6 +10,8 @@ version="5.2.0.SNAPSHOT" useFeatures="true" includeLaunchers="true">
    <launcherArgs>
    </launcherArgs>
 
+   <launcher name="eclipse"/>
+
    <plugins>
    </plugins>
 
@@ -31,6 +33,6 @@ version="5.2.0.SNAPSHOT" useFeatures="true" includeLaunchers="true">
       <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4"/>      
 
       <property name="org.eclipse.equinox.simpleconfigurator.useReference" value="true" />                                        
-   </configurations>
+  </configurations>
    
 </product>

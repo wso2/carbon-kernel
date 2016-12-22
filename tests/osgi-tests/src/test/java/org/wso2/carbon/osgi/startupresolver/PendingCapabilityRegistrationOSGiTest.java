@@ -32,7 +32,7 @@ import org.wso2.carbon.sample.transport.mgt.TransportManager;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSGiLibBundle;
 
 /**
  * This test case will test the dynamic capability registrations and then the listener implementation that waits for
@@ -61,19 +61,19 @@ public class PendingCapabilityRegistrationOSGiTest {
     @Configuration
     public Option[] createConfiguration() {
         return new Option[] {
-                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
+                copyOSGiLibBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
                         .versionAsInProject()),
-                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
+                copyOSGiLibBundle(maven().artifactId("org.wso2.carbon.sample.transport.http").groupId("org.wso2.carbon")
                         .versionAsInProject()),
-                copyDropinsBundle(
+                copyOSGiLibBundle(
                         maven().artifactId("org.wso2.carbon.sample.transport.jetty").groupId("org.wso2.carbon")
                                 .versionAsInProject()),
-                copyDropinsBundle(
+                copyOSGiLibBundle(
                         maven().artifactId("org.wso2.carbon.sample.transport.custom2").groupId("org.wso2.carbon")
                                 .versionAsInProject()),
-                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.datasource.mgt").groupId("org.wso2.carbon")
+                copyOSGiLibBundle(maven().artifactId("org.wso2.carbon.sample.datasource.mgt").groupId("org.wso2.carbon")
                         .versionAsInProject()),
-                copyDropinsBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
+                copyOSGiLibBundle(maven().artifactId("org.wso2.carbon.sample.order.resolver").groupId("org.wso2.carbon")
                         .versionAsInProject())
         };
     }
