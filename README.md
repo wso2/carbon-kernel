@@ -36,6 +36,8 @@ Follow the links given below for details of tools, archetypes and other capabili
 * [Using Annotations with OSGi Declarative Services](docs/DeveloperTools/UsingAnnotationswithOSGiDeclarativeServices.md)
 * [Setting up a Git Repository](docs/DeveloperTools/SettingUpaGitRepository.md)
 * [Accessing the Carbon Configurations](docs/DeveloperTools/AccessingCarbonConfigs.md)
+* [Using the Global Configuration Model](docs/DeveloperTools/UpdatingConfigurations.md) 
+* [Designing the Product Directory Structure](docs/DeveloperTools/DesigningProductDirectoryStructure.md) 
 
 Follow the links given below for details of plugins:
 
