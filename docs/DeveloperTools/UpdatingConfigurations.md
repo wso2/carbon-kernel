@@ -1,6 +1,8 @@
 # Using the global configuration model
 
-WSO2 Carbon 5 introduces a new configuration deployment model, which allows products to maintain all the server configurations in one configuration file. This global configuration file is named `deployment.yaml` and is stored in the `<PRODUCT_HOME>/conf` directory of your product pack. The below diagram illustrates the high-level picture of the configuration model.
+> The process of updating configurations in a Carbon product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
+
+WSO2 Carbon 5 introduces a new configuration deployment model, which allows products to maintain all the server configurations in one configuration file. This global configuration file is named `deployment.yaml` and is stored in the `<PRODUCT_HOME>/conf` directory of your product pack. The below diagram illustrates the high-level picture of the configuration model. As shown below, the global configuration file (`deployment.yaml`) of the server should be updated with the relevant configs from each component (if you want to change the default configurations in that component).
 
 ![screen shot 2016-12-22 at 6 34 00 pm](https://cloud.githubusercontent.com/assets/21237558/21426531/60a7c61a-c875-11e6-8a8d-1a2fff9762ff.png)
 
@@ -19,7 +21,7 @@ wso2.carbon:
    offset: 0
    ```
 
-> Note the following changes introduced in Carbon Kernel 5.2.0:
+> Note the following changes introduced in this Kernel version:
  * The new `deployment.yaml` file contains all the Carbon runtime configurations and it replaces the `carbon.yaml` file that existed previously.
  * Three new annotations are introduced (Configuration, Element, Ignore) for configuration bean classes. Read below for details.
  * A new annotation processor is introduced (ConfigurationProcessor) for discovering configuration bean classes in the component.
@@ -34,7 +36,7 @@ When you develop a Carbon component, you do not need to bundle separate configur
  * `org.wso2.carbon.kernel.annotations.Element`: This is a field-level annotation, which corresponds to a field of the class.
  * `org.wso2.carbon.kernel.annotations.Ignore`: This is a field-level annotation, which specifies that the field needs to be ignored when the configuration is generated.
  
-If you have the Java beans defined accordingly, a configuration document will be generated when you build your component feature.
+If you have the Java beans defined accordingly, a configuration document will be generated when you build your Carbon component later.
 
 See the following example:
 
@@ -76,7 +78,7 @@ public class CarbonConfiguration {
 }
 ```
 
-The elements in the above are explained below
+The elements in the above example are explained below
 
 * **Configuration annotation:**
    * This is a class-level annotation, which needs to be added to all the configuration bean classes in the component.
