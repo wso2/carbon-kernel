@@ -1,5 +1,7 @@
 # Designing the Product Directory Structure
 
+> The process of designing the product directory structure for a Carbon product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
+
 This version of Carbon 5, introduces a new directory structure for organizing the server files in a product. According to the new structure, a Carbon server will have the directories listed below as root-level directories.
 
 ![screen shot 2016-12-22 at 4 10 51 pm](https://cloud.githubusercontent.com/assets/21237558/21423157/77f594fa-c861-11e6-8d56-133699cead2d.png)
