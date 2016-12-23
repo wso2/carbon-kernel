@@ -135,7 +135,7 @@
                 </plugin>
                 <plugin>
                     <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.plugins.configuration</artifactId>
+                    <artifactId>org.wso2.carbon.extensions.configuration.maven.plugin</artifactId>
                     <version>${carbon.kernel.version}</version>
                     <executions>
                         <execution>
@@ -150,6 +150,15 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -158,7 +167,6 @@
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
@@ -468,11 +476,27 @@
                 <artifactId>maven-core</artifactId>
                 <version>${maven-core.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.extensions.touchpoint</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.p2.engine</artifactId>
+                <version>${org.eclipse.equinox.p2.engine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
+                <version>${org.eclipse.equinox.p2.metadata.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <bundle.symbolicName>${project.artifactId}</bundle.symbolicName>
 
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
@@ -519,6 +543,8 @@
         <apache.felix.gogo.runtime.version>0.10.0.v201209301036</apache.felix.gogo.runtime.version>
         <equinox.osgi.compatibility.state.version>1.0.200.v20160504-1419</equinox.osgi.compatibility.state.version>
         <org.eclipse.equinox.cm.version>1.1.200.v20160324-1850</org.eclipse.equinox.cm.version>
+        <org.eclipse.equinox.p2.engine.version>2.3.0.v20140506-1720</org.eclipse.equinox.p2.engine.version>
+        <org.eclipse.equinox.p2.metadata.version>2.2.0.v20131211-1531</org.eclipse.equinox.p2.metadata.version>
 
         <!--PAX Logging related dependency versions-->
         <pax.logging.api.version>1.9.0</pax.logging.api.version>
@@ -545,7 +571,7 @@
         <geronimo.atinject.spec.version>1.0</geronimo.atinject.spec.version>
 
         <!--Other dependency versions -->
-        <carbon.feature.plugin.version>3.0.0-SNAPSHOT</carbon.feature.plugin.version>
+        <carbon.feature.plugin.version>3.0.0</carbon.feature.plugin.version>
         <org.snakeyaml.version>1.17</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.17.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
@@ -565,5 +591,8 @@
         <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
         <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
         <javax.crypto.version.range>[0.0.0,1.0.0)</javax.crypto.version.range>
+        <org.eclipse.core.runtime.import.version.range>[3.0.0, 4.0.0)</org.eclipse.core.runtime.import.version.range>
+        <org.eclipse.equinox.p2.engine.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
+        <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
     </properties>
 </project>
