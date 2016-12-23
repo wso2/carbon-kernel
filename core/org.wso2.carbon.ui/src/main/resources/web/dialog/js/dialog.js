@@ -15,7 +15,7 @@ var pageLoaded = false;
  * @param {String} value html value to be encoded
  */ 
 function htmlEncode(value){
-  return $('<div/>').text(value).html();
+  return jQuery('<div/>').text(value).html();
 }
 
 jQuery(document).ready(function() {
