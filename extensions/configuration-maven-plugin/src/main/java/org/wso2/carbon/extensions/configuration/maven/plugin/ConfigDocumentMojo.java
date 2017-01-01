@@ -16,6 +16,7 @@
 package org.wso2.carbon.extensions.configuration.maven.plugin;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -31,7 +32,6 @@ import org.wso2.carbon.kernel.annotations.Element;
 import org.wso2.carbon.kernel.annotations.Ignore;
 import org.wso2.carbon.kernel.annotations.processor.ConfigurationProcessor;
 import org.yaml.snakeyaml.Yaml;
-
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+
 
 /**
  * This class will create configuration document from bean class annotated in the project.
@@ -74,12 +75,9 @@ public class ConfigDocumentMojo extends AbstractMojo {
     private static final String CONFIG_DIR = "config-docs";
     private static final String LICENSE_FILE = "LICENSE.txt";
 
-    @Parameter(defaultValue = "${project}", required = true, readonly = true)
+    @Parameter(defaultValue = "${project}", required = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${configclasses}"
-     */
     @Parameter(property = "configclasses")
     protected String[] configclasses;
 
@@ -188,6 +186,12 @@ public class ConfigDocumentMojo extends AbstractMojo {
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
             throw new MojoExecutionException("Error while creating new resource file from the classpath", e);
         }
+
+        // add configguration document to the project resources under config-docs/ directory.
+        Resource resource = new Resource();
+        resource.setDirectory(configDir.getAbsolutePath());
+        resource.setTargetPath(CONFIG_DIR);
+        project.addResource(resource);
     }
 
     /**
