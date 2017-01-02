@@ -32,7 +32,7 @@ public interface ConfigProvider {
      * @param configClass configuration bean class
      * @param <T> object type
      * @return configuration bean object of given type
-     * @throws CarbonConfigurationException if there is a problem while config object instantiation.
+     * @throws CarbonConfigurationException if there is a problem with config object instantiation.
      */
     public <T extends Object> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException;
 
