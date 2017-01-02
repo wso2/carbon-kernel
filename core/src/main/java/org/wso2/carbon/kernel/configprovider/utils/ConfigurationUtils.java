@@ -43,6 +43,7 @@ public class ConfigurationUtils {
     /**
      * Returns the configuration file location.
      *
+     * @param filename configuration filename (e.g: deployment.yaml)
      * @return Path configuration file location
      */
     public static Path getConfigurationFileLocation(String filename) {

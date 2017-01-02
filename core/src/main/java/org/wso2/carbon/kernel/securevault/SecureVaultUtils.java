@@ -162,7 +162,7 @@ public class SecureVaultUtils {
      *
      * @param value a string that contains placeholders which is needed to get substitute with proper values
      * @return updated String
-     * @throws SecureVaultException
+     * @throws SecureVaultException if the value for placeholder is not specified.
      */
     public static String substituteVariables(String value) throws SecureVaultException {
         if (varPatternEnv.matcher(value).find()) {
@@ -178,7 +178,10 @@ public class SecureVaultUtils {
      * This method replaces the placeholders with value provided by the given Function.
      *
      * @param value string value to substitute
+     * @param matcher regex matcher for the string value
+     * @param function function to get placeholder value
      * @return String substituted string
+     * @throws SecureVaultException if the value for placeholder is not specified.
      */
     public static String substituteVariables(String value, Matcher matcher, Function<String, String> function)
             throws SecureVaultException {

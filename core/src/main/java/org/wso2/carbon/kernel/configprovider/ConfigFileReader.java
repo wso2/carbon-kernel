@@ -31,7 +31,8 @@ public interface ConfigFileReader {
     /**
      * Returns a populated Deployment Configuration Map which overrides default configuration.
      *
-     * @return a instance of the Configuration Map, key: String, value: JSON string
+     * @return a instance of the Configuration Map, key: String, value: YAML string
+     * @throws CarbonConfigurationException if error occur while reading the configuration file.
      */
     public Map<String, String> getDeploymentConfiguration() throws CarbonConfigurationException;
 }

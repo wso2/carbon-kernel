@@ -331,7 +331,8 @@ public class ManifestElement {
      *
      * @param header the header name to parse.  This is only specified to provide error messages
      *               when the header value is invalid.
-     * @param value  the header value to parse.
+     * @param value the header value to parse.
+     * @param bundle containing OSGi bundle
      * @return the array of ManifestElements that are represented by the header value; null will be
      * returned if the value specified is null or if the value does not parse into
      * one or more ManifestElements.
