@@ -197,7 +197,7 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 …
       <plugin>
           <groupId>org.wso2.carbon</groupId>
-          <artifactId>org.wso2.carbon.plugins.configuration</artifactId>
+          <artifactId>org.wso2.carbon.extensions.configuration.maven.plugin</artifactId>
           <executions>
               <execution>
                   <goals>
