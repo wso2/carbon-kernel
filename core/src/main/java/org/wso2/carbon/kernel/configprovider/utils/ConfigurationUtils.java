@@ -88,7 +88,8 @@ public class ConfigurationUtils {
     }
 
     /**
-     * This method reads project properties in resource file {@value Constants#PROJECT_DEFAULTS_PROPERTY_FILE}
+     * This method reads project properties in resource file,
+     * {@value org.wso2.carbon.kernel.Constants#PROJECT_DEFAULTS_PROPERTY_FILE}
      *
      * @return project properties
      */
