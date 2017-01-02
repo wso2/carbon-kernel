@@ -167,7 +167,7 @@ class StartupComponentManager {
                     if (startupComponent.isSatisfied()) {
                         logger.warn("You are trying to add an {} capability {} from bundle({}:{}) to an already " +
                                         "activated startup listener component {} in bundle({}:{}). Refer the Startup " +
-                                        "Order Resolver documentation and validated your configuration",
+                                        "Order Resolver documentation and verify your configuration",
                                 (capability.getState() == Capability.CapabilityState.AVAILABLE) ?
                                         "available" : "expected",
                                 capability.getName(),
