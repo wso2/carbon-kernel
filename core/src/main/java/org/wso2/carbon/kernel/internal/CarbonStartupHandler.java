@@ -35,6 +35,8 @@ public class CarbonStartupHandler {
 
     /**
      * Log the server start up time.
+     *
+     * @param serverName Server name to be in the log
      */
     public static void logServerStartupTime(String serverName) {
         double startTime = Long.parseLong(System.getProperty(org.wso2.carbon.kernel.Constants.START_TIME));
