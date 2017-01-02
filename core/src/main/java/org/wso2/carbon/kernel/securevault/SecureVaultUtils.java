@@ -162,14 +162,14 @@ public class SecureVaultUtils {
      *
      * @param value a string that contains placeholders which is needed to get substitute with proper values
      * @return updated String
-     * @throws SecureVaultException
+     * @throws SecureVaultException in case a valid value for a specified placeholder is not provided.
      */
     public static String substituteVariables(String value) throws SecureVaultException {
         if (varPatternEnv.matcher(value).find()) {
-            value = substituteVariables(value, varPatternEnv.matcher(value), System::getenv);
+            value = substituteVariables(varPatternEnv.matcher(value), System::getenv);
         }
         if (varPatternSys.matcher(value).find()) {
-            value = substituteVariables(value, varPatternSys.matcher(value), System::getProperty);
+            value = substituteVariables(varPatternSys.matcher(value), System::getProperty);
         }
         return value;
     }
@@ -177,10 +177,13 @@ public class SecureVaultUtils {
     /**
      * This method replaces the placeholders with value provided by the given Function.
      *
-     * @param value string value to substitute
+     * @param matcher a valid matcher for the given sub-string.
+     * @param function a function that resolves a given property key. (eg: from system variables
+     *                 or environment properties)
      * @return String substituted string
+     * @throws SecureVaultException in case a valid value for a specified placeholder is not provided.
      */
-    public static String substituteVariables(String value, Matcher matcher, Function<String, String> function)
+    public static String substituteVariables(Matcher matcher, Function<String, String> function)
             throws SecureVaultException {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
