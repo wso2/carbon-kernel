@@ -35,6 +35,7 @@ public class ConfigResolverUtils {
      * This method converts a given YAML String to XML format.
      *
      * @param yamlString YAML String that needs to be converted to XML format
+     * @param rootElement XML root element to add content
      * @return String in XML format
      */
     public static String convertYAMLToXML(String yamlString, String rootElement) {
@@ -44,8 +45,8 @@ public class ConfigResolverUtils {
 
     /**
      * This method converts a given XML String to YAML format.
-     *
      * @param xmlString XML String that needs to be converted to YAML format
+     * @param rootElement root element of xml string
      * @return String in YAML format
      */
     public static String convertXMLToYAML(String xmlString, String rootElement) {
@@ -70,6 +71,7 @@ public class ConfigResolverUtils {
      * This method converts a given JSON String to YAML format.
      *
      * @param jsonString JSON String that needs to be converted to YAML format
+     * @param rootElement  root element of json string
      * @return String in YAML format
      */
     public static String convertJSONToYAML(String jsonString, String rootElement) {
@@ -88,6 +90,7 @@ public class ConfigResolverUtils {
      * This method converts a given JSON String to XML format.
      *
      * @param jsonString JSON String that needs to be converted to XML format
+     * @param rootElement  XML root element to add content
      * @return String in XML format
      */
     public static String convertJSONToXML(String jsonString, String rootElement) {
@@ -137,6 +140,7 @@ public class ConfigResolverUtils {
      * This method converts a Properties file to XML formatted String.
      *
      * @param inputStream InputStream of the Properties file
+     * @param rootElement  XML root element to add content
      * @return String in XML format
      */
     public static String convertPropertiesToXml(InputStream inputStream, String rootElement) {
@@ -159,8 +163,8 @@ public class ConfigResolverUtils {
 
     /**
      * This method converts a given XML String to Properties format.
-     *
      * @param xmlString XML String that needs to be converted to Properties format
+     * @param rootElement root element of xml string
      * @return String in Properties format
      */
     public static String convertXMLToProperties(String xmlString, String rootElement) {

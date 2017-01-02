@@ -32,7 +32,7 @@ public interface ConfigProvider {
      * @param configClass configuration bean class
      * @param <T> object type
      * @return configuration bean object of given type
-     * @throws CarbonConfigurationException
+     * @throws CarbonConfigurationException if there is a problem with config object instantiation.
      */
     public <T extends Object> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException;
 
@@ -40,7 +40,7 @@ public interface ConfigProvider {
      * Returns configuration map of the namespace, if configuration exists for the given namespace in deployment.yaml.
      * @param namespace config namespace
      * @return configuration map
-     * @throws CarbonConfigurationException
+     * @throws CarbonConfigurationException if there is a problem while reading the configurations
      */
     public Map getConfigurationMap(String namespace) throws CarbonConfigurationException;
 }

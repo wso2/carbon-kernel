@@ -79,7 +79,7 @@ public class DataHolder {
     /**
      * Setter method of ${@link ConfigResolver}.
      *
-     * @param optConfigResolver
+     * @param optConfigResolver configuration resolver object
      */
     public void setOptConfigResolver(Optional<ConfigResolver> optConfigResolver) {
         this.optConfigResolver = optConfigResolver;
@@ -97,7 +97,7 @@ public class DataHolder {
     /**
      * Setter method of ${@link ConfigProvider}.
      *
-     * @param configProvider
+     * @param configProvider configuration provider object
      */
     public void setConfigProvider(ConfigProvider configProvider) {
         this.configProvider = configProvider;
