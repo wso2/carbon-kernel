@@ -42,6 +42,7 @@ Follow the links given below for details of tools, archetypes and other capabili
 Follow the links given below for details of plugins:
 
 * [Using the Maven Bundle Plugin](docs/DeveloperTools/UsingtheMavenBundlePlugin.md)
+* [Using Carbon Touchpoint](docs/DeveloperTools/UsingCarbonTouchpoint.md)
 
 ## Getting Started
 See the steps for [setting up and starting a WSO2 Carbon server](docs/GettingStarted.md).
