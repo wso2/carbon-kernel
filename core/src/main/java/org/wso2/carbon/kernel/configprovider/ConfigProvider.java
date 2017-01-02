@@ -40,7 +40,7 @@ public interface ConfigProvider {
      * Returns configuration map of the namespace, if configuration exists for the given namespace in deployment.yaml.
      * @param namespace config namespace
      * @return configuration map
-     * @throws CarbonConfigurationException it there is a problem while reading the configurations
+     * @throws CarbonConfigurationException if there is a problem while reading the configurations
      */
     public Map getConfigurationMap(String namespace) throws CarbonConfigurationException;
 }
