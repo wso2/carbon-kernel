@@ -30,6 +30,7 @@
     <modules>
         <module>startup-coordination</module>
         <module>carbon-context-test-artifact</module>
+        <module>carbon-touchpoint</module>
     </modules>
 
 </project>

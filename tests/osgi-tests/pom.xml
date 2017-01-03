@@ -84,7 +84,13 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>wso2carbon-kernel-test</artifactId>
-            <version>${carbon.kernel.version}</version>
+            <type>zip</type>
+        </dependency>
+
+        <!-- Carbon Touchpoint Test Distribution -->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>wso2carbon-kernel-carbon-touchpoint-test</artifactId>
             <type>zip</type>
         </dependency>
 

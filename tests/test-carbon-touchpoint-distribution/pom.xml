@@ -6,14 +6,19 @@
         <version>5.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>wso2carbon-kernel-test</artifactId>
-    <name>WSO2 Carbon Kernel - Test - Distribution</name>
+    <artifactId>wso2carbon-kernel-carbon-touchpoint-test</artifactId>
+    <name>WSO2 Carbon Kernel - Test Carbon Touchpoint Distribution</name>
     <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
+            <artifactId>org.wso2.carbon.touchpoint.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.touchpoint.sample.feature</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -35,7 +40,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>wso2carbon-kernel</artifactId>
+                                    <artifactId>wso2carbon-kernel-test</artifactId>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -45,6 +50,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.wso2.carbon.maven</groupId>
                 <artifactId>carbon-feature-plugin</artifactId>
@@ -59,7 +65,11 @@
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
                             <features>
                                 <feature>
-                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <id>org.wso2.carbon.touchpoint.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.touchpoint.sample.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>
@@ -74,11 +84,11 @@
                         <configuration>
                             <runtime>default</runtime>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-                            <destination>${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/wso2</destination>
+                            <destination>${basedir}/target/wso2carbon-kernel-test-${carbon.kernel.version}/wso2</destination>
                             <deleteOldRuntimeFiles>true</deleteOldRuntimeFiles>
                             <features>
                                 <feature>
-                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <id>org.wso2.carbon.touchpoint.sample.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>
@@ -94,7 +104,7 @@
                         <phase>package</phase>
                         <configuration>
                             <tasks>
-                                <replace dir="target/wso2carbon-kernel-${carbon.kernel.version}/wso2" token="false" value="true">
+                                <replace dir="target/wso2carbon-kernel-test-${carbon.kernel.version}/wso2" token="false" value="true">
                                     <include name="**/bundles.info" />
                                 </replace>
                             </tasks>
@@ -123,6 +133,7 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+
                 </executions>
             </plugin>
             <plugin>
@@ -132,7 +143,7 @@
                     <descriptors>
                         <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                     </descriptors>
-                    <finalName>wso2carbon-kernel-test-${carbon.kernel.version}</finalName>
+                    <finalName>wso2carbon-kernel-carbon-touchpoint-test-${carbon.kernel.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
@@ -145,6 +156,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -154,4 +166,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

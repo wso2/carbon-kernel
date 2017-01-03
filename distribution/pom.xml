@@ -210,6 +210,7 @@
                                 <delete file="target/tmp" />
                                 <delete dir="target/WSO2Carbon" />
                                 <delete dir="target/antrun" />
+                                <delete dir="target/director" />
                             </target>
                         </configuration>
                         <goals>

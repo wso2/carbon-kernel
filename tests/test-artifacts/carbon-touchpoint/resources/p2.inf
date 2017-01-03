@@ -1,0 +1,5 @@
+metaRequirements.0.namespace = org.eclipse.equinox.p2.iu
+metaRequirements.0.name = org.wso2.carbon.extensions.touchpoint
+
+instructions.configure = \
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.touchpoint.sample_${feature.version}/bin/,target:${installFolder}/../{runtime}/bin/, overwrite:true);\
