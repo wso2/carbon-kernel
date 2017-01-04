@@ -186,6 +186,6 @@ The following example illustrates how you can plug your own runtime and register
 You can test the new runtime by following the steps given below.
 
 1. Build your component, which will generate an OSGi bundle.
-2. Now this bundle can be installed in a running Carbon server instance by adding the bundle to the dropins directory in the OSGi repository (which is `<CARBON_HOME>/osgi`). Once you have added your bundle to the dropins directory, it will be installed to the OSGi runtime by the Kernel launcher. 
+2. Now this bundle can be installed in a running Carbon server instance by adding the bundle to the lib directory (which is `<CARBON_HOME>/lib`). Once you have added your bundle to the lib directory, it will be installed to the OSGi runtime by the Kernel launcher. 
  
- > Find out more about how the [dropins directory is used for deploying bundles](https://github.com/nilminiwso2/carbon-kernel-1/tree/master/tools#dropins-support-for-osgi-bundles).
+ > Find out more about how the [lib directory is used for deploying bundles](DroppingOSGiBundlesintoaCarbonServer.md).

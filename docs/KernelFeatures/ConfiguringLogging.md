@@ -75,12 +75,12 @@ Most of the configurations related to `log4j2` are available in the official doc
 ## Enabling Asynchronous Logging
 WSO2 Carbon 5 Kernel uses the logging framework with Pax Logging. You can find out more about this logging framework and the default configurations from [here](#configuring-the-logging-framework). You can follow the steps given below if you want to enable [asynchronous logging](https://logging.apache.org/log4j/2.x/manual/async.html) for your Carbon 5-based server.
 
-1. Download the disrupter OSGi bundle from [here](http://mvnrepository.com/artifact/com.lmax/disruptor/3.2.0) and copy it to the `<CARBON_HOME>/osgi/plugins` directory.
+1. Download the disrupter OSGi bundle from [here](http://mvnrepository.com/artifact/com.lmax/disruptor/3.2.0) and copy it to the `<CARBON_HOME>/wso2/lib/plugins` directory.
 2. Open the `launch.properties` file from the `<CARBON_HOME>/conf/osgi` folder and add the disrupter JAR to the initial bundles list as shown below.
 
-        carbon.initial.osgi.bundles=\file\:plugins/disruptor-3.2.0.jar@2\:true,
+        carbon.initial.osgi.bundles=file\:plugins/disruptor-3.2.0.jar@2\:true,
 	
- > The [Carbon Launcher](https://github.com/nilminiwso2/carbon-kernel-1/blob/master/launcher/README.md) component will initialize the bundles listed below when the server is started.
+ > The [Carbon Launcher](SettingUptheCarbonLauncher.md) component will initialize the bundles listed below when the server is started.
 
 3. Open the `pax-logging.properties` file from the `<CARBON_HOME>/conf/etc` folder and set the 
 `org.ops4j.pax.logging.log4j2.async` parameter to true as shown below.
