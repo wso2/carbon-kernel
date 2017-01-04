@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * <p>
  * For this purpose, the OSGi bundle information retrieved from the {@value org.wso2.carbon.launcher.Constants.OSGI_LIB}
  * directory bundles are
- * updated in the bundles.info file of each and every, existing Carbon profile, along with the bundle startup
+ * updated in the bundles.info file of each and every, existing Carbon runtime, along with the bundle startup
  * information of each bundle.
  *
  * @since 5.0.0
@@ -60,7 +60,7 @@ public class OSGiLibBundleDeployer implements CarbonServerListener {
 
                 OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome.toString(), profile, newBundlesInfo);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to update the OSGi bundle information of Carbon Profile: " + profile,
+                logger.log(Level.SEVERE, "Failed to update the OSGi bundle information of Carbon Runtime: " + profile,
                         e);
             }
         }

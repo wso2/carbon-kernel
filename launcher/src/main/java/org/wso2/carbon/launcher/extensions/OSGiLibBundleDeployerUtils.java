@@ -46,13 +46,13 @@ public class OSGiLibBundleDeployerUtils {
     private static final Logger logger = Logger.getLogger(OSGiLibBundleDeployerUtils.class.getName());
 
     /**
-     * Updates the bundles.info file of the specified Carbon Profile based on the OSGi bundles deployed in the
+     * Updates the bundles.info file of the specified Carbon Runtime based on the OSGi bundles deployed in the
      * {@value org.wso2.carbon.launcher.Constants.OSGI_LIB} directory. The OSGi bundle information in the
-     * bundles.info file in a Carbon profile is used to install and start the bundles at the server startup for the
+     * bundles.info file in a Carbon runtime is used to install and start the bundles at the server startup for the
      * particular profile.
      * <p>
      * The mechanism used in updating the bundles.info file is as follows:
-     * 1. The existing OSGi bundle information within the specified Carbon Profile are read.
+     * 1. The existing OSGi bundle information within the specified Carbon Runtime are read.
      * 2. The new OSGi bundle information are compared with the above mentioned existing OSGi bundle information
      * and a map of new, installable OSGi bundle information and the OSGi bundle information removable from existing
      * bundle information are obtained.
@@ -62,7 +62,7 @@ public class OSGiLibBundleDeployerUtils {
      * information.
      *
      * @param carbonHome     the {@link String} representation of carbon.home
-     * @param carbonProfile  the name of the Carbon Profile of which the bundles.info is to be updated
+     * @param carbonProfile  the name of the Carbon Runtime of which the bundles.info is to be updated
      * @param newBundlesInfo the new OSGi bundle information
      * @throws IOException if an I/O error occurs
      */
@@ -74,12 +74,12 @@ public class OSGiLibBundleDeployerUtils {
         }
 
         if ((carbonProfile == null) || (carbonProfile.isEmpty())) {
-            throw new IllegalArgumentException("Carbon Profile specified is invalid");
+            throw new IllegalArgumentException("Carbon Runtime specified is invalid");
         }
 
         if (newBundlesInfo == null) {
             throw new IllegalArgumentException("No new OSGi bundle information specified, for updating the " +
-                    "Carbon Profile: " + carbonProfile);
+                    "Carbon Runtime: " + carbonProfile);
         }
 
         Path bundlesInfoFile = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY, carbonProfile, "configuration",
@@ -104,10 +104,10 @@ public class OSGiLibBundleDeployerUtils {
 
             updateBundlesInfoFile(effectiveNewBundleInfo, bundlesInfoFile);
             logger.log(Level.INFO,
-                    "Successfully updated the OSGi bundle information of Carbon Profile: " + carbonProfile);
+                    "Successfully updated the OSGi bundle information of Carbon Runtime: " + carbonProfile);
         } else {
             logger.log(Level.FINE, String.format("No changes detected in the %s directory in comparison with the "
-                    + "profile, skipped the OSGi bundle information update for Carbon Profile: %s", Constants.OSGI_LIB,
+                    + "profile, skipped the OSGi bundle information update for Carbon Runtime: %s", Constants.OSGI_LIB,
                     carbonProfile));
         }
     }
@@ -291,10 +291,10 @@ public class OSGiLibBundleDeployerUtils {
     }
 
     /**
-     * Returns a list of WSO2 Carbon Profile names.
+     * Returns a list of WSO2 Carbon Runtime names.
      *
      * @param carbonHome the WSO2 Carbon home
-     * @return a list of WSO2 Carbon Profile names
+     * @return a list of WSO2 Carbon Runtime names
      * @throws IOException if an I/O error occurs
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
