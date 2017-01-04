@@ -77,8 +77,8 @@ this directory.
 6. osgi-lib.sh & osgi-lib.bat
     - The script files which run the OSGi-Lib deployer tool.
 
-    - This tool updates the bundles.info file of the specified Carbon Profile.
+    - This tool updates the bundles.info file of the specified Carbon Runtime.
 
-    Usage : osgi-lib.sh [profile]
+    Usage : osgi-lib.sh [runtime]
 
-        -- profile      name of the Carbon Profile to be updated or keyword 'ALL' to update all the profiles.
+        -- runtime      name of the Carbon Runtime to be updated or keyword 'ALL' to update all the runtimes.

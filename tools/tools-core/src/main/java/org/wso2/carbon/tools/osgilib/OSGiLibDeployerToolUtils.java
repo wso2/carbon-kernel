@@ -39,9 +39,9 @@ class OSGiLibDeployerToolUtils {
      * Executes the WSO2 Carbon OSGi-lib deployer tool.
      *
      * @param carbonHome the {@link String} value of carbon.home
-     * @param profile    the Carbon Profile identifier
+     * @param profile    the Carbon Runtime identifier
      * @throws CarbonToolException if the {@code carbonHome} is invalid
-     * @throws IOException         if an I/O error occurs when extracting the Carbon Profile names
+     * @throws IOException         if an I/O error occurs when extracting the Carbon Runtime names
      */
     static void executeTool(String carbonHome, String profile) throws CarbonToolException, IOException {
         if ((carbonHome == null) || (carbonHome.isEmpty())) {
@@ -63,7 +63,7 @@ class OSGiLibDeployerToolUtils {
                                 OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, carbonProfile, newBundlesInfo);
                             } catch (IOException e) {
                                 logger.log(Level.SEVERE,
-                                        "Failed to update the OSGi bundle information of Carbon Profile: "
+                                        "Failed to update the OSGi bundle information of Carbon Runtime: "
                                                 + carbonProfile, e);
                             }
                         });
@@ -72,7 +72,7 @@ class OSGiLibDeployerToolUtils {
                     OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, profile, newBundlesInfo);
                 } catch (IOException e) {
                     logger.log(Level.SEVERE,
-                            "Failed to update the OSGi bundle information of Carbon Profile: " + profile, e);
+                            "Failed to update the OSGi bundle information of Carbon Runtime: " + profile, e);
                 }
             }
         }
@@ -85,9 +85,9 @@ class OSGiLibDeployerToolUtils {
      */
     static String getHelpMessage() {
         return "Incorrect usage of the OSGi-lib deployer tool.\n\n" +
-                "Instructions: sh osgi-lib.sh [profile]\n" + "profile - name of the Carbon Profile to be updated\n\n" +
+                "Instructions: sh osgi-lib.sh [profile]\n" + "profile - name of the Carbon Runtime to be updated\n\n" +
                 "Keyword option for profile:\n" +
-                "ALL\tUpdate OSGi-lib bundle information of all Carbon Profiles " +
+                "ALL\tUpdate OSGi-lib bundle information of all Carbon Runtimes " +
                 "(ex: sh osgi-lib.sh ALL/osgi-lib.bat ALL)\n";
     }
 }

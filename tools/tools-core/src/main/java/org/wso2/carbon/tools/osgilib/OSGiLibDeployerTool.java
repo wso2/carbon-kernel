@@ -34,7 +34,7 @@ public class OSGiLibDeployerTool implements CarbonTool {
     /**
      * Executes the WSO2 Carbon OSGi-lib deployer tool based on the specified arguments.
      *
-     * @param toolArgs the {@link String} argument specifying the Carbon Profile and CARBON_HOME
+     * @param toolArgs the {@link String} argument specifying the Carbon Runtime and CARBON_HOME
      */
     @Override
     public void execute(String... toolArgs) {

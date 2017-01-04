@@ -54,7 +54,7 @@ public class OSGiLibBundleDeployerTest extends BaseTest {
         delete(Paths.get(carbonHome, Constants.PROFILE_REPOSITORY));
     }
 
-    @Test(description = "Attempts to get Carbon profiles when there is no profiles", expectedExceptions = {
+    @Test(description = "Attempts to get Carbon runtimes when there is no runtimes", expectedExceptions = {
         IOException.class })
     public void testGettingCarbonProfilesFromNonExistingProfilesFolder() throws IOException {
         OSGiLibBundleDeployerUtils.getCarbonProfiles(carbonHome);
@@ -76,7 +76,7 @@ public class OSGiLibBundleDeployerTest extends BaseTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to execute OSGi-lib capability for a chosen Carbon Profile", priority = 2)
+    @Test(description = "Attempts to execute OSGi-lib capability for a chosen Carbon Runtime", priority = 2)
     public void testExecutingOSGiLibCapabilityForSelectedProfile() throws IOException {
         System.setProperty(Constants.PROFILE, profileMSS);
         OSGiLibBundleDeployer deployer = new OSGiLibBundleDeployer();
@@ -101,7 +101,7 @@ public class OSGiLibBundleDeployerTest extends BaseTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts loading the Carbon profile names", priority = 3)
+    @Test(description = "Attempts loading the Carbon runtime names", priority = 3)
     public void testLoadingCarbonProfiles() throws IOException {
         List<String> actual = OSGiLibBundleDeployerUtils.getCarbonProfiles(carbonHome);
         boolean matching = ((profileNames
@@ -139,7 +139,7 @@ public class OSGiLibBundleDeployerTest extends BaseTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to install new OSGi bundles with invalid Carbon Profile name",
+    @Test(description = "Attempts to install new OSGi bundles with invalid Carbon Runtime name",
             priority = 5,
             expectedExceptions = { IllegalArgumentException.class })
     public void testInstallingNewBundlesWithInvalidCarbonProfile() throws IOException {

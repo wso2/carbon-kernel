@@ -64,7 +64,7 @@ public class OSGiLibDeployerToolTest {
         OSGiLibDeployerToolUtils.executeTool("", TestConstants.ALL_CARBON_PROFILES);
     }
 
-    @Test(description = "Attempts to execute OSGi-lib capability with a single available Carbon Profile "
+    @Test(description = "Attempts to execute OSGi-lib capability with a single available Carbon Runtime "
             + "with a non-OSGi bundle in OSGi-lib", priority = 1)
     public void testExecutingOSGiLibCapabilityWithANonOSGiJAR() throws CarbonToolException, IOException {
         Path profile = Paths.get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
@@ -90,7 +90,7 @@ public class OSGiLibDeployerToolTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to execute OSGi-lib capability with a single available Carbon Profile", priority = 2)
+    @Test(description = "Attempts to execute OSGi-lib capability with a single available Carbon Runtime", priority = 2)
     public void testExecutingOSGiLibCapabilityWithASingleProfile() throws CarbonToolException, IOException {
         Files.deleteIfExists(Paths.get(carbonHome.toString(), Constants.OSGI_LIB, TestConstants.ARTIFACT_FIVE));
 
@@ -106,7 +106,7 @@ public class OSGiLibDeployerToolTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test(description = "Attempts to execute OSGi-lib capability with all available Carbon Profiles", priority = 3)
+    @Test(description = "Attempts to execute OSGi-lib capability with all available Carbon Runtimes", priority = 3)
     public void testExecutingOSGiLibCapabilityWithAllProfiles() throws CarbonToolException, IOException {
         createOtherProfiles();
 
@@ -129,7 +129,7 @@ public class OSGiLibDeployerToolTest {
         Assert.assertTrue(true);
     }
 
-    @Test(description = "Attempts to execute OSGi-lib capability with an empty Carbon Profile name", priority = 4)
+    @Test(description = "Attempts to execute OSGi-lib capability with an empty Carbon Runtime name", priority = 4)
     public void testExecutingOSGiLibCapabilityForEmptyProfile() throws IOException {
         Path profile = Paths.
                 get(carbonHome.toString(), Constants.PROFILE_REPOSITORY,
