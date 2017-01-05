@@ -512,6 +512,7 @@
                 <artifactId>wso2carbon-kernel-test</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>zip</type>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
