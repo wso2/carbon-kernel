@@ -33,8 +33,16 @@ import java.io.PrintWriter;
  */
 public class EclipseIniRewriter implements CarbonLaunchExtension {
     private static Log log = LogFactory.getLog(EclipseIniRewriter.class);
-    private static final String CARBON_OSGI_DIR_LOCATION = System.getProperty("carbon.home") + File.separator +
-            "repository" + File.separator + "components";
+    private static final String CARBON_OSGI_DIR_LOCATION;
+
+    static {
+        String componentsPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (componentsPath == null) {
+            CARBON_OSGI_DIR_LOCATION = System.getProperty("carbon.home") + File.separator + "repository" + File.separator + "components";
+        } else {
+            CARBON_OSGI_DIR_LOCATION = componentsPath;
+        }
+    }
 
     public void perform() {
         File eclipseIni = null;

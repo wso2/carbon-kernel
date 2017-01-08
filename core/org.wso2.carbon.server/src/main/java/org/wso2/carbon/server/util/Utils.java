@@ -21,6 +21,7 @@ import org.wso2.carbon.server.LauncherConstants;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -55,8 +56,11 @@ public class Utils {
     }
 
     public static File getCarbonComponentRepo() {
-        String carbonRepo = Utils.getCarbonRepoPath();
-        String carbonComponentsRepository = carbonRepo + File.separator + "components";
+        String carbonComponentsRepository = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (carbonComponentsRepository == null) {
+            String carbonRepo = Utils.getCarbonRepoPath();
+            carbonComponentsRepository = carbonRepo + File.separator + "components";
+        }
         File componentRepo = new File(carbonComponentsRepository);
         if (!componentRepo.exists() && !componentRepo.mkdirs()) {
             System.err.println("Fail to create the directory: " + componentRepo.getAbsolutePath());
@@ -85,11 +89,19 @@ public class Utils {
         System.out.println();
 
         System.out.println("system-properties:");
+        String confPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
         System.out.println("\t-DosgiConsole=[port]\t\tStart Carbon with Equinox OSGi console. " +
-                "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
-        System.out.println("\t-DosgiDebugOptions=[options-file]" +
-                "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
-                "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
+                           "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
+        if (confPath == null) {
+            System.out.println("\t-DosgiDebugOptions=[options-file]" +
+                               "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
+                               "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
+        } else {
+            String relativeConfDirPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(confPath)).toString();
+            System.out.println("\t-DosgiDebugOptions=[options-file]" +
+                               "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
+                               "\n\t\t\t\t\tDebug options are loaded from the file " + relativeConfDirPath + "/etc/osgi-debug.options.");
+        }
         System.out.println("\t-Dsetup\t\t\t\tClean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon");
         System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
         System.out.println("\t-DserverRoles=<roles>\t\tA comma separated list of roles. Used in deploying cApps");
@@ -251,9 +263,14 @@ public class Utils {
         // First try to get from the System property
         String enableOsgiDebug = System.getProperty(LauncherConstants.ENABLE_OSGI_DEBUG);
         if (enableOsgiDebug != null && enableOsgiDebug.toLowerCase().equals("true")) {
-            String carbonRepo = System.getProperty(LauncherConstants.CARBON_HOME)+File.separator + "repository";
-            enableOsgiDebug = carbonRepo + File.separator + "conf" +
-                    File.separator + "etc" + File.separator + "osgi-debug.options";
+            String carbonConfigRepo = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
+            if (carbonConfigRepo == null) {
+                String carbonRepo = System.getProperty(LauncherConstants.CARBON_HOME) + File.separator + "repository";
+                enableOsgiDebug = carbonRepo + File.separator + "conf" + File.separator + "etc" + File.separator +
+                                  "osgi-debug.options";
+            } else {
+                enableOsgiDebug = carbonConfigRepo + File.separator + "etc" + File.separator + "osgi-debug.options";
+            }
             args.add("-debug");
             args.add(enableOsgiDebug);
             System.out.println("OSGi debugging has been enabled with options: " + enableOsgiDebug);
@@ -272,7 +289,7 @@ public class Utils {
      * @return The bundle directory
      */
     public static File getBundleDirectory(String bundleDir) {
-        String carbonHome = System.getProperty("carbon.home");
+        String carbonHome = System.getProperty(LauncherConstants.CARBON_HOME);
 
         if (carbonHome == null) {
             carbonHome = System.getenv("CARBON_HOME");
@@ -665,15 +682,21 @@ public class Utils {
     }
 
     public static File getBundleConfigDirectory() {
-        String carbonRepo = System.getenv("CARBON_REPOSITORY");
-        if (carbonRepo == null) {
-            carbonRepo = System.getProperty("carbon.repository");
+        String carbonConfigPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
+        String bundleConfigDirLocation;
+        if(carbonConfigPath == null) {
+            String carbonRepo = System.getenv("CARBON_REPOSITORY");
+            if (carbonRepo == null) {
+                carbonRepo = System.getProperty("carbon.repository");
+            }
+            if (carbonRepo == null) {
+                carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
+            }
+            bundleConfigDirLocation = carbonRepo + File.separator + "conf" + File.separator + "etc" + File.separator +
+                                      "bundleconfig";
+        } else {
+            bundleConfigDirLocation= carbonConfigPath +  File.separator + "etc" + File.separator + "bundle-config";
         }
-        if (carbonRepo == null) {
-            carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
-        }
-        String bundleConfigDirLocation = carbonRepo + File.separator + "conf" + File.separator +
-                "etc" + File.separator + "bundle-config";
         File bundleConfigDir = new File(bundleConfigDirLocation);
         if(!bundleConfigDir.exists()) {
           return null;

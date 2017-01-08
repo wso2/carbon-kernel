@@ -39,6 +39,8 @@ import org.apache.axis2.util.Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.base.CarbonBaseConstants;
+import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
 import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
@@ -61,7 +63,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -80,8 +81,16 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private static final int CONFIG_MODE_SYSPROP = 1;
     private static final int CONFIG_MODE_AXIS2 = 2;
 
-    private static final Path DEFAULT_CONFIG_FILE_PATH = Paths.get(CarbonUtils.getCarbonHome(), "repository", "conf",
-            "etc", HazelcastConstants.CONFIG_XML_NAME);
+    private static final Path DEFAULT_CONFIG_FILE_PATH;
+
+    static {
+        String configPath = CarbonUtils.getCarbonConfigDirPath();
+        if (configPath == null) {
+            DEFAULT_CONFIG_FILE_PATH = java.nio.file.Paths.get(CarbonUtils.getCarbonHome(), "repository", "conf", "etc", HazelcastConstants.CONFIG_XML_NAME);
+        } else {
+            DEFAULT_CONFIG_FILE_PATH = java.nio.file.Paths.get(CarbonUtils.getCarbonConfigDirPath(), "etc", HazelcastConstants.CONFIG_XML_NAME);
+        }
+    }
 
     private Config primaryHazelcastConfig;
     private HazelcastInstance primaryHazelcastInstance;
@@ -417,9 +426,13 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     }
 
     private void setHazelcastProperties(Config primaryHazelcastConfig) {
-        String hazelcastPropsFileName =
-                System.getProperty("carbon.home") + File.separator + "repository" +
-                File.separator + "conf" + File.separator + "hazelcast.properties";
+        String confPath =  System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+        String hazelcastPropsFileName;
+        if (confPath == null) {
+            hazelcastPropsFileName = CarbonBaseUtils.getCarbonConfigDirPath() + File.separator + "hazelcast.properties";
+        } else {
+            hazelcastPropsFileName = confPath + File.separator + "hazelcast.properties";
+        }
         Properties hazelcastProperties = new Properties();
         // Setting some Hazelcast properties as per https://groups.google.com/forum/#!searchin/hazelcast/Azeez/hazelcast/x-skloPgl2o/PZN60s85XK0J
         hazelcastProperties.setProperty("hazelcast.max.no.heartbeat.seconds", "600");

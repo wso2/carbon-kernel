@@ -55,8 +55,7 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
     private static final Set<String> defaultJarsToSkip = new HashSet<String>();
     private static final StringManager sm =
             StringManager.getManager(Constants.Package);
-    private static final String CARBON_PLUGINS_DIR_PATH = System.getProperty("carbon.home") +
-            "/repository/components/plugins";
+    private static final String CARBON_PLUGINS_DIR_PATH;
 
     static {
         String jarList = System.getProperty(Constants.SKIP_JARS_PROPERTY);
@@ -65,6 +64,13 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
             while (tokenizer.hasMoreElements()) {
                 defaultJarsToSkip.add(tokenizer.nextToken());
             }
+        }
+        String pluginsPath = System.getProperty("components.repo");//todo normally we have set it default
+        if (pluginsPath == null) {
+
+            CARBON_PLUGINS_DIR_PATH = System.getProperty("carbon.home") + File.separator + "repository" + File.separator + "components" + File.separator + "plugins";
+        } else {
+            CARBON_PLUGINS_DIR_PATH = pluginsPath;
         }
     }
 

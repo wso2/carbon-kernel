@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,36 @@ import java.util.jar.JarFile;
 public class DropinsBundleDeployer implements CarbonLaunchExtension {
     private static Log log = LogFactory.getLog(DropinsBundleDeployer.class);
 
+    private static String  dropinsDirPath;
+    private static String bundlesInfoDirPath;
+
+    static {
+        dropinsDirPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+        String componentPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+        String profileName = System.getProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
+
+        if (componentPath == null) {
+            bundlesInfoDirPath = "repository" + File.separator + "components" + File.separator + profileName +
+                                 File.separator + "configuration" + File.separator + "org.eclipse.equinox.simpleconfigurator";
+        } else {
+            //setting relative path
+            componentPath = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentPath)).toString();
+            bundlesInfoDirPath = componentPath + File.separator + profileName + File.separator + "configuration" + File.separator + "org.eclipse.equinox.simpleconfigurator";
+        }
+
+        if (dropinsDirPath == null) {
+            if (componentPath == null) {
+                dropinsDirPath = "repository" + File.separator + "components" + File.separator + "dropins";
+            } else {
+                dropinsDirPath = componentPath + File.separator + "dropins";
+            }
+        } else {
+            //setting relative path, need to remove / sign in dropins/
+            dropinsDirPath = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(dropinsDirPath)).toString();
+        }
+
+    }
+
     /**
      * 1) Extract bundle info from the dropins directory
      * 2) Process the bundles.info file and populate a data structure, during this process we remove the stale
@@ -56,10 +87,6 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
      */
     public void perform() {
         try {
-            String dropinsDirPath = "repository" + File.separator + "components" + File.separator + "dropins";
-            String profileName = System.getProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
-            String bundlesInfoDirPath = "repository" + File.separator + "components" + File.separator + profileName +
-                    File.separator + "configuration" + File.separator + "org.eclipse.equinox.simpleconfigurator";
 
             //1. Extract the bundle information from the dropins directory.
             File dropinsDir = Utils.getBundleDirectory(dropinsDirPath);
@@ -127,9 +154,14 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
                 boolean isFragment = jarFile.getManifest().getMainAttributes().
                         getValue(LauncherConstants.FRAGMENT_HOST) != null;
 
-                bundleInfoArray
-                        .add(new BundleInfoLine(bundleSymbolicName, bundleVersion, "../dropins/" + file.getName(), 4,
-                                                isFragment));
+                String dropinsAbsolutePath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+                if(dropinsAbsolutePath != null ) {
+                    String compoenentProfilePath = Utils.getCarbonComponentRepo() + File.separator + System.getProperty(LauncherConstants.PROFILE);
+                    String relativePathToDropinsFolder = Paths.get(compoenentProfilePath).relativize(Paths.get(dropinsAbsolutePath)).toString();
+                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, relativePathToDropinsFolder + File.separator + file.getName(), 4, isFragment));
+                } else {
+                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, ".." + File.separator + "dropins" + File.separator + file.getName(), 4, isFragment));
+                }
             }
         }
         return bundleInfoArray.toArray(new BundleInfoLine[bundleInfoArray.size()]);

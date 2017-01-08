@@ -76,6 +76,13 @@ public class CheckinClientBootstrap extends Bootstrap {
 		addFileUrl(new File(ROOT + File.separator + LIB + File.separator
 				+ "checkin-client" + File.separator + "log4j.properties"));
 
+		//add component/plugins
+		String internalLibPath = System.getProperty("components.repo");
+		if (internalLibPath != null) {
+			addFileUrl(new File(internalLibPath + File.separator));
+			addJarFileUrls(new File(internalLibPath));
+		}
+
 	}
 
 	@Override

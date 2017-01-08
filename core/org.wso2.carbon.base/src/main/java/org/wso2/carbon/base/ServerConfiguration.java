@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -35,6 +34,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -160,7 +160,13 @@ public class ServerConfiguration implements ServerConfigurationService {
 			return;
 		}
 		if (configurationXMLLocation == null) {
-			configurationXMLLocation = "conf/carbon.xml";
+			String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+			if (configPath == null) {
+				configurationXMLLocation = "conf" + File.separator + "carbon.xml";
+			} else {
+				String relativeConfDirPath = Paths.get(System.getProperty(CarbonBaseConstants.CARBON_HOME)).relativize(Paths.get(configPath)).toString();
+				configurationXMLLocation = relativeConfDirPath + File.separator + "carbon.xml";
+			}
 		}
 
 		InputStream xmlInputStream = null;

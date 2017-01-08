@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
 
 import java.io.File;
@@ -95,8 +96,15 @@ public class JspClassLoader extends URLClassLoader {
 
         system = getSystemClassLoader();
 
-        String launchIniPath = System.getProperty("carbon.home") + File.separator + "repository" +
-                File.separator + "conf" + File.separator + "etc" + File.separator + "launch.ini";
+        String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+        String launchIniPath;
+        if (configPath == null) {
+            launchIniPath = System.getProperty(CarbonBaseConstants.CARBON_HOME) + File.separator + "repository" + File.separator +
+                            "conf" + File.separator + "etc" + File.separator + "launch.ini";
+        } else {
+            launchIniPath = configPath + File.separator + "etc" + File.separator +
+                            "launch.ini";
+        }
         readSystemPackagesList(launchIniPath);
 
     }

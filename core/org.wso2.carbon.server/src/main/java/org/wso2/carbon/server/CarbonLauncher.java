@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.util.Utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -129,9 +128,17 @@ public class CarbonLauncher {
      */
     private Map<String, String> buildInitialPropertyMap() {
         Map<String, String> initialPropertyMap = new HashMap<String, String>();
-        String carbonHome = System.getProperty(LauncherConstants.CARBON_HOME);
-        Properties launchProperties = Utils.loadProperties(carbonHome + File.separator + "repository" +
-                File.separator + "conf" + File.separator + "etc" + File.separator + LauncherConstants.LAUNCH_INI);
+        String carbonConfigHome = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
+        Properties launchProperties;
+        if (carbonConfigHome == null) {
+            String carbonHome = System.getProperty(LauncherConstants.CARBON_HOME);
+            launchProperties = Utils.loadProperties(carbonHome + File.separator + "repository" + File.separator +
+                                                    "conf" + File.separator + "etc" + File.separator +
+                                                    LauncherConstants.LAUNCH_INI);
+        } else {
+            launchProperties = Utils.loadProperties(carbonConfigHome + File.separator + "etc" + File.separator +
+                                                    LauncherConstants.LAUNCH_INI);
+        }
         for (Object o : launchProperties.entrySet()) {
             Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();

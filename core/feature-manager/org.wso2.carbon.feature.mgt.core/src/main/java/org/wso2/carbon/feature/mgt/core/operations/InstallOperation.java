@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.feature.mgt.core.internal.ServiceHolder;
 import org.wso2.carbon.feature.mgt.core.util.SizingPhaseSet;
 
@@ -43,8 +44,11 @@ public class InstallOperation extends ProfileChangeOperation {
     public ProfileChangeRequest generateProfileChangeRequest(IProfile profile, MultiStatus status,
                                                              IProgressMonitor monitor) {
         ProfileChangeRequest request = new ProfileChangeRequest(profile);
-        String carbonHome = System.getProperty("carbon.home");
-        String cacheLocation = carbonHome + File.separator + "repository" + File.separator + "components";
+        String cacheLocation = System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (cacheLocation == null) {
+            String carbonHome = System.getProperty("carbon.home");
+            cacheLocation = carbonHome + File.separator + "repository" + File.separator + "components";
+        }
         request.setProfileProperty(IProfile.PROP_CACHE,cacheLocation);
         request.setProfileProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE,Boolean.TRUE.toString());
         for (IInstallableUnit iu : iusToInstall) {

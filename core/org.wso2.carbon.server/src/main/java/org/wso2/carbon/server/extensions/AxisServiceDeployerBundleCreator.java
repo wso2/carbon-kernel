@@ -33,8 +33,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -47,15 +47,29 @@ import java.util.zip.ZipInputStream;
  */
 public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
 
-    private static final String DEPLOYERS_DIR =
-            "repository" + File.separator + "components" + File.separator + "axis2deployers";
+    private static final String DEPLOYERS_DIR;
+
+    static {
+        String componentsPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (componentsPath != null) {
+            DEPLOYERS_DIR =  java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentsPath)).toString() + File.separator + "axis2deployers";
+        } else {
+            DEPLOYERS_DIR = "repository" + File.separator + "components" + File.separator + "axis2deployers";
+        }
+    }
 
     private static final Log log = LogFactory.getLog(AxisServiceDeployerBundleCreator.class);
 
     private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     public void perform() {
-        File dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
+        String dropinsPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+        File dropinsFolder;
+        if (dropinsPath == null) {
+            dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
+        } else {
+            dropinsFolder = new File(dropinsPath);
+        }
         File dir = Utils.getBundleDirectory(DEPLOYERS_DIR);
         File[] files = dir.listFiles(new Utils.JarFileFilter());
         if (files != null) {

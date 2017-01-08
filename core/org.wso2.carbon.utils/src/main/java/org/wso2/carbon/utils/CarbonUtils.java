@@ -43,6 +43,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
@@ -63,7 +64,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -71,7 +78,11 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A collection of useful utility methods
@@ -243,15 +254,20 @@ public class CarbonUtils {
     }
 
 	public static String getCarbonCatalinaHome() {
-		String carbonCatalinaHomePath = System.getProperty(ServerConstants.CARBON_CATALINA_HOME);
-		if (carbonCatalinaHomePath == null) {
-			carbonCatalinaHomePath = System.getenv(CarbonConstants.CARBON_CATALINA_DIR_PATH_ENV);
-			if (carbonCatalinaHomePath == null) {
-				return getCarbonHome() + File.separator + "lib" + File.separator + "tomcat"
-						+ File.separator + "work" + File.separator + "Catalina";
-			}
-		}
-		return carbonCatalinaHomePath;
+        String carbonCatalinaHomePath;
+        String carbonInternalLibPath = System.getProperty(CarbonBaseConstants.CARBON_INTERNAL_LIB_DIR_PATH);
+        if (carbonInternalLibPath == null) {
+            carbonCatalinaHomePath = System.getProperty(ServerConstants.CARBON_CATALINA_HOME);
+            if (carbonCatalinaHomePath == null) {
+                carbonCatalinaHomePath = System.getenv(CarbonConstants.CARBON_CATALINA_DIR_PATH_ENV);
+                if (carbonCatalinaHomePath == null) {
+                    return getCarbonHome() + File.separator + "lib" + File.separator + "tomcat" + File.separator + "work" + File.separator + "Catalina";
+                }
+            }
+            return carbonCatalinaHomePath;
+        } else {
+            return carbonInternalLibPath + File.separator + "tomcat" + File.separator + "work" + File.separator + "Catalina";
+        }
 
 	}
 	
@@ -311,8 +327,18 @@ public class CarbonUtils {
     }
 
     public static String getCarbonOSGiDropinsDir() {
-        return getCarbonHome() + File.separator + REPOSITORY + File.separator +
-                "components" + File.separator + "dropins";
+        String dropinsPath = System.getProperty(CarbonBaseConstants.CARBON_DROPINS_DIR_PATH);
+        if (dropinsPath == null) {
+            String componentPath = System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
+            if (componentPath == null) {
+                return getCarbonHome() + File.separator + REPOSITORY + File.separator +
+                       "components" + File.separator + "dropins";
+            } else {
+                return componentPath + File.separator + "dropins";
+            }
+        } else {
+            return dropinsPath;
+        }
     }
 
     public static String getAxis2Repo() {

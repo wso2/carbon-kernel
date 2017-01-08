@@ -35,13 +35,32 @@ import java.util.jar.Manifest;
  */
 public class SystemBundleExtensionCreator implements CarbonLaunchExtension {
 
-    private static final String EXTENSIONS_DIR =
-            "repository" + File.separator + "components" + File.separator + "extensions";
+    private static final String EXTENSIONS_DIR;
+
+    static {
+        String extensions = System.getProperty(LauncherConstants.CARBON_EXTENSIONS_DRI_PATH);
+        if (extensions == null) {
+            String componentsPath  = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+            if (componentsPath == null) {
+                EXTENSIONS_DIR = "repository" + File.separator + "components" + File.separator + "extensions";
+            } else {
+                EXTENSIONS_DIR = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentsPath)).toString() + File.separator + "extensions";
+            }
+        } else {
+            EXTENSIONS_DIR = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(extensions)).toString();
+        }
+    }
 
     private static final String EXTENSION_PREFIX = "org.wso2.carbon.framework.extension.";
 
     public void perform() {
-        File dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
+        String dropinsPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+        File dropinsFolder;
+        if (dropinsPath == null) {
+            dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
+        } else {
+            dropinsFolder = new File(dropinsPath);
+        }
 
         File dir = Utils.getBundleDirectory(EXTENSIONS_DIR);
         File[] files = dir.listFiles(new Utils.JarFileFilter());

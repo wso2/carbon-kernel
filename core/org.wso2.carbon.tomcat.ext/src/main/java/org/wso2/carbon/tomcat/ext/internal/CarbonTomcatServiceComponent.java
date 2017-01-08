@@ -6,6 +6,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.tomcat.CarbonTomcatException;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
@@ -48,9 +49,14 @@ public class CarbonTomcatServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("webContextRoot : " + webContextRoot);
         }
-        String carbonHome = System.getProperty("carbon.home");
-        String carbonWebAppDir = carbonHome + File.separator + "repository" + File.separator +"conf"
-                +File.separator+"tomcat"+File.separator+"carbon";
+        String carbonConfigHome = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+        String carbonWebAppDir;
+        if (carbonConfigHome == null) {
+            String carbonHome = System.getProperty(CarbonBaseConstants.CARBON_HOME);
+            carbonWebAppDir = carbonHome + File.separator + "repository" + File.separator + "conf" + File.separator + "tomcat" + File.separator + "carbon";
+        } else {
+            carbonWebAppDir = carbonConfigHome + File.separator + "tomcat" + File.separator + "carbon";
+        }
         /*acquiring the thread context classLoader, so that we can swap the default, threadContextClassLoader of
          tomcat transport listeners (web-app classLoader) during the service method invocation in {@link DelegationServlet}
          */

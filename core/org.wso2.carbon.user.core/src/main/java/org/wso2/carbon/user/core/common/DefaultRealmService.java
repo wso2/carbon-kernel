@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
@@ -51,6 +52,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -290,8 +292,13 @@ public class DefaultRealmService implements RealmService {
                 }
                 inStream = new FileInputStream(userMgtXml);
             } else {
-                inStream = this.getClass().getClassLoader()
-                        .getResourceAsStream("repository/conf/user-mgt.xml");
+                String confPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+                if (confPath == null) {
+                    inStream = this.getClass().getClassLoader().getResourceAsStream("repository" + File.separator + "conf" + File.separator + "user-mgt.xml");
+                } else {
+                    String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
+                    inStream = this.getClass().getClassLoader().getResourceAsStream(relativeConfDirPath + File.separator + "user-mgt.xml");
+                }
                 if (inStream == null) {
                     String msg = "Instance of a WSO2 User Manager has not been created. user-mgt.xml is not found. Please set the carbon.home";
                     throw new FileNotFoundException(msg);

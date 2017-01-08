@@ -28,7 +28,6 @@ import org.wso2.carbon.server.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -39,9 +38,21 @@ public class PatchInstaller implements CarbonLaunchExtension {
 
     public void perform() {
         File carbonComponentDir = Utils.getCarbonComponentRepo();
+        String patchesPath = System.getProperty(LauncherConstants.CARBON_PATCHES_DIR_PATH);
+        String servicepackPaths = System.getProperty(LauncherConstants.CARBON_SERVICEPACKS_DIR_PATH);
         File plugins = new File(carbonComponentDir, LauncherConstants.PLUGINS_DIR);
-        File servicepackDir = new File(carbonComponentDir, LauncherConstants.SERVICEPACKS_DIR);
-        File patchesDir = new File(carbonComponentDir, LauncherConstants.PARENT_PATCHES_DIR);
+        File servicepackDir;
+        File patchesDir;
+        if (servicepackPaths == null) {
+            servicepackDir = new File(carbonComponentDir, LauncherConstants.SERVICEPACKS_DIR);
+        } else {
+            servicepackDir = new File(servicepackPaths);
+        }
+        if(patchesPath == null) {
+            patchesDir = new File(carbonComponentDir, LauncherConstants.PARENT_PATCHES_DIR);
+        } else {
+            patchesDir = new File(patchesPath);
+        }
         File prePatchedDirFile = new File(PatchUtils.getMetaDirectory(), LauncherConstants.PRE_PATCHED_DIR_FILE);
 
 
