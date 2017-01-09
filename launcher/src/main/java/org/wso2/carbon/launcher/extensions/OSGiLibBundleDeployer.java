@@ -30,10 +30,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class deploys the OSGi bundles in CARBON_HOME/{@value org.wso2.carbon.launcher.Constants.OSGI_LIB} directory in
+ * This class deploys the OSGi bundles in CARBON_HOME/{@value org.wso2.carbon.launcher.Constants#OSGI_LIB} directory in
  * the Carbon Server.
  * <p>
- * For this purpose, the OSGi bundle information retrieved from the {@value org.wso2.carbon.launcher.Constants.OSGI_LIB}
+ * For this purpose, the OSGi bundle information retrieved from the {@value org.wso2.carbon.launcher.Constants#OSGI_LIB}
  * directory bundles are
  * updated in the bundles.info file of each and every, existing Carbon runtime, along with the bundle startup
  * information of each bundle.
