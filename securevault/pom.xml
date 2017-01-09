@@ -25,13 +25,12 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.core</artifactId>
+    <artifactId>org.wso2.carbon.securevault</artifactId>
     <version>5.2.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Kernel - Core</name>
+    <name>WSO2 Carbon Kernel - Secure Vault</name>
     <description>
-        The core bundle which includes all core features of kernel
-        Eg : (Deployment Framework, Logging Framework, Transport Framework, etc)
+        Secure vault bundle
     </description>
     <url>http://wso2.com</url>
 
@@ -73,11 +72,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.json.wso2</groupId>
-            <artifactId>json</artifactId>
-            <version>${org.json.import.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <scope>test</scope>
@@ -91,10 +85,6 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-testng</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.securevault</artifactId>
         </dependency>
     </dependencies>
 
@@ -149,33 +139,18 @@
     </build>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
-        <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
+        <private.package>org.wso2.carbon.kernel.securevault.internal.*,</private.package>
         <export.package>
-            !org.wso2.carbon.kernel.internal.*,
-            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+            !org.wso2.carbon.kernel.securevault.internal.*,
+            org.wso2.carbon.kernel.securevault.*; version="${carbon.kernel.package.export.version}",
         </export.package>
         <import.package>
-            org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
-            javax.management.*;version="${javax.management.import.version.range}",
-            javax.security.auth.*;version="${javax.security.auth.import.version.range}",
-            javax.xml.*;version="${javax.xml.import.version.range}",
-            org.w3c.*;version="${org.w3c.import.version.range}",
-            org.json.*;version="${org.json.import.version}",
-            org.xml.sax.*;version="${org.xml.sax.import.version.range}",
             javax.crypto.*;version="${javax.crypto.version.range}",
         </import.package>
-        <carbon.component>
-            startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
-            startup.listener;componentName="carbon-runtime-mgt";requiredService="org.wso2.carbon.kernel.runtime.Runtime",
-            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt"
-        </carbon.component>
     </properties>
 
 </project>

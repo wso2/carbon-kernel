@@ -18,7 +18,6 @@ package org.wso2.carbon.kernel.securevault;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.tool.CipherTool;
 
@@ -40,7 +39,7 @@ public class CipherToolTest {
 
     @Test
     public void testEncryptionAndDecryption() throws SecureVaultException {
-        System.setProperty(Constants.CARBON_HOME, secureVaultResourcesPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultResourcesPath.toString());
         List<URL> urls = new ArrayList<>();
         URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
 

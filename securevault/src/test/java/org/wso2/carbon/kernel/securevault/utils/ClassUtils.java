@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.kernel.securevault.utils;
 
 import java.lang.reflect.Field;
 

@@ -19,12 +19,11 @@ package org.wso2.carbon.kernel.securevault;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.reader.DefaultMasterKeyReader;
-import org.wso2.carbon.kernel.utils.ClassUtils;
-import org.wso2.carbon.kernel.utils.EnvironmentUtils;
+import org.wso2.carbon.kernel.securevault.utils.ClassUtils;
+import org.wso2.carbon.kernel.securevault.utils.EnvironmentUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -58,7 +57,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test
     public void testReadMasterKeys() {
-        System.setProperty(Constants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
+        System.setProperty(SecureVaultConstants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
                 "nonExisting").toString());
 
         List<MasterKey> masterKeys = new ArrayList<>();
@@ -73,7 +72,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeys"})
     public void testReadMasterKeysFromEnvironment() {
-        System.setProperty(Constants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
+        System.setProperty(SecureVaultConstants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
                 "nonExisting").toString());
 
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
@@ -90,7 +89,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeysFromEnvironment"})
     public void testReadMasterKeysFromSystem() {
-        System.setProperty(Constants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
+        System.setProperty(SecureVaultConstants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
                 "nonExisting").toString());
 
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
@@ -108,7 +107,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(expectedExceptions = SecureVaultException.class, dependsOnMethods = {"testReadMasterKeysFromSystem"})
     public void testReadMasterKeysFromEmptyFile() throws SecureVaultException {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
@@ -130,7 +129,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeysFromEmptyFile"})
     public void testReadMasterKeysFromFile() {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
@@ -155,7 +154,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeysFromFile"}, expectedExceptions = {SecureVaultException.class})
     public void testReadMasterKeysFromFileWithNoMasterKeys() throws SecureVaultException {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
@@ -175,7 +174,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeysFromFileWithNoMasterKeys"})
     public void testReadMasterKeysFromPermanentFile() {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         EnvironmentUtils.setEnv("MasterKey1", "MyPasswordFromEnv");
         System.setProperty("MasterKey1", "MyPasswordFromSys");
@@ -201,7 +200,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeysFromPermanentFile"})
     public void testReadMasterKeysViaRelocation() {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
         Properties properties = new Properties();
@@ -230,7 +229,7 @@ public class DefaultMasterKeyReaderTest {
 
     @Test(dependsOnMethods = {"testReadMasterKeysViaRelocation"}, expectedExceptions = {SecureVaultException.class})
     public void testReadMasterKeysViaRelocationNonExistingFile() throws SecureVaultException {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         MasterKeyConfiguration masterKeyConfiguration = new MasterKeyConfiguration();
         Properties properties = new Properties();
@@ -258,7 +257,7 @@ public class DefaultMasterKeyReaderTest {
     @Test(expectedExceptions = {SecureVaultException.class},
             dependsOnMethods = {"testReadMasterKeysViaRelocationNonExistingFile"})
     public void testReadMasterKeysViaRelocationCyclicDependency() throws SecureVaultException {
-        System.setProperty(Constants.CARBON_HOME, secureVaultTargetPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultTargetPath.toString());
 
         File tempFile = new File(Paths.get(secureVaultTargetPath.toString(), "new-master-keys.yaml").toString());
         File tempFile1 = new File(Paths.get(secureVaultTargetPath.toString(), "master-keys.yaml").toString());

@@ -20,7 +20,6 @@ import org.easymock.EasyMock;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.repository.DefaultSecretRepository;
@@ -77,7 +76,7 @@ public class DefaultSecretRepositoryTest {
 
     @Test
     public void testInitSecretRepository() throws SecureVaultException {
-        System.setProperty(Constants.CARBON_HOME, secureVaultResourcesPath.toString());
+        System.setProperty(SecureVaultConstants.CARBON_HOME, secureVaultResourcesPath.toString());
         SecretRepositoryConfiguration secretRepositoryConfiguration =
                 EasyMock.mock(SecretRepositoryConfiguration.class);
         MasterKeyReader masterKeyReader = new DefaultHardCodedMasterKeyReader();

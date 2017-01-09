@@ -22,7 +22,6 @@ import org.wso2.carbon.kernel.securevault.MasterKey;
 import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.kernel.utils.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -90,7 +89,8 @@ public class JKSBasedCipherProvider {
 
     private KeyStore loadKeyStore(String keyStorePath, char[] keyStorePassword) throws SecureVaultException {
             try (BufferedInputStream bufferedInputStream = new BufferedInputStream(
-                    new FileInputStream(Paths.get(Utils.getCarbonHome().toString(), keyStorePath).toString()))) {
+                    new FileInputStream(Paths.get(SecureVaultUtils.getCarbonHome().toString(),
+                            keyStorePath).toString()))) {
             KeyStore keyStore;
             try {
                 keyStore = KeyStore.getInstance(JKS);

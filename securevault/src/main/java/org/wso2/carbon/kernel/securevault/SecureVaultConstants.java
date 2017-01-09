@@ -29,6 +29,8 @@ public class SecureVaultConstants {
     public static final String PLAIN_TEXT = "plainText";
     public static final String LOCATION = "location";
     public static final String SPACE = " ";
+    public static final String CARBON_HOME = "carbon.home";
+    public static final String CARBON_HOME_ENV = "CARBON_HOME";
 
     /**
      * Remove default constructor and make it not available to initialize.

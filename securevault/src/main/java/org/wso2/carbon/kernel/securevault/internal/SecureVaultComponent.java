@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.internal.securevault;
+package org.wso2.carbon.kernel.securevault.internal;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -24,10 +25,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.securevault.MasterKeyReader;
 import org.wso2.carbon.kernel.securevault.SecretRepository;
 import org.wso2.carbon.kernel.securevault.SecureVault;
+import org.wso2.carbon.kernel.securevault.SecureVaultInitializer;
 import org.wso2.carbon.kernel.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 
@@ -51,7 +52,6 @@ import java.util.Optional;
 public class SecureVaultComponent {
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultComponent.class);
     private Optional<SecureVaultConfiguration> optSecureVaultConfiguration;
-    private boolean initialized = false;
 
     private String secretRepositoryType;
     private String masterKeyReaderType;
@@ -70,12 +70,15 @@ public class SecureVaultComponent {
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
+        SecureVaultDataHolder.getInstance().setBundleContext(bundleContext);
+        initializeSecureVault();
         logger.debug("Activating SecureVaultComponent");
     }
 
     @Deactivate
-    public void deactivate() {
+    public void deactivate(BundleContext bundleContext) {
+        SecureVaultDataHolder.getInstance().setBundleContext(null);
         logger.debug("Deactivating SecureVaultComponent");
     }
 
@@ -124,48 +127,21 @@ public class SecureVaultComponent {
     }
 
     private void initializeSecureVault() {
-        synchronized (this) {
-            if (initialized) {
-                logger.debug("Secure Vault Component is already initialized");
-                return;
-            }
 
-            if (!SecureVaultDataHolder.getInstance().getSecretRepository().isPresent() ||
-                    !SecureVaultDataHolder.getInstance().getMasterKeyReader().isPresent()) {
-                logger.debug("Waiting for Secure Vault dependencies");
-                return;
-            }
-
-            try {
-                logger.debug("Initializing the secure vault with, SecretRepositoryType={}, MasterKeyReaderType={}",
-                        secretRepositoryType, masterKeyReaderType);
-
-                SecureVaultConfiguration secureVaultConfiguration = optSecureVaultConfiguration
-                        .orElseThrow(() -> new SecureVaultException("Cannot initialize secure vault without " +
-                                "secure vault configurations"));
-
-                MasterKeyReader masterKeyReader = SecureVaultDataHolder.getInstance().getMasterKeyReader()
-                        .orElseThrow(() ->
-                                new SecureVaultException("Cannot initialise secure vault without master key reader"));
-                SecretRepository secretRepository = SecureVaultDataHolder.getInstance().getSecretRepository()
-                        .orElseThrow(() ->
-                                new SecureVaultException("Cannot initialise secure vault without secret repository"));
-
-                masterKeyReader.init(secureVaultConfiguration.getMasterKeyReaderConfig());
-                secretRepository.init(secureVaultConfiguration.getSecretRepositoryConfig(), masterKeyReader);
-
-                secretRepository.loadSecrets(secureVaultConfiguration.getSecretRepositoryConfig());
-
-                Optional.ofNullable(DataHolder.getInstance().getBundleContext())
-                        .ifPresent(bundleContext -> bundleContext
-                                .registerService(SecureVault.class, new SecureVaultImpl(), null));
-
-                initialized = true;
-            } catch (SecureVaultException e) {
-                logger.error("Failed to initialize Secure Vault.", e);
-            }
+        if (!SecureVaultDataHolder.getInstance().getSecretRepository().isPresent() ||
+                !SecureVaultDataHolder.getInstance().getMasterKeyReader().isPresent() ||
+                !SecureVaultDataHolder.getInstance().getBundleContext().isPresent()) {
+            logger.debug("Waiting for Secure Vault dependencies");
+            return;
         }
 
-        logger.debug("Secure Vault initialized successfully");
+        SecureVaultInitializer.getInstance().initializeSecureVault(masterKeyReaderType, secretRepositoryType);
+
+        if (SecureVaultInitializer.getInstance().initialized) {
+            SecureVaultDataHolder.getInstance().getBundleContext()
+                    .ifPresent(bundleContext -> bundleContext
+                            .registerService(SecureVault.class, new SecureVaultImpl(), null));
+        }
+
     }
 }

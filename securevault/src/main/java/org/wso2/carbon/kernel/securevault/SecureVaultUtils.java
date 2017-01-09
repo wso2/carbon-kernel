@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.kernel.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -113,7 +112,7 @@ public class SecureVaultUtils {
 
     public static String getSecretPropertiesFileLocation(SecretRepositoryConfiguration secretRepositoryConfiguration) {
         return secretRepositoryConfiguration.getParameter(SecureVaultConstants.LOCATION)
-                .orElseGet(() -> Utils.getCarbonConfigHome()
+                .orElseGet(() -> getCarbonConfigHome()
                         .resolve(Paths.get("security", SecureVaultConstants.SECRETS_PROPERTIES)).toString());
     }
 
@@ -123,7 +122,7 @@ public class SecureVaultUtils {
      * @return String secure_vault.yaml location
      */
     public static String getSecureVaultYAMLLocation() {
-        return Utils.getCarbonConfigHome().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
+        return getCarbonConfigHome().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
     }
 
     /**
@@ -223,5 +222,30 @@ public class SecureVaultUtils {
         } catch (IOException e) {
             throw new SecureVaultException("Failed to read file : " + file.getAbsoluteFile(), e);
         }
+    }
+
+    /**
+     * Returns the Carbon Home directory path. If {@code carbon.home} system property is not found, gets the
+     * {@code CARBON_HOME_ENV} system property value and sets to the carbon home.
+     *
+     * @return returns the Carbon Home directory path
+     */
+    public static Path getCarbonHome() {
+        String carbonHome = System.getProperty(SecureVaultConstants.CARBON_HOME);
+        if (carbonHome == null) {
+            carbonHome = System.getenv(SecureVaultConstants.CARBON_HOME_ENV);
+            System.setProperty(SecureVaultConstants.CARBON_HOME, carbonHome);
+        }
+        return Paths.get(carbonHome);
+    }
+
+    /**
+     * This method will return the carbon configuration directory path.
+     * i.e ${carbon.home}/conf
+     *
+     * @return returns the Carbon Configuration directory path
+     */
+    public static Path getCarbonConfigHome() {
+        return Paths.get(getCarbonHome().toString(), "conf");
     }
 }
