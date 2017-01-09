@@ -49,7 +49,7 @@ Follow the links given below for details of plugins:
 See the steps for [setting up and starting a WSO2 Carbon server](docs/GettingStarted.md).
 
 ## How To Contribute
-* Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
+* Please report issues at [WSO2 Carbon Issues](https://github.com/wso2/carbon-kernel/issues).
 * Send your pull requests to [master branch](https://github.com/wso2/carbon-kernel/tree/master).
 * You can find more instructions on howto contribute on community site (http://wso2.com/community).
 

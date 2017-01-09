@@ -47,7 +47,7 @@ public class OSGiLibBundleDeployerUtils {
 
     /**
      * Updates the bundles.info file of the specified Carbon Runtime based on the OSGi bundles deployed in the
-     * {@value org.wso2.carbon.launcher.Constants.OSGI_LIB} directory. The OSGi bundle information in the
+     * {@value org.wso2.carbon.launcher.Constants#OSGI_LIB} directory. The OSGi bundle information in the
      * bundles.info file in a Carbon runtime is used to install and start the bundles at the server startup for the
      * particular profile.
      * <p>

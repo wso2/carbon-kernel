@@ -33,7 +33,7 @@ Software Requirements
 -------------------
 1. Java SE Development Kit - 1.8
 
-All known issues have been recorded at https://wso2.org/jira/browse/CARBON
+All known issues have been recorded at https://github.com/wso2/carbon-kernel/issues
 
 Carbon Binary Distribution Directory Structure
 --------------------------------------------
