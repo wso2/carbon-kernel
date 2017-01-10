@@ -154,7 +154,7 @@
     <%if(array != null) {
  if (array.length != 0){%>
         for (var i = 0; i <= <%=array.length%>; i++) {
-            if ('<%=array[j]%>' == serverRoleName) {
+            if ('<%=Encode.forHtml(array[j])%>' == serverRoleName) {
                 return true;
             }
         <%j++;%>
@@ -238,7 +238,7 @@
                 <td><fmt:message key="server-role.type.default"/></td>
                 <td>
                     <a href="#"
-                       onclick="deleteServerRole('<%=Encode.forHtml(defaultServerRole)%>',
+                       onclick="deleteServerRole('<%=Encode.forJavaScript(defaultServerRole)%>',
                        '<fmt:message key="server-role.type.default"/>')"
                        class="icon-link"
                        style="background-image:url(../roles-mgt/images/delete.gif);"><fmt:message
@@ -257,7 +257,7 @@
                 <td><fmt:message key="server-role.type.custom"/></td>
                 <td>
                     <a href="#"
-                       onclick="deleteServerRole('<%=Encode.forHtml(customServerRole)%>',
+                       onclick="deleteServerRole('<%=Encode.forJavaScript(customServerRole)%>',
                        '<fmt:message key="server-role.type.custom"/>')"
                        class="icon-link"
                        style="background-image:url(../roles-mgt/images/delete.gif);"><fmt:message
