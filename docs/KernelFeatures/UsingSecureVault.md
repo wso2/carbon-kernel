@@ -32,7 +32,7 @@ CipherTool also depends on the configurations given in the file. Therefore, it i
 
 ## How to Implement the Custom Master Key Reader
 All the MasterKeyReader implementations should derive from the MasterKeyReader (org.wso2.carbon.kernel.securevault.MasterKeyReader) interface. This interface should be registered as an OSGi service. SecureVault gets all the MasterKeyReader implementations and binds itself only with the matching MasterKeyReader, which is specified in the `secure-vault.yaml` file.
-
+```java
     public class CustomHardCodedMasterKeyReader implements MasterKeyReader {
         private static Logger logger = LoggerFactory.getLogger(DefaultHardCodedMasterKeyReader.class);
 
@@ -52,10 +52,10 @@ All the MasterKeyReader implementations should derive from the MasterKeyReader (
             privateKeyPassword.setMasterKeyValue("wso2carbon".toCharArray());
         }
     }
-
+```
 ## How to Implement the Secret Repository
 All the Secret Repository implementations should derive from the Secret Repository interface and should be registered as an OSGi service of that interface. From all the registered implementations for Secret Repository, SecureVault chooses the correct Secret Repository based on the configurations given in the secure-vault.yaml file.
-
+```java
     @Component(
             name = "org.wso2.carbon.kernel.securevault.repository.CustomSecretRepository",
             immediate = true,
@@ -106,7 +106,7 @@ All the Secret Repository implementations should derive from the Secret Reposito
             return new byte[0];
         }
     }
-
+```
 
 ## Accessing Secure Vault in non OSGI environment.
 
@@ -114,25 +114,25 @@ SecureVault functionality can access in non OSGI mode by following the below ste
 
 1. Add secure vault dependency to the client project.
 
-    <dependency>
-        <groupId>org.wso2.carbon</groupId>
-        <artifactId>org.wso2.carbon.securevault</artifactId>
-        <version>${carbon.kernel.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.securevault</artifactId>
+            <version>${carbon.kernel.version}</version>
+        </dependency>
 
 2. Add following system properties to the client program.
 
-    -DMasterKeys_File_Path=<master key file path>
-    -DKeyStore_Path=<key store file path>
-    -Dsecret.properties.path=<secret properties file path>
-    -Dsecure-vault.yaml.path=<secure vault yaml file path>
+        -DMasterKeys_File_Path=<master key file path>
+        -DKeyStore_Path=<key store file path>
+        -Dsecret.properties.path=<secret properties file path>
+        -Dsecure-vault.yaml.path=<secure vault yaml file path>
 
 ex : If all the files are in root directory of the project.
 
-    -DMasterKeys_File_Path=master-keys.yaml
-    -DKeyStore_Path=wso2carbon.jks
-    -Dsecret.properties.path=secrets.properties
-    -Dsecure-vault.yaml.path=secure-vault.yaml
+        -DMasterKeys_File_Path=master-keys.yaml
+        -DKeyStore_Path=wso2carbon.jks
+        -Dsecret.properties.path=secrets.properties
+        -Dsecure-vault.yaml.path=secure-vault.yaml
 
 3. Following Client class will initialize the secure vault to invoke resolve function.
 ```java
