@@ -115,27 +115,27 @@ SecureVault functionality can access in non OSGI mode by following the below ste
 1. Add secure vault dependency to the client project.
 
     <dependency>
-      <groupId>org.wso2.carbon</groupId>
-      <artifactId>org.wso2.carbon.securevault</artifactId>
-      <version>${carbon.kernel.version}</version>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.securevault</artifactId>
+        <version>${carbon.kernel.version}</version>
     </dependency>
 
 2. Add following system properties to the client program.
 
--DMasterKeys_File_Path=<master key file path>
--DKeyStore_Path=<key store file path>
--Dsecret.properties.path=<secret properties file path>
--Dsecure-vault.yaml.path=<secure vault yaml file path>
+    -DMasterKeys_File_Path=<master key file path>
+    -DKeyStore_Path=<key store file path>
+    -Dsecret.properties.path=<secret properties file path>
+    -Dsecure-vault.yaml.path=<secure vault yaml file path>
 
 ex : If all the files are in root directory of the project.
 
--DMasterKeys_File_Path=master-keys.yaml
--DKeyStore_Path=wso2carbon.jks
--Dsecret.properties.path=secrets.properties
--Dsecure-vault.yaml.path=secure-vault.yaml
+    -DMasterKeys_File_Path=master-keys.yaml
+    -DKeyStore_Path=wso2carbon.jks
+    -Dsecret.properties.path=secrets.properties
+    -Dsecure-vault.yaml.path=secure-vault.yaml
 
 3. Following Client class will initialize the secure vault to invoke resolve function.
-
+```java
     import org.wso2.carbon.kernel.securevault.SecureVaultInitializer;
     import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
     import org.wso2.carbon.kernel.securevault.internal.SecureVaultDataHolder;
@@ -159,10 +159,10 @@ ex : If all the files are in root directory of the project.
 
         }
     }
-
+```
 P.S : If user is willing to use custom master key reader or custom secret repository, then user can implement
 the interfaces as mentioned in
-[How to Implement the Custom Master Key Reader](## How to Implement the Custom Master Key Reader) and
-[How to Implement the Secret Repository](## How to Implement the Secret Repository) and use them as service providers.
+[How to Implement the Custom Master Key Reader](#how-to-implement-the-custom-master-key-reader) and
+[How to Implement the Secret Repository](#how-to-implement-the-secret-repository) and use them as service providers.
 Refer [Java SPI example](https://docs.oracle.com/javase/tutorial/ext/basics/spi.html) for more details on how to add
 service providers.
