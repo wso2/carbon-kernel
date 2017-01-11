@@ -90,11 +90,8 @@ public class SecureVaultInitializer {
 
     /**
      * Initialize the secret repository.
-     *
-     * @param masterKeyReaderType master key reader implementation class reference.
-     * @param secretRepositoryType secret repository implementation class reference.
      */
-    public void initializeSecureVault(String masterKeyReaderType, String secretRepositoryType) {
+    public void initializeSecureVault() {
         initializeMasterKeyReader();
         initializeSecretRepository();
         synchronized (this) {

@@ -111,9 +111,13 @@ public class SecureVaultUtils {
     }
 
     public static String getSecretPropertiesFileLocation(SecretRepositoryConfiguration secretRepositoryConfiguration) {
+        if (getCarbonConfigHome().isPresent()) {
+            return secretRepositoryConfiguration.getParameter(SecureVaultConstants.LOCATION)
+                    .orElseGet(() -> getCarbonConfigHome().get()
+                            .resolve(Paths.get("security", SecureVaultConstants.SECRETS_PROPERTIES)).toString());
+        }
         return secretRepositoryConfiguration.getParameter(SecureVaultConstants.LOCATION)
-                .orElseGet(() -> getCarbonConfigHome()
-                        .resolve(Paths.get("security", SecureVaultConstants.SECRETS_PROPERTIES)).toString());
+                .orElseGet(() -> System.getProperty(SecureVaultConstants.SECRET_PROPERTIES_FILE_PATH));
     }
 
     /**
@@ -122,7 +126,10 @@ public class SecureVaultUtils {
      * @return String secure_vault.yaml location
      */
     public static String getSecureVaultYAMLLocation() {
-        return getCarbonConfigHome().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
+        if (getCarbonConfigHome().isPresent()) {
+            return getCarbonConfigHome().get().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
+        }
+        return System.getProperty(SecureVaultConstants.SECURE_VAULT_YAML_FILE_PATH);
     }
 
     /**
@@ -230,13 +237,16 @@ public class SecureVaultUtils {
      *
      * @return returns the Carbon Home directory path
      */
-    public static Path getCarbonHome() {
-        String carbonHome = System.getProperty(SecureVaultConstants.CARBON_HOME);
-        if (carbonHome == null) {
-            carbonHome = System.getenv(SecureVaultConstants.CARBON_HOME_ENV);
-            System.setProperty(SecureVaultConstants.CARBON_HOME, carbonHome);
+    public static Optional<Path> getCarbonHome() {
+        Optional<String> carbonHome = Optional.ofNullable(System.getProperty(SecureVaultConstants.CARBON_HOME));
+        if (!carbonHome.isPresent()) {
+            carbonHome = Optional.ofNullable(System.getenv(SecureVaultConstants.CARBON_HOME_ENV));
+            carbonHome.ifPresent((home) -> System.setProperty(SecureVaultConstants.CARBON_HOME, home));
+            if (!carbonHome.isPresent()) {
+                return Optional.empty();
+            }
         }
-        return Paths.get(carbonHome);
+        return Optional.of(Paths.get(carbonHome.get()));
     }
 
     /**
@@ -245,7 +255,10 @@ public class SecureVaultUtils {
      *
      * @return returns the Carbon Configuration directory path
      */
-    public static Path getCarbonConfigHome() {
-        return Paths.get(getCarbonHome().toString(), "conf");
+    public static Optional<Path> getCarbonConfigHome() {
+        if (getCarbonHome().isPresent()) {
+            return Optional.of(Paths.get(getCarbonHome().get().toString(), "conf"));
+        }
+        return Optional.empty();
     }
 }

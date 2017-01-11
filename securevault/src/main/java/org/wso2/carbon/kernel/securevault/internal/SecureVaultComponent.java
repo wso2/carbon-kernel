@@ -135,7 +135,7 @@ public class SecureVaultComponent {
             return;
         }
 
-        SecureVaultInitializer.getInstance().initializeSecureVault(masterKeyReaderType, secretRepositoryType);
+        SecureVaultInitializer.getInstance().initializeSecureVault();
 
         if (SecureVaultInitializer.getInstance().initialized) {
             SecureVaultDataHolder.getInstance().getBundleContext()
