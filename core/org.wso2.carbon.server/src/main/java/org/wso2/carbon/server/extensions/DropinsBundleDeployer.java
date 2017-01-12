@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,35 @@ import java.util.jar.JarFile;
 public class DropinsBundleDeployer implements CarbonLaunchExtension {
     private static Log log = LogFactory.getLog(DropinsBundleDeployer.class);
 
+    private static String  dropinsDirPath;
+    private static String bundlesInfoDirPath;
+
+    static {
+        dropinsDirPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+        String componentPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+        String profileName = System.getProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
+
+        if (componentPath == null) {
+            bundlesInfoDirPath = Paths.get("repository", "components", profileName, "configuration", "org.eclipse.equinox.simpleconfigurator").toString();
+        } else {
+            //setting relative path
+            componentPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(componentPath)).toString();
+            bundlesInfoDirPath = Paths.get(componentPath, profileName, "configuration", "org.eclipse.equinox.simpleconfigurator").toString();
+        }
+
+        if (dropinsDirPath == null) {
+            if (componentPath == null) {
+                dropinsDirPath = Paths.get("repository", "components", "dropins").toString();
+            } else {
+                dropinsDirPath = Paths.get(componentPath, "dropins").toString();
+            }
+        } else {
+            //setting relative path, need to remove / sign in dropins/
+            dropinsDirPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(dropinsDirPath)).toString();
+        }
+
+    }
+
     /**
      * 1) Extract bundle info from the dropins directory
      * 2) Process the bundles.info file and populate a data structure, during this process we remove the stale
@@ -56,10 +86,6 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
      */
     public void perform() {
         try {
-            String dropinsDirPath = "repository" + File.separator + "components" + File.separator + "dropins";
-            String profileName = System.getProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
-            String bundlesInfoDirPath = "repository" + File.separator + "components" + File.separator + profileName +
-                    File.separator + "configuration" + File.separator + "org.eclipse.equinox.simpleconfigurator";
 
             //1. Extract the bundle information from the dropins directory.
             File dropinsDir = Utils.getBundleDirectory(dropinsDirPath);
@@ -127,9 +153,14 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
                 boolean isFragment = jarFile.getManifest().getMainAttributes().
                         getValue(LauncherConstants.FRAGMENT_HOST) != null;
 
-                bundleInfoArray
-                        .add(new BundleInfoLine(bundleSymbolicName, bundleVersion, "../dropins/" + file.getName(), 4,
-                                                isFragment));
+                String dropinsAbsolutePath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+                if(dropinsAbsolutePath != null ) {
+                    String compoenentProfilePath = Paths.get(Utils.getCarbonComponentRepo().getPath(), System.getProperty(LauncherConstants.PROFILE)).toString();
+                    String relativePathToDropinsFolder = Paths.get(compoenentProfilePath).relativize(Paths.get(dropinsAbsolutePath)).toString();
+                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, Paths.get(relativePathToDropinsFolder, file.getName()).toString(), 4, isFragment));
+                } else {
+                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, Paths.get("..", "dropins", file.getName()).toString(), 4, isFragment));
+                }
             }
         }
         return bundleInfoArray.toArray(new BundleInfoLine[bundleInfoArray.size()]);

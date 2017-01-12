@@ -18,14 +18,13 @@
 package org.wso2.carbon.bootstrap;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.*;
 
 /**
  * The bootstrap class used for bootstrapping a Carbon server in standalone mode.
@@ -39,6 +38,7 @@ public class Bootstrap {
 
 	private final Set<URL> classpath = new LinkedHashSet<URL>();
 	private static final String CARBON_HOME = "carbon.home";
+    private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
 	protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
 
     public static void main(String args[]) {
@@ -71,8 +71,15 @@ public class Bootstrap {
     protected void addClassPathEntries() throws MalformedURLException {
 
         // Add lib
-        addFileUrl(new File(ROOT + File.separator + "lib" + File.separator));
-        addJarFileUrls(new File(ROOT + File.separator + "lib"));
+        String internalLib = System.getProperty(INTERNAL_CARBON_LIB_DIR_PATH);
+        if (internalLib == null) {
+            File libFile = Paths.get(ROOT, "lib").toFile();
+            addFileUrl(libFile);
+            addJarFileUrls(libFile);
+        } else {
+            addFileUrl(new File(internalLib));
+            addJarFileUrls(new File(internalLib));
+        }
     }
 
     /**

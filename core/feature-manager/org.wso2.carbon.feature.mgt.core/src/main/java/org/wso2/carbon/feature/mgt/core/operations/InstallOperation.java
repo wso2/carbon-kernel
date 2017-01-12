@@ -18,20 +18,21 @@ package org.wso2.carbon.feature.mgt.core.operations;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
+import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.feature.mgt.core.internal.ServiceHolder;
 import org.wso2.carbon.feature.mgt.core.util.SizingPhaseSet;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Collection;
 
 public class InstallOperation extends ProfileChangeOperation {
@@ -43,8 +44,11 @@ public class InstallOperation extends ProfileChangeOperation {
     public ProfileChangeRequest generateProfileChangeRequest(IProfile profile, MultiStatus status,
                                                              IProgressMonitor monitor) {
         ProfileChangeRequest request = new ProfileChangeRequest(profile);
-        String carbonHome = System.getProperty("carbon.home");
-        String cacheLocation = carbonHome + File.separator + "repository" + File.separator + "components";
+        String cacheLocation = System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (cacheLocation == null) {
+            String carbonHome = System.getProperty("carbon.home");
+            cacheLocation = Paths.get(carbonHome, "repository", "components").toString();
+        }
         request.setProfileProperty(IProfile.PROP_CACHE,cacheLocation);
         request.setProfileProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE,Boolean.TRUE.toString());
         for (IInstallableUnit iu : iusToInstall) {

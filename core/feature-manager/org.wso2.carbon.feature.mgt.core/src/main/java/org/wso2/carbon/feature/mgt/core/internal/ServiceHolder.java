@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.feature.mgt.core.ProvisioningException;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -35,12 +36,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 public class ServiceHolder {
-	
-    private static String P2_AGENT_LOCATION = System.getProperty("carbon.home") + 
-			File.separator + "repository" + File.separator +
-			"components" + File.separator + "p2";
+
+    private static String P2_AGENT_LOCATION;
+    static {
+        String componentsPath =  System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
+        if(componentsPath != null) {
+            P2_AGENT_LOCATION = Paths.get(componentsPath,"p2").toString();
+        } else {
+            P2_AGENT_LOCATION = Paths.get(System.getProperty(CarbonBaseConstants.CARBON_HOME),"repository","components","p2").toString();
+        }
+    }
 	//private static final String P2_AGENT_LOCATION = CarbonUtils.getComponentsRepo() + File.separator + "p2";
 	private static final Log log = LogFactory.getLog(ServiceHolder.class);
     private static IProvisioningAgentProvider provisioningAgentProvider;

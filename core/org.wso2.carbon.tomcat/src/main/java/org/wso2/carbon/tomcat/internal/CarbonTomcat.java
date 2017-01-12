@@ -34,9 +34,10 @@ import org.apache.catalina.startup.Constants;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.digester.Digester;
-import org.apache.coyote.http11.Http11NioProtocol;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.tomcat.CarbonTomcatException;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.xml.sax.SAXException;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -66,13 +68,15 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      */
     public void configure(String baseDir, InputStream inputStream) {
         this.setBaseDir(baseDir);
-        globalWebXml = new File(System.getProperty("carbon.home")).getAbsolutePath() +
-                File.separator + "repository" + File.separator + "conf" + File.separator +
-                "tomcat" + File.separator + "web.xml";
+        String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+        if (configPath == null) {
+            globalWebXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "web.xml").toString();
+            globalContextXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "context.xml").toString();
+        } else {
+            globalWebXml = Paths.get(configPath, "tomcat", "web.xml").toString();
+            globalContextXml = Paths.get(configPath, "tomcat", "context.xml").toString();
+        }
 
-        globalContextXml = new File(System.getProperty("carbon.home")).getAbsolutePath() +
-                File.separator + "repository" + File.separator + "conf" + File.separator +
-                "tomcat" + File.separator + "context.xml";
         //creating a digester to parse our catalina-server.xml
         Digester digester = catalina.createStartDigester();
         digester.push(this);

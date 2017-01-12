@@ -34,11 +34,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.utils.IOStreamUtils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -67,14 +69,17 @@ public class Axis2ServiceRegistry {
     private static String componentsDirPath;
 
     static {
-        String carbonRepo = System.getenv("CARBON_REPOSITORY");
-        if(carbonRepo == null){
-            carbonRepo = System.getProperty("carbon.repository");
+        componentsDirPath = System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (componentsDirPath == null) {
+            String carbonRepo = System.getenv("CARBON_REPOSITORY");
+            if (carbonRepo == null) {
+                carbonRepo = System.getProperty("carbon.repository");
+            }
+            if (carbonRepo == null) {
+                carbonRepo = Paths.get(System.getProperty("carbon.home"), "repository").toString();
+            }
+            componentsDirPath = Paths.get(carbonRepo, "components").toString();
         }
-        if(carbonRepo == null){
-            carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
-        }
-        componentsDirPath = carbonRepo + File.separator + "components";
     }
 
     public Axis2ServiceRegistry(ConfigurationContext configCtx) {
