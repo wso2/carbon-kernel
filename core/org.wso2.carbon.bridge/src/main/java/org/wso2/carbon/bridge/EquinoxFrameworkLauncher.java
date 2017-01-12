@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
+import java.nio.file.Paths;
 import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.Permission;
@@ -728,9 +729,9 @@ public class EquinoxFrameworkLauncher implements FrameworkLauncher {
                 carbonRepo = System.getProperty("carbon.repository");
             }
             if (carbonRepo == null) {
-                carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
+                carbonRepo = Paths.get(System.getProperty("carbon.home") ,"repository").toString();
             }
-            carbonComponentsRepository = carbonRepo + File.separator + "components";
+            carbonComponentsRepository = Paths.get(carbonRepo,"components").toString();
         }
         File componentRepo = new File(carbonComponentsRepository);
         if (!componentRepo.exists() && !componentRepo.mkdirs()) {

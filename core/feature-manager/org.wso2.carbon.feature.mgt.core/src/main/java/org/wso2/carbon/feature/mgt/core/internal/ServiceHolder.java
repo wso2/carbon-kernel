@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 public class ServiceHolder {
 
@@ -43,11 +44,9 @@ public class ServiceHolder {
     static {
         String componentsPath =  System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
         if(componentsPath != null) {
-            P2_AGENT_LOCATION = componentsPath + File.separator + "p2";
+            P2_AGENT_LOCATION = Paths.get(componentsPath,"p2").toString();
         } else {
-            P2_AGENT_LOCATION = System.getProperty(CarbonBaseConstants.CARBON_HOME) +
-                                File.separator + "repository" + File.separator +
-                                "components" + File.separator + "p2";
+            P2_AGENT_LOCATION = Paths.get(System.getProperty(CarbonBaseConstants.CARBON_HOME),"repository","components","p2").toString();
         }
     }
 	//private static final String P2_AGENT_LOCATION = CarbonUtils.getComponentsRepo() + File.separator + "p2";

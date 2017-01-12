@@ -23,6 +23,8 @@ import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.Utils;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -34,15 +36,14 @@ public  class DefaultBundleCreator implements CarbonLaunchExtension {
     static {
         String externalLibPath = System.getProperty(LauncherConstants.CARBON_EXTERNAL_LIB_DIR_PATH);
         if( externalLibPath != null ) {
-            System.out.println();
-            JARS_DIR = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(externalLibPath)).toString();
-
+            JARS_DIR = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(externalLibPath)).toString();
         } else {
             String componentPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
             if (componentPath == null) {
-                JARS_DIR = "repository" + File.separator + "components" + File.separator + "lib";
+                JARS_DIR = Paths.get("repository", "components", "lib").toString();
             } else {
-                JARS_DIR = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentPath)).toString() + File.separator + "lib";
+                Path path = Paths.get(componentPath, "lib");
+                JARS_DIR = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(path).toString();
             }
         }
     }

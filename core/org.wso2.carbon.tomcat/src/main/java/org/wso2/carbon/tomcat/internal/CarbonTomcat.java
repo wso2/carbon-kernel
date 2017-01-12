@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -69,16 +70,11 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         this.setBaseDir(baseDir);
         String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
         if (configPath == null) {
-            globalWebXml = new File(System.getProperty("carbon.home")).getAbsolutePath() + File.separator +
-                           "repository" + File.separator + "conf" + File.separator +
-                           "tomcat" + File.separator + "web.xml";
-            globalContextXml = new File(System.getProperty("carbon.home")).getAbsolutePath() + File.separator +
-                               "repository" + File.separator + "conf" + "tomcat" + File.separator + "context.xml";
+            globalWebXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "web.xml").toString();
+            globalContextXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "context.xml").toString();
         } else {
-            globalWebXml = new File(configPath).getAbsolutePath() + File.separator +
-                           "tomcat" + File.separator + "web.xml";
-            globalContextXml = new File(configPath).getAbsolutePath() + File.separator +
-                               "tomcat" + File.separator + "context.xml";
+            globalWebXml = Paths.get(configPath, "tomcat", "web.xml").toString();
+            globalContextXml = Paths.get(configPath, "tomcat", "context.xml").toString();
         }
 
         //creating a digester to parse our catalina-server.xml

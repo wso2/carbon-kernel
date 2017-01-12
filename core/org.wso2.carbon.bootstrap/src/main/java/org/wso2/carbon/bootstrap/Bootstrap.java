@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ public class Bootstrap {
 
 	private final Set<URL> classpath = new LinkedHashSet<URL>();
 	private static final String CARBON_HOME = "carbon.home";
+    private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
 	protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
 
     public static void main(String args[]) {
@@ -69,12 +71,13 @@ public class Bootstrap {
     protected void addClassPathEntries() throws MalformedURLException {
 
         // Add lib
-        String internalLib = System.getProperty("carbon.internal.lib.dir.path");
+        String internalLib = System.getProperty(INTERNAL_CARBON_LIB_DIR_PATH);
         if (internalLib == null) {
-            addFileUrl(new File(ROOT + File.separator + "lib" + File.separator));
-            addJarFileUrls(new File(ROOT + File.separator + "lib"));
+            File libFile = Paths.get(ROOT, "lib").toFile();
+            addFileUrl(libFile);
+            addJarFileUrls(libFile);
         } else {
-            addFileUrl(new File(internalLib + File.separator));
+            addFileUrl(new File(internalLib));
             addJarFileUrls(new File(internalLib));
         }
     }

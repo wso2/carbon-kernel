@@ -77,6 +77,7 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -261,14 +262,13 @@ public class CarbonUtils {
             if (carbonCatalinaHomePath == null) {
                 carbonCatalinaHomePath = System.getenv(CarbonConstants.CARBON_CATALINA_DIR_PATH_ENV);
                 if (carbonCatalinaHomePath == null) {
-                    return getCarbonHome() + File.separator + "lib" + File.separator + "tomcat" + File.separator + "work" + File.separator + "Catalina";
+                    return Paths.get(getCarbonHome(), "lib", "tomcat", "work", "Catalina").toString();
                 }
             }
             return carbonCatalinaHomePath;
         } else {
-            return carbonInternalLibPath + File.separator + "tomcat" + File.separator + "work" + File.separator + "Catalina";
+            return Paths.get(carbonInternalLibPath, "tomcat", "work", "Catalina").toString();
         }
-
 	}
 	
     public static String getCarbonTenantsDirPath() {
@@ -277,8 +277,7 @@ public class CarbonUtils {
             carbonTenantsDirPath = System.getenv(CarbonConstants.CARBON_TENANTS_DIR_PATH_ENV);
         }
         if (carbonTenantsDirPath == null) {
-            carbonTenantsDirPath = getCarbonHome() + File.separator + REPOSITORY +
-                    File.separator + "tenants";
+            carbonTenantsDirPath = Paths.get(getCarbonHome(), REPOSITORY, "tenants").toString();
         }
         return carbonTenantsDirPath;
     }
@@ -331,10 +330,9 @@ public class CarbonUtils {
         if (dropinsPath == null) {
             String componentPath = System.getProperty(CarbonBaseConstants.CARBON_COMPONENTS_DIR_PATH);
             if (componentPath == null) {
-                return getCarbonHome() + File.separator + REPOSITORY + File.separator +
-                       "components" + File.separator + "dropins";
+                return Paths.get(getCarbonHome(), REPOSITORY, "components", "dropins").toString();
             } else {
-                return componentPath + File.separator + "dropins";
+                return Paths.get(componentPath, "dropins").toString();
             }
         } else {
             return dropinsPath;

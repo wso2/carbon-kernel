@@ -14,6 +14,7 @@ import org.wso2.carbon.tomcat.ext.transport.ServletTransportManager;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * @scr.component name="tomcat.service.comp" immediate="true"
@@ -53,9 +54,9 @@ public class CarbonTomcatServiceComponent {
         String carbonWebAppDir;
         if (carbonConfigHome == null) {
             String carbonHome = System.getProperty(CarbonBaseConstants.CARBON_HOME);
-            carbonWebAppDir = carbonHome + File.separator + "repository" + File.separator + "conf" + File.separator + "tomcat" + File.separator + "carbon";
+            carbonWebAppDir = Paths.get(carbonHome, "repository", "conf", "tomcat", "carbon").toString();
         } else {
-            carbonWebAppDir = carbonConfigHome + File.separator + "tomcat" + File.separator + "carbon";
+            carbonWebAppDir = Paths.get(carbonConfigHome, "tomcat", "carbon").toString();
         }
         /*acquiring the thread context classLoader, so that we can swap the default, threadContextClassLoader of
          tomcat transport listeners (web-app classLoader) during the service method invocation in {@link DelegationServlet}

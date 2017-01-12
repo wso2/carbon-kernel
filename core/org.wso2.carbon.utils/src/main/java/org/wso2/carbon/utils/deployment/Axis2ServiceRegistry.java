@@ -40,6 +40,7 @@ import org.wso2.carbon.utils.IOStreamUtils;
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -75,9 +76,9 @@ public class Axis2ServiceRegistry {
                 carbonRepo = System.getProperty("carbon.repository");
             }
             if (carbonRepo == null) {
-                carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
+                carbonRepo = Paths.get(System.getProperty("carbon.home"), "repository").toString();
             }
-            componentsDirPath = carbonRepo + File.separator + "components";
+            componentsDirPath = Paths.get(carbonRepo, "components").toString();
         }
     }
 

@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.*;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -65,10 +66,10 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
                 defaultJarsToSkip.add(tokenizer.nextToken());
             }
         }
-        String pluginsPath = System.getProperty("components.repo");//todo normally we have set it default
+        //normally we have set this default
+        String pluginsPath = System.getProperty("components.repo");
         if (pluginsPath == null) {
-
-            CARBON_PLUGINS_DIR_PATH = System.getProperty("carbon.home") + File.separator + "repository" + File.separator + "components" + File.separator + "plugins";
+            CARBON_PLUGINS_DIR_PATH = Paths.get(System.getProperty("carbon.home"), "repository", "components", "plugins").toString();
         } else {
             CARBON_PLUGINS_DIR_PATH = pluginsPath;
         }

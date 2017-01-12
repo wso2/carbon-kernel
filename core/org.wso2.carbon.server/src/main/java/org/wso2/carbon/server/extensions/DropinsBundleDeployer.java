@@ -57,23 +57,22 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
         String profileName = System.getProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
 
         if (componentPath == null) {
-            bundlesInfoDirPath = "repository" + File.separator + "components" + File.separator + profileName +
-                                 File.separator + "configuration" + File.separator + "org.eclipse.equinox.simpleconfigurator";
+            bundlesInfoDirPath = Paths.get("repository", "components", profileName, "configuration", "org.eclipse.equinox.simpleconfigurator").toString();
         } else {
             //setting relative path
-            componentPath = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentPath)).toString();
-            bundlesInfoDirPath = componentPath + File.separator + profileName + File.separator + "configuration" + File.separator + "org.eclipse.equinox.simpleconfigurator";
+            componentPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(componentPath)).toString();
+            bundlesInfoDirPath = Paths.get(componentPath, profileName, "configuration", "org.eclipse.equinox.simpleconfigurator").toString();
         }
 
         if (dropinsDirPath == null) {
             if (componentPath == null) {
-                dropinsDirPath = "repository" + File.separator + "components" + File.separator + "dropins";
+                dropinsDirPath = Paths.get("repository", "components", "dropins").toString();
             } else {
-                dropinsDirPath = componentPath + File.separator + "dropins";
+                dropinsDirPath = Paths.get(componentPath, "dropins").toString();
             }
         } else {
             //setting relative path, need to remove / sign in dropins/
-            dropinsDirPath = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(dropinsDirPath)).toString();
+            dropinsDirPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(dropinsDirPath)).toString();
         }
 
     }
@@ -156,11 +155,11 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
 
                 String dropinsAbsolutePath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
                 if(dropinsAbsolutePath != null ) {
-                    String compoenentProfilePath = Utils.getCarbonComponentRepo() + File.separator + System.getProperty(LauncherConstants.PROFILE);
+                    String compoenentProfilePath = Paths.get(Utils.getCarbonComponentRepo().getPath(), System.getProperty(LauncherConstants.PROFILE)).toString();
                     String relativePathToDropinsFolder = Paths.get(compoenentProfilePath).relativize(Paths.get(dropinsAbsolutePath)).toString();
-                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, relativePathToDropinsFolder + File.separator + file.getName(), 4, isFragment));
+                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, Paths.get(relativePathToDropinsFolder, file.getName()).toString(), 4, isFragment));
                 } else {
-                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, ".." + File.separator + "dropins" + File.separator + file.getName(), 4, isFragment));
+                    bundleInfoArray.add(new BundleInfoLine(bundleSymbolicName, bundleVersion, Paths.get("..", "dropins", file.getName()).toString(), 4, isFragment));
                 }
             }
         }

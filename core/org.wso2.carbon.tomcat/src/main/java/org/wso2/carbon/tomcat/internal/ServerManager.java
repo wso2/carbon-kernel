@@ -40,6 +40,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.file.Paths;
 
 /**
  * Configuring,initialization and stopping the carbon tomcat instance
@@ -66,11 +67,9 @@ public class ServerManager {
         String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
         String catalinaXML;
         if (configPath == null) {
-            catalinaXML = new File(carbonHome).getAbsolutePath() + File.separator + "repository" + File.separator +
-                          "conf" + File.separator + "tomcat" + File.separator + "catalina-server.xml";
+            catalinaXML = Paths.get(carbonHome, "repository", "conf", "tomcat", "catalina-server.xml").toString();
         } else {
-             catalinaXML = new File(configPath).getAbsolutePath() + File.separator + "tomcat" + File.separator +
-                           "catalina-server.xml";
+            catalinaXML = Paths.get(configPath, "tomcat", "catalina-server.xml").toString();
         }
         try {
             inputStream = new FileInputStream(new File(catalinaXML));
@@ -82,14 +81,12 @@ public class ServerManager {
         String internalLibPath = System.getProperty(CarbonBaseConstants.CARBON_INTERNAL_LIB_DIR_PATH);
         if (internalLibPath == null) {
             if (System.getProperty("catalina.base") == null) {
-                System.setProperty("catalina.base", carbonHome + File.separator +
-                                                    "lib" + File.separator + "tomcat");
+                System.setProperty("catalina.base", Paths.get(carbonHome, "lib", "tomcat").toString());
             }
-            catalinaHome = new File(carbonHome).getAbsolutePath() + File.separator + "lib" +
-                           File.separator + "tomcat";
+            catalinaHome = Paths.get(carbonHome, "lib", "tomcat").toString();
         } else {
-            System.setProperty("catalina.base", internalLibPath + File.separator + "tomcat");
-            catalinaHome = internalLibPath + File.separator + "tomcat";
+            System.setProperty("catalina.base", Paths.get(internalLibPath, "tomcat").toString());
+            catalinaHome = Paths.get(internalLibPath, "tomcat").toString();
         }
 
         String value = CARBON_URL_CONTEXT_FACTORY_PKG_PREFIX;

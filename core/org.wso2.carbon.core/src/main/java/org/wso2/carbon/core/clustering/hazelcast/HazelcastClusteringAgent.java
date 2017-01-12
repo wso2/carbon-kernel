@@ -63,6 +63,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -86,9 +87,9 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     static {
         String configPath = CarbonUtils.getCarbonConfigDirPath();
         if (configPath == null) {
-            DEFAULT_CONFIG_FILE_PATH = java.nio.file.Paths.get(CarbonUtils.getCarbonHome(), "repository", "conf", "etc", HazelcastConstants.CONFIG_XML_NAME);
+            DEFAULT_CONFIG_FILE_PATH = Paths.get(CarbonUtils.getCarbonHome(), "repository", "conf", "etc", HazelcastConstants.CONFIG_XML_NAME);
         } else {
-            DEFAULT_CONFIG_FILE_PATH = java.nio.file.Paths.get(CarbonUtils.getCarbonConfigDirPath(), "etc", HazelcastConstants.CONFIG_XML_NAME);
+            DEFAULT_CONFIG_FILE_PATH = Paths.get(CarbonUtils.getCarbonConfigDirPath(), "etc", HazelcastConstants.CONFIG_XML_NAME);
         }
     }
 
@@ -429,9 +430,9 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         String confPath =  System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
         String hazelcastPropsFileName;
         if (confPath == null) {
-            hazelcastPropsFileName = CarbonBaseUtils.getCarbonConfigDirPath() + File.separator + "hazelcast.properties";
+            hazelcastPropsFileName = Paths.get(CarbonBaseUtils.getCarbonConfigDirPath(), "hazelcast.properties").toString();
         } else {
-            hazelcastPropsFileName = confPath + File.separator + "hazelcast.properties";
+            hazelcastPropsFileName = Paths.get(confPath , "hazelcast.properties").toString();
         }
         Properties hazelcastProperties = new Properties();
         // Setting some Hazelcast properties as per https://groups.google.com/forum/#!searchin/hazelcast/Azeez/hazelcast/x-skloPgl2o/PZN60s85XK0J

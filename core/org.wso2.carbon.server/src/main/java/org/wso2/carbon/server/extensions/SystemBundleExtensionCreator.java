@@ -24,6 +24,8 @@ import org.wso2.carbon.server.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -42,12 +44,13 @@ public class SystemBundleExtensionCreator implements CarbonLaunchExtension {
         if (extensions == null) {
             String componentsPath  = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
             if (componentsPath == null) {
-                EXTENSIONS_DIR = "repository" + File.separator + "components" + File.separator + "extensions";
+                EXTENSIONS_DIR = Paths.get("repository", "components", "extensions").toString();
             } else {
-                EXTENSIONS_DIR = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentsPath)).toString() + File.separator + "extensions";
+                Path path = Paths.get(componentsPath, "extensions");
+                EXTENSIONS_DIR = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(path).toString();
             }
         } else {
-            EXTENSIONS_DIR = java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(extensions)).toString();
+            EXTENSIONS_DIR = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(extensions)).toString();
         }
     }
 

@@ -19,10 +19,21 @@ package org.wso2.carbon.server.util;
 
 import org.wso2.carbon.server.LauncherConstants;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -59,7 +70,7 @@ public class Utils {
         String carbonComponentsRepository = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
         if (carbonComponentsRepository == null) {
             String carbonRepo = Utils.getCarbonRepoPath();
-            carbonComponentsRepository = carbonRepo + File.separator + "components";
+            carbonComponentsRepository = Paths.get(carbonRepo, "components").toString();
         }
         File componentRepo = new File(carbonComponentsRepository);
         if (!componentRepo.exists() && !componentRepo.mkdirs()) {
@@ -265,11 +276,9 @@ public class Utils {
         if (enableOsgiDebug != null && enableOsgiDebug.toLowerCase().equals("true")) {
             String carbonConfigRepo = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
             if (carbonConfigRepo == null) {
-                String carbonRepo = System.getProperty(LauncherConstants.CARBON_HOME) + File.separator + "repository";
-                enableOsgiDebug = carbonRepo + File.separator + "conf" + File.separator + "etc" + File.separator +
-                                  "osgi-debug.options";
+                enableOsgiDebug = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME), "repository", "conf", "etc", "osgi-debug.options").toString();
             } else {
-                enableOsgiDebug = carbonConfigRepo + File.separator + "etc" + File.separator + "osgi-debug.options";
+                enableOsgiDebug = Paths.get(carbonConfigRepo, "etc", "osgi-debug.options").toString();
             }
             args.add("-debug");
             args.add(enableOsgiDebug);
@@ -690,12 +699,11 @@ public class Utils {
                 carbonRepo = System.getProperty("carbon.repository");
             }
             if (carbonRepo == null) {
-                carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
+                carbonRepo = Paths.get(System.getProperty("carbon.home"), "repository").toString();
             }
-            bundleConfigDirLocation = carbonRepo + File.separator + "conf" + File.separator + "etc" + File.separator +
-                                      "bundleconfig";
+            bundleConfigDirLocation = Paths.get(carbonRepo, "conf", "etc", "bundleconfig").toString();
         } else {
-            bundleConfigDirLocation= carbonConfigPath +  File.separator + "etc" + File.separator + "bundle-config";
+            bundleConfigDirLocation = Paths.get(carbonConfigPath, "etc", "bundle-config").toString();
         }
         File bundleConfigDir = new File(bundleConfigDirLocation);
         if(!bundleConfigDir.exists()) {

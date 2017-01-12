@@ -162,10 +162,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 		if (configurationXMLLocation == null) {
 			String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
 			if (configPath == null) {
-				configurationXMLLocation = "conf" + File.separator + "carbon.xml";
+				configurationXMLLocation = Paths.get("conf","carbon.xml").toString();
 			} else {
 				String relativeConfDirPath = Paths.get(System.getProperty(CarbonBaseConstants.CARBON_HOME)).relativize(Paths.get(configPath)).toString();
-				configurationXMLLocation = relativeConfDirPath + File.separator + "carbon.xml";
+				configurationXMLLocation = Paths.get(relativeConfDirPath,"carbon.xml").toString();
 			}
 		}
 

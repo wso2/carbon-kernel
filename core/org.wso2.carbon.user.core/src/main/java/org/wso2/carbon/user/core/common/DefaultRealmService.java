@@ -294,10 +294,10 @@ public class DefaultRealmService implements RealmService {
             } else {
                 String confPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
                 if (confPath == null) {
-                    inStream = this.getClass().getClassLoader().getResourceAsStream("repository" + File.separator + "conf" + File.separator + "user-mgt.xml");
+                    inStream = this.getClass().getClassLoader().getResourceAsStream(Paths.get("repository", "conf", "user-mgt.xml").toString());
                 } else {
                     String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
-                    inStream = this.getClass().getClassLoader().getResourceAsStream(relativeConfDirPath + File.separator + "user-mgt.xml");
+                    inStream = this.getClass().getClassLoader().getResourceAsStream(Paths.get(relativeConfDirPath, "user-mgt.xml").toString());
                 }
                 if (inStream == null) {
                     String msg = "Instance of a WSO2 User Manager has not been created. user-mgt.xml is not found. Please set the carbon.home";

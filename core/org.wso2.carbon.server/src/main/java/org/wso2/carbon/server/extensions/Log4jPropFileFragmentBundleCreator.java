@@ -20,6 +20,7 @@ import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.Utils;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -43,7 +44,7 @@ public class Log4jPropFileFragmentBundleCreator extends FragmentBundleCreator {
         String confPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
         File confFolder;
         if (confPath == null) {
-            confFolder = new File(Utils.getCarbonComponentRepo(), ".." + File.separator + "conf");
+            confFolder = new File(Utils.getCarbonComponentRepo(), Paths.get("..", "conf").toString());
         } else {
             confFolder = new File(confPath);
         }

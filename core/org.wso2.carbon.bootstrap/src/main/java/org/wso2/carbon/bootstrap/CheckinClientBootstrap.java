@@ -31,6 +31,7 @@ public class CheckinClientBootstrap extends Bootstrap {
 	private static final String LIB = "lib";
 	private static final String REPOSITORY = "repository";
 	private static final String COMPONENTS = "components";
+	private static final String COMPONENT_PLUGINS_DIR_PATH = "components.repo";
 
 	public static void main(String args[]) {
 		new CheckinClientBootstrap().loadClass(args);
@@ -77,10 +78,11 @@ public class CheckinClientBootstrap extends Bootstrap {
 				+ "checkin-client" + File.separator + "log4j.properties"));
 
 		//add component/plugins
-		String internalLibPath = System.getProperty("components.repo");
+		String internalLibPath = System.getProperty(COMPONENT_PLUGINS_DIR_PATH);
 		if (internalLibPath != null) {
-			addFileUrl(new File(internalLibPath + File.separator));
-			addJarFileUrls(new File(internalLibPath));
+			File pluginsFile = new File(internalLibPath);
+			addFileUrl(pluginsFile);
+			addJarFileUrls(pluginsFile);
 		}
 
 	}

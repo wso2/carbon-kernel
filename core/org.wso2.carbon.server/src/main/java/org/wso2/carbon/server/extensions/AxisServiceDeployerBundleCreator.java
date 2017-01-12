@@ -36,6 +36,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -52,9 +54,10 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
     static {
         String componentsPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
         if (componentsPath != null) {
-            DEPLOYERS_DIR =  java.nio.file.Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(java.nio.file.Paths.get(componentsPath)).toString() + File.separator + "axis2deployers";
+            Path path = Paths.get(componentsPath,"axis2deployers");
+            DEPLOYERS_DIR =  Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(path).toString();
         } else {
-            DEPLOYERS_DIR = "repository" + File.separator + "components" + File.separator + "axis2deployers";
+            DEPLOYERS_DIR = Paths.get("repository" , "components" , "axis2deployers").toString();
         }
     }
 

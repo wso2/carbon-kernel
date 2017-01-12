@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -132,12 +133,9 @@ public class CarbonLauncher {
         Properties launchProperties;
         if (carbonConfigHome == null) {
             String carbonHome = System.getProperty(LauncherConstants.CARBON_HOME);
-            launchProperties = Utils.loadProperties(carbonHome + File.separator + "repository" + File.separator +
-                                                    "conf" + File.separator + "etc" + File.separator +
-                                                    LauncherConstants.LAUNCH_INI);
+            launchProperties = Utils.loadProperties(Paths.get(carbonHome, "repository", "conf", "etc", LauncherConstants.LAUNCH_INI).toString());
         } else {
-            launchProperties = Utils.loadProperties(carbonConfigHome + File.separator + "etc" + File.separator +
-                                                    LauncherConstants.LAUNCH_INI);
+            launchProperties = Utils.loadProperties(Paths.get(carbonConfigHome, "etc", LauncherConstants.LAUNCH_INI).toString());
         }
         for (Object o : launchProperties.entrySet()) {
             Map.Entry entry = (Map.Entry) o;
