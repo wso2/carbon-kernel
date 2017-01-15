@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * EnvironmentUtils.
+ * Utility class for setting environment variables for test cases.
  *
  * @since 5.2.0
  */
@@ -38,12 +38,23 @@ public class EnvironmentUtils {
     private static final String COLLECTIONS_UNMODIFIABLE_MAP = "java.util.Collections$UnmodifiableMap";
     private static final String FIELD_M = "m";
 
+    /**
+     * Set environment variable for a given key and value.
+     *
+     * @param key Environment variable key.
+     * @param value Environment variable value.
+     */
     public static void setEnv(String key, String value) {
         Map<String, String> newenv = new HashMap<>();
         newenv.put(key, value);
         setEnv(newenv);
     }
 
+    /**
+     * Set environment variable from given map.
+     *
+     * @param newVariables Map of variables to put into environment variables.
+     */
     public static void setEnv(Map<String, String> newVariables) {
         Map<String, String> newenv = new HashMap<>();
         newenv.putAll(System.getenv());

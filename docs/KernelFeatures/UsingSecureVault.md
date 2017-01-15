@@ -120,21 +120,7 @@ SecureVault functionality can access in non OSGI mode by following the below ste
             <version>${carbon.kernel.version}</version>
         </dependency>
 
-2. Add following system properties to the client program.
-
-        -DMasterKeys_File_Path=<master key file path>
-        -DKeyStore_Path=<key store file path>
-        -Dsecret.properties.path=<secret properties file path>
-        -Dsecure-vault.yaml.path=<secure vault yaml file path>
-
-ex : If all the files are in root directory of the project.
-
-        -DMasterKeys_File_Path=master-keys.yaml
-        -DKeyStore_Path=wso2carbon.jks
-        -Dsecret.properties.path=secrets.properties
-        -Dsecure-vault.yaml.path=secure-vault.yaml
-
-3. Following Client class will initialize the secure vault to invoke resolve function.
+2. Following Client class will initialize the secure vault to invoke resolve function to get the secret.
 ```java
     import org.wso2.carbon.kernel.securevault.SecureVaultInitializer;
     import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
@@ -146,18 +132,23 @@ ex : If all the files are in root directory of the project.
      */
     public class SecureVaultClient
     {
-        public static void main ( String[] args ) throws SecureVaultException
-        {
-            SecureVaultInitializer.getInstance().initializeSecureVault();
-
-            String alias = "wso2.sample.password2";
-
-            System.out.println("password for " + alias + " : " + String.valueOf(SecureVaultDataHolder.getInstance()
-                               .getSecretRepository()
-                    .orElseThrow(() -> new SecureVaultException("No secret repository found."))
-                    .resolve(alias)));
-
-        }
+                public static void main ( String[] args ) throws SecureVaultException
+                {
+                    String masterKeysFilePath = "master-keys.yaml";
+                    String secretPropertiesFilePath = "secrets.properties";
+                    String secureVaultYAMLPath = "secure-vault.yaml";
+            
+                    SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
+                            secretPropertiesFilePath, secureVaultYAMLPath);
+            
+                    String alias = "wso2.sample.password2";
+            
+                    System.out.println("password for " + alias + " : " + String.valueOf(SecureVaultDataHolder
+                            .getInstance().getSecretRepository()
+                            .orElseThrow(() -> new SecureVaultException("No secret repository found."))
+                            .resolve(alias)));
+            
+                }
     }
 ```
 P.S : If user is willing to use custom master key reader or custom secret repository, then user can implement

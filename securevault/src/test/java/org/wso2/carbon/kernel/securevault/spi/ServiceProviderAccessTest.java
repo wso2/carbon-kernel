@@ -34,12 +34,13 @@ public class ServiceProviderAccessTest {
     public void testNonOSGIAccessToSecureVaultResolve() throws SecureVaultException {
         System.clearProperty("CARBON_HOME");
         System.clearProperty("carbon.home");
-        System.setProperty("MasterKeys_File_Path", "src/test/resources/securevault/spi/master-keys.yaml");
-        System.setProperty("KeyStore_Path", "src/test/resources/securevault/resources/security/wso2carbon.jks");
-        System.setProperty("secret.properties.path", "src/test/resources/securevault/spi/secrets.properties");
-        System.setProperty("secure-vault.yaml.path", "src/test/resources/securevault/conf/secure-vault.yaml");
 
-        SecureVaultInitializer.getInstance().initializeSecureVault();
+        String masterKeysFilePath = "src/test/resources/securevault/spi/master-keys.yaml";
+        String secretPropertiesFilePath = "src/test/resources/securevault/spi/secrets.properties";
+        String secureVaultYAMLPath = "src/test/resources/securevault/spi/secure-vault.yaml";
+
+        SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
+                secretPropertiesFilePath, secureVaultYAMLPath);
         String alias = "wso2.sample.password2";
         Assert.assertEquals(String.valueOf(SecureVaultDataHolder.getInstance().getSecretRepository()
                 .orElseThrow(() -> new SecureVaultException("No secret repository found."))

@@ -30,6 +30,8 @@ import java.util.ServiceLoader;
 
 /**
  * Responsible for initializing secure vault.
+ *
+ * @since 5.2.0
  */
 public class SecureVaultInitializer {
 
@@ -46,18 +48,36 @@ public class SecureVaultInitializer {
     private ServiceLoader<MasterKeyReader> masterKeyReaderLoader;
 
     private SecureVaultInitializer() {
+        if (SecureVaultUtils.getCarbonHome().isPresent()) {
+            init();
+        } else {
+            initSPI();
+        }
+    }
+
+    /**
+     * Initialise secret repository and master key reader types from values which is read from secure-vault yaml.
+     */
+    private void init() {
         try {
             optSecureVaultConfiguration = Optional.of(SecureVaultConfigurationProvider.getConfiguration());
             optSecureVaultConfiguration.ifPresent(secureVaultConfiguration -> {
                 secretRepositoryType = secureVaultConfiguration.getSecretRepositoryConfig().getType().orElse("");
                 masterKeyReaderType = secureVaultConfiguration.getMasterKeyReaderConfig().getType().orElse("");
             });
-            secretRepositoryLoader = ServiceLoader.load(SecretRepository.class);
-            masterKeyReaderLoader = ServiceLoader.load(MasterKeyReader.class);
+
         } catch (SecureVaultException | RuntimeException e) {
             optSecureVaultConfiguration = Optional.empty();
             logger.error("Error while acquiring secure vault configuration", e);
         }
+    }
+
+    /**
+     * Initialize the secret repository and master key reader service provider loaders.
+     */
+    private void initSPI() {
+        secretRepositoryLoader = ServiceLoader.load(SecretRepository.class);
+        masterKeyReaderLoader = ServiceLoader.load(MasterKeyReader.class);
     }
 
     public static synchronized SecureVaultInitializer getInstance() {
@@ -67,6 +87,9 @@ public class SecureVaultInitializer {
         return secureVaultInitializer;
     }
 
+    /**
+     * Initialise secret repository for service provider implementation as the same as specified in secure-vault yaml.
+     */
     private void initializeSecretRepository() {
         Iterator<SecretRepository> secretRepositoryTypes = secretRepositoryLoader.iterator();
         while (secretRepositoryTypes.hasNext()) {
@@ -77,6 +100,10 @@ public class SecureVaultInitializer {
         }
     }
 
+    /**
+     * Initialise master key reader for the service provider implementation as the same as specified in secure vault
+     * yaml.
+     */
     private void initializeMasterKeyReader() {
         Iterator<MasterKeyReader> masterKeyReaderTypes = masterKeyReaderLoader.iterator();
         while (masterKeyReaderTypes.hasNext()) {
@@ -89,11 +116,29 @@ public class SecureVaultInitializer {
     }
 
     /**
+     * Initialise the secure vault for SPI case.
+     *
+     * @param masterKeysFilePath Master key file path which is used to unlock secret repository.
+     * @param secretPropertiesFilePath Secret properties file path which is used to store keys and aliases.
+     * @param secureVaultYAMLPath Secure vault yaml path which is used to store all configuration related to secure
+     *                            vault.
+     */
+    public void initializeSecureVault(String masterKeysFilePath, String secretPropertiesFilePath,
+                                      String secureVaultYAMLPath) {
+        System.setProperty("MasterKeys_File_Path", masterKeysFilePath);
+        System.setProperty("secret.properties.path", secretPropertiesFilePath);
+        System.setProperty("secure-vault.yaml.path", secureVaultYAMLPath);
+        init();
+        initializeMasterKeyReader();
+        initializeSecretRepository();
+        initializeSecureVault();
+
+    }
+
+    /**
      * Initialize the secret repository.
      */
     public void initializeSecureVault() {
-        initializeMasterKeyReader();
-        initializeSecretRepository();
         synchronized (this) {
             if (initialized) {
                 logger.debug("Secure Vault Component is already initialized");

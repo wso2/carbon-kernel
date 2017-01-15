@@ -19,7 +19,6 @@ package org.wso2.carbon.kernel.securevault.cipher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.MasterKey;
-import org.wso2.carbon.kernel.securevault.SecureVaultConstants;
 import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
@@ -95,7 +94,7 @@ public class JKSBasedCipherProvider {
                 keyStoreFileLocation = Paths.get(SecureVaultUtils.getCarbonHome().get().toString(),
                         keyStorePath);
             } else {
-                keyStoreFileLocation = Paths.get(System.getProperty(SecureVaultConstants.KEY_STORE_PATH));
+                keyStoreFileLocation = Paths.get(keyStorePath);
             }
             try (BufferedInputStream bufferedInputStream = new BufferedInputStream(
                     new FileInputStream(keyStoreFileLocation.toString()))) {
