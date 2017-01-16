@@ -126,7 +126,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
         this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreDBConstants.CASCADE_DELETE_ENABLED);
 
-        this.permissionTree = new PermissionTree(cacheIdentifier, tenantId, dataSource);
+        this.permissionTree = new PermissionTree(cacheIdentifier, tenantId, dataSource, preserveCaseForResources);
         this.realmConfig = realmConfig;
         this.userRealm = realm;
         this.tenantId = tenantId;
@@ -556,6 +556,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             log.error("Invalid data provided at authorization code");
             throw new UserStoreException("Invalid data provided");
         }
+        if (!preserveCaseForResources) {
+            resourceId = resourceId.toLowerCase();
+        }
         addAuthorizationForUser(userName, resourceId, action, UserCoreConstants.ALLOW, true);
     }
 
@@ -580,6 +583,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if (resourceId == null || action == null) {
             log.error("Invalid data provided at authorization code");
             throw new UserStoreException("Invalid data provided");
+        }
+        if (!preserveCaseForResources) {
+            resourceId = resourceId.toLowerCase();
         }
 
         addAuthorizationForUser(userName, resourceId, action, UserCoreConstants.DENY, true);
