@@ -57,6 +57,7 @@ public class PermissionTree {
     protected String cacheIdentifier;
     protected volatile int hashValueOfRootNode;
     protected DataSource dataSource;
+    protected boolean preserveCaseForResources = true;
 
     /**
      * On the server startup, all permissions are populated from the DB and the
@@ -70,6 +71,21 @@ public class PermissionTree {
         this.cacheIdentifier = cacheIdentifier;
         this.tenantId = tenantId;
         this.dataSource = dataSource;
+    }
+
+    /**
+     * On the server startup, all permissions are populated from the DB and the
+     * permission tree is built in memory..
+     * With preserveCaseForResources it will support for both case sensitive and insensitive resources.
+     *
+     * @throws UserStoreException - SQL exceptions
+     */
+    public PermissionTree(String cacheIdentifier, int tenantId, DataSource dataSource, boolean preserveCaseForResources) {
+        root = new TreeNode("/");
+        this.cacheIdentifier = cacheIdentifier;
+        this.tenantId = tenantId;
+        this.dataSource = dataSource;
+        this.preserveCaseForResources = preserveCaseForResources;
     }
 
     /**
@@ -1018,7 +1034,11 @@ public class PermissionTree {
         try {
             dbConnection = getDBConnection();
             // Populating role permissions
-            prepStmt1 = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS);
+            if (preserveCaseForResources) {
+                prepStmt1 = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_CASE_SENSITIVE);
+            } else {
+                prepStmt1 = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS);
+            }
             prepStmt1.setInt(1, tenantId);
             prepStmt1.setInt(2, tenantId);
 
