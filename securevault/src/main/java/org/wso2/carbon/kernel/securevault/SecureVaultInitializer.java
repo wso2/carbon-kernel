@@ -49,7 +49,7 @@ public class SecureVaultInitializer {
 
     private SecureVaultInitializer() {
         if (SecureVaultUtils.getCarbonHome().isPresent()) {
-            init();
+            initFromSecureVaultYAML();
         } else {
             initSPI();
         }
@@ -58,7 +58,7 @@ public class SecureVaultInitializer {
     /**
      * Initialise secret repository and master key reader types from values which is read from secure-vault yaml.
      */
-    private void init() {
+    private void initFromSecureVaultYAML() {
         try {
             optSecureVaultConfiguration = Optional.of(SecureVaultConfigurationProvider.getConfiguration());
             optSecureVaultConfiguration.ifPresent(secureVaultConfiguration -> {
@@ -128,7 +128,7 @@ public class SecureVaultInitializer {
         System.setProperty("MasterKeys_File_Path", masterKeysFilePath);
         System.setProperty("secret.properties.path", secretPropertiesFilePath);
         System.setProperty("secure-vault.yaml.path", secureVaultYAMLPath);
-        init();
+        initFromSecureVaultYAML();
         initializeMasterKeyReader();
         initializeSecretRepository();
         initializeSecureVault();

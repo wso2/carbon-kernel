@@ -32,7 +32,6 @@ public class SecureVaultConstants {
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
     public static final String MASTER_KEYS_FILE_PATH = "MasterKeys_File_Path";
-    public static final String KEY_STORE_PATH = "KeyStore_Path";
     public static final String SECRET_PROPERTIES_FILE_PATH = "secret.properties.path";
     public static final String SECURE_VAULT_YAML_FILE_PATH = "secure-vault.yaml.path";
 
