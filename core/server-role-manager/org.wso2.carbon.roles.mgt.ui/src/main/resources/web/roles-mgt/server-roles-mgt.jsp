@@ -16,6 +16,7 @@
 ~ under the License.
 -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.roles.mgt.ui.ServerRoleManagerClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -153,7 +154,7 @@
     <%if(array != null) {
  if (array.length != 0){%>
         for (var i = 0; i <= <%=array.length%>; i++) {
-            if ('<%=array[j]%>' == serverRoleName) {
+            if ('<%=Encode.forHtml(array[j])%>' == serverRoleName) {
                 return true;
             }
         <%j++;%>
@@ -237,7 +238,7 @@
                 <td><fmt:message key="server-role.type.default"/></td>
                 <td>
                     <a href="#"
-                       onclick="deleteServerRole('<%=defaultServerRole %>',
+                       onclick="deleteServerRole('<%=Encode.forJavaScript(defaultServerRole)%>',
                        '<fmt:message key="server-role.type.default"/>')"
                        class="icon-link"
                        style="background-image:url(../roles-mgt/images/delete.gif);"><fmt:message
@@ -256,7 +257,7 @@
                 <td><fmt:message key="server-role.type.custom"/></td>
                 <td>
                     <a href="#"
-                       onclick="deleteServerRole('<%=customServerRole%>',
+                       onclick="deleteServerRole('<%=Encode.forJavaScript(customServerRole)%>',
                        '<fmt:message key="server-role.type.custom"/>')"
                        class="icon-link"
                        style="background-image:url(../roles-mgt/images/delete.gif);"><fmt:message
