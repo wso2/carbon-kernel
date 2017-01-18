@@ -15,8 +15,10 @@
  */
 package org.wso2.carbon;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
@@ -381,7 +383,16 @@ public final class CarbonConstants {
     public static final String LOGGED_USER = "logged-user";
 
     /*Constants used in handling multiple user store operations*/
-    public static final String DOMAIN_SEPARATOR = "/";
+    public static final String DOMAIN_SEPARATOR;
+
+    static {
+        String userDomainSeparator = ServerConfiguration.getInstance().getFirstProperty("UserDomainSeparator");
+        if (!StringUtils.isEmpty(userDomainSeparator)) {
+            DOMAIN_SEPARATOR = userDomainSeparator.trim();
+        } else {
+            DOMAIN_SEPARATOR = "/";
+        }
+    }
 
     public static final String NAME_COMBINER = "|";
 

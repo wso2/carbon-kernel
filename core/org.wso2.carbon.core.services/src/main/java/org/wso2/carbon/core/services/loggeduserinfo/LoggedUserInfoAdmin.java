@@ -20,6 +20,7 @@ package org.wso2.carbon.core.services.loggeduserinfo;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.common.LoggedUserInfo;
@@ -48,13 +49,13 @@ public class LoggedUserInfoAdmin extends AbstractAdmin {
             String userName = (String) request.getSession().getAttribute(
                     ServerConstants.USER_LOGGED_IN);
 
-            int index = userName.indexOf("/");
+            int index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
             if (index < 0) {
                 String domainName = (String) request.getSession().getAttribute(
                         CarbonAuthenticationUtil.LOGGED_IN_DOMAIN);
 
                 if (domainName != null) {
-                    userName = domainName + "/" + userName;
+                    userName = domainName + CarbonConstants.DOMAIN_SEPARATOR + userName;
                 }
             }
             LoggedUserInfo loggedUserInfo = new LoggedUserInfo();

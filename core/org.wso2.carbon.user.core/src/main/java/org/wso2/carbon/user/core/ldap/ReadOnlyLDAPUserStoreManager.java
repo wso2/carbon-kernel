@@ -47,7 +47,9 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import javax.naming.AuthenticationException;
+import javax.naming.CompositeName;
 import javax.naming.InvalidNameException;
+import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.PartialResultException;
@@ -1748,8 +1750,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 Attributes userAttributes;
                 try {
                     // '\' and '"' characters need another level of escaping before searching
-                    userAttributes = dirContext.getAttributes(user.replace("\\\\", "\\\\\\")
-                            .replace("\\\"", "\\\\\""), returnedAttributes);
+                    userAttributes = dirContext.getAttributes(new CompositeName().add(user.replace("\\\\", "\\\\\\")
+                            .replace("\\\"", "\\\\\"")), returnedAttributes);
 
                     String displayName = null;
                     String userName = null;
@@ -3312,10 +3314,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     /**
      * This method performs the additional level escaping for ldap search. In ldap search / and " characters
      * have to be escaped again
-     * @param dn
-     * @return
+     * @param dn DN
+     * @return composite name
+     * @throws InvalidNameException failed to build composite name
      */
-    private String escapeDNForSearch(String dn){
+    private Name escapeDNForSearch(String dn) throws InvalidNameException {
         boolean replaceEscapeCharacters = true;
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
@@ -3330,10 +3333,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         }
         if (replaceEscapeCharacters) {
-            return dn.replace("\\\\", "\\\\\\").replace("\\\"", "\\\\\"");
-        } else {
-            return dn;
+            dn = dn.replace("\\\\", "\\\\\\").replace("\\\"", "\\\\\"");
         }
+        return new CompositeName().add(dn);
     }
 
     private boolean isIgnorePartialResultException() {
