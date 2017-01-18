@@ -36,6 +36,7 @@ import java.util.ServiceLoader;
 public class SecureVaultInitializer {
 
     public boolean initialized = false;
+
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultInitializer.class);
     private static SecureVaultInitializer secureVaultInitializer = SecureVaultInitializer.getInstance();
 
@@ -47,12 +48,11 @@ public class SecureVaultInitializer {
     private ServiceLoader<SecretRepository> secretRepositoryLoader;
     private ServiceLoader<MasterKeyReader> masterKeyReaderLoader;
 
+    private Optional<String> secureVaultYAMLPath;
+    private Optional<String> masterKeyYAMLPath;
+    private Optional<String> secretPropertiesPath;
+
     private SecureVaultInitializer() {
-        if (SecureVaultUtils.getCarbonHome().isPresent()) {
-            initFromSecureVaultYAML();
-        } else {
-            initSPI();
-        }
     }
 
     /**
@@ -125,10 +125,11 @@ public class SecureVaultInitializer {
      */
     public void initializeSecureVault(String masterKeysFilePath, String secretPropertiesFilePath,
                                       String secureVaultYAMLPath) {
-        System.setProperty("MasterKeys_File_Path", masterKeysFilePath);
-        System.setProperty("secret.properties.path", secretPropertiesFilePath);
-        System.setProperty("secure-vault.yaml.path", secureVaultYAMLPath);
+        setMasterKeyYAMLPath(Optional.of(masterKeysFilePath));
+        setSecretPropertiesPath(Optional.of(secretPropertiesFilePath));
+        setSecureVaultYAMLPath(Optional.of(secureVaultYAMLPath));
         initFromSecureVaultYAML();
+        initSPI();
         initializeMasterKeyReader();
         initializeSecretRepository();
         initializeSecureVault();
@@ -172,5 +173,29 @@ public class SecureVaultInitializer {
         }
 
         logger.debug("Secure Vault initialized successfully");
+    }
+
+    public Optional<String> getSecureVaultYAMLPath() {
+        return secureVaultYAMLPath;
+    }
+
+    public void setSecureVaultYAMLPath(Optional<String> secureVaultYAMLPath) {
+        this.secureVaultYAMLPath = secureVaultYAMLPath;
+    }
+
+    public Optional<String> getMasterKeyYAMLPath() {
+        return masterKeyYAMLPath;
+    }
+
+    public void setMasterKeyYAMLPath(Optional<String> masterKeyYAMLPath) {
+        this.masterKeyYAMLPath = masterKeyYAMLPath;
+    }
+
+    public Optional<String> getSecretPropertiesPath() {
+        return secretPropertiesPath;
+    }
+
+    public void setSecretPropertiesPath(Optional<String> secretPropertiesPath) {
+        this.secretPropertiesPath = secretPropertiesPath;
     }
 }

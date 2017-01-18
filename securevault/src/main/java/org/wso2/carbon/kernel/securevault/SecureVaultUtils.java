@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
+import org.wso2.carbon.kernel.securevault.internal.SecureVaultDataHolder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -111,13 +112,13 @@ public class SecureVaultUtils {
     }
 
     public static String getSecretPropertiesFileLocation(SecretRepositoryConfiguration secretRepositoryConfiguration) {
-        if (getCarbonConfigHome().isPresent()) {
+        if (SecureVaultUtils.isOSGIEnv()) {
             return secretRepositoryConfiguration.getParameter(SecureVaultConstants.LOCATION)
                     .orElseGet(() -> getCarbonConfigHome().get()
                             .resolve(Paths.get("security", SecureVaultConstants.SECRETS_PROPERTIES)).toString());
         }
         return secretRepositoryConfiguration.getParameter(SecureVaultConstants.LOCATION)
-                .orElseGet(() -> System.getProperty(SecureVaultConstants.SECRET_PROPERTIES_FILE_PATH));
+                .orElseGet(() -> SecureVaultInitializer.getInstance().getSecretPropertiesPath().get());
     }
 
     /**
@@ -126,10 +127,10 @@ public class SecureVaultUtils {
      * @return String secure_vault.yaml location
      */
     public static String getSecureVaultYAMLLocation() {
-        if (getCarbonConfigHome().isPresent()) {
+        if (SecureVaultUtils.isOSGIEnv()) {
             return getCarbonConfigHome().get().resolve(SecureVaultConstants.SECURE_VAULT_CONFIG_YAML).toString();
         }
-        return System.getProperty(SecureVaultConstants.SECURE_VAULT_YAML_FILE_PATH);
+        return SecureVaultInitializer.getInstance().getSecureVaultYAMLPath().get();
     }
 
     /**
@@ -260,5 +261,14 @@ public class SecureVaultUtils {
             return Optional.of(Paths.get(getCarbonHome().get().toString(), "conf"));
         }
         return Optional.empty();
+    }
+
+    /**
+     * Check whether the environment is OSGI or not.
+     *
+     * @return true is environment is OSGI false if not OSGI.
+     */
+    public static boolean isOSGIEnv() {
+        return SecureVaultDataHolder.getInstance().getBundleContext().isPresent();
     }
 }

@@ -129,6 +129,7 @@
     </build>
 
     <properties>
+        <bundle.activator>org.wso2.carbon.kernel.securevault.internal.SecureVaultActivator</bundle.activator>
         <private.package>org.wso2.carbon.kernel.securevault.internal.*,</private.package>
         <export.package>
             !org.wso2.carbon.kernel.securevault.internal.*,

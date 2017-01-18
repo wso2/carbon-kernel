@@ -22,8 +22,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
+import org.wso2.carbon.kernel.securevault.internal.SecureVaultDataHolder;
 import org.wso2.carbon.kernel.securevault.repository.DefaultSecretRepository;
 import org.wso2.carbon.kernel.securevault.utils.DefaultHardCodedMasterKeyReader;
+import org.wso2.carbon.kernel.securevault.utils.FakeBundleContext;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +50,7 @@ public class DefaultSecretRepositoryTest {
 
     @BeforeTest
     public void setup() {
+        SecureVaultDataHolder.getInstance().setBundleContext(new FakeBundleContext());
         File secretsFile = new File(Paths.get(secureVaultTargetPath.toString(), "secrets.properties").toString());
         File erroneousSecretsFile = new File(Paths.get(secureVaultTargetPath.toString(),
                 "error-secrets.properties").toString());

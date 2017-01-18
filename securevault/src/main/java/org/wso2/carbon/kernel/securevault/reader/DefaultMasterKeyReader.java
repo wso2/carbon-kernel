@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.MasterKey;
 import org.wso2.carbon.kernel.securevault.MasterKeyReader;
-import org.wso2.carbon.kernel.securevault.SecureVaultConstants;
+import org.wso2.carbon.kernel.securevault.SecureVaultInitializer;
 import org.wso2.carbon.kernel.securevault.SecureVaultUtils;
 import org.wso2.carbon.kernel.securevault.config.model.MasterKeyReaderConfiguration;
 import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfiguration;
@@ -93,10 +93,10 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
         readMasterKeysFromSystem(masterKeys);
 
         Path masterKeysFilePath;
-        if (SecureVaultUtils.getCarbonHome().isPresent()) {
+        if (SecureVaultUtils.isOSGIEnv()) {
             masterKeysFilePath = Paths.get(SecureVaultUtils.getCarbonHome().get().toString(), MASTER_KEYS_FILE_NAME);
         } else {
-            masterKeysFilePath = Paths.get(System.getProperty(SecureVaultConstants.MASTER_KEYS_FILE_PATH));
+            masterKeysFilePath = Paths.get(SecureVaultInitializer.getInstance().getMasterKeyYAMLPath().get());
         }
         if (Files.exists(masterKeysFilePath)) {
             readMasterKeysFile(masterKeysFilePath, masterKeys);

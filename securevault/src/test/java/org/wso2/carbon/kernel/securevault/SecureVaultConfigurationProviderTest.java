@@ -24,6 +24,8 @@ import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfigura
 import org.wso2.carbon.kernel.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.internal.SecureVaultConfigurationProvider;
+import org.wso2.carbon.kernel.securevault.internal.SecureVaultDataHolder;
+import org.wso2.carbon.kernel.securevault.utils.FakeBundleContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +41,7 @@ public class SecureVaultConfigurationProviderTest {
 
     @BeforeTest
     public void setup() {
-
+        SecureVaultDataHolder.getInstance().setBundleContext(new FakeBundleContext());
     }
 
     @Test(expectedExceptions = SecureVaultException.class)
