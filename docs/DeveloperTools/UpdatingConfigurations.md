@@ -8,7 +8,7 @@ WSO2 Carbon 5 introduces a new configuration deployment model, which allows prod
 
 By default, the following minimal configuration elements are specified in the `deployment.yaml` file of a Carbon product.
 
-```
+```yaml
  # Carbon Configuration Parameters
 wso2.carbon:
    # value to uniquely identify a server
@@ -40,7 +40,7 @@ If you have the Java beans defined accordingly, a configuration document will be
 
 See the following example:
 
-```
+```java
 @Configuration(namespace = "wso2.carbon", description = "Carbon Configuration Parameters")
 public class CarbonConfiguration {
 
@@ -95,7 +95,7 @@ The elements in the above example are explained below
   This is a field-level annotation, which is not required to be added to all fields in the bean class. You should add this only if you want to have a description for the particular field in the config docs.
   
 	 For example: 
-  ```
+  ```java
   @Element(description = "value to uniquely identify a server")
    	private String id = "carbon-kernel";
     ```
@@ -104,7 +104,7 @@ The elements in the above example are explained below
   
   This is a field-level annotation. Should only be added if you want to skip the field from the configuration docs. Theoretically, those fields should not be configured by end users. 
 	 For example:
-  ```
+  ```java
   @Ignore
    	private String version;
     ```
@@ -112,7 +112,7 @@ The elements in the above example are explained below
 * Every required field should have a default value in the bean class as shown in the above example.
 * If you have an Array or Collection as a field type, you need to set the default values inside the bean constructor as shown below.
    
-   ```
+   ```java
    @Configuration(namespace = "wso2.transports.netty", description = "Netty Transport Configurations")
 public class TransportsConfiguration {
 
@@ -134,7 +134,7 @@ public class TransportsConfiguration {
 
 1. Add Reference to the ConfigProvider OSGI service as shown below.
 
- ```
+ ```java
  /**
 * Get the ConfigProvider service.
 * This is the bind method that gets called for ConfigProvider service registration that satisfy the policy.
@@ -164,13 +164,13 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 
 2. Get the particular bean object by calling the `getConfigurationObject(Class<T> configClass)` API with bean class as below. This will return the configuration object of the class with the overriding values in the `deployment.yaml` file. If configurations do not exist in the `deployment.yaml`, the object will be returned with default values.
 
-  ```
+  ```java
   <Bean> bean = DataHolder.getInstance().getConfigProvider().getConfigurationObject(<Bean>.class);
 ```
 
 3. Get the particular configuration map of the namespace in the `deployment.yaml` file by calling the `getConfigurationMap(String namespace)` with the namespace as shown below. This will return the configuration map of the namespace, provided that configurations exist for the given namespace in the `deployment.yaml` file.
 
- ```
+ ```java
  Map map = DataHolder.getInstance().getConfigProvider().getConfigurationMap(<namespace>);
  ```
  
@@ -178,7 +178,7 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 
 1. Add the Carbon core dependency to the component's POM file. This is to get the custom annotations defined in `carbon.core`.
 
- ```
+ ```xml
  <dependencies>
  …
    <dependency>
@@ -191,7 +191,7 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 
 2. Add the Maven plugin to the component's POM file. This is to create the configuration document by reading the configuration bean classes.
 
- ```
+ ```xml
  <build>
   <plugins>
 …
@@ -216,7 +216,7 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 
 4. Add the Maven dependency plugin to the feature's POM file to copy the configuration document file to the feature. When the feature builds, the configuration document file (`<config-namespace-value>.yaml`) will be copied to the config-docs directory.  
  
- ```
+ ```xml
  <plugins>
 …
   <plugin>
@@ -253,7 +253,7 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 
 5. And add resource as shown below.
 
-  ```  
+  ```xml  
 <build>
 …
 <resources>
@@ -269,7 +269,7 @@ protected void unregisterConfigProvider(ConfigProvider configProvider) {
 
 Shown below is a sample Configuration Doc file. This is generated for the `CarbonConfiguration` class. If you need to override the default configuations, you need to copy this configs to the `deployment.yaml` file in your server.
 
-```
+```yaml
 ################################################################################
 #   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved
 #
@@ -326,7 +326,7 @@ If you need to override the default values, you need to copy  the configuration 
 
 Copy the `updateInterval` configuration to the `deployment.yaml` file and change the value to 20, as shown below.
 
-```
+```yaml
 # Deployment Engine related configurations
 wso2.deployment:
    # Deployment update interval in seconds. This is the interval between repository listener
@@ -336,7 +336,7 @@ wso2.deployment:
 
 The updated `deployment.yaml` file will be as follows:
 
-```
+```yaml
 # Carbon Configuration Parameters
 wso2.carbon:
    # value to uniquely identify a server
