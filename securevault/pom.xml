@@ -110,7 +110,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <excludePackageNames>org.wso2.carbon.kernel.securevault.internal</excludePackageNames>
+                            <excludePackageNames>org.wso2.carbon.securevault.internal</excludePackageNames>
                             <additionalparam>-Xdoclint:none</additionalparam>
                             <show>public</show>
                             <nohelp>true</nohelp>
@@ -129,11 +129,11 @@
     </build>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.kernel.securevault.internal.SecureVaultActivator</bundle.activator>
-        <private.package>org.wso2.carbon.kernel.securevault.internal.*,</private.package>
+        <bundle.activator>org.wso2.carbon.securevault.internal.SecureVaultActivator</bundle.activator>
+        <private.package>org.wso2.carbon.securevault.internal.*,</private.package>
         <export.package>
-            !org.wso2.carbon.kernel.securevault.internal.*,
-            org.wso2.carbon.kernel.securevault.*; version="${carbon.kernel.package.export.version}",
+            !org.wso2.carbon.securevault.internal.*,
+            org.wso2.carbon.securevault.*; version="${carbon.kernel.package.export.version}",
         </export.package>
         <import.package>
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",

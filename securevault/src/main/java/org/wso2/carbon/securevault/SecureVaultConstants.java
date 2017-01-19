@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.tools.securevault;
+package org.wso2.carbon.securevault;
 
 /**
- * Cipher Tool Constants.
+ * Secure Vault Constants.
  *
  * @since 5.2.0
  */
-public class Constants {
+public class SecureVaultConstants {
 
-    public static final String ENCRYPT_TEXT_COMMAND = "-encryptText";
-    public static final String DECRYPT_TEXT_COMMAND = "-decryptText";
-    public static final String CUSTOM_LIB_PATH_COMMAND = "-customLibPath";
-
-    public static final String INIT_METHOD = "init";
-    public static final String ENCRYPT_SECRETS_METHOD = "encryptSecrets";
-    public static final String ENCRYPT_TEXT_METHOD = "encryptText";
-    public static final String DECRYPT_TEXT_METHOD = "decryptText";
-
-
-    public static final String CIPHER_TOOL_CLASS = "org.wso2.carbon.securevault.tool.CipherTool";
+    public static final String SECURE_VAULT_CONFIG_YAML = "secure-vault.yaml";
+    public static final String SECRETS_PROPERTIES = "secrets.properties";
+    public static final String CIPHER_TEXT = "cipherText";
+    public static final String PLAIN_TEXT = "plainText";
+    public static final String LOCATION = "location";
+    public static final String SPACE = " ";
+    public static final String CARBON_HOME = "carbon.home";
+    public static final String CARBON_HOME_ENV = "CARBON_HOME";
 
     /**
      * Remove default constructor and make it not available to initialize.
      */
-    private Constants() {
+    private SecureVaultConstants() {
         throw new AssertionError("Trying to a instantiate a constant class");
     }
 }

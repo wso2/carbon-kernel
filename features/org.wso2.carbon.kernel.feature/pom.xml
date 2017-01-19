@@ -32,6 +32,10 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.securevault</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
@@ -183,6 +187,10 @@
                                 </advice>
                             </adviceFileContents>
                             <bundles>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.securevault</symbolicName>
+                                    <version>${carbon.kernel.version}</version>
+                                </bundle>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.core</symbolicName>
                                     <version>${carbon.kernel.version}</version>

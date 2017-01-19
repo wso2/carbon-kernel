@@ -31,7 +31,7 @@ SecureVault is by default enabled. It reads the aliases and passwords given in t
 CipherTool also depends on the configurations given in the file. Therefore, it is mandatory to make changed in the `secure-vault.yaml` file before running the Cipher tool. Once configured, running the 'ciphertool' is as simple as running the ciphertool script (ciphertool.sh on Linux/Mac and cihpertool.bat on Windows).
 
 ## How to Implement the Custom Master Key Reader
-All the MasterKeyReader implementations should derive from the MasterKeyReader (org.wso2.carbon.kernel.securevault.MasterKeyReader) interface. This interface should be registered as an OSGi service. SecureVault gets all the MasterKeyReader implementations and binds itself only with the matching MasterKeyReader, which is specified in the `secure-vault.yaml` file.
+All the MasterKeyReader implementations should derive from the MasterKeyReader (org.wso2.carbon.securevault.MasterKeyReader) interface. This interface should be registered as an OSGi service. SecureVault gets all the MasterKeyReader implementations and binds itself only with the matching MasterKeyReader, which is specified in the `secure-vault.yaml` file.
 ```java
     public class CustomHardCodedMasterKeyReader implements MasterKeyReader {
         private static Logger logger = LoggerFactory.getLogger(DefaultHardCodedMasterKeyReader.class);
@@ -57,10 +57,10 @@ All the MasterKeyReader implementations should derive from the MasterKeyReader (
 All the Secret Repository implementations should derive from the Secret Repository interface and should be registered as an OSGi service of that interface. From all the registered implementations for Secret Repository, SecureVault chooses the correct Secret Repository based on the configurations given in the secure-vault.yaml file.
 ```java
     @Component(
-            name = "org.wso2.carbon.kernel.securevault.repository.CustomSecretRepository",
+            name = "org.wso2.carbon.securevault.repository.CustomSecretRepository",
             immediate = true,
             property = {
-                    "capabilityName=org.wso2.carbon.kernel.securevault.SecretRepository"
+                    "capabilityName=org.wso2.carbon.securevault.SecretRepository"
             },
             service = SecretRepository.class
     )
@@ -122,34 +122,31 @@ SecureVault functionality can access in non OSGI mode by following the below ste
 
 2. Following Client class will initialize the secure vault to invoke resolve function to get the secret.
 ```java
-    import org.wso2.carbon.kernel.securevault.SecureVaultInitializer;
-    import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-    import org.wso2.carbon.kernel.securevault.internal.SecureVaultDataHolder;
+import org.wso2.carbon.securevault.SecureVaultInitializer;
+import org.wso2.carbon.securevault.SecureVaultProviderService;
+import org.wso2.carbon.securevault.exception.SecureVaultException;
 
-    /**
-     * Responsible for initialize the secure vault and invoke secure vault functionality
-     *
-     */
-    public class SecureVaultClient
+/**
+ * Responsible for initialize the secure vault and invoke secure vault functionality
+ *
+ */
+public class SecureVaultClient
+{
+    public static void main ( String[] args ) throws SecureVaultException
     {
-                public static void main ( String[] args ) throws SecureVaultException
-                {
-                    String masterKeysFilePath = "master-keys.yaml";
-                    String secretPropertiesFilePath = "secrets.properties";
-                    String secureVaultYAMLPath = "secure-vault.yaml";
-            
-                    SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
-                            secretPropertiesFilePath, secureVaultYAMLPath);
-            
-                    String alias = "wso2.sample.password2";
-            
-                    System.out.println("password for " + alias + " : " + String.valueOf(SecureVaultDataHolder
-                            .getInstance().getSecretRepository()
-                            .orElseThrow(() -> new SecureVaultException("No secret repository found."))
-                            .resolve(alias)));
-            
-                }
+        String masterKeysFilePath = "master-keys.yaml";
+        String secretPropertiesFilePath = "secrets.properties";
+        String secureVaultYAMLPath = "secure-vault.yaml";
+
+        SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
+                secretPropertiesFilePath, secureVaultYAMLPath);
+
+        String alias = "wso2.sample.password2";
+
+        System.out.println(SecureVaultProviderService.getInstance().resolve(alias));
+
     }
+}
 ```
 P.S : If user is willing to use custom master key reader or custom secret repository, then user can implement
 the interfaces as mentioned in

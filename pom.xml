@@ -44,6 +44,7 @@
                 <module>parent</module>
                 <module>archetypes</module>
                 <module>launcher</module>
+                <module>securevault</module>
                 <module>core</module>
                 <module>extensions</module>
                 <module>tools</module>
@@ -52,7 +53,6 @@
                 <module>features</module>
                 <module>distribution</module>
                 <module>tests</module>
-                <module>securevault</module>
             </modules>
         </profile>
     </profiles>
