@@ -34,7 +34,9 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Dictionary;
 
-
+/**
+ * This class is used to create empty bundle context objects set the osgi context in the beginning of tests.
+ */
 public class FakeBundleContext implements BundleContext {
     @Override
     public String getProperty(String s) {
