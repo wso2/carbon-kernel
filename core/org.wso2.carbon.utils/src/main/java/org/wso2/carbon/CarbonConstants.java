@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -387,7 +386,7 @@ public final class CarbonConstants {
 
     static {
         String userDomainSeparator = ServerConfiguration.getInstance().getFirstProperty("UserDomainSeparator");
-        if (!StringUtils.isEmpty(userDomainSeparator)) {
+        if (userDomainSeparator != null && !userDomainSeparator.trim().isEmpty()) {
             DOMAIN_SEPARATOR = userDomainSeparator.trim();
         } else {
             DOMAIN_SEPARATOR = "/";

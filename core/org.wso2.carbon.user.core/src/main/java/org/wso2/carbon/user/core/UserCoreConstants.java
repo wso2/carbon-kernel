@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.user.core;
 
-import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.ServerConfiguration;
 
 public class UserCoreConstants {
@@ -69,7 +68,7 @@ public class UserCoreConstants {
 
     static {
         String userDomainSeparator = ServerConfiguration.getInstance().getFirstProperty("UserDomainSeparator");
-        if (!StringUtils.isEmpty(userDomainSeparator)) {
+        if (userDomainSeparator != null && !userDomainSeparator.trim().isEmpty()) {
             DOMAIN_SEPARATOR = userDomainSeparator.trim();
         } else {
             DOMAIN_SEPARATOR = "/";
