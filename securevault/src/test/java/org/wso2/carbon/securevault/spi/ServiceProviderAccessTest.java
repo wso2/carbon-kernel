@@ -21,7 +21,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.securevault.SecureVaultInitializer;
 import org.wso2.carbon.securevault.exception.SecureVaultException;
-import org.wso2.carbon.securevault.internal.SecureVaultDataHolder;
 
 /**
  * Unit tests class for org.wso2.carbon.securevault.SecureVaultInitializer
@@ -39,11 +38,8 @@ public class ServiceProviderAccessTest {
         String secretPropertiesFilePath = "src/test/resources/securevault/spi/secrets.properties";
         String secureVaultYAMLPath = "src/test/resources/securevault/spi/secure-vault.yaml";
 
-        SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
-                secretPropertiesFilePath, secureVaultYAMLPath);
         String alias = "wso2.sample.password2";
-        Assert.assertEquals(String.valueOf(SecureVaultDataHolder.getInstance().getSecretRepository()
-                .orElseThrow(() -> new SecureVaultException("No secret repository found."))
-                .resolve(alias)), "ABC@123");
+        Assert.assertEquals(String.valueOf(SecureVaultInitializer.getInstance().initializeSecureVault(
+                masterKeysFilePath, secretPropertiesFilePath, secureVaultYAMLPath).resolve(alias)), "ABC@123");
     }
 }
