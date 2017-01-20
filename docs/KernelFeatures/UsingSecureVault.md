@@ -123,7 +123,6 @@ SecureVault functionality can access in non OSGI mode by following the below ste
 2. Following Client class will initialize the secure vault to invoke resolve function to get the secret.
 ```java
 import org.wso2.carbon.securevault.SecureVaultInitializer;
-import org.wso2.carbon.securevault.SecureVaultProviderService;
 import org.wso2.carbon.securevault.exception.SecureVaultException;
 
 /**
@@ -133,19 +132,16 @@ import org.wso2.carbon.securevault.exception.SecureVaultException;
 public class SecureVaultClient
 {
     public static void main ( String[] args ) throws SecureVaultException
-    {
-        String masterKeysFilePath = "master-keys.yaml";
-        String secretPropertiesFilePath = "secrets.properties";
-        String secureVaultYAMLPath = "secure-vault.yaml";
-
-        SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
-                secretPropertiesFilePath, secureVaultYAMLPath);
-
-        String alias = "wso2.sample.password2";
-
-        System.out.println(SecureVaultProviderService.getInstance().resolve(alias));
-
-    }
+        {
+            String masterKeysFilePath = "master-keys.yaml";
+            String secretPropertiesFilePath = "secrets.properties";
+            String secureVaultYAMLPath = "secure-vault.yaml";
+    
+            String alias = "wso2.sample.password2";
+            System.out.println(SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
+                    secretPropertiesFilePath, secureVaultYAMLPath).resolve(alias));
+    
+        }
 }
 ```
 P.S : If user is willing to use custom master key reader or custom secret repository, then user can implement
