@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -597,8 +598,18 @@ public class JDBCTenantManager implements TenantManager {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             return true;
         } else {
-            Tenant tenant = getTenant(tenantId);
-            return tenant.isActive();
+            try {
+                // Start tenant flow before retrieve tenant from the cache.
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                privilegedCarbonContext.setTenantId(tenantId);
+                privilegedCarbonContext.setTenantDomain(getDomain(tenantId));
+
+                Tenant tenant = getTenant(tenantId);
+                return tenant.isActive();
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
     }
 
