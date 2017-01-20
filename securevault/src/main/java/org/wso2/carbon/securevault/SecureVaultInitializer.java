@@ -23,8 +23,10 @@ import org.wso2.carbon.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.securevault.exception.SecureVaultException;
 import org.wso2.carbon.securevault.internal.SecureVaultConfigurationProvider;
 import org.wso2.carbon.securevault.internal.SecureVaultDataHolder;
+import org.wso2.carbon.securevault.internal.SecureVaultImpl;
+import org.wso2.carbon.securevault.reader.DefaultMasterKeyReader;
+import org.wso2.carbon.securevault.repository.DefaultSecretRepository;
 
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
@@ -88,62 +90,44 @@ public class SecureVaultInitializer {
     }
 
     /**
-     * Initialise secret repository for service provider implementation as the same as specified in secure-vault yaml.
-     */
-    private void initializeSecretRepository() {
-        Iterator<SecretRepository> secretRepositoryTypes = secretRepositoryLoader.iterator();
-        while (secretRepositoryTypes.hasNext()) {
-            SecretRepository secretRepository = secretRepositoryTypes.next();
-            if (secretRepositoryType.equals(secretRepository.getClass().getName())) {
-                SecureVaultDataHolder.getInstance().setSecretRepository(secretRepository);
-            }
-        }
-    }
-
-    /**
-     * Initialise master key reader for the service provider implementation as the same as specified in secure vault
-     * yaml.
-     */
-    private void initializeMasterKeyReader() {
-        Iterator<MasterKeyReader> masterKeyReaderTypes = masterKeyReaderLoader.iterator();
-        while (masterKeyReaderTypes.hasNext()) {
-            MasterKeyReader masterKeyReader = masterKeyReaderTypes.next();
-            if (masterKeyReaderType.equals(masterKeyReader.getClass().getName())) {
-                SecureVaultDataHolder.getInstance().setMasterKeyReader(masterKeyReader);
-            }
-        }
-
-    }
-
-    /**
      * Initialise the secure vault for SPI case.
      *
      * @param masterKeysFilePath Master key file path which is used to unlock secret repository.
      * @param secretPropertiesFilePath Secret properties file path which is used to store keys and aliases.
      * @param secureVaultYAMLPath Secure vault yaml path which is used to store all configuration related to secure
      *                            vault.
+     * @return SecureVault service instance.
      */
-    public void initializeSecureVault(String masterKeysFilePath, String secretPropertiesFilePath,
+    public SecureVault initializeSecureVault(String masterKeysFilePath, String secretPropertiesFilePath,
                                       String secureVaultYAMLPath) {
         setMasterKeyYAMLPath(Optional.of(masterKeysFilePath));
         setSecretPropertiesPath(Optional.of(secretPropertiesFilePath));
         setSecureVaultYAMLPath(Optional.of(secureVaultYAMLPath));
         initFromSecureVaultYAML();
         initSPI();
-        initializeMasterKeyReader();
-        initializeSecretRepository();
-        initializeSecureVault();
+        if (masterKeyReaderLoader.iterator().next() == null) {
+            SecureVaultDataHolder.getInstance().setMasterKeyReader(new DefaultMasterKeyReader());
+        } else {
+            SecureVaultDataHolder.getInstance().setMasterKeyReader(masterKeyReaderLoader.iterator().next());
+        }
+        if (secretRepositoryLoader.iterator().next() == null) {
+            SecureVaultDataHolder.getInstance().setSecretRepository(new DefaultSecretRepository());
+        } else {
+            SecureVaultDataHolder.getInstance().setSecretRepository(secretRepositoryLoader.iterator().next());
+        }
 
+        return initializeSecureVault();
     }
 
     /**
-     * Initialize the secret repository.
+     * Initialize the secret repository by initialising master key reader and secret repository and loading secrets
+     * to secret repository.
      */
-    public void initializeSecureVault() {
+    public SecureVault initializeSecureVault() {
         synchronized (this) {
             if (initialized) {
                 logger.debug("Secure Vault Component is already initialized");
-                return;
+                return null;
             }
 
             try {
@@ -173,6 +157,7 @@ public class SecureVaultInitializer {
         }
 
         logger.debug("Secure Vault initialized successfully");
+        return new SecureVaultImpl();
     }
 
     public Optional<String> getSecureVaultYAMLPath() {

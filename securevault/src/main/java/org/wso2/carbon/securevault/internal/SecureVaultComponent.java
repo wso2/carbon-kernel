@@ -42,7 +42,7 @@ import org.wso2.carbon.securevault.SecureVaultInitializer;
  * @since 5.2.0
  */
 @Component(
-        name = "org.wso2.carbon.kernel.internal.securevault.SecureVaultComponent",
+        name = "org.wso2.carbon.securevault.internal.SecureVaultComponent",
         immediate = true
 )
 public class SecureVaultComponent {
@@ -116,6 +116,12 @@ public class SecureVaultComponent {
         }
     }
 
+    /**
+     * Initialise the Secure Vault. This method wait until master key reader service and secret repository service are
+     * resolved and call SecureVaultInitializer.initializeSecureVault to initialise master key reader and secret
+     * repository and loading secrets to secret repository and will register SecureVault service finally if all
+     * the previous tasks successful.
+     */
     private void initializeSecureVault() {
 
         if (!SecureVaultDataHolder.getInstance().getSecretRepository().isPresent() ||
