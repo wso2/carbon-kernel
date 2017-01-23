@@ -72,14 +72,6 @@ public class SecureVaultInitializer {
         }
     }
 
-    /**
-     * Initialize the secret repository and master key reader service provider loaders.
-     */
-    private void initSPI() {
-        secretRepositoryLoader = ServiceLoader.load(SecretRepository.class);
-        masterKeyReaderLoader = ServiceLoader.load(MasterKeyReader.class);
-    }
-
     public static synchronized SecureVaultInitializer getInstance() {
         if (secureVaultInitializer == null) {
             return new SecureVaultInitializer();
@@ -102,7 +94,8 @@ public class SecureVaultInitializer {
         setSecretPropertiesPath(Optional.of(secretPropertiesFilePath));
         setSecureVaultYAMLPath(Optional.of(secureVaultYAMLPath));
         initFromSecureVaultYAML();
-        initSPI();
+        secretRepositoryLoader = ServiceLoader.load(SecretRepository.class);
+        masterKeyReaderLoader = ServiceLoader.load(MasterKeyReader.class);
         if (masterKeyReaderLoader.iterator().next() == null) {
             SecureVaultDataHolder.getInstance().setMasterKeyReader(new DefaultMasterKeyReader());
         } else {
