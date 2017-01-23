@@ -16,14 +16,13 @@
 
 package org.wso2.carbon.securevault.spi;
 
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.securevault.SecureVaultInitializer;
 import org.wso2.carbon.securevault.exception.SecureVaultException;
 
 /**
- * Unit tests class for org.wso2.carbon.securevault.SecureVaultInitializer
+ * Unit tests class for org.wso2.carbon.securevault.SecureVaultInitializer.
  *
  * @since 5.2.0
  */

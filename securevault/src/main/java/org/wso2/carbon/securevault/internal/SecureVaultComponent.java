@@ -72,8 +72,8 @@ public class SecureVaultComponent {
             unbind = "unRegisterSecretRepository"
     )
     protected void registerSecretRepository(SecretRepository secretRepository) {
-        if (secretRepository.getClass().getName().equals(SecureVaultInitializer.getInstance()
-                .getSecretRepositoryType())) {
+        if (secretRepository.getClass().getName().equals(
+                SecureVaultInitializer.getInstance().getSecretRepositoryType())) {
             logger.debug("Registering secret repository : {}", SecureVaultInitializer.getInstance()
                     .getSecretRepositoryType());
             SecureVaultDataHolder.getInstance().setSecretRepository(secretRepository);
@@ -82,8 +82,8 @@ public class SecureVaultComponent {
     }
 
     protected void unRegisterSecretRepository(SecretRepository secretRepository) {
-        if (secretRepository.getClass().getName().equals(SecureVaultInitializer.getInstance()
-                .getSecretRepositoryType())) {
+        if (secretRepository.getClass().getName().equals(
+                SecureVaultInitializer.getInstance().getSecretRepositoryType())) {
             logger.debug("Un-registering secret repository : {}", SecureVaultInitializer.getInstance()
                     .getSecretRepositoryType());
             SecureVaultDataHolder.getInstance().setSecretRepository(null);
@@ -98,8 +98,8 @@ public class SecureVaultComponent {
             unbind = "unregisterMasterKeyReader"
     )
     protected void registerMasterKeyReader(MasterKeyReader masterKeyReader) {
-        if (masterKeyReader.getClass().getName().equals(SecureVaultInitializer.getInstance()
-                .getMasterKeyReaderType())) {
+        if (masterKeyReader.getClass().getName().equals(
+                SecureVaultInitializer.getInstance().getMasterKeyReaderType())) {
             logger.debug("Registering secret repository : ", SecureVaultInitializer.getInstance()
                     .getMasterKeyReaderType());
             SecureVaultDataHolder.getInstance().setMasterKeyReader(masterKeyReader);
@@ -108,8 +108,8 @@ public class SecureVaultComponent {
     }
 
     protected void unregisterMasterKeyReader(MasterKeyReader masterKeyReader) {
-        if (masterKeyReader.getClass().getName().equals(SecureVaultInitializer.getInstance()
-                .getMasterKeyReaderType())) {
+        if (masterKeyReader.getClass().getName().equals(
+                SecureVaultInitializer.getInstance().getMasterKeyReaderType())) {
             logger.debug("Un-registering secret repository : ", SecureVaultInitializer.getInstance()
                     .getMasterKeyReaderType());
             SecureVaultDataHolder.getInstance().setMasterKeyReader(null);

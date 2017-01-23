@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.securevault;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.securevault.config.model.SecureVaultConfiguration;
@@ -67,7 +66,6 @@ public class SecureVaultInitializer {
                 secretRepositoryType = secureVaultConfiguration.getSecretRepositoryConfig().getType().orElse("");
                 masterKeyReaderType = secureVaultConfiguration.getMasterKeyReaderConfig().getType().orElse("");
             });
-
         } catch (SecureVaultException | RuntimeException e) {
             optSecureVaultConfiguration = Optional.empty();
             logger.error("Error while acquiring secure vault configuration", e);
@@ -92,7 +90,7 @@ public class SecureVaultInitializer {
     /**
      * Initialise the secure vault for SPI case.
      *
-     * @param masterKeysFilePath Master key file path which is used to unlock secret repository.
+     * @param masterKeysFilePath Master key file path which is used store keys and configs to unlock secret repository.
      * @param secretPropertiesFilePath Secret properties file path which is used to store keys and aliases.
      * @param secureVaultYAMLPath Secure vault yaml path which is used to store all configuration related to secure
      *                            vault.

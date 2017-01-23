@@ -138,7 +138,6 @@
         <import.package>
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             javax.crypto.*;version="${javax.crypto.version.range}",
         </import.package>

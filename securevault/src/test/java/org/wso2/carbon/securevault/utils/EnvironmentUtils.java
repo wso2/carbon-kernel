@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,22 +74,22 @@ public class EnvironmentUtils {
             Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
             cienv.putAll(newenv);
         } catch (NoSuchFieldException e) {
-            try {
-                Class[] classes = Collections.class.getDeclaredClasses();
-                Map<String, String> env = System.getenv();
-                for (Class cl : classes) {
-                    if (COLLECTIONS_UNMODIFIABLE_MAP.equals(cl.getName())) {
-                        Field field = cl.getDeclaredField(FIELD_M);
-                        field.setAccessible(true);
-                        Object obj = field.get(env);
-                        Map<String, String> map = (Map<String, String>) obj;
-                        map.clear();
-                        map.putAll(newenv);
+            Class[] classes = Collections.class.getDeclaredClasses();
+            Map<String, String> env = System.getenv();
+            Arrays.asList(classes).stream().filter(cl -> COLLECTIONS_UNMODIFIABLE_MAP.equals(cl.getName())).forEach(
+                    (cl) -> {
+                        try {
+                            Field field = cl.getDeclaredField(FIELD_M);
+                            field.setAccessible(true);
+                            Object obj = field.get(env);
+                            Map<String, String> map = (Map<String, String>) obj;
+                            map.clear();
+                            map.putAll(newenv);
+                        } catch (IllegalAccessException | NoSuchFieldException ex) {
+                            logger.error("Unable to set environment variable via unmodifiable map", ex);
+                        }
                     }
-                }
-            } catch (IllegalAccessException | NoSuchFieldException ex) {
-                logger.error("Unable to set environment variable via unmodifiable map", ex);
-            }
+            );
         } catch (ClassNotFoundException | IllegalAccessException e) {
             logger.error("Unable to set environment variable", e);
         }

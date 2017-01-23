@@ -125,14 +125,8 @@ SecureVault functionality can access in non OSGI mode by following the below ste
 import org.wso2.carbon.securevault.SecureVaultInitializer;
 import org.wso2.carbon.securevault.exception.SecureVaultException;
 
-/**
- * Responsible for initialize the secure vault and invoke secure vault functionality
- *
- */
-public class SecureVaultClient
-{
-    public static void main ( String[] args ) throws SecureVaultException
-        {
+public class SecureVaultClient {
+    public static void main ( String[] args ) throws SecureVaultException {
             String masterKeysFilePath = "master-keys.yaml";
             String secretPropertiesFilePath = "secrets.properties";
             String secureVaultYAMLPath = "secure-vault.yaml";
@@ -140,7 +134,6 @@ public class SecureVaultClient
             String alias = "wso2.sample.password2";
             System.out.println(SecureVaultInitializer.getInstance().initializeSecureVault(masterKeysFilePath,
                     secretPropertiesFilePath, secureVaultYAMLPath).resolve(alias));
-    
         }
 }
 ```
