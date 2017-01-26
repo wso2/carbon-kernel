@@ -111,14 +111,14 @@ public class SecureVaultInitializer {
     }
 
     /**
-     * Initialize the secret repository by initialising master key reader and secret repository and loading secrets
+     * Initialize the secure vault by initialising master key reader and secret repository and loading secrets
      * to secret repository.
      */
     public SecureVault initializeSecureVault() {
         synchronized (this) {
             if (initialized) {
                 logger.debug("Secure Vault Component is already initialized");
-                return null;
+                return new SecureVaultImpl();
             }
 
             try {
