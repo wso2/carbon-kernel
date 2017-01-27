@@ -28,6 +28,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -227,7 +228,12 @@ public class Breadcrumb extends BodyTagSupport {
 		}
 
         content.append("<script type=\"text/javascript\">\n");
-        content.append("    setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent) + "');\n");
+        try {
+            content.append("    setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent, "UTF-8")
+                    + "');\n");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Unsupported encoding UTF-8", e);
+        }
         content.append("    document.onload=setBreadcrumDiv();\n");
 		content.append("    function setBreadcrumDiv () {\n");
 		content.append("        var breadcrumbDiv = document.getElementById('breadcrumb-div');\n");
