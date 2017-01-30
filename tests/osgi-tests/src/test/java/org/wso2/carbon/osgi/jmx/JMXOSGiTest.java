@@ -48,6 +48,8 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFil
 public class JMXOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(JMXOSGiTest.class);
+    private static final String DEPLOYMENT_FILENAME = "deployment.yaml";
+
     @Inject
     private CarbonServerInfo carbonServerInfo;
 
@@ -61,9 +63,9 @@ public class JMXOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", "deployment.yaml");
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", DEPLOYMENT_FILENAME);
 
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "deployment.yaml"));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
     }
 
     @Configuration

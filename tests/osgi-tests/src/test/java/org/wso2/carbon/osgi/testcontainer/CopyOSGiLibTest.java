@@ -21,6 +21,8 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSG
 
 /**
  * To test pax exam container option copyOSGiLibBundle.
+ *
+ * @since 5.2.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

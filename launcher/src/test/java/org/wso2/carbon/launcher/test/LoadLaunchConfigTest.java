@@ -131,7 +131,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         final String osgiRepo = "wso2/lib";
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
         Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), osgiRepo);
-        if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("windows")) {
+        if (System.getProperty(Constants.OS_NAME).toLowerCase(Locale.getDefault()).contains(Constants.WINDOWS)) {
             Assert.assertEquals(Paths.get(osgiRepoURL.getPath()).toUri().toURL().toString(),
                     expectedPath.toUri().toURL().toString());
         } else {

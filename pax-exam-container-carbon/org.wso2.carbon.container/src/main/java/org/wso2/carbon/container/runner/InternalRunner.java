@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 
 /**
  * Internal runner to create the framework process to start the distribution.
+ *
+ * @since 5.2.0
  */
 public class InternalRunner {
 

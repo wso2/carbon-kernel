@@ -20,6 +20,8 @@ import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
 /**
  * Install any bundle to lib directory.
+ *
+ * @since 5.2.0
  */
 public class CopyOSGiLibBundleOption implements Option {
 

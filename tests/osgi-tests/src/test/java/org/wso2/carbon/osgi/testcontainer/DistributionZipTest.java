@@ -21,6 +21,8 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.carbonD
 
 /**
  * To test the pax exam container using distribution zip.
+ *
+ * @since 5.2.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

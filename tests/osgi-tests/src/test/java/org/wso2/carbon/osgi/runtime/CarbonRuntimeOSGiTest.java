@@ -54,6 +54,7 @@ public class CarbonRuntimeOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CarbonRuntimeOSGiTest.class);
     private static final String CARBON_RUNTIME_SERVICE = CarbonRuntime.class.getName();
+    private static final String DEPLOYMENT_FILENAME = "deployment.yaml";
 
     @Inject
     private BundleContext bundleContext;
@@ -114,7 +115,7 @@ public class CarbonRuntimeOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "deployment.yaml");
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "deployment.yaml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", DEPLOYMENT_FILENAME);
+        return copyFile(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
     }
 }

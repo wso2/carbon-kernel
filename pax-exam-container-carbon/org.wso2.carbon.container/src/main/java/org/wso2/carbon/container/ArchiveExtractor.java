@@ -37,6 +37,8 @@ import java.nio.file.Path;
 
 /**
  * Extract zip or tar.gz archives to a target Directory.
+ *
+ * @since 5.2.0
  */
 public class ArchiveExtractor {
 
@@ -53,11 +55,11 @@ public class ArchiveExtractor {
      * @throws IOException on I/O error
      */
     public static void extract(URL sourceURL, File targetDirectory) throws IOException {
-        if (sourceURL.getProtocol().equals("file")) {
+        if (Constants.FILE_PROTOCOL.equals(sourceURL.getProtocol())) {
             String file = sourceURL.getFile();
-            if (file.endsWith(".zip")) {
+            if (file.endsWith("." + Constants.ZIP_EXTENSION)) {
                 extractZipDistribution(sourceURL, targetDirectory);
-            } else if (file.endsWith(".tar.gz")) {
+            } else if (file.endsWith("." + Constants.TARGZ_EXTENSION)) {
                 extractTarGzDistribution(sourceURL, targetDirectory);
             } else {
                 throw new TestContainerException(
@@ -65,9 +67,9 @@ public class ArchiveExtractor {
             }
             return;
         }
-        if (sourceURL.toExternalForm().endsWith("/zip")) {
+        if (sourceURL.toExternalForm().endsWith("/" + Constants.ZIP_EXTENSION)) {
             extractZipDistribution(sourceURL, targetDirectory);
-        } else if (sourceURL.toExternalForm().endsWith("/tar.gz")) {
+        } else if (sourceURL.toExternalForm().endsWith("/" + Constants.TARGZ_EXTENSION)) {
             extractTarGzDistribution(sourceURL, targetDirectory);
         } else {
             throw new TestContainerException(
@@ -83,20 +85,34 @@ public class ArchiveExtractor {
      * @throws IOException on I/O error
      */
     public static void extract(Path path, File targetDirectory) throws IOException {
-        if (path.toString().endsWith(".zip")) {
+        if (path.toString().endsWith("." + Constants.ZIP_EXTENSION)) {
             extract(new ZipArchiveInputStream(new FileInputStream(path.toFile())), targetDirectory);
         } else {
             throw new TestContainerException("Unknown packaging of distribution; only zip can be handled.");
         }
     }
 
+    /**
+     * Extract tar.gz specified by url to target.
+     *
+     * @param sourceDistribution url of the archive
+     * @param targetDirectory    path of the target
+     * @throws IOException
+     */
     private static void extractTarGzDistribution(URL sourceDistribution, File targetDirectory) throws IOException {
-        File uncompressedFile = File.createTempFile("uncompressedTarGz-", ".tar");
+        File uncompressedFile = File.createTempFile(Constants.TEMPFILEPREFIX, "." + Constants.TAR_EXTENSION);
         extractGzArchive(sourceDistribution, uncompressedFile);
         extract(new TarArchiveInputStream(new FileInputStream(uncompressedFile)), targetDirectory);
         FileUtils.forceDelete(uncompressedFile);
     }
 
+    /**
+     * Extract zip specified by url to target.
+     *
+     * @param sourceDistribution url of the archive
+     * @param targetDirectory    path of the target
+     * @throws IOException
+     */
     private static void extractZipDistribution(URL sourceDistribution, File targetDirectory) throws IOException {
         extract(new ZipArchiveInputStream(sourceDistribution.openStream()), targetDirectory);
     }
@@ -153,6 +169,11 @@ public class ArchiveExtractor {
         }
     }
 
+    /**
+     * Create directory if not exists.
+     *
+     * @param directory directory object
+     */
     private static void createDirectory(File directory) {
         boolean isCreated = true;
         if (!directory.exists()) {

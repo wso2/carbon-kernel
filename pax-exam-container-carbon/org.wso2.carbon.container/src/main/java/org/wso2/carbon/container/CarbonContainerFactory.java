@@ -32,6 +32,8 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 
 /**
  * Factory class for the CarbonTestContainer.
+ *
+ * @since 5.2.0
  */
 @MetaInfServices
 public class CarbonContainerFactory implements TestContainerFactory {

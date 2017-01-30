@@ -54,6 +54,7 @@ import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSG
 public class CarbonContextOSGiTest {
     private static final Logger logger = LoggerFactory.getLogger(CarbonContextOSGiTest.class);
     private static final String TEST_TENANT_NAME = "test.tenant";
+    private static final String DEPLOYMENT_FILENAME = "deployment.yaml";
 
     @Inject
     private CarbonServerInfo carbonServerInfo;
@@ -134,7 +135,7 @@ public class CarbonContextOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", "deployment.yaml");
-        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "deployment.yaml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", DEPLOYMENT_FILENAME);
+        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
     }
 }
