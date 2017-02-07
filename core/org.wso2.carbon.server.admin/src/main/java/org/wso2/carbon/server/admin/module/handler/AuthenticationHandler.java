@@ -220,7 +220,7 @@ public class AuthenticationHandler extends AbstractHandler {
         HttpServletRequest request = (HttpServletRequest) msgContext
                 .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
 
-        if (request == null) {
+        if (request != null) {
             HttpSession session = request.getSession();
             if (session != null) {
                 try {
