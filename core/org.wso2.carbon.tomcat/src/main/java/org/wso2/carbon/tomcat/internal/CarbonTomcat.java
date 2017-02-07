@@ -547,7 +547,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
                 try {
                     serverSocket.close();
                 } catch (final IOException e) {
-                    // can never happen
+                    log.warn("Error occurred while closing the " + port + " port.");
                 }
             }
         }
