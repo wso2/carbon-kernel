@@ -140,7 +140,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public boolean isRoleAuthorized(String roleName, String resourceId, String action) throws UserStoreException {
 
-        if (resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -175,7 +175,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public boolean isUserAuthorized(String userName, String resourceId, String action)
             throws UserStoreException {
 
-        if (resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -319,7 +319,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getAllowedRolesForResource(String resourceId, String action)
             throws UserStoreException {
 
-        if (resourceId != null) {
+        if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
 
@@ -335,7 +335,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 permissionTree.getAllowedRolesForResource(null,
                         null,
                         permission,
-                        PermissionTreeUtil.toComponenets(resourceId.toLowerCase()));
+                        PermissionTreeUtil.toComponenets(resourceId));
 
         if (debug) {
             log.debug("Allowed roles for the ResourceID: " + resourceId + " Action: " + action);
