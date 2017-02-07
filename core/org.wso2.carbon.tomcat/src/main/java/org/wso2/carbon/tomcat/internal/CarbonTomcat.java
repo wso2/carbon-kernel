@@ -45,9 +45,12 @@ import org.xml.sax.SAXException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -408,8 +411,18 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         Connector[] connectors = this.getService().findConnectors();
         for (Connector connector : connectors) {
             try {
-                int currentPort = connector.getPort();
-                connector.setPort(currentPort + portOffset);
+                String isRandomPort = System.getProperty("tomcat.random.port.enable");
+                if (isRandomPort != null && isRandomPort.equals("true")) {
+                    connector.setPort(findFreePort());
+                } else {
+                    String portNumber = System.getProperty("tomcat." + connector.getScheme() + ".port");
+                    if (portNumber != null) {
+                        connector.setPort(Integer.parseInt(portNumber));
+                    } else {
+                        int currentPort = connector.getPort();
+                        connector.setPort(currentPort + portOffset);
+                    }
+                }
                 connector.start();
                 if (log.isDebugEnabled()) {
                     log.debug("staring the tomcat connector : " + connector.getProtocol());
@@ -434,8 +447,18 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         for (Connector connector : connectors) {
             if (connector.getScheme().equals(scheme)) {
                 try {
-                    int currentPort = connector.getPort();
-                    connector.setPort(currentPort + portOffset);
+                    String isRandomPort = System.getProperty("tomcat.random.port.enable");
+                    if (isRandomPort != null && isRandomPort.equals("true")) {
+                        connector.setPort(findFreePort());
+                    } else {
+                        String portNumber = System.getProperty("tomcat." + connector.getScheme() + ".port");
+                        if (portNumber != null) {
+                            connector.setPort(Integer.parseInt(portNumber));
+                        } else {
+                            int currentPort = connector.getPort();
+                            connector.setPort(currentPort + portOffset);
+                        }
+                    }
                     connector.start();
                     if (log.isDebugEnabled()) {
                         log.debug("staring the tomcat connector : " + connector.getProtocol());
@@ -497,6 +520,46 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
     public boolean isUnpackWARs() {
         StandardHost standardHost = (StandardHost) this.getHost();
         return standardHost.isUnpackWARs();
+    }
+
+    /**
+     * Returns true if the specified port is available on this host.
+     *
+     * @param port the port to check
+     * @return true if the port is available, false otherwise
+     */
+    private static boolean available(final int port) {
+        ServerSocket serverSocket = null;
+        DatagramSocket dataSocket = null;
+        try {
+            serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true);
+            dataSocket = new DatagramSocket(port);
+            dataSocket.setReuseAddress(true);
+            return true;
+        } catch (final IOException e) {
+            return false;
+        } finally {
+            if (dataSocket != null) {
+                dataSocket.close();
+            }
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (final IOException e) {
+                    log.warn("Error occurred while closing the " + port + " port.");
+                }
+            }
+        }
+    }
+
+    private static int findFreePort() {
+        int i = 30000 + (int) (Math.random() * ((10000) + 1));
+        if (available(i)) {
+            return i;
+        } else {
+            return findFreePort();
+        }
     }
 
     /**
