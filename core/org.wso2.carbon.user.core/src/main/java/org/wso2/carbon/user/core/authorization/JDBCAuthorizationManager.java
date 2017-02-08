@@ -1227,7 +1227,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 log.debug("Executed query is " + DBConstants.ADD_PERMISSION_SQL
                         + " and number of updated rows :: " + count);
             }
-        }catch (SQLIntegrityConstraintViolationException e){
+        } catch (SQLIntegrityConstraintViolationException e) {
             if (log.isDebugEnabled()) {
                 log.debug(e.getMessage(), e);
             }
