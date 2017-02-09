@@ -33,7 +33,6 @@
     <url>http://wso2.com</url>
 
     <modules>
-        <module>configuration-maven-plugin</module>
         <module>carbon-touchpoint</module>
     </modules>
 </project>

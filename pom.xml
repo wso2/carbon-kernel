@@ -13,7 +13,9 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
---><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -48,7 +50,6 @@
                 <module>core</module>
                 <module>extensions</module>
                 <module>tools</module>
-                <module>config-creator</module>
                 <module>pax-exam-container-carbon</module>
                 <module>features</module>
                 <module>distribution</module>
@@ -109,8 +110,4 @@
 
         </plugins>
     </build>
-
-    <properties>
-    </properties>
-
 </project>

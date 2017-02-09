@@ -70,11 +70,29 @@
                 <directory>src/main/resources</directory>
             </resource>
             <resource>
-                <directory>${project.build.directory}/docs/</directory>
+                <directory>${project.build.directory}/classes/</directory>
             </resource>
         </resources>
 
         <plugins>
+            <plugin>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config.configuration.maven.plugin</artifactId>
+                <version>${carbon.configuration.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>create-doc</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configclasses>
+                        <configclass>org.wso2.carbon.kernel.config.model.CarbonConfiguration</configclass>
+                    </configclasses>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -108,26 +126,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>config-creator</artifactId>
-                                    <version>${carbon.kernel.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/docs</outputDirectory>
-                                    <includes>config-docs/**</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
@@ -152,7 +150,6 @@
                                         <include>wso2/lib/**</include>
                                         <include>lib/**</include>
                                         <include>resources/**</include>
-                                        <include>securevault/**</include>
                                         <include>tmp/**</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>

@@ -28,12 +28,10 @@ public final class Constants {
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
     public static final String CARBON_CONFIG_YAML = "carbon.yaml";
-    public static final String DEPLOYMENT_CONFIG_YAML = "deployment.yaml";
 
     /**
      * maven project properties related constants
      */
-    public static final String PROJECT_DEFAULTS_PROPERTY_FILE = "project.defaults.properties";
     public static final String MAVEN_PROJECT_VERSION = "MAVEN_PROJECT_VERSION";
 
     public static final String START_TIME = "carbon.start.time";
@@ -48,7 +46,6 @@ public final class Constants {
 
     /**
      * The logger that needs to be used for auditing purposes.
-     *
      */
     public static final Logger AUDIT_LOG = LoggerFactory.getLogger("AUDIT_LOG");
 
@@ -57,14 +54,5 @@ public final class Constants {
      */
     private Constants() {
         throw new AssertionError("Trying to a instantiate a constant class");
-    }
-
-    /**
-     * Default value if it is not set in sys prop/env.
-     */
-    public static class PlaceHolders {
-        public static final String SERVER_KEY = "carbon-kernel";
-        public static final String SERVER_NAME = "WSO2 Carbon Kernel";
-        public static final String SERVER_VERSION = "5";
     }
 }

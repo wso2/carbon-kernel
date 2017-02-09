@@ -15,16 +15,9 @@
  */
 package org.wso2.carbon.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.management.ManagementPermission;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Carbon utility methods.
@@ -32,8 +25,6 @@ import java.util.regex.Pattern;
  * @since 5.0.0
  */
 public class Utils {
-    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     /**
      * Remove default constructor and make it not available to initialize.
@@ -66,81 +57,6 @@ public class Utils {
             System.setProperty(Constants.CARBON_HOME, carbonHome);
         }
         return Paths.get(carbonHome);
-    }
-
-    /**
-     * Replace system property holders in the property values.
-     * e.g. Replace ${carbon.home} with value of the carbon.home system property.
-     *
-     * @param value string value to substitute
-     * @return String substituted string
-     */
-    public static String substituteVariables(String value) {
-        Matcher matcher = varPattern.matcher(value);
-        boolean found = matcher.find();
-        if (!found) {
-            return value;
-        }
-        StringBuffer sb = new StringBuffer();
-        do {
-            String sysPropKey = matcher.group(1);
-            String sysPropValue = getSystemVariableValue(sysPropKey, null);
-            if (sysPropValue == null || sysPropValue.length() == 0) {
-                String msg = "System property " + sysPropKey + " is not specified";
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
-            // Due to reported bug under CARBON-14746
-            sysPropValue = sysPropValue.replace("\\", "\\\\");
-            matcher.appendReplacement(sb, sysPropValue);
-        } while (matcher.find());
-        matcher.appendTail(sb);
-        return sb.toString();
-    }
-
-    /**
-     * A utility which allows reading variables from the environment or System properties.
-     * If the variable in available in the environment as well as a System property, the System property takes
-     * precedence.
-     *
-     * @param variableName System/environment variable name
-     * @param defaultValue default value to be returned if the specified system variable is not specified.
-     * @return value of the system/environment variable
-     */
-    public static String getSystemVariableValue(String variableName, String defaultValue) {
-        return getSystemVariableValue(variableName, defaultValue, Constants.PlaceHolders.class);
-    }
-
-    /**
-     * A utility which allows reading variables from the environment or System properties.
-     * If the variable in available in the environment as well as a System property, the System property takes
-     * precedence.
-     *
-     * @param variableName  System/environment variable name
-     * @param defaultValue  default value to be returned if the specified system variable is not specified.
-     * @param constantClass Class from which the Predefined value should be retrieved if system variable and default
-     *                      value is not specified.
-     * @return value of the system/environment variable
-     */
-    public static String getSystemVariableValue(String variableName, String defaultValue, Class constantClass) {
-        String value = null;
-        if (System.getProperty(variableName) != null) {
-            value = System.getProperty(variableName);
-        } else if (System.getenv(variableName) != null) {
-            value = System.getenv(variableName);
-        } else {
-            try {
-                String constant = variableName.replaceAll("\\.", "_").toUpperCase(Locale.getDefault());
-                Field field = constantClass.getField(constant);
-                value = (String) field.get(constant);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                //Nothing to do
-            }
-            if (value == null) {
-                value = defaultValue;
-            }
-        }
-        return value;
     }
 
     /**

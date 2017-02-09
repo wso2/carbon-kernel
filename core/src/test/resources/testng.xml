@@ -20,35 +20,28 @@ limitations under the License.
 <suite name="Carbon-Kernel-Core_Test-Suite">
     <test name="carbon-core-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.carbon.kernel.context.CarbonContextTest" />
+            <class name="org.wso2.carbon.kernel.context.CarbonContextTest"/>
 
-            <class name="org.wso2.carbon.kernel.BaseTest" />
+            <class name="org.wso2.carbon.kernel.BaseTest"/>
 
             <class name="org.wso2.carbon.kernel.internal.runtime.RuntimeManagerTest"/>
             <class name="org.wso2.carbon.kernel.internal.startupresolver.MultiCounterTest"/>
             <class name="org.wso2.carbon.kernel.internal.transports.TransportMgtCommandProviderTest"/>
 
-            <class name="org.wso2.carbon.kernel.runtime.CustomRuntimeTest" />
-            <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceExceptionTest" />
-            <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceTest" />
+            <class name="org.wso2.carbon.kernel.runtime.CustomRuntimeTest"/>
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceExceptionTest"/>
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceTest"/>
 
-            <class name="org.wso2.carbon.kernel.transports.TransportManagerTest" />
+            <class name="org.wso2.carbon.kernel.transports.TransportManagerTest"/>
 
-            <class name="org.wso2.carbon.kernel.runtime.RuntimeManagerTest" />
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeManagerTest"/>
 
-            <class name="org.wso2.carbon.kernel.internal.DataHolderTest" />
+            <class name="org.wso2.carbon.kernel.internal.DataHolderTest"/>
 
-            <class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntimeTest" />
-            <class name="org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactoryTest" />
+            <class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntimeTest"/>
+            <class name="org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactoryTest"/>
             <class name="org.wso2.carbon.utils.MBeanManagementFactoryTest"/>
             <class name="org.wso2.carbon.utils.MBeanRegistratorTest"/>
-
-            <class name="org.wso2.carbon.kernel.configprovider.ConfigProviderImplTest"/>
-            <class name="org.wso2.carbon.kernel.securevault.DefaultMasterKeyReaderTest"/>
-            <class name="org.wso2.carbon.kernel.securevault.DefaultSecretRepositoryTest"/>
-            <class name="org.wso2.carbon.kernel.securevault.SecureVaultConfigurationProviderTest"/>
-            <class name="org.wso2.carbon.kernel.securevault.CipherToolTest"/>
-            <class name="org.wso2.carbon.kernel.annotationprocessor.AnnotationProcessorTest"/>
         </classes>
     </test>
 </suite>

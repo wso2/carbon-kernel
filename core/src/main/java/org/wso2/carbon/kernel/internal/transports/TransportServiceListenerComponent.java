@@ -81,7 +81,7 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
         bundleContext.registerService(TransportManager.class, transportManager, null);
         MBeanRegistrator.registerMBean(transportManager);
 
-        // Registering transport management command provider implementation. This allows users to manage
+        // Registering transport management command reader implementation. This allows users to manage
         // transports via the OSGi console.
         bundleContext.registerService(CommandProvider.class.getName(),
                 new TransportMgtCommandProvider(transportManager), null);
