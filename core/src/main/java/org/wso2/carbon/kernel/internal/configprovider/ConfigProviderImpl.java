@@ -17,10 +17,11 @@ package org.wso2.carbon.kernel.internal.configprovider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.annotations.Configuration;
-import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
-import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
-import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.configuration.component.Constants;
+import org.wso2.carbon.configuration.component.annotation.Configuration;
+import org.wso2.carbon.configuration.component.exceptions.ConfigurationException;
+import org.wso2.carbon.configuration.component.provider.ConfigProvider;
+import org.wso2.carbon.kernel.configprovider.AbstractConfigFileReader;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
@@ -46,7 +47,7 @@ public class ConfigProviderImpl implements ConfigProvider {
     //This is used to match placeholders
     private static final Pattern PLACEHOLDER_PATTERN;
 
-    private ConfigFileReader configFileReader;
+    private AbstractConfigFileReader configFileReader;
 
     static {
         PLACEHOLDER_REGEX = "(.*?)(\\$\\{(" + getPlaceholderString() + "):([^,]+?)((,)(.+?))?\\})(.*?)";
@@ -67,17 +68,17 @@ public class ConfigProviderImpl implements ConfigProvider {
         }
     }
 
-    public ConfigProviderImpl(ConfigFileReader configFileReader) {
+    public ConfigProviderImpl(AbstractConfigFileReader configFileReader) {
         this.configFileReader = configFileReader;
     }
 
     @Override
-    public <T> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException {
+    public <T> T getConfigurationObject(Class<T> configClass) throws ConfigurationException {
         //get configuration namespace from the class annotation
         String namespace = null;
         if (configClass.isAnnotationPresent(Configuration.class)) {
             Configuration configuration = configClass.getAnnotation(Configuration.class);
-            if (!Configuration.NULL.equals(configuration.namespace())) {
+            if (!Constants.NULL.equals(configuration.namespace())) {
                 namespace = configuration.namespace();
             }
         }
@@ -103,14 +104,14 @@ public class ConfigProviderImpl implements ConfigProvider {
             try {
                 return configClass.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new CarbonConfigurationException("Error while creating configuration instance: "
+                throw new ConfigurationException("Error while creating configuration instance: "
                         + configClass.getSimpleName(), e);
             }
         }
     }
 
     @Override
-    public Map getConfigurationMap(String namespace) throws CarbonConfigurationException {
+    public Map getConfigurationMap(String namespace) throws ConfigurationException {
         // lazy loading deployment.yaml configuration, if it is not exists
         loadDeploymentConfiguration(configFileReader);
         // check for json configuration from deployment configs of namespace.
@@ -131,11 +132,11 @@ public class ConfigProviderImpl implements ConfigProvider {
      * This method loads deployment configs in deployment.yaml.
      * loads only if deployment configuration not exists
      */
-    private void loadDeploymentConfiguration(ConfigFileReader configFileReader) throws CarbonConfigurationException {
+    private void loadDeploymentConfiguration(AbstractConfigFileReader configFileReader) throws ConfigurationException {
         if (deploymentConfigs == null) {
             synchronized (this) {
                 if (deploymentConfigs == null) {
-                    deploymentConfigs = configFileReader.getDeploymentConfiguration();
+                    deploymentConfigs = configFileReader.getConfiguration();
                 }
             }
         }

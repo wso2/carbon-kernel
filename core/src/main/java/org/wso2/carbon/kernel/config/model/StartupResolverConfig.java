@@ -17,8 +17,7 @@
 */
 package org.wso2.carbon.kernel.config.model;
 
-
-import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.configuration.component.annotation.Configuration;
 
 /**
  * Config bean for startupOrderResolver.

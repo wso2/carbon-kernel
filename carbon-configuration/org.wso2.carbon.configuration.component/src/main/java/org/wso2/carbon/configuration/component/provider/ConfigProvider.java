@@ -13,7 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.configprovider;
+package org.wso2.carbon.configuration.component.provider;
+
+import org.wso2.carbon.configuration.component.exceptions.ConfigurationException;
 
 import java.util.Map;
 
@@ -27,20 +29,22 @@ import java.util.Map;
 public interface ConfigProvider {
 
     /**
-     * Returns configuration object of the class with overriding the values of deployment.yaml.
+     * Returns configuration object of the class.
      * if configuration doesn't exist in deployment.yaml, returns object with default values.
+     *
      * @param configClass configuration bean class
-     * @param <T> object type
+     * @param <T>         object type
      * @return configuration bean object of given type
-     * @throws CarbonConfigurationException if there is a problem with config object instantiation.
+     * @throws ConfigurationException if there is a problem with config object instantiation.
      */
-    public <T extends Object> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException;
+    <T extends Object> T getConfigurationObject(Class<T> configClass) throws ConfigurationException;
 
     /**
-     * Returns configuration map of the namespace, if configuration exists for the given namespace in deployment.yaml.
+     * Returns configuration map of the namespace.
+     *
      * @param namespace config namespace
      * @return configuration map
-     * @throws CarbonConfigurationException if there is a problem while reading the configurations
+     * @throws ConfigurationException if there is a problem while reading the configurations
      */
-    public Map getConfigurationMap(String namespace) throws CarbonConfigurationException;
+    Map getConfigurationMap(String namespace) throws ConfigurationException;
 }

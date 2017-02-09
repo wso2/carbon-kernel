@@ -16,13 +16,9 @@
 package org.wso2.carbon.kernel.configprovider;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wso2.carbon.configuration.component.exceptions.ConfigurationException;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -30,33 +26,15 @@ import java.util.Map;
  *
  * @since 5.2.0
  */
-public class YAMLBasedConfigFileReader implements ConfigFileReader {
-    private static final Logger logger = LoggerFactory.getLogger(YAMLBasedConfigFileReader.class);
-    private String filename;
+public class YAMLBasedConfigFileReader extends AbstractConfigFileReader {
 
-    public YAMLBasedConfigFileReader(String filename) {
-        this.filename = filename;
+    public YAMLBasedConfigFileReader(String fileName) {
+        super(fileName);
     }
 
-    /**
-     * This method reads configuration file and return configuration map which is used for overriding default
-     * values of the configuration bean classes.
-     * @return configuration map
-     */
     @Override
-    public Map<String, String> getDeploymentConfiguration() throws CarbonConfigurationException {
-        org.wso2.carbon.kernel.utils.Utils.checkSecurity();
-        if (filename == null) {
-            throw new CarbonConfigurationException("Error while reading the configuration file, filename is null");
-        }
-        try {
-            byte[] contentBytes = Files.readAllBytes(ConfigurationUtils.getConfigurationFileLocation(filename));
-            String yamlFileString = new String(contentBytes, StandardCharsets.UTF_8);
-            return ConfigurationUtils.getDeploymentConfigMap(yamlFileString);
-        } catch (IOException e) {
-            String errorMessage = "Failed populate deployment configuration from " + filename;
-            logger.error(errorMessage, e);
-            throw new CarbonConfigurationException(errorMessage, e);
-        }
+    public Map<String, String> getConfiguration() throws ConfigurationException {
+        String yamlFileString = getFileContent();
+        return ConfigurationUtils.getDeploymentConfigMap(yamlFileString);
     }
 }

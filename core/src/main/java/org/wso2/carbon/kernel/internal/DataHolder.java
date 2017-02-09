@@ -16,7 +16,7 @@
 package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.configuration.component.provider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
 /**

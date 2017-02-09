@@ -16,8 +16,8 @@
 package org.wso2.carbon.kernel.internal.context;
 
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
-import org.wso2.carbon.kernel.configprovider.ConfigProvider;
+import org.wso2.carbon.configuration.component.exceptions.ConfigurationException;
+import org.wso2.carbon.configuration.component.provider.ConfigProvider;
 
 import java.util.Map;
 
@@ -31,17 +31,17 @@ public class CarbonConfigProviderImpl implements ConfigProvider {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CarbonConfigProviderImpl.class);
 
     @Override
-    public <T> T getConfigurationObject(Class<T> configClass) throws CarbonConfigurationException {
+    public <T> T getConfigurationObject(Class<T> configClass) throws ConfigurationException {
         try {
             return configClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new CarbonConfigurationException("Error while creating configuration Instance : "
+            throw new ConfigurationException("Error while creating configuration Instance : "
                     + configClass.getSimpleName(), e);
         }
     }
 
     @Override
-    public Map getConfigurationMap(String namespace) throws CarbonConfigurationException {
+    public Map getConfigurationMap(String namespace) throws ConfigurationException {
         return null;
     }
 }
