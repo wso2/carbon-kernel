@@ -20,6 +20,8 @@ import org.ops4j.pax.exam.Option;
 /**
  * Per default pax-exam is deleting the test directories after a test is over. To keep those
  * directories (for later evaluation) set this option.
+ *
+ * @since 5.2.0
  */
 public class KeepDirectoryOption implements Option {
 

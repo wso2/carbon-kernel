@@ -61,6 +61,9 @@ public class Constants {
 
     public static final String CARBON_LOG_FILE_NAME = "carbon.log";
 
+    public static final String OS_NAME = "os.name";
+    public static final String WINDOWS = "windows";
+
     /**
      * Prevent instantiating the Constants class.
      */

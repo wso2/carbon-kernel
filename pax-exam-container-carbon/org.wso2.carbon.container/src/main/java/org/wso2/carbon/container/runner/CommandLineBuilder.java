@@ -17,6 +17,8 @@ package org.wso2.carbon.container.runner;
 
 /**
  * Command line builder to build command line commands.
+ *
+ * @since 5.2.0
  */
 public class CommandLineBuilder {
 

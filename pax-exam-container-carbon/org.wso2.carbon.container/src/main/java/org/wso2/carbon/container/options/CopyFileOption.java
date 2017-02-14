@@ -22,6 +22,8 @@ import java.nio.file.Path;
 
 /**
  * Copy a file from one location to another location inside the distribution directory.
+ *
+ * @since 5.2.0
  */
 public class CopyFileOption implements Option {
 
