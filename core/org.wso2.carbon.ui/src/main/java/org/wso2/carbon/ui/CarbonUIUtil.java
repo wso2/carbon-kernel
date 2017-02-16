@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.wso2.carbon.ui.deployment.beans.CarbonUIDefinitions;
@@ -213,12 +214,13 @@ public class CarbonUIUtil {
             .getConfigurationContextService();
         int httpsPort;
         int httpsProxyPort;
-        /* With this system property we are starting tomcat ports randomly, therefore we need fix proxy ports according to that,
-           This fix is added due to showing wrong port for management console url in the console
+        /* With this system property we are starting tomcat ports randomly, Therefore we need fix proxy ports
+        according to that, This fix is added due to showing wrong port for management console url in the console
         */
-        String isRandomPort = System.getProperty("tomcat.random.port.enable");
+        String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
         if (isRandomPort != null && isRandomPort.equals("true")) {
-            CarbonTomcatService tomcatService = (CarbonTomcatService) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(CarbonTomcatService.class, null);
+            CarbonTomcatService tomcatService = (CarbonTomcatService) CarbonContext.getThreadLocalCarbonContext()
+                    .getOSGiService(CarbonTomcatService.class, null);
             if (tomcatService != null) {
                 httpsPort = tomcatService.getPort(mgtConsoleTransport);
                 httpsProxyPort = tomcatService.getProxyPort(mgtConsoleTransport);

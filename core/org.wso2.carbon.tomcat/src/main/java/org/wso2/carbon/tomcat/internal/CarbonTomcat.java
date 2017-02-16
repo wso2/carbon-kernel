@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.digester.Digester;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.tomcat.CarbonTomcatException;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
@@ -411,7 +412,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         Connector[] connectors = this.getService().findConnectors();
         for (Connector connector : connectors) {
             try {
-                String isRandomPort = System.getProperty("tomcat.random.port.enable");
+                String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
                 if (isRandomPort != null && isRandomPort.equals("true")) {
                     connector.setPort(findFreePort());
                     connector.setProxyPort(connector.getProxyPort() + portOffset);
@@ -449,7 +450,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         for (Connector connector : connectors) {
             if (connector.getScheme().equals(scheme)) {
                 try {
-                    String isRandomPort = System.getProperty("tomcat.random.port.enable");
+                    String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
                     if (isRandomPort != null && isRandomPort.equals("true")) {
                         connector.setPort(findFreePort());
                         connector.setProxyPort(connector.getProxyPort() + portOffset);
