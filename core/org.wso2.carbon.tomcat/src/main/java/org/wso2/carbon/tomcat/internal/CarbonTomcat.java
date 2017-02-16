@@ -414,10 +414,12 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
                 String isRandomPort = System.getProperty("tomcat.random.port.enable");
                 if (isRandomPort != null && isRandomPort.equals("true")) {
                     connector.setPort(findFreePort());
+                    connector.setProxyPort(connector.getProxyPort() + portOffset);
                 } else {
                     String portNumber = System.getProperty("tomcat." + connector.getScheme() + ".port");
                     if (portNumber != null) {
                         connector.setPort(Integer.parseInt(portNumber));
+                        connector.setProxyPort(connector.getProxyPort() + portOffset);
                     } else {
                         int currentPort = connector.getPort();
                         connector.setPort(currentPort + portOffset);
@@ -450,10 +452,12 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
                     String isRandomPort = System.getProperty("tomcat.random.port.enable");
                     if (isRandomPort != null && isRandomPort.equals("true")) {
                         connector.setPort(findFreePort());
+                        connector.setProxyPort(connector.getProxyPort() + portOffset);
                     } else {
                         String portNumber = System.getProperty("tomcat." + connector.getScheme() + ".port");
                         if (portNumber != null) {
                             connector.setPort(Integer.parseInt(portNumber));
+                            connector.setProxyPort(connector.getProxyPort() + portOffset);
                         } else {
                             int currentPort = connector.getPort();
                             connector.setPort(currentPort + portOffset);
