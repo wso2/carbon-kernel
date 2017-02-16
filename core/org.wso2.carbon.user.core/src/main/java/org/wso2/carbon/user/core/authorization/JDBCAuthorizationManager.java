@@ -34,7 +34,6 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -43,6 +42,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -717,9 +718,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         try {
             dbConnection = getDBConnection();
             int permissionId = this.getPermissionId(dbConnection, resourceId, action);
-            if (permissionId == -1) {
-                this.addPermissionId(dbConnection, resourceId, action);
-            }
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_USER_PERMISSION_SQL,
                     userName, resourceId, action, tenantId, tenantId);
             permissionTree.clearUserAuthorization(userName, resourceId, action);
@@ -962,10 +960,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         try {
             dbConnection = getDBConnection();
             int permissionId = this.getPermissionId(dbConnection, resourceId, action);
-            if (permissionId == -1) {
-                this.addPermissionId(dbConnection, resourceId, action);
-                permissionId = this.getPermissionId(dbConnection, resourceId, action);
-            }
             String domain = UserCoreUtil.extractDomainFromName(roleName);
             if (domain != null) {
                 domain = domain.toUpperCase();
@@ -1071,10 +1065,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         try {
             dbConnection = getDBConnection();
             int permissionId = this.getPermissionId(dbConnection, resourceId, action);
-            if (permissionId == -1) {
-                this.addPermissionId(dbConnection, resourceId, action);
-                permissionId = this.getPermissionId(dbConnection, resourceId, action);
-            }
             prepStmt = dbConnection.prepareStatement(UserCoreDBConstants.IS_EXISTING_USER_PERMISSION_MAPPING);
             prepStmt.setString(1, userName);
             prepStmt.setString(2, resourceId);
@@ -1177,8 +1167,24 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
     }
 
-
     private int getPermissionId(Connection dbConnection, String resourceId, String action)
+            throws UserStoreException {
+
+        int permissionId = this.getPermissionIdFromStore(dbConnection, resourceId, action);
+        if (permissionId == -1) {
+            this.addPermissionId(dbConnection, resourceId, action);
+            permissionId = this.getPermissionIdFromStore(dbConnection, resourceId, action);
+            if (permissionId == -1) {
+                String errorMessage =
+                        "Error occurred while getting UI permission ID for resource id : " + resourceId + " & action : " +
+                                action;
+                throw new UserStoreException(errorMessage);
+            }
+        }
+        return permissionId;
+    }
+
+    private int getPermissionIdFromStore(Connection dbConnection, String resourceId, String action)
             throws UserStoreException {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -1216,11 +1222,17 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             prepStmt.setString(2, action);
             prepStmt.setInt(3, tenantId);
             int count = prepStmt.executeUpdate();
+            dbConnection.commit();
             if (log.isDebugEnabled()) {
                 log.debug("Executed query is " + DBConstants.ADD_PERMISSION_SQL
                         + " and number of updated rows :: " + count);
             }
-        } catch (SQLException e) {
+        } catch (SQLIntegrityConstraintViolationException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
+        }
+        catch (SQLException e) {
             String errorMessage =
                     "Error occurred while adding UI permission ID for resource id : " + resourceId + " & action : " +
                     action;
