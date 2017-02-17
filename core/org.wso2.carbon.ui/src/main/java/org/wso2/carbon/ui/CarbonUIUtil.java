@@ -219,8 +219,7 @@ public class CarbonUIUtil {
         */
         String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
         if (isRandomPort != null && isRandomPort.equals("true")) {
-            CarbonTomcatService tomcatService = (CarbonTomcatService) CarbonContext.getThreadLocalCarbonContext()
-                    .getOSGiService(CarbonTomcatService.class, null);
+            CarbonTomcatService tomcatService = CarbonUIServiceComponent.getCarbonTomcatService();
             if (tomcatService != null) {
                 httpsPort = tomcatService.getPort(mgtConsoleTransport);
                 httpsProxyPort = tomcatService.getProxyPort(mgtConsoleTransport);
