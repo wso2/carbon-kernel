@@ -39,6 +39,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.wso2.carbon.ui.BasicAuthUIAuthenticator;
 import org.wso2.carbon.ui.CarbonProtocol;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
@@ -105,6 +106,8 @@ import static org.wso2.carbon.CarbonConstants.WSO2CARBON_NS;
  * cardinality="1..1" policy="dynamic" bind="setRealmService"  unbind="unsetRealmService"
  * @scr.reference name="ui.authentication.extender" interface="org.wso2.carbon.ui.UIAuthenticationExtender"
  * cardinality="0..1" policy="dynamic" bind="setUIAuthenticationExtender"  unbind="unsetUIAuthenticationExtender"
+ * @scr.reference name="1..1" interface="org.wso2.carbon.tomcat.api.CarbonTomcatService"
+ * cardinality="1..1" policy="dynamic" bind="setCarbonTomcatService"  unbind="unsetCarbonTomcatService"
  */
 public class CarbonUIServiceComponent {
 
@@ -116,6 +119,7 @@ public class CarbonUIServiceComponent {
     private static ConfigurationContextService ccServiceInstance;
     private static ServerConfigurationService serverConfiguration;
     private static RealmService realmService;
+    private static CarbonTomcatService carbonTomcatService;
     private static List<UIAuthenticationExtender> authenticationExtenders =
             new LinkedList<UIAuthenticationExtender>();
 
@@ -200,6 +204,10 @@ public class CarbonUIServiceComponent {
 
     protected void deactivate(ComponentContext ctxt) {
         log.debug("Carbon UI bundle is deactivated ");
+    }
+
+    public static CarbonTomcatService getCarbonTomcatService() {
+        return carbonTomcatService;
     }
 
     public void start(BundleContext context) throws Exception {
@@ -452,6 +460,13 @@ public class CarbonUIServiceComponent {
         ccServiceInstance = null;
     }
 
+    protected void setCarbonTomcatService(CarbonTomcatService contextService) {
+        carbonTomcatService = contextService;
+    }
+
+    protected void unsetCarbonTomcatService(CarbonTomcatService contextService) {
+        carbonTomcatService = null;
+    }
     protected void setRegistryService(RegistryService registryService) {
         registryServiceInstance = registryService;
     }
