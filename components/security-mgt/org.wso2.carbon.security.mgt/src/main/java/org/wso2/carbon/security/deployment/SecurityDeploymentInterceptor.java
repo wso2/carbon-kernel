@@ -600,7 +600,11 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     private Policy loadPolicy(Resource resource) throws org.wso2.carbon.registry.api.RegistryException, XMLStreamException {
 
         InputStream in = resource.getContentStream();
-        XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        xmlInputFactory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
+        XMLStreamReader parser = xmlInputFactory.createXMLStreamReader(in);
         StAXOMBuilder builder = new StAXOMBuilder(parser);
 
         OMElement policyElement = builder.getDocumentElement();

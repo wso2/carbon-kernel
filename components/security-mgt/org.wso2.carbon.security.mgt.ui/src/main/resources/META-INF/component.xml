@@ -16,7 +16,7 @@
  ~ under the License.
  -->
 <component xmlns="http://products.wso2.org/carbon">
-        <!-- sample menu configuration -->
+    <!-- sample menu configuration -->
     <menus>
         <menu>
             <id>keystores_menu</id>
@@ -28,7 +28,7 @@
             <order>3</order>
             <style-class>manage</style-class>
             <icon>../keystoremgt/images/keystore.gif</icon>
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/keystoremgt</require-permission>
         </menu>
 
         <menu>
@@ -41,7 +41,7 @@
             <order>1</order>
             <style-class>manage</style-class>
             <icon>../keystoremgt/images/add.gif</icon>
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/keystoremgt</require-permission>
         </menu>
 
         <menu>
@@ -54,7 +54,7 @@
             <order>2</order>
             <style-class>manage</style-class>
             <icon>../keystoremgt/images/list.gif</icon>
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/keystoremgt</require-permission>
         </menu>
     </menus>
 </component>

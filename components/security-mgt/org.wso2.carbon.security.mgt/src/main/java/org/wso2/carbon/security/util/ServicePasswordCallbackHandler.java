@@ -105,7 +105,14 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                             try {
                                 if (receivedPasswd != null
                                         && this.authenticateUser(username, receivedPasswd)) {
-                                    // do nothing things are fine
+
+                                    String domainName = UserCoreUtil.getDomainFromThreadLocal();
+                                    String usernameWithDomain = IdentityUtil.addDomainToName(username, domainName);
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Updating username with userstore domain. Updated username is :" +
+                                                usernameWithDomain);
+                                    }
+                                    passwordCallback.setIdentifier(usernameWithDomain);
                                 } else {
                                     throw new UnsupportedCallbackException(callbacks[i], "check failed");
                                 }
