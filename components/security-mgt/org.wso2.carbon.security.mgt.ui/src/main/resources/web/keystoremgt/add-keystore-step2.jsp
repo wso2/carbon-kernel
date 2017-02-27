@@ -159,7 +159,7 @@
                     <tr>
                         <td><fmt:message key="private.key.password"/><font color="red">*</font></td>
                         <td>
-                            <input type="password" name="keyPass" value=""/>
+                            <input type="password" autocomplete="off" name="keyPass" value=""/>
                         </td>
                     </tr>
 </table>
