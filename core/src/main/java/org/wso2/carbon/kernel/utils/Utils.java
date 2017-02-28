@@ -64,6 +64,9 @@ public class Utils {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         if (carbonHome == null) {
             carbonHome = System.getenv(Constants.CARBON_HOME_ENV);
+            if (carbonHome == null) {
+                return null;
+            }
             System.setProperty(Constants.CARBON_HOME, carbonHome);
         }
         return Paths.get(carbonHome);
