@@ -17,6 +17,7 @@ package org.wso2.carbon.kernel.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.CarbonUtilsException;
 import org.wso2.carbon.kernel.Constants;
 
 import java.lang.management.ManagementPermission;
@@ -65,7 +66,9 @@ public class Utils {
         if (carbonHome == null) {
             carbonHome = System.getenv(Constants.CARBON_HOME_ENV);
             if (carbonHome == null) {
-                return null;
+                String msg = "Required property '" + Constants.CARBON_HOME_ENV + "' has not been specified";
+                logger.error(msg);
+                throw new CarbonUtilsException(msg);
             }
             System.setProperty(Constants.CARBON_HOME, carbonHome);
         }
