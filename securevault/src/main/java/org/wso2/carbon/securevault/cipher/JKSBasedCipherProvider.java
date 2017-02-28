@@ -91,7 +91,7 @@ public class JKSBasedCipherProvider {
 
     private KeyStore loadKeyStore(String keyStorePath, char[] keyStorePassword) throws SecureVaultException {
             Path keyStoreFileLocation;
-            if (SecureVaultDataHolder.getInstance().getBundleContext().isPresent()) {
+            if (SecureVaultUtils.isOSGIEnv()) {
                 keyStoreFileLocation = Paths.get(SecureVaultUtils.getCarbonHome().get().toString(), keyStorePath);
             } else {
                 keyStoreFileLocation = Paths.get(keyStorePath);
