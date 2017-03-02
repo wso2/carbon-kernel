@@ -67,7 +67,6 @@ public class Utils {
             carbonHome = System.getenv(Constants.CARBON_HOME_ENV);
             if (carbonHome == null) {
                 String msg = "Required property '" + Constants.CARBON_HOME_ENV + "' has not been specified";
-                logger.error(msg);
                 throw new CarbonUtilsException(msg);
             }
             System.setProperty(Constants.CARBON_HOME, carbonHome);
