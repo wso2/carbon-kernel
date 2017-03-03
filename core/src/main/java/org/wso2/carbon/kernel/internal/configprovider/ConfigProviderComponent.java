@@ -24,11 +24,11 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.configprovider.YAMLBasedConfigFileReader;
 import org.wso2.carbon.kernel.securevault.SecureVault;
+import org.wso2.carbon.kernel.utils.Constants;
 
 
 /**

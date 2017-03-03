@@ -18,7 +18,6 @@ package org.wso2.carbon.kernel.utils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.utils.Utils class.

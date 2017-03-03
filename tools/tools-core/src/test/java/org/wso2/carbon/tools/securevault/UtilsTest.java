@@ -32,7 +32,7 @@ public class UtilsTest {
 
     @Test
     public void testGetCustomClassLoaderWithCarbonHome() throws ClassNotFoundException {
-        System.setProperty(org.wso2.carbon.kernel.Constants.CARBON_HOME, Paths.get(targetPath.toString(),
+        System.setProperty(org.wso2.carbon.kernel.utils.Constants.CARBON_HOME, Paths.get(targetPath.toString(),
                 "carbon-home").toString());
         URLClassLoader urlClassLoader =
                 Utils.getCustomClassLoader(Optional.of(targetPath.toAbsolutePath().toString()));

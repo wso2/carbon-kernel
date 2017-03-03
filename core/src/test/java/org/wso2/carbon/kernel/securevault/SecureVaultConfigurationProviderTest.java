@@ -19,12 +19,12 @@ package org.wso2.carbon.kernel.securevault;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.securevault.SecureVaultConfigurationProvider;
 import org.wso2.carbon.kernel.securevault.config.model.MasterKeyReaderConfiguration;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
+import org.wso2.carbon.kernel.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,7 +46,7 @@ public class SecureVaultConfigurationProviderTest {
     @Test(expectedExceptions = SecureVaultException.class)
     public void testGetConfigurationNoConfigFile() throws SecureVaultException {
         System.setProperty(Constants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
-                "nonExisting").toString());
+                                                            "nonExisting").toString());
         SecureVaultConfigurationProvider.getConfiguration();
     }
 

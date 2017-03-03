@@ -109,7 +109,7 @@ public class LoggingConfigurationOSGiTest {
         Principal principal = () -> "Banda";
         carbonContext.setUserPrincipal(principal);
 
-        Logger audit = org.wso2.carbon.kernel.Constants.AUDIT_LOG;
+        Logger audit = org.wso2.carbon.kernel.utils.Constants.AUDIT_LOG;
         audit.info("Attempting to test the audit logs.");
 
         Path auditLog = Paths.get(System.getProperty("carbon.home"), "logs", "audit.log");

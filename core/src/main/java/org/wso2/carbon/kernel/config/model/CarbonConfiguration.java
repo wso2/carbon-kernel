@@ -15,12 +15,12 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.annotations.Configuration;
 import org.wso2.carbon.kernel.annotations.Element;
 import org.wso2.carbon.kernel.annotations.Ignore;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
+import org.wso2.carbon.kernel.utils.Constants;
 
 import java.util.Properties;
 

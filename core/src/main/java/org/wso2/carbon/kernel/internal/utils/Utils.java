@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.kernel.internal.utils;
 
-import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.kernel.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
