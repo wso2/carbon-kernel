@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.kernel.annotationprocessor;
 
-import org.wso2.carbon.kernel.annotations.Configuration;
+import org.wso2.carbon.configuration.component.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;

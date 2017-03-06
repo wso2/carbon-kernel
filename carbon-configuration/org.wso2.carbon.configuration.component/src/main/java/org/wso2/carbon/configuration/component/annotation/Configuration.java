@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.annotations;
+package org.wso2.carbon.configuration.component.annotation;
+
+import org.wso2.carbon.configuration.component.Constants;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,16 +26,16 @@ import java.lang.annotation.Target;
  * Class level annotation for configuration tool.
  * namespace : optional, required only for root configuration classes
  * description : required, field comment
+ *
  * @since 5.2.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Configuration {
+
     // needed only for root configuration bean
-    String namespace() default NULL;
+    String namespace() default Constants.NULL;
+
     // field description, required
     String description();
-    // namespace default value constant. This is referred in execution time to check whether namespace value equals
-    // default value
-    public static final String NULL = "NULL";
 }

@@ -20,6 +20,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.configuration.component.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -92,7 +93,7 @@ public class AnnotationProcessorTest {
     }
 
     private void verifyTempConfigFile() {
-        File file = Paths.get(System.getProperty("user.dir"), "temp_config_classnames.txt").toFile();
+        File file = Paths.get(System.getProperty("user.dir"), Constants.TEMP_CONFIG_FILE_NAME).toFile();
         try {
             List<String> lines = FileUtils.readLines(file, Charset.forName("UTF-8"));
             Assert.assertFalse(lines.isEmpty(), "temp config classes file cannot be empty");
@@ -111,7 +112,7 @@ public class AnnotationProcessorTest {
 
     @AfterClass
     public void cleanOutputs() throws IOException {
-        File file = Paths.get(System.getProperty("user.dir"), "temp_config_classnames.txt").toFile();
+        File file = Paths.get(System.getProperty("user.dir"), Constants.TEMP_CONFIG_FILE_NAME).toFile();
         FileUtils.forceDeleteOnExit(file);
         File classFile = Paths.get(System.getProperty("user.dir"), packagePath, "Configurations.class").toFile();
         FileUtils.forceDeleteOnExit(classFile);

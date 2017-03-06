@@ -56,6 +56,11 @@
             <artifactId>org.wso2.carbon.runtime.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.configuration.feature</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -126,6 +131,10 @@
                                     <id>org.wso2.carbon.runtime.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.configuration.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
@@ -173,6 +182,10 @@
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.kernel.feature.group</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.configuration.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>

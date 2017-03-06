@@ -18,8 +18,8 @@ package org.wso2.carbon.kernel.internal.context;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.configuration.component.provider.ConfigProvider;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 
 /**
  * Unit test class for org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory.

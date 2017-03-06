@@ -27,10 +27,10 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.annotations.Configuration;
-import org.wso2.carbon.kernel.annotations.Element;
-import org.wso2.carbon.kernel.annotations.Ignore;
-import org.wso2.carbon.kernel.annotations.processor.ConfigurationProcessor;
+import org.wso2.carbon.configuration.component.Constants;
+import org.wso2.carbon.configuration.component.annotation.Configuration;
+import org.wso2.carbon.configuration.component.annotation.Element;
+import org.wso2.carbon.configuration.component.annotation.Ignore;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
@@ -204,11 +204,10 @@ public class ConfigDocumentMojo extends AbstractMojo {
         if (configclasses != null && configclasses.length != 0) {
             classList = configclasses;
         } else {
-            File configFile = new File(project.getBuild().getOutputDirectory(),
-                    ConfigurationProcessor.TEMP_CONFIG_FILE_NAME);
+            File configFile = new File(project.getBuild().getOutputDirectory(), Constants.TEMP_CONFIG_FILE_NAME);
             if (configFile.exists()) {
-                try {
-                    String content = new Scanner(configFile, UTF_8_CHARSET).useDelimiter("\\Z").next();
+                try (Scanner scanner = new Scanner(configFile, UTF_8_CHARSET)) {
+                    String content = scanner.useDelimiter("\\Z").next();
                     classList = content.split(",");
                 } catch (FileNotFoundException e) {
                     throw new MojoExecutionException("Error while reading the configuration classes file", e);
