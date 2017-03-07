@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 /**
  * CarbonServerInfo register as an OSGi service when the server startup finalization completed. This can be used to

@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.utils.Constants;
+import org.wso2.carbon.utils.Constants;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class ConfigurationUtils {
      * @return Path configuration file location
      */
     public static Path getConfigurationFileLocation(String filename) {
-        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(filename);
+        return org.wso2.carbon.utils.Utils.getCarbonConfigHome().resolve(filename);
     }
 
     /**
@@ -89,7 +89,7 @@ public class ConfigurationUtils {
 
     /**
      * This method reads project properties in resource file,
-     * {@value org.wso2.carbon.kernel.utils.Constants#PROJECT_DEFAULTS_PROPERTY_FILE}
+     * {@value org.wso2.carbon.utils.Constants#PROJECT_DEFAULTS_PROPERTY_FILE}
      *
      * @return project properties
      */

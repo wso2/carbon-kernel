@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +30,7 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 /**
- * Unit test class for org.wso2.carbon.kernel.utils.MBeanRegistrator.
+ * Unit test class for org.wso2.carbon.utils.MBeanRegistrator.
  *
  * @since 5.1.0
  */

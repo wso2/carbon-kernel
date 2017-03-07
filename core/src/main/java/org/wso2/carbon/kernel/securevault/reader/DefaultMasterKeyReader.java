@@ -26,7 +26,7 @@ import org.wso2.carbon.kernel.securevault.MasterKeyReader;
 import org.wso2.carbon.kernel.securevault.config.model.MasterKeyReaderConfiguration;
 import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.kernel.utils.Utils;
+import org.wso2.carbon.utils.Utils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;

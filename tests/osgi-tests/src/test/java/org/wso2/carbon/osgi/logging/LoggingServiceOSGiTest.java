@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.CarbonServerInfo;
 
 import java.util.Enumeration;
 import javax.inject.Inject;

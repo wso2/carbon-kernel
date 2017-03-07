@@ -25,8 +25,8 @@ import org.wso2.carbon.kernel.internal.startupresolver.beans.OSGiServiceCapabili
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
-import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
-import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
+import org.wso2.carbon.utils.manifest.ManifestElement;
+import org.wso2.carbon.utils.manifest.ManifestElementParserException;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -46,7 +46,7 @@ import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverCon
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.REQUIRED_BY_COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.REQUIRED_SERVICE;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.SERVICE_COUNT;
-import static org.wso2.carbon.kernel.utils.StringUtils.getNonEmptyStringAfterTrim;
+import static org.wso2.carbon.utils.StringUtils.getNonEmptyStringAfterTrim;
 
 /**
  * This class contains utility methods required for the StartupOrderResolver.

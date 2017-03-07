@@ -31,8 +31,8 @@ import org.wso2.carbon.container.options.CopyFileOption;
 import org.wso2.carbon.context.test.CarbonContextInvoker;
 import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.kernel.utils.Constants;
+import org.wso2.carbon.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

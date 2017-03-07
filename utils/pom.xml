@@ -27,7 +27,6 @@
             <artifactId>pax-logging-api</artifactId>
             <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -75,7 +74,7 @@
 
     <properties>
         <export.package>
-            org.wso2.carbon.kernel.utils.*; version="${carbon.kernel.package.export.version}",
+            org.wso2.carbon.utils.*; version="${carbon.kernel.package.export.version}",
         </export.package>
         <import.package>
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",

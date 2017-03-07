@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils.manifest;
+package org.wso2.carbon.utils.manifest;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

@@ -24,7 +24,7 @@ import org.wso2.carbon.kernel.securevault.config.model.MasterKeyReaderConfigurat
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.config.model.SecureVaultConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.kernel.utils.Constants;
+import org.wso2.carbon.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

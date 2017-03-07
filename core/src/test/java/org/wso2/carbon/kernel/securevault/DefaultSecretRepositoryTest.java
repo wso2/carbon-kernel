@@ -24,7 +24,7 @@ import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfigura
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.repository.DefaultSecretRepository;
 import org.wso2.carbon.kernel.securevault.utils.DefaultHardCodedMasterKeyReader;
-import org.wso2.carbon.kernel.utils.Constants;
+import org.wso2.carbon.utils.Constants;
 
 import java.io.File;
 import java.io.FileOutputStream;

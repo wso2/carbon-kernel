@@ -21,7 +21,7 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonConfigProviderImpl;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
-import org.wso2.carbon.kernel.utils.Constants;
+import org.wso2.carbon.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
