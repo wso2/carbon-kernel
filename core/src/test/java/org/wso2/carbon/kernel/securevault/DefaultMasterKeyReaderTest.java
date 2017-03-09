@@ -19,12 +19,12 @@ package org.wso2.carbon.kernel.securevault;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.securevault.config.model.masterkey.MasterKeyConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.reader.DefaultMasterKeyReader;
-import org.wso2.carbon.kernel.utils.ClassUtils;
-import org.wso2.carbon.kernel.utils.EnvironmentUtils;
+import org.wso2.carbon.utils.ClassUtils;
+import org.wso2.carbon.utils.Constants;
+import org.wso2.carbon.utils.EnvironmentUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -59,7 +59,7 @@ public class DefaultMasterKeyReaderTest {
     @Test
     public void testReadMasterKeys() {
         System.setProperty(Constants.CARBON_HOME, Paths.get(secureVaultResourcesPath.toString(),
-                "nonExisting").toString());
+                                                            "nonExisting").toString());
 
         List<MasterKey> masterKeys = new ArrayList<>();
         masterKeys.add(new MasterKey("MasterKey1"));

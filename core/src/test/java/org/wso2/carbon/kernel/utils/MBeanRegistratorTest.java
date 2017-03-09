@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
 import javax.management.InstanceNotFoundException;
@@ -31,7 +30,7 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 /**
- * Unit test class for org.wso2.carbon.kernel.utils.MBeanRegistrator.
+ * Unit test class for org.wso2.carbon.utils.MBeanRegistrator.
  *
  * @since 5.1.0
  */

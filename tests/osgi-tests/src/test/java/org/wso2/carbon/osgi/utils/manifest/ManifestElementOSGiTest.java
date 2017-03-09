@@ -27,9 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
-import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
-import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
+import org.wso2.carbon.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.manifest.ManifestElement;
+import org.wso2.carbon.utils.manifest.ManifestElementParserException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,7 +40,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyOSGiLibBundle;
 
 /**
- * OSGi tests class to test org.wso2.carbon.kernel.utils.manifest.ManifestElement as OSGi service registration.
+ * OSGi tests class to test org.wso2.carbon.utils.manifest.ManifestElement as OSGi service registration.
  *
  * @since 5.0.0
  */

@@ -91,7 +91,7 @@ public class ConfigProviderImpl implements ConfigProvider {
                         yamlConfigString);
             }
             String yamlProcessedString = processPlaceholder(yamlConfigString);
-            yamlProcessedString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlProcessedString);
+            yamlProcessedString = org.wso2.carbon.utils.Utils.substituteVariables(yamlProcessedString);
             Yaml yaml = new Yaml(new CustomClassLoaderConstructor(configClass, configClass.getClassLoader()));
             yaml.setBeanAccess(BeanAccess.FIELD);
             return yaml.loadAs(yamlProcessedString, configClass);
@@ -117,7 +117,7 @@ public class ConfigProviderImpl implements ConfigProvider {
         if (deploymentConfigs.containsKey(namespace)) {
             String configString = deploymentConfigs.get(namespace);
             String processedString = processPlaceholder(configString);
-            processedString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(processedString);
+            processedString = org.wso2.carbon.utils.Utils.substituteVariables(processedString);
             Yaml yaml = new Yaml();
             return yaml.loadAs(processedString, Map.class);
         }

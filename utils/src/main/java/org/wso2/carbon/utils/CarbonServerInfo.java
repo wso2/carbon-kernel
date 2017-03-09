@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 WSO2, Inc. http://www.wso2.org
+ * Copyright 2017 WSO2, Inc. http://www.wso2.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 /**
  * CarbonServerInfo register as an OSGi service when the server startup finalization completed. This can be used to

@@ -18,9 +18,9 @@ package org.wso2.carbon.kernel.securevault;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
 import org.wso2.carbon.kernel.securevault.tool.CipherTool;
+import org.wso2.carbon.utils.Constants;
 
 import java.net.URL;
 import java.net.URLClassLoader;

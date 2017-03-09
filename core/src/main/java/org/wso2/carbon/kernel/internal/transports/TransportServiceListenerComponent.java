@@ -28,7 +28,7 @@ import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
-import org.wso2.carbon.kernel.utils.MBeanRegistrator;
+import org.wso2.carbon.utils.MBeanRegistrator;
 
 import java.util.Map;
 

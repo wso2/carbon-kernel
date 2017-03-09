@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.kernel.transports;
 
-import org.wso2.carbon.kernel.utils.Utils;
+import org.wso2.carbon.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;

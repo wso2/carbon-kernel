@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.securevault.config.model.SecretRepositoryConfiguration;
 import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.kernel.utils.Utils;
+import org.wso2.carbon.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;

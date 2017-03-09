@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
 import org.wso2.carbon.sample.deployer.mgt.DeployerServicesListener;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
@@ -33,6 +32,7 @@ import org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener;
 import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 import org.wso2.carbon.sample.transport.mgt.TransportServicesListener;
+import org.wso2.carbon.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 

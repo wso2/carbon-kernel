@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import javax.management.MBeanServer;
 
 /**
- * Unit test class for org.wso2.carbon.kernel.utils.MBeanManagementFactory.
+ * Unit test class for org.wso2.carbon.utils.MBeanManagementFactory.
  *
  * @since 5.1.0
  */
