@@ -4,4 +4,4 @@ secretRepository:
     privateKeyAlias: wso2carbon
     keystoreLocation: resources/security/wso2carbon.jks
 masterKeyReader:
-  type: org.wso2.carbon.securevault.reader.DefaultMasterKeyReader
+  type: org.wso2.carbon.securevault.utils.DefaultHardCodedMasterKeyReader

@@ -21,7 +21,7 @@ import org.wso2.carbon.kernel.annotations.Configuration;
 import org.wso2.carbon.kernel.configprovider.CarbonConfigurationException;
 import org.wso2.carbon.kernel.configprovider.ConfigFileReader;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
-import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
+import org.wso2.carbon.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;

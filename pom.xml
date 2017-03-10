@@ -45,6 +45,7 @@
                 <module>archetypes</module>
                 <module>utils</module>
                 <module>launcher</module>
+                <module>securevault</module>
                 <module>core</module>
                 <module>extensions</module>
                 <module>tools</module>

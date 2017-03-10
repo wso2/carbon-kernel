@@ -24,10 +24,9 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.internal.configprovider.ConfigProviderDataHolder;
 import org.wso2.carbon.kernel.internal.configprovider.ConfigProviderImpl;
-import org.wso2.carbon.kernel.securevault.SecureVault;
-import org.wso2.carbon.kernel.securevault.exception.SecureVaultException;
-import org.wso2.carbon.utils.Constants;
-import org.wso2.carbon.utils.EnvironmentUtils;
+import org.wso2.carbon.kernel.utils.EnvironmentUtils;
+import org.wso2.carbon.securevault.SecureVault;
+import org.wso2.carbon.securevault.exception.SecureVaultException;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;

@@ -15,8 +15,7 @@
  */
 package org.wso2.carbon.kernel.internal.configprovider;
 
-import org.wso2.carbon.kernel.securevault.SecureVault;
-
+import org.wso2.carbon.securevault.SecureVault;
 
 /**
  * Config Provider Data Holder.
