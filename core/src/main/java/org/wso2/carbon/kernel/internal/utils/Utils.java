@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.kernel.internal.utils;
 
-import org.wso2.carbon.kernel.Constants;
+import org.wso2.carbon.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +36,7 @@ public class Utils {
      * @return Path carbon.yaml location
      */
     public static Path getCarbonYAMLLocation() {
-        return Paths.get(org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().toString(),
+        return Paths.get(org.wso2.carbon.utils.Utils.getCarbonConfigHome().toString(),
                 Constants.CARBON_CONFIG_YAML);
     }
 }

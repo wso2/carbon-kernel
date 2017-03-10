@@ -33,7 +33,7 @@ public class RunServerWithMainTest extends BaseTest {
 
     @BeforeClass
     public void init() {
-        os = System.getProperty("os.name");
+        os = System.getProperty(Constants.OS_NAME);
         setupCarbonHome();
         logFile = Paths.get(Utils.getCarbonHomeDirectory().toString(), "logs", Constants.CARBON_LOG_FILE_NAME).toFile();
         logger = Logger.getLogger(CarbonServerStartTest.class.getName());
@@ -49,7 +49,7 @@ public class RunServerWithMainTest extends BaseTest {
 
     @Test(dependsOnMethods = {"stopMainThreadTestCase"})
     public void startCarbonServerTestCase() {
-        if (!os.toLowerCase().contains("windows")) {
+        if (!os.toLowerCase().contains(Constants.WINDOWS)) {
             new Thread() {
                 public void run() {
                     Main.main(new String[]{});
@@ -60,7 +60,7 @@ public class RunServerWithMainTest extends BaseTest {
 
     @Test
     public void stopMainThreadTestCase() {
-        if (!os.toLowerCase().contains("windows")) {
+        if (!os.toLowerCase().contains(Constants.WINDOWS)) {
             new Thread() {
                 public void run() {
                     try {

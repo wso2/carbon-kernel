@@ -30,7 +30,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.runtime.Runtime;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 

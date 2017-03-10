@@ -45,7 +45,7 @@ public class YAMLBasedConfigFileReader implements ConfigFileReader {
      */
     @Override
     public Map<String, String> getDeploymentConfiguration() throws CarbonConfigurationException {
-        org.wso2.carbon.kernel.utils.Utils.checkSecurity();
+        org.wso2.carbon.utils.Utils.checkSecurity();
         if (filename == null) {
             throw new CarbonConfigurationException("Error while reading the configuration file, filename is null");
         }

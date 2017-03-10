@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils.manifest;
+package org.wso2.carbon.utils.manifest;
 
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.utils.Tokenizer;
+import org.wso2.carbon.utils.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -432,7 +432,7 @@ public class ManifestElement {
                         manifestElement.addAttribute(next, val);
                     }
                     directive = false;
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                     throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
                             header + ", Value: " + value);
                 }

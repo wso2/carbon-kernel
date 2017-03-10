@@ -64,6 +64,8 @@ import static org.ops4j.pax.exam.rbc.Constants.RMI_PORT_PROPERTY;
 
 /**
  * Test Container class to configure the distribution and start the server.
+ *
+ * @since 5.2.0
  */
 public class CarbonTestContainer implements TestContainer {
 
@@ -87,6 +89,11 @@ public class CarbonTestContainer implements TestContainer {
         this.runner = new CarbonRunner();
     }
 
+    /**
+     * Starts the test container.
+     *
+     * @return this container object for api
+     */
     public synchronized TestContainer start() {
         if (carbonHomeDirectoryOption.getDistributionDirectoryPath() == null
                 && carbonHomeDirectoryOption.getDistributionMavenURL() == null
@@ -285,6 +292,12 @@ public class CarbonTestContainer implements TestContainer {
         return deleteRuntime;
     }
 
+    /**
+     * Helper method to build string using options.
+     *
+     * @param options options to convert to string
+     * @return the string build by options
+     */
     private String buildString(ValueOption<?>[] options) {
         return buildString(new String[0], options, new String[0]);
     }
@@ -314,6 +327,11 @@ public class CarbonTestContainer implements TestContainer {
         }
     }
 
+    /**
+     * Stops the regression container.
+     *
+     * @return this container object for api
+     */
     @Override
     public synchronized TestContainer stop() {
         logger.debug("Shutting down the test container.");
@@ -348,6 +366,9 @@ public class CarbonTestContainer implements TestContainer {
         return this;
     }
 
+    /**
+     * Force cleanup directories if required.
+     */
     private void forceCleanup() {
         try {
             FileUtils.forceDeleteOnExit(targetDirectory.toFile());
@@ -356,6 +377,13 @@ public class CarbonTestContainer implements TestContainer {
         }
     }
 
+    /**
+     * Wait for the bundle to reach for the specified state.
+     *
+     * @param bundleId id of the bundle
+     * @param state    state of the bundle
+     * @param timeout  timeout period
+     */
     private synchronized void waitForState(final long bundleId, final int state, final RelativeTimeout timeout) {
         target.getClientRBC().waitForState(bundleId, state, timeout);
     }

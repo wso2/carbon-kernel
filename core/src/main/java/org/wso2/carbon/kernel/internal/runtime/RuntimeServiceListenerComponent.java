@@ -27,7 +27,7 @@ import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
-import org.wso2.carbon.kernel.utils.MBeanRegistrator;
+import org.wso2.carbon.utils.MBeanRegistrator;
 
 /**
  * This service  component is responsible for retrieving the Runtime OSGi service and register each runtime

@@ -20,16 +20,19 @@ import java.util.List;
 
 /**
  * Runner interface to implement different ways of running the server.
+ *
+ * @since 5.2.0
  */
 public interface Runner {
 
     /**
      * Start the server in a different JVM.
+     *
      * @param environment environment arguments of the starting process
-     * @param carbonHome path to carbon home
-     * @param options arguments to set in the command line
+     * @param carbonHome  path to carbon home
+     * @param options     arguments to set in the command line
      */
-    void exec(final String[] environment,  Path carbonHome, List<String> options);
+    void exec(final String[] environment, Path carbonHome, List<String> options);
 
     /**
      * Shutdown the runner.

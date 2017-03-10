@@ -31,7 +31,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.CarbonServerInfo;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -109,7 +109,7 @@ public class LoggingConfigurationOSGiTest {
         Principal principal = () -> "Banda";
         carbonContext.setUserPrincipal(principal);
 
-        Logger audit = org.wso2.carbon.kernel.Constants.AUDIT_LOG;
+        Logger audit = org.wso2.carbon.utils.Constants.AUDIT_LOG;
         audit.info("Attempting to test the audit logs.");
 
         Path auditLog = Paths.get(System.getProperty("carbon.home"), "logs", "audit.log");

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -81,29 +81,6 @@ public class FileUtilsTest {
         File invalidFile = Paths.get("src", "wrongPath", "test", "resources", "sample.txt").toFile();
         FileUtils.copyFileToDir(invalidFile, null);
     }
-
-//    @Test(dependsOnMethods = {"testCopyFileToDir"})
-//    public void testArchiveDir() {
-//        try {
-//            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
-//            FileUtils.archiveDir(zipFile.getAbsolutePath(), testSampleDirStructure.getAbsolutePath());
-//            Assert.assertTrue(zipFile.exists());
-//        } catch (IOException e) {
-//            Assert.assertTrue(false);
-//        }
-//    }
-//
-//    @Test(dependsOnMethods = {"testArchiveDir"})
-//    public void testFailArchiveDir() throws IOException {
-//        File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
-//        try {
-//            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
-//            FileUtils.archiveDir(zipFile.getAbsolutePath(), destination.getAbsolutePath());
-//            Assert.assertTrue(false);
-//        } catch (RuntimeException e) {
-//            Assert.assertEquals(e.getMessage(), (destination.getAbsolutePath() + " is not a directory"));
-//        }
-//    }
 
     @Test(dependsOnMethods = {"testCopyFileToDir"})
     public void testUDeleteDir() {

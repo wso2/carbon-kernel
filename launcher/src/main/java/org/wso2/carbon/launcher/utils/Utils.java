@@ -50,7 +50,7 @@ public class Utils {
      * @return resolved system property value
      */
     public static String initializeSystemProperties(String value) {
-        //TODO this method is duplicated in org.wso2.carbon.kernel.utils.Utils class. FIX IT.
+        //TODO this method is duplicated in org.wso2.carbon.utils.Utils class. FIX IT.
         String newValue = value;
         Matcher matcher = varPattern.matcher(value);
         while (matcher.find()) {

@@ -30,10 +30,10 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.CarbonServerInfo;
+import org.wso2.carbon.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,6 +54,7 @@ public class CarbonRuntimeOSGiTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CarbonRuntimeOSGiTest.class);
     private static final String CARBON_RUNTIME_SERVICE = CarbonRuntime.class.getName();
+    private static final String DEPLOYMENT_FILENAME = "deployment.yaml";
 
     @Inject
     private BundleContext bundleContext;
@@ -114,7 +115,7 @@ public class CarbonRuntimeOSGiTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "deployment.yaml");
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "deployment.yaml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", DEPLOYMENT_FILENAME);
+        return copyFile(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
     }
 }

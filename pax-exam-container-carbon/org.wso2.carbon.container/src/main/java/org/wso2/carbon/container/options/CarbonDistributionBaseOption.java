@@ -23,6 +23,8 @@ import java.nio.file.Path;
 
 /**
  * Hold distribution path information.
+ *
+ * @since 5.2.0
  */
 public class CarbonDistributionBaseOption implements Option {
 

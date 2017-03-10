@@ -21,6 +21,8 @@ import java.util.Locale;
 
 /**
  * Runner class to execute the carbon.sh.
+ *
+ * @since 5.2.0
  */
 public class CarbonRunner implements Runner {
 

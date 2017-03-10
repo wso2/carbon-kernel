@@ -41,7 +41,7 @@ import java.util.stream.IntStream;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
-import static org.wso2.carbon.kernel.utils.StringUtils.getNonEmptyStringAfterTrim;
+import static org.wso2.carbon.utils.StringUtils.getNonEmptyStringAfterTrim;
 
 /**
  * Tracks OSGi Services by creating a ServiceTracker which tracks only services required by startup components.

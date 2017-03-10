@@ -13,15 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.utils;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 
 /**
- * This class tests the functionality of org.wso2.carbon.kernel.utils.Utils class.
+ * This class tests the functionality of org.wso2.carbon.utils.Utils class.
  *
  * @since 5.0.0
  */

@@ -17,7 +17,7 @@ package org.wso2.carbon.kernel.context;
 
 import org.slf4j.MDC;
 import org.wso2.carbon.kernel.internal.context.CarbonContextHolder;
-import org.wso2.carbon.kernel.utils.Utils;
+import org.wso2.carbon.utils.Utils;
 
 import java.security.Principal;
 

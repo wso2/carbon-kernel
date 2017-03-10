@@ -61,10 +61,10 @@ import java.util.Set;
  * @since 5.2.0
  */
 @Component(
-        name = "org.wso2.carbon.securevault.reader.DefaultMasterKeyReader",
+        name = "org.wso2.carbon.kernel.securevault.reader.DefaultMasterKeyReader",
         immediate = true,
         property = {
-                "capabilityName=org.wso2.carbon.securevault.MasterKeyReader"
+                "capabilityName=org.wso2.carbon.kernel.securevault.MasterKeyReader"
         }
 )
 public class DefaultMasterKeyReader implements MasterKeyReader {
@@ -92,12 +92,7 @@ public class DefaultMasterKeyReader implements MasterKeyReader {
         readMasterKeysFromEnvironment(masterKeys);
         readMasterKeysFromSystem(masterKeys);
 
-        Path masterKeysFilePath;
-        if (SecureVaultUtils.isOSGIEnv()) {
-            masterKeysFilePath = Paths.get(SecureVaultUtils.getCarbonHome().get().toString(), MASTER_KEYS_FILE_NAME);
-        } else {
-            masterKeysFilePath = Paths.get(SecureVaultInitializer.getInstance().getMasterKeyYAMLPath().get());
-        }
+        Path masterKeysFilePath = Paths.get(Utils.getCarbonHome().toString(), MASTER_KEYS_FILE_NAME);
         if (Files.exists(masterKeysFilePath)) {
             readMasterKeysFile(masterKeysFilePath, masterKeys);
         }

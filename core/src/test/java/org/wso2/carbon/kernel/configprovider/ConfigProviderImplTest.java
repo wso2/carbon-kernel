@@ -22,7 +22,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.configprovider.ConfigProviderDataHolder;
 import org.wso2.carbon.kernel.internal.configprovider.ConfigProviderImpl;
 import org.wso2.carbon.kernel.utils.EnvironmentUtils;

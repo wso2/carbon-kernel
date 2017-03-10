@@ -23,6 +23,8 @@ import java.nio.file.Path;
 
 /**
  * Utility class to provide an easy and intuitive way to configure the specific carbon distribution options.
+ *
+ * @since 5.2.0
  */
 public class CarbonDistributionOption {
 

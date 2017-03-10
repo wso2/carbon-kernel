@@ -19,6 +19,8 @@ import org.ops4j.pax.exam.Option;
 
 /**
  * Start the distribution in debug mode.
+ *
+ * @since 5.2.0
  */
 public class DebugOption implements Option {
 
