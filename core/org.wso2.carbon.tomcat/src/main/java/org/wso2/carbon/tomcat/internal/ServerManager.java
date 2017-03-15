@@ -114,8 +114,6 @@ public class ServerManager {
                 config.getAttributes().removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
                         SVNS);
             }
-            config.getAttributes()
-                  .removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR + SVNS);
             // creates new input stream from processed DOM element
             InputStream newStream = domToInputStream(config);
             

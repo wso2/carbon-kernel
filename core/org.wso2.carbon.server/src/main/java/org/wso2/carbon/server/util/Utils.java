@@ -701,7 +701,7 @@ public class Utils {
             if (carbonRepo == null) {
                 carbonRepo = Paths.get(System.getProperty("carbon.home"), "repository").toString();
             }
-            bundleConfigDirLocation = Paths.get(carbonRepo, "conf", "etc", "bundleconfig").toString();
+            bundleConfigDirLocation = Paths.get(carbonRepo, "conf", "etc", "bundle-config").toString();
         } else {
             bundleConfigDirLocation = Paths.get(carbonConfigPath, "etc", "bundle-config").toString();
         }
