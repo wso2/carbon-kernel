@@ -97,6 +97,10 @@
             <artifactId>powermock-module-testng</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config.configuration</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -172,6 +176,8 @@
             org.json.*;version="${org.json.import.version}",
             org.xml.sax.*;version="${org.xml.sax.import.version.range}",
             javax.crypto.*;version="${javax.crypto.version.range}",
+            org.wso2.carbon.config.configuration.*;version="${carbon.configuration.version.range}",
+            org.wso2.carbon.secvault.securevault.*;version="${carbon.securevault.version.range}"
         </import.package>
         <carbon.component>
             startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",

@@ -134,9 +134,9 @@
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.extensions.configuration.maven.plugin</artifactId>
-                    <version>${carbon.kernel.version}</version>
+                    <groupId>org.wso2.carbon.config</groupId>
+                    <artifactId>org.wso2.carbon.config.extensions.configuration.maven.plugin</artifactId>
+                    <version>${carbon.configuration.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -530,6 +530,23 @@
                 <type>zip</type>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config.configuration</artifactId>
+                <version>${carbon.configuration.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config.configuration.feature</artifactId>
+                <version>${carbon.configuration.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.secvault</groupId>
+                <artifactId>org.wso2.carbon.secvault.securevault.feature</artifactId>
+                <version>${carbon.securevault.version}</version>
+                <type>zip</type>
+            </dependency>
             <!-- maven plugin dependencies -->
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -607,6 +624,12 @@
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.export.version>5.2.0</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
+
+        <!-- Carbon configuration version -->
+        <carbon.configuration.version>1.0.0-SNAPSHOT</carbon.configuration.version>
+        <carbon.securevault.version>1.0.0-SNAPSHOT</carbon.securevault.version>
+        <carbon.configuration.version.range>[1.0.0, 2.0.0)</carbon.configuration.version.range>
+        <carbon.securevault.version.range>[1.0.0, 2.0.0)</carbon.securevault.version.range>
 
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>

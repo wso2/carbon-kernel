@@ -23,7 +23,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
 /**
- * This service component is responsible for registering the Carbon kernel command provider.
+ * This service component is responsible for registering the Carbon kernel command reader.
  *
  * @since 5.0.0
  */

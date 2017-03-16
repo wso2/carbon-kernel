@@ -28,10 +28,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.config.configuration.ConfigurationUtils;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 import org.wso2.carbon.utils.CarbonServerInfo;
 import org.wso2.carbon.utils.Constants;
 
@@ -67,7 +67,7 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyCarbonYAMLOption() };
+        return new Option[]{copyCarbonYAMLOption()};
     }
 
     @Test
@@ -78,7 +78,7 @@ public class CarbonRuntimeOSGiTest {
         Assert.assertNotNull(carbonConfiguration, "Carbon Configuration is null");
     }
 
-    @Test(dependsOnMethods = { "testCarbonRuntimeService" })
+    @Test(dependsOnMethods = {"testCarbonRuntimeService"})
     public void testCarbonConfiguration() {
 
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();

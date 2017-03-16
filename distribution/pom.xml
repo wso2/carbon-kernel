@@ -56,6 +56,16 @@
             <artifactId>org.wso2.carbon.runtime.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config.configuration.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault.securevault.feature</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -126,6 +136,14 @@
                                     <id>org.wso2.carbon.runtime.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.config.configuration.feature</id>
+                                    <version>${carbon.configuration.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.secvault.securevault.feature</id>
+                                    <version>${carbon.securevault.version}</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
@@ -174,6 +192,10 @@
                                 <feature>
                                     <id>org.wso2.carbon.kernel.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.config.configuration.feature.group</id>
+                                    <version>${carbon.configuration.version}</version>
                                 </feature>
                             </features>
                         </configuration>

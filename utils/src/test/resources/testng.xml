@@ -21,7 +21,6 @@ limitations under the License.
     <test name="carbon-core-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.utils.FileUtilsTest" />
-            <class name="org.wso2.carbon.utils.UtilsTest"/>
             <class name="org.wso2.carbon.utils.manifest.ManifestElementTest"/>
         </classes>
     </test>

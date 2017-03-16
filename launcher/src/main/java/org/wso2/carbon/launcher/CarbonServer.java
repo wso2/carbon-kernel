@@ -204,7 +204,7 @@ public class CarbonServer {
      * Creates a new service loader for the given service type and class loader.
      * Load OSGi framework factory for the given class loader.
      *
-     * @param classLoader The class loader to be used to load provider-configurations
+     * @param classLoader The class loader to be used to load reader-configurations
      * @return framework factory for creating framework instances
      */
     private FrameworkFactory loadOSGiFwkFactory(ClassLoader classLoader) {
