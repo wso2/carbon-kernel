@@ -87,7 +87,7 @@ public class SecretManagerInitializer {
     private Properties loadProperties() {
         Properties properties = new Properties();
         String filePath;
-        String configPath = System.getProperty("carbon.components.dir.path");
+        String configPath = System.getProperty("carbon.config.dir.path");
         if (configPath == null) {
             String carbonHome = System.getProperty(CARBON_HOME);
             filePath = Paths.get(carbonHome, REPOSITORY_DIR, CONF_DIR, SECURITY_DIR, SECRET_CONF).toString();
