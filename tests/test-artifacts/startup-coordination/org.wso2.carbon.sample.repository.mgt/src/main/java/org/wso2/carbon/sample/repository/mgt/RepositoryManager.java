@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.kernel.startupresolver.StartupServiceUtils;
 import org.wso2.carbon.sample.runtime.mgt.Runtime;
 import org.wso2.carbon.sample.transport.mgt.Transport;
 
@@ -61,6 +62,7 @@ public class RepositoryManager {
     )
     public void registerTransport(Transport transport) {
         transportList.add(transport);
+        StartupServiceUtils.updateServiceCache("carbon-sample-repository-mgt", Transport.class, transport);
     }
 
     public void deregisterTransport(Transport transport) {
@@ -80,6 +82,7 @@ public class RepositoryManager {
     )
     public void registerRuntime(Runtime runtime) {
         runtimeList.add(runtime);
+        StartupServiceUtils.updateServiceCache("carbon-sample-repository-mgt", Runtime.class, runtime);
     }
 
     public void deregisterRuntime(Runtime runtime) {

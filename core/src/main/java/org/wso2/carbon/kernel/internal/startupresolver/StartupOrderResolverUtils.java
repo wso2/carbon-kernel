@@ -163,18 +163,24 @@ class StartupOrderResolverUtils {
                             getObjectClassName(manifestElement),
                             Capability.CapabilityType.OSGi_SERVICE,
                             Capability.CapabilityState.EXPECTED,
-                            manifestElement.getBundle());
+                            manifestElement.getBundle(),
+                            true);
 
                     // Check whether requiredByComponent property is specified.
                     getNonEmptyStringAfterTrim(manifestElement.getAttribute(REQUIRED_BY_COMPONENT_NAME))
-                            .ifPresent(requiredByComponentNameStr ->
-                                    addRequiredByComponentNames(osgiServiceCapability, requiredByComponentNameStr)
+                            .ifPresent(requiredByComponentNameStr -> {
+                                        osgiServiceCapability.setDirectDependency(false);
+                                        addRequiredByComponentNames(osgiServiceCapability, requiredByComponentNameStr);
+                                    }
+
                             );
 
                     // Check whether dependentComponentName property is specified. Backward compatibility.
                     getNonEmptyStringAfterTrim(manifestElement.getAttribute(DEPENDENT_COMPONENT_NAME))
-                            .ifPresent(requiredByComponentNameStr ->
-                                    addRequiredByComponentNames(osgiServiceCapability, requiredByComponentNameStr)
+                            .ifPresent(requiredByComponentNameStr -> {
+                                        osgiServiceCapability.setDirectDependency(false);
+                                        addRequiredByComponentNames(osgiServiceCapability, requiredByComponentNameStr);
+                                    }
                             );
 
                     osgiServiceCapabilityList.add(osgiServiceCapability);

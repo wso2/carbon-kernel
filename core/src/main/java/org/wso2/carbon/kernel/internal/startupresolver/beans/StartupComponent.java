@@ -18,11 +18,14 @@
 package org.wso2.carbon.kernel.internal.startupresolver.beans;
 
 import org.osgi.framework.Bundle;
+import org.wso2.carbon.kernel.internal.startupresolver.StartupServiceCache;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * {@code StartupComponent} Represents an entity which needs to hold its initialization until all the required
@@ -50,9 +53,9 @@ public class StartupComponent {
     private List<String> requiredServiceList = new ArrayList<>();
 
     /**
-     * List of pending expected or available capabilities.
+     * List of expected capabilities.
      */
-    private final List<Capability> pendingCapabilityList = Collections.synchronizedList(new ArrayList<>());
+    private final List<Capability> expectedCapabilityList = Collections.synchronizedList(new ArrayList<>());
 
     /**
      * RequiredCapabilityListener service instance.
@@ -118,24 +121,54 @@ public class StartupComponent {
     /**
      * Register {@code Capability} instances with this startup listener component.
      * <p>
-     * This {@code Capability} may be in the AVAILABLE or EXPECTED state.
-     * <p>
-     * 1) If the {@code Capability} is in the EXPECTED
-     * state and if there is matching {@code Capability} already registered with this startup listener component, then
-     * it is removed from the list of {@code Capability} of this component.
-     * <p>
-     * 2) If the {@code Capability} is in the AVAILABLE
-     * state and if there is matching {@code Capability} already registered with this startup listener component, then
-     * it is removed from the list of {@code Capability} of this component.
+     * Adds the given {@code Capability} to the {@code expectedCapabilityList}
      *
      * @param capability {@code Capability} object to be registered with this startup listener component.
      */
-    public void addExpectedOrAvailableCapability(Capability capability) {
-        synchronized (pendingCapabilityList) {
-            if (pendingCapabilityList.contains(capability)) {
-                pendingCapabilityList.remove(capability);
+    public void addExpectedCapability(Capability capability) {
+        synchronized (expectedCapabilityList) {
+            Capability capability2 = expectedCapabilityList.stream()
+                    .filter(capability1 -> capability1.getName().equals(capability.getName()))
+                    .filter(capability1 -> !capability1.isSecondCheck()
+                            && capability1.getState() == Capability.CapabilityState.AVAILABLE)
+                    .findFirst().orElse(null);
+
+            if (capability2 != null) {
+                capability2.setSecondCheck(true);
             } else {
-                pendingCapabilityList.add(capability);
+                expectedCapabilityList.add(capability);
+            }
+        }
+    }
+
+    public void updateIndirectCapability(Capability capability) {
+        synchronized (expectedCapabilityList) {
+
+            if (capability.getState() == Capability.CapabilityState.EXPECTED) {
+                Optional<Capability> optCapability = expectedCapabilityList.stream()
+                        .filter(capability1 -> capability1.getName().equals(capability.getName()))
+                        .filter(capability1 -> capability1.getState() == Capability.CapabilityState.AVAILABLE)
+                        .filter(capability1 -> !capability1.isSecondCheck())
+                        .findFirst();
+
+                if (optCapability.isPresent()) {
+                    optCapability.get().setSecondCheck(true);
+                } else {
+                    expectedCapabilityList.add(capability);
+                }
+            } else {
+                // if Capability.CapabilityState.AVAILABLE
+                Optional<Capability> optCapability = expectedCapabilityList.stream()
+                        .filter(capability1 -> capability1.getName().equals(capability.getName()))
+                        .filter(capability1 -> capability1.getState() == Capability.CapabilityState.EXPECTED)
+                        .findFirst();
+
+                if (optCapability.isPresent()) {
+                    optCapability.get().setState(Capability.CapabilityState.AVAILABLE);
+                    optCapability.get().setSecondCheck(true);
+                } else {
+                    expectedCapabilityList.add(capability);
+                }
             }
         }
     }
@@ -153,7 +186,15 @@ public class StartupComponent {
      * @return the list of pending capabilities.
      */
     public List<Capability> getPendingCapabilities() {
-        return Collections.unmodifiableList(pendingCapabilityList);
+        List<String> availableCapabilities = StartupServiceCache.getInstance().getServiceList(name);
+        synchronized (expectedCapabilityList) {
+            return expectedCapabilityList.stream()
+                    .filter(capability -> capability.isDirectDependency()
+                            || (!capability.isDirectDependency()
+                            && capability.getState() == Capability.CapabilityState.EXPECTED))
+                    .filter(capability1 -> availableCapabilities.indexOf(capability1.getName()) == -1)
+                    .collect(Collectors.toList());
+        }
     }
 
     public RequiredCapabilityListener getListener() {
@@ -200,7 +241,7 @@ public class StartupComponent {
      */
     public boolean isSatisfiable() {
         return !satisfied &&
-                pendingCapabilityList.size() == 0 &&
+                getPendingCapabilities().size() == 0 &&
                 listener != null &&
                 pendingCapabilityProviderList.size() == 0;
     }

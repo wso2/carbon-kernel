@@ -27,6 +27,7 @@ import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.StartupServiceUtils;
 import org.wso2.carbon.utils.MBeanRegistrator;
 
 /**
@@ -70,6 +71,7 @@ public class RuntimeServiceListenerComponent implements RequiredCapabilityListen
     protected void registerRuntime(Runtime runtime) {
         try {
             runtimeManager.registerRuntime(runtime);
+            StartupServiceUtils.updateServiceCache("carbon-runtime-mgt", Runtime.class, runtime);
         } catch (Exception e) {
             logger.error("Error while adding runtime to the Runtime manager", e);
         }

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.StartupServiceUtils;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
 import org.wso2.carbon.utils.MBeanRegistrator;
@@ -64,6 +65,7 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
     )
     protected void registerTransport(CarbonTransport transport, Map<String, ?> ref) {
         transportManager.registerTransport(transport);
+        StartupServiceUtils.updateServiceCache("carbon-transport-mgt", CarbonTransport.class, transport);
     }
 
     protected void unregisterTransport(CarbonTransport transport, Map<String, ?> ref) {
