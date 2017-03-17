@@ -198,7 +198,7 @@ class StartupComponentManager {
      *
      * @param capability the capability to be updated.
      */
-    void updateIndirectCapability(Capability capability) {
+    void updateCapability(Capability capability) {
         startupComponentMap.values()
                 .stream()
                 .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
