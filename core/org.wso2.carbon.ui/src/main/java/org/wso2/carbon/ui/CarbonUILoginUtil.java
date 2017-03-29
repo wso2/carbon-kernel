@@ -207,13 +207,13 @@ public final class CarbonUILoginUtil {
      * @return
      */
     protected static boolean letRequestedUrlIn(String requestedURI, String tempUrl) {
-        return ((isEndsWithValidExtensionInUrl(requestedURI) && !requestedURI.contains(";"))
+        return ((validExtensionInUrl(requestedURI) && !requestedURI.contains(";"))
                 || requestedURI.contains("/registry") || requestedURI.contains("/openid/")
                 || requestedURI.contains("/openidserver") || requestedURI.contains("/gadgets")
                 || requestedURI.contains("/samlsso"));
     }
 
-    private static boolean isEndsWithValidExtensionInUrl(String requestedURI) {
+    private static boolean validExtensionInUrl(String requestedURI) {
         return requestedURI.endsWith(".css") || requestedURI.endsWith(".gif")
                 || requestedURI.endsWith(".GIF") || requestedURI.endsWith(".jpg")
                 || requestedURI.endsWith(".JPG") || requestedURI.endsWith(".png")
