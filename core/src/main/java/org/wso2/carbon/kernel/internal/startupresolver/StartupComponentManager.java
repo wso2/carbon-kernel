@@ -202,7 +202,7 @@ class StartupComponentManager {
         startupComponentMap.values()
                 .stream()
                 .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
-                .forEach(startupComponent -> startupComponent.updateIndirectCapability(capability));
+                .forEach(startupComponent -> startupComponent.updateCapability(capability));
     }
 
     /**

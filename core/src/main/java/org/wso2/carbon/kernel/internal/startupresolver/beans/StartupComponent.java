@@ -144,7 +144,15 @@ public class StartupComponent {
         }
     }
 
-    public void updateIndirectCapability(Capability capability) {
+    /**
+     * This method updates the capability in the expected capability list.
+     *
+     * If a corresponding capability is found in the expectedCapabilityList, then the existing capability is updated,
+     * or the new capability is added to the expectedCapabilityList otherwise.
+     *
+     * @param capability the capability to be updated
+     */
+    public void updateCapability(Capability capability) {
         synchronized (expectedCapabilityList) {
 
             if (capability.getState() == Capability.CapabilityState.EXPECTED) {
@@ -185,6 +193,10 @@ public class StartupComponent {
      * <p>
      * IF the {@code Capability} is in the AVAILABLE state which means that the corresponding EXPECTED
      * {@code Capability} is not yet registered with this component.
+     *
+     * When Generating the pending capability list it considers;
+     * 1. all the direct dependencies
+     * 2. all the indirect dependencies at EXPECTED state.
      *
      * @return the list of pending capabilities.
      */

@@ -34,6 +34,11 @@ public class StartupServiceCache {
     private static final Logger logger = LoggerFactory.getLogger(StartupServiceCache.class);
 
     private static StartupServiceCache serviceCacheInstance = new StartupServiceCache();
+
+    /*
+    The internal map contains interface name (OSGi service class) against a list of implementation objects. The outer
+    map has the mapping between the component name and the internal map.
+     */
     private Map<String, Map<String, List<Object>>> componentMap = new HashMap<>();
 
     public static StartupServiceCache getInstance() {
