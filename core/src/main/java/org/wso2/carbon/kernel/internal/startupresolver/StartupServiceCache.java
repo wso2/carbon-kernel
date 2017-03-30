@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * StartupServiceCache caches all the startup services against the component name given in the
@@ -61,17 +59,30 @@ public class StartupServiceCache {
         }
     }
 
-    /**
-     * This method provides the list of OSGi services that were reported by the {@code componentName}
-     *
-     * @param componentName name of the reporter component
-     * @return a list of reported OSGi service names
-     */
-    public List<String> getServiceList(String componentName) {
-        return Optional.ofNullable(componentMap.get(componentName))
-                .orElse(Collections.emptyMap())
-                .keySet()
-                .stream()
-                .collect(Collectors.toList());
+//    /**
+//     * This method provides the list of OSGi services that were reported by the {@code componentName}
+//     *
+//     * @param componentName name of the reporter component
+//     * @return a list of reported OSGi service names
+//     */
+//    public List<String> getServiceList(String componentName) {
+//        return Optional.ofNullable(componentMap.get(componentName))
+//                .orElse(Collections.emptyMap())
+//                .keySet()
+//                .stream()
+//                .collect(Collectors.toList());
+//    }
+
+    public Map<String, Long> getAvailableService(String componentName) {
+        Map<String, List<Object>> availableServices = componentMap.get(componentName);
+        if (availableServices == null) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Long> availableServiceCounts = new HashMap<>();
+        for (Map.Entry<String, List<Object>> entry : availableServices.entrySet()) {
+            availableServiceCounts.put(entry.getKey(), Long.valueOf(entry.getValue().size()));
+        }
+        return availableServiceCounts;
     }
 }
