@@ -129,15 +129,15 @@ public class StartupComponent {
      */
     public void addExpectedCapability(Capability capability) {
         synchronized (expectedCapabilityList) {
-            Capability capability2 = expectedCapabilityList.stream()
-                    .filter(capability1 -> capability1.getName().equals(capability.getName()))
-                    .filter(capability1 -> !capability1.isSecondCheck()
-                            && capability1.getState() == Capability.CapabilityState.AVAILABLE)
+            Capability expectedCapability = expectedCapabilityList.stream()
+                    .filter(cap -> cap.getName().equals(capability.getName()))
+                    .filter(cap -> !cap.isSecondCheck()
+                            && cap.getState() == Capability.CapabilityState.AVAILABLE)
                     .findFirst().orElse(null);
 
-            if (capability2 != null) {
-                capability2.setSecondCheck(true);
-                capability2.setDirectDependency(capability.isDirectDependency());
+            if (expectedCapability != null) {
+                expectedCapability.setSecondCheck(true);
+                expectedCapability.setDirectDependency(capability.isDirectDependency());
             } else {
                 expectedCapabilityList.add(capability);
             }
@@ -149,9 +149,9 @@ public class StartupComponent {
 
             if (capability.getState() == Capability.CapabilityState.EXPECTED) {
                 Optional<Capability> optCapability = expectedCapabilityList.stream()
-                        .filter(capability1 -> capability1.getName().equals(capability.getName()))
-                        .filter(capability1 -> capability1.getState() == Capability.CapabilityState.AVAILABLE)
-                        .filter(capability1 -> !capability1.isSecondCheck())
+                        .filter(cap -> cap.getName().equals(capability.getName()))
+                        .filter(cap -> cap.getState() == Capability.CapabilityState.AVAILABLE)
+                        .filter(cap -> !cap.isSecondCheck())
                         .findFirst();
 
                 if (optCapability.isPresent()) {
@@ -162,8 +162,8 @@ public class StartupComponent {
             } else {
                 // if Capability.CapabilityState.AVAILABLE
                 Optional<Capability> optCapability = expectedCapabilityList.stream()
-                        .filter(capability1 -> capability1.getName().equals(capability.getName()))
-                        .filter(capability1 -> capability1.getState() == Capability.CapabilityState.EXPECTED)
+                        .filter(cap -> cap.getName().equals(capability.getName()))
+                        .filter(cap -> cap.getState() == Capability.CapabilityState.EXPECTED)
                         .findFirst();
 
                 if (optCapability.isPresent()) {
@@ -191,10 +191,10 @@ public class StartupComponent {
     public List<Capability> getPendingCapabilities() {
         Map<String, Long> availableServiceCounts = StartupServiceCache.getInstance().getAvailableService(name);
         Map<String, Long> expectedServiceCounts = expectedCapabilityList.stream()
-                .filter(capability -> capability.isDirectDependency()
-                        || (!capability.isDirectDependency()
-                        && capability.getState() == Capability.CapabilityState.EXPECTED))
-                .map(capability -> capability.getName())
+                .filter(cap -> cap.isDirectDependency()
+                        || (!cap.isDirectDependency()
+                        && cap.getState() == Capability.CapabilityState.EXPECTED))
+                .map(cap -> cap.getName())
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
         availableServiceCounts.forEach((s, aLong) -> {
@@ -207,7 +207,7 @@ public class StartupComponent {
             return Collections.emptyList();
         } else {
             return expectedCapabilityList.stream()
-                    .filter(capability -> expectedServiceCounts.keySet().contains(capability.getName()))
+                    .filter(cap -> expectedServiceCounts.keySet().contains(cap.getName()))
                     .collect(Collectors.toList());
         }
     }

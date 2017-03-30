@@ -59,20 +59,12 @@ public class StartupServiceCache {
         }
     }
 
-//    /**
-//     * This method provides the list of OSGi services that were reported by the {@code componentName}
-//     *
-//     * @param componentName name of the reporter component
-//     * @return a list of reported OSGi service names
-//     */
-//    public List<String> getServiceList(String componentName) {
-//        return Optional.ofNullable(componentMap.get(componentName))
-//                .orElse(Collections.emptyMap())
-//                .keySet()
-//                .stream()
-//                .collect(Collectors.toList());
-//    }
-
+    /**
+     * This method provides a map of OSGi services and service count for the given {@code componentName}
+     *
+     * @param componentName name of the reporter component
+     * @return a list of reported OSGi service names
+     */
     public Map<String, Long> getAvailableService(String componentName) {
         Map<String, List<Object>> availableServices = componentMap.get(componentName);
         if (availableServices == null) {
