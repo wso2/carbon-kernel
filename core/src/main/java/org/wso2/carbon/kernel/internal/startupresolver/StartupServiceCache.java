@@ -55,27 +55,29 @@ public class StartupServiceCache {
      * @param interfaceName name of the OSGi service interface
      * @param serviceInstance OSGi service instance
      */
-    public synchronized void update(String componentName, Class interfaceName, Object serviceInstance) {
+    public void update(String componentName, Class interfaceName, Object serviceInstance) {
         logger.debug("Updating StartupServiceCache, componentName={}, interfaceName={}, serviceInstance={}",
                 componentName, interfaceName.getName(), serviceInstance);
 
-        Map<String, List<Object>> componentServicesMap = componentMap.get(componentName);
-        if (componentServicesMap == null) {
-            logger.debug("Creating a Component Services Map for component {}", componentName);
-            componentServicesMap = new HashMap<>();
-            componentMap.put(componentName, componentServicesMap);
-        }
+        synchronized (componentMap) {
+            Map<String, List<Object>> componentServicesMap = componentMap.get(componentName);
+            if (componentServicesMap == null) {
+                logger.debug("Creating a Component Services Map for component {}", componentName);
+                componentServicesMap = new HashMap<>();
+                componentMap.put(componentName, componentServicesMap);
+            }
 
-        List<Object> services = componentServicesMap.get(interfaceName.getName());
-        if (services == null) {
-            logger.debug("Creating a Service Instance List for interface {} in component {}",
-                    interfaceName, componentName);
-            services = new ArrayList<>();
-            componentServicesMap.put(interfaceName.getName(), services);
-        }
+            List<Object> services = componentServicesMap.get(interfaceName.getName());
+            if (services == null) {
+                logger.debug("Creating a Service Instance List for interface {} in component {}",
+                        interfaceName, componentName);
+                services = new ArrayList<>();
+                componentServicesMap.put(interfaceName.getName(), services);
+            }
 
-        if (services.indexOf(serviceInstance) == -1) {
-            services.add(serviceInstance);
+            if (services.indexOf(serviceInstance) == -1) {
+                services.add(serviceInstance);
+            }
         }
     }
 
@@ -86,15 +88,17 @@ public class StartupServiceCache {
      * @return a list of reported OSGi service names
      */
     public Map<String, Long> getAvailableService(String componentName) {
-        Map<String, List<Object>> availableServices = componentMap.get(componentName);
-        if (availableServices == null) {
-            return Collections.emptyMap();
-        }
+        synchronized (componentMap) {
+            Map<String, List<Object>> availableServices = componentMap.get(componentName);
+            if (availableServices == null) {
+                return Collections.emptyMap();
+            }
 
-        Map<String, Long> availableServiceCounts = new HashMap<>();
-        for (Map.Entry<String, List<Object>> entry : availableServices.entrySet()) {
-            availableServiceCounts.put(entry.getKey(), Long.valueOf(entry.getValue().size()));
+            Map<String, Long> availableServiceCounts = new HashMap<>();
+            for (Map.Entry<String, List<Object>> entry : availableServices.entrySet()) {
+                availableServiceCounts.put(entry.getKey(), Long.valueOf(entry.getValue().size()));
+            }
+            return availableServiceCounts;
         }
-        return availableServiceCounts;
     }
 }

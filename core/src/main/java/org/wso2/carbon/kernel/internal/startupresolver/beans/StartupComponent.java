@@ -154,7 +154,6 @@ public class StartupComponent {
      */
     public void updateCapability(Capability capability) {
         synchronized (expectedCapabilityList) {
-
             if (capability.getState() == Capability.CapabilityState.EXPECTED) {
                 Optional<Capability> optCapability = expectedCapabilityList.stream()
                         .filter(cap -> cap.getName().equals(capability.getName()))
@@ -202,25 +201,28 @@ public class StartupComponent {
      */
     public List<Capability> getPendingCapabilities() {
         Map<String, Long> availableServiceCounts = StartupServiceCache.getInstance().getAvailableService(name);
-        Map<String, Long> expectedServiceCounts = expectedCapabilityList.stream()
-                .filter(cap -> cap.isDirectDependency()
-                        || (!cap.isDirectDependency()
-                        && cap.getState() == Capability.CapabilityState.EXPECTED))
-                .map(cap -> cap.getName())
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        availableServiceCounts.forEach((s, aLong) -> {
-            if (aLong >= expectedServiceCounts.get(s)) {
-                expectedServiceCounts.remove(s);
+        synchronized (expectedCapabilityList) {
+            Map<String, Long> expectedServiceCounts = expectedCapabilityList.stream()
+                    .filter(cap -> cap.isDirectDependency()
+                            || (!cap.isDirectDependency()
+                            && cap.getState() == Capability.CapabilityState.EXPECTED))
+                    .map(cap -> cap.getName())
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            availableServiceCounts.forEach((s, aLong) -> {
+                if (aLong >= expectedServiceCounts.get(s)) {
+                    expectedServiceCounts.remove(s);
+                }
+            });
+
+            if (expectedServiceCounts.isEmpty()) {
+                return Collections.emptyList();
+            } else {
+                return expectedCapabilityList.stream()
+                        .filter(cap -> expectedServiceCounts.keySet().contains(cap.getName()))
+                        .collect(Collectors.toList());
             }
-        });
-
-        if (expectedServiceCounts.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return expectedCapabilityList.stream()
-                    .filter(cap -> expectedServiceCounts.keySet().contains(cap.getName()))
-                    .collect(Collectors.toList());
         }
     }
 
