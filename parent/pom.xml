@@ -173,9 +173,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.utils</artifactId>
-                <version>${carbon.kernel.version}</version>
+                <groupId>org.wso2.carbon.utils</groupId>
+                <artifactId>carbon-utils</artifactId>
+                <version>${carbon.utils.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -603,6 +603,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bundle.symbolicName>${project.artifactId}</bundle.symbolicName>
 
+        <carbon.utils.version>1.0.0-SNAPSHOT</carbon.utils.version>
+        <carbon.utils.package.import.version.range>[1.0.0, 2.0.0)</carbon.utils.package.import.version.range>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.export.version>5.2.0</carbon.kernel.package.export.version>

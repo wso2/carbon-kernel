@@ -15,7 +15,8 @@
  */
 package org.wso2.carbon.kernel.jmx.security;
 
-import org.wso2.carbon.utils.Constants;
+
+import org.wso2.carbon.kernel.Constants;
 
 import java.util.Collections;
 import javax.management.remote.JMXAuthenticator;

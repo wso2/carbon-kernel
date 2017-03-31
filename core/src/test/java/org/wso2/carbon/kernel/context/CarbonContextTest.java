@@ -18,10 +18,10 @@ package org.wso2.carbon.kernel.context;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonConfigProviderImpl;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
-import org.wso2.carbon.utils.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -129,12 +129,13 @@ public class CarbonContextTest {
     private void clearSystemProperties() {
         PrivilegedCarbonContext.destroyCurrentContext();
         System.clearProperty(Constants.TENANT_NAME);
-        System.clearProperty(Constants.CARBON_HOME);
+        System.clearProperty(org.wso2.carbon.utils.Constants.CARBON_HOME);
     }
 
 
     private void setupCarbonConfig(String tenantName) throws Exception {
-        System.setProperty(Constants.CARBON_HOME, Paths.get(testDir.toString(), "carbon-context").toString());
+        System.setProperty(org.wso2.carbon.utils.Constants.CARBON_HOME,
+                           Paths.get(testDir.toString(), "carbon-context").toString());
         System.setProperty(Constants.TENANT_NAME, tenantName);
         ConfigProvider configProvider = new CarbonConfigProviderImpl();
         CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
