@@ -63,7 +63,7 @@
 
     <files>
         <file>
-            <source>target/WSO2Carbon/conf/deployment.yaml</source>
+            <source>target/WSO2Carbon/wso2/default/conf/deployment.yaml</source>
             <outputDirectory>conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>

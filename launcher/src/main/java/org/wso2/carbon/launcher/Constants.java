@@ -24,6 +24,7 @@ public class Constants {
     public static final String LAUNCH_PROPERTIES_FILE = "launch.properties";
 
     public static final String CARBON_HOME = "carbon.home";
+    public static final String RUNTIME_HOME = "runtime.home";
     static final String CARBON_START_TIME = "carbon.start.time";
 
     public static final String OSGI_REPOSITORY = "wso2/lib";

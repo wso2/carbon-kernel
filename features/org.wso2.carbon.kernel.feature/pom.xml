@@ -147,12 +147,13 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>bin/**</include>
-                                        <include>conf/**</include>
+                                        <!--<include>conf/**</include>-->
                                         <include>logs/**</include>
+                                        <include>wso2/default/**</include>
                                         <include>wso2/lib/**</include>
                                         <include>lib/**</include>
-                                        <include>resources/**</include>
-                                        <include>securevault/**</include>
+                                        <!--<include>resources/**</include>
+                                        <include>securevault/**</include>-->
                                         <include>tmp/**</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>
