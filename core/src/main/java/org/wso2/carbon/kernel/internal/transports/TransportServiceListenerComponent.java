@@ -44,10 +44,11 @@ import java.util.Map;
         name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
         immediate = true,
         property = {
-                "componentName=carbon-transport-mgt"
+                "componentName=" + TransportServiceListenerComponent.COMPONENT_NAME
         }
 )
 public class TransportServiceListenerComponent implements RequiredCapabilityListener {
+    public static final String COMPONENT_NAME = "carbon-transport-mgt";
     private static final Logger logger = LoggerFactory.getLogger(TransportServiceListenerComponent.class);
     private TransportManager transportManager = new TransportManager();
 
@@ -65,7 +66,7 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
     )
     protected void registerTransport(CarbonTransport transport, Map<String, ?> ref) {
         transportManager.registerTransport(transport);
-        StartupServiceUtils.updateServiceCache("carbon-transport-mgt", CarbonTransport.class, transport);
+        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, CarbonTransport.class, transport);
     }
 
     protected void unregisterTransport(CarbonTransport transport, Map<String, ?> ref) {

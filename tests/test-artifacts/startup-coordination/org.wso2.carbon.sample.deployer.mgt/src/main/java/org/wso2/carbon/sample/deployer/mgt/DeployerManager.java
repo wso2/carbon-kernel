@@ -37,7 +37,7 @@ import java.util.List;
         immediate = true
 )
 public class DeployerManager {
-
+    public static final String COMPONENT_NAME = "carbon-sample-deployment-engine";
     private static List<Deployer> deployerList = new ArrayList<>();
 
     @Activate
@@ -58,7 +58,7 @@ public class DeployerManager {
     )
     public void registerDeployer(Deployer deployer) {
         deployerList.add(deployer);
-        StartupServiceUtils.updateServiceCache("carbon-sample-deployment-engine", Deployer.class, deployer);
+        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Deployer.class, deployer);
     }
 
     public void deregisterDeployer(Deployer deployer) {

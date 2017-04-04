@@ -58,7 +58,7 @@ public class RuntimeManager {
     )
     public void registerRuntime(Runtime runtime) {
         runtimeList.add(runtime);
-        StartupServiceUtils.updateServiceCache("carbon-sample-runtime-mgt", Runtime.class, runtime);
+        StartupServiceUtils.updateServiceCache(RuntimeServicesListener.COMPONENT_NAME, Runtime.class, runtime);
     }
 
     public void deregisterRuntime(Runtime runtime) {
