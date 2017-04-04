@@ -166,21 +166,23 @@ public class StartupOrderResolver {
 
             @Override
             public void run() {
+                synchronized (StartupComponentManager.class) {
+                    if (startupComponentManager.getComponents(StartupComponent::isPending).size() == 0) {
+                        startupComponentManager.notifySatisfiableComponents();
 
-                if (startupComponentManager.getComponents(StartupComponent::isPending).size() == 0) {
-                    startupComponentManager.notifySatisfiableComponents();
+                        logger.debug("All the StartupComponents are satisfied. Cancelling the capabilityListenerTimer");
 
-                    logger.debug("All the StartupComponents are satisfied. Cancelling the capabilityListenerTimer");
+                        CarbonStartupHandler.logServerStartupTime();
+                        CarbonStartupHandler.registerCarbonServerInfoService();
 
-                    CarbonStartupHandler.logServerStartupTime();
-                    CarbonStartupHandler.registerCarbonServerInfoService();
+                        capabilityListenerTimer.cancel();
+                        capabilityListenerTimer = null;
+                        startupComponentManager = null;
+                        stopCapabilityTrackers();
 
-                    capabilityListenerTimer.cancel();
-                    capabilityListenerTimer = null;
-                    stopCapabilityTrackers();
-
-                    logger.debug("Complete - Startup Order Resolver.");
-                    return;
+                        logger.debug("Complete - Startup Order Resolver.");
+                        return;
+                    }
                 }
 
                 startupComponentManager.notifySatisfiableComponents();
@@ -199,32 +201,40 @@ public class StartupOrderResolver {
 
             @Override
             public void run() {
-                List<StartupComponent> pendingComponents =
-                        startupComponentManager.getComponents(StartupComponent::isPending);
+                synchronized (StartupComponentManager.class) {
+                    if (startupComponentManager == null) {
+                        logger.debug("StartupComponentManager is already disabled, therefore cancelling " +
+                                "the pendingCapabilityTimer");
+                        pendingCapabilityTimer.cancel();
+                        pendingCapabilityTimer = null;
+                        return;
+                    }
 
-                if (pendingComponents.size() == 0) {
-                    logger.debug("All the RequiredCapabilityListeners are notified, " +
-                            "therefore cancelling the pendingCapabilityTimer");
-                    pendingCapabilityTimer.cancel();
-                    startupComponentManager = null;
-                    pendingCapabilityTimer = null;
-                    return;
+                    List<StartupComponent> pendingComponents =
+                            startupComponentManager.getComponents(StartupComponent::isPending);
+
+                    if (pendingComponents.size() == 0) {
+                        logger.debug("All the RequiredCapabilityListeners are notified, " +
+                                "therefore cancelling the pendingCapabilityTimer");
+                        pendingCapabilityTimer.cancel();
+                        pendingCapabilityTimer = null;
+                        return;
+                    }
+
+                    // Report pending startup component details.
+                    logPendingComponentDetails(logger, pendingComponents);
+
+
+                    // Report pending RequiredCapabilityListener details.
+                    logPendingRequiredCapabilityListenerServiceDetails(logger,
+                            startupComponentManager.getComponents(
+                                    startupComponent -> startupComponent.getListener() == null));
+
+                    // Report pending CapabilityProvider details.
+                    logPendingCapabilityProviderServiceDetails(logger,
+                            startupComponentManager.getPendingCapabilityProviders());
                 }
-
-                // Report pending startup component details.
-                logPendingComponentDetails(logger, pendingComponents);
-
-
-                // Report pending RequiredCapabilityListener details.
-                logPendingRequiredCapabilityListenerServiceDetails(logger,
-                        startupComponentManager.getComponents(
-                                startupComponent -> startupComponent.getListener() == null));
-
-                // Report pending CapabilityProvider details.
-                logPendingCapabilityProviderServiceDetails(logger,
-                        startupComponentManager.getPendingCapabilityProviders());
             }
-
         }, pendingCapabilityTimerDelay, pendingCapabilityTimerPeriod);
     }
 
