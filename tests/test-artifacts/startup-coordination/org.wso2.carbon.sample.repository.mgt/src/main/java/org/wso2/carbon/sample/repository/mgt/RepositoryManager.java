@@ -62,7 +62,7 @@ public class RepositoryManager {
     )
     public void registerTransport(Transport transport) {
         transportList.add(transport);
-        StartupServiceUtils.updateServiceCache(RepositoryServicesListener.COMPONENT_NAME, Transport.class, transport);
+        StartupServiceUtils.updateServiceCache(RepositoryServicesListener.COMPONENT_NAME, Transport.class);
     }
 
     public void deregisterTransport(Transport transport) {
@@ -82,7 +82,7 @@ public class RepositoryManager {
     )
     public void registerRuntime(Runtime runtime) {
         runtimeList.add(runtime);
-        StartupServiceUtils.updateServiceCache(RepositoryServicesListener.COMPONENT_NAME, Runtime.class, runtime);
+        StartupServiceUtils.updateServiceCache(RepositoryServicesListener.COMPONENT_NAME, Runtime.class);
     }
 
     public void deregisterRuntime(Runtime runtime) {

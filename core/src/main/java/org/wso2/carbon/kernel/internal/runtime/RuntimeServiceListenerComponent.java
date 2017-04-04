@@ -72,7 +72,7 @@ public class RuntimeServiceListenerComponent implements RequiredCapabilityListen
     protected void registerRuntime(Runtime runtime) {
         try {
             runtimeManager.registerRuntime(runtime);
-            StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Runtime.class, runtime);
+            StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Runtime.class);
         } catch (Exception e) {
             logger.error("Error while adding runtime to the Runtime manager", e);
         }

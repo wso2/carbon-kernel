@@ -58,7 +58,7 @@ public class DeployerManager {
     )
     public void registerDeployer(Deployer deployer) {
         deployerList.add(deployer);
-        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Deployer.class, deployer);
+        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Deployer.class);
     }
 
     public void deregisterDeployer(Deployer deployer) {

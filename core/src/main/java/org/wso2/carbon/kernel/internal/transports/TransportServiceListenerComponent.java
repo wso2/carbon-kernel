@@ -66,7 +66,7 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
     )
     protected void registerTransport(CarbonTransport transport, Map<String, ?> ref) {
         transportManager.registerTransport(transport);
-        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, CarbonTransport.class, transport);
+        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, CarbonTransport.class);
     }
 
     protected void unregisterTransport(CarbonTransport transport, Map<String, ?> ref) {

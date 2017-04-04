@@ -18,11 +18,10 @@ package org.wso2.carbon.kernel.internal.startupresolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * StartupServiceCache caches all the startup services against the component name given in the
@@ -39,7 +38,7 @@ public class StartupServiceCache {
     The internal map contains interface name (OSGi service class) against a list of implementation objects. The outer
     map has the mapping between the component name and the internal map.
      */
-    private Map<String, Map<String, List<Object>>> componentMap = new HashMap<>();
+    private Map<String, Map<String, Long>> componentMap = new HashMap<>();
 
     public static StartupServiceCache getInstance() {
         return serviceCacheInstance;
@@ -53,31 +52,28 @@ public class StartupServiceCache {
      *
      * @param componentName name of the reporting component
      * @param interfaceName name of the OSGi service interface
-     * @param serviceInstance OSGi service instance
      */
-    public void update(String componentName, Class interfaceName, Object serviceInstance) {
-        logger.debug("Updating StartupServiceCache, componentName={}, interfaceName={}, serviceInstance={}",
-                componentName, interfaceName.getName(), serviceInstance);
+    public void update(String componentName, Class interfaceName) {
+        logger.debug("Updating StartupServiceCache, componentName={}, interfaceName={}.",
+                componentName, interfaceName.getName());
 
         synchronized (componentMap) {
-            Map<String, List<Object>> componentServicesMap = componentMap.get(componentName);
+            Map<String, Long> componentServicesMap = componentMap.get(componentName);
             if (componentServicesMap == null) {
                 logger.debug("Creating a Component Services Map for component {}", componentName);
                 componentServicesMap = new HashMap<>();
                 componentMap.put(componentName, componentServicesMap);
             }
 
-            List<Object> services = componentServicesMap.get(interfaceName.getName());
-            if (services == null) {
+            Long serviceCount = componentServicesMap.get(interfaceName.getName());
+            if (serviceCount == null) {
                 logger.debug("Creating a Service Instance List for interface {} in component {}",
                         interfaceName, componentName);
-                services = new ArrayList<>();
-                componentServicesMap.put(interfaceName.getName(), services);
+                serviceCount = 1L;
+            } else {
+                serviceCount++;
             }
-
-            if (services.indexOf(serviceInstance) == -1) {
-                services.add(serviceInstance);
-            }
+            componentServicesMap.put(interfaceName.getName(), serviceCount);
         }
     }
 
@@ -89,16 +85,14 @@ public class StartupServiceCache {
      */
     public Map<String, Long> getAvailableService(String componentName) {
         synchronized (componentMap) {
-            Map<String, List<Object>> availableServices = componentMap.get(componentName);
+            Map<String, Long> availableServices = componentMap.get(componentName);
             if (availableServices == null) {
                 return Collections.emptyMap();
             }
-
-            Map<String, Long> availableServiceCounts = new HashMap<>();
-            for (Map.Entry<String, List<Object>> entry : availableServices.entrySet()) {
-                availableServiceCounts.put(entry.getKey(), Long.valueOf(entry.getValue().size()));
-            }
-            return availableServiceCounts;
+            return availableServices.entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            stringLongEntry -> Long.valueOf(stringLongEntry.getValue())));
         }
     }
 }

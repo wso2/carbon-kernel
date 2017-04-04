@@ -34,14 +34,12 @@ public class StartupServiceUtils {
      * of the StartupOrderResolver.
      *
      * Existing {@link StartupServiceCache} implementation uses the {@code componentName} to track the startup
-     * components which has received the OSGi service of type {@code interfaceName}. {@code serviceInstance} will be
-     * used in the future to track the exact service implementation that was received by the caller of this method.
+     * components which has received the OSGi service of type {@code interfaceName}.
      *
      * @param componentName name of the reporting component
      * @param interfaceName name of the OSGi service interface
-     * @param serviceInstance OSGi service instance
      */
-    public static void updateServiceCache(String componentName, Class interfaceName, Object serviceInstance)  {
-        StartupServiceCache.getInstance().update(componentName, interfaceName, serviceInstance);
+    public static void updateServiceCache(String componentName, Class interfaceName)  {
+        StartupServiceCache.getInstance().update(componentName, interfaceName);
     }
 }

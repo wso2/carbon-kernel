@@ -58,7 +58,7 @@ public class TransportManager {
     )
     public void registerTransport(Transport transport) {
         transportList.add(transport);
-        StartupServiceUtils.updateServiceCache(TransportServicesListener.COMPONENT_NAME, Transport.class, transport);
+        StartupServiceUtils.updateServiceCache(TransportServicesListener.COMPONENT_NAME, Transport.class);
     }
 
     public void deregisterTransport(Transport transport) {

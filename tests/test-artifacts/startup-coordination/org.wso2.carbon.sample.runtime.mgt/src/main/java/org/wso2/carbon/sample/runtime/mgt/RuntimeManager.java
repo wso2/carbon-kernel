@@ -58,7 +58,7 @@ public class RuntimeManager {
     )
     public void registerRuntime(Runtime runtime) {
         runtimeList.add(runtime);
-        StartupServiceUtils.updateServiceCache(RuntimeServicesListener.COMPONENT_NAME, Runtime.class, runtime);
+        StartupServiceUtils.updateServiceCache(RuntimeServicesListener.COMPONENT_NAME, Runtime.class);
     }
 
     public void deregisterRuntime(Runtime runtime) {
