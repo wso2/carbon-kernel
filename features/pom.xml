@@ -33,7 +33,7 @@
     <modules>
         <module>org.wso2.carbon.touchpoint.feature</module>
         <module>org.wso2.carbon.kernel.feature</module>
-        <module>org.wso2.carbon.runtime.feature</module>
+        <module>org.wso2.carbon.osgi.feature</module>
     </modules>
 
 </project>
