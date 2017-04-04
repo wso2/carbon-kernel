@@ -108,7 +108,7 @@ An OSGi listener component is defined as shown below.
 When you are using startup order resolver, you have to notify the StartupServiceCache on each OSGi service registration. This cache is used to identify the OSGi services that are already known by your component before the startup order resolver notifies your RequiredCapabilityListener. You have to use the StartupServiceUtils.updateServiceCache(String componentName, Class interfaceName, Object serviceInstance) method to notify the StartupServiceCache
 
 Below is an example on how you should notify the StartupServiceCache. There you have to specify the component name that you gave to your TransportServiceListenerComponent. 
-If you specify, "componentName=carbon-transport-mgt" in your @component annotation then you should provide the same component name in the StartupServiceUtils.updateServiceCache() method.
+If you specify, "componentName=carbon-transport-mgt" in your @Component annotation then you should provide the same component name in the StartupServiceUtils.updateServiceCache() method.
 
       @Component(
               name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
