@@ -172,9 +172,8 @@ public class DefaultRealmService implements RealmService {
             return userRealm;
         }
         try {
-            if (tenantManager.getTenant(tenantId) != null) {
-
-                Tenant tenant = tenantManager.getTenant(tenantId);
+            Tenant tenant = tenantManager.getTenant(tenantId);
+            if (tenant != null) {
                 RealmConfiguration tenantRealmConfig = tenant.getRealmConfig();
                 MultiTenantRealmConfigBuilder realmConfigBuilder = getMultiTenantRealmConfigBuilder();
                 if (realmConfigBuilder != null) {
