@@ -64,7 +64,7 @@ public class DefaultRealmService implements RealmService {
 
     private static final Log log = LogFactory.getLog(DefaultRealmService.class);
     private static final String PRIMARY_TENANT_REALM = "primary";
-    private static final String DB_CHECK_SQL = "select * from UM_USER";
+    private static final String DB_CHECK_SQL = "select * from UM_SYSTEM_USER";
     //to track whether this is the first time initialization of the pack.
     private static boolean isFirstInitialization = true;
     private RealmCache realmCache = RealmCache.getInstance();
