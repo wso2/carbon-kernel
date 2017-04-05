@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.utils;
+package org.wso2.carbon.kernel.jmx;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.CarbonServerInfo;
+import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
 import javax.management.InstanceNotFoundException;

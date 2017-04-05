@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.utils;
+package org.wso2.carbon.kernel.jmx;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
