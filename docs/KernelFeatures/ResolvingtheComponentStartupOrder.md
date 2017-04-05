@@ -127,7 +127,7 @@ If you specify, "componentName=carbon-transport-mgt" in your @Component annotati
           )
           protected void registerTransport(CarbonTransport transport, Map<String, ?> ref) {
               transportManager.registerTransport(transport);
-              StartupServiceUtils.updateServiceCache("carbon-transport-mgt", CarbonTransport.class, transport);
+              StartupServiceUtils.updateServiceCache("carbon-transport-mgt", CarbonTransport.class);
           }
       
 
