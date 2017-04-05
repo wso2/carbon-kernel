@@ -25,8 +25,8 @@ import org.wso2.carbon.kernel.internal.startupresolver.beans.OSGiServiceCapabili
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
-import org.wso2.carbon.utils.manifest.ManifestElement;
-import org.wso2.carbon.utils.manifest.ManifestElementParserException;
+import org.wso2.carbon.kernel.startupresolver.manifest.ManifestElement;
+import org.wso2.carbon.kernel.startupresolver.manifest.ManifestElementParserException;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;

@@ -17,8 +17,8 @@ package org.wso2.carbon.kernel.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.utils.CarbonServerInfo;
-import org.wso2.carbon.utils.Constants;
+import org.wso2.carbon.kernel.CarbonServerInfo;
+import org.wso2.carbon.kernel.Constants;
 
 import java.text.DecimalFormat;
 

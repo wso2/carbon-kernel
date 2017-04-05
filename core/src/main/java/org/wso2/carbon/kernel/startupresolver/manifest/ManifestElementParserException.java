@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.carbon.utils.manifest;
+package org.wso2.carbon.kernel.startupresolver.manifest;
 
 /**
  * This class {@code ManifestElementParserException} indicates errors occurred while parsing manifest headers.

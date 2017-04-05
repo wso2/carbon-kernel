@@ -97,9 +97,6 @@
                                                 <fileset dir="../../tools/tools-core/target">
                                                     <include name="jacoco.exec" />
                                                 </fileset>
-                                                <fileset dir="../../utils/target">
-                                                    <include name="jacoco.exec" />
-                                                </fileset>
                                             </executiondata>
 
                                             <structure name="Carbon Kernel - Coverage Report">
@@ -107,13 +104,11 @@
                                                     <fileset dir="../../core/target/classes" />
                                                     <fileset dir="../../launcher/target/classes" />
                                                     <fileset dir="../../tools/tools-core/target/classes" />
-                                                    <fileset dir="../../utils/target/classes" />
                                                 </classfiles>
                                                 <sourcefiles encoding="UTF-8">
                                                     <fileset dir="../../core/src" />
                                                     <fileset dir="../../launcher/src" />
                                                     <fileset dir="../../tools/tools-core/src" />
-                                                    <fileset dir="../../utils/src" />
                                                 </sourcefiles>
                                             </structure>
                                             <html destdir="${project.build.directory}/site/jacoco" />
