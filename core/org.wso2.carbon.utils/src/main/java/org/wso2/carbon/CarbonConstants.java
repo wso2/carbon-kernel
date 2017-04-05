@@ -424,4 +424,7 @@ public final class CarbonConstants {
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
 
+    // Parameter to indicate whether request is InOnly request for the tenant
+    public static final String TENANT_IN_ONLY_MESSAGE = "TENANT_IN_ONLY_MESSAGE";
+
 }
