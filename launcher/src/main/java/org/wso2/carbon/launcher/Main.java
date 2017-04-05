@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +43,7 @@ import static org.wso2.carbon.launcher.Constants.PAX_LOGGING_PROPERTIES_FILE;
 import static org.wso2.carbon.launcher.Constants.PAX_LOGGING_PROPERTY_FILE_KEY;
 import static org.wso2.carbon.launcher.Constants.PAX_LOG_SERVICE_RANKING_LEVEL;
 import static org.wso2.carbon.launcher.Constants.PROFILE;
+import static org.wso2.carbon.launcher.Constants.RUNTIME_PATH;
 
 /**
  * Starts a Carbon server instance.
@@ -77,7 +79,7 @@ public class Main {
         registerShutdownHook(carbonServer);
 
         // 5) Write pid to carbon.pid file
-        writePID(System.getProperty(CARBON_HOME));
+        writePID(System.getProperty(RUNTIME_PATH));
 
         // 6) Start Carbon server.
         try {
@@ -156,6 +158,26 @@ public class Main {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
         }
 
+        String runtimePath = System.getProperty(RUNTIME_PATH);
+        if (runtimePath == null || runtimePath.length() == 0) {
+            //If the runtime.home system property is not set, try to determine the runtime home using Main.class.
+            try {
+                Path tmpParent =
+                        Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+                if (tmpParent != null && (tmpParent = tmpParent.getParent()) != null &&
+                    (tmpParent = tmpParent.getParent()) != null) {
+                    runtimePath = tmpParent.toString();
+                } else {
+                    runtimePath = Paths.get(carbonHome).resolve("wso2").resolve(DEFAULT_PROFILE).toString();
+                }
+            } catch (URISyntaxException e) {
+                runtimePath = Paths.get(carbonHome).resolve("wso2").resolve(DEFAULT_PROFILE).toString();
+                logger.log(Level.WARNING, "Couldn't determine the runtime home. Runtime home is set to " + runtimePath,
+                           e);
+            }
+            System.setProperty(RUNTIME_PATH, runtimePath);
+        }
+
         // Set log level for Pax logger to WARN and log service ranking to maximum value.
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
         System.setProperty(PAX_LOG_SERVICE_RANKING_LEVEL, String.valueOf(Integer.MAX_VALUE));
@@ -164,7 +186,7 @@ public class Main {
         if (paxLoggingPropertiesFile.toFile().exists()) {
             System.setProperty(PAX_LOGGING_PROPERTY_FILE_KEY, paxLoggingPropertiesFile.toAbsolutePath().toString());
             logger.log(Level.FINE, "Setting pax logging properties file path to : " +
-                    paxLoggingPropertiesFile.toAbsolutePath().toString());
+                                   paxLoggingPropertiesFile.toAbsolutePath().toString());
         } else {
             String msg = PAX_LOGGING_PROPERTIES_FILE + " should be available to start the server";
             logger.log(Level.SEVERE, msg);
@@ -200,9 +222,9 @@ public class Main {
     /**
      * Write the process ID of this process to the file.
      *
-     * @param carbonHome carbon.home sys property value.
+     * @param runtimePath wso2.runtime.path sys property value.
      */
-    private static void writePID(String carbonHome) {
+    private static void writePID(String runtimePath) {
 
         String[] cmd = {"bash", "-c", "echo $PPID"};
         Process p;
@@ -229,11 +251,11 @@ public class Main {
 
         if (pid.length() != 0) {
             try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(Paths.get(carbonHome, "carbon.pid").toString()),
+                    new FileOutputStream(Paths.get(runtimePath, "runtime.pid").toString()),
                     StandardCharsets.UTF_8))) {
                 writer.write(pid);
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Cannot write carbon.pid file");
+                logger.log(Level.WARNING, "Cannot write runtime.pid file");
             }
         }
     }

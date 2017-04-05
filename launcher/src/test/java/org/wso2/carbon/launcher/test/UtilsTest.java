@@ -31,7 +31,7 @@ public class UtilsTest extends BaseTest {
 
     public void substituteVarsTest() {
         System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
-        String inputStr = "file:${runtime}";
+        String inputStr = "file:${wso2.runtime}";
         String expectedOutputStr = "file:default";
 
         String outputStr = Utils.initializeSystemProperties(inputStr);
@@ -42,7 +42,7 @@ public class UtilsTest extends BaseTest {
         System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
         System.setProperty(Constants.CARBON_HOME, "/home/user/wso2carbon-kernel-5.0.0");
         System.setProperty(Constants.CARBON_PROFILE_REPOSITORY, Constants.PROFILE_REPOSITORY);
-        String inputStr = "file:${carbon.home}/${carbon.runtime.repository}/${runtime}";
+        String inputStr = "file:${carbon.home}/${carbon.runtime.repository}/${wso2.runtime}";
         String expectedOutputStr = "file:/home/user/wso2carbon-kernel-5.0.0/wso2/default";
 
         String outputStr = Utils.initializeSystemProperties(inputStr);
@@ -52,7 +52,7 @@ public class UtilsTest extends BaseTest {
 
     public void substituteVarsTest3() {
         System.setProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
-        String inputStr = "${runtime}";
+        String inputStr = "${wso2.runtime}";
         String expectedOutputStr = "default";
 
         String outputStr = Utils.initializeSystemProperties(inputStr);
