@@ -61,10 +61,7 @@ public class Capability {
     }
 
     public Capability(Capability capability) {
-        this(capability.getName(),
-                capability.getType(),
-                capability.getState(),
-                capability.getBundle(),
+        this(capability.getName(), capability.getType(), capability.getState(), capability.getBundle(),
                 capability.isDirectDependency());
     }
 

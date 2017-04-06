@@ -130,9 +130,9 @@ public class StartupComponent {
     public void addExpectedCapability(Capability capability) {
         synchronized (expectedCapabilityList) {
             Capability expectedCapability = expectedCapabilityList.stream()
-                    .filter(cap -> cap.getName().equals(capability.getName()))
-                    .filter(cap -> !cap.isSecondCheck()
-                            && cap.getState() == Capability.CapabilityState.AVAILABLE)
+                    .filter(expCapability -> expCapability.getName().equals(capability.getName()))
+                    .filter(expCapability -> !expCapability.isSecondCheck()
+                            && expCapability.getState() == Capability.CapabilityState.AVAILABLE)
                     .findFirst().orElse(null);
 
             if (expectedCapability != null) {
@@ -156,9 +156,9 @@ public class StartupComponent {
         synchronized (expectedCapabilityList) {
             if (capability.getState() == Capability.CapabilityState.EXPECTED) {
                 Optional<Capability> optCapability = expectedCapabilityList.stream()
-                        .filter(cap -> cap.getName().equals(capability.getName()))
-                        .filter(cap -> cap.getState() == Capability.CapabilityState.AVAILABLE)
-                        .filter(cap -> !cap.isSecondCheck())
+                        .filter(expCapability -> expCapability.getName().equals(capability.getName()))
+                        .filter(expCapability -> expCapability.getState() == Capability.CapabilityState.AVAILABLE)
+                        .filter(expCapability -> !expCapability.isSecondCheck())
                         .findFirst();
 
                 if (optCapability.isPresent()) {
@@ -169,8 +169,8 @@ public class StartupComponent {
             } else {
                 // if Capability.CapabilityState.AVAILABLE
                 Optional<Capability> optCapability = expectedCapabilityList.stream()
-                        .filter(cap -> cap.getName().equals(capability.getName()))
-                        .filter(cap -> cap.getState() == Capability.CapabilityState.EXPECTED)
+                        .filter(expCapability -> expCapability.getName().equals(capability.getName()))
+                        .filter(expCapability -> expCapability.getState() == Capability.CapabilityState.EXPECTED)
                         .findFirst();
 
                 if (optCapability.isPresent()) {
@@ -204,10 +204,10 @@ public class StartupComponent {
 
         synchronized (expectedCapabilityList) {
             Map<String, Long> expectedServiceCounts = expectedCapabilityList.stream()
-                    .filter(cap -> cap.isDirectDependency()
-                            || (!cap.isDirectDependency()
-                            && cap.getState() == Capability.CapabilityState.EXPECTED))
-                    .map(cap -> cap.getName())
+                    .filter(expCapability -> expCapability.isDirectDependency()
+                            || (!expCapability.isDirectDependency()
+                            && expCapability.getState() == Capability.CapabilityState.EXPECTED))
+                    .map(expCapability -> expCapability.getName())
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
             availableServiceCounts.forEach((s, aLong) -> {
@@ -220,7 +220,7 @@ public class StartupComponent {
                 return Collections.emptyList();
             } else {
                 return expectedCapabilityList.stream()
-                        .filter(cap -> expectedServiceCounts.keySet().contains(cap.getName()))
+                        .filter(expCapability -> expectedServiceCounts.keySet().contains(expCapability.getName()))
                         .collect(Collectors.toList());
             }
         }
