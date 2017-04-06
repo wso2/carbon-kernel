@@ -10,6 +10,7 @@ See the following sub topics:
 * **[The solution](#the-solution)**
 * **[About the Carbon startup order resolver](#about-the-carbon-startup-order-resolver)**
  * **[Defining a startup listener component](#defining-a-startup-listener-component)**
+ * **[Notifying the StartupServiceCache about received services](#notifying-the-startupServiceCache-about-received-services)**
  * **[Defining an OSGi service component](#defining-an-osgi-service-component)**
 
 ## Why we need a startup order resolver
@@ -102,6 +103,33 @@ An OSGi listener component is defined as shown below.
         }
         
  The value given for the componentName property should be equal to the `componentName` property value of the startup listener component that was defined earlier. This is how the startup order resolver maps the `RequiredCapabilityListener` with corresponding startup listener components (`startup.listener`).
+
+### Notifying the StartupServiceCache about received services
+When you are using startup order resolver, you have to notify the StartupServiceCache on each OSGi service registration. This cache is used to identify the OSGi services that are already known by your component before the startup order resolver notifies your RequiredCapabilityListener. You have to use the StartupServiceUtils.updateServiceCache(String componentName, Class interfaceName, Object serviceInstance) method to notify the StartupServiceCache
+
+Below is an example on how you should notify the StartupServiceCache. There you have to specify the component name that you gave to your TransportServiceListenerComponent. 
+If you specify, "componentName=carbon-transport-mgt" in your @Component annotation then you should provide the same component name in the StartupServiceUtils.updateServiceCache() method.
+
+      @Component(
+              name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
+              immediate = true,
+              property = {
+                      "componentName=carbon-transport-mgt"
+              }
+      )
+      public class TransportServiceListenerComponent implements RequiredCapabilityListener {      
+          @Reference(
+                  name = "carbon.transport",
+                  service = CarbonTransport.class,
+                  cardinality = ReferenceCardinality.MULTIPLE,
+                  policy = ReferencePolicy.DYNAMIC,
+                  unbind = "unregisterTransport"
+          )
+          protected void registerTransport(CarbonTransport transport, Map<String, ?> ref) {
+              transportManager.registerTransport(transport);
+              StartupServiceUtils.updateServiceCache("carbon-transport-mgt", CarbonTransport.class);
+          }
+      
 
 ### Defining an OSGi service component
 A component is required to be defined as an OSGi service component when there are other components depending on the initialization of this component. For example, the Transport Manager component will only be started once the relevant transports are already initialized. Therefore, the transport implementation should be defined as OSGi service components.

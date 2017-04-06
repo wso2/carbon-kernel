@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.kernel.startupresolver.StartupServiceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ import java.util.List;
         immediate = true
 )
 public class DeployerManager {
-
+    public static final String COMPONENT_NAME = "carbon-sample-deployment-engine";
     private static List<Deployer> deployerList = new ArrayList<>();
 
     @Activate
@@ -57,6 +58,7 @@ public class DeployerManager {
     )
     public void registerDeployer(Deployer deployer) {
         deployerList.add(deployer);
+        StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Deployer.class);
     }
 
     public void deregisterDeployer(Deployer deployer) {

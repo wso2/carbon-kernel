@@ -28,6 +28,7 @@ import org.wso2.carbon.kernel.jmx.MBeanRegistrator;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.StartupServiceUtils;
 
 /**
  * This service  component is responsible for retrieving the Runtime OSGi service and register each runtime
@@ -40,10 +41,11 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceListenerComponent",
         immediate = true,
         property = {
-                "componentName=carbon-runtime-mgt"
+                "componentName=" + RuntimeServiceListenerComponent.COMPONENT_NAME
         }
 )
 public class RuntimeServiceListenerComponent implements RequiredCapabilityListener {
+    public static final String COMPONENT_NAME = "carbon-runtime-mgt";
     private static final Logger logger = LoggerFactory.getLogger(RuntimeServiceListenerComponent.class);
     private RuntimeManager runtimeManager = new RuntimeManager();
     private BundleContext bundleContext;
@@ -70,6 +72,7 @@ public class RuntimeServiceListenerComponent implements RequiredCapabilityListen
     protected void registerRuntime(Runtime runtime) {
         try {
             runtimeManager.registerRuntime(runtime);
+            StartupServiceUtils.updateServiceCache(COMPONENT_NAME, Runtime.class);
         } catch (Exception e) {
             logger.error("Error while adding runtime to the Runtime manager", e);
         }
