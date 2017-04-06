@@ -51,6 +51,15 @@ public class Capability {
         AVAILABLE
     }
 
+    /**
+     * Constructs a Capability object with the given parameters.
+     *
+     * @param name name of the capability
+     * @param type type of the capability
+     * @param state state of the capability
+     * @param bundle the bundle which exposes this capability
+     * @param directDependency whether this capability is a direct dependency.
+     */
     public Capability(String name, CapabilityType type, CapabilityState state, Bundle bundle,
                       boolean directDependency) {
         this.name = name;
@@ -60,6 +69,11 @@ public class Capability {
         this.directDependency = directDependency;
     }
 
+    /**
+     * Copy construcctor for the Capability. Creates a copy of the given Capability.
+     *
+     * @param capability the capability to be copied
+     */
     public Capability(Capability capability) {
         this(capability.getName(), capability.getType(), capability.getState(), capability.getBundle(),
                 capability.isDirectDependency());

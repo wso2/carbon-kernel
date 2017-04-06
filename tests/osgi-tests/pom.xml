@@ -164,7 +164,8 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.sample.transport.custom3</artifactId>
+            <artifactId>org.wso2.carbon.sample.transport.file</artifactId>
+            <version>5.2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>

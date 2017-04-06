@@ -62,7 +62,7 @@ public class PendingCapabilityDelayedOSGiTest {
                 copyOSGiLibBundle(maven().artifactId("org.wso2.carbon.sample.transport.mgt").groupId("org.wso2.carbon")
                         .versionAsInProject()),
                 copyOSGiLibBundle(
-                        maven().artifactId("org.wso2.carbon.sample.transport.custom3").groupId("org.wso2.carbon")
+                        maven().artifactId("org.wso2.carbon.sample.transport.file").groupId("org.wso2.carbon")
                                 .versionAsInProject()),
                 copyOSGiLibBundle(maven().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId("org.wso2.carbon")
                         .versionAsInProject()),

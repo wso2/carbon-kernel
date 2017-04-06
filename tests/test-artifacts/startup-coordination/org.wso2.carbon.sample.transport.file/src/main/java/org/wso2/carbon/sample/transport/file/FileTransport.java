@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.sample.transport.custom3;
+package org.wso2.carbon.sample.transport.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +25,8 @@ import org.wso2.carbon.sample.transport.mgt.Transport;
  *
  * @since 5.0.0
  */
-public class Custom3Transport implements Transport {
-    private static final Logger logger = LoggerFactory.getLogger(Custom3Transport.class);
+public class FileTransport implements Transport {
+    private static final Logger logger = LoggerFactory.getLogger(FileTransport.class);
 
     @Override
     public void start() {

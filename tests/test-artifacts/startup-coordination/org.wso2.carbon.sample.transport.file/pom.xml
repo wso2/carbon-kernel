@@ -22,10 +22,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.sample.transport.custom3</artifactId>
+    <artifactId>org.wso2.carbon.sample.transport.file</artifactId>
     <packaging>bundle</packaging>
 
-    <name>WSO2 Carbon Kernel - Sample Transport Custom3</name>
+    <name>WSO2 Carbon Kernel - Sample Transport File</name>
     <url>http://wso2.com</url>
 
     <dependencies>
@@ -51,7 +51,7 @@
     </dependencies>
 
     <properties>
-        <export.package>org.wso2.carbon.sample.transport.custom3</export.package>
+        <export.package>org.wso2.carbon.sample.transport.file</export.package>
         <import.package>*</import.package>
         <carbon.component>
             osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
