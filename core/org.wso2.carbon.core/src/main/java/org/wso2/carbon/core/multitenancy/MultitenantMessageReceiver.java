@@ -71,7 +71,9 @@ import java.util.Map;
 public class MultitenantMessageReceiver implements MessageReceiver {
 
     private static final String TENANT_DELIMITER = "/t/";
-	private static final Log log = LogFactory.getLog(MultitenantMessageReceiver.class);                      
+    private static final Log log = LogFactory.getLog(MultitenantMessageReceiver.class);
+    // Parameter to indicate whether request is InOnly request for the tenant
+    private static final String TENANT_IN_ONLY_MESSAGE = "TENANT_IN_ONLY_MESSAGE";
 
     public void receive(MessageContext mainInMsgContext) throws AxisFault {
 
@@ -579,8 +581,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             }
 
             // Need to remove RESPONSE_WRITTEN property if the request is InOnly request to the tenants
-            if (tenantInMsgCtx.getProperty(CarbonConstants.TENANT_IN_ONLY_MESSAGE) != null &&
-                    Boolean.TRUE.equals(tenantInMsgCtx.getProperty(CarbonConstants.TENANT_IN_ONLY_MESSAGE))) {
+            if (tenantInMsgCtx.getProperty(TENANT_IN_ONLY_MESSAGE) != null &&
+                    Boolean.TRUE.equals(tenantInMsgCtx.getProperty(TENANT_IN_ONLY_MESSAGE))) {
                 mainInMsgContext.getOperationContext().removeProperty(Constants.RESPONSE_WRITTEN);
             }
 
