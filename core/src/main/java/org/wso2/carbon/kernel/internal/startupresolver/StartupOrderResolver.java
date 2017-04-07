@@ -285,7 +285,7 @@ public class StartupOrderResolver {
                                                 serviceCapability.getName()));
                     }
 
-                    startupComponentManager.addExpectedOrAvailableCapability(serviceCapability);
+                    startupComponentManager.addExpectedCapability(serviceCapability);
                 });
     }
 
