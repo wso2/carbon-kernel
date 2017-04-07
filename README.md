@@ -1,8 +1,8 @@
 # Welcome to WSO2 Carbon Kernel
-WSO2 Carbon Kernel 5.1.1 is the core of the next-generation WSO2 Carbon platform
+WSO2 Carbon Kernel 5.1.2 is the core of the next-generation WSO2 Carbon platform
 
 ### Introduction
-WSO2 Carbon Kernel 5.1.1 is the core of the next-generation WSO2 Carbon platform. It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
+WSO2 Carbon Kernel 5.1.2 is the core of the next-generation WSO2 Carbon platform. It is completely rearchitected Carbon Kernel from the ground up with the latest technologies and patterns. Additionally, the Carbon Kernel is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
 
 The WSO2 Carbon Kernel includes the following key features. For further details please see the [documentation](https://docs.wso2.com/display/Carbon510).
 
