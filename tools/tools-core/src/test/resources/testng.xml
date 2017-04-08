@@ -23,11 +23,7 @@ limitations under the License.
             <class name="org.wso2.carbon.tools.converter.DeletePathTest"/>
             <class name="org.wso2.carbon.tools.converter.ListPackagesTest"/>
             <class name="org.wso2.carbon.tools.converter.ConversionTest"/>
-
             <class name="org.wso2.carbon.tools.osgilib.OSGiLibDeployerToolTest"/>
-
-            <class name="org.wso2.carbon.tools.securevault.CipherToolInitializerTest"/>
-            <class name="org.wso2.carbon.tools.securevault.UtilsTest"/>
         </classes>
     </test>
 </suite>

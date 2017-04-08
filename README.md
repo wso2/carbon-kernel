@@ -26,7 +26,6 @@ Follow the links given below for details of the core capabilities of Carbon Kern
 * [Monitoring Carbon Servers](docs/KernelFeatures/MonitoringCarbonServers.md)
 * [Setting Up the Carbon Launcher](docs/KernelFeatures/SettingUptheCarbonLauncher.md)
 * [Dropping OSGi Bundles into a Carbon Server](docs/KernelFeatures/DroppingOSGiBundlesintoaCarbonServer.md)
-* [Using Secure Vault](docs/KernelFeatures/UsingSecureVault.md)
 
 Follow the links given below for details of tools, archetypes and other capabilities that can be used for developing Carbon products.
 
@@ -37,7 +36,6 @@ Follow the links given below for details of tools, archetypes and other capabili
 * [Using Annotations with OSGi Declarative Services](docs/DeveloperTools/UsingAnnotationswithOSGiDeclarativeServices.md)
 * [Setting up a Git Repository](docs/DeveloperTools/SettingUpaGitRepository.md)
 * [Accessing the Carbon Configurations](docs/DeveloperTools/AccessingCarbonConfigs.md)
-* [Using the Global Configuration Model](docs/DeveloperTools/UpdatingConfigurations.md) 
 * [Designing the Product Directory Structure](docs/DeveloperTools/DesigningProductDirectoryStructure.md) 
 
 Follow the links given below for details of plugins:

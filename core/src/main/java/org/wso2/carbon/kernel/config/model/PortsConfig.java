@@ -16,8 +16,8 @@
 package org.wso2.carbon.kernel.config.model;
 
 
-import org.wso2.carbon.kernel.annotations.Configuration;
-import org.wso2.carbon.kernel.annotations.Element;
+import org.wso2.carbon.config.annotation.Configuration;
+import org.wso2.carbon.config.annotation.Element;
 
 /**
  * Ports Config bean.

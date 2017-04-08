@@ -8,8 +8,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.config.provider.ConfigProvider;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
 
@@ -52,7 +52,7 @@ public class CarbonCoreComponent {
     }
 
     @Reference(
-            name = "carbon.core.config.provider",
+            name = "carbon.config.provider",
             service = ConfigProvider.class,
             cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,

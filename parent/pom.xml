@@ -146,6 +146,19 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.wso2.carbon.config</groupId>
+                    <artifactId>org.wso2.carbon.config.maven.plugin</artifactId>
+                    <version>${carbon.config.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>create-doc</goal>
+                            </goals>
+                            <phase>compile</phase>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -172,6 +185,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config</artifactId>
+                <version>${carbon.config.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.utils</groupId>
                 <artifactId>carbon-utils</artifactId>
@@ -202,6 +220,24 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.runtime.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config.feature</artifactId>
+                <version>${carbon.config.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.secvault</groupId>
+                <artifactId>org.wso2.carbon.secvault.feature</artifactId>
+                <version>${carbon.securevault.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.utils</groupId>
+                <artifactId>org.wso2.carbon.utils.feature</artifactId>
+                <version>${carbon.utils.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
@@ -603,8 +639,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bundle.symbolicName>${project.artifactId}</bundle.symbolicName>
 
-        <carbon.utils.version>1.0.0</carbon.utils.version>
+        <carbon.utils.version>1.2.0</carbon.utils.version>
         <carbon.utils.package.import.version.range>[1.0.0, 2.0.0)</carbon.utils.package.import.version.range>
+        <carbon.config.version>1.0.0</carbon.config.version>
+        <carbon.config.package.import.version.range>[1.0.0, 2.0.0)</carbon.config.package.import.version.range>
+        <carbon.securevault.version>5.0.1</carbon.securevault.version>
+        <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.export.version>5.2.0</carbon.kernel.package.export.version>
