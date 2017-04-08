@@ -47,7 +47,6 @@
                 <module>core</module>
                 <module>extensions</module>
                 <module>tools</module>
-                <module>config-creator</module>
                 <module>pax-exam-container-carbon</module>
                 <module>features</module>
                 <module>distribution</module>
