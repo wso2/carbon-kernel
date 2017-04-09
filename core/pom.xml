@@ -44,7 +44,6 @@
         <dependency>
             <groupId>org.wso2.carbon.config</groupId>
             <artifactId>org.wso2.carbon.config</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
@@ -155,11 +154,6 @@
                         <phase>compile</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <configclasses>
-                        <configclass>org.wso2.carbon.kernel.config.model.CarbonConfiguration</configclass>
-                    </configclasses>
-                </configuration>
             </plugin>
         </plugins>
 
