@@ -86,6 +86,8 @@ public class TenantEagerLoader {
         for (String tenantDomain : validTenantDomains) {
             try {
                 PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext ctx = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                ctx.setTenantDomain(tenantDomain, true);
                 TenantAxisUtils
                         .getTenantConfigurationContext(tenantDomain, carbonCoreDataHolder.getMainServerConfigContext());
             } catch (OutOfMemoryError e) {
