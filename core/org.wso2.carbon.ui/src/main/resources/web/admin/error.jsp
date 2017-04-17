@@ -26,6 +26,7 @@
 <%@page import="java.io.PrintWriter" %>
 <%@page import="java.io.StringWriter" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <carbon:breadcrumb
         label="error.occurred"
@@ -103,7 +104,7 @@
             } else {
             %>
             <tr>
-                <td><b><%=carbonMessage.getMessage()%></b></td>
+                <td><b><%=Encode.forHtml(carbonMessage.getMessage())%></b></td>
             </tr>
             <tr>
                 <td>
@@ -132,7 +133,7 @@
             } else {
             %>
             <tr>
-                <td><b><%=carbonMessage.getMessage()%>
+                <td><b><%=Encode.forHtml(carbonMessage.getMessage())%>
                 </b></td>
             </tr>
             <%
@@ -168,7 +169,7 @@
      for(int a = 0;a < errors.length;a++){
 
     %>
-<li><%=errors[a]%>
+<li><%=Encode.forHtml(errors[a])%>
 </li>
 <%
     }
