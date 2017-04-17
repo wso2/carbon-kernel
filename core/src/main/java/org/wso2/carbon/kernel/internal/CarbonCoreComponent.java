@@ -52,7 +52,7 @@ public class CarbonCoreComponent {
     }
 
     @Reference(
-            name = "carbon.config.provider",
+            name = "org.wso2.carbon.config",
             service = ConfigProvider.class,
             cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,

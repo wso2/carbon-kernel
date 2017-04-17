@@ -47,3 +47,15 @@ wso2.carbon:
     rmiServerPort: 11111
       # The port RMI registry is exposed
     rmiRegistryPort: 9999
+
+wso2.securevault:
+  secretRepository:
+    type: org.wso2.carbon.secvault.repository.DefaultSecretRepository
+    parameters:
+      privateKeyAlias: wso2carbon
+      keystoreLocation: resources/security/wso2carbon.jks
+      secretPropertiesFile: conf/secrets.properties
+  masterKeyReader:
+    type: org.wso2.carbon.secvault.reader.DefaultMasterKeyReader
+    parameters:
+      masterKeyReaderFile: conf/master-keys.yaml
