@@ -104,6 +104,7 @@ fi
 #Set the runtimehome based on carbon.sh location
 TEMPCURDIR=`dirname "$PRG"`
 RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
+CARBON_HOME=`cd "$TEMPCURDIR/../../../" ; pwd`
 
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
