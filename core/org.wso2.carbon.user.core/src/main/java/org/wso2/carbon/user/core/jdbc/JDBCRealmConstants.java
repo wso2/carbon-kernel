@@ -145,6 +145,11 @@ public final class JDBCRealmConstants {
     public static final String TIME_BETWEEN_EVICTION_RUNS_MILLIS = "timeBetweenEvictionRunsMillis";
     public static final String MIN_EVIC_TABLE_IDLE_TIME_MILLIS = "minEvictableIdleTimeMillis";
     public static final String NUM_TESTS_PEREVICTION_RUN = "numTestsPerEvictionRun";
+
+    public static final String REMOVE_ABANDONED = "removeAbandoned";
+    public static final String REMOVE_ABANDNONED_TIMEOUT = "removeAbandonedTimeout";
+    public static final String LOG_ABANDONED = "logAbandoned";
+
     // mssql
     public static final String ADD_USER_TO_ROLE_MSSQL_SQL = "INSERT INTO UM_USER_ROLE (UM_USER_ID, UM_ROLE_ID, UM_TENANT_ID) SELECT (SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?),(?)";
     public static final String ADD_ROLE_TO_USER_MSSQL_SQL = "INSERT INTO UM_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_TENANT_ID) SELECT (SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?), (?)";
@@ -159,6 +164,7 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_TO_ROLE_OPENEDGE = "AddUserToRoleSQL-openedge";
     public static final String ADD_ROLE_TO_USER_OPENEDGE = "AddRoleToUserSQL-openedge";
     public static final String ADD_USER_PROPERTY_OPENEDGE = "AddUserPropertySQL-openedge";
+
     private JDBCRealmConstants() {
     }
 }

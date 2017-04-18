@@ -46,9 +46,12 @@ public class RealmConfiguration {
     protected Map<String, String> authzProperties = new HashMap<String, String>();
     protected Map<String, String> realmProperties = new HashMap<String, String>();
     protected int tenantId;
+    protected int removeAbandonedTimeout;
     protected Date persistedTimestamp;
     protected boolean passwordsExternallyManaged = false;
     protected boolean isPrimary = false;
+   	protected boolean removeAbandoned;
+    protected boolean logAbandoned; 
     protected RealmConfiguration secondaryRealmConfig;
     protected Map<String, Map<String, String>> multipleCredentialProps = new HashMap<String, Map<String, String>>();
 
@@ -89,7 +92,9 @@ public class RealmConfiguration {
     public void setPrimary(boolean priamry) {
         this.isPrimary = priamry;
     }
-
+    
+   
+    
     public boolean isPasswordsExternallyManaged() {
         return passwordsExternallyManaged;
     }
@@ -97,7 +102,31 @@ public class RealmConfiguration {
     public void setPasswordsExternallyManaged(boolean passwordsExternallyManaged) {
         this.passwordsExternallyManaged = passwordsExternallyManaged;
     }
-
+    
+    public boolean isRemoveAbandoned(){
+    	return this.removeAbandoned;
+    }
+    
+    public void setRemoveAbandoned(boolean remove){
+    	this.removeAbandoned = remove;
+    }
+    
+    public int getRemoveAbandonedTimeout(){
+    	return this.removeAbandonedTimeout;
+    }
+    
+    public void setRemoveAbandonedTimeout(int timeout){
+    	this.removeAbandonedTimeout = timeout;
+    }
+    
+    public boolean isLogAbandoned(){
+    	return this.logAbandoned;
+    }
+    
+    public void setLogAbandoned(boolean shouldLog){
+    	this.logAbandoned = shouldLog;
+    }
+    
     public RealmConfiguration cloneRealmConfigurationWithoutSecondary() throws Exception {
         return cloneRealmConfiguration(false);
     }
@@ -306,4 +335,6 @@ public class RealmConfiguration {
     public void setDescription(String description) {
         this.description = description;
     }
+    
+   
 }
