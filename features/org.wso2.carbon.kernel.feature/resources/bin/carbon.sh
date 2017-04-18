@@ -21,6 +21,7 @@
 #
 #   CARBON_HOME   Home of WSO2 Carbon installation. If not set I will  try
 #                   to figure it out.
+#   RUNTIME_HOME  Home of WSO2 Carbon Runtime. .
 #
 #   JAVA_HOME       Must point at your Java Development Kit installation.
 #
@@ -100,6 +101,10 @@ if $mingw ; then
   # TODO classpath?
 fi
 
+#Set the runtimehome based on carbon.sh location
+TEMPCURDIR=`dirname "$PRG"`
+RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
+
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -125,8 +130,8 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-if [ -e "$CARBON_HOME/carbon.pid" ]; then
-  PID=`cat "$CARBON_HOME"/carbon.pid`
+if [ -e "$RUNTIME_HOME/runtime.pid" ]; then
+  PID=`cat "$RUNTIME_HOME"/runtime.pid`
 fi
 
 # ----- Process the input command ----------------------------------------------
@@ -167,7 +172,7 @@ if [ "$CMD" = "--debug" ]; then
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
 elif [ "$CMD" = "start" ]; then
-  if [ -e "$CARBON_HOME/carbon.pid" ]; then
+  if [ -e "$RUNTIME_HOME/runtime.pid" ]; then
     if  ps -p $PID > /dev/null ; then
       echo "Process is already running"
       exit 0
@@ -179,13 +184,13 @@ elif [ "$CMD" = "start" ]; then
   exit 0
 elif [ "$CMD" = "stop" ]; then
   export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/carbon.pid`
+  kill -term `cat $RUNTIME_HOME/runtime.pid`
   exit 0
 elif [ "$CMD" = "restart" ]; then
   export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/carbon.pid`
+  kill -term `cat $RUNTIME_HOME/runtime.pid`
   process_status=0
-  pid=`cat $CARBON_HOME/carbon.pid`
+  pid=`cat $RUNTIME_HOME/runtime.pid`
   while [ "$process_status" -eq "0" ]
   do
         sleep 1;
@@ -194,7 +199,7 @@ elif [ "$CMD" = "restart" ]; then
   done
 
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
+  nohup bash $RUNTIME_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
@@ -211,26 +216,26 @@ if [ "$jdk_18" = "" ]; then
 fi
 
 CARBON_XBOOTCLASSPATH=""
-for f in "$CARBON_HOME"/bin/bootstrap/xboot/*.jar
+for f in "$RUNTIME_HOME"/bin/bootstrap/xboot/*.jar
 do
-    if [ "$f" != "$CARBON_HOME/bin/bootstrap/xboot/*.jar" ];then
+    if [ "$f" != "$RUNTIME_HOME/bin/bootstrap/xboot/*.jar" ];then
         CARBON_XBOOTCLASSPATH="$CARBON_XBOOTCLASSPATH":$f
     fi
 done
 
-JAVA_ENDORSED_DIRS="$CARBON_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
+JAVA_ENDORSED_DIRS="$RUNTIME_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
 
 CARBON_CLASSPATH=""
 if [ -e "$JAVA_HOME/bin/bootstrap/tools.jar" ]; then
     CARBON_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
-for f in "$CARBON_HOME"/bin/bootstrap/*.jar
+for f in "$RUNTIME_HOME"/bin/bootstrap/*.jar
 do
-    if [ "$f" != "$CARBON_HOME/bin/bootstrap/*.jar" ];then
+    if [ "$f" != "$RUNTIME_HOME/bin/bootstrap/*.jar" ];then
         CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
     fi
 done
-for t in "$CARBON_HOME"/bin/bootstrap/commons-lang*.jar
+for t in "$RUNTIME_HOME"/bin/bootstrap/commons-lang*.jar
 do
     CARBON_CLASSPATH="$CARBON_CLASSPATH":$t
 done
@@ -238,6 +243,7 @@ done
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   CARBON_HOME=`cygpath --absolute --windows "$CARBON_HOME"`
+  RUNTIME_HOME=`cygpath --absolute --windows "$RUNTIME_HOME"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
   CARBON_CLASSPATH=`cygpath --path --windows "$CARBON_CLASSPATH"`
@@ -248,8 +254,9 @@ fi
 
 echo JAVA_HOME environment variable is set to $JAVA_HOME
 echo CARBON_HOME environment variable is set to $CARBON_HOME
+echo RUNTIME_HOME environment variable is set to $RUNTIME_HOME
 
-cd "$CARBON_HOME"
+cd "$RUNTIME_HOME"
 
 START_EXIT_STATUS=121
 status=$START_EXIT_STATUS
@@ -263,7 +270,7 @@ do
     -Xbootclasspath/a:"$CARBON_XBOOTCLASSPATH" \
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath="$CARBON_HOME/logs/heap-dump.hprof" \
+    -XX:HeapDumpPath="$RUNTIME_HOME/logs/heap-dump.hprof" \
     $JAVA_OPTS \
     -classpath "$CARBON_CLASSPATH" \
     -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
@@ -271,7 +278,8 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
-    -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
+    -Dwso2.runtime.path="$RUNTIME_HOME" \
+    -Djava.util.logging.config.file="$RUNTIME_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     org.wso2.carbon.launcher.Main $*

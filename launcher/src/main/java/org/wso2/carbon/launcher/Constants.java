@@ -24,12 +24,13 @@ public class Constants {
     public static final String LAUNCH_PROPERTIES_FILE = "launch.properties";
 
     public static final String CARBON_HOME = "carbon.home";
+    public static final String RUNTIME_PATH = "wso2.runtime.path";
     static final String CARBON_START_TIME = "carbon.start.time";
 
     public static final String OSGI_REPOSITORY = "wso2/lib";
     public static final String LAUNCH_CONF_DIRECTORY = "conf/osgi";
     public static final String PROFILE_REPOSITORY = "wso2";
-    public static final String PROFILE = "runtime";
+    public static final String PROFILE = "wso2.runtime";
     public static final String DEFAULT_PROFILE = "default";
     public static final String OSGI_LIB = "lib";
     public static final String PLUGINS = "plugins";

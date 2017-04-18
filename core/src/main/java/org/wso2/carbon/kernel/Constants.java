@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public final class Constants {
 
     /**
-     * maven project properties related constants
+     * maven project properties related constants.
      */
     public static final String PROJECT_DEFAULTS_PROPERTY_FILE = "project.defaults.properties";
     public static final String MAVEN_PROJECT_VERSION = "MAVEN_PROJECT_VERSION";
