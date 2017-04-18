@@ -42,6 +42,10 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <optional>true</optional>
@@ -139,6 +143,18 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config.maven.plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>create-doc</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
         <resources>
@@ -158,6 +174,7 @@
         </export.package>
         <import.package>
             org.wso2.carbon.utils.*;version="${carbon.utils.package.import.version.range}",
+            org.wso2.carbon.config.*;version="${carbon.config.package.import.version.range}",
             org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",

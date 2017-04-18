@@ -118,7 +118,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>config-creator</artifactId>
+                                    <artifactId>org.wso2.carbon.core</artifactId>
                                     <version>${carbon.kernel.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -204,6 +204,12 @@
                                     <version>${org.json.import.version}</version>
                                 </bundle>
                             </bundles>
+                            <importFeatures>
+                                <importFeatureDef>
+                                    <id>org.wso2.carbon.config.feature</id>
+                                    <version>${carbon.config.version}</version>
+                                </importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

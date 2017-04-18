@@ -28,12 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.config.ConfigurationUtils;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.CarbonServerInfo;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.configprovider.utils.ConfigurationUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -17,9 +17,9 @@ package org.wso2.carbon.kernel.context;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.config.provider.ConfigProvider;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.Constants;
-import org.wso2.carbon.kernel.configprovider.ConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonConfigProviderImpl;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 
