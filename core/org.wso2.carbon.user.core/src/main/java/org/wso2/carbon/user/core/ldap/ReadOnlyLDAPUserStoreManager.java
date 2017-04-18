@@ -108,6 +108,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     protected boolean emptyRolesAllowed = false;
 
+    static {
+        setAdvancedProperties();
+    }
+
     public ReadOnlyLDAPUserStoreManager() {
 
     }
@@ -2994,7 +2998,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 (new Property[ReadOnlyLDAPUserStoreConstants.ROLDAP_USERSTORE_PROPERTIES.size()]));
         properties.setOptionalProperties(ReadOnlyLDAPUserStoreConstants.OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.toArray
                 (new Property[ReadOnlyLDAPUserStoreConstants.OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.size()]));
-        setAdvancedProperties();
         properties.setAdvancedProperties(RO_LDAP_UM_ADVANCED_PROPERTIES.toArray
                 (new Property[RO_LDAP_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
