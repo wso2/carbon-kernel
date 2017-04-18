@@ -278,7 +278,7 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
-    -Druntime.home="$RUNTIME_HOME" \
+    -Dwso2.runtime.path="$RUNTIME_HOME" \
     -Djava.util.logging.config.file="$RUNTIME_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
