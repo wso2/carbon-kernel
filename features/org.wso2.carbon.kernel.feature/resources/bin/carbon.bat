@@ -162,8 +162,7 @@ set CARBON_CLASSPATH=.\bin\bootstrap;%CARBON_CLASSPATH%
 
 set JAVA_ENDORSED=".\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%RUNTIME_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH%
-%JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%" -Dwso2.runtime.path="%RUNTIME_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%RUNTIME_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
+set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%RUNTIME_HOME%\logs\heap-dump.hprof" -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED% -Dcarbon.home="%CARBON_HOME%" -Dwso2.runtime.path="%RUNTIME_HOME%" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%RUNTIME_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
 
 :runJava
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
