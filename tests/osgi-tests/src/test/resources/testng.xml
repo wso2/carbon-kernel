@@ -42,6 +42,7 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.startupresolver.SampleStartupOrderResolverOSGiTest"/>
             <class name="org.wso2.carbon.osgi.startupresolver.StartupCoordinatorOSGiTest"/>
             <class name="org.wso2.carbon.osgi.startupresolver.MultipleCapabilitiesForCapabilityListenerOSGiTest"/>
+            <class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityDelayedOSGiTest"/>
             <!--keep this test as the last since there is a issue in windows intermittently-->
             <class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>
 

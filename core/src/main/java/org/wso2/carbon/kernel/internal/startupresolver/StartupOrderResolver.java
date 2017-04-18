@@ -29,7 +29,7 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.internal.CarbonStartupHandler;
 import org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent;
-import org.wso2.carbon.utils.manifest.ManifestElement;
+import org.wso2.carbon.kernel.startupresolver.manifest.ManifestElement;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -285,7 +285,7 @@ public class StartupOrderResolver {
                                                 serviceCapability.getName()));
                     }
 
-                    startupComponentManager.addExpectedOrAvailableCapability(serviceCapability);
+                    startupComponentManager.addExpectedCapability(serviceCapability);
                 });
     }
 

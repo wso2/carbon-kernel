@@ -34,10 +34,11 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         immediate = true,
         service = RequiredCapabilityListener.class,
         property = {
-                "componentName=carbon-sample-repository-mgt"
+                "componentName=" + RepositoryServicesListener.COMPONENT_NAME
         }
 )
 public class RepositoryServicesListener implements RequiredCapabilityListener {
+    public static final String COMPONENT_NAME = "carbon-sample-repository-mgt";
     private static final Logger logger = LoggerFactory.getLogger(RepositoryServicesListener.class);
     private BundleContext bundleContext;
 

@@ -37,8 +37,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.utils</artifactId>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>carbon-utils</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -157,7 +157,7 @@
             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
         </export.package>
         <import.package>
-            org.wso2.carbon.utils.*;version="${carbon.kernel.package.import.version.range}",
+            org.wso2.carbon.utils.*;version="${carbon.utils.package.import.version.range}",
             org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
