@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -156,26 +155,6 @@ public class Main {
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
-        }
-
-        String runtimePath = System.getProperty(RUNTIME_PATH);
-        if (runtimePath == null || runtimePath.length() == 0) {
-            //If the runtime.home system property is not set, try to determine the runtime home using Main.class.
-            try {
-                Path tmpParent =
-                        Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
-                if (tmpParent != null && (tmpParent = tmpParent.getParent()) != null &&
-                    (tmpParent = tmpParent.getParent()) != null) {
-                    runtimePath = tmpParent.toString();
-                } else {
-                    runtimePath = Paths.get(carbonHome).resolve("wso2").resolve(DEFAULT_PROFILE).toString();
-                }
-            } catch (URISyntaxException e) {
-                runtimePath = Paths.get(carbonHome).resolve("wso2").resolve(DEFAULT_PROFILE).toString();
-                logger.log(Level.WARNING, "Couldn't determine the runtime home. Runtime home is set to " + runtimePath,
-                           e);
-            }
-            System.setProperty(RUNTIME_PATH, runtimePath);
         }
 
         // Set log level for Pax logger to WARN and log service ranking to maximum value.
