@@ -102,6 +102,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     protected boolean kdcEnabled = false;
 
+    static {
+        setAdvancedProperties();
+    }
+
     public ReadWriteLDAPUserStoreManager() {
 
     }
@@ -2061,7 +2065,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 (new Property[ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.size()]));
         properties.setOptionalProperties(ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray
                 (new Property[ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.size()]));
-        setAdvancedProperties();
         properties.setAdvancedProperties(RW_LDAP_UM_ADVANCED_PROPERTIES.toArray
                 (new Property[RW_LDAP_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
