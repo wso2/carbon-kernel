@@ -40,8 +40,9 @@ limitations under the License.
 
             <class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntimeTest" />
             <class name="org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactoryTest" />
-            <class name="org.wso2.carbon.utils.MBeanManagementFactoryTest"/>
-            <class name="org.wso2.carbon.utils.MBeanRegistratorTest"/>
+            <class name="org.wso2.carbon.kernel.jmx.MBeanManagementFactoryTest"/>
+            <class name="org.wso2.carbon.kernel.jmx.MBeanRegistratorTest"/>
+            <class name="org.wso2.carbon.kernel.startupresolver.manifest.ManifestElementTest"/>
 
             <class name="org.wso2.carbon.kernel.configprovider.ConfigProviderImplTest"/>
             <class name="org.wso2.carbon.kernel.securevault.DefaultMasterKeyReaderTest"/>

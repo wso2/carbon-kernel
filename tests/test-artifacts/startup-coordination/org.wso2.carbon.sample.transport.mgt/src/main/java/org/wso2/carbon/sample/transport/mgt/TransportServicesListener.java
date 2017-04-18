@@ -35,10 +35,11 @@ import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
         immediate = true,
         service = RequiredCapabilityListener.class,
         property = {
-                "componentName=carbon-sample-transport-mgt"
+                "componentName=" + TransportServicesListener.COMPONENT_NAME
         }
 )
 public class TransportServicesListener implements RequiredCapabilityListener {
+    public static final String COMPONENT_NAME = "carbon-sample-transport-mgt";
     private static final Logger logger = LoggerFactory.getLogger(TransportServicesListener.class);
     private BundleContext bundleContext;
 

@@ -27,9 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.utils.CarbonServerInfo;
-import org.wso2.carbon.utils.manifest.ManifestElement;
-import org.wso2.carbon.utils.manifest.ManifestElementParserException;
+import org.wso2.carbon.kernel.CarbonServerInfo;
+import org.wso2.carbon.kernel.startupresolver.manifest.ManifestElement;
+import org.wso2.carbon.kernel.startupresolver.manifest.ManifestElementParserException;
 
 import java.util.Arrays;
 import java.util.Collections;

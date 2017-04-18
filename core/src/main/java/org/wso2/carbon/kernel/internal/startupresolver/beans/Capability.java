@@ -30,6 +30,8 @@ public class Capability {
     protected CapabilityType type;
     protected CapabilityState state;
     protected Bundle bundle;
+    protected boolean directDependency;
+    protected boolean secondCheck;
 
     /**
      * Describes the type of the Capability.
@@ -49,11 +51,32 @@ public class Capability {
         AVAILABLE
     }
 
-    public Capability(String name, CapabilityType type, CapabilityState state, Bundle bundle) {
+    /**
+     * Constructs a Capability object with the given parameters.
+     *
+     * @param name name of the capability
+     * @param type type of the capability
+     * @param state state of the capability
+     * @param bundle the bundle which exposes this capability
+     * @param directDependency whether this capability is a direct dependency.
+     */
+    public Capability(String name, CapabilityType type, CapabilityState state, Bundle bundle,
+                      boolean directDependency) {
         this.name = name;
         this.type = type;
         this.state = state;
         this.bundle = bundle;
+        this.directDependency = directDependency;
+    }
+
+    /**
+     * Copy construcctor for the Capability. Creates a copy of the given Capability.
+     *
+     * @param capability the capability to be copied
+     */
+    public Capability(Capability capability) {
+        this(capability.getName(), capability.getType(), capability.getState(), capability.getBundle(),
+                capability.isDirectDependency());
     }
 
     public String getName() {
@@ -74,6 +97,22 @@ public class Capability {
 
     public Bundle getBundle() {
         return bundle;
+    }
+
+    public boolean isDirectDependency() {
+        return directDependency;
+    }
+
+    public void setDirectDependency(boolean directDependency) {
+        this.directDependency = directDependency;
+    }
+
+    public boolean isSecondCheck() {
+        return secondCheck;
+    }
+
+    public void setSecondCheck(boolean secondCheck) {
+        this.secondCheck = secondCheck;
     }
 
     /**

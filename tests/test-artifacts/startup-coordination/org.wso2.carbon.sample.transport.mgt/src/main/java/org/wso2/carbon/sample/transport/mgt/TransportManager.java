@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.kernel.startupresolver.StartupServiceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ public class TransportManager {
     )
     public void registerTransport(Transport transport) {
         transportList.add(transport);
+        StartupServiceUtils.updateServiceCache(TransportServicesListener.COMPONENT_NAME, Transport.class);
     }
 
     public void deregisterTransport(Transport transport) {

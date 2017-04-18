@@ -151,14 +151,14 @@ class StartupComponentManager {
     }
 
     /**
-     * Adds expect required capability. Capability could be an OSGi service, manifest header etc.
+     * Adds expected required capability. Capability could be an OSGi service, manifest header etc.
      * <p>
      * This method is invoked during the manifest header processing time or when {@code CapabilityProvider}
      * OSGi service is registered.
      *
      * @param capability {@code Capability} instance
      */
-    void addExpectedOrAvailableCapability(Capability capability) {
+    void addExpectedCapability(Capability capability) {
         startupComponentMap.values()
                 .stream()
                 .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
@@ -188,9 +188,21 @@ class StartupComponentManager {
                                 capability.getBundle().getVersion(),
                                 startupComponent.getName());
                     }
-                    startupComponent.addExpectedOrAvailableCapability(capability);
+                    startupComponent.addExpectedCapability(new Capability(capability));
                 });
 
+    }
+
+    /**
+     * Updates the OSGi service availability in {@code startupComponent}s in {@code startupComponentMap}.
+     *
+     * @param capability the capability to be updated.
+     */
+    void updateCapability(Capability capability) {
+        startupComponentMap.values()
+                .stream()
+                .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
+                .forEach(startupComponent -> startupComponent.updateCapability(capability));
     }
 
     /**
