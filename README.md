@@ -1,5 +1,9 @@
 # carbon-identity-framework
----
+
+|  Branch | Build Status |
+| :------------ |:-------------
+| master      | [![Build Status](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/badge/icon)](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/) |
+
 
 This repository contains the core components and features required by the [WSO2 Identity Server](https://github.com/wso2/product-is) product.
  
@@ -14,6 +18,3 @@ If you want to build **carbon-identity-framework** from the source code:
 1. Run the Maven command ``mvn clean install`` from the ``carbon-identity-framework`` directory.
 
 
-|  Branch | Build Status |
-| :------------ |:-------------
-| master      | [![Build Status](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/badge/icon)](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/) |
