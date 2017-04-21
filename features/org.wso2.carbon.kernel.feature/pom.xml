@@ -118,7 +118,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>config-creator</artifactId>
+                                    <artifactId>org.wso2.carbon.core</artifactId>
                                     <version>${carbon.kernel.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -147,13 +147,13 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>bin/**</include>
-                                        <!--<include>conf/**</include>-->
+                                        <include>conf/**</include>
                                         <include>logs/**</include>
                                         <include>wso2/default/**</include>
                                         <include>wso2/lib/**</include>
                                         <include>lib/**</include>
-                                        <!--<include>resources/**</include>
-                                        <include>securevault/**</include>-->
+                                        <include>resources/**</include>
+                                        <!--<include>securevault/**</include>-->
                                         <include>tmp/**</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>
@@ -205,6 +205,12 @@
                                     <version>${org.json.import.version}</version>
                                 </bundle>
                             </bundles>
+                            <importFeatures>
+                                <importFeatureDef>
+                                    <id>org.wso2.carbon.config.feature</id>
+                                    <version>${carbon.config.version}</version>
+                                </importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

@@ -25,6 +25,7 @@ public class Constants {
 
     public static final String CARBON_HOME = "carbon.home";
     public static final String RUNTIME_PATH = "wso2.runtime.path";
+    public static final String RUNTIME = "wso2.runtime";
     static final String CARBON_START_TIME = "carbon.start.time";
 
     public static final String OSGI_REPOSITORY = "wso2/lib";

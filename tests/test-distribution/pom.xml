@@ -108,15 +108,15 @@
                         <phase>install</phase>
                         <configuration>
                             <target>
-                                <delete dir="target/archive-tmp" />
+<!--                                <delete dir="target/archive-tmp" />
                                 <delete dir="target/dependency-maven-plugin-markers" />
                                 <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart" />
-                                <delete dir="target/p2-repo" />
+                                <delete dir="target/p2-repo" />-->
                                 <!-- Figure out a way to delete tmp.* files -->
-                                <delete file="target/tmp" />
+<!--                                <delete file="target/tmp" />
                                 <delete dir="target/WSO2Carbon" />
                                 <delete dir="target/antrun" />
-                                <delete dir="target/director" />
+                                <delete dir="target/director" />-->
                             </target>
                         </configuration>
                         <goals>

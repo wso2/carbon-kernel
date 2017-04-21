@@ -57,6 +57,21 @@
             <type>zip</type>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.utils.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.touchpoint.feature</artifactId>
             <type>zip</type>
@@ -135,6 +150,18 @@
                                     <id>org.wso2.carbon.runtime.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.config.feature</id>
+                                    <version>${carbon.config.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.secvault.feature</id>
+                                    <version>${carbon.securevault.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.utils.feature</id>
+                                    <version>${carbon.utils.version}</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
@@ -149,7 +176,6 @@
                                 ${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart
                             </executable>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-
                         </configuration>
                     </execution>
                     <execution>

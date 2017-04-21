@@ -105,6 +105,8 @@ fi
 TEMPCURDIR=`dirname "$PRG"`
 RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
 CARBON_HOME=`cd "$TEMPCURDIR/../../../" ; pwd`
+RUNTIME=${RUNTIME_HOME##*/}
+echo RUNTIME: $RUNTIME
 
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
@@ -279,7 +281,8 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
-    -Druntime.home="$RUNTIME_HOME" \
+    -Dwso2.runtime.path="$RUNTIME_HOME" \
+    -Dwso2.runtime="$RUNTIME" \
     -Djava.util.logging.config.file="$RUNTIME_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
