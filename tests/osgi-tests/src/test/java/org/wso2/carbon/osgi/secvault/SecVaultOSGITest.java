@@ -36,10 +36,9 @@ public class SecVaultOSGITest {
     @Inject
     SecureVault secureVaultService;
 
-    String toBeEncrypted = "testPassword";
-
     @Test
     public void testSecureVaultService() throws SecureVaultException {
+        String toBeEncrypted = "testPassword";
         byte[] encryptedPassword = secureVaultService.encrypt(toBeEncrypted.getBytes());
         byte[] decryptedPassword = secureVaultService.decrypt(encryptedPassword);
         Assert.assertEquals(new String(decryptedPassword), toBeEncrypted,
