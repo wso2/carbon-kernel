@@ -53,6 +53,10 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.testcontainer.CopyOSGiLibTest"/>
 
             <class name="org.wso2.carbon.osgi.carbon.touchpoint.CarbonTouchpointOSGiTest"/>
+
+            <class name="org.wso2.carbon.osgi.secvault.SecVaultOSGITest"/>
+            <class name="org.wso2.carbon.osgi.config.ConfigProviderOSGITest"/>
+            <class name="org.wso2.carbon.osgi.config.PropertyResolveConfigProviderOSGITest"/>
         </classes>
     </test>
 </suite>
