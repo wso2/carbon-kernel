@@ -23,6 +23,8 @@ rem
 rem   CARBON_HOME   Home of CARBON installation. If not set I will  try
 rem                   to figure it out.
 rem
+rem   RUNTIME_HOME  Home of WSO2 Carbon Runtime.
+rem
 rem   JAVA_HOME       Must point at your Java Development Kit installation.
 rem
 rem   JAVA_OPTS       (Optional) Java runtime options used when the commands
@@ -48,27 +50,31 @@ SET curDrive=%cd:~0,1%
 SET wsasDrive=%CARBON_HOME:~0,1%
 if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
 
-rem find CARBON_HOME if it does not exist due to either an invalid value passed
+rem ----- Only set RUNTIME_HOME if not already set ----------------------------
+:setRuntimeHome
+if "%RUNTIME_HOME%"=="" set RUNTIME_HOME=%~sdp0..
+
+rem find RUNTIME_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
-if not exist "%CARBON_HOME%\bin\kernel-version.txt" goto noServerHome
+if not exist "%RUNTIME_HOME%\bin\kernel-version.txt" goto noServerHome
 
 goto updateClasspath
 
 :noServerHome
-echo CARBON_HOME is set incorrectly or CARBON could not be located. Please set CARBON_HOME.
+echo RUNTIME_HOME is set incorrectly or RUNTIME could not be located. Please set RUNTIME_HOME.
 goto end
 
 rem ----- update classpath -----------------------------------------------------
 :updateClasspath
 
 setlocal EnableDelayedExpansion
-cd %CARBON_HOME%
+cd %RUNTIME_HOME%
 set CARBON_CLASSPATH=
-FOR %%C in ("%CARBON_HOME%\bin\bootstrap\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\bootstrap\%%~nC%%~xC"
+FOR %%C in ("%RUNTIME_HOME%\bin\bootstrap\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\bootstrap\%%~nC%%~xC"
 
 set CARBON_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%CARBON_CLASSPATH%;
 
-FOR %%D in ("%CARBON_HOME%\lib\commons-lang*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\lib\%%~nD%%~xD"
+FOR %%D in ("%RUNTIME_HOME%\lib\commons-lang*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\lib\%%~nD%%~xD"
 
 rem ----- Process the input command -------------------------------------------
 
@@ -101,7 +107,7 @@ goto setupArgs
 rem ----- commandVersion -------------------------------------------------------
 :commandVersion
 shift
-type "%CARBON_HOME%\bin\kernel-version.txt"
+type "%RUNTIME_HOME%\bin\kernel-version.txt"
 goto end
 
 rem ----- commandDebug ---------------------------------------------------------
@@ -148,7 +154,7 @@ goto runServer
 rem ----------------- Execute The Requested Command ----------------------------
 
 :runServer
-cd %CARBON_HOME%
+cd %RUNTIME_HOME%
 
 rem ---------- Add jars to classpath ----------------
 
@@ -156,11 +162,12 @@ set CARBON_CLASSPATH=.\bin\bootstrap;%CARBON_CLASSPATH%
 
 set JAVA_ENDORSED=".\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
+set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%RUNTIME_HOME%\logs\heap-dump.hprof" -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED% -Dcarbon.home="%CARBON_HOME%" -Dwso2.runtime.path="%RUNTIME_HOME%" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%RUNTIME_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
 
 :runJava
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
 echo CARBON_HOME environment variable is set to %CARBON_HOME%
+echo RUNTIME_HOME environment variable is set to %RUNTIME_HOME%
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.wso2.carbon.launcher.Main %CMD%
 if "%ERRORLEVEL%"=="121" goto runJava
 :end

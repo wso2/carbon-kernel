@@ -21,7 +21,7 @@
 #
 #   CARBON_HOME   Home of WSO2 Carbon installation. If not set I will  try
 #                   to figure it out.
-#   RUNTIME_HOME   Home of WSO2 Carbon Runtime. .
+#   RUNTIME_HOME  Home of WSO2 Carbon Runtime. .
 #
 #   JAVA_HOME       Must point at your Java Development Kit installation.
 #

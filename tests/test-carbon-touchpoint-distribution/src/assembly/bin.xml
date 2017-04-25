@@ -48,11 +48,22 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
+
+        <fileSet>
+            <directory>carbon-home</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>**/*.html</include>
+                <include>**/*.txt</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
     </fileSets>
 
     <files>
         <file>
-            <source>target/wso2carbon-kernel-test-${carbon.kernel.version}/conf/deployment.yaml</source>
+            <source>target/wso2carbon-kernel-test-${carbon.kernel.version}/conf/default/deployment.yaml</source>
             <outputDirectory>conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>

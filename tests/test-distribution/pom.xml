@@ -1,16 +1,75 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-tests</artifactId>
         <version>5.2.0-SNAPSHOT</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wso2carbon-kernel-test</artifactId>
     <name>WSO2 Carbon Kernel - Test - Distribution</name>
     <packaging>pom</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.tools.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.kernel.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.runtime.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.utils.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.touchpoint.feature</artifactId>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
@@ -21,12 +80,32 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <configuration>
+                    <format>{0,date,dd MMM yyyy}</format>
+                    <items>
+                        <item>timestamp</item>
+                    </items>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>1-unpack-p2-agent-distribution</id>
+                        <id>unpack-equinox-executable</id>
                         <phase>test</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -34,17 +113,19 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>wso2carbon-kernel</artifactId>
+                                    <groupId>org.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.executable</artifactId>
+                                    <version>3.5.0.v20110530-7P7NFUFFLWUl76mart</version>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <outputDirectory>target</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.wso2.carbon.maven</groupId>
                 <artifactId>carbon-feature-plugin</artifactId>
@@ -59,10 +140,59 @@
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
                             <features>
                                 <feature>
+                                    <id>org.wso2.carbon.touchpoint.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.kernel.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.runtime.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.config.feature</id>
+                                    <version>${carbon.config.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.secvault.feature</id>
+                                    <version>${carbon.securevault.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.utils.feature</id>
+                                    <version>${carbon.utils.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.carbon.pax.exam.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>publishing products</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>publish-product</goal>
+                        </goals>
+                        <configuration>
+                            <executable>
+                                ${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart
+                            </executable>
+                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>materialize-product</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate-runtime</goal>
+                        </goals>
+                        <configuration>
+                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
+                            <targetPath>file:${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/wso2</targetPath>
+                            <runtime>default</runtime>
                         </configuration>
                     </execution>
                     <execution>
@@ -77,6 +207,14 @@
                             <destination>${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/wso2</destination>
                             <deleteOldRuntimeFiles>true</deleteOldRuntimeFiles>
                             <features>
+                                <feature>
+                                    <id>org.wso2.carbon.kernel.feature.group</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.runtime.feature.group</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
                                 <feature>
                                     <id>org.wso2.carbon.pax.exam.feature</id>
                                     <version>${carbon.kernel.version}</version>
@@ -108,15 +246,15 @@
                         <phase>install</phase>
                         <configuration>
                             <target>
-<!--                                <delete dir="target/archive-tmp" />
+                                <delete dir="target/archive-tmp" />
                                 <delete dir="target/dependency-maven-plugin-markers" />
                                 <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart" />
-                                <delete dir="target/p2-repo" />-->
+                                <delete dir="target/p2-repo" />
                                 <!-- Figure out a way to delete tmp.* files -->
-<!--                                <delete file="target/tmp" />
+                                <delete file="target/tmp" />
                                 <delete dir="target/WSO2Carbon" />
                                 <delete dir="target/antrun" />
-                                <delete dir="target/director" />-->
+                                <delete dir="target/director" />
                             </target>
                         </configuration>
                         <goals>
@@ -128,20 +266,23 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
-                    </descriptors>
-                    <finalName>wso2carbon-kernel-test-${carbon.kernel.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
+                        <id>distribution</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <filters>
+                                <filter>${basedir}/src/assembly/filter.properties</filter>
+                            </filters>
+                            <descriptors>
+                                <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
+                            </descriptors>
+                    	    <finalName>wso2carbon-kernel-test-${carbon.kernel.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

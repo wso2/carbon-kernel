@@ -16,8 +16,8 @@
 package org.wso2.carbon.kernel.internal.config;
 
 
-import org.wso2.carbon.kernel.annotations.Configuration;
-import org.wso2.carbon.kernel.annotations.Element;
+import org.wso2.carbon.config.annotation.Configuration;
+import org.wso2.carbon.config.annotation.Element;
 
 /**
  * JMX Configuration bean.
