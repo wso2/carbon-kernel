@@ -106,7 +106,6 @@ TEMPCURDIR=`dirname "$PRG"`
 RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
 CARBON_HOME=`cd "$TEMPCURDIR/../../../" ; pwd`
 RUNTIME=${RUNTIME_HOME##*/}
-echo RUNTIME: $RUNTIME
 
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
