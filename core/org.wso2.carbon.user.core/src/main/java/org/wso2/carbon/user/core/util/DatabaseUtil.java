@@ -631,7 +631,7 @@ public class DatabaseUtil {
     public static void closeAllConnections(Connection dbConnection, ResultSet rs1, ResultSet rs2,
                                            PreparedStatement... prepStmts) {
         closeResultSet(rs1);
-        closeResultSet(rs1);
+        closeResultSet(rs2);
         closeStatements(prepStmts);
         closeConnection(dbConnection);
     }
