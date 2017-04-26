@@ -9,7 +9,6 @@ org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/featur
 org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/wso2/default/logs,target:${installFolder}/../{runtime}/logs/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/wso2/lib,target:${installFolder}/../../wso2/lib/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/lib,target:${installFolder}/../../lib/,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/resources,target:${installFolder}/../../resources/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/tmp,target:${installFolder}/../../tmp/,overwrite:true);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/bin,targetFile:carbon.sh,permissions:755);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:jartobundle.sh,permissions:755);\
@@ -21,6 +20,5 @@ org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../con
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/logs,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../wso2/lib,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../lib,targetFile:README.txt,permissions:644);\
-org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../resources/security,targetFile:wso2carbon.jks,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../tmp,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../bin,targetFile:kernel-version.txt,permissions:644);\

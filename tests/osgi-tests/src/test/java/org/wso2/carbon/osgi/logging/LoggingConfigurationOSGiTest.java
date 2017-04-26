@@ -62,7 +62,7 @@ public class LoggingConfigurationOSGiTest {
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = Paths.get("..", "..").toString();
+            basedir = Paths.get("..", "..", "..", "..").toString();
         }
         loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }

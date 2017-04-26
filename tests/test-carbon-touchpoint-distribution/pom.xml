@@ -72,6 +72,11 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.touchpoint.sample.feature</artifactId>
             <type>zip</type>
         </dependency>
@@ -164,6 +169,10 @@
                                     <version>${carbon.utils.version}</version>
                                 </feature>
                                 <feature>
+                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.carbon.touchpoint.sample.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
@@ -213,6 +222,10 @@
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.runtime.feature.group</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.pax.exam.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
@@ -286,7 +299,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -296,5 +308,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

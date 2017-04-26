@@ -259,7 +259,7 @@ echo JAVA_HOME environment variable is set to $JAVA_HOME
 echo CARBON_HOME environment variable is set to $CARBON_HOME
 echo RUNTIME_HOME environment variable is set to $RUNTIME_HOME
 
-cd "$CARBON_HOME"
+cd "$RUNTIME_HOME"
 
 START_EXIT_STATUS=121
 status=$START_EXIT_STATUS
