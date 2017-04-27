@@ -32,7 +32,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
-
+/**
+ * This class test basic functionality of Configuration provider service.
+ *
+ * @since 5.2.0
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)
@@ -65,7 +69,5 @@ public class ConfigProviderOSGITest {
                 "org.wso2.carbon.secvault.reader.DefaultMasterKeyReader",
                 "Default master key reader would be " +
                         "org.wso2.carbon.secvault.reader.DefaultMasterKeyReader");
-
-
     }
 }

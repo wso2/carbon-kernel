@@ -28,6 +28,11 @@ import org.wso2.carbon.secvault.exception.SecureVaultException;
 
 import javax.inject.Inject;
 
+/**
+ * This class test basic secure vault functionality. i.e. encrypt, decrypt, resolve.
+ *
+ * @since 5.2.0
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)

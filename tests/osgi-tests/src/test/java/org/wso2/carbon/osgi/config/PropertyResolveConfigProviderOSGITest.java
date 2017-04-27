@@ -37,7 +37,12 @@ import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
-
+/**
+ * This class test basic functionality of Configuration provider service with property replacing when variable used.
+ * i.e. sys, env, sec.
+ *
+ * @since 5.2.0
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 @ExamFactory(CarbonContainerFactory.class)

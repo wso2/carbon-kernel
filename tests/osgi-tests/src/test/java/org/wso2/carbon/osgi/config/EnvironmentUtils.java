@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Utility class for setting environment variables for test cases.
  *
- * @since 1.0.0
+ * @since 5.2.0
  */
 public class EnvironmentUtils {
     private static Logger logger = LoggerFactory.getLogger(EnvironmentUtils.class);
@@ -81,8 +81,7 @@ public class EnvironmentUtils {
                         try {
                             Field field = cl.getDeclaredField(FIELD_M);
                             field.setAccessible(true);
-                            Object obj = field.get(env);
-                            Map<String, String> map = (Map<String, String>) obj;
+                            Map<String, String> map = (Map<String, String>) field.get(env);
                             map.clear();
                             map.putAll(newenv);
                         } catch (IllegalAccessException | NoSuchFieldException ex) {
