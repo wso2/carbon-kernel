@@ -39,7 +39,7 @@ import javax.inject.Inject;
 public class SecVaultOSGITest {
 
     @Inject
-    SecureVault secureVaultService;
+    private SecureVault secureVaultService;
 
     @Test
     public void testSecureVaultService() throws SecureVaultException {

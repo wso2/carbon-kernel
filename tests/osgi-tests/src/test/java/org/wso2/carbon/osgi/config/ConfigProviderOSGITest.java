@@ -43,7 +43,7 @@ import javax.inject.Inject;
 public class ConfigProviderOSGITest {
 
     @Inject
-    ConfigProvider configProvider;
+    private ConfigProvider configProvider;
 
     @Test
     public void testConfigurationProvider() throws ConfigurationException {

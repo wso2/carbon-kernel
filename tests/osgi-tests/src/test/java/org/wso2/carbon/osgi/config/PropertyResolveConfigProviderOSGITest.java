@@ -52,13 +52,13 @@ public class PropertyResolveConfigProviderOSGITest {
     private static final String SECRET_PROPERTIES_FILENAME = "secrets.properties";
 
     @Inject
-    ConfigProvider configProvider;
+    private ConfigProvider configProvider;
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[]{copyCarbonYAMLOption(), systemProperty("server.id").value("test-carbon-kernel"),
-                setEnvPropertyOption("server.name", "Test WSO2 Carbon Kernel"), copySecretPropertiesOption()
-        };
+        setEnvProperty("server.name", "Test WSO2 Carbon Kernel");
+        return new Option[]{ copyCarbonYAMLOption(), systemProperty("server.id").value("test-carbon-kernel"),
+                copySecretPropertiesOption() };
     }
 
     @Test
@@ -116,10 +116,8 @@ public class PropertyResolveConfigProviderOSGITest {
      * @param value value to set for the above mentioned key.
      * @return empty Option object.
      */
-    private Option setEnvPropertyOption(String key, String value) {
+    private void setEnvProperty(String key, String value) {
         EnvironmentUtils.setEnv(key, value);
-        return new Option() {
-        };
     }
 
 }
