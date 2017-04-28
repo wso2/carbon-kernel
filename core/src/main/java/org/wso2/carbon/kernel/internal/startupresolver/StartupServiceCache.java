@@ -78,7 +78,7 @@ public class StartupServiceCache {
     }
 
     /**
-     * This method provides a map of OSGi services and service count for the given {@code componentName}
+     * This method provides a map of OSGi services and service count for the given {@code componentName}.
      *
      * @param componentName name of the reporter component
      * @return a list of reported OSGi service names
