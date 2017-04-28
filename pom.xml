@@ -42,9 +42,11 @@
             </activation>
             <modules>
                 <module>parent</module>
-                <module>archetypes</module>
                 <module>launcher</module>
                 <module>core</module>
+                <!--Need to place archetypes module after core because tests in
+                org.wso2.carbon.archetypes.component depend on org.wso2.carbon.core-->
+                <module>archetypes</module>
                 <module>extensions</module>
                 <module>tools</module>
                 <module>pax-exam-container-carbon</module>
