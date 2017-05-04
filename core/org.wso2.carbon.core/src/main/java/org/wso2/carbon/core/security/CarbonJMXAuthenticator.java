@@ -32,7 +32,9 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * JMX Authenticator for WSAS
@@ -41,6 +43,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
     private static Log log = LogFactory.getLog(CarbonJMXAuthenticator.class);
     private static UserRealm userRealm;
+    private String roleName = null;
 
     private static final String JMX_USER_PERMISSION = "/permission/protected/server-admin";
 
@@ -110,12 +113,13 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
                 if (authorize(userName)) {
 
-                    audit.info("User : " + userName + " successfully authorized to perform JMX operations.");
+                    audit.info("User : " + userName + " successfully authorized as " + roleName + " to perform JMX operations.");
 
                     return new Subject(true,
-                                   Collections.singleton(new JMXPrincipal(userName)),
-                                   Collections.EMPTY_SET,
-                                   Collections.EMPTY_SET);
+                            Collections.singleton(new JMXPrincipal(roleName)),
+                            Collections.EMPTY_SET,
+                            Collections.EMPTY_SET);
+
                 } else {
                     throw new SecurityException("User : " + userName + " not authorized to perform JMX operations.");
                 }
@@ -137,15 +141,27 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         }
     }
 
+
     private boolean authorize(String userName) throws UserStoreException {
-
-        AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
-
-        if (authorizationManager != null) {
-            return authorizationManager.isUserAuthorized(userName, JMX_USER_PERMISSION, "ui.execute");
+        UserStoreManager authorizer;
+        boolean isAuthorized = false;
+        try {
+            authorizer = userRealm.getUserStoreManager();
+        } catch (UserStoreException e) {
+            String msg = "Cannot get authorizer from Realm";
+            log.error(msg, e);
+            throw new SecurityException(msg, e);
         }
 
-        throw new UserStoreException("Unable to retrieve Authorization manager to perform authorization");
+        List<String> userRoleslist = Arrays.asList(authorizer.getRoleListOfUser(userName));
+        if(userRoleslist.contains("JMXMonitorRole")){
+            roleName = "JMXMonitorRole";
+            isAuthorized = true;
+        } else if(userRoleslist.contains("JMXControlRole")){
+            roleName = "JMXControlRole";
+            isAuthorized = true;
+        }
+        return isAuthorized;
     }
 
     public static String extractTenantDomain(String userName){

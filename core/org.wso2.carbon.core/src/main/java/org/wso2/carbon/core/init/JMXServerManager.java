@@ -91,6 +91,7 @@ public class JMXServerManager {
         try {
             try {
                 rmiRegistry = LocateRegistry.createRegistry(rmiRegistryPort);
+                log.info("Created the RMI local registry "+ rmiRegistryPort);
             } catch (Throwable ignored) {
                 log.error("Could not create the RMI local registry", ignored);
             }
@@ -117,9 +118,12 @@ public class JMXServerManager {
             JMXServiceURL url = new JMXServiceURL(jmxURL);
 
             // Security credentials are included in the env Map
-            HashMap<String, CarbonJMXAuthenticator> env =
-                new HashMap<String, CarbonJMXAuthenticator>();
+            HashMap<String, Object> env = new HashMap<String, Object>();
             env.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
+            String access_file_path;
+            access_file_path = System.getProperty("com.sun.management.jmxremote.access.file");
+            env.put("jmx.remote.x.access.file", access_file_path);
+
             jmxConnectorServer =
                 JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
             jmxConnectorServer.start();
