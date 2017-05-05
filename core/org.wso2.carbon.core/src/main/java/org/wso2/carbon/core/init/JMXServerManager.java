@@ -28,6 +28,11 @@ import org.wso2.carbon.utils.ManagementFactory;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.ServerException;
 
+import java.io.File;
+import java.net.SocketException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
@@ -35,14 +40,10 @@ import javax.management.remote.JMXServiceURL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.net.SocketException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
+
 
 /**
- * This class is responsible for managing the JMX RMI Server
+ * This class is responsible for managing the JMX RMI Server.
  */
 public class JMXServerManager {
     private static Log log = LogFactory.getLog(JMXServerManager.class);
@@ -54,6 +55,7 @@ public class JMXServerManager {
     private static final String JMX_HOST_NAME         = "HostName";
     private static final String JMX_RMI_REGISTRY_PORT = "RMIRegistryPort";
     private static final String JMX_RMI_SERVER_PORT   = "RMIServerPort";
+    private static final String ACCESS_FILE_PATH = System.getProperty("com.sun.management.jmxremote.access.file");
     private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     private JMXConfig jmxProperties = new JMXConfig();
@@ -91,7 +93,7 @@ public class JMXServerManager {
         try {
             try {
                 rmiRegistry = LocateRegistry.createRegistry(rmiRegistryPort);
-                log.info("Created the RMI local registry "+ rmiRegistryPort);
+                log.info("Created the RMI local registry " + rmiRegistryPort);
             } catch (Throwable ignored) {
                 log.error("Could not create the RMI local registry", ignored);
             }
@@ -100,7 +102,7 @@ public class JMXServerManager {
             //If 'startRMIServer' element in jmx.xml file set to true and 'HostName' element
             // value that file is not null.
             if (startJMXServer && jmxProperties.getHostName() != null) {
-                hostName = jmxProperties.getHostName();//Set hostname value from jmx.xml file.
+                hostName = jmxProperties.getHostName(); //Set hostname value from jmx.xml file.
             } else { //Else
                 hostName = NetworkUtils.getLocalHostname();
             }
@@ -120,9 +122,7 @@ public class JMXServerManager {
             // Security credentials are included in the env Map
             HashMap<String, Object> env = new HashMap<String, Object>();
             env.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
-            String access_file_path;
-            access_file_path = System.getProperty("com.sun.management.jmxremote.access.file");
-            env.put("jmx.remote.x.access.file", access_file_path);
+            env.put("jmx.remote.x.access.file", ACCESS_FILE_PATH);
 
             jmxConnectorServer =
                 JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
@@ -236,7 +236,8 @@ public class JMXServerManager {
         } catch (ParserConfigurationException e) {
             log.error(
                     "Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
-                            Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
+                            Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " +
+                            Constants.LOAD_EXTERNAL_DTD_FEATURE);
         }
 
         SecurityManager securityManager = new SecurityManager();
