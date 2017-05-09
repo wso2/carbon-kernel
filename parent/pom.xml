@@ -641,8 +641,8 @@
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <carbon.utils.package.import.version.range>[1.0.0, 2.0.0)</carbon.utils.package.import.version.range>
         <carbon.config.version>2.0.0-SNAPSHOT</carbon.config.version>
-        <carbon.config.package.import.version.range>[1.0.0, 3.0.0)</carbon.config.package.import.version.range>
-        <carbon.securevault.version>5.0.2-SNAPSHOT</carbon.securevault.version>
+        <carbon.config.package.import.version.range>[2.0.0, 3.0.0)</carbon.config.package.import.version.range>
+        <carbon.securevault.version>5.0.3-SNAPSHOT</carbon.securevault.version>
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
