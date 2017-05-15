@@ -20,7 +20,7 @@
 		<Parameter id="p2">carbon.config.dir.path</Parameter>
 		<Parameter id="p3">axis2.home</Parameter>
 	</Validator>
-	<Validator class="org.wso2.carbon.core.bootup.validator.SupportedOSValidator">
+	<!--<Validator class="org.wso2.carbon.core.bootup.validator.SupportedOSValidator">
 		<Parameter id="os1">Linux</Parameter>
 		<Parameter id="os2">Unix</Parameter>
 		<Parameter id="os3">Mac OS</Parameter>
@@ -32,6 +32,6 @@
 		<Parameter id="os9">Windows Server 2008</Parameter>
 		<Parameter id="os10">Windows Server 2008 R2</Parameter>
 		<Parameter id="os11">AIX</Parameter>
-	</Validator>
+	</Validator>-->
 </Configuration>
 
