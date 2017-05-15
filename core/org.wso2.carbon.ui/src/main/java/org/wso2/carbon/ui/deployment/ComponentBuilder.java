@@ -24,6 +24,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.ui.deployment.beans.Component;
 import org.wso2.carbon.ui.deployment.beans.Context;
 import org.wso2.carbon.ui.deployment.beans.FileUploadExecutorConfig;
@@ -34,8 +35,10 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.wso2.carbon.CarbonConstants.AUTHENTICATION;
@@ -278,11 +281,19 @@ public final class ComponentBuilder {
                     OMElement actionsElement =
                             mapppingElement.getFirstChildWithName(
                                     new QName(CarbonConstants.WSO2CARBON_NS, CarbonConstants.ACTIONS));
-
+                    String confPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
                     if (actionsElement == null) {
-                        String msg = "The mandatory FileUploadConfig/Actions entry " +
-                                "does not exist or is empty in the CARBON_HOME/conf/carbon.xml " +
-                                "file. Please fix this error in the  carbon.xml file and restart.";
+                        String msg;
+                        if (confPath == null) {
+                            msg = "The mandatory FileUploadConfig/Actions entry " +
+                                  "does not exist or is empty in the CARBON_HOME/repository/conf/carbon.xml " +
+                                  "file. Please fix this error in the  carbon.xml file and restart.";
+                        } else {
+                            String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
+                            msg = "The mandatory FileUploadConfig/Actions entry " +
+                                  "does not exist or is empty in the CARBON_HOME/" + relativeConfDirPath + "/carbon.xml" +
+                                  "file. Please fix this error in the  carbon.xml file and restart.";
+                        }
                         log.error(msg);
                         throw new CarbonException(msg);
                     }
@@ -291,10 +302,19 @@ public final class ComponentBuilder {
                                     new QName(CarbonConstants.WSO2CARBON_NS, CarbonConstants.ACTION));
 
                     if (!actionElementIterator.hasNext()) {
-                        String msg = "A FileUploadConfig/Mapping entry in the " +
-                                "CARBON_HOME/conf/carbon.xml should have at least on Action " +
-                                "defined. Please fix this error in the carbon.xml file and " +
-                                "restart.";
+                        String msg;
+                        if (confPath == null) {
+                            msg = "A FileUploadConfig/Mapping entry in the " +
+                                  "CARBON_HOME/repository/conf/carbon.xml should have at least on Action " +
+                                  "defined. Please fix this error in the carbon.xml file and " +
+                                  "restart.";
+                        } else {
+                            String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
+                            msg = "A FileUploadConfig/Mapping entry in the " +
+                                  "CARBON_HOME/" + relativeConfDirPath + "/carbon.xml should have at least on Action " +
+                                  "defined. Please fix this error in the carbon.xml file and " +
+                                  "restart.";
+                        }
                         log.error(msg);
                         throw new CarbonException(msg);
                     }
@@ -303,9 +323,17 @@ public final class ComponentBuilder {
                             new QName(CarbonConstants.WSO2CARBON_NS, CarbonConstants.CLASS));
 
                     if (classElement == null || classElement.getText() == null) {
-                        String msg = "The mandatory FileUploadConfig/Mapping/Class entry " +
-                                "does not exist or is empty in the CARBON_HOME/conf/carbon.xml " +
-                                "file. Please fix this error in the  carbon.xml file and restart.";
+                        String msg;
+                        if (confPath == null) {
+                            msg = "The mandatory FileUploadConfig/Mapping/Class entry " +
+                                  "does not exist or is empty in the CARBON_HOME/repository/conf/carbon.xml " +
+                                  "file. Please fix this error in the  carbon.xml file and restart.";
+                        } else {
+                            String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
+                            msg = "The mandatory FileUploadConfig/Mapping/Class entry " +
+                                  "does not exist or is empty in the CARBON_HOME/" + relativeConfDirPath + "/carbon.xml " +
+                                  "file. Please fix this error in the  carbon.xml file and restart.";
+                        }
                         log.error(msg);
                         throw new CarbonException(msg);
                     }
@@ -332,9 +360,17 @@ public final class ComponentBuilder {
                     while (actionElementIterator.hasNext()) {
                         OMElement actionElement = (OMElement) actionElementIterator.next();
                         if (actionElement.getText() == null) {
-                            String msg = "A FileUploadConfig/Mapping/Actions/Action element in the " +
-                                    "CARBON_HOME/conf/carbon.xml file is empty. Please include " +
-                                    "the correct value in this file and restart.";
+                            String msg;
+                            if (confPath == null) {
+                                msg = "A FileUploadConfig/Mapping/Actions/Action element in the " +
+                                      "CARBON_HOME/repository/conf/carbon.xml file is empty. Please include " +
+                                      "the correct value in this file and restart.";
+                            } else {
+                                String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
+                                msg = "A FileUploadConfig/Mapping/Actions/Action element in the " +
+                                      "CARBON_HOME/" + relativeConfDirPath + "/carbon.xml file is empty. Please include " +
+                                      "the correct value in this file and restart.";
+                            }
                             log.error(msg);
                             throw new CarbonException(msg);
                         }

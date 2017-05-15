@@ -19,15 +19,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import java.util.Arrays;
@@ -95,8 +96,14 @@ public class JspClassLoader extends URLClassLoader {
 
         system = getSystemClassLoader();
 
-        String launchIniPath = System.getProperty("carbon.home") + File.separator + "repository" +
-                File.separator + "conf" + File.separator + "etc" + File.separator + "launch.ini";
+        String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+        String launchIniPath;
+        if (configPath == null) {
+            launchIniPath = Paths.get(System.getProperty(CarbonBaseConstants.CARBON_HOME), "repository", "conf", "etc",
+                                      "launch.ini").toString();
+        } else {
+            launchIniPath = Paths.get(configPath, "etc", "launch.ini").toString();
+        }
         readSystemPackagesList(launchIniPath);
 
     }

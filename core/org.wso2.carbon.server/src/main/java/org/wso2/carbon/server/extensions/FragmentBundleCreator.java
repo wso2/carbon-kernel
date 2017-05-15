@@ -54,8 +54,13 @@ public abstract class FragmentBundleCreator implements CarbonLaunchExtension {
                     attribs.putValue(LauncherConstants.BUNDLE_VERSION, FRAGMENT_BUNDLE_VERSION);
                     attribs.putValue(LauncherConstants.FRAGMENT_HOST,fragmentHostBundleName);
                     attribs.putValue(LauncherConstants.BUNDLE_CLASSPATH, ".");
-
-                    File dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
+                    String dropinsPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
+                    File dropinsFolder;
+                    if (dropinsPath == null) {
+                        dropinsFolder = new File(Utils.getCarbonComponentRepo(), "dropins");
+                    } else {
+                        dropinsFolder = new File(dropinsPath);
+                    }
                     String targetFilePath = dropinsFolder.getAbsolutePath() + File.separator +
                             fragmentBundleName + "_" + FRAGMENT_BUNDLE_VERSION + ".jar";
 

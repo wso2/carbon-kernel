@@ -131,7 +131,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     }
 
     private boolean isLocalCache(String cacheName, DistributedMapProvider distributedMapProvider) {
-        return cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) || distributedMapProvider == null;
+        return cacheName.contains(CachingConstants.LOCAL_CACHE_PREFIX) || distributedMapProvider == null;
     }
 
     void switchToDistributedMode() {

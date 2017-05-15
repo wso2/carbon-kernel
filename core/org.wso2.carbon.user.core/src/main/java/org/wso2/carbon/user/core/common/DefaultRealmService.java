@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
@@ -51,6 +52,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -62,7 +64,7 @@ public class DefaultRealmService implements RealmService {
 
     private static final Log log = LogFactory.getLog(DefaultRealmService.class);
     private static final String PRIMARY_TENANT_REALM = "primary";
-    private static final String DB_CHECK_SQL = "select * from UM_USER";
+    private static final String DB_CHECK_SQL = "select * from UM_SYSTEM_USER";
     //to track whether this is the first time initialization of the pack.
     private static boolean isFirstInitialization = true;
     private RealmCache realmCache = RealmCache.getInstance();
@@ -170,9 +172,8 @@ public class DefaultRealmService implements RealmService {
             return userRealm;
         }
         try {
-            if (tenantManager.getTenant(tenantId) != null) {
-
-                Tenant tenant = tenantManager.getTenant(tenantId);
+            Tenant tenant = tenantManager.getTenant(tenantId);
+            if (tenant != null) {
                 RealmConfiguration tenantRealmConfig = tenant.getRealmConfig();
                 MultiTenantRealmConfigBuilder realmConfigBuilder = getMultiTenantRealmConfigBuilder();
                 if (realmConfigBuilder != null) {
@@ -290,8 +291,13 @@ public class DefaultRealmService implements RealmService {
                 }
                 inStream = new FileInputStream(userMgtXml);
             } else {
-                inStream = this.getClass().getClassLoader()
-                        .getResourceAsStream("repository/conf/user-mgt.xml");
+                String confPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+                if (confPath == null) {
+                    inStream = this.getClass().getClassLoader().getResourceAsStream(Paths.get("repository", "conf", "user-mgt.xml").toString());
+                } else {
+                    String relativeConfDirPath = Paths.get(System.getProperty("carbon.home")).relativize(Paths.get(confPath)).toString();
+                    inStream = this.getClass().getClassLoader().getResourceAsStream(Paths.get(relativeConfDirPath, "user-mgt.xml").toString());
+                }
                 if (inStream == null) {
                     String msg = "Instance of a WSO2 User Manager has not been created. user-mgt.xml is not found. Please set the carbon.home";
                     throw new FileNotFoundException(msg);

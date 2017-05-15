@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 
 /**
  * A bug in p2 libs(https://bugs.eclipse.org/bugs/show_bug.cgi?id=344153) prevent us from using bundle pooling with
@@ -33,8 +34,16 @@ import java.io.PrintWriter;
  */
 public class EclipseIniRewriter implements CarbonLaunchExtension {
     private static Log log = LogFactory.getLog(EclipseIniRewriter.class);
-    private static final String CARBON_OSGI_DIR_LOCATION = System.getProperty("carbon.home") + File.separator +
-            "repository" + File.separator + "components";
+    private static final String CARBON_OSGI_DIR_LOCATION;
+
+    static {
+        String componentsPath = System.getProperty(LauncherConstants.CARBON_COMPONENTS_DIR_PATH);
+        if (componentsPath == null) {
+            CARBON_OSGI_DIR_LOCATION = Paths.get(System.getProperty("carbon.home"), "repository", "components").toString();
+        } else {
+            CARBON_OSGI_DIR_LOCATION = componentsPath;
+        }
+    }
 
     public void perform() {
         File eclipseIni = null;

@@ -34,6 +34,9 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.wso2.carbon.ui.deployment.beans.CarbonUIDefinitions;
 import org.wso2.carbon.ui.deployment.beans.Menu;
 import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
@@ -209,10 +212,28 @@ public class CarbonUIUtil {
         String mgtConsoleTransport = CarbonUtils.getManagementTransport();
         ConfigurationContextService configContextService = CarbonUIServiceComponent
             .getConfigurationContextService();
-        int httpsPort = CarbonUtils.getTransportPort(configContextService, mgtConsoleTransport);
-        int httpsProxyPort =
-            CarbonUtils.getTransportProxyPort(configContextService.getServerConfigContext(),
-                                              mgtConsoleTransport);
+        int httpsPort;
+        int httpsProxyPort;
+        /* With this system property we are starting tomcat ports randomly, Therefore we need fix proxy ports
+        according to that, This fix is added due to showing wrong port for management console url in the console
+        */
+        String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
+        if (isRandomPort != null && isRandomPort.equals("true")) {
+            CarbonTomcatService tomcatService = CarbonUIServiceComponent.getCarbonTomcatService();
+            if (tomcatService != null) {
+                httpsPort = tomcatService.getPort(mgtConsoleTransport);
+                httpsProxyPort = tomcatService.getProxyPort(mgtConsoleTransport);
+            } else {
+                httpsPort = CarbonUtils.getTransportPort(configContextService, mgtConsoleTransport);
+                httpsProxyPort = CarbonUtils.getTransportProxyPort(configContextService.getServerConfigContext(),
+                        mgtConsoleTransport);
+            }
+        } else {
+            httpsPort = CarbonUtils.getTransportPort(configContextService, mgtConsoleTransport);
+            httpsProxyPort =
+                    CarbonUtils.getTransportProxyPort(configContextService.getServerConfigContext(),
+                            mgtConsoleTransport);
+        }
         // Context
         if ("/".equals(context)) {
             context = "";

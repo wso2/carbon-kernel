@@ -33,8 +33,8 @@ import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.i18n.Messages;
 import org.apache.axis2.transport.TransportListener;
 import org.apache.axis2.transport.TransportSender;
+import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.core.transports.util.TransportParameter;
-import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 
@@ -272,9 +273,7 @@ public class TransportBuilderUtils implements DeploymentConstants {
     public static OMElement parseTransportConfiguration(String transport,
                                                         URL url, boolean listener) throws Exception {
 
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        File configFile = new File(carbonHome + File.separator + "repository" +  File.separator +
-                "conf" + File.separator + transport + "-config");
+        File configFile = new File(Paths.get(CarbonBaseUtils.getCarbonConfigDirPath(), transport + "-config").toString());
 
         InputStream configStream;
 

@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -601,8 +602,15 @@ public class PatchUtils {
     }
 
     public static File getMetaDirectory() {
-         File metaDir = new File(Utils.getCarbonRepoPath() + File.separator + "components" + File.separator +
-                LauncherConstants.PARENT_PATCHES_DIR + File.separator + LauncherConstants.PATCH_METADATA_DIR);
+        String patchesPath = System.getProperty("carbon.patches.dir.path");
+        File metaDir;
+        if (patchesPath == null) {
+            metaDir = new File(Paths.get(Utils.getCarbonRepoPath(), "components", LauncherConstants.PARENT_PATCHES_DIR,
+                                         LauncherConstants.PATCH_METADATA_DIR).toString());
+        } else {
+            metaDir = new File(Paths.get(patchesPath, LauncherConstants.PATCH_METADATA_DIR).toString());
+        }
+
         if (!metaDir.exists() && !metaDir.mkdirs()) {
             patchLog.warn("Error while creating meta data directory in " + metaDir.getAbsolutePath());
         }

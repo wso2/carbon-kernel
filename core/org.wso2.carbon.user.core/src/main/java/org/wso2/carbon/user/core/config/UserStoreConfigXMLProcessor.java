@@ -40,16 +40,12 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
-import javax.crypto.Cipher;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
@@ -57,18 +53,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.crypto.Cipher;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 public class UserStoreConfigXMLProcessor {
 
     private static final Log log = LogFactory.getLog(UserStoreConfigXMLProcessor.class);
     private static BundleContext bundleContext;
-    private static Cipher keyStoreCipher = null;
+    private static PrivateKey privateKey = getPrivateKey();
     private SecretResolver secretResolver;
     private String filePath = null;
 
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
-        initializeKeyStore();
     }
 
     public static void setBundleContext(BundleContext bundleContext) {
@@ -198,8 +196,8 @@ public class UserStoreConfigXMLProcessor {
         return realmConfig;
     }
 
-    private Map<String, String> getChildPropertyElements(OMElement omElement,
-                                                         SecretResolver secretResolver) {
+    private Map<String, String> getChildPropertyElements(OMElement omElement, SecretResolver secretResolver)
+            throws org.wso2.carbon.user.api.UserStoreException {
         String domainName = "";
         try {
             AXIOMXPath xPath = new AXIOMXPath(UserCoreConstants.RealmConfig.DOMAIN_NAME_XPATH);
@@ -306,7 +304,7 @@ public class UserStoreConfigXMLProcessor {
      * @param propElem Property OMElement
      * @return decrypted text value
      */
-    private String resolveEncryption(OMElement propElem) {
+    private String resolveEncryption(OMElement propElem) throws org.wso2.carbon.user.api.UserStoreException {
         String propValue = propElem.getText();
         if (propValue != null) {
             String secretPropName = propElem.getAttributeValue(new QName("encrypted"));
@@ -316,6 +314,14 @@ public class UserStoreConfigXMLProcessor {
                             UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME)));
                 }
                 try {
+                    Cipher keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                    privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
+                    if (privateKey == null) {
+                        throw new org.wso2.carbon.user.api.UserStoreException(
+                                "Private key initialization failed. Cannot decrypt the userstore password.");
+                    }
+
+                    keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
                     propValue = new String(keyStoreCipher.doFinal(Base64.
                             decode(propValue.trim())));
                 } catch (GeneralSecurityException e) {
@@ -332,7 +338,7 @@ public class UserStoreConfigXMLProcessor {
     /**
      * Initializes and assign the keyStoreCipher only for the first time.
      */
-    private void initializeKeyStore() {
+    private static PrivateKey getPrivateKey() {
         ServerConfigurationService serverConfigurationService =
                 UserStoreMgtDSComponent.getServerConfigurationService();
 
@@ -340,54 +346,47 @@ public class UserStoreConfigXMLProcessor {
             String message = "Key store initialization for decrypting secondary store failed due to" +
                     " serverConfigurationService is null while attempting to decrypt secondary store";
             log.error(message);
-            return;
+            return null;
         }
 
-        if (keyStoreCipher == null) {
-
-            String password = serverConfigurationService.getFirstProperty(
-                    "Security.KeyStore.Password");
-            String keyPass = serverConfigurationService.getFirstProperty(
-                    "Security.KeyStore.KeyPassword");
-            String keyAlias = serverConfigurationService.getFirstProperty(
-                    "Security.KeyStore.KeyAlias");
-            InputStream in = null;
-            try {
-                KeyStore store = KeyStore.getInstance(
-                        serverConfigurationService.getFirstProperty(
-                                "Security.KeyStore.Type"));
-                String file = new File(serverConfigurationService.getFirstProperty(
-                        "Security.KeyStore.Location")).getAbsolutePath();
-                in = new FileInputStream(file);
-                store.load(in, password.toCharArray());
-                PrivateKey privateKey = (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
-                keyStoreCipher = Cipher.getInstance("RSA", "BC");
-                keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
-            } catch (FileNotFoundException e) {
-                String errorMsg = "Keystore File Not Found in configured location";
-                log.error(errorMsg, e);
-            } catch (IOException e) {
-                String errorMsg = "Keystore File IO operation failed";
-                log.error(errorMsg, e);
-            } catch (InvalidKeyException e) {
-                String errorMsg = "Invalid key is used to access keystore";
-                log.error(errorMsg, e);
-            } catch (KeyStoreException e) {
-                String errorMsg = "Faulty keystore";
-                log.error(errorMsg, e);
-            } catch (GeneralSecurityException e) {
-                String errorMsg = "Some parameters assigned to access the " +
-                        "keystore is invalid";
-                log.error(errorMsg, e);
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        log.error("Error occurred while closing Registry key store file", e);
-                    }
+        String password = serverConfigurationService.getFirstProperty(
+                "Security.KeyStore.Password");
+        String keyPass = serverConfigurationService.getFirstProperty(
+                "Security.KeyStore.KeyPassword");
+        String keyAlias = serverConfigurationService.getFirstProperty(
+                "Security.KeyStore.KeyAlias");
+        InputStream in = null;
+        try {
+            KeyStore store = KeyStore.getInstance(
+                    serverConfigurationService.getFirstProperty(
+                            "Security.KeyStore.Type"));
+            String file = new File(serverConfigurationService.getFirstProperty(
+                    "Security.KeyStore.Location")).getAbsolutePath();
+            in = new FileInputStream(file);
+            store.load(in, password.toCharArray());
+            return (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
+        } catch (FileNotFoundException e) {
+            String errorMsg = "Keystore File Not Found in configured location";
+            log.error(errorMsg, e);
+        } catch (IOException e) {
+            String errorMsg = "Keystore File IO operation failed";
+            log.error(errorMsg, e);
+        } catch (KeyStoreException e) {
+            String errorMsg = "Faulty keystore";
+            log.error(errorMsg, e);
+        } catch (GeneralSecurityException e) {
+            String errorMsg = "Some parameters assigned to access the " +
+                    "keystore is invalid";
+            log.error(errorMsg, e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.error("Error occurred while closing Registry key store file", e);
                 }
             }
         }
+        return null;
     }
 }

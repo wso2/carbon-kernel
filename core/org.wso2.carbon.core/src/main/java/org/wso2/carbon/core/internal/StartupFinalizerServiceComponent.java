@@ -154,6 +154,8 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
 
     private void completeInitialization(BundleContext bundleContext) {
         //Add CAppDeployer to deployment engine
+        /* notify listeners of server startup before transport starts */
+        CarbonCoreServiceComponent.notifyBefore();
 
         bundleContext.removeServiceListener(this);
         pendingServicesObservationTimer.cancel();
@@ -181,9 +183,6 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
             throw new RuntimeException(msg, e);
         }
 
-        /* notify listeners of server startup before transport starts */
-        CarbonCoreServiceComponent.notifyBefore();
-        
         if (CarbonUtils.isRunningInStandaloneMode()) {
             try {
                 Class<?> transportManagerClass = Class.forName(TRANSPORT_MANAGER);

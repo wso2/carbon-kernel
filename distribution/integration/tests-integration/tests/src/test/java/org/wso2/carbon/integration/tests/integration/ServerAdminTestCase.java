@@ -100,7 +100,7 @@ public class ServerAdminTestCase extends CarbonIntegrationBaseTest {
         con.setRequestMethod("GET");
         con.setRequestProperty("Cookie", sessionCookie);
         int responseCode = con.getResponseCode();
-        assertEquals(responseCode, HttpStatus.SC_FORBIDDEN);
+        assertEquals(responseCode, HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     private void applyConfigChange() throws IOException {

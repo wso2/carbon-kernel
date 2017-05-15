@@ -34,9 +34,11 @@ import org.apache.catalina.startup.Constants;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.digester.Digester;
-import org.apache.coyote.http11.Http11NioProtocol;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.tomcat.CarbonTomcatException;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.xml.sax.SAXException;
@@ -44,8 +46,12 @@ import org.xml.sax.SAXException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -66,13 +72,15 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      */
     public void configure(String baseDir, InputStream inputStream) {
         this.setBaseDir(baseDir);
-        globalWebXml = new File(System.getProperty("carbon.home")).getAbsolutePath() +
-                File.separator + "repository" + File.separator + "conf" + File.separator +
-                "tomcat" + File.separator + "web.xml";
+        String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
+        if (configPath == null) {
+            globalWebXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "web.xml").toString();
+            globalContextXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "context.xml").toString();
+        } else {
+            globalWebXml = Paths.get(configPath, "tomcat", "web.xml").toString();
+            globalContextXml = Paths.get(configPath, "tomcat", "context.xml").toString();
+        }
 
-        globalContextXml = new File(System.getProperty("carbon.home")).getAbsolutePath() +
-                File.separator + "repository" + File.separator + "conf" + File.separator +
-                "tomcat" + File.separator + "context.xml";
         //creating a digester to parse our catalina-server.xml
         Digester digester = catalina.createStartDigester();
         digester.push(this);
@@ -404,8 +412,20 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         Connector[] connectors = this.getService().findConnectors();
         for (Connector connector : connectors) {
             try {
-                int currentPort = connector.getPort();
-                connector.setPort(currentPort + portOffset);
+                String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
+                if (isRandomPort != null && isRandomPort.equals("true")) {
+                    connector.setPort(findFreePort());
+                    connector.setProxyPort(connector.getProxyPort() + portOffset);
+                } else {
+                    String portNumber = System.getProperty("tomcat." + connector.getScheme() + ".port");
+                    if (portNumber != null) {
+                        connector.setPort(Integer.parseInt(portNumber));
+                        connector.setProxyPort(connector.getProxyPort() + portOffset);
+                    } else {
+                        int currentPort = connector.getPort();
+                        connector.setPort(currentPort + portOffset);
+                    }
+                }
                 connector.start();
                 if (log.isDebugEnabled()) {
                     log.debug("staring the tomcat connector : " + connector.getProtocol());
@@ -430,8 +450,20 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         for (Connector connector : connectors) {
             if (connector.getScheme().equals(scheme)) {
                 try {
-                    int currentPort = connector.getPort();
-                    connector.setPort(currentPort + portOffset);
+                    String isRandomPort = System.getProperty(CarbonConstants.TOMCAT_RANDOM_PORT_ENABLE);
+                    if (isRandomPort != null && isRandomPort.equals("true")) {
+                        connector.setPort(findFreePort());
+                        connector.setProxyPort(connector.getProxyPort() + portOffset);
+                    } else {
+                        String portNumber = System.getProperty("tomcat." + connector.getScheme() + ".port");
+                        if (portNumber != null) {
+                            connector.setPort(Integer.parseInt(portNumber));
+                            connector.setProxyPort(connector.getProxyPort() + portOffset);
+                        } else {
+                            int currentPort = connector.getPort();
+                            connector.setPort(currentPort + portOffset);
+                        }
+                    }
                     connector.start();
                     if (log.isDebugEnabled()) {
                         log.debug("staring the tomcat connector : " + connector.getProtocol());
@@ -493,6 +525,46 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
     public boolean isUnpackWARs() {
         StandardHost standardHost = (StandardHost) this.getHost();
         return standardHost.isUnpackWARs();
+    }
+
+    /**
+     * Returns true if the specified port is available on this host.
+     *
+     * @param port the port to check
+     * @return true if the port is available, false otherwise
+     */
+    private static boolean available(final int port) {
+        ServerSocket serverSocket = null;
+        DatagramSocket dataSocket = null;
+        try {
+            serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true);
+            dataSocket = new DatagramSocket(port);
+            dataSocket.setReuseAddress(true);
+            return true;
+        } catch (final IOException e) {
+            return false;
+        } finally {
+            if (dataSocket != null) {
+                dataSocket.close();
+            }
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (final IOException e) {
+                    log.warn("Error occurred while closing the " + port + " port.");
+                }
+            }
+        }
+    }
+
+    private static int findFreePort() {
+        int i = 30000 + (int) (Math.random() * ((10000) + 1));
+        if (available(i)) {
+            return i;
+        } else {
+            return findFreePort();
+        }
     }
 
     /**

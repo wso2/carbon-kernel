@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -85,9 +86,14 @@ public class SecretManagerInitializer {
 
     private Properties loadProperties() {
         Properties properties = new Properties();
-        String carbonHome = System.getProperty(CARBON_HOME);
-        String filePath = carbonHome + File.separator + REPOSITORY_DIR + File.separator +
-                          CONF_DIR + File.separator + SECURITY_DIR+ File.separator + SECRET_CONF;
+        String filePath;
+        String configPath = System.getProperty("carbon.config.dir.path");
+        if (configPath == null) {
+            String carbonHome = System.getProperty(CARBON_HOME);
+            filePath = Paths.get(carbonHome, REPOSITORY_DIR, CONF_DIR, SECURITY_DIR, SECRET_CONF).toString();
+        } else {
+            filePath = Paths.get(configPath, SECURITY_DIR, SECRET_CONF).toString();
+        }
 
         File dataSourceFile = new File(filePath);
         if (!dataSourceFile.exists()) {

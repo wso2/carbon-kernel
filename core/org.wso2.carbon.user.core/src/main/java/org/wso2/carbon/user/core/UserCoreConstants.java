@@ -17,6 +17,8 @@
 */
 package org.wso2.carbon.user.core;
 
+import org.wso2.carbon.base.ServerConfiguration;
+
 public class UserCoreConstants {
 
     public static final String DATA_SOURCE = "um.datasource";
@@ -62,7 +64,16 @@ public class UserCoreConstants {
 
     public static final String IS_USER_IN_ROLE_CACHE_IDENTIFIER = "@__isUserHasTheRole__@";
 
-    public static final String DOMAIN_SEPARATOR = "/";
+    public static final String DOMAIN_SEPARATOR;
+
+    static {
+        String userDomainSeparator = ServerConfiguration.getInstance().getFirstProperty("UserDomainSeparator");
+        if (userDomainSeparator != null && !userDomainSeparator.trim().isEmpty()) {
+            DOMAIN_SEPARATOR = userDomainSeparator.trim();
+        } else {
+            DOMAIN_SEPARATOR = "/";
+        }
+    }
 
     public static final String PRINCIPAL_USERNAME_SEPARATOR = "_";
 
