@@ -33,6 +33,8 @@ import java.util.Map;
 /**
  * Set the permission of the resource file in the target directory.
  * The {runtime} placeholder in the target directory path is replaced with the profile,
+ * This is basically a copy of natives ChmodAction class(@see org.eclipse.equinox.internal.p2.touchpoint.natives
+ * .actions.ChmodAction) with {runtime} placeholder support.
  *
  * @since 5.2.0
  */
@@ -49,6 +51,7 @@ public class ChmodAction extends ProvisioningAction {
         Object absoluteFiles = parameters.get(Constants.PARM_ABSOLUTE_FILES); //String or String[]
         String targetDir = (String) parameters.get(Constants.PARM_TARGET_DIR);
         String targetFile = (String) parameters.get(Constants.PARM_TARGET_FILE);
+        // Add new variable to keep the profile.
         String profile = parameters.get(Constants.PROFILE).toString();
 
         if (targetFile != null && absoluteFiles != null) {
@@ -66,10 +69,12 @@ public class ChmodAction extends ProvisioningAction {
             return new Status(IStatus.ERROR, Constants.PLUGIN_ID, "Permission is not set");
         }
 
+        // custom code starts here
         // replace the {runtime} placeholder in target directory path with the profile.
         String runtime = profile.substring(profile.indexOf(Constants.PROFILE_END_CHAR) + 1, profile.length() - 1);
         targetDir = targetDir.replaceAll(Constants.RUNTIME_KEY, runtime);
         targetFile = targetFile.replaceAll(Constants.RUNTIME_KEY, runtime);
+        // custom code ends here
 
         String optionsString = (String) parameters.get(Constants.PARM_OPTIONS);
 
