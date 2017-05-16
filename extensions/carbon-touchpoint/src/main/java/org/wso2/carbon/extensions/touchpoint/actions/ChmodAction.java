@@ -31,7 +31,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Custom action for Chmod.
+ * Set the permission of the resource file in the target directory.
+ * The {runtime} placeholder in the target directory path is replaced with the profile,
+ *
+ * @since 5.2.0
  */
 public class ChmodAction extends ProvisioningAction {
     private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
@@ -63,6 +66,7 @@ public class ChmodAction extends ProvisioningAction {
             return new Status(IStatus.ERROR, Constants.PLUGIN_ID, "Permission is not set");
         }
 
+        // replace the {runtime} placeholder in target directory path with the profile.
         String runtime = profile.substring(profile.indexOf(Constants.PROFILE_END_CHAR) + 1, profile.length() - 1);
         targetDir = targetDir.replaceAll(Constants.RUNTIME_KEY, runtime);
         targetFile = targetFile.replaceAll(Constants.RUNTIME_KEY, runtime);
