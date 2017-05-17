@@ -23,14 +23,13 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserRealmService;
+import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
@@ -42,9 +41,11 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
     private static Log log = LogFactory.getLog(CarbonJMXAuthenticator.class);
     private static UserRealm userRealm;
-    private String roleName = null;
-    private static final String JMX_MONITOR_ROLE = "JMXMonitorRole";
-    private static final String JMX_CONTROL_ROLE = "JMXControlRole";
+    private static final String JMX_MONITOR_ROLE = "monitorRole";
+    private static final String JMX_CONTROL_ROLE = "controlRole";
+    private static final String UI_EXECUTE = "ui.execute";
+    private static final String JMX_USER_READONLY_PERMISSION = "/permission/protected/server-admin/jmx/readonly";
+    private static final String JMX_USER_READWRITE_PERMISSION = "/permission/protected/server-admin/jmx/readwrite";
 
     private static Log audit = CarbonConstants.AUDIT_LOG;
 
@@ -131,40 +132,28 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         }
     }
 
-    private String authorize(String userName) {
-        UserStoreManager authorizer;
-        List<String> userRoleslist;
+    private String authorize(String userName) throws UserStoreException {
+
+        AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
         String roleName = null;
 
-        try {
-            authorizer = userRealm.getUserStoreManager();
-        } catch (UserStoreException e) {
-            String msg = "Cannot get authorizer from Realm";
-            log.error(msg, e);
-            throw new SecurityException(msg, e);
+        if (authorizationManager != null) {
+            if (authorizationManager.isUserAuthorized(userName, JMX_USER_READWRITE_PERMISSION, UI_EXECUTE)) {
+                roleName = JMX_CONTROL_ROLE;
+            } else if (authorizationManager.isUserAuthorized(userName, JMX_USER_READONLY_PERMISSION, UI_EXECUTE)) {
+                roleName = JMX_MONITOR_ROLE;
+            }
+            if (roleName != null) {
+                audit.info("User: " + userName + " successfully authorized as " +
+                        roleName + " to perform JMX operations.");
+                return roleName;
+
+            } else {
+                throw new SecurityException("User: " + userName + " not authorized to perform JMX operations.");
+            }
         }
 
-        try {
-            userRoleslist = Arrays.asList(authorizer.getRoleListOfUser(userName));
-        } catch (UserStoreException e) {
-            String msg = "Cannot get list of roles for user " + userName;
-            log.error(msg, e);
-            throw new SecurityException(msg, e);
-        }
-
-        if (userRoleslist.contains(JMX_MONITOR_ROLE)) {
-            roleName = JMX_MONITOR_ROLE;
-        } else if (userRoleslist.contains(JMX_CONTROL_ROLE)) {
-            roleName = JMX_CONTROL_ROLE;
-        }
-        if (roleName != null) {
-            audit.info("User: " + userName + " successfully authorized as " +
-                    roleName + " to perform JMX operations.");
-
-            return roleName;
-        } else {
-            throw new SecurityException("User: " + userName + " not authorized to perform JMX operations.");
-        }
+        throw new UserStoreException("Unable to retrieve Authorization manager to perform authorization");
     }
 
     public static String extractTenantDomain(String userName) {
