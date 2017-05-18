@@ -1,5 +1,5 @@
 ################################################################################
-#   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
   # Carbon Configuration Parameters
 wso2.carbon:
     # value to uniquely identify a server
-  id: carbon-kernel
+  id: ${sys:server.id}
     # server name
-  name: WSO2 Carbon Kernel
-  tenant: ${tenant.name}
+  name: ${env:server.name}
+  tenant: ${sec:wso2.sample.tenant}
 
     # ports used by this server
   ports:
@@ -60,3 +60,4 @@ wso2.securevault:
     type: org.wso2.carbon.secvault.reader.DefaultMasterKeyReader
     parameters:
       masterKeyReaderFile: conf/master-keys.yaml
+
