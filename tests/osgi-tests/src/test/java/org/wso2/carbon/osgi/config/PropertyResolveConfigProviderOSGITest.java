@@ -87,7 +87,7 @@ public class PropertyResolveConfigProviderOSGITest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "property-resolve",
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-config",
                 DEPLOYMENT_FILENAME);
         return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
     }
@@ -104,7 +104,7 @@ public class PropertyResolveConfigProviderOSGITest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "property-resolve",
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-config",
                 SECRET_PROPERTIES_FILENAME);
         return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", SECRET_PROPERTIES_FILENAME));
     }
