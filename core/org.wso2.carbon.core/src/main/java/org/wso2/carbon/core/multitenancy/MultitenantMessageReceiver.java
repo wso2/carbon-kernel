@@ -144,7 +144,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                                                      mainInMsgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
 
                     //if OUT_ONLY property is true, no response message. ESBJAVA-3989
-                    if (!(tenantRequestMsgCtx.getAxisOperation() instanceof OutOnlyAxisOperation)) {
+                    if (!(tenantRequestMsgCtx.getOperationContext()
+                            .getAxisOperation() instanceof OutOnlyAxisOperation)) {
                         tenantResponseMsgCtx.setAxisMessage(tenantRequestMsgCtx.getOperationContext().getAxisOperation()
                                 .getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE));
                     }
