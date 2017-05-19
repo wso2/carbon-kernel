@@ -68,10 +68,16 @@ while [ -h "$PRG" ]; do
 done
 
 # Get standard environment variables
-PRGDIR=`dirname "$PRG"`
+TEMPCURDIR=`dirname "$PRG"`
+
+# Only set RUNTIME_HOME if not already set
+[ -z "$RUNTIME_HOME" ] && RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
 
 # Only set CARBON_HOME if not already set
-[ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
+[ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$TEMPCURDIR/../../../" ; pwd`
+
+# Only set RUNTIME if not already set
+[ -z "$RUNTIME" ] && RUNTIME=${RUNTIME_HOME##*/}
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
@@ -100,12 +106,6 @@ if $mingw ; then
     JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
   # TODO classpath?
 fi
-
-#Set the runtimehome based on carbon.sh location
-TEMPCURDIR=`dirname "$PRG"`
-RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
-CARBON_HOME=`cd "$TEMPCURDIR/../../../" ; pwd`
-RUNTIME=${RUNTIME_HOME##*/}
 
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then

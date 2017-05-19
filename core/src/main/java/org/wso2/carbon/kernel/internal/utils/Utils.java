@@ -15,10 +15,15 @@
  */
 package org.wso2.carbon.kernel.internal.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.utils.Constants;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 /**
  * Kernel internal utils.
@@ -26,6 +31,12 @@ import java.nio.file.Paths;
  * @since 5.0.0
  */
 public class Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    /**
+     * Maven project properties.
+     */
+    private static final String PROJECT_DEFAULTS_PROPERTY_FILE = "project.defaults.properties";
 
     private Utils() {
     }
@@ -38,5 +49,22 @@ public class Utils {
     public static Path getCarbonYAMLLocation() {
         return Paths.get(org.wso2.carbon.utils.Utils.getCarbonConfigHome().toString(),
                 Constants.CARBON_CONFIG_YAML);
+    }
+
+    /**
+     * This method reads project properties in resource file.
+     *
+     * @return project properties
+     */
+    public static Properties loadProjectProperties() {
+        Properties properties = new Properties();
+        try (InputStream in = Utils.class.getClassLoader().getResourceAsStream(PROJECT_DEFAULTS_PROPERTY_FILE)) {
+            if (in != null) {
+                properties.load(in);
+            }
+        } catch (IOException e) {
+            logger.error("Error while reading the project default properties, hence apply default values.", e);
+        }
+        return properties;
     }
 }

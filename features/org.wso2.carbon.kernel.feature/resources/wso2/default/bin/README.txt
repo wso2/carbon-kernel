@@ -7,10 +7,7 @@ this directory.
 1. README.txt
     - This file
 
-2. kernel-version.txt
-    - A simple text file used for storing the version
-
-3. carbon.sh & carbon.bat
+2. carbon.sh & carbon.bat
     - The main script file used for running the server.
 
     Usage: carbon.sh [commands] [system-properties]
@@ -35,19 +32,7 @@ this directory.
                                 If the optional 'options-file' is provided, the OSGi
                                 debug options will be loaded from it.
 
-4. jartobundle.sh script
-    - The script file which runs the org.wso2.carbon.jartobundle-tool.jar tool.
-
-    - This tool is capable of converting specified jar files to their corresponding OSGi bundles.
-
-    Usage: jartobundle.sh [source] [destination]
-
-        -- source       source jar file/directory path containing jar file(s) to be converted to
-                           OSGi bundle(s)
-
-        -- destination  destination directory path in which the OSGi bundles are to be created
-
-5. ciphertool.sh & ciphertool.bat
+3. ciphertool.sh & ciphertool.bat
     - The script files which run the cipher tool.
 
     - This tool is mainly used to secure (encrypt) the secrets given in the conf/security/secrets.properties file.
@@ -74,11 +59,4 @@ this directory.
                Loads the libraries in the given path first and perform the same operation as in eg:1.
                This is an optional flag.
 
-6. osgi-lib.sh & osgi-lib.bat
-    - The script files which run the OSGi-Lib deployer tool.
-
-    - This tool updates the bundles.info file of the specified Carbon Runtime.
-
-    Usage : osgi-lib.sh [runtime]
-
-        -- runtime      name of the Carbon Runtime to be updated or keyword 'ALL' to update all the runtimes.
+the runtimes.
