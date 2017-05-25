@@ -54,7 +54,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 "ou=", UserStoreConfigConstants.connectionNameDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.connectionPassword, "Connection Password",
                 "", UserStoreConfigConstants.connectionPasswordDescription, true);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Based",
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
                 "ou=Users,dc=wso2,dc=org", UserStoreConfigConstants.userSearchBaseDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,
                 "User Entry Object Class", "wso2Person", UserStoreConfigConstants
