@@ -56,7 +56,7 @@ public class PropertyResolveConfigProviderOSGITest {
 
     @Configuration
     public Option[] createConfiguration() {
-        setEnvProperty("server.name", "Test WSO2 Carbon Kernel");
+        setEnvProperty("SERVER_NAME", "Test WSO2 Carbon Kernel");
         return new Option[]{ copyCarbonYAMLOption(), systemProperty("server.id").value("test-carbon-kernel"),
                 copySecretPropertiesOption() };
     }
