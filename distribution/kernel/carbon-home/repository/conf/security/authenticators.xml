@@ -44,7 +44,7 @@
             <!-- <Parameter name="RoleClaimAttribute"></Parameter> -->
             <!-- <Parameter name="AttributeValueSeparator">,</Parameter> -->
 
-            <!-- <Parameter name="JITUserProvisioning">true</Parameter> -->
+            <!-- <Parameter name="JITUserProvisioningEnabled">true</Parameter> -->
             <!-- <Parameter name="ProvisioningDefaultUserstore">PRIMARY</Parameter> -->
             <!-- <Parameter name="ProvisioningDefaultRole">admin</Parameter> -->
             <!-- <Parameter name="IsSuperAdminRoleRequired">true</Parameter> -->
