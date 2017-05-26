@@ -19,7 +19,7 @@ wso2.carbon:
     # value to uniquely identify a server
   id: ${sys:server.id}
     # server name
-  name: ${env:server.name}
+  name: ${env:SERVER_NAME}
   tenant: ${sec:wso2.sample.tenant}
 
     # ports used by this server
