@@ -89,6 +89,6 @@ public class BaseOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", DEPLOYMENT_FILENAME);
-        return copyFile(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "default", DEPLOYMENT_FILENAME));
     }
 }

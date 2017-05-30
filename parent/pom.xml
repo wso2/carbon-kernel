@@ -641,11 +641,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bundle.symbolicName>${project.artifactId}</bundle.symbolicName>
 
-        <carbon.utils.version>1.2.0</carbon.utils.version>
+        <carbon.utils.version>1.2.1</carbon.utils.version>
         <carbon.utils.package.import.version.range>[1.0.0, 2.0.0)</carbon.utils.package.import.version.range>
-        <carbon.config.version>1.0.0</carbon.config.version>
-        <carbon.config.package.import.version.range>[1.0.0, 2.0.0)</carbon.config.package.import.version.range>
-        <carbon.securevault.version>5.0.2</carbon.securevault.version>
+        <carbon.config.version>2.0.0</carbon.config.version>
+        <carbon.config.package.import.version.range>[2.0.0, 3.0.0)</carbon.config.package.import.version.range>
+        <carbon.securevault.version>5.0.4</carbon.securevault.version>
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
@@ -696,8 +696,8 @@
         <org.eclipse.equinox.p2.metadata.version>2.2.0.v20131211-1531</org.eclipse.equinox.p2.metadata.version>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>1.9.0</pax.logging.api.version>
-        <pax.logging.log4j2.version>1.9.0</pax.logging.log4j2.version>
+        <pax.logging.api.version>1.10.0</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.10.0</pax.logging.log4j2.version>
 
         <!--Maven Plugins -->
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
@@ -740,7 +740,6 @@
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>
         <javax.xml.import.version.range>[0.0.0,1.0.0)</javax.xml.import.version.range>
-        <org.json.import.version>3.0.0.wso2v1</org.json.import.version>
         <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
         <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
         <javax.crypto.version.range>[0.0.0,1.0.0)</javax.crypto.version.range>

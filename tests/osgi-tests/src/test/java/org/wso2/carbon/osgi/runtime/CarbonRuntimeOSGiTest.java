@@ -28,13 +28,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.config.ConfigurationUtils;
 import org.wso2.carbon.container.CarbonContainerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.CarbonServerInfo;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -67,7 +68,7 @@ public class CarbonRuntimeOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        return new Option[] { copyCarbonYAMLOption() };
+        return new Option[] { copyCarbonYAMLOption()};
     }
 
     @Test
@@ -84,7 +85,7 @@ public class CarbonRuntimeOSGiTest {
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
-        Properties properties = ConfigurationUtils.loadProjectProperties();
+        Properties properties = loadProjectProperties();
         Assert.assertEquals(carbonConfiguration.getVersion(), properties.getProperty(Constants.MAVEN_PROJECT_VERSION));
 
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
@@ -116,6 +117,22 @@ public class CarbonRuntimeOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", DEPLOYMENT_FILENAME);
-        return copyFile(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "default", DEPLOYMENT_FILENAME));
+    }
+
+    /**
+     * @return project properties in project.defaults.properties
+     */
+    private Properties loadProjectProperties() {
+        Properties properties = new Properties();
+        try (InputStream in = CarbonConfiguration.class.getClassLoader().getResourceAsStream("project.defaults" +
+                ".properties")) {
+            if (in != null) {
+                properties.load(in);
+            }
+        } catch (IOException e) {
+            logger.error("Error while reading the project default properties, hence apply default values.", e);
+        }
+        return properties;
     }
 }

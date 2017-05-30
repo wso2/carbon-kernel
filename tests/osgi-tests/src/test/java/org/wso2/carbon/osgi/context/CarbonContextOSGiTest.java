@@ -136,6 +136,6 @@ public class CarbonContextOSGiTest {
             basedir = Paths.get(".").toString();
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-context", DEPLOYMENT_FILENAME);
-        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
+        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "default", DEPLOYMENT_FILENAME));
     }
 }

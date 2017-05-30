@@ -36,4 +36,9 @@ public final class Constants {
     public static final String PARM_COPY_OVERWRITE = "overwrite";
     public static final String RUNTIME_KEY = "\\{runtime\\}";
 
+    public static final String PARM_ABSOLUTE_FILES = "absoluteFiles";
+    public static final String PARM_TARGET_DIR = "targetDir";
+    public static final String PARM_TARGET_FILE = "targetFile";
+    public static final String PARM_PERMISSIONS = "permissions";
+    public static final String PARM_OPTIONS = "options";
 }

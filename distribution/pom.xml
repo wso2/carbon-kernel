@@ -71,6 +71,11 @@
             <artifactId>org.wso2.carbon.utils.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.touchpoint.feature</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -134,6 +139,10 @@
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
                             <features>
                                 <feature>
+                                    <id>org.wso2.carbon.touchpoint.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.carbon.kernel.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
@@ -167,7 +176,6 @@
                                 ${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart
                             </executable>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-
                         </configuration>
                     </execution>
                     <execution>

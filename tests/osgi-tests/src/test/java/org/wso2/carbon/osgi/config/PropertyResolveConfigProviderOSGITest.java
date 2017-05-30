@@ -89,7 +89,7 @@ public class PropertyResolveConfigProviderOSGITest {
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-config",
                 DEPLOYMENT_FILENAME);
-        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
+        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "default", DEPLOYMENT_FILENAME));
     }
 
     /**
@@ -106,7 +106,7 @@ public class PropertyResolveConfigProviderOSGITest {
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "carbon-config",
                 SECRET_PROPERTIES_FILENAME);
-        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", SECRET_PROPERTIES_FILENAME));
+        return new CopyFileOption(carbonYmlFilePath, Paths.get("conf", "default", SECRET_PROPERTIES_FILENAME));
     }
 
     /**

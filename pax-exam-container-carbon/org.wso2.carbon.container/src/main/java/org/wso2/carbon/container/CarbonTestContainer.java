@@ -138,9 +138,11 @@ public class CarbonTestContainer implements TestContainer {
             //copy files to the distributions if there are any
             copyFiles(targetDirectory);
             Path carbonBin = targetDirectory.resolve("bin");
+            Path runtimeBin = targetDirectory.resolve("wso2").resolve("default").resolve("bin");
 
             //make the files in the bin directory to be executable
             makeFilesInBinExec(carbonBin.toFile());
+            makeFilesInBinExec(runtimeBin.toFile());
             List<String> options = new ArrayList<>();
             String[] environment = new String[] {};
 
@@ -152,7 +154,7 @@ public class CarbonTestContainer implements TestContainer {
             if (debugOption != null) {
                 options.add(debugOption.getDebugConfiguration());
             }
-            runner.exec(environment, targetDirectory, options);
+            runner.exec(environment, targetDirectory.resolve("wso2").resolve("default"), options);
             logger.debug("Wait for test container to finish its initialization " + subsystem.getTimeout());
 
             //wait for the osgi environment to be active

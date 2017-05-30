@@ -54,11 +54,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.tools.core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.json.wso2</groupId>
-            <artifactId>json</artifactId>
-            <version>${org.json.import.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -149,10 +144,10 @@
                                         <include>bin/**</include>
                                         <include>conf/**</include>
                                         <include>logs/**</include>
+                                        <include>wso2/default/**</include>
                                         <include>wso2/lib/**</include>
                                         <include>lib/**</include>
                                         <include>resources/**</include>
-                                        <include>securevault/**</include>
                                         <include>tmp/**</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>
@@ -198,10 +193,6 @@
                                 <bundle>
                                     <symbolicName>org.yaml.snakeyaml</symbolicName>
                                     <version>${org.snakeyaml.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>json</symbolicName>
-                                    <version>${org.json.import.version}</version>
                                 </bundle>
                             </bundles>
                             <importFeatures>

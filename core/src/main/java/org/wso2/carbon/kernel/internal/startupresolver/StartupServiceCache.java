@@ -24,8 +24,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * StartupServiceCache caches all the startup services against the component name given in the
- * ${@link org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener} and interface name of the services.
+ * StartupServiceCache caches all the startup services against the component name.
+ * Component name is taken from ${@link org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener}
+ * and interface name of the services.
  *
  * @since 5.2.0
  */

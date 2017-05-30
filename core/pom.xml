@@ -82,11 +82,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.json.wso2</groupId>
-            <artifactId>json</artifactId>
-            <version>${org.json.import.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <scope>test</scope>
@@ -186,7 +181,6 @@
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
             javax.xml.*;version="${javax.xml.import.version.range}",
             org.w3c.*;version="${org.w3c.import.version.range}",
-            org.json.*;version="${org.json.import.version}",
             org.xml.sax.*;version="${org.xml.sax.import.version.range}",
             javax.crypto.*;version="${javax.crypto.version.range}",
         </import.package>

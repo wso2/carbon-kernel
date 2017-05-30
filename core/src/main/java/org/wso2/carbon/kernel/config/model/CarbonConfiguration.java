@@ -15,12 +15,12 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
-import org.wso2.carbon.config.ConfigurationUtils;
 import org.wso2.carbon.config.annotation.Configuration;
 import org.wso2.carbon.config.annotation.Element;
 import org.wso2.carbon.config.annotation.Ignore;
 import org.wso2.carbon.kernel.Constants;
 import org.wso2.carbon.kernel.internal.config.JMXConfiguration;
+import org.wso2.carbon.kernel.internal.utils.Utils;
 
 import java.util.Properties;
 
@@ -34,7 +34,7 @@ public class CarbonConfiguration {
 
     public CarbonConfiguration() {
         // Reads the {@value Constants#PROJECT_DEFAULTS_PROPERTY_FILE} property file and assign project version.
-        Properties properties = ConfigurationUtils.loadProjectProperties();
+        Properties properties = Utils.loadProjectProperties();
         version = properties.getProperty(Constants.MAVEN_PROJECT_VERSION);
     }
 

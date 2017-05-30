@@ -299,7 +299,7 @@ public class OSGiLibBundleDeployerUtils {
      */
     public static List<String> getCarbonProfiles(String carbonHome) throws IOException {
         Path carbonProfilesHome = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY);
-        Path osgiRepoPath = Paths.get(carbonHome, Constants.OSGI_REPOSITORY);
+        Path osgiRepoPath = Paths.get(carbonHome, Constants.PROFILE_REPOSITORY, Constants.OSGI_LIB);
         Stream<Path> profiles = Files.list(carbonProfilesHome);
         List<String> profileNames = new ArrayList<>();
 

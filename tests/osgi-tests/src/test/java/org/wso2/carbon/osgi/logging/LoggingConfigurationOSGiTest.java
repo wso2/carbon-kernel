@@ -62,7 +62,7 @@ public class LoggingConfigurationOSGiTest {
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = Paths.get("..", "..").toString();
+            basedir = Paths.get("..", "..", "..", "..").toString();
         }
         loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }
@@ -113,7 +113,7 @@ public class LoggingConfigurationOSGiTest {
         Logger audit = Constants.AUDIT_LOG;
         audit.info("Attempting to test the audit logs.");
 
-        Path auditLog = Paths.get(System.getProperty("carbon.home"), "logs", "audit.log");
+        Path auditLog = Paths.get(System.getProperty("wso2.runtime.path"), "logs", "audit.log");
 
         Assert.assertTrue(Files.exists(auditLog), "audit.log does not exist.");
         try (Stream<String> stream = Files.lines(auditLog)) {

@@ -19,7 +19,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
         </Console>
-        <RollingFile name="AUDIT_LOGFILE" fileName="${sys:carbon.home}/logs/audit.log"
+        <RollingFile name="AUDIT_LOGFILE" fileName="${sys:wso2.runtime.path}/logs/audit.log"
                      filePattern="${sys:project.build.directory}/logs/audit-%d{MM-dd-yyyy}.log">
             <PatternLayout pattern="[%d] %5p %X %m%ex%n"/>
             <Policies>

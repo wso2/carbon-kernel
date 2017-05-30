@@ -68,15 +68,22 @@ while [ -h "$PRG" ]; do
 done
 
 # Get standard environment variables
-PRGDIR=`dirname "$PRG"`
+TEMPCURDIR=`dirname "$PRG"`
+
+# Only set RUNTIME_HOME if not already set
+[ -z "$RUNTIME_HOME" ] && RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
 
 # Only set CARBON_HOME if not already set
-[ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
+[ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$TEMPCURDIR/../../../" ; pwd`
+
+# Only set RUNTIME if not already set
+[ -z "$RUNTIME" ] && RUNTIME=${RUNTIME_HOME##*/}
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$CARBON_HOME" ] && CARBON_HOME=`cygpath --unix "$CARBON_HOME"`
+  [ -n "$RUNTIME_HOME" ] && RUNTIME_HOME=`cygpath --unix "$RUNTIME_HOME"`
 fi
 
 # For OS400
@@ -100,10 +107,6 @@ if $mingw ; then
     JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
   # TODO classpath?
 fi
-
-#Set the runtimehome based on carbon.sh location
-TEMPCURDIR=`dirname "$PRG"`
-RUNTIME_HOME=`cd "$TEMPCURDIR/.." ; pwd`
 
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
@@ -279,6 +282,7 @@ do
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
     -Dwso2.runtime.path="$RUNTIME_HOME" \
+    -Dwso2.runtime="$RUNTIME" \
     -Djava.util.logging.config.file="$RUNTIME_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \

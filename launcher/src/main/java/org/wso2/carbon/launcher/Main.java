@@ -42,6 +42,7 @@ import static org.wso2.carbon.launcher.Constants.PAX_LOGGING_PROPERTIES_FILE;
 import static org.wso2.carbon.launcher.Constants.PAX_LOGGING_PROPERTY_FILE_KEY;
 import static org.wso2.carbon.launcher.Constants.PAX_LOG_SERVICE_RANKING_LEVEL;
 import static org.wso2.carbon.launcher.Constants.PROFILE;
+import static org.wso2.carbon.launcher.Constants.RUNTIME;
 import static org.wso2.carbon.launcher.Constants.RUNTIME_PATH;
 
 /**
@@ -161,11 +162,13 @@ public class Main {
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
         System.setProperty(PAX_LOG_SERVICE_RANKING_LEVEL, String.valueOf(Integer.MAX_VALUE));
 
-        Path paxLoggingPropertiesFile = Paths.get(carbonHome, "conf", "etc", PAX_LOGGING_PROPERTIES_FILE);
+        Path paxLoggingPropertiesFile =
+                Paths.get(System.getProperty(CARBON_HOME), "conf", System.getProperty(RUNTIME), "etc",
+                        PAX_LOGGING_PROPERTIES_FILE);
         if (paxLoggingPropertiesFile.toFile().exists()) {
             System.setProperty(PAX_LOGGING_PROPERTY_FILE_KEY, paxLoggingPropertiesFile.toAbsolutePath().toString());
             logger.log(Level.FINE, "Setting pax logging properties file path to : " +
-                                   paxLoggingPropertiesFile.toAbsolutePath().toString());
+                    paxLoggingPropertiesFile.toAbsolutePath().toString());
         } else {
             String msg = PAX_LOGGING_PROPERTIES_FILE + " should be available to start the server";
             logger.log(Level.SEVERE, msg);

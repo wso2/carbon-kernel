@@ -65,7 +65,7 @@ public class JMXOSGiTest {
         }
         carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "jmx", DEPLOYMENT_FILENAME);
 
-        return copyFile(carbonYmlFilePath, Paths.get("conf", DEPLOYMENT_FILENAME));
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "default", DEPLOYMENT_FILENAME));
     }
 
     @Configuration
