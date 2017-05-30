@@ -1,14 +1,19 @@
 Installing  WSO2 Carbon Kernel ${carbon.version}
 
-1. The directory containing this INSTALL.txt file will be the root directory,
-   and let it be CARBON_HOME.
+1. The directory containing this INSTALL.txt file will be the root directory, and let it be CARBON_HOME.
+   RUNTIME_HOME refers to runtime directory in CARBON_HOME/wso2/RUNTIME where RUNTIME(e.g: default) refers to name of
+    the runtime.
 
-2. All the shell scripts and .bat files are available in CARBON_HOME/bin directory.
+2. Server specific shell scripts(jartobundle.sh,osgi-lib.sh) and .bat files(jartobundle.bat,osgi-lib.bat) are
+available in CARBON_HOME/bin directory.
 
-3. To start Carbon Server, use carbon.sh in all *nix system, and carbon.bat
+3. Runtime specific shell scripts(carbon.sh,ciphertool.sh) and .bat files(carbon.bat,ciphertool.bat) are available in
+ RUNTIME_HOME/bin
+
+4. To start Carbon Server, use carbon.sh in all *nix system, and carbon.bat
    file on Windows operating systems.
 
-4. Either of the following commands can be used to start Carbon
+5. Either of the following commands can be used to start Carbon
       i)  ./carbon.sh
      ii)  carbon.bat
 

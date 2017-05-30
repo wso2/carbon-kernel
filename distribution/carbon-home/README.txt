@@ -18,11 +18,11 @@ What's New In This Release
 Installation & Running
 ----------------------
 1. Extract the downloaded zip file.
-2. Run the carbon.sh or carbon.bat file in the bin directory.
+2. Run the carbon.sh or carbon.bat file in the wso2/default/bin directory.
 3. You can enable/disable OSGi Console by un-commenting the osgi.console property in
-   CARBON_HOME/conf/osgi/launch.properties file.
+   CARBON_HOME/conf/default/osgi/launch.properties file.
 4. You can enable OSGi debug logs by un-commenting the osgi.debug property in
-   CARBON_HOME/conf/osgi/launch.properties file.
+   CARBON_HOME/conf/default/osgi/launch.properties file.
 
 Hardware Requirements
 -------------------
@@ -40,11 +40,18 @@ Carbon Binary Distribution Directory Structure
 
      CARBON_HOME
         |-- bin <directory>
-        |   |-- bootstrap <directory>
-        |-- osgi <directory>
         |-- conf <directory>
+            |-- default <directory>
+        |-- lib <directory>
         |-- logs <directory>
+        |-- resources <directory>
+            |-- security <directory>
         |-- tmp <directory>
+        |-- wso2 <directory>
+            |-- default <directory>
+                |-- bin <directory>
+                |-- logs <directory>
+            |-- lib <directory>
         |-- LICENSE.txt <file>
         |-- README.txt <file>
         |-- INSTALL.txt <file>
@@ -54,14 +61,17 @@ Carbon Binary Distribution Directory Structure
       Contains various scripts .sh & .bat scripts.
         - bootstrap
             Contains the basic set of libraries required to bootstrap Carbon.
-    - osgi
+    - lib
       Contains all OSGi related libraries and configurations.
 
     - conf
-      Contains server configuration files. Ex: deployment.yaml
+      Contains configuration files per runtime. Ex: default/deployment.yaml
 
-    - logs
-      Contains all log files created during execution.
+    - resources
+      Contains server resource files. Ex: security/securevault.jks
+
+    - wso2
+      Contains all server runtimes. Ex: default
 
     - tmp
       Used for storing temporary files, and is pointed to by the
