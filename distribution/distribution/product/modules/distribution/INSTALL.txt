@@ -1,0 +1,66 @@
+Installing  WSO2 Carbon ${carbon.version}
+
+1. The directory containing this INSTALL file will the root and it will be
+   treated as Carbon home directory and let it be CARBON_HOME.
+
+2. All the shell scripts and .bat files are available in CARBON_HOME/bin directory.
+
+3. To start Carbon, use wso2server.sh in all *nix
+   system & wso2server.bat file on Windows operating systems.
+
+4. Either of the following commands can be used to start Carbon
+      i)  ./wso2server.sh {start|stop|restart|version}
+     ii)  wso2server.bat {start|stop|version}
+
+        Usage: wso2server.sh [commands] [system-properties]
+
+            commands:
+                --start		Start Carbon using nohup
+                --stop		Stop the Carbon server process
+                --restart	Restart the Carbon server process
+                --cleanRegistry Clean registry space.
+                                [CAUTION] All Registry data will be lost..
+                --debug <port>  Start the server in remote debugging mode.
+                                port: The remote debugging port.
+                --help      List all the available commands and system properties
+                --version   The version of the product you are running.
+
+            system-properties:
+
+                -DosgiConsole=[port]
+                                Start Carbon with Equinox OSGi console.
+                                If the optional 'port' parameter is provided, a
+                                telnet port will be opened.
+
+                -DosgiDebugOptions
+                                Start Carbon with OSGi debugging enabled.
+                                Debug options are loaded from the file
+                                repository/conf/etc/osgi-debug.options
+
+                -Dsetup         Clean the Registry and other configuration,
+                                recreate DB, re-populate the configuration,
+                                and start Carbon.
+
+                -DportOffset=<offset>
+                                The number by which all ports defined in the runtime ports will be offset
+
+                -DserverRoles<roles>
+                                A comma separated list of roles. Used in deploying cApps
+ 
+                -DworkerNode
+                                Set this system property when starting as a worker node.
+		
+                -Dprofile=<profileName>
+				Starts the server as the specified profile. e.g. worker profile.
+
+                -Dtenant.idle.time=<timeInMinutes>
+                                If a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.
+
+Hardware and Software Requirements
+-------------------
+For more details see
+https://docs.wso2.com/display/Carbon4411/Installing+the+Product
+
+
+
+
