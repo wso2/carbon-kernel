@@ -1,0 +1,580 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:axis2="http://prov.services.mgt.component.carbon.wso2.org" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax28="http://exceptions.prov.services.mgt.component.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax211="http://data.prov.services.mgt.component.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://prov.services.mgt.component.carbon.wso2.org">
+    <wsdl:documentation>RepositoryAdminService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ax29="http://org.apache.axis2/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exceptions.prov.services.mgt.component.carbon.wso2.org/xsd">
+            <xs:import namespace="http://org.apache.axis2/xsd" />
+            <xs:complexType name="ProvisioningException">
+                <xs:complexContent>
+                    <xs:extension base="ns1:Exception">
+                        <xs:sequence />
+
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax212="http://data.prov.services.mgt.component.carbon.wso2.org/xsd" xmlns:ax210="http://exceptions.prov.services.mgt.component.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+            <xs:import namespace="http://exceptions.prov.services.mgt.component.carbon.wso2.org/xsd" />
+            <xs:import namespace="http://data.prov.services.mgt.component.carbon.wso2.org/xsd" />
+            <xs:complexType name="Exception">
+                <xs:sequence>
+
+                    <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ProvisioningException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="ProvisioningException" nillable="true" type="ax210:ProvisioningException" />
+                    </xs:sequence>
+                </xs:complexType>
+
+            </xs:element>
+            <xs:element name="updateRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="prevLocation" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="prevNickName" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="updatedLocation" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="updatedNickName" nillable="true" type="xs:string" />
+                    </xs:sequence>
+
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="refreshRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeatures">
+                <xs:complexType>
+
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="groupByCategory" type="xs:boolean" />
+                        <xs:element minOccurs="0" name="hideInstalledFeatures" type="xs:boolean" />
+                        <xs:element minOccurs="0" name="showOnlyTheLatestFeatures" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeaturesResponse">
+
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax211:Feature" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeatureInfo">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element minOccurs="0" name="featureID" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="featureVersion" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeatureInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax211:FeatureInfo" />
+
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEnabledRepositoriesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax211:RepositoryInfo" />
+                    </xs:sequence>
+                </xs:complexType>
+
+            </xs:element>
+            <xs:element name="getAllRepositoriesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax211:RepositoryInfo" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="enableRepository">
+
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="enabled" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRepository">
+                <xs:complexType>
+
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="nickName" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://data.prov.services.mgt.component.carbon.wso2.org/xsd">
+            <xs:complexType name="Feature">
+
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="featureDescription" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureID" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="featureName" nillable="true" type="xs:string" />
+                     <xs:element minOccurs="0" name="featureType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureVersion" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="installed" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="provider" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="required" type="xs:boolean" />
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="requiredFeatures" nillable="true" type="ax211:Feature" />
+                </xs:sequence>
+
+            </xs:complexType>
+            <xs:complexType name="FeatureInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="copyrightInfo" nillable="true" type="ax211:CopyrightInfo" />
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="featureID" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="featureName" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="featureVersion" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="licenseInfo" nillable="true" type="ax211:LicenseInfo" />
+
+                    <xs:element minOccurs="0" name="provider" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="CopyrightInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="body" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:complexType name="LicenseInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="body" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="RepositoryInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="enabled" type="xs:boolean" />
+
+                    <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="nickName" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="enableRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:enableRepository" />
+    </wsdl:message>
+
+    <wsdl:message name="ProvisioningException">
+        <wsdl:part name="parameters" element="ns1:ProvisioningException" />
+    </wsdl:message>
+    <wsdl:message name="getEnabledRepositoriesRequest" />
+    <wsdl:message name="getEnabledRepositoriesResponse">
+        <wsdl:part name="parameters" element="ns1:getEnabledRepositoriesResponse" />
+    </wsdl:message>
+    <wsdl:message name="refreshRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:refreshRepository" />
+
+    </wsdl:message>
+    <wsdl:message name="updateRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:updateRepository" />
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeatureInfoRequest">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeatureInfo" />
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeatureInfoResponse">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeatureInfoResponse" />
+
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeaturesRequest">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeatures" />
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeaturesResponse">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeaturesResponse" />
+    </wsdl:message>
+    <wsdl:message name="removeRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:removeRepository" />
+
+    </wsdl:message>
+    <wsdl:message name="addRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:addRepository" />
+    </wsdl:message>
+    <wsdl:message name="getAllRepositoriesRequest" />
+    <wsdl:message name="getAllRepositoriesResponse">
+        <wsdl:part name="parameters" element="ns1:getAllRepositoriesResponse" />
+    </wsdl:message>
+    <wsdl:portType name="RepositoryAdminServicePortType">
+
+        <wsdl:operation name="enableRepository">
+            <wsdl:input message="axis2:enableRepositoryRequest" wsaw:Action="urn:enableRepository" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:enableRepositoryProvisioningException" />
+        </wsdl:operation>
+        <wsdl:operation name="getEnabledRepositories">
+            <wsdl:input message="axis2:getEnabledRepositoriesRequest" wsaw:Action="urn:getEnabledRepositories" />
+            <wsdl:output message="axis2:getEnabledRepositoriesResponse" wsaw:Action="urn:getEnabledRepositoriesResponse" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:getEnabledRepositoriesProvisioningException" />
+        </wsdl:operation>
+
+        <wsdl:operation name="refreshRepository">
+            <wsdl:input message="axis2:refreshRepositoryRequest" wsaw:Action="urn:refreshRepository" />
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <wsdl:input message="axis2:updateRepositoryRequest" wsaw:Action="urn:updateRepository" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:updateRepositoryProvisioningException" />
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <wsdl:input message="axis2:getInstallableFeatureInfoRequest" wsaw:Action="urn:getInstallableFeatureInfo" />
+
+            <wsdl:output message="axis2:getInstallableFeatureInfoResponse" wsaw:Action="urn:getInstallableFeatureInfoResponse" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:getInstallableFeatureInfoProvisioningException" />
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatures">
+            <wsdl:input message="axis2:getInstallableFeaturesRequest" wsaw:Action="urn:getInstallableFeatures" />
+            <wsdl:output message="axis2:getInstallableFeaturesResponse" wsaw:Action="urn:getInstallableFeaturesResponse" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:getInstallableFeaturesProvisioningException" />
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+
+            <wsdl:input message="axis2:removeRepositoryRequest" wsaw:Action="urn:removeRepository" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:removeRepositoryProvisioningException" />
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <wsdl:input message="axis2:addRepositoryRequest" wsaw:Action="urn:addRepository" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:addRepositoryProvisioningException" />
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <wsdl:input message="axis2:getAllRepositoriesRequest" wsaw:Action="urn:getAllRepositories" />
+
+            <wsdl:output message="axis2:getAllRepositoriesResponse" wsaw:Action="urn:getAllRepositoriesResponse" />
+            <wsdl:fault message="axis2:ProvisioningException" name="ProvisioningException" wsaw:Action="urn:getAllRepositoriesProvisioningException" />
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="RepositoryAdminServiceSoap11Binding" type="axis2:RepositoryAdminServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="enableRepository">
+            <soap:operation soapAction="urn:enableRepository" style="document" />
+            <wsdl:input>
+
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getEnabledRepositories">
+            <soap:operation soapAction="urn:getEnabledRepositories" style="document" />
+            <wsdl:input>
+
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="refreshRepository">
+            <soap:operation soapAction="urn:refreshRepository" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <soap:operation soapAction="urn:updateRepository" style="document" />
+            <wsdl:input>
+
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <soap:operation soapAction="urn:getInstallableFeatureInfo" style="document" />
+            <wsdl:input>
+
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="removeRepository">
+            <soap:operation soapAction="urn:removeRepository" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="getInstallableFeatures">
+            <soap:operation soapAction="urn:getInstallableFeatures" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <soap:operation soapAction="urn:addRepository" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <soap:operation soapAction="urn:getAllRepositories" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+                <soap:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="RepositoryAdminServiceSoap12Binding" type="axis2:RepositoryAdminServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+
+        <wsdl:operation name="enableRepository">
+            <soap12:operation soapAction="urn:enableRepository" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="getEnabledRepositories">
+            <soap12:operation soapAction="urn:getEnabledRepositories" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="refreshRepository">
+            <soap12:operation soapAction="urn:refreshRepository" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+        </wsdl:operation>
+
+        <wsdl:operation name="updateRepository">
+            <soap12:operation soapAction="urn:updateRepository" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <soap12:operation soapAction="urn:getInstallableFeatureInfo" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+            <soap12:operation soapAction="urn:removeRepository" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatures">
+            <soap12:operation soapAction="urn:getInstallableFeatures" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <soap12:operation soapAction="urn:addRepository" style="document" />
+            <wsdl:input>
+
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="ProvisioningException">
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <soap12:operation soapAction="urn:getAllRepositories" style="document" />
+            <wsdl:input>
+
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ProvisioningException">
+                <soap12:fault use="literal" name="ProvisioningException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+    </wsdl:binding>
+    <wsdl:binding name="RepositoryAdminServiceHttpBinding" type="axis2:RepositoryAdminServicePortType">
+        <http:binding verb="POST" />
+        <wsdl:operation name="enableRepository">
+            <http:operation location="enableRepository" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="enableRepository" />
+            </wsdl:input>
+        </wsdl:operation>
+
+        <wsdl:operation name="getEnabledRepositories">
+            <http:operation location="getEnabledRepositories" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="getEnabledRepositories" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getEnabledRepositories" />
+            </wsdl:output>
+        </wsdl:operation>
+
+        <wsdl:operation name="refreshRepository">
+            <http:operation location="refreshRepository" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="refreshRepository" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <http:operation location="updateRepository" />
+            <wsdl:input>
+
+                <mime:content type="text/xml" part="updateRepository" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <http:operation location="getInstallableFeatureInfo" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="getInstallableFeatureInfo" />
+            </wsdl:input>
+            <wsdl:output>
+
+                <mime:content type="text/xml" part="getInstallableFeatureInfo" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+            <http:operation location="removeRepository" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="removeRepository" />
+            </wsdl:input>
+        </wsdl:operation>
+
+        <wsdl:operation name="getInstallableFeatures">
+            <http:operation location="getInstallableFeatures" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="getInstallableFeatures" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getInstallableFeatures" />
+            </wsdl:output>
+        </wsdl:operation>
+
+        <wsdl:operation name="addRepository">
+            <http:operation location="addRepository" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="addRepository" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <http:operation location="getAllRepositories" />
+            <wsdl:input>
+
+                <mime:content type="text/xml" part="getAllRepositories" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getAllRepositories" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="RepositoryAdminService">
+        <wsdl:port name="RepositoryAdminServiceHttpsSoap11Endpoint" binding="axis2:RepositoryAdminServiceSoap11Binding">
+
+            <soap:address location="https://192.168.1.5:9443/services/RepositoryAdminService.RepositoryAdminServiceHttpsSoap11Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="RepositoryAdminServiceHttpsSoap12Endpoint" binding="axis2:RepositoryAdminServiceSoap12Binding">
+            <soap12:address location="https://192.168.1.5:9443/services/RepositoryAdminService.RepositoryAdminServiceHttpsSoap12Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="RepositoryAdminServiceHttpsEndpoint" binding="axis2:RepositoryAdminServiceHttpBinding">
+            <http:address location="https://192.168.1.5:9443/services/RepositoryAdminService.RepositoryAdminServiceHttpsEndpoint/" />
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>

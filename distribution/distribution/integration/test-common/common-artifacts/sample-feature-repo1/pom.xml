@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>common-artifacts</artifactId>
+        <groupId>org.wso2.carbon</groupId>
+        <version>4.4.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>sample-feature-repo1</artifactId>
+    <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Aggregate</name>
+
+
+    <modules>
+        <module>components</module>
+        <module>features</module>
+        <module>repository</module>
+    </modules>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component1</artifactId>
+                <version>${carbon.test.component100}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component1</artifactId>
+                <version>${carbon.test.component101}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component2</artifactId>
+                <version>${carbon.test.component200}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component2</artifactId>
+                <version>${carbon.test.component201}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component3</artifactId>
+                <version>${carbon.test.component300}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component3</artifactId>
+                <version>${carbon.test.component301}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.licensed.feature</artifactId>
+                <version>${carbon.test.component200}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.unlicensed.feature</artifactId>
+                <version>${carbon.test.component100}</version>
+                <type>zip</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <properties>
+        <carbon.test.component100>1.0.0-SNAPSHOT</carbon.test.component100>
+        <carbon.test.component101>1.0.1-SNAPSHOT</carbon.test.component101>
+        <carbon.test.component200>1.0.0-SNAPSHOT</carbon.test.component200>
+        <carbon.test.component201>1.0.1-SNAPSHOT</carbon.test.component201>
+        <carbon.test.component300>1.0.0-SNAPSHOT</carbon.test.component300>
+        <carbon.test.component301>1.0.1-SNAPSHOT</carbon.test.component301>
+    </properties>
+
+
+</project>
