@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.8.0-SNAPSHOT</version>
+    <version>5.9.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -479,6 +479,12 @@
                 <artifactId>junit</artifactId>
                 <scope>test</scope>
                 <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>au.com.bytecode.opencsv.wso2</groupId>
@@ -1491,6 +1497,7 @@
         <xercesImpl.version>2.8.1.wso2v2</xercesImpl.version>
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
         <junit.version>4.11</junit.version>
+        <mockito.version>1.9.5</mockito.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
