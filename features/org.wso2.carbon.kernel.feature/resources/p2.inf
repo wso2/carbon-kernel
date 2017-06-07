@@ -16,7 +16,6 @@ org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../con
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../conf/{runtime}/etc,targetFile:pax-logging.properties,permissions:644);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/bin/bootstrap,targetFile:logging.properties,permissions:644);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../conf/{runtime}/osgi,targetFile:launch.properties,permissions:644);\
-org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../conf/{runtime},targetFile:deployment.yaml,permissions:644);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/logs,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../wso2/lib,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../lib,targetFile:README.txt,permissions:644);\
