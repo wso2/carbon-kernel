@@ -18,7 +18,6 @@ package org.wso2.carbon.tools;
 import org.wso2.carbon.tools.converter.BundleGeneratorTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 import org.wso2.carbon.tools.osgilib.OSGiLibDeployerTool;
-import org.wso2.carbon.tools.securevault.CipherToolInitializer;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -73,9 +72,6 @@ public class CarbonToolExecutor {
             break;
         case "osgi-lib-deployer":
             carbonTool = new OSGiLibDeployerTool();
-            break;
-        case "secure-vault":
-            carbonTool = new CipherToolInitializer();
             break;
         default:
             carbonTool = null;
