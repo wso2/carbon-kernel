@@ -75,6 +75,7 @@ public class POXSecurityHandler implements Handler {
     private static Log log = LogFactory.getLog(POXSecurityHandler.class);
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
     private HandlerDescription description;
+    private static final String MESSAGE_TYPE = "messageType";
 
     @Override
     /**
@@ -336,7 +337,9 @@ public class POXSecurityHandler implements Handler {
             }
         }
         if (response != null) {
-            response.setContentLength(0);
+            if (msgCtx.getProperty(MESSAGE_TYPE) != null) {
+                response.setContentType(String.valueOf(msgCtx.getProperty(MESSAGE_TYPE)));
+            }
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.addHeader("WWW-Authenticate",
                     "BASIC realm=\"" + serverName + "\"");
