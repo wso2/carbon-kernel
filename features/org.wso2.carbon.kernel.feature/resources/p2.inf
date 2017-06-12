@@ -1,7 +1,7 @@
 metaRequirements.0.namespace = org.eclipse.equinox.p2.iu
 metaRequirements.0.name = org.wso2.carbon.extensions.touchpoint
 instructions.configure = \
-org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/launcher/,target:${installFolder}/../{runtime}/bin/bootstrap/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/launcher/,target:${installFolder}/../../bin/bootstrap/,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/tools/,target:${installFolder}/../../bin/bootstrap/tools/,overwrite:true);\
 org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/conf,target:${installFolder}/../../conf/{runtime},overwrite:true);\
 org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.kernel_${feature.version}/wso2/default/bin,target:${installFolder}/../{runtime}/bin/,overwrite:true);\
