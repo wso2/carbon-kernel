@@ -207,19 +207,19 @@ public final class CarbonUILoginUtil {
      * @return
      */
     protected static boolean letRequestedUrlIn(String requestedURI, String tempUrl) {
-        if (requestedURI.endsWith(".css") || requestedURI.endsWith(".gif")
+        return ((validExtensionInUrl(requestedURI) && !requestedURI.contains(";"))
+                || requestedURI.contains("/registry") || requestedURI.contains("/openid/")
+                || requestedURI.contains("/openidserver") || requestedURI.contains("/gadgets")
+                || requestedURI.contains("/samlsso"));
+    }
+
+    private static boolean validExtensionInUrl(String requestedURI) {
+        return requestedURI.endsWith(".css") || requestedURI.endsWith(".gif")
                 || requestedURI.endsWith(".GIF") || requestedURI.endsWith(".jpg")
                 || requestedURI.endsWith(".JPG") || requestedURI.endsWith(".png")
                 || requestedURI.endsWith(".PNG") || requestedURI.endsWith(".xsl")
                 || requestedURI.endsWith(".xslt") || requestedURI.endsWith(".js")
-                || requestedURI.startsWith("/registry") || requestedURI.endsWith(".html")
-                || requestedURI.endsWith(".ico") || requestedURI.startsWith("/openid/")
-                || requestedURI.indexOf("/openid/") > -1
-                || requestedURI.indexOf("/openidserver") > -1
-                || requestedURI.indexOf("/gadgets") > -1 || requestedURI.indexOf("/samlsso") > -1) {
-            return true;
-        }
-        return false;
+                || requestedURI.endsWith(".html") || requestedURI.endsWith(".ico");
     }
 
     /**
