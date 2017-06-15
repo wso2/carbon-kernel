@@ -30,6 +30,7 @@ import org.apache.axis2.description.AxisBindingOperation;
 import org.apache.axis2.description.AxisEndpoint;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
+import org.apache.axis2.description.OutOnlyAxisOperation;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.description.WSDL2Constants;
@@ -142,9 +143,12 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                     tenantResponseMsgCtx.setProperty(MessageContext.TRANSPORT_HEADERS,
                                                      mainInMsgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
 
-                    tenantResponseMsgCtx.setAxisMessage(tenantRequestMsgCtx.getOperationContext()
-                                                                           .getAxisOperation()
-                                                                           .getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE));
+                    //if OUT_ONLY property is true, no response message. ESBJAVA-3989
+                    if (!(tenantRequestMsgCtx.getOperationContext()
+                            .getAxisOperation() instanceof OutOnlyAxisOperation)) {
+                        tenantResponseMsgCtx.setAxisMessage(tenantRequestMsgCtx.getOperationContext().getAxisOperation()
+                                .getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE));
+                    }
 
                     tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
                     tenantResponseMsgCtx.setConfigurationContext(tenantRequestMsgCtx.getConfigurationContext());
