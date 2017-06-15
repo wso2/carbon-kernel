@@ -2097,7 +2097,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 Map.Entry<String, String> entry = ite2.next();
                 String claimURI = entry.getKey();
                 String claimValue = claimPropertyMap.get(claimURI);
-                if (availableProperties.containsKey(claimValue)) {
+                if (claimValue != null && availableProperties.containsKey(claimValue)) {
                     String availableValue = availableProperties.get(claimValue);
                     if (availableValue != null && availableValue.equals(entry.getValue())) {
                         continue;
