@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -200,7 +201,7 @@ public class JDBCTenantManager implements TenantManager {
 
 
     public void updateTenant(org.wso2.carbon.user.api.Tenant tenant) throws UserStoreException {
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenant.getId()));
+        clearTenantCache(tenant.getId());
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -258,7 +259,7 @@ public class JDBCTenantManager implements TenantManager {
                         prepStmt.setInt(2, tenant.getId());
                         prepStmt.executeUpdate();
                         dbConnection.commit();
-                        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenant.getId()));
+                        clearTenantCache(tenant.getId());
                         RealmCache.getInstance().clearFromCache(tenant.getId(), "primary");
                     } catch (IOException e) {
                         log.error("Error occurs while reading realm configuration", e);
@@ -289,11 +290,28 @@ public class JDBCTenantManager implements TenantManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Tenant getTenant(int tenantId) throws UserStoreException {
 
-        @SuppressWarnings("unchecked")
-        TenantCacheEntry<Tenant> entry = (TenantCacheEntry<Tenant>) tenantCacheManager
-                .getValueFromCache(new TenantIdKey(tenantId));
+
+        TenantCacheEntry<Tenant> entry = null;
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            entry = (TenantCacheEntry<Tenant>) tenantCacheManager
+                    .getValueFromCache(new TenantIdKey(tenantId));
+        } else {
+
+            // To clear the sub tenant's cache
+            PrivilegedCarbonContext.startTenantFlow();
+            try {
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId, true);
+                entry = (TenantCacheEntry<Tenant>) tenantCacheManager
+                        .getValueFromCache(new TenantIdKey(tenantId));
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+        }
+
         if ((entry != null) && (entry.getTenant() != null)) {
             return entry.getTenant();
         }
@@ -332,7 +350,22 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
-                tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
+
+                if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+                    tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
+                } else {
+
+                    // To clear the sub tenant's cache
+                    PrivilegedCarbonContext.startTenantFlow();
+                    try {
+                        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                        carbonContext.setTenantId(tenantId, true);
+                        tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
+                    } finally {
+                        PrivilegedCarbonContext.endTenantFlow();
+                    }
+                }
+
             }
             dbConnection.commit();
         } catch (SQLException e) {
@@ -539,7 +572,7 @@ public class JDBCTenantManager implements TenantManager {
 
     public void activateTenant(int tenantId) throws UserStoreException {
 
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -567,7 +600,7 @@ public class JDBCTenantManager implements TenantManager {
 
         // Remove tenant information from the cache.
         tenantIdDomainMap.remove(tenantId);
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -631,7 +664,7 @@ public class JDBCTenantManager implements TenantManager {
         if (tenantDomain != null) {
             tenantDomainIdMap.remove(tenantDomain);
         }
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
@@ -719,5 +752,23 @@ public class JDBCTenantManager implements TenantManager {
             }
         }
 
+    }
+
+    private void clearTenantCache(int tenantId) {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        } else {
+
+            // To clear the sub tenant's cache
+            PrivilegedCarbonContext.startTenantFlow();
+            try {
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId, true);
+                tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+        }
     }
 }
