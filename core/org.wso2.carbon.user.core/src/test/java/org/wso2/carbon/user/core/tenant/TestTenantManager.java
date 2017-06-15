@@ -18,20 +18,29 @@
 package org.wso2.carbon.user.core.tenant;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.wso2.carbon.context.internal.OSGiDataHolder;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.BaseTestCase;
+import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.TenantTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
+import org.wso2.carbon.user.core.common.DefaultRealm;
+import org.wso2.carbon.user.core.common.DefaultRealmService;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
+import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class TestTenantManager extends BaseTestCase{
     private TenantManager tenantMan;
+    private static String TEST_URL = "jdbc:h2:./target/Tenanttest/TEN_TEST";
+    DefaultRealm realm = new DefaultRealm();
 
     public void setUp() throws Exception {
         super.setUp();
@@ -50,11 +59,23 @@ public class TestTenantManager extends BaseTestCase{
 
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:./target/Tenanttest/TEN_TEST");
+        ds.setUrl(TEST_URL);
 
         DatabaseCreator creator = new DatabaseCreator(ds);
         creator.createRegistryDatabase();
-        tenantMan = new JDBCTenantManager(ds, "super.com");
+
+        InputStream inStream = this.getClass().getClassLoader().getResource(JDBCRealmTest.JDBC_TEST_USERMGT_XML)
+                .openStream();
+        RealmConfiguration realmConfig = TestRealmConfigBuilder
+                .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
+        realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil.getProfileTestData(), 0);
+
+        tenantMan = new JDBCTenantManager(ds, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+        DefaultRealmService defaultRealmService = new DefaultRealmService(realmConfig,tenantMan);
+
+        OSGiDataHolder.getInstance().setUserRealmService(defaultRealmService);
+
     }
 
     public void doTenantStuff() throws Exception{

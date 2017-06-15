@@ -18,6 +18,9 @@
  */
 package org.wso2.carbon.registry.core.test.multitenant;
 
+import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.BeforeClass;
+import org.wso2.carbon.context.internal.OSGiDataHolder;
 import org.wso2.carbon.registry.core.ActionConstants;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -26,20 +29,23 @@ import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.jdbc.EmbeddedRegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.test.utils.BaseTestCase;
+import org.wso2.carbon.registry.core.test.utils.MultiTenantTestClaimUtil;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.DefaultRealm;
+import org.wso2.carbon.user.core.common.DefaultRealmService;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
-import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.tenant.JDBCTenantManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +54,12 @@ import java.util.Properties;
 public class MultiTenantTest extends BaseTestCase {
 
     protected static EmbeddedRegistryService embeddedRegistryService = null;
+    private static String TEST_URL = "jdbc:h2:./target/Tenanttest/TENANT_TEST";
+    public static final String DB_DRIVER = "org.h2.Driver";
+    public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test.xml";
+    DefaultRealm realm = new DefaultRealm();
 
+    @BeforeClass
     public void setUp() {
         super.setUp();
         if (embeddedRegistryService != null) {
@@ -119,7 +130,7 @@ public class MultiTenantTest extends BaseTestCase {
 
     // Test each registry has different has different user stores
     public void testUserStores() throws RegistryException {
-        RealmConfiguration realmConfig = ctx.getRealmService().getBootstrapRealmConfiguration();
+        RealmConfiguration realmConfig = OSGiDataHolder.getInstance().getUserRealmService().getBootstrapRealmConfiguration();
         // first we will fill the user store for tenant 0
         UserRegistry registry1 =
                 embeddedRegistryService.getUserRegistry(realmConfig.getAdminUserName(), 
@@ -330,16 +341,31 @@ public class MultiTenantTest extends BaseTestCase {
 
 
     // Test adding tenants
-    private void addTenants() throws RegistryException,
-            org.wso2.carbon.user.api.UserStoreException, FileNotFoundException {
-        RealmService realmService = ctx.getRealmService();
-        TenantManager tenantManager = realmService.getTenantManager();
+    private void addTenants() throws Exception {
+        TenantManager tenantManager;
+        String dbFolder = "target/Tenanttest";
+        if ((new File(dbFolder)).exists()) {
+            deleteDir(new File(dbFolder));
+        }
 
-        String userMgtXML = getUserManagementConfigurationPath();
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(DB_DRIVER);
+        ds.setUrl(TEST_URL);
 
-        RealmConfigXMLProcessor processor = new RealmConfigXMLProcessor();
-        RealmConfiguration realmConfig = processor.buildRealmConfiguration(new FileInputStream(
-                userMgtXML));
+        DatabaseCreator creator = new DatabaseCreator(ds);
+        creator.createRegistryDatabase();
+
+        InputStream inStream = this.getClass().getClassLoader()
+                .getResource("user-test" + File.separator + JDBC_TEST_USERMGT_XML).openStream();
+        RealmConfiguration realmConfig = buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
+        realm.init(realmConfig, MultiTenantTestClaimUtil.getClaimTestData(),
+                MultiTenantTestClaimUtil.getProfileTestData(), 0);
+
+        tenantManager = new JDBCTenantManager(ds, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+        DefaultRealmService defaultRealmService = new DefaultRealmService(realmConfig, tenantManager);
+
+        OSGiDataHolder.getInstance().setUserRealmService(defaultRealmService);
 
         Tenant tenant = new Tenant();
         tenant.setDomain("WSO2.org");
@@ -417,7 +443,7 @@ public class MultiTenantTest extends BaseTestCase {
 
     public void testClaims() throws RegistryException, UserStoreException {
         // first we will fill the user store for tenant 0
-        RealmConfiguration realmConfig = ctx.getRealmService().getBootstrapRealmConfiguration();
+        RealmConfiguration realmConfig = OSGiDataHolder.getInstance().getUserRealmService().getBootstrapRealmConfiguration();
         UserRegistry userRegistry1 =
                 embeddedRegistryService.getUserRegistry(realmConfig.getAdminUserName(), 1);
 
@@ -453,5 +479,30 @@ public class MultiTenantTest extends BaseTestCase {
         assertEquals("The name should be same",
                 userRegistryObtained.get("http://wso2.org/claims/givenname"), "admin123");
 
+    }
+
+    private boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
+    }
+
+    private RealmConfiguration buildRealmConfigWithJDBCConnectionUrl(InputStream inStream, String connectionUrl)
+            throws org.wso2.carbon.user.core.UserStoreException {
+
+        String JDBC_URL_PROPERTY_NAME = "url";
+
+        RealmConfigXMLProcessor builder = new RealmConfigXMLProcessor();
+        RealmConfiguration realmConfig = builder.buildRealmConfiguration(inStream);
+        Map<String, String> map = realmConfig.getRealmProperties();
+        map.put(JDBC_URL_PROPERTY_NAME, connectionUrl);
+        return realmConfig;
     }
 }

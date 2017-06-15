@@ -18,6 +18,7 @@
 <UserManager>
 	<Realm>
 		<Configuration>
+            <AddAdmin>true</AddAdmin>
 			<AdminRole>admin</AdminRole>
 			<AdminUser>
 				<UserName>admin</UserName>
@@ -61,6 +62,7 @@
             <Property name="IsEmailUserName">false</Property>
             <Property name="SuperDomain">wso2.com</Property>
             <Property name="IsUsersOfRoleListing">true</Property>
+            <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
             <!-- writing sqls follow-->
             <Property name="AddUserSQL">INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, UM_REQUIRE_CHANGE, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)</Property>
             <!--Property name="AddRoleSQL">INSERT INTO UM_ROLE (UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?)</Property-->
