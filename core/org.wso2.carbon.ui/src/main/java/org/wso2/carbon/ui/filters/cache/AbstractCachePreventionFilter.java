@@ -53,7 +53,7 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
     // Headers to be sent in the response
     private static final String HEADER_NAME_CACHE_CONTROL = "Cache-Control";
-    private static final String HEADER_VALUE_CACHE_CONTROL = "no-store, no-cache, must-revalidate";
+    private static final String HEADER_VALUE_CACHE_CONTROL = "no-store, no-cache, must-revalidate, private";
     private static final String HEADER_NAME_EXPIRES = "Expires";
     private static final String HEADER_VALUE_EXPIRES = "0";
     private static final String HEADER_NAME_PRAGMA = "Pragma";
