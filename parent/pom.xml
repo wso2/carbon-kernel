@@ -137,30 +137,9 @@
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.extensions.configuration.maven.plugin</artifactId>
-                    <version>${carbon.kernel.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>create-doc</goal>
-                            </goals>
-                            <phase>compile</phase>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
                     <groupId>org.wso2.carbon.config</groupId>
                     <artifactId>org.wso2.carbon.config.maven.plugin</artifactId>
                     <version>${carbon.config.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>create-doc</goal>
-                            </goals>
-                            <phase>compile</phase>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -526,11 +505,6 @@
                 <version>${commons.compress.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${org.snakeyaml.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.kohsuke.metainf-services</groupId>
                 <artifactId>metainf-services</artifactId>
                 <version>${org.kohsuke.metainf.services.version}</version>
@@ -643,7 +617,7 @@
 
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <carbon.utils.package.import.version.range>[1.0.0, 2.0.0)</carbon.utils.package.import.version.range>
-        <carbon.config.version>2.0.0</carbon.config.version>
+        <carbon.config.version>2.0.1-SNAPSHOT</carbon.config.version>
         <carbon.config.package.import.version.range>[2.0.0, 3.0.0)</carbon.config.package.import.version.range>
         <carbon.securevault.version>5.0.4</carbon.securevault.version>
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
@@ -725,8 +699,7 @@
 
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>3.1.0</carbon.feature.plugin.version>
-        <org.snakeyaml.version>1.17</org.snakeyaml.version>
-        <org.snakeyaml.package.import.version.range>[1.17.0,2.0.0)</org.snakeyaml.package.import.version.range>
+
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
