@@ -26,7 +26,6 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.deployment.DeploymentConstants;
@@ -55,6 +54,8 @@ import javax.xml.stream.XMLStreamException;
  */
 public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(AWSBasedMembershipScheme.class);
+    public static final String SECURE_VAULT_ACCESS_KEY = "Axis2.clustering.aws.accessKey";
+    public static final String SECURE_VAULT_SECRET_KEY = "Axis2.clustering.aws.secretKey";
     private final Map<String, Parameter> parameters;
     private final String primaryDomain;
     private final NetworkConfig nwConfig;
@@ -109,16 +110,16 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
 
         if (accessKey != null) {
             if (secretResolver != null && secretResolver.isInitialized() &&
-                    secretResolver.isTokenProtected("Axis2.clustering.aws.accessKey")) {
-                awsConfig.setAccessKey(secretResolver.resolve("Axis2.clustering.aws.accessKey"));
+                    secretResolver.isTokenProtected(SECURE_VAULT_ACCESS_KEY)) {
+                awsConfig.setAccessKey(secretResolver.resolve(SECURE_VAULT_ACCESS_KEY));
             } else {
                 awsConfig.setAccessKey(((String)accessKey.getValue()).trim());
             }
         }
         if (secretKey != null) {
             if (secretResolver != null && secretResolver.isInitialized() &&
-                    secretResolver.isTokenProtected("Axis2.clustering.aws.secretKey")) {
-                awsConfig.setSecretKey(secretResolver.resolve("Axis2.clustering.aws.secretKey"));
+                    secretResolver.isTokenProtected(SECURE_VAULT_SECRET_KEY)) {
+                awsConfig.setSecretKey(secretResolver.resolve(SECURE_VAULT_SECRET_KEY));
             } else {
                 awsConfig.setSecretKey(((String)secretKey.getValue()).trim());
             }
@@ -159,46 +160,45 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
      */
     private SecretResolver getAxis2SecretResolver() {
         String axis2xml = CarbonUtils.getAxis2Xml();
+        InputStream axis2XmlInputStream = null;
         try {
-            OMElement element = (OMElement) XMLUtils.toOM(getAxis2XmlInputStream(axis2xml));
+            axis2XmlInputStream = getAxis2XmlInputStream(axis2xml);
+            OMElement element = (OMElement) XMLUtils.toOM(axis2XmlInputStream);
             element.build();
             return SecretResolverFactory.create(element, false);
-        } catch (XMLStreamException e) {
-            log.error(e.getMessage(), e);
-        } catch (AxisFault e) {
-            log.error(e.getMessage(), e);
+        } catch (XMLStreamException | IOException e) {
+            log.error("Unable to read Axis2.xml", e);
+        } finally {
+            if (axis2XmlInputStream != null) {
+                try {
+                    axis2XmlInputStream.close();
+                } catch (IOException e) {
+                    log.error("Unable to close the Axis2.xml input stream", e);
+                }
+            }
         }
         return null;
     }
 
     /**
      * Get Axis2.xml file as an input stream.
+     *
      * @param axis2xml Path to Axis2.xml file
      * @return Input stream of Axis2.xml
-     * @throws AxisFault
+     * @throws IOException
      */
-    private InputStream getAxis2XmlInputStream(String axis2xml)throws AxisFault {
-        InputStream axis2xmlStream = null;
-        try{
+    private InputStream getAxis2XmlInputStream(String axis2xml) throws IOException {
             if (axis2xml != null && axis2xml.trim().length() != 0) {
-                if (CarbonUtils.isURL(axis2xml)) { // Is it a URL?
-                    try {
-                        axis2xmlStream = new URL(axis2xml).openStream();
-                    } catch (IOException e) {
-                        throw new AxisFault("Cannot load axis2.xml from URL", e);
-                    }
-                } else { // Is it a File?
-                    axis2xmlStream = new FileInputStream(axis2xml);
+                // Check if the axis2xml is a file or a URL
+                if (CarbonUtils.isURL(axis2xml)) {
+                    return new URL(axis2xml).openStream();
+                } else {
+                    return new FileInputStream(axis2xml);
                 }
             } else {
                 ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                axis2xmlStream =
-                        cl.getResourceAsStream(DeploymentConstants.AXIS2_CONFIGURATION_RESOURCE);
+                return cl.getResourceAsStream(DeploymentConstants.AXIS2_CONFIGURATION_RESOURCE);
             }
-        } catch(IOException e){
-            log.error("Cannot find axis2.xml file", e);
-        }
-        return axis2xmlStream;
     }
 
     private class AWSMembershipListener implements MembershipListener {
