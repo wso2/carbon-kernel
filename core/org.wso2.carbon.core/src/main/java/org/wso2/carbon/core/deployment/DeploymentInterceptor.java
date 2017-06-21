@@ -209,7 +209,9 @@ public class DeploymentInterceptor implements AxisObserver {
 
                     log.info("Removing Axis2 Service: " + axisService.getName() +
                              getTenantIdAndDomainString());
-                    deleteServiceResource(axisService);
+                    if (!keepHistory(axisService)) {
+                        deleteServiceResource(axisService);
+                    }
                 }
             } catch (Exception e) {
                 String msg = "Exception occurred while handling service update event." +
@@ -550,6 +552,15 @@ public class DeploymentInterceptor implements AxisObserver {
         }
 
         return false;
+    }
+
+    private boolean keepHistory(AxisService axisService) {
+        Parameter keepHistoryParam = axisService.getParameter(CarbonConstants.KEEP_SERVICE_HISTORY_PARAM);
+        if (keepHistoryParam == null) {
+            return false;
+        }
+        Object value = keepHistoryParam.getValue();
+        return (value instanceof String && Boolean.valueOf((String) value));
     }
 
 
