@@ -17,13 +17,13 @@
 */
 package org.wso2.carbon.caching.impl.internal;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="org.wso2.carbon.caching.impl.internal.CachingServiceComponent" immediate="true"
@@ -31,6 +31,8 @@ import org.wso2.carbon.caching.impl.DistributedMapProvider;
  * cardinality="0..1" policy="dynamic"  bind="setDistributedMapProvider" unbind="unsetDistributedMapProvider"
  * @scr.reference name="server.configuration.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
  * cardinality="1..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
+ * @scr.reference name="config.context.service" interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="0..1" policy="dynamic" bind="setClusteringAgent" unbind="unsetClusteringAgent"
  */
 public class CachingServiceComponent {
     private static final Log log = LogFactory.getLog(CachingServiceComponent.class);
@@ -59,5 +61,14 @@ public class CachingServiceComponent {
 
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         dataHolder.setServerConfigurationService(null);
+    }
+
+    protected void setClusteringAgent(ConfigurationContextService configurationContextService) {
+        dataHolder.setClusteringAgent(configurationContextService.getServerConfigContext().getAxisConfiguration().
+                getClusteringAgent());
+    }
+
+    protected void unsetClusteringAgent(ConfigurationContextService configurationContextService) {
+        dataHolder.setClusteringAgent(null);
     }
 }

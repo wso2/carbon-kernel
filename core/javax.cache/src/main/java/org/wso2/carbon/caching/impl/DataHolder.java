@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.caching.impl;
 
+import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.api.ServerConfigurationService;
@@ -32,6 +33,7 @@ public class DataHolder {
 
     private DistributedMapProvider distributedMapProvider;
     private ServerConfigurationService serverConfigurationService;
+    private ClusteringAgent clusteringAgent;
     private CachingProviderImpl cachingProvider = new CachingProviderImpl();
     private AnnotationProvider annotationProvider = new AnnotationProviderImpl();
 
@@ -70,11 +72,19 @@ public class DataHolder {
         this.serverConfigurationService = serverConfigurationService;
     }
 
+    public void setClusteringAgent(ClusteringAgent clusteringAgent) {
+        this.clusteringAgent = clusteringAgent;
+    }
+
     public CachingProviderImpl getCachingProvider() {
         return cachingProvider;
     }
 
     public AnnotationProvider getAnnotationProvider() {
         return annotationProvider;
+    }
+
+    public ClusteringAgent getClusteringAgent() {
+        return clusteringAgent;
     }
 }
