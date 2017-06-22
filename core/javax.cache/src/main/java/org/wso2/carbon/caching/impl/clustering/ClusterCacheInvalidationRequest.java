@@ -53,9 +53,6 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
         this.tenantId = tenantId;
     }
 
-    public ClusterCacheInvalidationRequest() {
-    }
-
     @Override
     public void execute(ConfigurationContext configurationContext) throws ClusteringFault {
         try {
