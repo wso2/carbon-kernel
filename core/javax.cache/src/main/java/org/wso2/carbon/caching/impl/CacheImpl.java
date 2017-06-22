@@ -134,6 +134,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                     Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
                             cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
         }
+
+        cacheEntryListeners.add(clusterCacheInvalidationReqSender);
+
         cacheStatistics = new CacheStatisticsImpl();
         registerMBean();
         CacheManagerFactoryImpl.addCacheForMonitoring(this);
@@ -420,6 +423,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
         for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
             if (cacheEntryListener instanceof CacheEntryRemovedListener) {
+                if (cacheEntryListener instanceof ClusterCacheInvalidationRequestSender) {
+                    //this is handled separately in the #remove method
+                    continue;
+                }
                 if (log.isDebugEnabled()) {
                     log.debug("Notification event trigger for cache entry remove : " + cacheEntryListener.getClass());
                 }
