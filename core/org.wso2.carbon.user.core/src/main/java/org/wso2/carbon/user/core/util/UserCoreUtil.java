@@ -91,7 +91,6 @@ public final class UserCoreUtil {
 
         int j = 0;
         for (int i = arr1.length; i < newArray.length; i++) {
-            Arrays.toString(newArray);
             newArray[i] = arr2[j];
             j++;
         }
