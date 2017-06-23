@@ -294,23 +294,7 @@ public class JDBCTenantManager implements TenantManager {
     public Tenant getTenant(int tenantId) throws UserStoreException {
 
 
-        TenantCacheEntry<Tenant> entry = null;
-        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            entry = (TenantCacheEntry<Tenant>) tenantCacheManager
-                    .getValueFromCache(new TenantIdKey(tenantId));
-        } else {
-
-            // To clear the sub tenant's cache
-            PrivilegedCarbonContext.startTenantFlow();
-            try {
-                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantId(tenantId, true);
-                entry = (TenantCacheEntry<Tenant>) tenantCacheManager
-                        .getValueFromCache(new TenantIdKey(tenantId));
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-        }
+        TenantCacheEntry<Tenant> entry = tenantCacheManager.getValueFromCache(new TenantIdKey(tenantId));
 
         if ((entry != null) && (entry.getTenant() != null)) {
             return entry.getTenant();
@@ -351,21 +335,7 @@ public class JDBCTenantManager implements TenantManager {
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
 
-                if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-                    tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
-                } else {
-
-                    // To clear the sub tenant's cache
-                    PrivilegedCarbonContext.startTenantFlow();
-                    try {
-                        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                        carbonContext.setTenantId(tenantId, true);
-                        tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
-                    } finally {
-                        PrivilegedCarbonContext.endTenantFlow();
-                    }
-                }
-
+                tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
             }
             dbConnection.commit();
         } catch (SQLException e) {
@@ -755,20 +725,6 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     private void clearTenantCache(int tenantId) {
-
-        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
-        } else {
-
-            // To clear the sub tenant's cache
-            PrivilegedCarbonContext.startTenantFlow();
-            try {
-                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantId(tenantId, true);
-                tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-        }
+        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 }
