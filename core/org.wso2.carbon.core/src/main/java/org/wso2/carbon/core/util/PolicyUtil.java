@@ -23,6 +23,8 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.llom.factory.OMXMLBuilderFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
 import org.apache.neethi.PolicyReference;
@@ -42,8 +44,31 @@ import java.util.List;
 
 
 public class PolicyUtil {
+    private static Log log = LogFactory.getLog(Utils.class);
     private static final String EMPTY_POLICY =
             "<wsp:Policy xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\" />";
+    private static final XMLInputFactory xmlInputFactory;
+
+    static {
+        xmlInputFactory = XMLInputFactory.newInstance();
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.IS_NAMESPACE_AWARE", e);
+        }
+
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.SUPPORT_DTD", e);
+        }
+
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES", e);
+        }
+    }
 
     public static OMElement getPolicyAsOMElement(Policy policy) {
 
@@ -53,8 +78,7 @@ public class PolicyUtil {
             policy.serialize(writer);
             writer.flush();
             ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            XMLStreamReader xmlStreamReader =
-                    XMLInputFactory.newInstance().createXMLStreamReader(bais);
+            XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(bais);
             StAXOMBuilder staxOMBuilder =
                     OMXMLBuilderFactory.createStAXOMBuilder(OMAbstractFactory.getOMFactory(),
                                                             xmlStreamReader);

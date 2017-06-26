@@ -40,6 +40,28 @@ import java.io.OutputStream;
  */
 public class RequestProcessorUtil {
     private static Log log = LogFactory.getLog(RequestProcessorUtil.class);
+    private static final XMLInputFactory xmlInputFactory;
+
+    static {
+        xmlInputFactory = XMLInputFactory.newInstance();
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.IS_NAMESPACE_AWARE", e);
+        }
+
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.SUPPORT_DTD", e);
+        }
+
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES", e);
+        }
+    }
 
     /**
      * @param byteArrayOutStream
@@ -58,8 +80,7 @@ public class RequestProcessorUtil {
         try {
             bais =
                     new ByteArrayInputStream(byteArrayOutStream.toByteArray());
-            reader =
-                    XMLInputFactory.newInstance().createXMLStreamReader(bais);
+            reader = xmlInputFactory.createXMLStreamReader(bais);
             StAXOMBuilder builder = new StAXOMBuilder(reader);
             OMElement docElem = builder.getDocumentElement();
             writer = XMLOutputFactory.newInstance().createXMLStreamWriter(out);
