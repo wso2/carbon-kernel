@@ -3363,6 +3363,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "Name of the class that implements the count functionality");
         setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
                 LDAPBinaryAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants
+                .getClaimOperationsSupportedDisplayName, "false", UserStoreConfigConstants.claimOperationsSupportedDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,
