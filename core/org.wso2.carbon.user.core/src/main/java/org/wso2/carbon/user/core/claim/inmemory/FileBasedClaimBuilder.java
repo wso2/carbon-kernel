@@ -130,7 +130,10 @@ public class FileBasedClaimBuilder {
                     }
 
                     propertyHolder.put(claimUri, properties);
-                    claimMapping = new ClaimMapping(claim, attributeId);
+                    claimMapping = new ClaimMapping();
+                    claimMapping.setClaim(claim);
+                    setMappedAttributes(claimMapping, attributeId);
+
                     claims.put(claimUri, claimMapping);
                 }
             }
@@ -215,5 +218,38 @@ public class FileBasedClaimBuilder {
         OMElement documentElement = builder.getDocumentElement();
 
         return documentElement;
+    }
+
+    /**
+     * Set mapped attributes to claim mapping
+     *
+     * @param claimMapping claim mappings
+     * @param mappedAttribute mapped attributes
+     */
+    private static void setMappedAttributes(ClaimMapping claimMapping, String mappedAttribute) {
+        if (mappedAttribute != null) {
+            String[] attributes = mappedAttribute.split(";");
+            Map<String, String> attrMap = new HashMap<>();
+
+            for (int i = 0; i < attributes.length; i++) {
+                int index;
+                if ((index = attributes[i].indexOf("/")) > 1 && attributes[i].indexOf("/") == attributes[i]
+                        .lastIndexOf("/")) {
+                    String domain = attributes[i].substring(0, index);
+                    String attrName = attributes[i].substring(index + 1);
+                    if (domain != null) {
+                        attrMap.put(domain.toUpperCase(), attrName);
+                    } else {
+                        claimMapping.setMappedAttribute(attributes[i]);
+                    }
+                } else {
+                    claimMapping.setMappedAttribute(attributes[i]);
+                }
+            }
+
+            if (attrMap.size() > 0) {
+                claimMapping.setMappedAttributes(attrMap);
+            }
+        }
     }
 }
