@@ -245,6 +245,8 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE_OPENEDGE, "Add User " +
                 "Property With Case Insensitive Username (OpenEdge)", JDBCCaseInsensitiveConstants
                 .ADD_USER_PROPERTY_OPENEDGE_SQL_CASE_INSENSITIVE, "");
+        setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
+                UserStoreConfigConstants.claimOperationsSupportedDescription);
         setProperty("UniqueID", "", "", "");
     }
 
