@@ -38,7 +38,6 @@
         return;
     }
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-    response.setHeader("Cache-Control", "no-cache");
 
     //Obtaining the client-side ConfigurationContext instance.
     ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
