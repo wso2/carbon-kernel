@@ -56,8 +56,28 @@ public final class PersistenceUtils {
     private static final String PROXY_SERVICE = "proxy";
     private static final String GLOBALLY_ENGAGED_PARAM_NAME = "globallyEngaged";
     private static final String GLOBALLY_ENGAGED_CUSTOM = "globallyEngagedCustom";
+    private static final XMLInputFactory xmlInputFactory;
 
-    private static XMLInputFactory xif = XMLInputFactory.newInstance();
+    static {
+        xmlInputFactory = XMLInputFactory.newInstance();
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.IS_NAMESPACE_AWARE", e);
+        }
+
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.SUPPORT_DTD", e);
+        }
+
+        try {
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to load XML Processor Feature XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES", e);
+        }
+    }
 
     private PersistenceUtils() {
     }
@@ -399,7 +419,7 @@ public final class PersistenceUtils {
 
         try {
             fis = FileUtils.openInputStream(resourceFile);
-            reader = xif.createXMLStreamReader(fis);
+            reader = xmlInputFactory.createXMLStreamReader(fis);
 
             StAXOMBuilder builder = new StAXOMBuilder(reader);
             resourceElement = builder.getDocumentElement();

@@ -18,6 +18,8 @@ package org.wso2.carbon.ndatasource.core.utils;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,11 +39,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -57,7 +55,29 @@ public class DataSourceUtils {
 	
 	private static SecretResolver secretResolver;
     private static final String XML_DECLARATION = "xml-declaration";
-	
+	private static final int ENTITY_EXPANSION_LIMIT = 0;
+	private static final DocumentBuilderFactory dbf;
+
+	static {
+		dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		dbf.setXIncludeAware(false);
+		dbf.setExpandEntityReferences(false);
+		try {
+			dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+			dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+			dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+		} catch (ParserConfigurationException e) {
+			log.error("Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE
+					+ " or " + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE
+					+ " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
+		}
+
+		SecurityManager securityManager = new SecurityManager();
+		securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+		dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+	}
+
 	private static ThreadLocal<String> dataSourceId = new ThreadLocal<String>() {
         protected synchronized String initialValue() {
             return null;
@@ -143,7 +163,7 @@ public class DataSourceUtils {
 			return null;
 		}
 		try {
-            DocumentBuilder db = getSecuredDocumentBuilder(false);
+            DocumentBuilder db = dbf.newDocumentBuilder();
 		    return db.parse(new ByteArrayInputStream(xml.getBytes())).getDocumentElement();
 		} catch (Exception e) {
 			log.error("Error while converting string to element: " + e.getMessage(), e);
@@ -229,7 +249,8 @@ public class DataSourceUtils {
 
     public static Document convertToDocument(File file) throws DataSourceException {
         try {
-            return getSecuredDocumentBuilder(false).parse(file);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            return db.parse(file);
         } catch (Exception e) {
             throw new DataSourceException("Error in creating an XML document from file: " +
                     e.getMessage(), e);
@@ -238,7 +259,8 @@ public class DataSourceUtils {
 
     public static Document convertToDocument(InputStream in) throws DataSourceException {
         try {
-            return getSecuredDocumentBuilder(false).parse(in);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            return db.parse(in);
         } catch (Exception e) {
             throw new DataSourceException("Error in creating an XML document from stream: " +
                     e.getMessage(), e);
@@ -263,7 +285,8 @@ public class DataSourceUtils {
     		Marshaller dsmMarshaller) throws DataSourceException{
     	Element element;
 		try {
-            Document document = getSecuredDocumentBuilder(false).newDocument();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document document = db.newDocument();
 			dsmMarshaller.marshal(dsmInfo, document);
 			element = document.getDocumentElement();
 		} catch (Exception e) {
@@ -271,29 +294,5 @@ public class DataSourceUtils {
                     e.getMessage(), e);
 		} 
 		return element;
-    }
-
-    /**
-     * This method provides a secured document builder which will secure XXE attacks.
-     *
-     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
-     * @return DocumentBuilder
-     * @throws ParserConfigurationException
-     */
-    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws
-            ParserConfigurationException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
-        documentBuilderFactory.setNamespaceAware(true);
-        documentBuilderFactory.setExpandEntityReferences(false);
-        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        documentBuilder.setEntityResolver(new EntityResolver() {
-            @Override
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
-            }
-        });
-        return documentBuilder;
     }
 }
