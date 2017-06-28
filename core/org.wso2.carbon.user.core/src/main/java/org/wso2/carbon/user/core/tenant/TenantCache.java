@@ -3,6 +3,8 @@ package org.wso2.carbon.user.core.tenant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -14,7 +16,6 @@ public class TenantCache {
     public static final String TENANT_CACHE = "TENANT_CACHE";
     private static Log log = LogFactory.getLog(TenantCache.class);
 
-    //private static Cache<TenantIdKey,TenantCacheEntry> cache = null;
     private static TenantCache tenantCache = new TenantCache();
 
     private TenantCache() {
@@ -48,18 +49,32 @@ public class TenantCache {
      * @param entry Actual object where cache entry is placed.
      */
     public <T> void addToCache(TenantIdKey key, T entry) {
-        // Element already in the cache. Remove it first
-        clearCacheEntry(key);
 
-        Cache<TenantIdKey, T> cache = getTenantCache();
-        if (cache != null) {
-            cache.put(key, entry);
-            log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", added the entry : " + entry
-                    + " for the key : " + key + " successfully");
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER);
+        PrivilegedCarbonContext.startTenantFlow();
+
+        try {
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            // Element already in the cache. Remove it first
+            clearCacheEntry(key);
+
+            Cache<TenantIdKey, T> cache = getTenantCache();
+            if (cache != null) {
+                cache.put(key, entry);
+                if (log.isDebugEnabled()) {
+                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", added the entry : " + entry
+                        + " for the key : " + key + " successfully");
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " +
+                            TENANT_CACHE_MANAGER);
+                }
             }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
@@ -70,25 +85,39 @@ public class TenantCache {
      * @return Cached entry if the key presents, else returns null.
      */
     public <T> T getValueFromCache(TenantIdKey key) {
-        Cache<TenantIdKey, T> cache = getTenantCache();
-        if (cache != null) {
-            if (cache.containsKey(key)) {
-                T entry = cache.get(key);
-                if (log.isDebugEnabled()) {
-                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", found the entry : " + entry
-                            + " for the key : " + key + " successfully");
+
+        PrivilegedCarbonContext.startTenantFlow();
+
+        try {
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            Cache<TenantIdKey, T> cache = getTenantCache();
+            if (cache != null) {
+                if (cache.containsKey(key)) {
+                    T entry = cache.get(key);
+                    if (log.isDebugEnabled()) {
+                        log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", found the entry : " +
+                                entry + " for the key : " + key + " successfully");
+                    }
+                    return entry;
                 }
-                return entry;
+                if (log.isDebugEnabled()) {
+                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", doesn't contain the key :" +
+                            " " + key);
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " +
+                            TENANT_CACHE_MANAGER);
+                }
             }
-            if (log.isDebugEnabled()) {
-                log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", doesn't contain the key : " + key);
-            }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER);
-            }
+            return null;
+
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
-        return null;
     }
 
     /**
@@ -97,22 +126,37 @@ public class TenantCache {
      * @param key Key to clear cache.
      */
     public void clearCacheEntry(TenantIdKey key) {
-        Cache<TenantIdKey, Object> cache = getTenantCache();
-        if (cache != null) {
-            if (cache.containsKey(key)) {
-                cache.remove(key);
+
+        PrivilegedCarbonContext.startTenantFlow();
+
+        try {
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            Cache<TenantIdKey, Object> cache = getTenantCache();
+            if (cache != null) {
+                if (cache.containsKey(key)) {
+                    cache.remove(key);
+                    if (log.isDebugEnabled()) {
+                        log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", is removed entry for " +
+                                "the key : " + key + " successfully");
+                    }
+                }
+
                 if (log.isDebugEnabled()) {
-                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", is removed entry for the key : " + key + " successfully");
+                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", doen't contain the key : " +
+                            "" + key);
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " +
+                            TENANT_CACHE_MANAGER);
                 }
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", doen't contain the key : " + key);
-            }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER);
-            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
@@ -120,16 +164,29 @@ public class TenantCache {
      * Remove everything in the cache.
      */
     public void clear() {
-        Cache<TenantIdKey, Object> cache = getTenantCache();
-        if (cache != null) {
-            cache.removeAll();
-            if (log.isDebugEnabled()) {
-                log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", is cleared successfully");
+
+        PrivilegedCarbonContext.startTenantFlow();
+
+        try {
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            Cache<TenantIdKey, Object> cache = getTenantCache();
+            if (cache != null) {
+                cache.removeAll();
+                if (log.isDebugEnabled()) {
+                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", is cleared successfully");
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " +
+                            TENANT_CACHE_MANAGER);
+                }
             }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while getting the cache : " + TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER);
-            }
+
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
