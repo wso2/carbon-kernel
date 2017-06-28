@@ -18,6 +18,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript">
     var msgId;
@@ -54,7 +55,7 @@
             <script type="text/javascript">
                 jQuery(document).ready(function() {
                     if (getCookie(msgId) == null) {
-                        CARBON.showInfoDialog("<%= carbonMessage.getMessage()%>");
+                        CARBON.showInfoDialog("<%= Encode.forHtml(carbonMessage.getMessage())%>");
                         setCookie(msgId, 'true');
                     }                    
                 });
@@ -66,7 +67,7 @@
             <script type="text/javascript">
                 jQuery(document).ready(function() {
                     if (getCookie(msgId) == null) {
-                        CARBON.showWarningDialog("<%= carbonMessage.getMessage()%>");
+                        CARBON.showWarningDialog("<%= Encode.forHtml(carbonMessage.getMessage())%>");
                         setCookie(msgId, 'true');
                     }
                 });
@@ -77,7 +78,7 @@
             <script type="text/javascript">
                 jQuery(document).ready(function() {
                     if (getCookie(msgId) == null) {
-                        CARBON.showErrorDialog("<%= carbonMessage.getMessage()%>");
+                        CARBON.showErrorDialog("<%= Encode.forHtml(carbonMessage.getMessage())%>");
                         setCookie(msgId, 'true');
                     }
                 });
