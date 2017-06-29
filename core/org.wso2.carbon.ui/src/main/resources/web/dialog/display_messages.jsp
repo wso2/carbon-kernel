@@ -55,7 +55,7 @@
             <script type="text/javascript">
                 jQuery(document).ready(function() {
                     if (getCookie(msgId) == null) {
-                        CARBON.showInfoDialog("<%= Encode.forHtml(carbonMessage.getMessage())%>");
+                        CARBON.showInfoDialog("<%= Encode.forJavaScript(carbonMessage.getMessage())%>");
                         setCookie(msgId, 'true');
                     }                    
                 });
@@ -67,7 +67,7 @@
             <script type="text/javascript">
                 jQuery(document).ready(function() {
                     if (getCookie(msgId) == null) {
-                        CARBON.showWarningDialog("<%= Encode.forHtml(carbonMessage.getMessage())%>");
+                        CARBON.showWarningDialog("<%= Encode.forJavaScript(carbonMessage.getMessage())%>");
                         setCookie(msgId, 'true');
                     }
                 });
@@ -78,7 +78,7 @@
             <script type="text/javascript">
                 jQuery(document).ready(function() {
                     if (getCookie(msgId) == null) {
-                        CARBON.showErrorDialog("<%= Encode.forHtml(carbonMessage.getMessage())%>");
+                        CARBON.showErrorDialog("<%= Encode.forJavaScript(carbonMessage.getMessage())%>");
                         setCookie(msgId, 'true');
                     }
                 });
