@@ -53,11 +53,15 @@
 				.getAttribute(MultitenantConstants.TENANT_DOMAIN);
 	}
 	if (tenantDomain != null && !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-        String themeRoot = "../../../../t/" + tenantDomain
-				+ "/registry/resource"
-				+ RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH
-				+ "/repository";
-		mainCSS = themeRoot + "/theme/admin/main.css";
+        if ("true".equals(ServerConfiguration.getInstance().getFirstProperty(CarbonConstants.IS_CLOUD_DEPLOYMENT))) {
+            String themeRoot = "../../../../t/" + tenantDomain
+                    + "/registry/resource"
+                    + RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH
+                    + "/repository";
+            mainCSS = themeRoot + "/theme/admin/main.css";
+        } else {
+            mainCSS = "../styles/css/main.css";
+        }
         if (request.getSession().getAttribute(
                 CarbonConstants.THEME_URL_RANDOM_SUFFIX_SESSION_KEY) != null) {
             // this random string is used to get the effect of the theme change, where-ever the
