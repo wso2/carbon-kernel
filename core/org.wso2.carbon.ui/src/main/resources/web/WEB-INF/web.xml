@@ -44,4 +44,8 @@
         <param-name>org.apache.tiles.definition.DefinitionsFactory</param-name>
         <param-value>org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory</param-value>
     </context-param>
+
+    <session-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
 </web-app>
