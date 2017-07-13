@@ -124,6 +124,7 @@
         <cookie-config>
             <secure>true</secure>
         </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
     <!-- custom error pages -->
