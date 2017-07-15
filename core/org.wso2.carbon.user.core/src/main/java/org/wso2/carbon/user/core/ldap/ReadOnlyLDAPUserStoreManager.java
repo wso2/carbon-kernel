@@ -73,6 +73,8 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
+
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     public static final String MEMBER_UID = "memberUid";
@@ -588,25 +590,38 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                             // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
                                             // https://community.oracle.com/thread/1157698
                                             if (name.equals("objectGUID")) {
-                                                // bytes[0] <-> bytes[3]
-                                                byte swap = bytes[3];
-                                                bytes[3] = bytes[0];
-                                                bytes[0] = swap;
-                                                // bytes[1] <-> bytes[2]
-                                                swap = bytes[2];
-                                                bytes[2] = bytes[1];
-                                                bytes[1] = swap;
-                                                // bytes[4] <-> bytes[5]
-                                                swap = bytes[5];
-                                                bytes[5] = bytes[4];
-                                                bytes[4] = swap;
-                                                // bytes[6] <-> bytes[7]
-                                                swap = bytes[7];
-                                                bytes[7] = bytes[6];
-                                                bytes[6] = swap;
+                                                // check the property for objectGUID transformation
+                                                String property =
+                                                        realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+                                                boolean transformObjectGuidToUuid = StringUtils.isEmpty(property) ||
+                                                        Boolean.parseBoolean(property);
+
+                                                if (transformObjectGuidToUuid) {
+                                                    // bytes[0] <-> bytes[3]
+                                                    byte swap = bytes[3];
+                                                    bytes[3] = bytes[0];
+                                                    bytes[0] = swap;
+                                                    // bytes[1] <-> bytes[2]
+                                                    swap = bytes[2];
+                                                    bytes[2] = bytes[1];
+                                                    bytes[1] = swap;
+                                                    // bytes[4] <-> bytes[5]
+                                                    swap = bytes[5];
+                                                    bytes[5] = bytes[4];
+                                                    bytes[4] = swap;
+                                                    // bytes[6] <-> bytes[7]
+                                                    swap = bytes[7];
+                                                    bytes[7] = bytes[6];
+                                                    bytes[6] = swap;
+
+                                                    final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(bytes);
+                                                    attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+                                                } else {
+                                                    // Ignore transforming objectGUID to UUID canonical format
+                                                    attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                                }
                                             }
-                                            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(bytes);
-                                            attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
                                         } else {
                                             attr = new String(Base64.encodeBase64((byte[]) attObject));
                                         }
