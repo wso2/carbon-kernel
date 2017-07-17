@@ -39,6 +39,10 @@ public class JDBCUserStoreConstants {
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
 
+    private static final String REMOVE_ABANDONED = "removeAbandoned";
+    private static final String REMOVE_ABANDONED_TIMEOUT = "removeAbandonedTimeout";
+    private static final String LOG_ABANDONED = "logAbandoned";
+
     static {
 
         //setMandatoryProperty
@@ -248,6 +252,11 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
                 UserStoreConfigConstants.claimOperationsSupportedDescription);
         setProperty("UniqueID", "", "", "");
+
+        // Oracle JDBC Connection Pool.
+        setAdvancedProperty(REMOVE_ABANDONED, "Remove Abandoned", "true", "Remove abandoned connections if they exceed the removeAbandonedTimeout");
+        setAdvancedProperty(REMOVE_ABANDONED_TIMEOUT, "Remove Abandoned Timeout", "100", "Time out to remove abandoned connections.");
+        setAdvancedProperty(LOG_ABANDONED, "Log Abandoned Connections", "false", "Log abandoned connections related details.");
     }
 
 

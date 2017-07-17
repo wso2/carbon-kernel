@@ -24,7 +24,6 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
-
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -47,6 +46,10 @@ public class DatabaseUtil {
     private static DataSource dataSource = null;
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
+
+    private static final String REMOVE_ABANDONED = "removeAbandoned";
+    private static final String REMOVE_ABANDNONED_TIMEOUT = "removeAbandonedTimeout";
+    private static final String LOG_ABANDONED = "logAbandoned";
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -91,64 +94,57 @@ public class DatabaseUtil {
         if (dataSourceName != null) {
             return lookupDataSource(dataSourceName);
         }
+
         PoolProperties poolProperties = new PoolProperties();
         poolProperties.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
         if (poolProperties.getDriverClassName() == null) {
             return null;
         }
+
         poolProperties.setUrl(realmConfig.getUserStoreProperty(JDBCRealmConstants.URL));
         poolProperties.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
         poolProperties.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE))) {
             poolProperties.setMaxActive(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_ACTIVE)));
         } else {
             poolProperties.setMaxActive(DEFAULT_MAX_ACTIVE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE))) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MIN_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE))) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT))) {
             poolProperties.setMaxWait(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_WAIT)));
         } else {
             poolProperties.setMaxWait(DEFAULT_MAX_WAIT);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE))) {
             poolProperties.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.TEST_WHILE_IDLE)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
-                !realmConfig.getUserStoreProperty(
-                        JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS))) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getUserStoreProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
-                !realmConfig.getUserStoreProperty(
-                        JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS))) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -165,6 +161,19 @@ public class DatabaseUtil {
         } else {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
+		
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(REMOVE_ABANDONED))){
+        	poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(REMOVE_ABANDONED)));
+        }
+        
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(LOG_ABANDONED))){
+        	poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty(LOG_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(REMOVE_ABANDNONED_TIMEOUT))){
+        	poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(REMOVE_ABANDNONED_TIMEOUT)));
+        }
+    
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
 
@@ -235,6 +244,18 @@ public class DatabaseUtil {
         if (realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
             poolProperties.setValidationQuery(realmConfig.getRealmProperty(
                     JDBCRealmConstants.VALIDATION_QUERY));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(REMOVE_ABANDONED))) {
+            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(REMOVE_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(LOG_ABANDONED))) {
+            poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty(LOG_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(REMOVE_ABANDNONED_TIMEOUT))) {
+            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(REMOVE_ABANDNONED_TIMEOUT)));
         }
 
         dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
