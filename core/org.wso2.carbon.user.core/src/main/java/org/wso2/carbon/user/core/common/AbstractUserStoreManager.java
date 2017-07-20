@@ -1306,14 +1306,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        //Check userstore is readonly or not
+        //If user store is readonly this method should not get invoked with non empty claim set.
 
-        if (isReadOnly()) {
+        if (isReadOnly() && !claims.isEmpty()) {
             throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
+        // set claim values if user store is not read only.
 
-        doSetUserClaimValues(userName, claims, profileName);
+        if (!isReadOnly()) {
+            doSetUserClaimValues(userName, claims, profileName);
+        }
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
