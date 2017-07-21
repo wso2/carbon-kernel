@@ -54,9 +54,9 @@ public class SecurityDeploymentListener extends AbstractAxis2ConfigurationContex
             if (!transactionStarted) {
                 registry.beginTransaction();
             }
-            for (String resourceLoc : policyResourceMap.keySet()) {
-                if (!registry.resourceExists(resourceLoc)) {
-                    registry.put(resourceLoc, policyResourceMap.get(resourceLoc));
+            for (Map.Entry<String, Resource> resourceLocEntry : policyResourceMap.entrySet()) {
+                if (!registry.resourceExists(resourceLocEntry.getKey())) {
+                    registry.put(resourceLocEntry.getKey(), resourceLocEntry.getValue());
                 }
             }
             if (!transactionStarted) {

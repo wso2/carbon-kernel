@@ -305,7 +305,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                         } catch (Exception e) {
                             log.debug("Failed to load keystore " + name, e);
                         }
-                        if (store.containsAlias(username)) {
+                        if (store != null && store.containsAlias(username)) {
                             Resource resource = (Resource) govRegistry.get(ks[i]);
                             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
                             String encryptedPassword = resource
