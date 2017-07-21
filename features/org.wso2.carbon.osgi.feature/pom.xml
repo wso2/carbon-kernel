@@ -23,13 +23,13 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.runtime.feature</artifactId>
+    <artifactId>org.wso2.carbon.osgi.feature</artifactId>
     <packaging>carbon-feature</packaging>
-    <name>WSO2 Carbon Kernel - Runtime Feature</name>
+    <name>WSO2 Carbon Kernel - OSGi Feature</name>
     <url>http://wso2.com</url>
     <description>
-        This feature contains the carbon core runtime related bundles and their dependencies
-        Eg : (OSGi Runtime, Declarative Service Runtime, Console, etc)
+        This feature contains the core OSGi runtime related bundles and their dependencies
+        Eg : (OSGi Runtime, Declarative Service Runtime, OSGi Console, etc)
     </description>
 
     <dependencies>

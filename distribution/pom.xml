@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.runtime.feature</artifactId>
+            <artifactId>org.wso2.carbon.osgi.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -147,7 +147,7 @@
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.runtime.feature</id>
+                                    <id>org.wso2.carbon.osgi.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
@@ -207,7 +207,7 @@
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.runtime.feature.group</id>
+                                    <id>org.wso2.carbon.osgi.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>

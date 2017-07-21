@@ -220,7 +220,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.runtime.feature</artifactId>
+                <artifactId>org.wso2.carbon.osgi.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>zip</type>
             </dependency>
@@ -724,7 +724,7 @@
         <geronimo.atinject.spec.version>1.0</geronimo.atinject.spec.version>
 
         <!--Other dependency versions -->
-        <carbon.feature.plugin.version>3.1.0</carbon.feature.plugin.version>
+        <carbon.feature.plugin.version>3.1.1</carbon.feature.plugin.version>
         <org.snakeyaml.version>1.17</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.17.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
