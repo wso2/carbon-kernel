@@ -42,6 +42,7 @@ import org.wso2.carbon.utils.ServerConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServiceInterface {
 
@@ -112,9 +113,10 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
                 Map trustedServicesMap = samlConfig.getTrustedServices();
 
                 List<TrustedServiceData> serviceBag = new ArrayList();
-                for (Object entry : trustedServicesMap.entrySet()) {
-                    String address = (String) ((Map.Entry) entry).getKey();
-                    String alias = (String) ((Map.Entry) entry).getValue();
+                Set<Map.Entry> entrySet = trustedServicesMap.entrySet();
+                for (Map.Entry entry : entrySet) {
+                    String address = (String) entry.getKey();
+                    String alias = (String) entry.getValue();
                     serviceBag.add(new TrustedServiceData(address, alias));
                 }
                 return serviceBag.toArray(new TrustedServiceData[serviceBag.size()]);

@@ -693,17 +693,14 @@ public class SecurityConfigAdmin {
             Properties props = getServerCryptoProperties(privateStore, trustedStores);
             RampartConfig rampartConfig = new RampartConfig();
             populateRampartConfig(rampartConfig, props, kerberosConfig);
-            if (rampartConfig != null) {
-                //addRampartConfigs(policyElement, rampartConfig);
-                out = new ByteArrayOutputStream();
-                writer = XMLOutputFactory.newInstance().createXMLStreamWriter(out);
-                rampartConfig.serialize(writer);
-                writer.flush();
-                writer.close();
-                out.close();
-                out.flush();
-                rampartConfigElement = AXIOMUtil.stringToOM(out.toString());
-            }
+            out = new ByteArrayOutputStream();
+            writer = XMLOutputFactory.newInstance().createXMLStreamWriter(out);
+            rampartConfig.serialize(writer);
+            writer.flush();
+            writer.close();
+            out.close();
+            out.flush();
+            rampartConfigElement = AXIOMUtil.stringToOM(out.toString());
         } catch (Exception e) {
             throw new SecurityConfigException("Error while building rampart configs", e);
         } finally {
@@ -1048,9 +1045,7 @@ public class SecurityConfigAdmin {
                 trustString.append(trustedCertStore);
             }
 
-            if (trustedCertStores.length != 0) {
-                props.setProperty(ServerCrypto.PROP_ID_TRUST_STORES, trustString.toString());
-            }
+            props.setProperty(ServerCrypto.PROP_ID_TRUST_STORES, trustString.toString());
         }
 
         if (privateStore != null) {
@@ -1273,7 +1268,7 @@ public class SecurityConfigAdmin {
                     log.error("Error while reading Transit Ghosts map", axisFault);
                 }
                 if (service == null) {
-                    throw new SecurityConfigException("AxisService is Null" + service);
+                    throw new SecurityConfigException("AxisService is Null");
                 }
             }
 
@@ -1408,7 +1403,7 @@ public class SecurityConfigAdmin {
 
         String propertyValue = null;
         if (trustProperties != null) {
-            trustProperties.get(propertyName);
+            propertyValue = trustProperties.get(propertyName);
             if (StringUtils.isNotEmpty(propertyValue)) {
                 return propertyValue;
             }
