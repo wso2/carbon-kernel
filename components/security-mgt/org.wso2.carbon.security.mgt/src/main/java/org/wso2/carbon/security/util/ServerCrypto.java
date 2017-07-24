@@ -106,7 +106,7 @@ public class ServerCrypto implements Crypto {
             if (tenantIdString == null || tenantIdString.trim().length() == 0) {
                 tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             } else {
-                tenantId = Integer.valueOf(tenantIdString);
+                tenantId = Integer.parseInt(tenantIdString);
             }
             // Forcefully load tenant. since tenant may have been unloaded
             SecurityServiceHolder.getTenantRegistryLoader().loadTenantRegistry(tenantId);
