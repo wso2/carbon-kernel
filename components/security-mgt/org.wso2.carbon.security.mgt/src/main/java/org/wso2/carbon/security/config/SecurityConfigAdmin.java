@@ -1308,12 +1308,11 @@ public class SecurityConfigAdmin {
                     }
                 }
 
-                // If a scenario is NOT applied to at least one non HTTP
-                // binding,
+                // If a scenario is NOT applied to at least one non HTTP binding,
                 // we consider the service unsecured.
                 if (epSecurityScenario == null) {
                     if (!binding.getName().getLocalPart().contains("HttpBinding")) {
-                        scenario = epSecurityScenario;
+                        scenario = null;
                         break;
                     }
                 } else {
