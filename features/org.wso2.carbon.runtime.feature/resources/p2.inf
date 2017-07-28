@@ -1,0 +1,15 @@
+metaRequirements.0.namespace = org.eclipse.equinox.p2.iu
+metaRequirements.0.name = org.wso2.carbon.extensions.touchpoint
+metaRequirements.0.optional=true
+instructions.configure = \
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.runtime_${feature.version}/conf,target:${installFolder}/../../conf/{runtime},overwrite:true);\
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.runtime_${feature.version}/wso2/default/bin,target:${installFolder}/../{runtime}/bin/,overwrite:true);\
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.runtime_${feature.version}/wso2/default/logs,target:${installFolder}/../{runtime}/logs/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.runtime_${feature.version}/wso2/lib,target:${installFolder}/../../wso2/lib/,overwrite:true);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/bin,targetFile:carbon.sh,permissions:755);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../conf/{runtime},targetFile:log4j2.xml,permissions:644);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../conf/{runtime}/etc,targetFile:pax-logging.properties,permissions:644);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../conf/{runtime}/osgi,targetFile:launch.properties,permissions:644);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/bin/bootstrap,targetFile:logging.properties,permissions:644);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../{runtime}/logs,targetFile:README.txt,permissions:644);\
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../wso2/lib,targetFile:README.txt,permissions:644);\

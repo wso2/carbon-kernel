@@ -219,26 +219,26 @@ if [ "$jdk_18" = "" ]; then
 fi
 
 CARBON_XBOOTCLASSPATH=""
-for f in "$RUNTIME_HOME"/bin/bootstrap/xboot/*.jar
+for f in "$CARBON_HOME"/bin/bootstrap/xboot/*.jar
 do
-    if [ "$f" != "$RUNTIME_HOME/bin/bootstrap/xboot/*.jar" ];then
+    if [ "$f" != "$CARBON_HOME/bin/bootstrap/xboot/*.jar" ];then
         CARBON_XBOOTCLASSPATH="$CARBON_XBOOTCLASSPATH":$f
     fi
 done
 
-JAVA_ENDORSED_DIRS="$RUNTIME_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
+JAVA_ENDORSED_DIRS="$CARBON_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
 
 CARBON_CLASSPATH=""
 if [ -e "$JAVA_HOME/bin/bootstrap/tools.jar" ]; then
     CARBON_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
-for f in "$RUNTIME_HOME"/bin/bootstrap/*.jar
+for f in "$CARBON_HOME"/bin/bootstrap/*.jar
 do
-    if [ "$f" != "$RUNTIME_HOME/bin/bootstrap/*.jar" ];then
+    if [ "$f" != "$CARBON_HOME/bin/bootstrap/*.jar" ];then
         CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
     fi
 done
-for t in "$RUNTIME_HOME"/bin/bootstrap/commons-lang*.jar
+for t in "$CARBON_HOME"/bin/bootstrap/commons-lang*.jar
 do
     CARBON_CLASSPATH="$CARBON_CLASSPATH":$t
 done
