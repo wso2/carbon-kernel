@@ -1,6 +1,6 @@
 #!/bin/sh
 # ---------------------------------------------------------------------------
-#  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -117,6 +117,8 @@ fi
 echo JAVA_HOME environment variable is set to $JAVA_HOME
 echo CARBON_HOME environment variable is set to $CARBON_HOME
 
-cd "$CARBON_HOME/bin/";
+# get the current directory from which the script is executed
+CURRENT_DIR=${PWD};
 
-java -cp "../bin/bootstrap/tools/*:../bin/bootstrap/*" -Dwso2.carbon.tool="osgi-lib-deployer" org.wso2.carbon.tools.CarbonToolExecutor "$1" "$CARBON_HOME"
+cd "$CARBON_HOME/bin/";
+java -cp "../bin/tools/*" -Dwso2.carbon.tool="jar-to-bundle-converter" org.wso2.carbon.tools.CarbonToolExecutor "$1" "$2" "$CURRENT_DIR"

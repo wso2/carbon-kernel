@@ -61,11 +61,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -176,7 +171,6 @@
             org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             javax.management.*;version="${javax.management.import.version.range}",
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
             javax.xml.*;version="${javax.xml.import.version.range}",
