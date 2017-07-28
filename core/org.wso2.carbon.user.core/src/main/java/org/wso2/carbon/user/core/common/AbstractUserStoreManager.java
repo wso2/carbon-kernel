@@ -787,13 +787,24 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (index > 0) {
             String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
             extractedDomain = names[0].trim();
-        } else {
-            extractedDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
 
-        UserStoreManager userManager = getSecondaryUserStoreManager(extractedDomain);
-        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) && userManager
-                instanceof JDBCUserStoreManager) {
+        UserStoreManager userManager;
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            userManager = getSecondaryUserStoreManager(extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded" +
+                        " for the given domain name.");
+            }
+        } else {
+            userManager = this;
+            if (log.isDebugEnabled()) {
+                log.debug("No domain name is provided and assuming the primary domain.");
+            }
+        }
+
+        if (userManager != null && USERNAME_CLAIM_URI.equalsIgnoreCase(claim)
+                && userManager instanceof JDBCUserStoreManager) {
             if (userManager.isExistingUser(claimValue)) {
                 return new String[]{claimValue};
             } else {
@@ -802,8 +813,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         claimValue = UserCoreUtil.removeDomainFromName(claimValue);
-        //if domain is present, then we search within that domain only
-        if (!extractedDomain.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
+
+        // If domain is present, then we search within that domain only.
+        if (StringUtils.isNotEmpty(extractedDomain) && userManager != null) {
             try {
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
@@ -818,20 +830,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
                 return new String[0];
             }
-            if (getSecondaryUserStoreManager(extractedDomain) instanceof AbstractUserStoreManager) {
-                // get the user list and return with domain appended
-                AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager)
-                        getSecondaryUserStoreManager(extractedDomain);
+            if (userManager instanceof AbstractUserStoreManager) {
+                // Get the user list and return with domain appended.
+                AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
                 String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
                 return UserCoreUtil.addDomainToNames(userArray, extractedDomain);
             }
         }
-        //if no domain is given then search all the user stores
+
+        // If no domain is given then search all the user stores.
         List<String> usersFromAllStoresList = new LinkedList<String>();
         if (this instanceof AbstractUserStoreManager) {
             AbstractUserStoreManager currentUserStoreManager = this;
             if (log.isDebugEnabled()) {
-                log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
+                log.debug("No domain name found in claim value. Searching through all user stores for possible " +
+                        "matches");
             }
             do {
                 String currentDomain = currentUserStoreManager.getMyDomainName();
@@ -860,7 +873,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     ((currentUserStoreManager = (AbstractUserStoreManager)
                             currentUserStoreManager.getSecondaryUserStoreManager()) != null));
         }
-        //done with all user store processing. Return the user array if not empty
+
+        // Done with all user store processing. Return the user array if not empty.
         String[] fullUserList = usersFromAllStoresList.toArray(new String[0]);
         Arrays.sort(fullUserList);
         return fullUserList;
