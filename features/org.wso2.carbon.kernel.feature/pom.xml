@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.utils</groupId>
-            <artifactId>carbon-utils</artifactId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -179,7 +179,7 @@
                             </adviceFileContents>
                             <bundles>
                                 <bundle>
-                                    <symbolicName>carbon-utils</symbolicName>
+                                    <symbolicName>org.wso2.carbon.utils</symbolicName>
                                     <version>${carbon.utils.version}</version>
                                 </bundle>
                                 <bundle>
