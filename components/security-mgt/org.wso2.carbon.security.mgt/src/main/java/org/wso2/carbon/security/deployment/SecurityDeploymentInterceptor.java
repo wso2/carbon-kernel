@@ -260,6 +260,8 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                 // disengage at axis2
                 axisService.disengageModule(module);
                 return;
+            } else {
+                throw new UserStoreException("Error in getting Axis configuration.");
             }
         }
 
@@ -360,8 +362,6 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             throw e;
         }
     }
-
-
 
     private void addKeystores() throws RegistryException {
         Registry registry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry();

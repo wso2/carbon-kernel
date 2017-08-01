@@ -99,7 +99,6 @@ public class POXSecurityHandler implements Handler {
      */
     public InvocationResponse invoke(MessageContext msgCtx) throws AxisFault {
 
-
         if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)) {
             return InvocationResponse.CONTINUE;
         }
@@ -108,6 +107,8 @@ public class POXSecurityHandler implements Handler {
 
         if (msgCtx != null) {
             service = msgCtx.getAxisService();
+        } else {
+            throw new AxisFault("Error in Axis message context.");
         }
 
         if (service == null) {

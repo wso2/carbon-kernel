@@ -652,7 +652,6 @@ public class ServerCrypto implements Crypto {
                 if (subjectRDN.equals(foundRDN)) {
                     aliases.add(alias);
                 }
-
             }
         } catch (KeyStoreException e) {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");

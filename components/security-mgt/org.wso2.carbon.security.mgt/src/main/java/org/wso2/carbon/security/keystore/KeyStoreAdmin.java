@@ -293,12 +293,7 @@ public class KeyStoreAdmin {
     public void deleteStore(String keyStoreName) throws SecurityConfigException {
         try {
 
-            String keyStoreNameTrim = null;
-            if (keyStoreName != null) {
-                keyStoreNameTrim = keyStoreName.trim();
-            }
-
-            if (keyStoreName == null || keyStoreNameTrim.length() == 0) {
+            if (StringUtils.isBlank(keyStoreName)) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
 
