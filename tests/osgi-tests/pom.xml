@@ -209,7 +209,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.utils</groupId>
-            <artifactId>carbon-utils</artifactId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
