@@ -32,15 +32,11 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.utils</groupId>
-            <artifactId>carbon-utils</artifactId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -183,16 +179,12 @@
                             </adviceFileContents>
                             <bundles>
                                 <bundle>
-                                    <symbolicName>carbon-utils</symbolicName>
+                                    <symbolicName>org.wso2.carbon.utils</symbolicName>
                                     <version>${carbon.utils.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.core</symbolicName>
                                     <version>${carbon.kernel.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.yaml.snakeyaml</symbolicName>
-                                    <version>${org.snakeyaml.version}</version>
                                 </bundle>
                             </bundles>
                             <importFeatures>

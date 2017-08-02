@@ -137,30 +137,9 @@
                     <version>${carbon.feature.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.extensions.configuration.maven.plugin</artifactId>
-                    <version>${carbon.kernel.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>create-doc</goal>
-                            </goals>
-                            <phase>compile</phase>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
                     <groupId>org.wso2.carbon.config</groupId>
                     <artifactId>org.wso2.carbon.config.maven.plugin</artifactId>
                     <version>${carbon.config.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>create-doc</goal>
-                            </goals>
-                            <phase>compile</phase>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -194,7 +173,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.utils</groupId>
-                <artifactId>carbon-utils</artifactId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
                 <version>${carbon.utils.version}</version>
             </dependency>
             <dependency>
@@ -233,6 +212,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.secvault</groupId>
                 <artifactId>org.wso2.carbon.secvault.feature</artifactId>
+                <version>${carbon.securevault.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.secvault</groupId>
+                <artifactId>org.wso2.carbon.secvault.tools.feature</artifactId>
                 <version>${carbon.securevault.version}</version>
                 <type>zip</type>
             </dependency>
@@ -526,11 +511,6 @@
                 <version>${commons.compress.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${org.snakeyaml.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.kohsuke.metainf-services</groupId>
                 <artifactId>metainf-services</artifactId>
                 <version>${org.kohsuke.metainf.services.version}</version>
@@ -641,11 +621,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bundle.symbolicName>${project.artifactId}</bundle.symbolicName>
 
-        <carbon.utils.version>1.2.1</carbon.utils.version>
-        <carbon.utils.package.import.version.range>[1.0.0, 2.0.0)</carbon.utils.package.import.version.range>
-        <carbon.config.version>2.0.0</carbon.config.version>
+        <carbon.utils.version>2.0.2</carbon.utils.version>
+        <carbon.utils.package.import.version.range>[2.0.0, 3.0.0)</carbon.utils.package.import.version.range>
+        <carbon.config.version>2.0.3</carbon.config.version>
         <carbon.config.package.import.version.range>[2.0.0, 3.0.0)</carbon.config.package.import.version.range>
-        <carbon.securevault.version>5.0.7</carbon.securevault.version>
+        <carbon.securevault.version>5.0.8</carbon.securevault.version>
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
@@ -725,8 +705,7 @@
 
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>3.1.0</carbon.feature.plugin.version>
-        <org.snakeyaml.version>1.17</org.snakeyaml.version>
-        <org.snakeyaml.package.import.version.range>[1.17.0,2.0.0)</org.snakeyaml.package.import.version.range>
+
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>

@@ -1,5 +1,4 @@
-################################################################################
-#   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved
+#   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved
 #
 #   Licensed under the Apache License, Version 2.0 (the \"License\");
 #   you may not use this file except in compliance with the License.
@@ -12,7 +11,6 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-################################################################################
 
   # Carbon Configuration Parameters
 wso2.carbon:
@@ -30,9 +28,9 @@ wso2.securevault:
     type: org.wso2.carbon.secvault.repository.DefaultSecretRepository
     parameters:
       privateKeyAlias: wso2carbon
-      keystoreLocation: ../../resources/security/securevault.jks
-      secretPropertiesFile: ../../conf/${sys:wso2.runtime}/secrets.properties
+      keystoreLocation: ${sys:carbon.home}/resources/security/securevault.jks
+      secretPropertiesFile: ${sys:carbon.home}/conf/${sys:wso2.runtime}/secrets.properties
   masterKeyReader:
     type: org.wso2.carbon.secvault.reader.DefaultMasterKeyReader
     parameters:
-      masterKeyReaderFile: ../../conf/${sys:wso2.runtime}/master-keys.yaml
+      masterKeyReaderFile: ${sys:carbon.home}/conf/${sys:wso2.runtime}/master-keys.yaml

@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.utils</groupId>
-            <artifactId>carbon-utils</artifactId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -58,11 +58,6 @@
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -176,7 +171,6 @@
             org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             javax.management.*;version="${javax.management.import.version.range}",
             javax.security.auth.*;version="${javax.security.auth.import.version.range}",
             javax.xml.*;version="${javax.xml.import.version.range}",
