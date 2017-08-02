@@ -300,12 +300,11 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                         String name = fullname.substring(fullname.lastIndexOf("/") + 1);
                         KeyStore store = null;
                         //Not all the keystores encrypted using primary keystore password. So, some of the keystores will fail while loading
-                        try {
-                            store = keyMan.getKeyStore(name);
-                        } catch (Exception e) {
-                            log.debug("Failed to load keystore " + name, e);
+                        store = keyMan.getKeyStore(name);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Load the keystore " + name);
                         }
-                        if (store.containsAlias(username)) {
+                        if (store != null && store.containsAlias(username)) {
                             Resource resource = (Resource) govRegistry.get(ks[i]);
                             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
                             String encryptedPassword = resource

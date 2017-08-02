@@ -103,7 +103,13 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
-        AxisService service = msgCtx.getAxisService();
+        AxisService service = null;
+
+        if (msgCtx != null) {
+            service = msgCtx.getAxisService();
+        } else {
+            throw new AxisFault("Error in Axis message context.");
+        }
 
         if (service == null) {
             if (log.isDebugEnabled()) {
@@ -131,12 +137,12 @@ public class POXSecurityHandler implements Handler {
 
         boolean isBasicAuth = false;
         Parameter configParameter = msgCtx.getConfigurationContext().getAxisConfiguration().getParameter("enableBasicAuth");
-        if(configParameter != null && configParameter.getValue() != null){
+        if (configParameter != null && configParameter.getValue() != null) {
             isBasicAuth  = Boolean.parseBoolean(configParameter.getValue().toString());
         }
 
         Parameter serviceParameter = msgCtx.getAxisService().getParameter("enableBasicAuth");
-        if(serviceParameter != null && serviceParameter.getValue() != null){
+        if (serviceParameter != null && serviceParameter.getValue() != null) {
             isBasicAuth  = Boolean.parseBoolean(serviceParameter.getValue().toString());
         }
 
@@ -150,11 +156,11 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
-        if (msgCtx.isFault() && new Integer(MessageContext.OUT_FAULT_FLOW).equals(msgCtx.getFLOW()) && isBasicAuth) {
+        if (msgCtx.isFault() && Integer.valueOf(MessageContext.OUT_FAULT_FLOW).equals(msgCtx.getFLOW()) && isBasicAuth) {
             // we only need to execute this block in Unauthorized situations when basicAuth used
             // otherwise it should continue the message flow by throwing the incoming fault message since
             // this is already a fault response - ESBJAVA-2731
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("SOAP Fault occurred and message flow equals to out fault flow. SOAP fault :" + msgCtx
                         .getEnvelope().toString());
             }
@@ -166,17 +172,17 @@ public class POXSecurityHandler implements Handler {
                     String faultCode = null;
 
                     Object faultCodeObject = msgCtx.getEnvelope().getBody().getFault().getCode();
-                    if(faultCodeObject instanceof SOAP11FaultCodeImpl) {
+                    if (faultCodeObject instanceof SOAP11FaultCodeImpl) {
                         faultCode = ((SOAP11FaultCodeImpl) faultCodeObject).getTextContent();
                     } else if (faultCodeObject instanceof SOAP12FaultCodeImpl) {
                         faultCode = ((SOAP12FaultSubCodeImpl) ((SOAP12FaultCodeImpl) faultCodeObject).getSubCode()).getTextContent();
                     }
 
-                    if(faultCode != null  && faultCode.contains("FailedAuthentication")){  // this is standard error code according to the WS-Sec
+                    if (faultCode != null  && faultCode.contains("FailedAuthentication")) {  // this is standard error code according to the WS-Sec
                         authenticationError = true;
                     }
 
-                    if(authenticationError) {
+                    if (authenticationError) {
                         setAuthHeaders(msgCtx);
 
                         //If request is a REST then remove the soap fault tag contents to avoid it getting in client end
@@ -329,9 +335,9 @@ public class POXSecurityHandler implements Handler {
         HttpServletResponse response = (HttpServletResponse)
                 msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
         // TODO : verify this fix. This is to handle soap fault from UT scenario
-        if(msgCtx.isFault() && response == null){
+        if (msgCtx.isFault() && response == null) {
             MessageContext originalContext = (MessageContext) msgCtx.getProperty(MessageContext.IN_MESSAGE_CONTEXT);
-            if(originalContext != null){
+            if (originalContext != null) {
                 response = (HttpServletResponse)
                         originalContext.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
             }
@@ -426,12 +432,12 @@ public class POXSecurityHandler implements Handler {
             Iterator headerBlocksIterator = headerBlocks.iterator();
 
             while (headerBlocksIterator.hasNext()) {
-                Object o=headerBlocksIterator.next();
+                Object o = headerBlocksIterator.next();
                 SOAPHeaderBlock elem = null;
                 OMElement element = null;
                 if (o instanceof SOAPHeaderBlock) {
                     try {
-                        elem = (SOAPHeaderBlock)o;
+                        elem = (SOAPHeaderBlock) o;
                     } catch (Exception e) {
                         log.error("Error while casting to soap header block", e);
                     }
@@ -441,7 +447,7 @@ public class POXSecurityHandler implements Handler {
 
                 if (elem != null &&  WSConstants.WSSE_LN.equals(elem.getLocalName())) {
                     return false; // security header already present. invalid request.
-                } else if(element != null && WSConstants.WSSE_LN.equals(element.getLocalName())){
+                } else if (element != null && WSConstants.WSSE_LN.equals(element.getLocalName())) {
                     return false;
                 }
             }

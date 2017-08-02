@@ -242,21 +242,27 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                                 PolicyComponent currentPolicyComponent) throws UserStoreException,
             AxisFault {
 
+        AxisConfiguration axisConfiguration = null;
         // Do not apply anything if no policy
-        if(StringUtils.isNotEmpty(policyId) && NO_POLICY_ID.equalsIgnoreCase(policyId)){
-            if(axisService != null){
-                UserRealm userRealm = (UserRealm)PrivilegedCarbonContext.getThreadLocalCarbonContext()
+        if (StringUtils.isNotEmpty(policyId) && NO_POLICY_ID.equalsIgnoreCase(policyId)) {
+            if (axisService != null) {
+                UserRealm userRealm = (UserRealm) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                         .getUserRealm();
                 String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
                 String serviceName = axisService.getName();
-                removeAuthorization(userRealm,serviceGroupId,serviceName);
+                removeAuthorization(userRealm, serviceGroupId, serviceName);
+                axisConfiguration = axisService.getAxisConfiguration();
             }
 
-            AxisModule module = axisService.getAxisConfiguration().getModule(SecurityConstants
-                    .RAMPART_MODULE_NAME);
-            // disengage at axis2
-            axisService.disengageModule(module);
-            return;
+            if (axisConfiguration != null) {
+                AxisModule module = axisConfiguration.getModule(SecurityConstants
+                        .RAMPART_MODULE_NAME);
+                // disengage at axis2
+                axisService.disengageModule(module);
+                return;
+            } else {
+                throw new UserStoreException("Error in getting Axis configuration.");
+            }
         }
 
         if (policyId != null && isSecPolicy(policyId)) {
@@ -429,7 +435,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             // Authorization
             AuthorizationManager manager = userRealm.getAuthorizationManager();
             String resourceName = serviceGroupId + "/" + serviceName;
-            removeAuthorization(userRealm,serviceGroupId,serviceName);
+            removeAuthorization(userRealm, serviceGroupId, serviceName);
             String allowRolesParameter = configParams.getAllowedRoles();
             if (allowRolesParameter != null) {
                 if (log.isDebugEnabled()) {
@@ -622,7 +628,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                 .append(service.getName())).toString();
     }
 
-    public PolicySubject getPolicySubjectFromBindings(AxisService service){
+    public PolicySubject getPolicySubjectFromBindings(AxisService service) {
       return null;
     }
 
