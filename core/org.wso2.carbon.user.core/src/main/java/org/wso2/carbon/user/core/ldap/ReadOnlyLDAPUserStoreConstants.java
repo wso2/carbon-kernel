@@ -59,7 +59,7 @@ public class ReadOnlyLDAPUserStoreConstants {
 
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
-        setProperty(DisplayNameAttribute, "Display name attribute", "uid", DisplayNameAttributeDescription);
+        setProperty(DisplayNameAttribute, "Display name attribute", "", DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants
                 .readLDAPGroupsDescription);
