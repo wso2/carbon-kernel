@@ -1,0 +1,14 @@
+metaRequirements.0.namespace = org.eclipse.equinox.p2.iu
+metaRequirements.0.name = org.wso2.carbon.extensions.touchpoint
+metaRequirements.0.optional=true
+instructions.configure = \
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.server_${feature.version}/bin,target:${installFolder}/../../bin/,overwrite:true);\
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.server_${feature.version}/launcher/,target:${installFolder}/../../bin/bootstrap/,overwrite:true);\
+org.wso2.carbon.extensions.touchpoint.copy(source:${installFolder}/../lib/features/org.wso2.carbon.server_${feature.version}/tools/,target:${installFolder}/../../bin/tools/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.server_${feature.version}/lib,target:${installFolder}/../../lib/,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/features/org.wso2.carbon.server_${feature.version}/tmp,target:${installFolder}/../../tmp/,overwrite:true);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:jartobundle.sh,permissions:755);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:osgi-lib.sh,permissions:755);\
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../bin,targetFile:kernel-version.txt,permissions:644);\
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../lib,targetFile:README.txt,permissions:644);\
+org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../tmp,targetFile:README.txt,permissions:644);\

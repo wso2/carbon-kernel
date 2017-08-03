@@ -28,7 +28,6 @@
     <name>WSO2 Carbon Kernel - Test Carbon Touchpoint Distribution</name>
     <packaging>pom</packaging>
 
-
     <build>
         <plugins>
             <plugin>
