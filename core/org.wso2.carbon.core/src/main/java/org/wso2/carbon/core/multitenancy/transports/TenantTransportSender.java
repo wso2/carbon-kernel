@@ -47,6 +47,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String HTTP_ETAG = "HTTP_ETAG";
     private static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
     private static final String HTTP_SC_DESC ="HTTP_SC_DESC";
+    private static final String EXCESS_TRANSPORT_HEADERS = "EXCESS_TRANSPORT_HEADERS";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -97,6 +98,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setDoingMTOM(msgContext.isDoingMTOM());
         superTenantOutMessageContext.setProperty(MessageContext.TRANSPORT_HEADERS,
                 msgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
+        superTenantOutMessageContext.setProperty(EXCESS_TRANSPORT_HEADERS,
+                msgContext.getProperty(EXCESS_TRANSPORT_HEADERS));
+
         
         superTenantOutMessageContext.setProperty(MultitenantConstants.HTTP_SC,msgContext.getProperty(MultitenantConstants.HTTP_SC));
         superTenantOutMessageContext.setProperty(HTTP_SC_DESC,
