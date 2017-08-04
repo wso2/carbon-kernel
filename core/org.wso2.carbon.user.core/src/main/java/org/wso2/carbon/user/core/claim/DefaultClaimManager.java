@@ -86,10 +86,14 @@ public class DefaultClaimManager implements ClaimManager {
         if (claimCache.isInvalid()) {
             this.claimMapping = getClaimMapFromDB();
         }
-        ClaimMapping mapping = claimMapping.get(claimURI);
-        if (mapping != null) {
-            return mapping.getMappedAttribute();
+
+        if (claimURI != null) {
+            ClaimMapping mapping = claimMapping.get(claimURI);
+            if (mapping != null) {
+                return mapping.getMappedAttribute();
+            }
         }
+
         return null;
     }
 
@@ -111,18 +115,22 @@ public class DefaultClaimManager implements ClaimManager {
         if (claimCache.isInvalid()) {
             this.claimMapping = getClaimMapFromDB();
         }
-        ClaimMapping mapping = claimMapping.get(claimURI);
-        if (mapping != null) {
-            if (domainName != null) {
-                String mappedAttrib = mapping.getMappedAttribute(domainName.toUpperCase());
-                if (mappedAttrib != null) {
-                    return mappedAttrib;
+
+        if (claimURI != null) {
+            ClaimMapping mapping = claimMapping.get(claimURI);
+            if (mapping != null) {
+                if (domainName != null) {
+                    String mappedAttrib = mapping.getMappedAttribute(domainName.toUpperCase());
+                    if (mappedAttrib != null) {
+                        return mappedAttrib;
+                    }
+                    return mapping.getMappedAttribute();
+                } else {
+                    return mapping.getMappedAttribute();
                 }
-                return mapping.getMappedAttribute();
-            } else {
-                return mapping.getMappedAttribute();
             }
         }
+
         return null;
     }
 
@@ -141,10 +149,14 @@ public class DefaultClaimManager implements ClaimManager {
         if (claimCache.isInvalid()) {
             this.claimMapping = getClaimMapFromDB();
         }
-        ClaimMapping mapping = claimMapping.get(claimURI);
-        if (mapping != null) {
-            return mapping.getClaim();
+
+        if (claimURI != null) {
+            ClaimMapping mapping = claimMapping.get(claimURI);
+            if (mapping != null) {
+                return mapping.getClaim();
+            }
         }
+
         return null;
     }
 
@@ -159,7 +171,12 @@ public class DefaultClaimManager implements ClaimManager {
         if (claimCache.isInvalid()) {
             this.claimMapping = getClaimMapFromDB();
         }
-        return claimMapping.get(claimURI);
+
+        if (claimURI != null) {
+            return claimMapping.get(claimURI);
+        } else {
+            throw new UserStoreException("claimURI value is null.");
+        }
     }
 
     /**

@@ -39,21 +39,31 @@ public class DefaultProfileConfigurationManager implements ProfileConfigurationM
     }
 
     public ProfileConfiguration getProfileConfig(String profileName) throws UserStoreException {
-        return profileConfigs.get(profileName);
+        if (profileName != null) {
+            return profileConfigs.get(profileName);
+        } else {
+            throw new UserStoreException("profileName value is null.");
+        }
     }
 
     public void addProfileConfig(org.wso2.carbon.user.api.ProfileConfiguration profileConfig) throws UserStoreException {
-        profileConfigs.put(profileConfig.getProfileName(), (ProfileConfiguration) profileConfig);
+        if (profileConfig != null && profileConfig.getProfileName() != null) {
+            profileConfigs.put(profileConfig.getProfileName(), (ProfileConfiguration) profileConfig);
+        }
         profileDAO.addProfileConfig((ProfileConfiguration) profileConfig);
     }
 
     public void updateProfileConfig(org.wso2.carbon.user.api.ProfileConfiguration profileConfig) throws UserStoreException {
-        profileConfigs.put(profileConfig.getProfileName(), (ProfileConfiguration) profileConfig);
+        if (profileConfig != null && profileConfig.getProfileName() != null) {
+            profileConfigs.put(profileConfig.getProfileName(), (ProfileConfiguration) profileConfig);
+        }
         profileDAO.updateProfileConfig((ProfileConfiguration) profileConfig);
     }
 
     public void deleteProfileConfig(org.wso2.carbon.user.api.ProfileConfiguration profileConfig) throws UserStoreException {
-        profileConfigs.remove(profileConfig.getProfileName());
+        if (profileConfig != null && profileConfig.getProfileName() != null) {
+            profileConfigs.remove(profileConfig.getProfileName());
+        }
         profileDAO.deleteProfileConfig((ProfileConfiguration) profileConfig);
     }
 
