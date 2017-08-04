@@ -87,12 +87,8 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
         assertEquals(3,ClmURI.length);
         
         // get the attribute name for a given claimURI
-        try{
-            assertEquals(null,claimMan.getAttributeName(null));
-            fail("Exception at Invalid Claim URI fails");
-        }catch(Exception ex){
-            //caught exception
-        }
+        // if the claimURI is null it will return a null value.
+        assertEquals(null, claimMan.getAttributeName(null));
 
         //get the claim for a given claimURI
         Claim c1 = (Claim) claimMan.getClaim(claimU1);

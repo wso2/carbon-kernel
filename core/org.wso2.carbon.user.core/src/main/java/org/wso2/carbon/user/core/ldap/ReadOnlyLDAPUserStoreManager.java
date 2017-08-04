@@ -485,10 +485,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
                                                      String profileName) throws UserStoreException {
-
+        if (userName == null) {
+            throw new UserStoreException("userName value is null.");
+        }
         String userAttributeSeparator = ",";
         String userDN = null;
-        LdapName ldn = (LdapName)userCache.get(userName);
+        LdapName ldn = (LdapName) userCache.get(userName);
 
         if (ldn == null) {
             // read list of patterns from user-mgt.xml
@@ -759,6 +761,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Searching for user " + userName);
         }
+
+        if (userName == null) {
+            return false;
+        }
+
         boolean bFound = false;
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
@@ -1196,7 +1203,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug("Authentication failed " + e);
                 log.debug("Clearing cache for DN: " + dn);
             }
-            userCache.remove(userName);
+            if (userName != null) {
+                userCache.remove(userName);
+            }
 
         } finally {
             JNDIUtil.closeContext(cxt);
@@ -1886,9 +1895,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     protected String[] getLDAPRoleListOfUser(String userName, String filter, String searchBase,
                                              boolean shared) throws UserStoreException {
+        if (userName == null) {
+            throw new UserStoreException("userName value is null.");
+        }
         boolean debug = log.isDebugEnabled();
         List<String> list = new ArrayList<String>();
-		/*
+        /*
 		 * do not search REGISTRY_ANONNYMOUS_USERNAME or
 		 * REGISTRY_SYSTEM_USERNAME in LDAP because it
 		 * causes warn logs printed from embedded-ldap.
@@ -1939,7 +1951,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     memberOfProperty);
                 } else {
                     // use cache
-                    LdapName ldn = (LdapName)userCache.get(userName);
+                    LdapName ldn = (LdapName) userCache.get(userName);
                     if (ldn != null) {
                         searchBase = ldn.toString();
                     } else {
@@ -2095,7 +2107,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     protected String getNameInSpaceForUserName(String userName) throws UserStoreException {
         // check the cache first
-        LdapName ldn = (LdapName)userCache.get(userName);
+        LdapName ldn = null;
+        if (userName != null) {
+            ldn = (LdapName) userCache.get(userName);
+        } else {
+            throw new UserStoreException("userName value is null.");
+        }
         if (ldn != null) {
             return ldn.toString();
         }
@@ -2132,6 +2149,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter) throws UserStoreException {
         boolean debug = log.isDebugEnabled();
 
+        if (userName == null) {
+            throw new UserStoreException("userName value is null.");
+        }
         if (userCache.get(userName) != null) {
             return userCache.get(userName).toString();
         }
@@ -2525,6 +2545,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
 
         boolean debug = log.isDebugEnabled();
+        if (userName == null) {
+            return false;
+        }
 
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -2567,7 +2590,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 memberOfProperty);
             } else {
                 // use cache
-                LdapName ldn = (LdapName)userCache.get(userName);
+                LdapName ldn = (LdapName) userCache.get(userName);
                 if (ldn != null) {
                     searchBases = ldn.toString();
                 } else {
