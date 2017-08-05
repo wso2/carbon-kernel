@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.user.core.claim;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
@@ -41,6 +43,8 @@ public class DefaultClaimManager implements ClaimManager {
     private ClaimBuilder claimBuilder;
 
     private Map<String, ClaimMapping> claimMapping;
+
+    Log log = LogFactory.getLog(DefaultClaimManager.class);
 
     /**
      * @param claimMapping
@@ -76,19 +80,25 @@ public class DefaultClaimManager implements ClaimManager {
      */
     public String getAttributeName(String claimURI) throws UserStoreException {
         // call listeners
-        for (ClaimManagerListener listener : UMListenerServiceComponent
-                .getClaimManagerListeners()) {
-            if (!listener.getAttributeName(claimURI)) {
-                return null;
+        if (claimURI != null) {
+            for (ClaimManagerListener listener : UMListenerServiceComponent
+                    .getClaimManagerListeners()) {
+                if (!listener.getAttributeName(claimURI)) {
+                    return null;
+                }
             }
-        }
 
-        if (claimCache.isInvalid()) {
-            this.claimMapping = getClaimMapFromDB();
-        }
-        ClaimMapping mapping = claimMapping.get(claimURI);
-        if (mapping != null) {
-            return mapping.getMappedAttribute();
+            if (claimCache.isInvalid()) {
+                this.claimMapping = getClaimMapFromDB();
+            }
+            ClaimMapping mapping = claimMapping.get(claimURI);
+            if (mapping != null) {
+                return mapping.getMappedAttribute();
+            }
+            log.debug("Claim URI: " + claimURI);
+            return null;
+        } else {
+            log.debug("Claim URI can't be null value.");
         }
         return null;
     }
