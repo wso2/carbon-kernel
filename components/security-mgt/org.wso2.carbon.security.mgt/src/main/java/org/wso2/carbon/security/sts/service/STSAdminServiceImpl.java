@@ -40,7 +40,6 @@ import org.wso2.carbon.security.sts.service.util.TrustedServiceData;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,17 +111,15 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
                         SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG);
                 SAMLTokenIssuerConfig samlConfig = new SAMLTokenIssuerConfig(samlConfigElem);
                 Map trustedServicesMap = samlConfig.getTrustedServices();
-                Set addresses = trustedServicesMap.keySet();
 
-                List serviceBag = new ArrayList();
-                for (Iterator iterator = addresses.iterator(); iterator.hasNext(); ) {
-                    String address = (String) iterator.next();
-                    String alias = (String) trustedServicesMap.get(address);
-                    TrustedServiceData data = new TrustedServiceData(address, alias);
-                    serviceBag.add(data);
+                List<TrustedServiceData> serviceBag = new ArrayList();
+                Set<Map.Entry> entrySet = trustedServicesMap.entrySet();
+                for (Map.Entry entry : entrySet) {
+                    String address = (String) entry.getKey();
+                    String alias = (String) entry.getValue();
+                    serviceBag.add(new TrustedServiceData(address, alias));
                 }
-                return (TrustedServiceData[]) serviceBag.toArray(new TrustedServiceData[serviceBag
-                        .size()]);
+                return serviceBag.toArray(new TrustedServiceData[serviceBag.size()]);
             } else {
                 throw new SecurityConfigException("missing parameter : "
                         + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());

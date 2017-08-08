@@ -70,16 +70,16 @@ import java.util.Vector;
  */
 public class ServerCrypto implements Crypto {
 
-    public final static String PROP_ID_KEY_STORE = "org.wso2.carbon.security.crypto.keystore";
-    public final static String PROP_ID_PRIVATE_STORE = "org.wso2.carbon.security.crypto.privatestore";
-    public final static String PROP_ID_TRUST_STORES = "org.wso2.carbon.security.crypto.truststores";
-    public final static String PROP_ID_CERT_PROVIDER = "org.wso2.carbon.security.crypto.cert.provider";
-    public final static String PROP_ID_DEFAULT_ALIAS = "org.wso2.carbon.security.crypto.alias";
-    public final static String PROP_ID_REGISTRY = "org.wso2.carbon.security.crypto.registry";
-    public final static String PROP_ID_CACERT_PASS = "org.wso2.carbon.security.crypto.cacert.pass";
-    public final static String PROP_ID_XKMS_SERVICE_PASS_PHRASE = "org.wso2.wsas.security.wso2wsas.crypto.xkms.pass";
-    public final static String PROP_ID_TENANT_ID = "org.wso2.stratos.tenant.id";
-    public final static String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
+    public static final String PROP_ID_KEY_STORE = "org.wso2.carbon.security.crypto.keystore";
+    public static final String PROP_ID_PRIVATE_STORE = "org.wso2.carbon.security.crypto.privatestore";
+    public static final String PROP_ID_TRUST_STORES = "org.wso2.carbon.security.crypto.truststores";
+    public static final String PROP_ID_CERT_PROVIDER = "org.wso2.carbon.security.crypto.cert.provider";
+    public static final String PROP_ID_DEFAULT_ALIAS = "org.wso2.carbon.security.crypto.alias";
+    public static final String PROP_ID_REGISTRY = "org.wso2.carbon.security.crypto.registry";
+    public static final String PROP_ID_CACERT_PASS = "org.wso2.carbon.security.crypto.cacert.pass";
+    public static final String PROP_ID_XKMS_SERVICE_PASS_PHRASE = "org.wso2.wsas.security.wso2wsas.crypto.xkms.pass";
+    public static final String PROP_ID_TENANT_ID = "org.wso2.stratos.tenant.id";
+    public static final String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
     private static final String SKI_OID = "2.5.29.14";
     private static Log log = LogFactory.getLog(ServerCrypto.class);
     private static CertificateFactory certFact = null;
@@ -106,20 +106,20 @@ public class ServerCrypto implements Crypto {
             if (tenantIdString == null || tenantIdString.trim().length() == 0) {
                 tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             } else {
-                tenantId = new Integer(tenantIdString);
+                tenantId = Integer.parseInt(tenantIdString);
             }
             // Forcefully load tenant. since tenant may have been unloaded
             SecurityServiceHolder.getTenantRegistryLoader().loadTenantRegistry(tenantId);
 
             // From certain operations (rampart) this is set to true. This causes to throw an exeption while loading
             // registry. Therefore set it to false before loading and set it to true only if it is changed.
-            if(DocumentBuilderFactoryImpl.isDOOMRequired()){
+            if (DocumentBuilderFactoryImpl.isDOOMRequired()) {
                 DocumentBuilderFactoryImpl.setDOOMRequired(false);
                 isSetDoomFalse = true;
             }
             registry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry(tenantId);
 
-            if(isSetDoomFalse){
+            if (isSetDoomFalse) {
                 DocumentBuilderFactoryImpl.setDOOMRequired(true);
                 isSetDoomFalse = false;
             }
@@ -457,9 +457,6 @@ public class ServerCrypto implements Crypto {
                 } else {
                     cert = certs[0];
                 }
-                if (!(cert instanceof X509Certificate)) {
-                    continue;
-                }
                 byte[] data = getSKIBytesFromCert((X509Certificate) cert);
                 if (data.length != skiBytes.length) {
                     continue;
@@ -548,9 +545,6 @@ public class ServerCrypto implements Crypto {
                     return null;
                 } else {
                     cert = certs[0];
-                }
-                if (!(cert instanceof X509Certificate)) {
-                    continue;
                 }
                 sha.reset();
                 try {
@@ -651,13 +645,12 @@ public class ServerCrypto implements Crypto {
                 } else {
                     cert = certs[0];
                 }
-                if (cert instanceof X509Certificate) {
-                    Vector foundRDN = splitAndTrim(((X509Certificate) cert).getSubjectDN()
-                            .getName());
 
-                    if (subjectRDN.equals(foundRDN)) {
-                        aliases.add(alias);
-                    }
+                Vector foundRDN = splitAndTrim(((X509Certificate) cert).getSubjectDN()
+                        .getName());
+
+                if (subjectRDN.equals(foundRDN)) {
+                    aliases.add(alias);
                 }
             }
         } catch (KeyStoreException e) {
@@ -689,9 +682,7 @@ public class ServerCrypto implements Crypto {
                 } else {
                     cert = certs[0];
                 }
-                if (!(cert instanceof X509Certificate)) {
-                    continue;
-                }
+
                 x509cert = (X509Certificate) cert;
                 if (useSerialNumber && x509cert.getSerialNumber().compareTo(serialNumber) == 0) {
                     certRDN = splitAndTrim(x509cert.getIssuerDN().getName());
