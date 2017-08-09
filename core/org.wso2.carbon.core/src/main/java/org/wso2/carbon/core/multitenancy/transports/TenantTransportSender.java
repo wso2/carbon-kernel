@@ -47,6 +47,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String HTTP_ETAG = "HTTP_ETAG";
     private static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
     private static final String HTTP_SC_DESC ="HTTP_SC_DESC";
+    private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -130,7 +131,16 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 msgContext.getProperty(MultitenantConstants.DISABLE_CHUNKING));
         superTenantOutMessageContext.setProperty(MultitenantConstants.NO_KEEPALIVE,
                 msgContext.getProperty(MultitenantConstants.NO_KEEPALIVE));
+        boolean forced = msgContext.isPropertyTrue(FORCE_SC_ACCEPTED);
+        if(forced) {
+            superTenantOutMessageContext.setProperty(FORCE_SC_ACCEPTED, true);
+        }
 
+        if (msgContext.getReplyTo() == null) {
+            superTenantOutMessageContext.setReplyTo(new EndpointReference("http://www.w3.org/2005/08/addressing/none"));
+        } else {
+            superTenantOutMessageContext.setReplyTo(msgContext.getReplyTo());
+        }
 
         Map headers = (Map) msgContext.getProperty(MessageContext.TRANSPORT_HEADERS);
 
