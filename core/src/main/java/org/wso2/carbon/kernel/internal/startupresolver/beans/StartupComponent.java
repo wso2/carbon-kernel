@@ -211,7 +211,8 @@ public class StartupComponent {
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
             availableServiceCounts.forEach((s, aLong) -> {
-                if (aLong >= expectedServiceCounts.get(s)) {
+                Long eCount = expectedServiceCounts.get(s);
+                if (eCount != null && aLong >= eCount) {
                     expectedServiceCounts.remove(s);
                 }
             });
