@@ -71,7 +71,7 @@
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.touchpoint.feature</id>
-                                    <version>${carbon.kernel.version}</version>
+                                    <version>${carbon.touchpoint.version}</version>
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.touchpoint.sample.feature</id>
