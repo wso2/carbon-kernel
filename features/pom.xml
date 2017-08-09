@@ -31,7 +31,6 @@
     <url>http://wso2.com</url>
 
     <modules>
-        <module>org.wso2.carbon.touchpoint.feature</module>
         <module>org.wso2.carbon.runtime.feature</module>
         <module>org.wso2.carbon.server.feature</module>
         <module>org.wso2.carbon.osgi.feature</module>

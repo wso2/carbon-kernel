@@ -70,7 +70,7 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.touchpoint</groupId>
             <artifactId>org.wso2.carbon.touchpoint.feature</artifactId>
             <type>zip</type>
         </dependency>
@@ -138,7 +138,7 @@
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.touchpoint.feature</id>
-                                    <version>${carbon.kernel.version}</version>
+                                    <version>${carbon.touchpoint.version}</version>
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.server.feature</id>

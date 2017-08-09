@@ -576,11 +576,6 @@
                 <version>${maven-core.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.extensions.touchpoint</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.engine</artifactId>
                 <version>${org.eclipse.equinox.p2.engine.version}</version>
@@ -591,11 +586,10 @@
                 <version>${org.eclipse.equinox.p2.metadata.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.touchpoint</groupId>
                 <artifactId>org.wso2.carbon.touchpoint.feature</artifactId>
-                <version>${carbon.kernel.version}</version>
+                <version>${carbon.touchpoint.version}</version>
                 <type>zip</type>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -633,6 +627,7 @@
         <carbon.config.package.import.version.range>[2.0.0, 3.0.0)</carbon.config.package.import.version.range>
         <carbon.securevault.version>5.0.8</carbon.securevault.version>
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
+        <carbon.touchpoint.version>1.1.0</carbon.touchpoint.version>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.export.version>5.2.0</carbon.kernel.package.export.version>
