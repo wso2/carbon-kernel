@@ -13,36 +13,36 @@ below is and where the actual text of the license can be found.
 
 Name                                                                            Type           License   
 ---------------------------------------------------------------------------------------------------------
-carbon-utils_1.2.1.jar                                                          bundle         apache2   2210      
-org.apache.felix.gogo.command_0.10.0.v201209301215.jar                          bundle         apache2   1134      
-org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar                          bundle         apache2   1133      
-org.apache.felix.gogo.shell_0.10.0.v201212101605.jar                            bundle         apache2   1132      
-org.eclipse.equinox.cm_1.1.200.v20160324-1850.jar                               bundle         epl1      2040      
-org.eclipse.equinox.common_3.8.0.v20160509-1230.jar                             bundle         epl1      2039      
-org.eclipse.equinox.concurrent_1.1.0.v20130327-1442.jar                         bundle         epl1      1121      
-org.eclipse.equinox.console_1.1.200.v20150929-1405.jar                          bundle         epl1      2038      
-org.eclipse.equinox.ds_1.4.400.v20160226-2036.jar                               bundle         epl1      2037      
-org.eclipse.equinox.frameworkadmin.equinox_1.0.700.v20160102-2223.jar           bundle         epl1      2036      
-org.eclipse.equinox.frameworkadmin_2.0.300.v20160504-1450.jar                   bundle         epl1      2035      
-org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar                         bundle         epl1      2034      
-org.eclipse.equinox.preferences_3.6.0.v20160120-1756.jar                        bundle         epl1      2033      
-org.eclipse.equinox.simpleconfigurator.manipulator_2.0.200.v20160504-1450.jar   bundle         epl1      2032      
-org.eclipse.equinox.simpleconfigurator_1.1.200.v20160504-1450.jar               bundle         epl1      2031      
-org.eclipse.equinox.util_1.0.500.v20130404-1337.jar                             bundle         epl1      1094      
-org.eclipse.osgi.compatibility.state_1.0.200.v20160504-1419.jar                 bundle         epl1      2030      
-org.eclipse.osgi.services_3.5.100.v20160504-1419.jar                            bundle         epl1      2029      
-org.eclipse.osgi_3.11.0.v20160603-1336.jar                                      bundle         epl1      2028      
-org.ops4j.pax.logging.pax-logging-api_1.10.0.jar                                bundle         apache2   2209      
-org.ops4j.pax.logging.pax-logging-log4j2_1.10.0.jar                             bundle         apache2   2208      
-org.osgi.core-6.0.0.jar                                                         bundle         apache2   1407      
-org.wso2.carbon.config_2.0.0.jar                                                bundle         apache2   12355     
-org.wso2.carbon.core_5.2.0.m4.jar                                               bundle         apache2   12354     
-org.wso2.carbon.extensions.touchpoint_5.2.0.m4.jar                              bundle         apache2   12353     
-org.wso2.carbon.launcher-5.2.0-m4.jar                                           bundle         apache2   12351     
-org.wso2.carbon.secvault.ciphertool.jar                                         bundle         apache2   12350     
-org.wso2.carbon.secvault_5.0.4.jar                                              bundle         apache2   12352     
-org.wso2.carbon.tools.core-5.2.0-m4.jar                                         bundle         apache2   12349     
-org.yaml.snakeyaml_1.17.0.jar                                                   bundle         apache2   2027      
+org.apache.felix.gogo.command_0.10.0.v201209301215.jar                          bundle         apache2   1134
+org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar                          bundle         apache2   1133
+org.apache.felix.gogo.shell_0.10.0.v201212101605.jar                            bundle         apache2   1132
+org.eclipse.equinox.cm_1.1.200.v20160324-1850.jar                               bundle         epl1      2040
+org.eclipse.equinox.common_3.8.0.v20160509-1230.jar                             bundle         epl1      2039
+org.eclipse.equinox.concurrent_1.1.0.v20130327-1442.jar                         bundle         epl1      1121
+org.eclipse.equinox.console_1.1.200.v20150929-1405.jar                          bundle         epl1      2038
+org.eclipse.equinox.ds_1.4.400.v20160226-2036.jar                               bundle         epl1      2037
+org.eclipse.equinox.frameworkadmin.equinox_1.0.700.v20160102-2223.jar           bundle         epl1      2036
+org.eclipse.equinox.frameworkadmin_2.0.300.v20160504-1450.jar                   bundle         epl1      2035
+org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar                         bundle         epl1      2034
+org.eclipse.equinox.preferences_3.6.0.v20160120-1756.jar                        bundle         epl1      2033
+org.eclipse.equinox.simpleconfigurator.manipulator_2.0.200.v20160504-1450.jar   bundle         epl1      2032
+org.eclipse.equinox.simpleconfigurator_1.1.200.v20160504-1450.jar               bundle         epl1      2031
+org.eclipse.equinox.util_1.0.500.v20130404-1337.jar                             bundle         epl1      1094
+org.eclipse.osgi.compatibility.state_1.0.200.v20160504-1419.jar                 bundle         epl1      2030
+org.eclipse.osgi.services_3.5.100.v20160504-1419.jar                            bundle         epl1      2029
+org.eclipse.osgi_3.11.0.v20160603-1336.jar                                      bundle         epl1      2028
+org.ops4j.pax.logging.pax-logging-api_1.10.0.jar                                bundle         apache2   2209
+org.ops4j.pax.logging.pax-logging-log4j2_1.10.0.jar                             bundle         apache2   2208
+org.osgi.core-6.0.0.jar                                                         bundle         apache2   1407
+org.wso2.carbon.config_2.0.3.jar                                                bundle         apache2   12695
+org.wso2.carbon.core_5.2.0.alpha.jar                                            bundle         apache2   12694
+org.wso2.carbon.extensions.touchpoint_1.1.0.jar                                 bundle         apache2   12693
+org.wso2.carbon.launcher-5.2.0-alpha.jar                                        bundle         apache2   12686
+org.wso2.carbon.secvault.ciphertool.5.0.8.jar                                   bundle         apache2   12688
+org.wso2.carbon.secvault_5.0.8.jar                                              bundle         apache2   12692
+org.wso2.carbon.tools.core-5.2.0-alpha.jar                                      bundle         apache2   12687
+org.wso2.carbon.utils_2.0.2.jar                                                 bundle         apache2   12691
+org.yaml.snakeyaml_1.17.0.jar                                                   bundle         apache2   2027
 
 
 
