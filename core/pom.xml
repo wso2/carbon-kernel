@@ -179,9 +179,8 @@
             javax.crypto.*;version="${javax.crypto.version.range}",
         </import.package>
         <carbon.component>
-            startup.listener;componentName="carbon-transport-mgt";requiredService="org.wso2.carbon.kernel.transports.CarbonTransport",
             startup.listener;componentName="carbon-runtime-mgt";requiredService="org.wso2.carbon.kernel.runtime.Runtime",
-            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";requiredByComponentName="carbon-transport-mgt"
+            osgi.service;objectClass="org.wso2.carbon.kernel.runtime.RuntimeService"
         </carbon.component>
     </properties>
 

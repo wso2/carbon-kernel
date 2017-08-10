@@ -22,7 +22,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonServerInfo;
 import org.wso2.carbon.kernel.Constants;
-import org.wso2.carbon.kernel.transports.TransportManager;
+import org.wso2.carbon.kernel.internal.runtime.CarbonRuntimeService;
+import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.IntrospectionException;
@@ -46,11 +47,10 @@ public class MBeanRegistratorTest {
 
         MBeanServer mBeanServer = MBeanManagementFactory.getMBeanServer();
         initialMBeanCount = mBeanServer.getMBeanCount();
-
-        MBeanRegistrator.registerMBean(new TransportManager());
+        MBeanRegistrator.registerMBean(new CarbonRuntimeService(new RuntimeManager()));
         Assert.assertTrue(mBeanServer.getMBeanCount() == initialMBeanCount + 1);
 
-        String className = new TransportManager().getClass().getName();
+        String className = new CarbonRuntimeService(new RuntimeManager()).getClass().getName();
         if (className.indexOf('.') != -1) {
             className = className.substring(className.lastIndexOf('.') + 1);
         }
@@ -66,7 +66,7 @@ public class MBeanRegistratorTest {
 
     @Test(dependsOnMethods = {"testRegisterMBean"}, expectedExceptions = RuntimeException.class)
     public void testMBeanAlreadyExists() throws RuntimeException {
-        MBeanRegistrator.registerMBean(new TransportManager());
+        MBeanRegistrator.registerMBean(new CarbonRuntimeService(new RuntimeManager()));
     }
 
     @Test(dependsOnMethods = {"testMBeanAlreadyExists"}, expectedExceptions = RuntimeException.class)
