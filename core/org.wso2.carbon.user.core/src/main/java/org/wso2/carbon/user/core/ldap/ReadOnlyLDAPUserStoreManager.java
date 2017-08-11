@@ -46,6 +46,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +79,7 @@ import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.T
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     public static final String MEMBER_UID = "memberUid";
+    private static final String OBJECT_GUID = "objectGUID";
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     private final int MAX_USER_CACHE = 200;
 
@@ -591,7 +593,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                             // objectGUID byte order is not big-endian
                                             // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
                                             // https://community.oracle.com/thread/1157698
-                                            if (name.equals("objectGUID")) {
+                                            if (name.equals(OBJECT_GUID)) {
                                                 // check the property for objectGUID transformation
                                                 String property =
                                                         realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
@@ -600,24 +602,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                                         Boolean.parseBoolean(property);
 
                                                 if (transformObjectGuidToUuid) {
-                                                    // bytes[0] <-> bytes[3]
-                                                    byte swap = bytes[3];
-                                                    bytes[3] = bytes[0];
-                                                    bytes[0] = swap;
-                                                    // bytes[1] <-> bytes[2]
-                                                    swap = bytes[2];
-                                                    bytes[2] = bytes[1];
-                                                    bytes[1] = swap;
-                                                    // bytes[4] <-> bytes[5]
-                                                    swap = bytes[5];
-                                                    bytes[5] = bytes[4];
-                                                    bytes[4] = swap;
-                                                    // bytes[6] <-> bytes[7]
-                                                    swap = bytes[7];
-                                                    bytes[7] = bytes[6];
-                                                    bytes[6] = swap;
-
-                                                    final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(bytes);
+                                                    final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
                                                     attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
                                                 } else {
                                                     // Ignore transforming objectGUID to UUID canonical format
@@ -2452,6 +2437,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     /* TODO: support for multiple user stores */
     public String[] getUserListFromProperties(String property, String value, String profileName)
             throws UserStoreException {
+
+        if (value == null) {
+            return new String[0];
+        }
         boolean debug = log.isDebugEnabled();
         String userAttributeSeparator = ",";
         String serviceNameAttribute = "sn";
@@ -2460,8 +2449,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        searchFilter = "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(
-                value) + "))";
+        if (OBJECT_GUID.equals(property)) {
+            String transformObjectGuidToUuidProperty =
+                    realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+            boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) ||
+                    Boolean.parseBoolean(transformObjectGuidToUuidProperty);
+
+            String convertedValue;
+            if (transformObjectGuidToUuid) {
+                convertedValue = transformUUIDToObjectGUID(value);
+            } else {
+                byte[] bytes = Base64.decodeBase64(value.getBytes());
+                convertedValue = convertBytesToHexString(bytes);
+            }
+            searchFilter = "(&" + searchFilter + "(" + property + "=" + convertedValue + "))";
+        } else {
+            searchFilter = "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(
+                    value) + "))";
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<?> answer = null;
@@ -2539,6 +2545,42 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         return values.toArray(new String[values.size()]);
+    }
+
+    protected String convertBytesToHexString(byte[] bytes) {
+        final StringBuilder builder = new StringBuilder();
+        for (byte b : bytes) {
+            builder.append("\\").append(String.format("%02x", b));
+        }
+        return builder.toString();
+    }
+
+    protected String transformUUIDToObjectGUID(String value) {
+        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+        bb.putLong(java.util.UUID.fromString(value).getMostSignificantBits());
+        bb.putLong(java.util.UUID.fromString(value).getLeastSignificantBits());
+        final byte[] bytes = swapBytes(bb.array());
+        return convertBytesToHexString(bytes);
+    }
+
+    protected byte[] swapBytes(byte[] bytes) {
+        // bytes[0] <-> bytes[3]
+        byte swap = bytes[3];
+        bytes[3] = bytes[0];
+        bytes[0] = swap;
+        // bytes[1] <-> bytes[2]
+        swap = bytes[2];
+        bytes[2] = bytes[1];
+        bytes[1] = swap;
+        // bytes[4] <-> bytes[5]
+        swap = bytes[5];
+        bytes[5] = bytes[4];
+        bytes[4] = swap;
+        // bytes[6] <-> bytes[7]
+        swap = bytes[7];
+        bytes[7] = bytes[6];
+        bytes[6] = swap;
+        return bytes;
     }
 
     @Override
