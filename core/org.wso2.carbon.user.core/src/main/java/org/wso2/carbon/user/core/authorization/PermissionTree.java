@@ -43,6 +43,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
+
 public class PermissionTree {
 
     private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
@@ -984,7 +986,20 @@ public class PermissionTree {
                     updatePermissionTreeFromDB();
                     cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
                     cacheEntry = new GhostResource<TreeNode>(root);
-                    permissionCache.put(cacheKey, cacheEntry);
+                    try {
+                        permissionCache.put(cacheKey, cacheEntry);
+                    } catch (IllegalStateException e) {
+                        if (e.getMessage().contains(ILLEGAL_STATE_EXCEPTION_MESSAGE)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Error when trying to put an entry to permissionCache. Retrying..");
+                            }
+                            permissionCache = this.getPermissionTreeCache();
+                            permissionCache.put(cacheKey, cacheEntry);
+                        } else {
+                            // We only handle a specific IllegalStateException.
+                            throw e;
+                        }
+                    }
                     if (log.isDebugEnabled()) {
                         log.debug("Loaded from database");
                     }

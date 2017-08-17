@@ -43,6 +43,9 @@ public class ActiveDirectoryUserStoreConstants {
     private static final String roleDNPatternDescription = "The patten for role's DN. It can be defined to improve " +
             "the LDAP search";
 
+    public static final String TRANSFORM_OBJECTGUID_TO_UUID = "transformObjectGUIDToUUID";
+    public static final String TRANSFORM_OBJECTGUID_TO_UUID_DESC = "Return objectGUID in UUID Canonical Format";
+
     static {
         //Set mandatory properties
         setMandatoryProperty(UserStoreConfigConstants.connectionURL, "Connection URL",

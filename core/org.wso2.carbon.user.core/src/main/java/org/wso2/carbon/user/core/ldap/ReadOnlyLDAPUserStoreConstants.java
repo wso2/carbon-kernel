@@ -59,7 +59,7 @@ public class ReadOnlyLDAPUserStoreConstants {
 
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
-        setProperty(DisplayNameAttribute, "Display name attribute", "uid", DisplayNameAttributeDescription);
+        setProperty(DisplayNameAttribute, "Display name attribute", "", DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants
                 .readLDAPGroupsDescription);
@@ -78,6 +78,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "false", " Whether to allow attributes to be result from" +
                 "references to the object from other objects");
 
+        setProperty("Referral", "Referral", "follow", "Guides the requests to a domain controller in the correct domain");
         setProperty("ReplaceEscapeCharactersAtUserLogin", "Enable Escape Characters at User Login", "true", "Whether replace escape character when user login");
         setProperty("UniqueID", "", "", "");
 

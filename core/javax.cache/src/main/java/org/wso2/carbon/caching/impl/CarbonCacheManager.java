@@ -33,6 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
+
 /**
  * TODO: class description
  */
@@ -253,7 +255,7 @@ public class CarbonCacheManager implements CacheManager {
 
     private void checkStatusStarted() {
         if (!status.equals(Status.STARTED)) {
-            throw new IllegalStateException("The cache status is not STARTED");
+            throw new IllegalStateException(ILLEGAL_STATE_EXCEPTION_MESSAGE);
         }
     }
 

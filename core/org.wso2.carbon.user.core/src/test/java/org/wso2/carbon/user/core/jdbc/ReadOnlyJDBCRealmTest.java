@@ -19,12 +19,14 @@ package org.wso2.carbon.user.core.jdbc;
 
 import junit.framework.TestCase;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Assert;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
@@ -38,6 +40,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReadOnlyJDBCRealmTest extends BaseTestCase {
 
@@ -51,6 +55,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         DatabaseUtil.closeDatabasePoolConnection();         
         initRealmStuff();
         doRoleStuff();
+        doUserClaimValuesStuff();
         /*commenting out following since
          1. earlier cached stuff by other test cases causes test failure.
          2. there is no way to clear authorization cache from the test case*/
@@ -111,6 +116,27 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         }
         //wrong users - must pass because we don't know the external users.
         admin.updateUserListOfRole("Internal/role2", null, new String[] { "d" });
+    }
+
+    public void doUserClaimValuesStuff() throws Exception {
+
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+        Map<String, String> claimsMap = new HashMap<>();
+        claimsMap.put(ClaimTestUtil.CLAIM_URI1, "John");
+
+        try {
+            userStoreManager.setUserClaimValues("saman", claimsMap, ClaimTestUtil.HOME_PROFILE_NAME);
+        } catch (UserStoreException e) {
+            Assert.assertTrue("Failed to receive the expected invalid operation exception.",
+                    e.getMessage().startsWith("InvalidOperation"));
+        }
+        try {
+            userStoreManager.setUserClaimValues("saman", new HashMap<String, String>(),
+                    ClaimTestUtil.HOME_PROFILE_NAME);
+            Assert.assertTrue(true);
+        } catch (UserStoreException e) {
+            Assert.fail("Unexpected error while updating user claims with empty claims map.");
+        }
     }
 
     public void doAuthorizationStuff() throws Exception {

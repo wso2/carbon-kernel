@@ -64,6 +64,8 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
+
 /**
  * TODO: class description
  * <p/>
@@ -318,7 +320,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     private void checkStatusStarted() {
         if (!status.equals(Status.STARTED)) {
-            throw new IllegalStateException("The cache status is not STARTED");
+            throw new IllegalStateException(ILLEGAL_STATE_EXCEPTION_MESSAGE);
         }
     }
 
