@@ -209,7 +209,7 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
-        if (msgCtx == null || msgCtx.getIncomingTransportName() == null) {
+        if (msgCtx.getIncomingTransportName() == null) {
             return InvocationResponse.CONTINUE;
         }
 
