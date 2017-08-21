@@ -1772,13 +1772,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
     }
 
-    public final void updateRoleListOfUser(final String roleName, final String[] deletedUsers, final String[] newRoles)
+    public final void updateRoleListOfUser(final String username, final String[] deletedRoles, final String[] newRoles)
             throws UserStoreException {
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    updateRoleListOfUserInternal(roleName, deletedUsers, newRoles);
+                    updateRoleListOfUserInternal(username, deletedRoles, newRoles);
                     return null;
                 }
             });
