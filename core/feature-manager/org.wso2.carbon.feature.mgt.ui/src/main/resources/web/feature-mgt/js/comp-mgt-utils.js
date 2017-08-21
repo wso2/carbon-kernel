@@ -18,6 +18,8 @@ var addRepositoryOnCompleteReturnTabID;
 
 var $myTabs;
 
+jQuery.ajaxSetup({ traditional: true });
+
 $(function() {
     $myTabs = $("#tabs");
 
