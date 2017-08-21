@@ -1,4 +1,4 @@
-<!--
+<%--
  ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,7 +14,7 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
+ --%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.feature.mgt.ui.FeatureWrapper" %>
@@ -37,8 +37,6 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <script type="text/javascript" src="js/tableTree.js" ></script>
-<script type="text/javascript" src="js/jquery-1.2.6.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.6.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.hoverIntent.js"></script>
 <script type="text/javascript" src="js/jquery.cluetip.js"></script>
 <script type="text/javascript" src="js/comp-mgt-utils.js"></script>
@@ -90,8 +88,6 @@
         request="<%=request%>" />
 
 <link type="text/css" href="css/ui.all.css" rel="stylesheet" />
-<script type="text/javascript" src="js/jquery-1.2.6.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.6.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.hoverIntent.js"></script>
 <script type="text/javascript" src="js/jquery.cluetip.js"></script>
 <script type="text/javascript" src="js/comp-mgt-utils.js"></script>
