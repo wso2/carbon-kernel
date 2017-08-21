@@ -69,7 +69,7 @@ public class JDBCTransactionManager implements TransactionManager {
             }
         }
 
-        Connection conn;
+        Connection conn = null;
         try {
             if (!(dataAccessManager instanceof JDBCDataAccessManager)) {
                 String msg = "Failed to begin transaction. Invalid data access manager.";
@@ -94,6 +94,14 @@ public class JDBCTransactionManager implements TransactionManager {
         } catch (SQLException e) {
             String msg = "Failed to start new registry transaction.";
             log.error(msg, e);
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e1) {
+                    String msgFailed = "Failed to close connection.";
+                    log.error(msgFailed, e);
+                }
+            }
             throw new RegistryException(msg, e);
         }
 
