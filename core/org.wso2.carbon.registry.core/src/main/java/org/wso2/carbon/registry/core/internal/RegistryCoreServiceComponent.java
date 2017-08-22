@@ -297,7 +297,9 @@ public class RegistryCoreServiceComponent {
                     }
                     defineFixedMount(registry, mount.getPath(), isSuperTenant);
                 } else if (mount.isOverwrite()) {
-                    registry.delete(mount.getPath());
+                    if (registry.resourceExists(mount.getPath())) {
+                        registry.delete(mount.getPath());
+                    }
                     if (isSuperTenant) {
                         superTenantRegistry.createLink(mount.getPath(), mount.getInstanceId(),
                                 mount.getTargetPath());
@@ -844,12 +846,34 @@ public class RegistryCoreServiceComponent {
             this.service = service;
         }
 
-        private synchronized boolean canInitializeTenant(int tenantId) {
+        private synchronized boolean canInitializeTenant(int tenantId) throws RegistryException {
+            RegistryContext registryContext = RegistryContext.getBaseInstance();
+            for (Mount mount : registryContext.getMounts()) {
+                if (!validateRegistryMounts(registryContext, mount, tenantId)) {
+                    log.info("Tenant " + tenantId + " is not initialized correctly. Hence "
+                            + "initializing the tenant registry");
+                    return true;
+                }
+            }
+
             if (initializedTenants.contains(tenantId)) {
                 return false;
             }
-            initializedTenants.add(tenantId);
             return true;
+        }
+
+        private boolean validateRegistryMounts(RegistryContext registryContext, Mount mount, int tenantId)
+                throws RegistryException {
+            Registry registry = service.getRegistry(CarbonConstants.REGISTRY_SYSTEM_USERNAME, tenantId);
+            String relativePath = RegistryUtils.getRelativePath(registryContext, mount.getPath());
+            String lookupPath = RegistryUtils.getAbsolutePath(registryContext,
+                    RegistryConstants.LOCAL_REPOSITORY_BASE_PATH + RegistryConstants.SYSTEM_MOUNT_PATH) + "/"
+                    + relativePath.replace("/", "-");
+            if (!registry.resourceExists(lookupPath)) {
+                return false;
+            }
+            Resource resource = registry.get(lookupPath);
+            return Boolean.valueOf(resource.getProperty(RegistryConstants.REGISTRY_FIXED_MOUNT));
         }
 
         public void createdConfigurationContext(ConfigurationContext configurationContext) {
@@ -877,6 +901,7 @@ public class RegistryCoreServiceComponent {
             		tenantId != MultitenantConstants.SUPER_TENANT_ID && 
             		canInitializeTenant(tenantId)) {
             	 RegistryUtils.initializeTenant(service, tenantId);
+                initializedTenants.add(tenantId);
             }
         }
 
