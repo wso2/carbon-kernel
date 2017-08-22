@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>integration</artifactId>
-        <version>4.4.17</version>
+        <version>4.4.18-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
