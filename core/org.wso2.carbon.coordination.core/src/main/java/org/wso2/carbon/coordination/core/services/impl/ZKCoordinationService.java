@@ -43,6 +43,7 @@ import org.wso2.carbon.coordination.core.sync.impl.ZKIntegerCounter;
 import org.wso2.carbon.coordination.core.sync.impl.ZKLock;
 import org.wso2.carbon.coordination.core.sync.impl.ZKQueue;
 import org.wso2.carbon.coordination.core.utils.CoordinationUtils;
+import org.wso2.carbon.core.CarbonThreadFactory;
 
 /**
  * Coordination service implementation class.
@@ -83,8 +84,9 @@ public class ZKCoordinationService implements CoordinationService, Watcher {
 			    }
 			    if (scheduler == null || scheduler.isShutdown()) {
 			    	znodeTimerDeletionList = new Vector<ZKCoordinationService.ZNodeDeletionEntry>();
-			        scheduler = Executors.newScheduledThreadPool(MAX_SCHEDULER_THREADS);
-			        scheduler.scheduleWithFixedDelay(new ZNodeDeletionTask(), 
+					scheduler = Executors.newScheduledThreadPool(MAX_SCHEDULER_THREADS, new CarbonThreadFactory(
+							new ThreadGroup("CoordinationThread")));
+					scheduler.scheduleWithFixedDelay(new ZNodeDeletionTask(),
 			        		ZNODE_CLEANUP_TASK_INTERVAL, ZNODE_CLEANUP_TASK_INTERVAL,
 			        		TimeUnit.MILLISECONDS);
 			    }
