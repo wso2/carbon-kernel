@@ -140,7 +140,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setProperty(MultitenantConstants.NO_KEEPALIVE,
                 msgContext.getProperty(MultitenantConstants.NO_KEEPALIVE));
         boolean forced = msgContext.isPropertyTrue(FORCE_SC_ACCEPTED);
-        if(forced) {
+        if (forced) {
             superTenantOutMessageContext.setProperty(FORCE_SC_ACCEPTED, true);
         }
         boolean forcedNoBody = msgContext.isPropertyTrue(FORCE_POST_PUT_NOBODY);
