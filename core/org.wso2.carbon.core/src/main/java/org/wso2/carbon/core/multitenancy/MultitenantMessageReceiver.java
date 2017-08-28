@@ -47,22 +47,19 @@ import org.apache.axis2.util.Utils;
 import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * This MessageReceiver will try to locate the tenant specific AxisConfiguration and dispatch the
@@ -77,6 +74,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
     private static final String TENANT_IN_ONLY_MESSAGE = "TENANT_IN_ONLY_MESSAGE";
     private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
     private static final String SYNAPSE_IS_RESPONSE = "synapse.isresponse";
+    private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
 
     public void receive(MessageContext mainInMsgContext) throws AxisFault {
 
@@ -605,6 +603,23 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 mainInMsgContext.getOperationContext().removeProperty(Constants.RESPONSE_WRITTEN);
             }
 
+            if (mainInMsgContext.getOperationContext() != null && tenantInMsgCtx.getOperationContext() != null) {
+                boolean forced = tenantInMsgCtx.isPropertyTrue(FORCE_SC_ACCEPTED);
+                if (forced) {
+                    mainInMsgContext.setProperty(FORCE_SC_ACCEPTED, true);
+                }
+                boolean forcedNoBody = tenantInMsgCtx.isPropertyTrue(FORCE_POST_PUT_NOBODY);
+                if (forcedNoBody) {
+                    mainInMsgContext.setProperty(FORCE_POST_PUT_NOBODY, true);
+                }
+                boolean isResponse = tenantInMsgCtx.isPropertyTrue(SYNAPSE_IS_RESPONSE);
+                if (isResponse) {
+                    mainInMsgContext.setProperty(SYNAPSE_IS_RESPONSE, true);
+                } else {
+                    mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN,
+                            tenantInMsgCtx.getOperationContext().getProperty(Constants.RESPONSE_WRITTEN));
+                }
+            }
         } catch (AxisFault axisFault) {
             // at a fault flow message receiver throws a fault.
             // we need to first catch this fault and invoke the fault flow

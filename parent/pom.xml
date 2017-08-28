@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.17-SNAPSHOT</version>
+    <version>4.4.18-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -154,7 +154,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.17-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.4.18-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
@@ -302,12 +302,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v20</version.axis2>
+        <version.axis2>1.6.1-wso2v22</version.axis2>
         <imp.pkg.version.axis2>[1.6.1.wso2v15, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v20</version.addressing>
-        <orbit.version.axis2>1.6.1.wso2v20</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.1.wso2v20</axis2.client.osgi.version>
-        <version.axis2.json>1.6.1-wso2v20</version.axis2.json>
+        <version.addressing>1.6.1-wso2v22</version.addressing>
+        <orbit.version.axis2>1.6.1.wso2v22</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v22</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v22</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
@@ -395,7 +395,7 @@
 
         <orbit.version.httpcore>4.3.3.wso2v1</orbit.version.httpcore>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-        <orbit.version.commons.httpclient>3.1.0.wso2v3</orbit.version.commons.httpclient>
+        <orbit.version.commons.httpclient>3.1.0.wso2v6</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
 
         <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
