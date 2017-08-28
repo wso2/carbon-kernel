@@ -139,13 +139,11 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 msgContext.getProperty(MultitenantConstants.DISABLE_CHUNKING));
         superTenantOutMessageContext.setProperty(MultitenantConstants.NO_KEEPALIVE,
                 msgContext.getProperty(MultitenantConstants.NO_KEEPALIVE));
-
         boolean forced = msgContext.isPropertyTrue(FORCE_SC_ACCEPTED);
-        boolean forcedNoBody = msgContext.isPropertyTrue(FORCE_POST_PUT_NOBODY);
         if (forced) {
             superTenantOutMessageContext.setProperty(FORCE_SC_ACCEPTED, true);
         }
-
+        boolean forcedNoBody = msgContext.isPropertyTrue(FORCE_POST_PUT_NOBODY);
         if (forcedNoBody) {
             superTenantOutMessageContext.setProperty(FORCE_POST_PUT_NOBODY, true);
         }

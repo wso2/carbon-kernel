@@ -584,6 +584,19 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 // TODO: throw exception: Invalid verb
             }
 
+            if (mainInMsgContext.getOperationContext() != null && tenantInMsgCtx.getOperationContext() != null) {
+                boolean forced = tenantInMsgCtx.isPropertyTrue(FORCE_SC_ACCEPTED);
+                if (forced) {
+                    mainInMsgContext.setProperty(FORCE_SC_ACCEPTED, true);
+                }
+                boolean isResponse = tenantInMsgCtx.isPropertyTrue(SYNAPSE_IS_RESPONSE);
+                if (isResponse) {
+                    mainInMsgContext.setProperty(SYNAPSE_IS_RESPONSE, true);
+                } else {
+                    mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN,
+                            tenantInMsgCtx.getOperationContext().getProperty(Constants.RESPONSE_WRITTEN));
+                }
+            }
             // Need to remove RESPONSE_WRITTEN property if the request is InOnly request to the tenants
             if (tenantInMsgCtx.getProperty(TENANT_IN_ONLY_MESSAGE) != null &&
                     Boolean.TRUE.equals(tenantInMsgCtx.getProperty(TENANT_IN_ONLY_MESSAGE))) {
