@@ -42,6 +42,7 @@ import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
@@ -239,7 +240,8 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
         bundleContext.registerService(CarbonCluster.class,
                                       hazelcastCarbonCluster, null);
-        ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService msgCleanupScheduler = Executors
+                .newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("ClusterMsgCleanupThread")));
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
 
