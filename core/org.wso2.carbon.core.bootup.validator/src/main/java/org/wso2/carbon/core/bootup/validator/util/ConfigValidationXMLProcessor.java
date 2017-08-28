@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 /**
  * This class is used to process config_validation.xml parameters
  */
+@Deprecated
 public class ConfigValidationXMLProcessor {
 
 	public static final String CONFIG_VALIDATION_XML = "config-validation.xml";

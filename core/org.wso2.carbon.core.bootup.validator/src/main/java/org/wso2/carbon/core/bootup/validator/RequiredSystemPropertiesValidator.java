@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.bootup.validator.util.ValidationResult;
 
+@Deprecated
 public class RequiredSystemPropertiesValidator extends ConfigurationValidator {
 
 	private static final Log log = LogFactory.getLog(RequiredSystemPropertiesValidator.class);

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.wso2.carbon.core.bootup.validator.util.ValidationResult;
 
+@Deprecated
 public class SupportedOSValidator extends ConfigurationValidator {
 
 	private String osName = System.getProperty("os.name");

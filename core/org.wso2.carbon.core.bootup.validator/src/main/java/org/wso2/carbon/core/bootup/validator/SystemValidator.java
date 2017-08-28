@@ -50,6 +50,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class SystemValidator extends ConfigurationValidator {
 
     private static final Log log = LogFactory.getLog(SystemValidator.class);

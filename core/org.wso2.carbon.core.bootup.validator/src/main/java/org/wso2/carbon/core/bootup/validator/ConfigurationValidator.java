@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.wso2.carbon.core.bootup.validator.util.ValidationResult;
 
+@Deprecated
 public abstract class ConfigurationValidator {
 	// the configurations to validate and their recommended values
 	private Map<String, String> recommendedConfigurations = new HashMap<String, String>();
