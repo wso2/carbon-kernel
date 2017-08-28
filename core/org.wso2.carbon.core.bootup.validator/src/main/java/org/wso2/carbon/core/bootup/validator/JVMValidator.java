@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.bootup.validator.util.UnknownParameterException;
 import org.wso2.carbon.core.bootup.validator.util.ValidationResult;
 
+@Deprecated
 public class JVMValidator extends ConfigurationValidator {
 
 	private static final Log log = LogFactory.getLog(JVMValidator.class);

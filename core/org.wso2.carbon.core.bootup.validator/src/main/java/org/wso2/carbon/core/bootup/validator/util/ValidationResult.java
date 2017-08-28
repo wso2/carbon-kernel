@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.core.bootup.validator.util;
 
+@Deprecated
 public class ValidationResult {
 
 	private boolean isValid;

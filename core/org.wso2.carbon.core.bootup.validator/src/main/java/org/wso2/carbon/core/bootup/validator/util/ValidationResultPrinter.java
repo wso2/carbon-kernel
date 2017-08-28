@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+@Deprecated
 public class ValidationResultPrinter {
 
 	private static final Log log = LogFactory.getLog(ValidationResultPrinter.class);
