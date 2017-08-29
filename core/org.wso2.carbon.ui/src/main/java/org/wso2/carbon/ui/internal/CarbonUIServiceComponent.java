@@ -130,8 +130,12 @@ public class CarbonUIServiceComponent {
     protected void activate(ComponentContext ctxt) {
         try {
             start(ctxt.getBundleContext());
-            String adminConsoleURL =
-                    CarbonUIUtil.getAdminConsoleURL(serverConfiguration.getFirstProperty("WebContextRoot"));
+            String webContextRoot = serverConfiguration.getFirstProperty("WebContextRoot");
+            if (webContextRoot == null || webContextRoot.isEmpty()) {
+                throw new RuntimeException(
+                        "WebContextRoot can't be null or empty. It should be either '/' or '/<some value>'");
+            }
+            String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(webContextRoot);
 
             //Retrieving available contexts
             Context defaultContext = null;
@@ -154,33 +158,9 @@ public class CarbonUIServiceComponent {
             if (adminConsoleURL != null) {
                 log.info("Mgt Console URL  : " + adminConsoleURL);
             }
-            if (defaultContext != null && !"".equals(defaultContext.getContextName()) && !"null".equals(defaultContext.getContextName())) {
-                // Adding the other context url
-                int index = adminConsoleURL.lastIndexOf("carbon");
-                String defContextUrl = adminConsoleURL.substring(0, index) + defaultContext.getContextName();
-                if (defaultContext.getDescription() != null) {
-                    if (defaultContext.getProtocol() != null && "http".equals(defaultContext.getProtocol())) {
-                        log.info(defaultContext.getDescription() + " : " + CarbonUIUtil.https2httpURL(defContextUrl));
-                    } else {
-                        log.info(defaultContext.getDescription() + " : " + defContextUrl);
-                    }
-                } else {
-                    log.info("Default Context : " + defContextUrl);
-                }
-            } if (defaultAdditionalContext != null && !"".equals(defaultAdditionalContext.getContextName()) && !"null".equals(defaultAdditionalContext.getContextName())) {
-                // Adding the other context url
-                int index = adminConsoleURL.lastIndexOf("carbon");
-                String defContextUrl = adminConsoleURL.substring(0, index) + defaultAdditionalContext.getContextName();
-                if (defaultAdditionalContext.getDescription() != null) {
-                    if (defaultAdditionalContext.getProtocol() != null && "http".equals(defaultAdditionalContext.getProtocol())) {
-                        log.info(defaultAdditionalContext.getDescription() + " : " + CarbonUIUtil.https2httpURL(defContextUrl));
-                    } else {
-                        log.info(defaultAdditionalContext.getDescription() + " : " + defContextUrl);
-                    }
-                } else {
-                    log.info("Default Context : " + defContextUrl);
-                }
-            }
+            printAdditionalContext(defaultContext, adminConsoleURL, webContextRoot);
+            printAdditionalContext(defaultAdditionalContext, adminConsoleURL, webContextRoot);
+
             DefaultCarbonAuthenticator authenticator = new DefaultCarbonAuthenticator();
             Hashtable<String, String> props = new Hashtable<String, String>();
             props.put(AuthenticatorRegistry.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
@@ -199,6 +179,36 @@ public class CarbonUIServiceComponent {
             log.debug("Carbon UI bundle is activated ");
         } catch (Throwable e) {
             log.error("Failed to activate Carbon UI bundle ", e);
+        }
+    }
+
+    private void printAdditionalContext(Context additionalContext, String adminConsoleURL, String webContextRoot) {
+        if (webContextRoot == null || webContextRoot.isEmpty()) {
+            log.error("WebContextRoot can't be null or empty. It should be either '/' or '/<some value>'");
+            return;
+        }
+        if ("/".equals(webContextRoot)) {
+            webContextRoot = "";
+        }
+        if (additionalContext != null && !"".equals(additionalContext.getContextName()) &&
+            !"null".equals(additionalContext.getContextName())) {
+            // Adding the other context url
+            int index = adminConsoleURL.lastIndexOf("carbon");
+            String defContextUrl = adminConsoleURL.substring(0, index);
+            if (!"".equals(webContextRoot)) {
+                defContextUrl = defContextUrl.replace(webContextRoot, "");
+            }
+            defContextUrl += additionalContext.getContextName();
+
+            if (additionalContext.getDescription() != null) {
+                if (additionalContext.getProtocol() != null && "http".equals(additionalContext.getProtocol())) {
+                    log.info(additionalContext.getDescription() + " : " + CarbonUIUtil.https2httpURL(defContextUrl));
+                } else {
+                    log.info(additionalContext.getDescription() + " : " + defContextUrl);
+                }
+            } else {
+                log.info("Default Context : " + defContextUrl);
+            }
         }
     }
 
