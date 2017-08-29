@@ -453,7 +453,7 @@ public class Utils {
 
         FileOutputStream fileOutputStream = new FileOutputStream(destArchive);
         ZipOutputStream zos = new ZipOutputStream(fileOutputStream);
-        zipDir(zipDir, zos, sourceDir);
+        zipDir(zipDir, zos, zipDir.getAbsolutePath());
         zos.close();
         fileOutputStream.close();
     }
