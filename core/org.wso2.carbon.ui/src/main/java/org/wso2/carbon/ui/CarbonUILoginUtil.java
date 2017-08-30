@@ -192,13 +192,18 @@ public final class CarbonUILoginUtil {
                         indexPageURL = cookie.getValue();
                     }
                 }
+
+                if (indexPageURL == null) {
+                    return null;
+                }
+
                 // Removing any tenant specific strings from the cookie value for the indexPageURL
                 if (tenantEnabledUriPattern.matcher(indexPageURL).matches()) {
                     indexPageURL = CarbonUIUtil.removeTenantSpecificStringsFromURL(indexPageURL);
                 }
 
-                // If the index page URL contains a scheme, redirects to default index page
-                if (hasScheme(indexPageURL)) {
+                // If the index page URL contains a scheme or the tenant-dashboard, redirects to default index page
+                if (hasScheme(indexPageURL) || indexPageURL.contains("tenant-dashboard/index.jsp")) {
                     indexPageURL = null;
                 }
             }
