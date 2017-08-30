@@ -131,6 +131,10 @@ public class CarbonUIServiceComponent {
         try {
             start(ctxt.getBundleContext());
             String webContextRoot = serverConfiguration.getFirstProperty("WebContextRoot");
+            if (webContextRoot == null || webContextRoot.isEmpty()) {
+                throw new RuntimeException(
+                        "WebContextRoot can't be null or empty. It should be either '/' or '/<some value>'");
+            }
             String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(webContextRoot);
 
             //Retrieving available contexts
@@ -179,6 +183,10 @@ public class CarbonUIServiceComponent {
     }
 
     private void printAdditionalContext(Context additionalContext, String adminConsoleURL, String webContextRoot) {
+        if (webContextRoot == null || webContextRoot.isEmpty()) {
+            log.error("WebContextRoot can't be null or empty. It should be either '/' or '/<some value>'");
+            return;
+        }
         if ("/".equals(webContextRoot)) {
             webContextRoot = "";
         }
