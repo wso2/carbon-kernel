@@ -133,33 +133,37 @@ public class CarbonUIServiceComponent {
             String webContextRoot = serverConfiguration.getFirstProperty("WebContextRoot");
             if (webContextRoot == null || webContextRoot.isEmpty()) {
                 throw new RuntimeException(
-                        "WebContextRoot can't be null or empty. It should be either '/' or '/<some value>'");
+                        "WebContextRoot can't be null or empty. It should be either '/' or '/[some value]'");
             }
             String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(webContextRoot);
-
-            //Retrieving available contexts
-            Context defaultContext = null;
-            Context defaultAdditionalContext = null;
-            ServiceReference reference = ctxt.getBundleContext().getServiceReference(CarbonUIDefinitions.class.getName());
-            CarbonUIDefinitions carbonUIDefinitions = null;
-            if (reference != null) {
-                carbonUIDefinitions =
-                        (CarbonUIDefinitions) ctxt.getBundleContext().getService(reference);
-                if (carbonUIDefinitions != null) {
-                    if (carbonUIDefinitions.getContexts().containsKey("default-context")) {
-                        defaultContext = carbonUIDefinitions.getContexts().get("default-context");
-                    }if (carbonUIDefinitions.getContexts().containsKey("default-additional-context")) {
-                        defaultAdditionalContext = carbonUIDefinitions.getContexts().get("default-additional-context");
-                    }
-
-                }
-            }
-
             if (adminConsoleURL != null) {
                 log.info("Mgt Console URL  : " + adminConsoleURL);
             }
-            printAdditionalContext(defaultContext, adminConsoleURL, webContextRoot);
-            printAdditionalContext(defaultAdditionalContext, adminConsoleURL, webContextRoot);
+
+            //Retrieving available contexts
+            ServiceReference reference =
+                    ctxt.getBundleContext().getServiceReference(CarbonUIDefinitions.class.getName());
+            CarbonUIDefinitions carbonUIDefinitions = null;
+            if (reference != null) {
+                carbonUIDefinitions = (CarbonUIDefinitions) ctxt.getBundleContext().getService(reference);
+                if (carbonUIDefinitions != null && carbonUIDefinitions.getContexts() != null) {
+                    //Get the default context URL
+                    if ("/".equals(webContextRoot)) {
+                        webContextRoot = "";
+                    }
+                    int index = adminConsoleURL.lastIndexOf("carbon");
+                    String defContextUrl = adminConsoleURL.substring(0, index);
+                    //Remove the custom WebContextRoot from URL
+                    if (!"".equals(webContextRoot)) {
+                        defContextUrl = defContextUrl.replace(webContextRoot, "");
+                    }
+
+                    //Print additional URLs
+                    for (String key : carbonUIDefinitions.getContexts().keySet()) {
+                        printAdditionalContext(carbonUIDefinitions.getContexts().get(key), defContextUrl);
+                    }
+                }
+            }
 
             DefaultCarbonAuthenticator authenticator = new DefaultCarbonAuthenticator();
             Hashtable<String, String> props = new Hashtable<String, String>();
@@ -182,23 +186,10 @@ public class CarbonUIServiceComponent {
         }
     }
 
-    private void printAdditionalContext(Context additionalContext, String adminConsoleURL, String webContextRoot) {
-        if (webContextRoot == null || webContextRoot.isEmpty()) {
-            log.error("WebContextRoot can't be null or empty. It should be either '/' or '/<some value>'");
-            return;
-        }
-        if ("/".equals(webContextRoot)) {
-            webContextRoot = "";
-        }
+    private void printAdditionalContext(Context additionalContext, String defContextRoot) {
         if (additionalContext != null && !"".equals(additionalContext.getContextName()) &&
             !"null".equals(additionalContext.getContextName())) {
-            // Adding the other context url
-            int index = adminConsoleURL.lastIndexOf("carbon");
-            String defContextUrl = adminConsoleURL.substring(0, index);
-            if (!"".equals(webContextRoot)) {
-                defContextUrl = defContextUrl.replace(webContextRoot, "");
-            }
-            defContextUrl += additionalContext.getContextName();
+            String defContextUrl = defContextRoot + additionalContext.getContextName();
 
             if (additionalContext.getDescription() != null) {
                 if (additionalContext.getProtocol() != null && "http".equals(additionalContext.getProtocol())) {
