@@ -50,6 +50,7 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
 
     private static String  dropinsDirPath;
     private static String bundlesInfoDirPath;
+    private static final String DEFAULT_BUNDLE_VERSION = "0.0.0";
 
     static {
         dropinsDirPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
@@ -150,7 +151,7 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
                 }
                 //According to the OSGi spec, Bundle-Version is an optional header; the default value is 0.0.0
                 if (bundleVersion == null) {
-                    bundleVersion = "0.0.0";
+                    bundleVersion = DEFAULT_BUNDLE_VERSION;
                 }
 
                 //Checking whether this bundle is a fragment or not.
