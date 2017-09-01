@@ -42,6 +42,7 @@ goto end
 
 rem ----- Only set CARBON_HOME if not already set ----------------------------
 :checkServer
+setlocal enabledelayedexpansion
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 if "%CARBON_HOME%"=="" set CARBON_HOME=%~sdp0..
 SET curDrive=%cd:~0,1%
@@ -61,8 +62,6 @@ goto end
 
 rem ----- update classpath -----------------------------------------------------
 :updateClasspath
-
-setlocal EnableDelayedExpansion
 cd %CARBON_HOME%
 set CARBON_CLASSPATH=
 FOR %%C in ("%CARBON_HOME%\bin\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\%%~nC%%~xC"
