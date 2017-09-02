@@ -44,7 +44,9 @@ public class UserStoreConfigConstants {
     public static final String connectionURL = "ConnectionURL";
     public static final String connectionURLDescription = "Connection URL for the user store";
     public static final String connectionName = "ConnectionName";
-    public static final String connectionNameDescription = "This should be the DN (Distinguish Name) of the admin user in LDAP";
+    public static final String connectionNameDescription = "This should be a DN (Distinguish Name) of a user with " +
+                                                           "sufficient permissions to perform operations on users " +
+                                                           "and roles in LDAP";
     public static final String connectionPassword = "ConnectionPassword";
     public static final String connectionPasswordDescription = "Password of the admin user";
     public static final String userSearchBase = "UserSearchBase";
