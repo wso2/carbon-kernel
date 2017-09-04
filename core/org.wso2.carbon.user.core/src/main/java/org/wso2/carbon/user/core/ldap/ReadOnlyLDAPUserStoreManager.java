@@ -3110,16 +3110,23 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected RoleContext createRoleContext(String roleName) { // TODO check whether shared roles enable
 
         LDAPRoleContext roleContext = new LDAPRoleContext();
-        String[] rolePortions = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
-        if (rolePortions.length > 1 && (rolePortions[1] == null || rolePortions[1].equals("null"))) {
-            rolePortions = new String[]{rolePortions[0]};
+
+        String[] rolePortions;
+
+        if (isSharedGroupEnabled()) {
+            rolePortions = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
+            if (rolePortions.length > 1 && (rolePortions[1] == null || rolePortions[1].equals("null"))) {
+                rolePortions = new String[]{rolePortions[0]};
+            }
+        } else {
+            rolePortions = new String[]{roleName};
         }
+
         boolean shared = false;
         if (rolePortions.length == 1) {
             roleContext.setSearchBase(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
             roleContext.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
         } else if (rolePortions.length > 1) {
-            String tenantDomain = rolePortions[1].toLowerCase();
             roleContext.setTenantDomain(rolePortions[1]);
 //            if (tenantDomain.equalsIgnoreCase(CarbonContext.getCurrentContext().getTenantDomain())) {
 //                // Role which is created by the logged in tenant. Tenant can be
