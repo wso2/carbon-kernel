@@ -105,4 +105,7 @@ public class ClaimMapping {
         this.mappedAttribute = mappedAttribute;
     }
 
+    public String getMappedAttributeWithNoDomain() {
+        return mappedAttribute;
+    }
 }
