@@ -1646,7 +1646,7 @@
 
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.2</maven.compiler.plugin.version>
         <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
         <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
