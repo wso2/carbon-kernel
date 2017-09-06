@@ -47,6 +47,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 import javax.naming.CompositeName;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
@@ -913,11 +914,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             userAttributeSeparator = claimSeparator;
                         }
                         if (claimEntry.getValue().contains(userAttributeSeparator)) {
-                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
-                            while (st.hasMoreElements()) {
-                                String newVal = st.nextElement().toString();
-                                if (newVal != null && newVal.trim().length() > 0) {
-                                    currentUpdatedAttribute.add(newVal.trim());
+                            String[] claimValues = claimEntry.getValue().split(Pattern.quote(userAttributeSeparator));
+                            for (String claimValue : claimValues) {
+                                if (claimValue != null && claimValue.trim().length() > 0) {
+                                    currentUpdatedAttribute.add(claimValue);
                                 }
                             }
                         } else {
