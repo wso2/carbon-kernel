@@ -299,17 +299,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.charon</groupId>
-                <artifactId>org.wso2.charon.core</artifactId>
-                <version>${charon.wso2.version.identity}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.charon</groupId>
-                <artifactId>org.wso2.charon.utils</artifactId>
-                <version>${charon.wso2.version.identity}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.wso2.balana</groupId>
                 <artifactId>org.wso2.balana</artifactId>
                 <version>${balana.version}</version>
@@ -1579,8 +1568,6 @@
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
         <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>
         <google.guice.imp.pkg.version.range>[1.3.0,2.0.0)</google.guice.imp.pkg.version.range>
-        <charon.wso2.version.identity>2.1.0</charon.wso2.version.identity>
-        <charon.core.imp.pkg.version.range>[2.1.0,3.0.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>1.0.0</openid4java.version>
         <openid4java.wso2.version>1.0.0.wso2v2</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
