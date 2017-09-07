@@ -27,6 +27,10 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 // TODO - move this class to platform level (org.wso2.carbon.logging.service bundle)
+/**
+ * @deprecated Replaced by pax-logging in-built bridging mechanism
+ */
+@Deprecated
 public class LogEventHandler extends Handler{
     private static final String BRIDGE_NAME = "LOGEVENT";
 

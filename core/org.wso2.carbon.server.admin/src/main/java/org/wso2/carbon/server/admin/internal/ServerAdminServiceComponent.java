@@ -182,12 +182,14 @@ public class ServerAdminServiceComponent {
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
         AxisConfiguration axisConf = configContext.getAxisConfiguration();
-        AxisModule statModule = axisConf.getModule(ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
-        if (statModule != null) {
-            try {
-                axisConf.disengageModule(statModule);
-            } catch (AxisFault axisFault) {
-                log.error("Failed disengage module: " + ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
+        if (axisConf != null) {
+            AxisModule statModule = axisConf.getModule(ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
+            if (statModule != null) {
+                try {
+                    axisConf.disengageModule(statModule);
+                } catch (AxisFault axisFault) {
+                    log.error("Failed disengage module: " + ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
+                }
             }
         }
         this.configContext = null;

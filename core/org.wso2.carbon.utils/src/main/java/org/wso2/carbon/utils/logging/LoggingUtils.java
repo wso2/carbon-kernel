@@ -37,6 +37,11 @@ import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * @deprecated Tenant specific information is taken form Log4J2 Converters.
+ */
+@Deprecated
 public class LoggingUtils {
 
     private static final String REPLACEMENT_STRING = "*****";

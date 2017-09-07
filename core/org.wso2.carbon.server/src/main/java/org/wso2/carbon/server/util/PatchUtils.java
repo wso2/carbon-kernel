@@ -1,7 +1,5 @@
 package org.wso2.carbon.server.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.LauncherConstants;
 
 import java.io.BufferedReader;
@@ -24,15 +22,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PatchUtils {
 
-    private static final Log patchLog = LogFactory.getLog(PatchUtils.class);
-    private static final Log consoleLog = LogFactory.getLog(PatchUtils.class.getName() + ".console");
+    private static final Logger patchLog = Logger.getLogger(PatchUtils.class.getName());
 
     private static File bundleBackupDir;
     private static Set<String> servicepackPatchedList;
     private static List<String> previousPatchDirNames;
+
 
     /**
      * Here is the patch applying algorithm.
@@ -49,14 +49,14 @@ public class PatchUtils {
     public static void applyServicepacksAndPatches(File servicepackDir, File patchesDir, File pluginsDir) throws IOException {
         bundleBackupDir = new File(patchesDir, LauncherConstants.BUNDLE_BACKUP_DIR);
         boolean alreadyBackedUp = bundleBackupDir.exists();
-        if (!alreadyBackedUp ) {
+        if (!alreadyBackedUp) {
             //We need to backup the plugins in the components/repository/plugins folder.
             FileUtils.copyDirectory(pluginsDir, bundleBackupDir);
-            patchLog.info("Backed up plugins to " + LauncherConstants.BUNDLE_BACKUP_DIR);
-            consoleLog.info("Backed up plugins to " + LauncherConstants.BUNDLE_BACKUP_DIR);
+
+            patchLog.log(Level.INFO, "Backed up plugins to " + LauncherConstants.BUNDLE_BACKUP_DIR);
         }
         //Now lets apply latest servicepack and patches.
-        patchLog.info("Applying patches ...");
+        patchLog.log(Level.FINE, "Applying patches ...");
         copyServicepacksAndPatches(servicepackDir, patchesDir, pluginsDir, alreadyBackedUp);
     }
 
@@ -65,20 +65,20 @@ public class PatchUtils {
      *
      * @param source folder which contains the patches.
      * @param target target
-     * @throws java.io.IOException
+     * @throws IOException
      */
     private static void copyServicepacksAndPatches(File servicepackDir, File source, File target, boolean alreadyBackedUp) throws IOException {
         // Sorting patch folders.
         File[] files = source.listFiles(PatchUtils.getPatchFileNameFilter());
         Arrays.sort(files);
-        File patchDirLogFile = new File(PatchUtils.getMetaDirectory() ,  LauncherConstants.PRE_PATCHED_DIR_FILE);
+        File patchDirLogFile = new File(PatchUtils.getMetaDirectory(), LauncherConstants.PRE_PATCHED_DIR_FILE);
         BufferedWriter bufWriter = new BufferedWriter(new FileWriter(patchDirLogFile));
 
         // we don't need to restore backup if we just created it.
         if (alreadyBackedUp) {
             // copy all the files in patch0000 directory to plugins,
             // bundleFileName verification is not required for patch0000
-            patchLog.info("restoring bundle backup directory");
+            patchLog.log(Level.FINE, "restoring bundle backup directory");
             FileUtils.copyDirectory(bundleBackupDir, target);
 
         }
@@ -98,17 +98,17 @@ public class PatchUtils {
                         } else {
                             // verify bundleFileName before copying the files to plugins
                             File[] patchFiles = file.listFiles();
-                            patchLog.info("Applying - " + file.getName());
+                            patchLog.log(Level.FINE, "Applying - " + file.getName());
                             for (File patch : patchFiles) {
                                 String patchFileName = verifyBundleFileName(patch);
                                 File copiedFile = new File(target, patchFileName);
                                 FileUtils.copyFile(patch, copiedFile, true);
                                 try {
-                                    patchLog.info("Patched " + patch.getName() + "(MD5:" +
+                                    patchLog.log(Level.FINE, "Patched " + patch.getName() + "(MD5:" +
                                             PatchUtils.getMD5ChecksumHexString(patch) + ")");
                                 } catch (Exception e) {
                                     // handle this exception, this shouldn't interrupt the patch applying process
-                                    patchLog.error("Error occurred while generating md5 checksum for " + patch.getName());
+                                    patchLog.log(Level.SEVERE, "Error occurred while generating md5 checksum for " + patch.getName());
                                 }
                             }
                         }
@@ -117,7 +117,7 @@ public class PatchUtils {
                             bufWriter.write(file.getName());
                             bufWriter.newLine();
                         } catch (IOException e) {
-                            patchLog.error("Error occurred while writing " + file.getName() +
+                            patchLog.log(Level.SEVERE, "Error occurred while writing " + file.getName() +
                                     " directory name to " + patchDirLogFile.getName());
                         }
                     }
@@ -127,7 +127,7 @@ public class PatchUtils {
             try {
                 bufWriter.close();
             } catch (IOException e) {
-                patchLog.error("Error occurred while closing patch directory log file Buffered Writer");
+                patchLog.log(Level.SEVERE, "Error occurred while closing patch directory log file Buffered Writer");
             }
         }
     }
@@ -149,7 +149,7 @@ public class PatchUtils {
 
             if (latestServicepack.isDirectory()) {
                 File servicepackLibs = FileUtils.getFile(latestServicepack, LauncherConstants.SERVICEPACK_LIB_DIR);
-                patchLog.info("Start applying - " + latestServicepack.getName());
+                patchLog.log(Level.FINE, "Start applying - " + latestServicepack.getName());
                 File[] patchFiles = servicepackLibs.listFiles();
                 if (patchFiles != null) {
                     for (File patch : patchFiles) {
@@ -160,35 +160,36 @@ public class PatchUtils {
                             // handle for both file and directories because original plugin dir has directories.
                             if (patch.isFile()) {
                                 FileUtils.copyFile(patch, copiedFile, true);
-                            }else if(patch.isDirectory()) {
+                            } else if (patch.isDirectory()) {
                                 FileUtils.copyDirectory(patch, copiedFile, true);
                             }
                             try {
-                                patchLog.info("Patched " + patch.getName() + "(MD5:" +
+                                patchLog.log(Level.FINE, "Patched " + patch.getName() + "(MD5:" +
                                         PatchUtils.getMD5ChecksumHexString(patch) + ")");
                             } catch (Exception e) {
                                 // handle this exception, this shouldn't interrupt the patch applying process
-                                patchLog.error("Error occurred while generating md5 checksum for " + patch.getName());
+                                patchLog.log(Level.SEVERE, "Error occurred while generating md5 checksum for " + patch.getName());
                             }
                         } catch (IOException e) {
-                            patchLog.error("Error occurred while applying servicepack " + latestServicepack);
+                            patchLog.log(Level.SEVERE, "Error occurred while applying servicepack " + latestServicepack);
                         }
                     }
                 }
-                    try {
-                        // write applying servicepack directory names to LauncherConstants.PRE_PATCHED_DIR_FILE
-                        bufWriter.write(latestServicepack.getName());
-                        bufWriter.newLine();
-                    } catch (IOException e) {
-                        patchLog.error("Error occurred while writing " + latestServicepack.getName() + " to " + LauncherConstants.PRE_PATCHED_DIR_FILE);
-                    }
+                try {
+                    // write applying servicepack directory names to LauncherConstants.PRE_PATCHED_DIR_FILE
+                    bufWriter.write(latestServicepack.getName());
+                    bufWriter.newLine();
+                } catch (IOException e) {
+                    patchLog.log(Level.SEVERE, "Error occurred while writing " + latestServicepack.getName() + " to " + LauncherConstants.PRE_PATCHED_DIR_FILE);
+                }
             }
         }
 
     }
 
     public static PatchInfo processPatches(File patchDirLogFile, File servicepackDir, File patchesDir) throws IOException {
-        patchLog.info("Checking for patch changes ...");
+        patchLog.log(Level.FINE, "Checking for patch changes ...");
+
         BufferedReader bufReader = null;
         PatchInfo patchInfo = new PatchInfo();
         previousPatchDirNames = new ArrayList<String>();
@@ -209,19 +210,19 @@ public class PatchUtils {
                         if (!patchFile.equals(LauncherConstants.BUNDLE_BACKUP_DIR)) {
                             patchInfo.addNewPatches(patchFile);
                             if (patchFile.startsWith("servicepack")) {
-                                patchLog.info("New service pack available - " + patchFile);
+                                patchLog.log(Level.FINE, "New service pack available - " + patchFile);
                             } else {
-                                patchLog.info("New patch available - " + patchFile);
+                                patchLog.log(Level.FINE, "New patch available - " + patchFile);
                             }
                         }
                     }
                 }
                 if (!patchDirLogFile.createNewFile()) {
-                    patchLog.error("Error occurred while creating patch directory log file " + patchDirLogFile.getAbsolutePath());
+                    patchLog.log(Level.SEVERE, "Error occurred while creating patch directory log file " + patchDirLogFile.getAbsolutePath());
                 }
             }
             if (!patchInfo.isPatchesChanged()) {
-                patchLog.info("No new patch or service pack detected, server will start without applying patches ");
+                patchLog.log(Level.FINE, "No new patch or service pack detected, server will start without applying patches ");
             }
             return patchInfo;
         } finally {
@@ -230,7 +231,7 @@ public class PatchUtils {
                 try {
                     bufReader.close();
                 } catch (IOException e) {
-                    patchLog.error("Error occurred while closing patch directory log file Buffered Reader");
+                    patchLog.log(Level.SEVERE, "Error occurred while closing patch directory log file Buffered Reader");
                 }
             }
         }
@@ -310,17 +311,18 @@ public class PatchUtils {
      * @throws Exception
      */
     public static void checkMD5Checksum(Map<String, JarInfo> latestPatchedJar, File plugins, boolean applyPatches) throws Exception {
-        patchLog.info("Patch verification started");
         if (applyPatches) {
-            consoleLog.info("Patch verification started");
+            patchLog.log(Level.INFO, "Patch verification started");
+        } else {
+            patchLog.log(Level.FINE, "Patch verification started");
         }
         List<String> warningList = new ArrayList<String>();
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(PatchUtils.getMetaDirectory(), LauncherConstants.PRE_PATCHED_LATEST_JARS_FILE)));
-        try{
+        try {
             for (Map.Entry<String, JarInfo> entry : latestPatchedJar.entrySet()) {
                 File file = FileUtils.getFile(plugins, entry.getKey());
                 if (entry.getValue().getMd5SumValue() == null) {
-                   entry.getValue().setMd5SumValue(getMD5ChecksumHexString(entry.getValue().getPath()));
+                    entry.getValue().setMd5SumValue(getMD5ChecksumHexString(entry.getValue().getPath()));
                 }
                 String md5OfPatchedJar = entry.getValue().getMd5SumValue();
                 bufferedWriter.write(entry.getKey() + ":" + entry.getValue().getMd5SumValue());
@@ -338,20 +340,20 @@ public class PatchUtils {
                 }
             }
             if (warningList.size() > 0) {
-                patchLog.warn("Problems found during patch verification. See below for details:");
+                patchLog.log(Level.WARNING, "Problems found during patch verification. See below for details:");
                 for (String warningMessage : warningList) {
-                    patchLog.warn(warningMessage);
+                    patchLog.log(Level.WARNING, warningMessage);
                 }
-                patchLog.warn("Patch verification completed with warnings.");
-                consoleLog.warn("Patch verification completed with warnings. Please see  " +
+                patchLog.log(Level.WARNING, "Patch verification completed with warnings. Please see  " +
                         getPatchesLogsFile().getAbsolutePath() + " for more details");
             } else {
-                patchLog.info("Patch verification successfully completed");
                 if (applyPatches) {
-                    consoleLog.info("Patch verification successfully completed.");
+                    patchLog.log(Level.INFO, "Patch verification successfully completed");
+                } else {
+                    patchLog.log(Level.FINE, "Patch verification successfully completed");
                 }
             }
-        }finally {
+        } finally {
             bufferedWriter.close();
         }
     }
@@ -359,6 +361,7 @@ public class PatchUtils {
     private static String getMD5ChecksumHexString(String filePath) throws Exception {
         return getMD5ChecksumHexString(new File(filePath));
     }
+
     /**
      * @param file generate md5 string to this file
      * @return generated md5 value as a string
@@ -426,32 +429,32 @@ public class PatchUtils {
                 if (spackDiff == 0) {
                     // no servcie pack changes
                 } else {
-                    patchLog.info(prePatchedDirNames.get(0) + " has been reverted");
+                    patchLog.log(Level.FINE, prePatchedDirNames.get(0) + " has been reverted");
                     patchInfo.addRemovedPatches(patchApplyOrder.get(0));
-                    patchLog.info("New service pack available - " + patchApplyOrder.get(0));
+                    patchLog.log(Level.FINE, "New service pack available - " + patchApplyOrder.get(0));
                     patchInfo.addNewPatches(patchApplyOrder.get(0));
                 }
                 // remove both service patch entries
                 prePatchedDirNames.remove(0);
                 patchApplyOrder.remove(0);
-            }else if (patchApplyOrder.get(0).startsWith("s")) {
-                patchLog.info("New service pack available - " + patchApplyOrder.get(0));
+            } else if (patchApplyOrder.get(0).startsWith("s")) {
+                patchLog.log(Level.FINE, "New service pack available - " + patchApplyOrder.get(0));
                 patchInfo.addNewPatches(patchApplyOrder.get(0));
                 patchApplyOrder.remove(0);
-            }else if (prePatchedDirNames.get(0).startsWith("s")) {
-                patchLog.info(prePatchedDirNames.get(0) +  " has been reverted");
+            } else if (prePatchedDirNames.get(0).startsWith("s")) {
+                patchLog.log(Level.FINE, prePatchedDirNames.get(0) + " has been reverted");
                 patchInfo.addRemovedPatches(patchApplyOrder.get(0));
                 prePatchedDirNames.remove(0);
             }
-        }else if (checkPrePatch) {
+        } else if (checkPrePatch) {
             if (prePatchedDirNames.get(0).startsWith("s")) {
-                patchLog.info(prePatchedDirNames.get(0) +  " has been reverted");
+                patchLog.log(Level.FINE, prePatchedDirNames.get(0) + " has been reverted");
                 patchInfo.addRemovedPatches(patchApplyOrder.get(0));
                 prePatchedDirNames.remove(0);
             }
-        }else if (patchApplyOrder.size() > 0 ){
+        } else if (patchApplyOrder.size() > 0) {
             if (patchApplyOrder.get(0).startsWith("s")) {
-                patchLog.info("New service pack available - " + patchApplyOrder.get(0));
+                patchLog.log(Level.FINE, "New service pack available - " + patchApplyOrder.get(0));
                 patchInfo.addNewPatches(patchApplyOrder.get(0));
                 patchApplyOrder.remove(0);
             }
@@ -463,25 +466,25 @@ public class PatchUtils {
             if (diff == 0) {
                 i++;
                 j++;
-            }else if (diff > 0) {
-                patchLog.info(prePatchedDirNames.get(j) + " has been reverted");
+            } else if (diff > 0) {
+                patchLog.log(Level.FINE, prePatchedDirNames.get(j) + " has been reverted");
                 patchInfo.addRemovedPatches(prePatchedDirNames.get(j));
                 j++;
-            }else {
-                patchLog.info("New patch available - " + patchApplyOrder.get(i));
+            } else {
+                patchLog.log(Level.FINE, "New patch available - " + patchApplyOrder.get(i));
                 patchInfo.addNewPatches(patchApplyOrder.get(i));
                 i++;
             }
         }
 
         while (i < patchApplyOrder.size()) {
-            patchLog.info("New patch available - " + patchApplyOrder.get(i));
+            patchLog.log(Level.FINE, "New patch available - " + patchApplyOrder.get(i));
             patchInfo.addNewPatches(patchApplyOrder.get(i));
             i++;
         }
 
         while (j < prePatchedDirNames.size()) {
-            patchLog.info(prePatchedDirNames.get(j) + " has been reverted");
+            patchLog.log(Level.FINE, prePatchedDirNames.get(j) + " has been reverted");
             patchInfo.addRemovedPatches(prePatchedDirNames.get(j));
             j++;
         }
@@ -517,7 +520,7 @@ public class PatchUtils {
 
     private static void getServiepackPatchOrder(File servicepackDir, List<String> patchApplyingList) {
         File[] servicepacks = servicepackDir.listFiles(PatchUtils.getPatchFileNameFilter());
-        if (servicepacks != null &&  servicepacks.length > 0) {
+        if (servicepacks != null && servicepacks.length > 0) {
             // Sorting servicepack folders.
             Arrays.sort(servicepacks);
             File latestServicepack = servicepacks[servicepacks.length - 1];
@@ -529,9 +532,9 @@ public class PatchUtils {
                     List<String> patchesInServicepack = FileUtils.readLinesToList(bufReader);
                     servicepackPatchedList.addAll(patchesInServicepack);
                 } catch (IOException e) {
-                    patchLog.error("Error occurred while reading " + latestServicepack + " patch file : " + LauncherConstants.SERVICEPACK_PATCHES_FILE, e);
+                    patchLog.log(Level.SEVERE, "Error occurred while reading " + latestServicepack +
+                            " patch file : " + LauncherConstants.SERVICEPACK_PATCHES_FILE, e);
                 }
-
 
             }
         }
@@ -570,13 +573,13 @@ public class PatchUtils {
     }
 
     public static boolean checkUpdatedJars(Map<String, JarInfo> latestPatchedJar) throws Exception {
-        File jarsFile = new File (PatchUtils.getMetaDirectory(), LauncherConstants.PRE_PATCHED_LATEST_JARS_FILE);
-        if(jarsFile.exists()){
+        File jarsFile = new File(PatchUtils.getMetaDirectory(), LauncherConstants.PRE_PATCHED_LATEST_JARS_FILE);
+        if (jarsFile.exists()) {
             BufferedReader bufReader = new BufferedReader(new FileReader(jarsFile));
-            Map<String, String> prePatchedJarsWithMD5 ;
-            try{
-                    prePatchedJarsWithMD5 = FileUtils.readJarsWithMD5(bufReader);
-            }finally {
+            Map<String, String> prePatchedJarsWithMD5;
+            try {
+                prePatchedJarsWithMD5 = FileUtils.readJarsWithMD5(bufReader);
+            } finally {
                 bufReader.close();
             }
             for (Map.Entry<String, JarInfo> jarInfoEntry : latestPatchedJar.entrySet()) {
@@ -584,11 +587,11 @@ public class PatchUtils {
                     String md5ofJar = getMD5ChecksumHexString(jarInfoEntry.getValue().getPath());
                     jarInfoEntry.getValue().setMd5SumValue(md5ofJar);
                     if (!md5ofJar.equals(prePatchedJarsWithMD5.get(jarInfoEntry.getKey()))) {
-                        patchLog.info(jarInfoEntry.getKey() + " has been updated");
+                        patchLog.log(Level.FINE, jarInfoEntry.getKey() + " has been updated");
                         return true;
                     }
-                }else {
-                    patchLog.info(jarInfoEntry.getKey() + " has been added");
+                } else {
+                    patchLog.log(Level.FINE, jarInfoEntry.getKey() + " has been added");
                     return true;
                 }
             }
@@ -606,24 +609,24 @@ public class PatchUtils {
         File metaDir;
         if (patchesPath == null) {
             metaDir = new File(Paths.get(Utils.getCarbonRepoPath(), "components", LauncherConstants.PARENT_PATCHES_DIR,
-                                         LauncherConstants.PATCH_METADATA_DIR).toString());
+                    LauncherConstants.PATCH_METADATA_DIR).toString());
         } else {
             metaDir = new File(Paths.get(patchesPath, LauncherConstants.PATCH_METADATA_DIR).toString());
         }
 
         if (!metaDir.exists() && !metaDir.mkdirs()) {
-            patchLog.warn("Error while creating meta data directory in " + metaDir.getAbsolutePath());
+            patchLog.log(Level.WARNING, "Error while creating meta data directory in " + metaDir.getAbsolutePath());
         }
         return metaDir;
     }
 
-    public static FilenameFilter getPatchFileNameFilter(){
+    public static FilenameFilter getPatchFileNameFilter() {
         return new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 if (name.startsWith("patch") || name.startsWith("servicepack")) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
             }

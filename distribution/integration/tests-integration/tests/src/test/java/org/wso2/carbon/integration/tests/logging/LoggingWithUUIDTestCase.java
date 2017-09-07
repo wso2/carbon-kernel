@@ -64,8 +64,8 @@ public class LoggingWithUUIDTestCase extends CarbonIntegrationBaseTest {
 
         File log4JPropertiesSrcFile = Paths.get(
                 System.getProperty(FrameworkConstants.SYSTEM_ARTIFACT_RESOURCE_LOCATION),
-                "log4j", "loggingWithUUID", "log4j.properties").toFile();
-        File log4JPropertiesTargetFile = Paths.get(carbonHome, "repository", "conf", "log4j.properties").toFile();
+                "log4j", "loggingWithUUID", "log4j2.properties").toFile();
+        File log4JPropertiesTargetFile = Paths.get(carbonHome, "repository", "conf", "log4j2.properties").toFile();
         FileManipulator.copyFile(log4JPropertiesSrcFile, log4JPropertiesTargetFile);
 
         Map<String, String> startupOptions = new HashMap<>();

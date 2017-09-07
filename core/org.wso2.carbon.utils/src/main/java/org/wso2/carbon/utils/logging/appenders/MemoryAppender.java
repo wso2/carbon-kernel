@@ -23,7 +23,10 @@ import org.wso2.carbon.utils.logging.CircularBuffer;
  * This appender will be used to capture the logs and later send to clients, if requested via the
  * logging web service.
  * This maintains a circular buffer, of some fixed amount (say 100).
+ *
+ * @deprecated Replaced by Log4J2 MemoryAppender.
  */
+@Deprecated
 public class MemoryAppender extends AppenderSkeleton {
 
     private CircularBuffer<LoggingEvent> circularBuffer;
