@@ -24,7 +24,10 @@ import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 
-
+/**
+ * @deprecated Replaced by pax-logging in-built bridging mechanism
+ */
+@Deprecated
 public class LoggingConsoleHandler extends ConsoleHandler {
 
     private static final String BRIDGE_NAME = "CARBON_CONSOLE";

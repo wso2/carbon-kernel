@@ -23,33 +23,35 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 /**
  * This class is used to store information regarding a LogEvent along with tenant information.
+ *
+ * @deprecated tenantId is appended using Log4J2 Converter
  */
 public class TenantAwareLoggingEvent extends LoggingEvent {
 
-	private String tenantId;
-	private String serviceName;
-	
-	private static final long serialVersionUID = 1L;
+    private String tenantId;
+    private String serviceName;
 
-	public TenantAwareLoggingEvent(String fqnOfCategoryClass, Category logger, long timeStamp,
-			Priority level, Object message, Throwable throwable) {
-		super(fqnOfCategoryClass, logger, timeStamp, level, message, throwable);
-	
-	}
-	public String getTenantId() {
-		return tenantId;
-	}
+    private static final long serialVersionUID = 1L;
 
-	public void setTenantId(String tenantId) {
-		this.tenantId = tenantId;
-	}
+    public TenantAwareLoggingEvent(String fqnOfCategoryClass, Category logger, long timeStamp,
+                                   Priority level, Object message, Throwable throwable) {
+        super(fqnOfCategoryClass, logger, timeStamp, level, message, throwable);
 
-	public String getServiceName() {
-		return serviceName;
-	}
+    }
+    public String getTenantId() {
+        return tenantId;
+    }
 
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
-	}
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
 
 }

@@ -28,6 +28,10 @@ import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 
 import java.util.Enumeration;
 
+/**
+ * @deprecated Replaced by pax-logging Activator
+ */
+@Deprecated
 public class CarbonLoggingActivator  implements BundleActivator{
     @Override
     public void start(BundleContext bundleContext) throws Exception {

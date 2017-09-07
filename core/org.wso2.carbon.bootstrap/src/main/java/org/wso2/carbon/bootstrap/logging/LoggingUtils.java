@@ -24,6 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/**
+ * @deprecated Queuing and flushing logs is done by Log4J2 appenders.
+ */
+@Deprecated
 public class LoggingUtils {
 
     // This map holds the queue instances that stores log events for different logging

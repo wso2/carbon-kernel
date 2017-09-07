@@ -31,6 +31,11 @@ import java.util.List;
 import java.util.logging.LogRecord;
 import java.util.regex.Pattern;
 
+
+/**
+ * @deprecated Configuration is done in log4j2.properties file.
+ */
+@Deprecated
 public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBridge {
 
     private String maskingPatternFile;
