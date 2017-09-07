@@ -92,7 +92,9 @@
                 <include name="org.wso2.carbon.user.api*.jar"/>
                 <include name="org.wso2.carbon.registry.api*.jar"/>
                 <include name="org.wso2.carbon.base*.jar"/>
-                <include name="org.wso2.carbon.logging*.jar"/>
+                <include name="pax-logging-api*.jar"/>
+                <include name="pax-logging-log4j2*.jar"/>
+                <include name="pax-log4j2-plugins*.jar" />
                 <include name="org.wso2.securevault*.jar"/> <!-- used by the G-reg jcr sample-->
                 <include name="org.wso2.pwprovider*.jar"/>
                 <include name="org.wso2.carbon.rule.core*.jar"/>

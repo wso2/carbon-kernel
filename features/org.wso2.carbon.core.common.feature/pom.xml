@@ -123,7 +123,9 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.ext:${carbon.kernel.version}
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.ops4j.pax.logging:pax-logging-api:${pax.logging.api.version}</bundleDef>
+                                <bundleDef>org.ops4j.pax.logging:pax-logging-log4j2:${pax.logging.log4j2.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.pax-logging-log4j2-plugins:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.securevault:${carbon.kernel.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.common:${carbon.kernel.version}

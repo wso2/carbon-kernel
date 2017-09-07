@@ -134,7 +134,9 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
+                <include>org.ops4j.pax.logging:pax-logging-api:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.pax-logging-log4j2:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.pax-logging-log4j2-plugins:jar</include>
                 <include>commons-lang.wso2:commons-lang:jar</include>
                 <include>ant-contrib:ant-contrib:jar</include>
                 <include>xerces.wso2:xercesImpl:jar</include>

@@ -153,5 +153,6 @@
         <module>org.wso2.carbon.ndatasource.core</module>
         <module>org.wso2.carbon.ndatasource.rdbms</module>
         <module>org.wso2.carbon.framework.exporter</module>
+        <module>org.wso2.carbon.pax-logging-log4j2-plugins</module>
     </modules>
 </project>

@@ -24,6 +24,11 @@ import org.apache.log4j.spi.ThrowableInformation;
 
 import java.util.logging.LogRecord;
 
+
+/**
+ * @deprecated Tenant specific information is taken form Log4J2 Converters.
+ */
+@Deprecated
 public class LoggingUtils {
 
     /**

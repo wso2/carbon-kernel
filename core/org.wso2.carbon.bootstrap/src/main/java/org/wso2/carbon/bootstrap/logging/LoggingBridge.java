@@ -21,6 +21,10 @@ package org.wso2.carbon.bootstrap.logging;
 
 import java.util.logging.LogRecord;
 
+/**
+ * @deprecated Pax-logging has an in-built mechanism for bridging to Log4J2.
+ */
+@Deprecated
 public interface LoggingBridge {
 
     void push(LogRecord record);

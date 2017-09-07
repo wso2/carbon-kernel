@@ -56,8 +56,10 @@ import org.wso2.carbon.utils.logging.DefaultEvaluator;
  *
  * @author Rafael Luque & Ruth Zamorano
  * @version $Revision: 1.2 $
+ *
+ * @deprecated Configuration is done in log4j2.properties file.
  */
-
+@Deprecated
 public class IMAppender extends AppenderSkeleton {
 
     // ----------------------------------------------- Variables

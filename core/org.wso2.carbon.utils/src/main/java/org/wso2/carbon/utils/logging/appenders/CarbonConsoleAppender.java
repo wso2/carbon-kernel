@@ -29,7 +29,10 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.logging.LogRecord;
 
-
+/**
+ * @deprecated Configuration is done in log4j2.properties file.
+ */
+@Deprecated
 public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBridge {
     @Override
     public void push(LogRecord record) {

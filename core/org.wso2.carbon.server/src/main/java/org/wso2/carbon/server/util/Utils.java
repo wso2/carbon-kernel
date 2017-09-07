@@ -102,16 +102,16 @@ public class Utils {
         System.out.println("system-properties:");
         String confPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
         System.out.println("\t-DosgiConsole=[port]\t\tStart Carbon with Equinox OSGi console. " +
-                           "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
+                "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
         if (confPath == null) {
             System.out.println("\t-DosgiDebugOptions=[options-file]" +
-                               "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
-                               "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
+                    "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
+                    "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
         } else {
             String relativeConfDirPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(confPath)).toString();
             System.out.println("\t-DosgiDebugOptions=[options-file]" +
-                               "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
-                               "\n\t\t\t\t\tDebug options are loaded from the file " + relativeConfDirPath + "/etc/osgi-debug.options.");
+                    "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
+                    "\n\t\t\t\t\tDebug options are loaded from the file " + relativeConfDirPath + "/etc/osgi-debug.options.");
         }
         System.out.println("\t-Dsetup\t\t\t\tClean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon");
         System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
@@ -707,7 +707,7 @@ public class Utils {
         }
         File bundleConfigDir = new File(bundleConfigDirLocation);
         if(!bundleConfigDir.exists()) {
-          return null;
+            return null;
         }
         return bundleConfigDir;
     }

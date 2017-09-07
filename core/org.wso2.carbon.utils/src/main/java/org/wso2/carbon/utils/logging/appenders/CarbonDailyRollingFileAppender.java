@@ -28,7 +28,10 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.logging.*;
 
-
+/**
+ * @deprecated Configuration is done in log4j2.properties file.
+ */
+@Deprecated
 public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender implements LoggingBridge {
 
     public void push(LogRecord record) {

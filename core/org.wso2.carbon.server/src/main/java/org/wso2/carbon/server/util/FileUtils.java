@@ -44,7 +44,7 @@ public class FileUtils {
      * @param srcDir  an existing directory to copy, must not be null
      * @param destDir the new directory, must not be null
      * @throws NullPointerException if source or destination is null
-     * @throws java.io.IOException  if source or destination is invalid
+     * @throws IOException          if source or destination is invalid
      * @since Commons IO 1.1
      */
     public static void copyDirectory(File srcDir, File destDir) throws IOException {
@@ -259,15 +259,15 @@ public class FileUtils {
     }
 
 
-	public static File getFile(File parentFile,final String fileName) {
-		File[] files = parentFile.listFiles();
-		for ( File file : files ) {
-			if (file.getName().equals(fileName)) {
-				return file;
-			}
-		}
-		return null;
-	}
+    public static File getFile(File parentFile, final String fileName) {
+        File[] files = parentFile.listFiles();
+        for (File file : files) {
+            if (file.getName().equals(fileName)) {
+                return file;
+            }
+        }
+        return null;
+    }
 
     public static List<String> readLinesToList(BufferedReader bufferedReader) throws IOException {
         if (bufferedReader == null) {

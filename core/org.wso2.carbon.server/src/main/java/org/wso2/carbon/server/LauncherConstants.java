@@ -71,4 +71,12 @@ public final class LauncherConstants {
     public static final String DEFAULT_CARBON_PROFILE = "default";
     public static final String WORKER_NODE = "workerNode";
     public static final String WORKER_PROFILE = "worker";
+
+    //Constants relevant to pax logging
+    public static final String PAX_LOGGING_PROPERTY_FILE_KEY = "org.ops4j.pax.logging.property.file";
+    public static final String PAX_LOGGING_PROPERTIES_FILE = "pax-logging.properties";
+    public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
+
+    //  Constants relevant to log level.
+    public static final String LOG_LEVEL_WARN = "WARN";
 }

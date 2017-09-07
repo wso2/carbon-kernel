@@ -49,7 +49,6 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonContextHolderBase;
 import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.CarbonAxisConfigurator;
 import org.wso2.carbon.core.CarbonConfigurationContextFactory;
 import org.wso2.carbon.core.CarbonThreadCleanup;
@@ -61,7 +60,6 @@ import org.wso2.carbon.core.deployment.OSGiAxis2ServiceDeployer;
 import org.wso2.carbon.core.deployment.RegistryBasedRepositoryUpdater;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.internal.CarbonCoreServiceComponent;
-import org.wso2.carbon.core.internal.StartupFinalizerServiceComponent;
 import org.wso2.carbon.core.multitenancy.GenericArtifactUnloader;
 import org.wso2.carbon.core.internal.HTTPGetProcessorListener;
 import org.wso2.carbon.core.multitenancy.MultitenantServerManager;
@@ -96,8 +94,10 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementPermission;
 import java.net.SocketException;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Map;
@@ -107,16 +107,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import static org.apache.axis2.transport.TransportListener.HOST_ADDRESS;
-
 
 /**
  * This class is responsible for managing the WSO2 Carbon server core. Handles server starting,
  * restarting & shutting down.
  */
 public final class CarbonServerManager implements Controllable {
+    private static final Logger logger = Logger.getLogger(CarbonServerManager.class.getName());
     private static Log log = LogFactory.getLog(CarbonServerManager.class);
+    private static final String TENANT_ID = "-1234";
+    private static final String APP_NAME = "";
+    private static final String JUL_FILE_HANDLER_FORMAT
+            = "TID: [%2$s] [%3$s] [%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %4$s {%5$s} - %6$s %n";
+    private static final String JUL_CONSOLE_HANDLER_FORMAT
+            = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$s {%3$s} - %4$s %n";
+    private static final String LOG_FILES_DIR_PATH = "repository/logs/wso2carbon.log";
 
     private final Map<String, String> pendingItemMap = new ConcurrentHashMap<String, String>();
 
@@ -848,8 +861,13 @@ public final class CarbonServerManager implements Controllable {
             new JMXServerManager().stopJmxService();
             log.info("Shutting down OSGi framework...");
             EclipseStarter.shutdown();
-            log.info("Shutdown complete");
-            log.info("Halting JVM");
+
+            setJULFileHandler();
+            setJULConsoleHandler();
+
+            logger.info("Shutdown complete");
+            logger.info("Halting JVM");
+
             if (!isShutdownTriggeredByShutdownHook) {
                 System.exit(0);
             }
@@ -962,5 +980,51 @@ public final class CarbonServerManager implements Controllable {
         artifactsCleanupExec.shutdownNow();
     }
 
-}
+    /**
+     * Set File Handler to print log messages in non-OSGi mode after
+     * EclipseStarter.shutdown() is called.
+     *
+     * @throws IOException If an error occurs while setting handler
+     */
+    private void setJULFileHandler() throws IOException {
+        Handler fileHandler = new FileHandler(LOG_FILES_DIR_PATH);
+        fileHandler.setFormatter(new SimpleFormatter() {
 
+            @Override
+            public synchronized String format(LogRecord logRecord) {
+                return String.format(JUL_FILE_HANDLER_FORMAT,
+                        new Date(logRecord.getMillis()),
+                        TENANT_ID,
+                        APP_NAME,
+                        logRecord.getLevel().getLocalizedName(),
+                        logRecord.getLoggerName(),
+                        logRecord.getMessage()
+                );
+            }
+        });
+        logger.addHandler(fileHandler);
+    }
+
+    /**
+     * Set Console Handler to print log messages in non-OSGi mode after
+     * EclipseStarter.shutdown() is called.
+     *
+     * @throws IOException If an error occurs while setting handler
+     */
+    private void setJULConsoleHandler() throws IOException {
+        Handler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(new SimpleFormatter() {
+
+            @Override
+            public synchronized String format(LogRecord logRecord) {
+                return String.format(JUL_CONSOLE_HANDLER_FORMAT,
+                        new Date(logRecord.getMillis()),
+                        logRecord.getLevel().getLocalizedName(),
+                        logRecord.getLoggerName(),
+                        logRecord.getMessage()
+                );
+            }
+        });
+        logger.addHandler(consoleHandler);
+    }
+}

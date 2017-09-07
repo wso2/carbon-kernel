@@ -64,8 +64,10 @@ import java.util.concurrent.TimeUnit;
  * eg: for the console appender,
  * log4j.appender.CARBON_CONSOLE.layout.ConversionPattern=TID: [%T] [%S] [%U] [%A] [%D] [%I] [%H]
  * [%P] [%d] %P%5p {%c} - %x %m%n
+ *
+ * @deprecated tenantId is appended to layout in log4j2.properties
  */
-
+@Deprecated
 public class TenantAwarePatternLayout extends PatternLayout {
 
     /**

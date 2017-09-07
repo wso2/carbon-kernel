@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.server.extensions;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.CarbonLaunchExtension;
 import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.JarInfo;
@@ -29,12 +27,14 @@ import org.wso2.carbon.server.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copy all the patches found in the patches directory to the plugins directory in a recursive manner.
  */
 public class PatchInstaller implements CarbonLaunchExtension {
-    private static Log log = LogFactory.getLog(PatchInstaller.class);
+    private static final Logger log = Logger.getLogger(PatchInstaller.class.getName());
 
     public void perform() {
         File carbonComponentDir = Utils.getCarbonComponentRepo();
@@ -65,15 +65,15 @@ public class PatchInstaller implements CarbonLaunchExtension {
                 patchesChanged = PatchUtils.checkUpdatedJars(latestPatchedJar);
             }
             if (patchesChanged) {
-                log.info("Patch changes detected ");
+                log.log(Level.INFO, "Patch changes detected");
                 PatchUtils.applyServicepacksAndPatches(servicepackDir , patchesDir, plugins);
             }
             // performs md5sum of latestPatchedJars against jars in plugin directory
             PatchUtils.checkMD5Checksum(latestPatchedJar, plugins, patchesChanged);
         } catch (IOException e) {
-            log.error("Error occurred while applying patches", e);
+            log.log(Level.SEVERE, "Error occurred while applying patches", e);
         } catch (Exception e) {
-            log.error("Error occurred while verifying md5 checksum of patched jars", e);
+            log.log(Level.SEVERE, "Error occurred while verifying md5 checksum of patched jars", e);
         }
     }
 }

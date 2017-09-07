@@ -1,4 +1,4 @@
-package org.wso2.carbon.server.extensions;/*
+/*
 *  Copyright (c) 2005-2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,6 +15,7 @@ package org.wso2.carbon.server.extensions;/*
 * specific language governing permissions and limitations
 * under the License.
 */
+package org.wso2.carbon.server.extensions;
 
 import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.Utils;
@@ -24,6 +25,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * @deprecated log4j2.properties is wired through pax-logging.properties
+ */
+@Deprecated
 public class Log4jPropFileFragmentBundleCreator extends FragmentBundleCreator {
     private static String LOG4J_PROP_FILE_NAME = "log4j.properties";
     private static String FRAGMENT_BUNDLE_NAME = "org.wso2.carbon.logging.propfile";

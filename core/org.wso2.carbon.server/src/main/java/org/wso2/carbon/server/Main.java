@@ -17,11 +17,10 @@
 */
 package org.wso2.carbon.server;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
 import org.apache.log4j.Logger;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,9 +28,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class Main {
-    private static Log log = LogFactory.getLog(Main.class);
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
 
     /**
      * Launch the Carbon server.
@@ -42,6 +42,12 @@ public class Main {
      * @param args command line arguments.
      */
     public static void main(String[] args) {
+        //Setting pax-logging configurations
+        String confPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
+        System.setProperty(LauncherConstants.PAX_DEFAULT_SERVICE_LOG_LEVEL, LauncherConstants.LOG_LEVEL_WARN);
+        System.setProperty(LauncherConstants.PAX_LOGGING_PROPERTY_FILE_KEY, confPath + File.separator +
+                "etc" + File.separator + LauncherConstants.PAX_LOGGING_PROPERTIES_FILE);
+
         //Setting Carbon Home
         if (System.getProperty(LauncherConstants.CARBON_HOME) == null) {
             System.setProperty(LauncherConstants.CARBON_HOME, ".");
@@ -50,49 +56,49 @@ public class Main {
 
         //To keep track of the time taken to start the Carbon server.
         System.setProperty("wso2carbon.start.time", System.currentTimeMillis() + "");
-		if (System.getProperty("carbon.instance.name") == null) {
-			InetAddress addr;
-			String ipAddr;
-			String hostName;
-			try {
-				addr = InetAddress.getLocalHost();
-				ipAddr = addr.getHostAddress();
-				hostName = addr.getHostName();
-			} catch (UnknownHostException e) {
-				ipAddr = "localhost";
-				hostName = "127.0.0.1";
-			}
-			String uuId = UUID.randomUUID().toString();
-			String timeStamp = System.currentTimeMillis() + "";
-			String carbon_instance_name = timeStamp + "_" + hostName + "_" + ipAddr + "_" + uuId;
-			System.setProperty("carbon.instance.name", carbon_instance_name);
+        if (System.getProperty("carbon.instance.name") == null) {
+            InetAddress addr;
+            String ipAddr;
+            String hostName;
+            try {
+                addr = InetAddress.getLocalHost();
+                ipAddr = addr.getHostAddress();
+                hostName = addr.getHostName();
+            } catch (UnknownHostException e) {
+                ipAddr = "localhost";
+                hostName = "127.0.0.1";
+            }
+            String uuId = UUID.randomUUID().toString();
+            String timeStamp = System.currentTimeMillis() + "";
+            String carbon_instance_name = timeStamp + "_" + hostName + "_" + ipAddr + "_" + uuId;
+            System.setProperty("carbon.instance.name", carbon_instance_name);
 
-		}
+        }
         writePID(System.getProperty(LauncherConstants.CARBON_HOME));
         processCmdLineArgs(args);
 
         // set WSO2CarbonProfile as worker if workerNode=true present
-        if ((System.getProperty(LauncherConstants.WORKER_NODE) != null) && 
-            ("true".equals(System.getProperty(LauncherConstants.WORKER_NODE))) &&
-            System.getProperty(LauncherConstants.PROFILE) == null) {
-            File profileDir = new File( Utils.getCarbonComponentRepo() + File.separator + LauncherConstants.WORKER_PROFILE);
+        if ((System.getProperty(LauncherConstants.WORKER_NODE) != null) &&
+                ("true".equals(System.getProperty(LauncherConstants.WORKER_NODE))) &&
+                System.getProperty(LauncherConstants.PROFILE) == null) {
+            File profileDir = new File(Utils.getCarbonComponentRepo() + File.separator + LauncherConstants.WORKER_PROFILE);
                /*
                 *   Better check profile directory is present or not otherwise osgi will hang
                 * */
             if (!profileDir.exists()) {
-                log.fatal("OSGi runtime " + LauncherConstants.WORKER_PROFILE + " profile not found");
+                logger.log(Level.SEVERE, "OSGi runtime " + LauncherConstants.WORKER_PROFILE + " profile not found");
                 throw new RuntimeException(LauncherConstants.WORKER_PROFILE + " profile not found");
             }
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.WORKER_PROFILE);
         }
         //setting default WSO2CarbonProfile as the running Profile if no other Profile is given as an argument
-        if (System.getProperty(LauncherConstants.PROFILE) == null){
+        if (System.getProperty(LauncherConstants.PROFILE) == null) {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
         invokeExtensions();
-        removeAllAppendersFromCarbon();
         launchCarbon();
     }
+
 
     /**
      * Process command line arguments and set corresponding system properties.
@@ -139,7 +145,6 @@ public class Main {
         //converting jars found under components/lib and putting them in components/dropins dir
         new DefaultBundleCreator().perform();
         new SystemBundleExtensionCreator().perform();
-        new Log4jPropFileFragmentBundleCreator().perform();
         new LibraryFragmentBundleCreator().perform();
 
         //Add bundles in the dropins directory to the bundles.info file.
@@ -180,7 +185,7 @@ public class Main {
         try {
             int bytes = p.getInputStream().read(bo);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
         String pid = new String(bo);
@@ -191,7 +196,7 @@ public class Main {
                 out = new BufferedWriter(writer);
                 out.write(pid);
             } catch (IOException e) {
-                log.warn("Cannot write wso2carbon.pid file");
+                logger.log(Level.WARNING, "Cannot write wso2carbon.pid file");
             } finally {
                 if (out != null) {
                     try {
@@ -203,24 +208,20 @@ public class Main {
         }
     }
 
-   /**
+    /**
      * Removing all the appenders which were added in the non osigi environment, after the carbon starts up.
      * Since another appender thread is there from osgi environment, it will be a conflict to access the log file by
      * non osgi and osgi appenders which resulted log rotation fails in windows.
      * This fix was introduced  for this jira: https://wso2.org/jira/browse/ESBJAVA-1614 .
+     *
+     * @deprecated with migration to Log4J2.
      */
-
+    @Deprecated
     private static void removeAllAppendersFromCarbon() {
         try {
-           Logger.getRootLogger().removeAllAppenders();
-       }catch (Throwable e){
-           System.err.println("couldn't remove appnders from Carbon non osgi environment");
-       }
-   }
-
-
+            Logger.getRootLogger().removeAllAppenders();
+        } catch (Throwable e) {
+            System.err.println("couldn't remove appnders from Carbon non osgi environment");
+        }
+    }
 }
-
-
-
-

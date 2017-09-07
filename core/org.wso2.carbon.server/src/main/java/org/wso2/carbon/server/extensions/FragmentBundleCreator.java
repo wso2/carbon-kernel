@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.server.extensions;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.CarbonLaunchExtension;
 import org.wso2.carbon.server.LauncherConstants;
 import org.wso2.carbon.server.util.FileUtils;
@@ -29,20 +27,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class FragmentBundleCreator implements CarbonLaunchExtension {
-    private static Log log = LogFactory.getLog(FragmentBundleCreator.class);
+    private static final Logger logger = Logger.getLogger(FragmentBundleCreator.class.getName());
 
     private static String FRAGMENT_BUNDLE_VERSION = "1.0.0";
 
-
-
     public void perform() {
         File[] files = getBundleConfigs();
-        if(files.length > 0) {
-            for(File file: files) {
-            String fragmentHostBundleName = getFragmentHostBundleName(file);
-            String fragmentBundleName = getFragmentBundleName(file);
+        if (files.length > 0) {
+            for (File file : files) {
+                String fragmentHostBundleName = getFragmentHostBundleName(file);
+                String fragmentBundleName = getFragmentBundleName(file);
 
                 try {
                     Manifest mf = new Manifest();
@@ -52,7 +50,7 @@ public abstract class FragmentBundleCreator implements CarbonLaunchExtension {
                     attribs.putValue(LauncherConstants.BUNDLE_NAME, fragmentBundleName);
                     attribs.putValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME, fragmentBundleName);
                     attribs.putValue(LauncherConstants.BUNDLE_VERSION, FRAGMENT_BUNDLE_VERSION);
-                    attribs.putValue(LauncherConstants.FRAGMENT_HOST,fragmentHostBundleName);
+                    attribs.putValue(LauncherConstants.FRAGMENT_HOST, fragmentHostBundleName);
                     attribs.putValue(LauncherConstants.BUNDLE_CLASSPATH, ".");
                     String dropinsPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
                     File dropinsFolder;
@@ -89,11 +87,11 @@ public abstract class FragmentBundleCreator implements CarbonLaunchExtension {
                                 mfos.close();
                             }
                         } catch (IOException e) {
-                            log.error("Unable to close the OutputStream " + e.getMessage(), e);
+                            logger.log(Level.SEVERE, "Unable to close the OutputStream " + e.getMessage(), e);
                         }
                     }
-                }catch(IOException e){
-                    log.error("Error occured while creating the log4j prop fragment bundle.", e);
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "Error occured while creating the log4j prop fragment bundle.", e);
                 }
             }
         }

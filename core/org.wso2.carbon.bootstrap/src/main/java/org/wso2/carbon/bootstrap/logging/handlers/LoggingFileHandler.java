@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.LogRecord;
 
+/**
+ * @deprecated Pax-logging maps all logging needed logging facades to Log4J2
+ */
+@Deprecated
 public class LoggingFileHandler extends FileHandler{
 
     private static final String BRIDGE_NAME = "CARBON_LOGFILE";
