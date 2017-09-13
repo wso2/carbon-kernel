@@ -77,6 +77,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
 
+    // For AD's this value is 1500 by default, hence overriding the default value.
+    protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 1500;
+
     static {
         setAdvancedProperties();
     }
@@ -940,6 +943,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         setAdvancedProperty(ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID,
                 ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID_DESC , "true",
                 ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID_DESC);
+        setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
+                String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the AD");
 
     }
 
