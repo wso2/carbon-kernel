@@ -36,6 +36,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -974,6 +975,44 @@ public class PermissionTree {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * update permission tree from cache
+     *
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
+     */
+    public String[] getResourcePermissionsById(String resourceId) throws UserStoreException {
+        PermissionTree tree = new PermissionTree();
+        ResultSet rs = null;
+        PreparedStatement statement = null;
+        Connection dbConnection = null;
+        String[] roles;
+        List<String> rolesList = new ArrayList<String>();
+        try {
+            dbConnection = getDBConnection();
+            // Populating role permissions
+            statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE);
+            statement.setInt(1, tenantId);
+            statement.setInt(2, tenantId);
+            statement.setString(3, resourceId);
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                short allow = rs.getShort(3);
+                String roleName = rs.getString(1);
+                String domain = rs.getString(5);
+                String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
+                if (allow == UserCoreConstants.ALLOW) {
+                    tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
+                }
+            }
+        } catch (SQLException e) {
+            throw new UserStoreException(
+                    "Error loading authorizations. Please check the database. Error message is "
+                            + e.getMessage(), e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, statement);
         }
     }
 
