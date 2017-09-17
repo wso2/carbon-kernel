@@ -1101,7 +1101,6 @@ public class PermissionTree {
      */
     void updatePermissionTreeFromDB() throws UserStoreException {
         PermissionTree tree = new PermissionTree();
-        tree.root = this.root;
         ResultSet rs = null;
         PreparedStatement prepStmt1 = null;
         PreparedStatement prepStmt2 = null;
