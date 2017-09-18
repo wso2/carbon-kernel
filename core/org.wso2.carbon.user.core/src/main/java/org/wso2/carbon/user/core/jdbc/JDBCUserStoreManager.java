@@ -2776,13 +2776,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new IllegalArgumentException("Filter value cannot be null");
         }
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
-            // This is to support LDAP like queries, so this will provide support for only leading or trailing '*'
-            // filters. if the query has multiple '*' s the filter will ignore all.
-                if ((value.startsWith(QUERY_FILTER_STRING_ANY) && !value.substring(1).contains(QUERY_FILTER_STRING_ANY)) ||
-                        value.endsWith(QUERY_FILTER_STRING_ANY) && !value.substring(0, value.length() - 1).contains(
-                                QUERY_FILTER_STRING_ANY) && value.charAt(value.length()-2) != SQL_FILTER_CHAR_ESCAPE) {
-                    value = value.replace(QUERY_FILTER_STRING_ANY, SQL_FILTER_STRING_ANY);
-                }
+            // This is to support LDAP like queries. Value having only * is restricted except one *.
+            if (!value.matches("(\\*)\\1+")) {
+                // Convert all the * to % except \*.
+                value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
+            }
         }
 
         String[] users = new String[0];
