@@ -87,15 +87,18 @@ public class DatabaseUtil {
     }
 
     public static DataSource createUserStoreDataSource(RealmConfiguration realmConfig) {
+
         String dataSourceName = realmConfig.getUserStoreProperty(JDBCRealmConstants.DATASOURCE);
         if (dataSourceName != null) {
             return lookupDataSource(dataSourceName);
         }
+
         PoolProperties poolProperties = new PoolProperties();
-        poolProperties.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
-        if (poolProperties.getDriverClassName() == null) {
+
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME) == null) {
             return null;
         }
+        poolProperties.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
         poolProperties.setUrl(realmConfig.getUserStoreProperty(JDBCRealmConstants.URL));
         poolProperties.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
         poolProperties.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
@@ -118,10 +121,10 @@ public class DatabaseUtil {
 
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null &&
                 !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
-            poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
+            poolProperties.setMaxIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
-            poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
+            poolProperties.setMaxIdle(DEFAULT_MAX_IDLE);
         }
 
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null &&
@@ -153,27 +156,171 @@ public class DatabaseUtil {
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
-            poolProperties.setValidationQuery(realmConfig.getUserStoreProperty(
-                    JDBCRealmConstants.VALIDATION_QUERY));
-            poolProperties.setTestOnBorrow(true);
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY).trim().isEmpty()) {
+            poolProperties.setValidationQuery(realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY));
         }
+
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL)) &&
-            StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
+                StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
             poolProperties.setValidationInterval(Long.parseLong(realmConfig.getUserStoreProperty(
                     VALIDATION_INTERVAL)));
         } else {
             poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_AUTO_COMMIT)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_AUTO_COMMIT).trim().isEmpty()) {
+            poolProperties.setDefaultAutoCommit(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.DEFAULT_AUTO_COMMIT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_READ_ONLY)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_READ_ONLY).trim().isEmpty()) {
+            poolProperties.setDefaultReadOnly(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.DEFAULT_READ_ONLY)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_CATALOG)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_CATALOG).trim().isEmpty()) {
+            poolProperties.setDefaultCatalog(realmConfig.getUserStoreProperty(JDBCRealmConstants.DEFAULT_CATALOG));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.INITIAL_SIZE)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.INITIAL_SIZE)) {
+            poolProperties.setInitialSize(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants
+                    .INITIAL_SIZE)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_ON_RETURN)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_ON_RETURN).trim().isEmpty()) {
+            poolProperties.setTestOnReturn(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.TEST_ON_RETURN)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_ON_BORROW)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_ON_BORROW).trim().isEmpty()) {
+            poolProperties.setTestOnBorrow(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.TEST_ON_BORROW)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATOR_CLASS_NAME)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATOR_CLASS_NAME).trim().isEmpty()) {
+            poolProperties.setValidatorClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants
+                    .VALIDATOR_CLASS_NAME));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN)) {
+            poolProperties.setNumTestsPerEvictionRun(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants
+                .ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED)) && !realmConfig.getUserStoreProperty(JDBCRealmConstants
+                .ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED).trim().isEmpty()) {
+            poolProperties.setAccessToUnderlyingConnectionAllowed(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED).trim().isEmpty()) {
+            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.REMOVE_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT)) {
+            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.LOG_ABANDONED).trim().isEmpty()) {
+            poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.LOG_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.CONNECTION_PROPERTIES)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.CONNECTION_PROPERTIES).trim().isEmpty()) {
+            poolProperties.setConnectionProperties(realmConfig.getUserStoreProperty(JDBCRealmConstants
+                    .CONNECTION_PROPERTIES));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.INIT_SQL)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.INIT_SQL).trim().isEmpty()) {
+            poolProperties.setInitSQL(realmConfig.getUserStoreProperty(JDBCRealmConstants.INIT_SQL));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS).trim().isEmpty()) {
+            poolProperties.setJdbcInterceptors(realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.JMX_ENABLED)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.JMX_ENABLED).trim().isEmpty()) {
+            poolProperties.setJmxEnabled(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.JMX_ENABLED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.FAIR_QUEUE)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.FAIR_QUEUE).trim().isEmpty()) {
+            poolProperties.setFairQueue(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.FAIR_QUEUE)));
+        }
+
+        if (StringUtils.isNumeric(JDBCRealmConstants.ABANDON_WHEN_PERCENTAGE_FULL)) {
+            poolProperties.setAbandonWhenPercentageFull(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.ABANDON_WHEN_PERCENTAGE_FULL)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_AGE)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.MAX_AGE)) {
+            poolProperties.setMaxAge(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_AGE)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.USE_EQUALS)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.USE_EQUALS).trim().isEmpty()) {
+            poolProperties.setUseEquals(Boolean.parseBoolean(realmConfig.getUserStoreProperty(JDBCRealmConstants
+                    .USE_EQUALS)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.SUSPECT_TIMEOUT)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.SUSPECT_TIMEOUT)) {
+            poolProperties.setSuspectTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants
+                    .SUSPECT_TIMEOUT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT))
+                && StringUtils.isNumeric(JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT)) {
+            poolProperties.setValidationQueryTimeout(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED).trim().isEmpty()) {
+            poolProperties.setAlternateUsernameAllowed(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED)));
+        }
+
+        setIsolationLevel(poolProperties, realmConfig.getUserStoreProperty(JDBCRealmConstants
+                .DEFAULT_TRANSACTION_ISOLATION));
+
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
 
     private static DataSource createRealmDataSource(RealmConfiguration realmConfig) {
+
         String dataSourceName = realmConfig.getRealmProperty(JDBCRealmConstants.DATASOURCE);
         if (dataSourceName != null) {
             return lookupDataSource(dataSourceName);
         }
+
         PoolProperties poolProperties = new PoolProperties();
+
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.DRIVER_NAME) == null) {
+            return null;
+        }
         poolProperties.setDriverClassName(realmConfig.getRealmProperty(JDBCRealmConstants.DRIVER_NAME));
         poolProperties.setUrl(realmConfig.getRealmProperty(JDBCRealmConstants.URL));
         poolProperties.setUsername(realmConfig.getRealmProperty(JDBCRealmConstants.USER_NAME));
@@ -197,10 +344,10 @@ public class DatabaseUtil {
 
         if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE) != null &&
                 !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
-            poolProperties.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
+            poolProperties.setMaxIdle(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
-            poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
+            poolProperties.setMaxIdle(DEFAULT_MAX_IDLE);
         }
 
         if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT) != null &&
@@ -232,13 +379,174 @@ public class DatabaseUtil {
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
-            poolProperties.setValidationQuery(realmConfig.getRealmProperty(
-                    JDBCRealmConstants.VALIDATION_QUERY));
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY).trim().isEmpty()) {
+            poolProperties.setValidationQuery(realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY));
         }
 
-        dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
-        return dataSource;
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(VALIDATION_INTERVAL)) &&
+                StringUtils.isNumeric(realmConfig.getRealmProperty(VALIDATION_INTERVAL))) {
+            poolProperties.setValidationInterval(Long.parseLong(realmConfig.getRealmProperty(
+                    VALIDATION_INTERVAL)));
+        } else {
+            poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_AUTO_COMMIT)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_AUTO_COMMIT).trim().isEmpty()) {
+            poolProperties.setDefaultAutoCommit(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.DEFAULT_AUTO_COMMIT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_READ_ONLY)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_READ_ONLY).trim().isEmpty()) {
+            poolProperties.setDefaultReadOnly(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.DEFAULT_READ_ONLY)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_CATALOG)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_CATALOG).trim().isEmpty()) {
+            poolProperties.setDefaultCatalog(realmConfig.getRealmProperty(JDBCRealmConstants.DEFAULT_CATALOG));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.INITIAL_SIZE)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.INITIAL_SIZE)) {
+            poolProperties.setInitialSize(Integer.parseInt(realmConfig.getRealmProperty(JDBCRealmConstants
+                    .INITIAL_SIZE)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.TEST_ON_RETURN)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.TEST_ON_RETURN).trim().isEmpty()) {
+            poolProperties.setTestOnReturn(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.TEST_ON_RETURN)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.TEST_ON_BORROW)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.TEST_ON_BORROW).trim().isEmpty()) {
+            poolProperties.setTestOnBorrow(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.TEST_ON_BORROW)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATOR_CLASS_NAME)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATOR_CLASS_NAME).trim().isEmpty()) {
+            poolProperties.setValidatorClassName(realmConfig.getRealmProperty(JDBCRealmConstants
+                    .VALIDATOR_CLASS_NAME));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN)) {
+            poolProperties.setNumTestsPerEvictionRun(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants
+                .ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED)) && !realmConfig.getRealmProperty(JDBCRealmConstants
+                .ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED).trim().isEmpty()) {
+            poolProperties.setAccessToUnderlyingConnectionAllowed(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED).trim().isEmpty()) {
+            poolProperties.setRemoveAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.REMOVE_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT)) {
+            poolProperties.setRemoveAbandonedTimeout(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.LOG_ABANDONED)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.LOG_ABANDONED).trim().isEmpty()) {
+            poolProperties.setLogAbandoned(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.LOG_ABANDONED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.CONNECTION_PROPERTIES)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.CONNECTION_PROPERTIES).trim().isEmpty()) {
+            poolProperties.setConnectionProperties(realmConfig.getRealmProperty(JDBCRealmConstants
+                    .CONNECTION_PROPERTIES));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.INIT_SQL)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.INIT_SQL).trim().isEmpty()) {
+            poolProperties.setInitSQL(realmConfig.getRealmProperty(JDBCRealmConstants.INIT_SQL));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.JDBC_INTERCEPTORS)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.JDBC_INTERCEPTORS).trim().isEmpty()) {
+            poolProperties.setJdbcInterceptors(realmConfig.getRealmProperty(JDBCRealmConstants.JDBC_INTERCEPTORS));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.JMX_ENABLED)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.JMX_ENABLED).trim().isEmpty()) {
+            poolProperties.setJmxEnabled(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.JMX_ENABLED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.FAIR_QUEUE)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.FAIR_QUEUE).trim().isEmpty()) {
+            poolProperties.setFairQueue(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.FAIR_QUEUE)));
+        }
+
+        if (StringUtils.isNumeric(JDBCRealmConstants.ABANDON_WHEN_PERCENTAGE_FULL)) {
+            poolProperties.setAbandonWhenPercentageFull(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.ABANDON_WHEN_PERCENTAGE_FULL)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.MAX_AGE)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.MAX_AGE)) {
+            poolProperties.setMaxAge(Integer.parseInt(realmConfig.getRealmProperty(JDBCRealmConstants.MAX_AGE)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.USE_EQUALS)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.USE_EQUALS).trim().isEmpty()) {
+            poolProperties.setUseEquals(Boolean.parseBoolean(realmConfig.getRealmProperty(JDBCRealmConstants
+                    .USE_EQUALS)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.SUSPECT_TIMEOUT)) &&
+                StringUtils.isNumeric(JDBCRealmConstants.SUSPECT_TIMEOUT)) {
+            poolProperties.setSuspectTimeout(Integer.parseInt(realmConfig.getRealmProperty(JDBCRealmConstants
+                    .SUSPECT_TIMEOUT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT))
+                && StringUtils.isNumeric(JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT)) {
+            poolProperties.setValidationQueryTimeout(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED)) &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED).trim().isEmpty()) {
+            poolProperties.setAlternateUsernameAllowed(Boolean.parseBoolean(realmConfig.getRealmProperty
+                    (JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED)));
+        }
+
+        setIsolationLevel(poolProperties, realmConfig.getRealmProperty(JDBCRealmConstants
+                .DEFAULT_TRANSACTION_ISOLATION));
+
+        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+    }
+
+    private static void setIsolationLevel(PoolProperties poolProperties, String isolationLevelString) {
+
+        if (StringUtils.isNotEmpty(isolationLevelString)) {
+            if (JDBCRealmConstants.TX_ISOLATION_LEVELS.NONE.equals(isolationLevelString)) {
+                poolProperties.setDefaultTransactionIsolation(Connection.TRANSACTION_NONE);
+            } else if (JDBCRealmConstants.TX_ISOLATION_LEVELS.READ_UNCOMMITTED.equals(isolationLevelString)) {
+                poolProperties.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            } else if (JDBCRealmConstants.TX_ISOLATION_LEVELS.READ_COMMITTED.equals(isolationLevelString)) {
+                poolProperties.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            } else if (JDBCRealmConstants.TX_ISOLATION_LEVELS.REPEATABLE_READ.equals(isolationLevelString)) {
+                poolProperties.setDefaultTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            } else if (JDBCRealmConstants.TX_ISOLATION_LEVELS.SERIALIZABLE.equals(isolationLevelString)) {
+                poolProperties.setDefaultTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+            }
+        }
     }
 
     public static String[] getStringValuesFromDatabase(Connection dbConnection, String sqlStmt, Object... params)
