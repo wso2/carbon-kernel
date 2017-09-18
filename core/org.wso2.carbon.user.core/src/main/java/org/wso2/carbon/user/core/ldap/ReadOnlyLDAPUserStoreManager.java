@@ -80,6 +80,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     public static final String MEMBER_UID = "memberUid";
     private static final String OBJECT_GUID = "objectGUID";
+    protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
+    protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     private final int MAX_USER_CACHE = 200;
 
@@ -96,6 +98,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             "seperated by a space. Ex:mpegVideo mySpecialKey";
     //Authenticating to LDAP via Anonymous Bind
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
+    protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
 
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
@@ -1643,91 +1646,121 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(
                     context.getRoleName()) + "))";
 
+            // Iterate the by intervals of range defined (if range > 0) and get the complete list of users
+            int offset = 0;
+            int lastRecord = 0;
+            int attributeValuesRange = 0;
+            boolean isEndOfAttributes = false;
+
+            String roleListRange = realmConfig.getUserStoreProperty(MEMBERSHIP_ATTRIBUTE_RANGE);
+            if (StringUtils.isNotEmpty(roleListRange)) {
+                attributeValuesRange = Integer.parseInt(roleListRange);
+            }
+            if (attributeValuesRange > 0) {
+                lastRecord = attributeValuesRange - 1;
+            }
             String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-            String returnedAtts[] = {membershipProperty};
-            searchCtls.setReturningAttributes(returnedAtts);
+            List<String> userDNList = new ArrayList<>();
+            String rangedMembershipProperty = membershipProperty;
 
-            List<String> userDNList = new ArrayList<String>();
 
-            SearchResult sr = null;
-            dirContext = connectionSource.getContext();
+            while (!isEndOfAttributes) {
+                if (lastRecord > 0 && StringUtils.isNotEmpty(membershipProperty)) {
+                    rangedMembershipProperty =
+                            membershipProperty + String.format(";range=%1$d-%2$d", offset, lastRecord);
+                }
+                String returnedAtts[] = {rangedMembershipProperty};
+                searchCtls.setReturningAttributes(returnedAtts);
 
-            // with DN patterns
-            if (((LDAPRoleContext) context).getRoleDNPatterns().size() > 0) {
-                for (String pattern : ((LDAPRoleContext) context).getRoleDNPatterns()) {
-                    if (debug) {
-                        log.debug("Using pattern: " + pattern);
-                    }
-                    pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDN(context.getRoleName
-                            ()));
-                    try {
-                        answer = dirContext.search(escapeDNForSearch(pattern), searchFilter, searchCtls);
-                        if (answer.hasMore()) {
-                            sr = (SearchResult) answer.next();
-                            break;
+                SearchResult sr = null;
+                dirContext = connectionSource.getContext();
+
+                // with DN patterns
+                if (!((LDAPRoleContext) context).getRoleDNPatterns().isEmpty()) {
+                    for (String pattern : ((LDAPRoleContext) context).getRoleDNPatterns()) {
+                        if (debug) {
+                            log.debug("Using pattern: " + pattern);
                         }
-                    } catch (NamingException e) {
-                        // ignore
-                        if (log.isDebugEnabled()) {
-                            log.debug(e);
+                        pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDN(
+                                context.getRoleName()));
+                        try {
+                            answer = dirContext.search(escapeDNForSearch(pattern), searchFilter, searchCtls);
+                            if (answer.hasMore()) {
+                                sr = answer.next();
+                                break;
+                            }
+                        } catch (NamingException e) {
+                            // ignore
+                            if (log.isDebugEnabled()) {
+                                log.debug(e);
+                            }
                         }
                     }
                 }
-            }
 
-            if (sr == null) {
-                // handling multiple search bases
-                String searchBases = ((LDAPRoleContext) context).getSearchBase();
-                String[] roleSearchBaseArray = searchBases.split("#");
-                for (String searchBase : roleSearchBaseArray) {
-                    if (debug) {
-                        log.debug("Searching role: " + context.getRoleName() + " SearchBase: "
-                                + searchBase + " SearchFilter: " + searchFilter);
-                    }
+                if (sr == null) {
+                    // handling multiple search bases
+                    String searchBases = ((LDAPRoleContext) context).getSearchBase();
+                    String[] roleSearchBaseArray = searchBases.split("#");
+                    for (String searchBase : roleSearchBaseArray) {
+                        if (debug) {
+                            log.debug("Searching role: " + context.getRoleName() + " SearchBase: "
+                                    + searchBase + " SearchFilter: " + searchFilter);
+                        }
 
-                    try {
-                        // read the DN of users who are members of the group
-                        answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchCtls);
-                        int count = 0;
-                        if (answer.hasMore()) { // to check if there is a result
-                            while (answer.hasMore()) { // to check if there are more than one group
-                                if (count > 0) {
-                                    throw new UserStoreException("More than one group exist with name");
+                        try {
+                            // read the DN of users who are members of the group
+                            answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchCtls);
+                            int count = 0;
+                            if (answer.hasMore()) { // to check if there is a result
+                                while (answer.hasMore()) { // to check if there are more than one group
+                                    if (count > 0) {
+                                        throw new UserStoreException("More than one group exist with name");
+                                    }
+                                    sr = answer.next();
+                                    count++;
                                 }
-                                sr = (SearchResult) answer.next();
-                                count++;
+                                break;
                             }
-                            break;
-                        }
-                    } catch (NamingException e) {
-                        // ignore
-                        if (log.isDebugEnabled()) {
-                            log.debug(e);
+                        } catch (NamingException e) {
+                            // ignore
+                            if (log.isDebugEnabled()) {
+                                log.debug(e);
+                            }
                         }
                     }
                 }
-            }
 
-            if (debug) {
-                log.debug("Found role: " + sr.getNameInNamespace());
-            }
+                if (debug) {
+                    log.debug("Found role: " + sr.getNameInNamespace());
+                }
 
-            // read the member attribute and get DNs of the users
-            Attributes attributes = sr.getAttributes();
-            if (attributes != null) {
-                NamingEnumeration attributeEntry = null;
-                for (attributeEntry = attributes.getAll(); attributeEntry.hasMore(); ) {
-                    Attribute valAttribute = (Attribute) attributeEntry.next();
-                    if (membershipProperty == null || membershipProperty.equals(valAttribute.getID())) {
-                        NamingEnumeration values = null;
-                        for (values = valAttribute.getAll(); values.hasMore(); ) {
-                            String value = values.next().toString();
-                            userDNList.add(value);
+                // read the member attribute and get DNs of the users
+                Attributes attributes = sr.getAttributes();
+                if (attributes != null) {
+                    NamingEnumeration attributeEntry = null;
+                    int recordCount = 0;
+                    for (attributeEntry = attributes.getAll(); attributeEntry.hasMore(); ) {
+                        Attribute valAttribute = (Attribute) attributeEntry.next();
+                        if (membershipProperty == null ||
+                                isAttributeEqualsProperty(membershipProperty, valAttribute.getID())) {
+                            NamingEnumeration values = null;
+                            for (values = valAttribute.getAll(); values.hasMore(); ) {
+                                String value = values.next().toString();
+                                userDNList.add(value);
+                                recordCount++;
 
-                            if (debug) {
-                                log.debug("Found attribute: " + membershipProperty + " value: " + value);
+                                if (debug) {
+                                    log.debug("Found attribute: " + membershipProperty + " value: " + value);
+                                }
                             }
                         }
+                    }
+                    if (attributeValuesRange == 0 || recordCount < attributeValuesRange) {
+                        isEndOfAttributes = true;
+                    } else {
+                        offset += attributeValuesRange;
+                        lastRecord += attributeValuesRange;
                     }
                 }
             }
@@ -1842,6 +1875,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return names;
     }
 
+    private boolean isAttributeEqualsProperty(String property, String attribute) {
+
+        if (StringUtils.isEmpty(property) || StringUtils.isEmpty(attribute)) {
+            return false;
+        }
+        return property.equals(attribute) || property.equals(attribute.substring(0, attribute.indexOf(";")));
+    }
+
     /**
      * This method will check whether back link support is enabled and will
      * return the effective
@@ -1942,8 +1983,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     } else {
                         // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                         String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                        if (userDNPattern != null & userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
-
+                        if (userDNPattern != null && userDNPattern.trim().length() > 0
+                                && !userDNPattern.contains("#")) {
                             searchBase = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                         }
                     }
@@ -3452,6 +3493,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 LDAPBinaryAttributesDescription);
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants
                 .getClaimOperationsSupportedDisplayName, "false", UserStoreConfigConstants.claimOperationsSupportedDescription);
+        setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
+                String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the LDAP");
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,

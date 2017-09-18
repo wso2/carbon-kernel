@@ -150,6 +150,7 @@
             <Property name="userAccountControl">512</Property>
             <Property name="MaxUserNameListLength">100</Property>     
             <Property name="MaxRoleNameListLength">100</Property>                     
+            <Property name="MembershipAttributeRange">1500</Property>
             <Property name="kdcEnabled">false</Property>
             <Property name="defaultRealmName">WSO2.ORG</Property>
             <Property name="UserRolesCacheEnabled">true</Property>

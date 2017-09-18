@@ -47,6 +47,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 import javax.naming.CompositeName;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
@@ -913,11 +914,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             userAttributeSeparator = claimSeparator;
                         }
                         if (claimEntry.getValue().contains(userAttributeSeparator)) {
-                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
-                            while (st.hasMoreElements()) {
-                                String newVal = st.nextElement().toString();
-                                if (newVal != null && newVal.trim().length() > 0) {
-                                    currentUpdatedAttribute.add(newVal.trim());
+                            String[] claimValues = claimEntry.getValue().split(Pattern.quote(userAttributeSeparator));
+                            for (String claimValue : claimValues) {
+                                if (claimValue != null && claimValue.trim().length() > 0) {
+                                    currentUpdatedAttribute.add(claimValue);
                                 }
                             }
                         } else {
@@ -2008,6 +2008,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 LDAPBinaryAttributesDescription);
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants
                 .getClaimOperationsSupportedDisplayName, "true", UserStoreConfigConstants.claimOperationsSupportedDescription);
+        setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
+                String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the LDAP");
     }
 
 //
