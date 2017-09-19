@@ -65,7 +65,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,9 +76,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String TRUE_VALUE = "true";
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
+    private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
-    private static final String USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
+    private static final String SCIM_USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
+    private static final String USERNAME_CLAIM_URI = "http://wso2.org/claims/username";
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String USER_NOT_FOUND = "UserNotFound";
@@ -779,6 +780,33 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return (String[]) object;
         }
 
+        if (claim == null) {
+            throw new IllegalArgumentException("Claim URI cannot be null");
+        }
+
+        if (claimValue == null) {
+            throw new IllegalArgumentException("Claim value cannot be null");
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
+        }
+
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+
+            if (log.isDebugEnabled()) {
+                log.debug("Switching to list users using username");
+            }
+
+            String[] filteredUsers = listUsers(claimValue, MAX_ITEM_LIMIT_UNLIMITED);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Filtered users: " + Arrays.toString(filteredUsers));
+            }
+
+            return filteredUsers;
+        }
+
         // Extracting the domain from claimValue.
         String extractedDomain = null;
         int index;
@@ -797,8 +825,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        if (userManager != null && USERNAME_CLAIM_URI.equalsIgnoreCase(claim)
-                && userManager instanceof JDBCUserStoreManager) {
+        if (userManager instanceof JDBCUserStoreManager && SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
             if (userManager.isExistingUser(claimValue)) {
                 return new String[] {claimValue};
             } else {
@@ -3148,7 +3175,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * {@inheritDoc}
      */
     public final String[] getRoleNames(boolean noHybridRoles) throws UserStoreException {
-        return getRoleNames("*", -1, noHybridRoles, true, true);
+        return getRoleNames("*", MAX_ITEM_LIMIT_UNLIMITED, noHybridRoles, true, true);
     }
 
     /**
