@@ -3560,7 +3560,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (MultitenantUtils.isEmailUserName()) {
             regularExpression = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
-            if (regularExpression == null) {
+
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                        .PROPERTY_USER_NAME_JAVA_REG_EX);
+            }
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
                 regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
             }
         }
