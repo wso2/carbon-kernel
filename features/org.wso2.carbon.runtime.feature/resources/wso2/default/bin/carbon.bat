@@ -164,7 +164,7 @@ cd %RUNTIME_HOME%
 
 rem ---------- Add jars to classpath ----------------
 
-set CARBON_CLASSPATH="%CARBON_HOME%\bin\bootstrap";"%CARBON_CLASSPATH%"
+set CARBON_CLASSPATH="%CARBON_HOME%\bin\bootstrap\*";"%CARBON_CLASSPATH%"
 
 set JAVA_ENDORSED="%CARBON_HOME%\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
