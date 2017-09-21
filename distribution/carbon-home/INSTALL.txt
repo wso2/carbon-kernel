@@ -30,4 +30,4 @@ Hardware Requirements
 
 Software Requirements
 -------------------
-1. Java SE Development Kit - 1.8
+1. Java SE Runtime - 1.8
