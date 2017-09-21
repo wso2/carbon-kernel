@@ -31,7 +31,7 @@ Hardware Requirements
 
 Software Requirements
 -------------------
-1. Java SE Development Kit - 1.8
+1. Java SE Runtime - 1.8
 
 All known issues have been recorded at https://github.com/wso2/carbon-kernel/issues
 
