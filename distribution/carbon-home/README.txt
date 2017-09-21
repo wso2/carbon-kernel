@@ -12,7 +12,7 @@ What's New In This Release
 ----------------------------
 1. Upgrade to Eclipse Luna SR2 OSGi Framework.
 2. Pax Exam OSGi Test Framework Support.
-3. Carbon Feature Plugin 2.0 integration.
+3. Carbon Feature Plugin 3.0 integration.
 4. Logging framework backend upgraded to log4j 2.0 support.
 
 Installation & Running
