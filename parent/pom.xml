@@ -623,7 +623,7 @@
 
         <carbon.utils.version>2.0.2</carbon.utils.version>
         <carbon.utils.package.import.version.range>[2.0.0, 3.0.0)</carbon.utils.package.import.version.range>
-        <carbon.config.version>2.0.3</carbon.config.version>
+        <carbon.config.version>2.1.0</carbon.config.version>
         <carbon.config.package.import.version.range>[2.0.0, 3.0.0)</carbon.config.package.import.version.range>
         <carbon.securevault.version>5.0.8</carbon.securevault.version>
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
