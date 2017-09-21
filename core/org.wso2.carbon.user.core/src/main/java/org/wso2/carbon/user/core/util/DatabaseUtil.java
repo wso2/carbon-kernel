@@ -318,9 +318,6 @@ public class DatabaseUtil {
 
         PoolProperties poolProperties = new PoolProperties();
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.DRIVER_NAME) == null) {
-            return null;
-        }
         poolProperties.setDriverClassName(realmConfig.getRealmProperty(JDBCRealmConstants.DRIVER_NAME));
         poolProperties.setUrl(realmConfig.getRealmProperty(JDBCRealmConstants.URL));
         poolProperties.setUsername(realmConfig.getRealmProperty(JDBCRealmConstants.USER_NAME));
@@ -529,7 +526,7 @@ public class DatabaseUtil {
         setIsolationLevel(poolProperties, realmConfig.getRealmProperty(JDBCRealmConstants
                 .DEFAULT_TRANSACTION_ISOLATION));
 
-        return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+        return (dataSource = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties));
     }
 
     private static void setIsolationLevel(PoolProperties poolProperties, String isolationLevelString) {
