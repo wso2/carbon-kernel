@@ -34,13 +34,14 @@ org.eclipse.osgi_3.11.0.v20160603-1336.jar                                      
 org.ops4j.pax.logging.pax-logging-api_1.10.0.jar                                bundle         apache2   2209
 org.ops4j.pax.logging.pax-logging-log4j2_1.10.0.jar                             bundle         apache2   2208
 org.osgi.core-6.0.0.jar                                                         bundle         apache2   1407
-org.wso2.carbon.config_2.0.3.jar                                                bundle         apache2   12695
-org.wso2.carbon.core_5.2.0.alpha.jar                                            bundle         apache2   12694
+org.wso2.carbon.config_2.1.0.jar                                                bundle         apache2   12800
+org.wso2.carbon.config_2.1.2.jar                                                bundle         apache2   12801
+org.wso2.carbon.core_5.2.0.jar                                                  bundle         apache2   10035
 org.wso2.carbon.extensions.touchpoint_1.1.0.jar                                 bundle         apache2   12693
-org.wso2.carbon.launcher-5.2.0-alpha.jar                                        bundle         apache2   12686
+org.wso2.carbon.launcher-5.2.0.jar                                              bundle         apache2   10034
 org.wso2.carbon.secvault.ciphertool.5.0.8.jar                                   bundle         apache2   12688
 org.wso2.carbon.secvault_5.0.8.jar                                              bundle         apache2   12692
-org.wso2.carbon.tools.core-5.2.0-alpha.jar                                      bundle         apache2   12687
+org.wso2.carbon.tools.core-5.2.0.jar                                            bundle         apache2   10033
 org.wso2.carbon.utils_2.0.2.jar                                                 bundle         apache2   12691
 org.yaml.snakeyaml_1.17.0.jar                                                   bundle         apache2   2027
 
