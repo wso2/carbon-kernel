@@ -18,12 +18,15 @@
 package org.wso2.carbon.utils;
 
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.deployment.Deployer;
 import org.apache.axis2.deployment.DeploymentConstants;
+import org.apache.axis2.deployment.ServiceDeployer;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
@@ -33,34 +36,22 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.SessionCookieConfig;
-import javax.servlet.SessionTrackingMode;
-import javax.servlet.descriptor.JspConfigDescriptor;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.EventListener;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Test class for CarbonUtils API usage.
@@ -342,352 +333,8 @@ public class CarbonUtilsTest {
         String urlForSession = "https://wso2.com/services/from/session";
         String urlForServlet = "https://wso2.com/services/from/servlet";
 
-        HttpSession httpSession = new HttpSession() {
-            Map<String, Object> attributes = new HashMap<>();
-
-            @Override
-            public long getCreationTime() {
-                return 0;
-            }
-
-            @Override
-            public String getId() {
-                return null;
-            }
-
-            @Override
-            public long getLastAccessedTime() {
-                return 0;
-            }
-
-            @Override
-            public ServletContext getServletContext() {
-                return null;
-            }
-
-            @Override
-            public void setMaxInactiveInterval(int interval) {
-
-            }
-
-            @Override
-            public int getMaxInactiveInterval() {
-                return 0;
-            }
-
-            @Override
-            public HttpSessionContext getSessionContext() {
-                return null;
-            }
-
-            @Override
-            public Object getAttribute(String name) {
-                return attributes.get(name);
-            }
-
-            @Override
-            public Object getValue(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getAttributeNames() {
-                return null;
-            }
-
-            @Override
-            public String[] getValueNames() {
-                return new String[0];
-            }
-
-            @Override
-            public void setAttribute(String name, Object value) {
-                attributes.put(name, value);
-            }
-
-            @Override
-            public void putValue(String name, Object value) {
-
-            }
-
-            @Override
-            public void removeAttribute(String name) {
-
-            }
-
-            @Override
-            public void removeValue(String name) {
-
-            }
-
-            @Override
-            public void invalidate() {
-
-            }
-
-            @Override
-            public boolean isNew() {
-                return false;
-            }
-        };
-        ServletContext servletContext = new ServletContext() {
-            Map<String, Object> attributes = new HashMap<>();
-
-            @Override
-            public String getContextPath() {
-                return null;
-            }
-
-            @Override
-            public ServletContext getContext(String uripath) {
-                return null;
-            }
-
-            @Override
-            public int getMajorVersion() {
-                return 0;
-            }
-
-            @Override
-            public int getMinorVersion() {
-                return 0;
-            }
-
-            @Override
-            public int getEffectiveMajorVersion() {
-                return 0;
-            }
-
-            @Override
-            public int getEffectiveMinorVersion() {
-                return 0;
-            }
-
-            @Override
-            public String getMimeType(String file) {
-                return null;
-            }
-
-            @Override
-            public Set<String> getResourcePaths(String path) {
-                return null;
-            }
-
-            @Override
-            public URL getResource(String path) throws MalformedURLException {
-                return null;
-            }
-
-            @Override
-            public InputStream getResourceAsStream(String path) {
-                return null;
-            }
-
-            @Override
-            public RequestDispatcher getRequestDispatcher(String path) {
-                return null;
-            }
-
-            @Override
-            public RequestDispatcher getNamedDispatcher(String name) {
-                return null;
-            }
-
-            @Override
-            public Servlet getServlet(String name) throws ServletException {
-                return null;
-            }
-
-            @Override
-            public Enumeration<Servlet> getServlets() {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getServletNames() {
-                return null;
-            }
-
-            @Override
-            public void log(String msg) {
-
-            }
-
-            @Override
-            public void log(Exception exception, String msg) {
-
-            }
-
-            @Override
-            public void log(String message, Throwable throwable) {
-
-            }
-
-            @Override
-            public String getRealPath(String path) {
-                return null;
-            }
-
-            @Override
-            public String getServerInfo() {
-                return null;
-            }
-
-            @Override
-            public String getInitParameter(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getInitParameterNames() {
-                return null;
-            }
-
-            @Override
-            public boolean setInitParameter(String name, String value) {
-                return false;
-            }
-
-            @Override
-            public Object getAttribute(String name) {
-                return attributes.get(name);
-            }
-
-            @Override
-            public Enumeration<String> getAttributeNames() {
-                return null;
-            }
-
-            @Override
-            public void setAttribute(String name, Object object) {
-                attributes.put(name, object);
-            }
-
-            @Override
-            public void removeAttribute(String name) {
-
-            }
-
-            @Override
-            public String getServletContextName() {
-                return null;
-            }
-
-            @Override
-            public ServletRegistration.Dynamic addServlet(String servletName, String className) {
-                return null;
-            }
-
-            @Override
-            public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
-                return null;
-            }
-
-            @Override
-            public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
-                return null;
-            }
-
-            @Override
-            public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
-                return null;
-            }
-
-            @Override
-            public ServletRegistration getServletRegistration(String servletName) {
-                return null;
-            }
-
-            @Override
-            public Map<String, ? extends ServletRegistration> getServletRegistrations() {
-                return null;
-            }
-
-            @Override
-            public FilterRegistration.Dynamic addFilter(String filterName, String className) {
-                return null;
-            }
-
-            @Override
-            public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
-                return null;
-            }
-
-            @Override
-            public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
-                return null;
-            }
-
-            @Override
-            public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
-                return null;
-            }
-
-            @Override
-            public FilterRegistration getFilterRegistration(String filterName) {
-                return null;
-            }
-
-            @Override
-            public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
-                return null;
-            }
-
-            @Override
-            public SessionCookieConfig getSessionCookieConfig() {
-                return null;
-            }
-
-            @Override
-            public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
-
-            }
-
-            @Override
-            public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
-                return null;
-            }
-
-            @Override
-            public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
-                return null;
-            }
-
-            @Override
-            public void addListener(String className) {
-
-            }
-
-            @Override
-            public <T extends EventListener> void addListener(T t) {
-
-            }
-
-            @Override
-            public void addListener(Class<? extends EventListener> listenerClass) {
-
-            }
-
-            @Override
-            public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
-                return null;
-            }
-
-            @Override
-            public JspConfigDescriptor getJspConfigDescriptor() {
-                return null;
-            }
-
-            @Override
-            public ClassLoader getClassLoader() {
-                return null;
-            }
-
-            @Override
-            public void declareRoles(String... roleNames) {
-
-            }
-        };
+        HttpSession httpSession = new MockHttpSession();
+        ServletContext servletContext = new MockServletContext();
 
         servletContext.setAttribute(CarbonConstants.SERVER_URL, urlForServlet);
         Assert.assertEquals(CarbonUtils.getServerURL(servletContext, httpSession, configurationContext), urlForServlet);
@@ -765,6 +412,62 @@ public class CarbonUtilsTest {
         DeployerConfig[] deployerConfigs = new DeployerConfig[0];
         DeployerConfig[] newDeployerConfigs = CarbonUtils.addCappDeployer(deployerConfigs, axisConfiguration);
         Assert.assertTrue(newDeployerConfigs.length > 0);
+    }
+
+    @Test(dependsOnMethods = "testAddCAppDeployer")
+    public void testReplaceSystemVariablesInXml() throws IOException, CarbonException, ServerConfigurationException {
+        String serverRoleName = "CarbonTestServer";
+        Path serverConfigPath = Paths.get(testDir, "carbon.xml");
+        Assert.assertNotNull(CarbonUtils.replaceSystemVariablesInXml(new String(Files.readAllBytes(serverConfigPath))));
+        System.setProperty("product.key", "Carbon");
+        System.setProperty("carbon.server.role", serverRoleName);
+        System.setProperty("rmi.server.port", "11111");
+        String serverConfig = CarbonUtils.replaceSystemVariablesInXml(new String(Files.readAllBytes(serverConfigPath)));
+        ServerConfiguration.getInstance().forceInit(new ByteArrayInputStream(serverConfig.getBytes()));
+        Assert.assertEquals(ServerConfiguration.getInstance().getFirstProperty("ServerRoles.Role"), serverRoleName);
+    }
+
+    @Test(dependsOnMethods = "testReplaceSystemVariablesInXml")
+    public void testIsDepSyncEnabled() throws ServerConfigurationException {
+        String serverConfigPath = Paths.get(testDir, "carbon.xml").toString();
+        ServerConfiguration.getInstance().forceInit(serverConfigPath);
+        Assert.assertFalse(CarbonUtils.isDepSyncEnabled());
+    }
+
+    @Test(dependsOnMethods = "testIsDepSyncEnabled")
+    public void testGetGhostMetafileDir() throws AxisFault {
+        ConfigurationContext configurationContext = ConfigurationContextFactory.
+                createConfigurationContextFromFileSystem(testSampleDirectory.getAbsolutePath(),
+                        Paths.get(testDir, "axis2.xml").toString());
+        String ghostMetaArtifactsPath = Paths.get(configurationContext.getAxisConfiguration().getRepository().getPath(),
+                "ghostmetafiles").toString();
+        Assert.assertEquals(CarbonUtils.getGhostMetafileDir(configurationContext.getAxisConfiguration()),
+                ghostMetaArtifactsPath);
+    }
+
+    @Test(dependsOnMethods = "testGetGhostMetafileDir")
+    public void testGetDeployer() throws CarbonException {
+        Deployer deployer;
+        try {
+            CarbonUtils.getDeployer("com.fake.Deployer");
+        } catch (CarbonException e) {
+            Assert.assertTrue(e.getMessage().contains("Deployer class not found"));
+        }
+        try {
+            CarbonUtils.getDeployer(MockDeployer.class.getName());
+        } catch (CarbonException e) {
+            Assert.assertTrue(e.getMessage().contains("Cannot create new deployer instance"));
+        }
+        deployer = CarbonUtils.getDeployer("org.apache.axis2.deployment.ServiceDeployer");
+        Assert.assertTrue(deployer instanceof ServiceDeployer);
+    }
+
+    @Test(dependsOnMethods = "testGetGhostMetafileDir")
+    public void testGetProxyContextPath() {
+        String workerProxyContextPath = "/appserver/worker";
+        String managerProxyContextPath = "/appserver/mgt";
+        Assert.assertEquals(CarbonUtils.getProxyContextPath(false), managerProxyContextPath);
+        Assert.assertEquals(CarbonUtils.getProxyContextPath(true), workerProxyContextPath);
     }
 
     @Test
