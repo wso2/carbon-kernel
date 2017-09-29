@@ -1418,6 +1418,12 @@
                 <artifactId>org.wso2.carbon.identity.governance.stub</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <classifier>runtime</classifier>
+                <version>${jacoco.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1659,6 +1665,10 @@
         <project.scm.id>my-scm-server</project.scm.id>
 
         <jersey-version>1.19.1</jersey-version>
+        <testng.version>6.3.1</testng.version>
+        <testng.version>6.9.10</testng.version>
+        <jacoco.version>0.7.9</jacoco.version>
+        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
     </properties>
 
     <build>
