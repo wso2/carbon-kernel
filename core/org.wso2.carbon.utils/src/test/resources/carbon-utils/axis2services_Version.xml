@@ -1,0 +1,15 @@
+<serviceGroup name="Version" ServiceArchiveFileName="Version.aar">
+    <service name="Version">
+        <operations>
+            <getVersion mep="http://www.w3.org/ns/wsdl/in-out"/>
+        </operations>
+        <endpoints>
+            <VersionHttpsSoap12Endpoint/>
+            <VersionHttpsEndpoint/>
+            <VersionHttpSoap11Endpoint/>
+            <VersionHttpEndpoint/>
+            <VersionHttpSoap12Endpoint/>
+            <VersionHttpsSoap11Endpoint/>
+        </endpoints>
+    </service>
+</serviceGroup>

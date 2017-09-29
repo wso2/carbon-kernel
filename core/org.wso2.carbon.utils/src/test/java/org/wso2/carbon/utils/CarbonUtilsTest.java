@@ -33,8 +33,8 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.httpclient.Header;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.BaseTest;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.CarbonBaseConstants;
@@ -46,7 +46,6 @@ import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,17 +55,7 @@ import java.util.List;
 /**
  * Test class for CarbonUtils API usage.
  */
-public class CarbonUtilsTest {
-
-    private static final String basedir = Paths.get("").toAbsolutePath().toString();
-    private static final String testDir = Paths.get(basedir, "src", "test", "resources", "carbon-utils").toString();
-    private static final File testSampleDirectory = Paths.get("target", "carbon-utils-test-directory").toFile();
-
-    @BeforeTest
-    public void setup() {
-        testSampleDirectory.mkdirs();
-        System.setProperty(ServerConstants.CARBON_HOME, testDir);
-    }
+public class CarbonUtilsTest extends BaseTest{
 
     @Test
     public void testGetServerConfiguration() {
@@ -156,25 +145,14 @@ public class CarbonUtilsTest {
     public void testLastUpdatedTimeOfAxis2Service() throws Exception {
         ConfigurationContext configurationContext = createTestConfigurationContext();
         Assert.assertNotNull(CarbonUtils.lastUpdatedTime(configurationContext.getAxisConfiguration().
-                getServiceGroup("version")));
+                getServiceGroup("Version")));
     }
-
-    private ConfigurationContext createTestConfigurationContext() throws Exception {
-        String axis2Repo = Paths.get(testDir, "axis2-repo").toString();
-        String serverConfigPath = Paths.get(testDir, "carbon.xml").toString();
-        ServerConfiguration.getInstance().forceInit(serverConfigPath);
-        ServerConfiguration.getInstance().overrideConfigurationProperty(ServerConfiguration.AXIS2_CONFIG_REPO_LOCATION,
-                axis2Repo);
-        return ConfigurationContextFactory.
-                createConfigurationContextFromFileSystem(axis2Repo, Paths.get(testDir, "axis2.xml").toString());
-    }
-
 
     @Test(dependsOnMethods = "testLastUpdatedTimeOfAxis2Service")
     public void testComputeServiceHashOfAxis2Service() throws Exception {
         ConfigurationContext configurationContext = createTestConfigurationContext();
         Assert.assertNotNull(CarbonUtils.computeServiceHash(configurationContext.getAxisConfiguration().
-                getServiceGroup("version")));
+                getServiceGroup("Version")));
     }
 
     @Test(dependsOnMethods = "testComputeServiceHashOfAxis2Service")
