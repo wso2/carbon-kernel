@@ -116,7 +116,7 @@ public class CarbonBaseUtilsTest {
         assertEquals("Must provide the carbon home ", "../wso2am-2.1.0", CarbonBaseUtils.getCarbonHome());
     }
 
-    @Test
+    @Test(expected = Test.None.class /*no exception is expected*/)
     public void testCheckSecurityWithClasses() {
 
         List<String> allowedClasses = Arrays.asList("org.junit.runners.model.FrameworkMethod$1.runReflectiveCall", "org.wso2.carbon.base" +
@@ -125,7 +125,7 @@ public class CarbonBaseUtilsTest {
         CarbonBaseUtils.checkSecurity(allowedClasses);
     }
 
-    @Test
+    @Test(expected= Test.None.class /*no exception is expected*/)
     public void testCheckSecurityWithMethods() {
         Map<String, String> allowedMethods = new HashMap<>();
         allowedMethods.put("sun.reflect.NativeMethodAccessorImpl", "invoke");
