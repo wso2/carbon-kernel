@@ -19,9 +19,10 @@
 package org.wso2.carbon.base;
 
 /**
- * Created by kasun on 9/29/17.
+ * Dummy implementation of UnloadTenantTask for testing purpose.
  */
 public class UnloadTenantTaskImpl implements UnloadTenantTask {
+
     @Override
     public void register(int tenantId, Object registration) {
 

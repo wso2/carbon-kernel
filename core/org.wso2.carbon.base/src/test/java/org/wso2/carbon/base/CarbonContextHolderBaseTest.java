@@ -18,61 +18,49 @@
 
 package org.wso2.carbon.base;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
- * Created by kasun on 9/29/17.
+ * Test class for CarbonContextHolderBase related methods.
  */
 public class CarbonContextHolderBaseTest {
-    private static CarbonContextHolderBase carbonContextHolderBase;
-    private static DiscoveryService discoveryService;
 
-    @BeforeClass
-    public static void createAnInstance() {
-        carbonContextHolderBase = CarbonContextHolderBase.getCurrentCarbonContextHolderBase();
-        discoveryService = CarbonContextHolderBase.getDiscoveryServiceProvider();
-    }
-
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testSetDiscoveryServiceProvider() throws Exception {
-        DiscoveryServiceImp expectedDiscoveryServiceImp = new DiscoveryServiceImp();
-        CarbonContextHolderBase.setDiscoveryServiceProvider(expectedDiscoveryServiceImp);
+        DiscoveryServiceImpl expectedDiscoveryServiceImpl = new DiscoveryServiceImpl();
+        CarbonContextHolderBase.setDiscoveryServiceProvider(expectedDiscoveryServiceImpl);
         DiscoveryService actualDiscoveryService = CarbonContextHolderBase.getDiscoveryServiceProvider();
-        assertEquals(expectedDiscoveryServiceImp, actualDiscoveryService);
+        assertEquals(actualDiscoveryService, expectedDiscoveryServiceImpl);
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void test1RegisterUnloadTenantTask() throws Exception {
         UnloadTenantTaskImpl unloadTenantTask = new UnloadTenantTaskImpl();
         CarbonContextHolderBase.registerUnloadTenantTask(unloadTenantTask);
         Field unloadTenantTaskslistField = CarbonContextHolderBase.class.getDeclaredField("unloadTenantTasks");
         unloadTenantTaskslistField.setAccessible(true);
         List<UnloadTenantTask> unloadTenantTaskslist = (List<UnloadTenantTask>) unloadTenantTaskslistField.get
-                (carbonContextHolderBase);
+                (CarbonContextHolderBase.getCurrentCarbonContextHolderBase());
         assertTrue(unloadTenantTaskslist.contains(unloadTenantTask));
     }
 
-
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testStartTenantFlow() throws Exception {
-        carbonContextHolderBase.startTenantFlow();
+        CarbonContextHolderBase.getCurrentCarbonContextHolderBase().startTenantFlow();
         Field propertiesField = CarbonContextHolderBase.class.getDeclaredField("properties");
-
         propertiesField.setAccessible(true);
-
-        int actualTenantId = carbonContextHolderBase.getTenantId();
-        String actualUsername = carbonContextHolderBase.getUsername();
-        String actualTenantDomain = carbonContextHolderBase.getTenantDomain();
-        Map<String, Object> actualPropertied = (Map < String, Object>)propertiesField.get(carbonContextHolderBase);
+        int actualTenantId = CarbonContextHolderBase.getCurrentCarbonContextHolderBase().getTenantId();
+        String actualUsername = CarbonContextHolderBase.getCurrentCarbonContextHolderBase().getUsername();
+        String actualTenantDomain = CarbonContextHolderBase.getCurrentCarbonContextHolderBase().getTenantDomain();
+        Map<String, Object> actualPropertied = (Map<String, Object>) propertiesField.get(CarbonContextHolderBase
+                .getCurrentCarbonContextHolderBase());
 
         int expectedTenantId = -1;
         String expectedUsername = null;
@@ -82,9 +70,4 @@ public class CarbonContextHolderBaseTest {
         assertEquals(expectedTenantDomain, actualTenantDomain);
         assertTrue(actualPropertied.isEmpty());
     }
-
-    @Test
-    public void destroyCurrentCarbonContextHolder() throws Exception {
-    }
-
 }

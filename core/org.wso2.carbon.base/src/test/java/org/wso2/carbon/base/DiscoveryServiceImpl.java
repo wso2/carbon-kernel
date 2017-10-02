@@ -22,9 +22,10 @@ import javax.xml.namespace.QName;
 import java.net.URI;
 
 /**
- * Created by kasun on 9/29/17.
+ * Dummy implementation of DiscoveryService for testing purpose.
  */
-public class DiscoveryServiceImp implements DiscoveryService {
+public class DiscoveryServiceImpl implements DiscoveryService {
+
     @Override
     public String[] probe(QName[] types, URI[] scopes, String matchBy, int tenantId) throws Exception {
         return new String[0];

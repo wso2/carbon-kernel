@@ -18,36 +18,27 @@
 
 package org.wso2.carbon.base;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 /**
- * Created by kasun on 9/29/17.
+ * Test class for CarbonApplicationContextHolderBase related methods.
  */
 public class CarbonApplicationContextHolderBaseTest {
-    private static CarbonApplicationContextHolderBase carbonApplicationContextHolderBase;
 
-    @BeforeClass
-    public static void createAnInstance() {
-        carbonApplicationContextHolderBase = CarbonApplicationContextHolderBase.getCurrentCarbonAppContextHolderBase();
-    }
-
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"}, description = "Test whether the applicationName is set to \"\" " +
+            "after starting the application flow and the same is returned after ending the application flow")
     public void testStartApplicationFlow() throws Exception {
-        carbonApplicationContextHolderBase.startApplicationFlow();
-        String expectedApplicationName = "";
-        String actualApplicationName = carbonApplicationContextHolderBase.getApplicationName();
-        assertEquals(expectedApplicationName, actualApplicationName);
-    }
-
-    @Test
-    public void testEndApplicationFlow() throws Exception {
-        carbonApplicationContextHolderBase.endApplicationFlow();
-        String expectedApplicationName = "";
-        String actualApplicationName = carbonApplicationContextHolderBase.getApplicationName();
-        assertEquals(expectedApplicationName, actualApplicationName);
-
+        CarbonApplicationContextHolderBase.getCurrentCarbonAppContextHolderBase().startApplicationFlow();
+        String expectedApplicationName1 = "";
+        String actualApplicationName1 = CarbonApplicationContextHolderBase.getCurrentCarbonAppContextHolderBase()
+                .getApplicationName();
+        assertEquals(expectedApplicationName1, actualApplicationName1);
+        CarbonApplicationContextHolderBase.getCurrentCarbonAppContextHolderBase().endApplicationFlow();
+        String expectedApplicationName2 = "";
+        String actualApplicationName2 = CarbonApplicationContextHolderBase.getCurrentCarbonAppContextHolderBase()
+                .getApplicationName();
+        assertEquals(actualApplicationName2, expectedApplicationName2);
     }
 }

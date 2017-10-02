@@ -20,12 +20,11 @@ package org.wso2.carbon.base;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.log4j.Logger;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -38,92 +37,91 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
+import static org.testng.Assert.assertTrue;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 /**
- * Created by kasun on 9/26/17.
+ * Test class for ServerConfiguration related methods.
  */
 public class ServerConfigurationTest {
-    private static final Logger logger = Logger.getLogger(ServerConfigurationTest.class);
-    private static ServerConfiguration carbonServerConfiguration;
-    private static URL resourceURL;
 
     @BeforeClass
-    public static void createInstance() throws ServerConfigurationException, NoSuchFieldException, IllegalAccessException {
-        carbonServerConfiguration = ServerConfiguration.getInstance();
-        resourceURL = CarbonBaseUtilsTest.class.getClassLoader().getResource("carbon.xml");
-        assertFalse(getIsInitialized(carbonServerConfiguration, "isInitialized"));
+    public void createInstance() throws ServerConfigurationException, NoSuchFieldException,
+            IllegalAccessException {
+        assertFalse(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
         InputStream inputStream = readFile("carbon.xml");
-        carbonServerConfiguration.forceInit(inputStream);
-        assertTrue(getIsInitialized(carbonServerConfiguration, "isInitialized"));
+        ServerConfiguration.getInstance().forceInit(inputStream);
+        assertTrue(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
     }
 
-    @Before
+    @BeforeMethod
     public void setIsInitializedToFalse() throws NoSuchFieldException, IllegalAccessException {
-        //settig isInitialized to false before every test
+        //setting isInitialized to false before every test
         Field isInitializedField = ServerConfiguration.class.getDeclaredField("isInitialized");
         isInitializedField.setAccessible(true);
-        isInitializedField.set(carbonServerConfiguration, false);
+        isInitializedField.set(ServerConfiguration.getInstance(), false);
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testForceInitWithLocationOfXMLConfig() throws NoSuchFieldException, IllegalAccessException,
             ServerConfigurationException {
-        assertFalse(getIsInitialized(carbonServerConfiguration, "isInitialized"));
-        carbonServerConfiguration.forceInit(resourceURL.toString());
-        assertTrue(getIsInitialized(carbonServerConfiguration, "isInitialized"));
+        assertFalse(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
+        ServerConfiguration.getInstance().forceInit(CarbonBaseUtilsTest.class.getClassLoader().getResource("carbon" +
+                ".xml").toString());
+        assertTrue(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
     }
 
-    @Test
-    public void testForceInitWithXMLConfigAndBooleanAsArgs() throws NoSuchFieldException, IllegalAccessException, ServerConfigurationException {
-        assertFalse(getIsInitialized(carbonServerConfiguration, "isInitialized"));
-        carbonServerConfiguration.forceInit(resourceURL.toString(), false);
-        assertTrue(getIsInitialized(carbonServerConfiguration, "isInitialized"));
+    @Test(groups = {"org.wso2.carbon.base"})
+    public void testForceInitWithXMLConfigAndBooleanAsArgs() throws NoSuchFieldException, IllegalAccessException,
+            ServerConfigurationException {
+        assertFalse(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
+        ServerConfiguration.getInstance().forceInit(CarbonBaseUtilsTest.class.getClassLoader().getResource("carbon" +
+                ".xml").toString(), false);
+        assertTrue(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testSetConfigurationProperty() throws Exception {
-        carbonServerConfiguration.setConfigurationProperty("ServerKey", "AM");
-        //need to update the test after issue #1560 is fixed
-
+        ServerConfiguration.getInstance().setConfigurationProperty("ServerKey", "AM");
+        //TODO need to update the test after issue #1560 is fixed
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testOverrideConfigurationProperty() {
-        carbonServerConfiguration.overrideConfigurationProperty("RegistryHttpPort", "9764");
-        //need to update the test after issue #1560 is fixed
-
+        ServerConfiguration.getInstance().overrideConfigurationProperty("RegistryHttpPort", "9764");
+        //TODO need to update the test after issue #1560 is fixed
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testGetFirstProperty() {
-        String actualElement1 = carbonServerConfiguration.getFirstProperty("ServiceUserRoles.Role.Description");
-        assertEquals("Testing first element of the ServiceUserRoles.Role.Description", "Default Administrator Role",
-                actualElement1);
-        String actualElement2 = carbonServerConfiguration.getFirstProperty("NotPresentInConfig");
-        assertEquals("Testing first element of the NotPresentInConfig", null, actualElement2);
+        String actualElement1 = ServerConfiguration.getInstance().getFirstProperty("ServiceUserRoles.Role.Description");
+        assertEquals(actualElement1, "Default Administrator " +
+                "Role", "Testing first element of the ServiceUserRoles.Role.Description");
+        String actualElement2 = ServerConfiguration.getInstance().getFirstProperty("NotPresentInConfig");
+        assertEquals(actualElement2, null, "Testing first element of the NotPresentInConfig");
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.base"})
     public void testGetProperties() {
-        String actualProperties1[] = carbonServerConfiguration.getProperties("HttpGetRequestProcessors.Processor" +
-                ".Class");
+        String actualProperties1[] = ServerConfiguration.getInstance().getProperties("HttpGetRequestProcessors" +
+                ".Processor.Class");
         String expectedProperties[] = {"org.wso2.carbon.core.transports.util.InfoProcessor", "org" +
                 ".wso2.carbon.core.transports.util.Wsdl11Processor", "org.wso2.carbon.core.transports.util" +
                 ".Wsdl20Processor", "org.wso2.carbon.core.transports.util.XsdProcessor"};
         assertArrayEquals("Testing properties received for 'HttpGetRequestProcessors.Processor.Class' key",
                 expectedProperties, actualProperties1);
-        String actualProperties2[] = carbonServerConfiguration.getProperties("NotPresentInConfig");
-        assertEquals("Testing properties received for a key not present in config", 0, actualProperties2.length);
+        String actualProperties2[] = ServerConfiguration.getInstance().getProperties("NotPresentInConfig");
+        assertEquals(actualProperties2.length, 0, "Testing properties received for a key not present in config");
     }
 
-    @Test
-    public void testGetDocumentElement() throws XMLStreamException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, ParserConfigurationException, IOException, SAXException {
+    @Test(groups = {"org.wso2.carbon.base"})
+    public void testGetDocumentElement() throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
+            InstantiationException, NoSuchMethodException, InvocationTargetException, ParserConfigurationException,
+            IOException, SAXException {
         InputStream carbonInputStream = readFile("carbon.xml");
         OMElement documentElement = new StAXOMBuilder(carbonInputStream)
                 .getDocumentElement();
@@ -136,30 +134,25 @@ public class ServerConfigurationTest {
         factory.setNamespaceAware(true);
         Element expectedElement = factory.newDocumentBuilder().parse(inputStream)
                 .getDocumentElement();
-        Element actualElement = carbonServerConfiguration.getDocumentElement();
-        assertEquals(expectedElement.toString(),actualElement.toString());
+        Element actualElement = ServerConfiguration.getInstance().getDocumentElement();
+        assertEquals(actualElement.toString(), expectedElement.toString());
     }
 
     /**
-     * Used for testGetDocumentElement
+     * Used for testGetDocumentElement.
      *
-     * @return
+     * @return a DocumentBuilderFactory instance
      */
-    private DocumentBuilderFactory getSecuredDocumentBuilder() {
+    private DocumentBuilderFactory getSecuredDocumentBuilder() throws ParserConfigurationException {
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         dbf.setXIncludeAware(false);
         dbf.setExpandEntityReferences(false);
-        try {
-            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
-            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
-            dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
-        } catch (ParserConfigurationException e) {
-            logger.error(
-                    "Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
-                            Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
-        }
+
+        dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+        dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+        dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
 
         SecurityManager securityManager = new SecurityManager();
         securityManager.setEntityExpansionLimit(0);
@@ -175,19 +168,14 @@ public class ServerConfigurationTest {
      * @return an inputstream containing the contents of the given file
      */
     private static InputStream readFile(String path) {
-        InputStream inputStream;
         ClassLoader classLoader = ServerConfigurationTest.class.getClassLoader();
-        inputStream = classLoader.getResourceAsStream(path);
-        return inputStream;
+        return classLoader.getResourceAsStream(path);
     }
 
     private static boolean getIsInitialized(ServerConfiguration carbonServerConfiguration, String name) throws
             NoSuchFieldException, IllegalAccessException {
-        boolean isInitialized;
         Field isInitializedField = ServerConfiguration.class.getDeclaredField(name);
         isInitializedField.setAccessible(true);
-        isInitialized = (boolean) isInitializedField.get(carbonServerConfiguration);
-        return isInitialized;
+        return (boolean) isInitializedField.get(carbonServerConfiguration);
     }
 }
-
