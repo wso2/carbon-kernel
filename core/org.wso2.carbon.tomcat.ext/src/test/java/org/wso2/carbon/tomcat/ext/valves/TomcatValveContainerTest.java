@@ -1,13 +1,10 @@
-package org.wso2.carbon.tomcat.ext.valves.test;
+package org.wso2.carbon.tomcat.ext.valves;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.junit.Test;
-import org.wso2.carbon.tomcat.ext.valves.CarbonTomcatValve;
-import org.wso2.carbon.tomcat.ext.valves.CompositeValve;
-import org.wso2.carbon.tomcat.ext.valves.TomcatValveContainer;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
