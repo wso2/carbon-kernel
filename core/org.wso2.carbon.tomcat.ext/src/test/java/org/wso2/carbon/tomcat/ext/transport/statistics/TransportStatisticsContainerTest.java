@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.transport.statistics;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.util.logging.Logger;
 
@@ -32,10 +32,8 @@ public class TransportStatisticsContainerTest {
 
     private static final Logger log = Logger.getLogger("TransportStatisticsContainerTest");
 
-    /**
-     * Checks getters and setters of transportStatistics.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.transport.statistics"},
+            description = "Testing getters and setters for transportStatistics.")
     public void testTransportStatistics () {
         // mocking inputs
         TransportStatisticsEntry transportStatisticsEntry1 = mock(TransportStatisticsEntry.class);
@@ -45,7 +43,7 @@ public class TransportStatisticsContainerTest {
         TransportStatisticsContainer.addTransportStatisticsEntry(transportStatisticsEntry2);
         // checking transportStatistics queue size
         log.info("Testing getters and setters for transportStatistics");
-        Assert.assertEquals("Retrieved queue size did not match with set queue size",
-                2, TransportStatisticsContainer.getTransportStatistics().size());
+        Assert.assertEquals(TransportStatisticsContainer.getTransportStatistics().size(), 2,
+                "Retrieved queue size did not match with set queue size");
     }
 }

@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.realms;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.util.logging.Logger;
 
@@ -31,36 +31,34 @@ public class CarbonTomcatRealmTest {
 
     private static final Logger log = Logger.getLogger("CarbonTomcatRealmTest");
 
-    /**
-     * Testing getters and setters for isSaaSEnabled.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"},
+            description = "Testing getters and setters for isSaaSEnabled.")
     public void testEnableSaaS () throws Exception {
         CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
         log.info("Testing getters and setters for isSaaSEnabled");
         carbonTomcatRealm.setEnableSaaS(true);
-        Assert.assertEquals("retrieved value did not match with set value",
-                true, carbonTomcatRealm.getEnableSaaS());
+        Assert.assertEquals(carbonTomcatRealm.getEnableSaaS(), true,
+                "retrieved value did not match with set value");
         carbonTomcatRealm.setEnableSaaS(false);
-        Assert.assertEquals("retrieved value did not match with set value",
-                false, carbonTomcatRealm.getEnableSaaS());
+        Assert.assertEquals(carbonTomcatRealm.getEnableSaaS(), false,
+                "retrieved value did not match with set value");
     }
 
     /**
      * Testing getName() for its expected behaviour.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"})
     public void testGetName () throws Exception {
         CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
         log.info("Testing getters and setters for isSaaSEnabled");
-        Assert.assertEquals("retrieved name did not match 'CarbonTomcatRealm'",
-                "CarbonTomcatRealm", carbonTomcatRealm.getName());
+        Assert.assertEquals(carbonTomcatRealm.getName(), "CarbonTomcatRealm",
+                "retrieved name did not match 'CarbonTomcatRealm'");
     }
 
     /**
      * Checks getPassword () with its expected behaviour of throwing an illegal state exception.
      */
-    @Test(expected = IllegalStateException.class)
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"}, expectedExceptions = IllegalStateException.class)
     public void testGetPasswordForDefaultBehaviour () throws Exception {
         CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
         log.info("Testing getPassword () for its expected behaviour when called");
@@ -70,7 +68,7 @@ public class CarbonTomcatRealmTest {
     /**
      * Checks authenticate () with its expected behaviour of throwing an illegal state exception.
      */
-    @Test(expected = IllegalStateException.class)
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"}, expectedExceptions = IllegalStateException.class)
     public void testAuthenticateForDefaultBehaviour () throws Exception {
         CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
         log.info("Testing authenticate () for its expected behaviour when called");

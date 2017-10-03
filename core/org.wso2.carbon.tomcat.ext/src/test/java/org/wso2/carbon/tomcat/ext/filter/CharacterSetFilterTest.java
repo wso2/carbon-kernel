@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.filter;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -48,7 +48,7 @@ public class CharacterSetFilterTest {
      * Case 2: When filter configuration does not provide any request encoding
      * whether init () would provide 'UTF-8' as default encoding.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.filter"})
     public void testInitWithCase1And2 () throws ServletException {
         // mocking inputs
         FilterConfig filterConfig = mock(FilterConfig.class);
@@ -58,11 +58,11 @@ public class CharacterSetFilterTest {
         characterSetFilter.init(filterConfig);
         // check for case 1
         log.info("Testing init () with case 1");
-        Assert.assertTrue("Character-set filter was not initialized with a default encoding",
-                !(characterSetFilter.getEncoding().isEmpty()));
+        Assert.assertTrue(!(characterSetFilter.getEncoding().isEmpty()),
+                "Character-set filter was not initialized with a default encoding");
         // check for case 2
-        Assert.assertTrue("Character-set filter was not initialized with 'UTF-8' as default encoding",
-                UTF8.equals(characterSetFilter.getEncoding()));
+        Assert.assertTrue(UTF8.equals(characterSetFilter.getEncoding()),
+                "Character-set filter was not initialized with 'UTF-8' as default encoding");
     }
 
     /**
@@ -70,7 +70,7 @@ public class CharacterSetFilterTest {
      * Case 3: When filter configuration does provide some request encoding
      * whether init () would skip overriding that value with 'UTF-8'.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.filter"})
     public void testInitWithCase3 () throws ServletException {
         // mocking inputs
         FilterConfig filterConfig = mock(FilterConfig.class);
@@ -80,8 +80,8 @@ public class CharacterSetFilterTest {
         characterSetFilter.init(filterConfig);
         // check for case 3
         log.info("Testing init () with case 3");
-        Assert.assertTrue("Character-set filter does not skip overriding filter configuration encoding",
-                "UTF-16".equals(characterSetFilter.getEncoding()));
+        Assert.assertTrue("UTF-16".equals(characterSetFilter.getEncoding()),
+                "Character-set filter does not skip overriding filter configuration encoding");
     }
 
     /**
@@ -90,7 +90,7 @@ public class CharacterSetFilterTest {
      * and a request comes with no character encoding. See if filtering occurs in such a way
      * that a default character encoding is set.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.filter"})
     public void testDoFilterWithCase1 () throws ServletException, IOException {
         // mocking inputs
         TestServletRequest testServletRequest = new TestServletRequest();
@@ -103,8 +103,9 @@ public class CharacterSetFilterTest {
         characterSetFilter.doFilter(testServletRequest, testServletResponse, filterChain);
         // check for case 1
         log.info("Testing doFilter () with case 1");
-        Assert.assertTrue("A default character encoding is not set", (testServletRequest
-                .getCharacterEncoding() != null) && !(testServletRequest.getCharacterEncoding().isEmpty()));
+        Assert.assertTrue((testServletRequest.getCharacterEncoding() != null) &&
+                !(testServletRequest.getCharacterEncoding().isEmpty()),
+                "A default character encoding is not set");
     }
 
     /**
@@ -113,7 +114,7 @@ public class CharacterSetFilterTest {
      * and a request comes with no character encoding. See if filtering occurs in such a way
      * that default character encoding is set to UTF-8.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.filter"})
     public void testDoFilterWithCase2 () throws ServletException, IOException {
         // mocking inputs
         TestServletRequest testServletRequest = new TestServletRequest();
@@ -126,8 +127,8 @@ public class CharacterSetFilterTest {
         characterSetFilter.doFilter(testServletRequest, testServletResponse, filterChain);
         // check for case 2
         log.info("Testing doFilter () with case 2");
-        Assert.assertTrue("Default character encoding is not set to UTF-8",
-                UTF8.equals(testServletRequest.getCharacterEncoding()));
+        Assert.assertTrue(UTF8.equals(testServletRequest.getCharacterEncoding()),
+                "Default character encoding is not set to UTF-8");
     }
 
     /**
@@ -135,7 +136,7 @@ public class CharacterSetFilterTest {
      * Case 3: See if filtering occurs in such a way that a default character encoding
      * and a content type is set to response.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.filter"})
     public void testDoFilterWithCase3 () throws ServletException, IOException {
         // mocking inputs
         TestServletRequest testServletRequest = new TestServletRequest();
@@ -148,12 +149,12 @@ public class CharacterSetFilterTest {
         characterSetFilter.doFilter(testServletRequest, testServletResponse, filterChain);
         // check for case 3
         log.info("Testing doFilter () with case 3");
-        Assert.assertTrue("A default character encoding is not set to response",
-                testServletResponse.getCharacterEncoding() != null &&
-                        !(testServletResponse.getCharacterEncoding().isEmpty()));
-        Assert.assertTrue("A default content type is not set to response",
-                testServletResponse.getContentType() != null &&
-                        !(testServletResponse.getContentType().isEmpty()));
+        Assert.assertTrue(testServletResponse.getCharacterEncoding() != null &&
+                !(testServletResponse.getCharacterEncoding().isEmpty()),
+                "A default character encoding is not set to response");
+        Assert.assertTrue(testServletResponse.getContentType() != null &&
+                !(testServletResponse.getContentType().isEmpty()),
+                "A default content type is not set to response");
     }
 
     /**
@@ -161,7 +162,7 @@ public class CharacterSetFilterTest {
      * Case 4: See if filtering occurs in such a way that default character encoding is set to "UTF-8"
      * and content type is set to "text/html; charset=UTF-8" for response.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.filter"})
     public void testDoFilterWithCase4 () throws ServletException, IOException {
         // mocking inputs
         TestServletResponse testServletResponse = new TestServletResponse();
@@ -174,9 +175,9 @@ public class CharacterSetFilterTest {
         characterSetFilter.doFilter(testServletRequest, testServletResponse, filterChain);
         // check for case 4
         log.info("Testing doFilter () with case 4");
-        Assert.assertTrue("Default character encoding is not set to UTF-8",
-                UTF8.equals(testServletResponse.getCharacterEncoding()));
-        Assert.assertTrue("Default content type is not set to 'text/html; charset=UTF-8'",
-                CONTENT_TYPE.equals(testServletResponse.getContentType()));
+        Assert.assertTrue(UTF8.equals(testServletResponse.getCharacterEncoding()),
+                "Default character encoding is not set to UTF-8");
+        Assert.assertTrue(CONTENT_TYPE.equals(testServletResponse.getContentType()),
+                "Default content type is not set to 'text/html; charset=UTF-8'");
     }
 }

@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.saas;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -32,24 +32,20 @@ public class TenantSaaSRulesTest {
 
     private static final Logger log = Logger.getLogger("TenantSaaSRulesTest");
 
-    /**
-     * Testing getters and setters for tenant.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"},
+            description = "Testing getters and setters for tenant.")
     public void testTenant () throws Exception {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // calling set method
         tenantSaaSRules.setTenant("abc.com");
         // checking retrieved values
         log.info("Testing getters and setters for tenant");
-        Assert.assertEquals("Retrieved value did not match with set value for tenant",
-                "abc.com", tenantSaaSRules.getTenant());
+        Assert.assertEquals(tenantSaaSRules.getTenant(), "abc.com",
+                "Retrieved value did not match with set value for tenant");
     }
 
-    /**
-     * Testing getters and setters for users.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"},
+            description = "Testing getters and setters for users.")
     public void testUsers () throws Exception {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // setting input
@@ -60,14 +56,12 @@ public class TenantSaaSRulesTest {
         tenantSaaSRules.setUsers(users);
         // checking retrieved values
         log.info("Testing getters and setters for users");
-        Assert.assertEquals("Retrieved value did not match with set value for users",
-                users, tenantSaaSRules.getUsers());
+        Assert.assertEquals(tenantSaaSRules.getUsers(), users,
+                "Retrieved value did not match with set value for users");
     }
 
-    /**
-     * Testing getters and setters for roles.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"},
+            description = "Testing getters and setters for roles.")
     public void testRoles () throws Exception {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // setting input
@@ -78,28 +72,28 @@ public class TenantSaaSRulesTest {
         tenantSaaSRules.setRoles(roles);
         // checking retrieved values
         log.info("Testing getters and setters for roles");
-        Assert.assertEquals("Retrieved value did not match with set value for roles",
-                roles, tenantSaaSRules.getRoles());
+        Assert.assertEquals(tenantSaaSRules.getRoles(), roles,
+                "Retrieved value did not match with set value for roles");
     }
 
     /**
      * Checks isTenantRulesDefined with Case 1.
      * Case 1: No users or roles defined. Then the method should return false.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"})
     public void testIsTenantRulesDefinedWithCase1 () {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // checking isTenantRulesDefined with Case 1
         log.info("Testing isTenantRulesDefined () with Case 1");
-        Assert.assertEquals("Retrieved value did not match with expected value, false",
-                false, tenantSaaSRules.isTenantRulesDefined());
+        Assert.assertEquals(tenantSaaSRules.isTenantRulesDefined(), false,
+                "Retrieved value did not match with expected value, false");
     }
 
     /**
      * Checks isTenantRulesDefined with Case 2.
      * Case 2: Users defined, but no roles defined. Then the method should return true.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"})
     public void testIsTenantRulesDefinedWithCase2 () {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // setting users
@@ -110,15 +104,15 @@ public class TenantSaaSRulesTest {
         tenantSaaSRules.setUsers(users);
         // checking isTenantRulesDefined with Case 2
         log.info("Testing isTenantRulesDefined () with Case 2");
-        Assert.assertEquals("Retrieved value did not match with expected value, true",
-                true, tenantSaaSRules.isTenantRulesDefined());
+        Assert.assertEquals(tenantSaaSRules.isTenantRulesDefined(), true,
+                "Retrieved value did not match with expected value, true");
     }
 
     /**
      * Checks isTenantRulesDefined with Case 3.
      * Case 3: Users not defined, but roles defined. Then the method should return true.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"})
     public void testIsTenantRulesDefinedWithCase3 () {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // setting roles
@@ -129,15 +123,15 @@ public class TenantSaaSRulesTest {
         tenantSaaSRules.setRoles(roles);
         // checking isTenantRulesDefined with Case 3
         log.info("Testing isTenantRulesDefined () with Case 3");
-        Assert.assertEquals("Retrieved value did not match with expected value, true",
-                true, tenantSaaSRules.isTenantRulesDefined());
+        Assert.assertEquals(tenantSaaSRules.isTenantRulesDefined(), true,
+                "Retrieved value did not match with expected value, true");
     }
 
     /**
      * Checks isTenantRulesDefined with Case 4.
      * Case 4: Users defined, roles also defined. Then the method should return true.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.saas"})
     public void testIsTenantRulesDefinedWithCase4 () {
         TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
         // setting users
@@ -154,7 +148,7 @@ public class TenantSaaSRulesTest {
         tenantSaaSRules.setRoles(roles);
         // checking isTenantRulesDefined with Case 4
         log.info("Testing isTenantRulesDefined () with Case 4");
-        Assert.assertEquals("Retrieved value did not match with expected value, true",
-                true, tenantSaaSRules.isTenantRulesDefined());
+        Assert.assertEquals(tenantSaaSRules.isTenantRulesDefined(), true,
+                "Retrieved value did not match with expected value, true");
     }
 }
