@@ -16,8 +16,9 @@
 
 package org.wso2.carbon.tomcat.ext.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
 import java.util.logging.Logger;
 
@@ -35,82 +36,75 @@ public class URLMappingHolderTest {
     /**
      * Checks if getInstance returns instance of correct class.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"})
     public void testGetInstance () {
         log.info("Testing if getInstance () returns instance of correct class");
-        Assert.assertTrue("Returned instance class does not match to 'URLMappingHolder'",
-                URLMappingHolder.getInstance().getClass() == URLMappingHolder.class);
+        Assert.assertTrue(URLMappingHolder.getInstance().getClass() == URLMappingHolder.class,
+                "Returned instance class does not match to 'URLMappingHolder'");
     }
 
-    /**
-     * Checks getters and setters for defaultHost.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"},
+            description = "Testing getters and setters for defaultHost.")
     public void testDefaultHost () {
         URLMappingHolder urlMappingHolder = URLMappingHolder.getInstance();
         // calling set method
         urlMappingHolder.setDefaultHost("example.com");
         // checking retrieved values
         log.info("Testing getters and setters for tenant");
-        Assert.assertEquals("Retrieved value did not match with set value for defaultHost",
-                "example.com", urlMappingHolder.getDefaultHost());
+        Assert.assertEquals(urlMappingHolder.getDefaultHost(), "example.com",
+                "Retrieved value did not match with set value for defaultHost");
     }
 
-    /**
-     * Checks getters and setters of urlMappingOfApplication.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"},
+            description = "Testing getters and setters for urlMappingOfApplication.")
     public void testUrlMappingOfApplication () {
         URLMappingHolder urlMappingHolder = URLMappingHolder.getInstance();
         // calling set method
         urlMappingHolder.putUrlMappingForApplication("http://example.com/apps/foo", "foo");
         // checking retrieved values
         log.info("Testing getters and setters for urlMappingOfApplication");
-        Assert.assertEquals("Retrieved value did not match with set value for urlMappingOfApplication",
-                "foo", urlMappingHolder.getApplicationFromUrlMapping("http://example.com/apps/foo"));
+        Assert.assertEquals("foo", urlMappingHolder.getApplicationFromUrlMapping("http://example.com/apps/foo"),
+                "Retrieved value did not match with set value for urlMappingOfApplication");
     }
 
     /**
      * Checks isUrlMappingExists functionality.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"})
     public void testIsUrlMappingExists () {
         URLMappingHolder urlMappingHolder = URLMappingHolder.getInstance();
         // calling set method
         urlMappingHolder.putUrlMappingForApplication("http://example.com/apps/foo", "foo");
         // checking retrieved values
         log.info("Testing isUrlMappingExists () for already existing value");
-        Assert.assertTrue("Method isUrlMappingExists () does not correctly validate already" +
-                " existing entries", urlMappingHolder.isUrlMappingExists("http://example.com/apps/foo"));
+        Assert.assertTrue(urlMappingHolder.isUrlMappingExists("http://example.com/apps/foo"),
+                "Method isUrlMappingExists () does not correctly validate already existing entries");
         log.info("Testing isUrlMappingExists () for non-existing value");
-        Assert.assertTrue("Method isUrlMappingExists () does not correctly validate non-existing entries",
-                !urlMappingHolder.isUrlMappingExists("http://example.com/apps/hello"));
+        Assert.assertTrue(!(urlMappingHolder.isUrlMappingExists("http://example.com/apps/hello")),
+                "Method isUrlMappingExists () does not correctly validate non-existing entries");
     }
 
     /**
      * Checks removeUrlMappingMap functionality.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"})
     public void testRemoveUrlMappingMap () {
         URLMappingHolder urlMappingHolder = URLMappingHolder.getInstance();
         // calling set method
         urlMappingHolder.putUrlMappingForApplication("http://example.com/apps/foo", "foo");
         urlMappingHolder.putUrlMappingForApplication("http://example.com/apps/bar", "bar");
         urlMappingHolder.putUrlMappingForApplication("http://example.com/apps/hello", "hello");
-        // checking map for size
-        log.info("Testing removeUrlMappingMap () functionality");
-        Assert.assertEquals("Retrieved size does not match with expected size",
-                3, urlMappingHolder.getUrlMappingOfApplication().size());
         // calling remove method
         urlMappingHolder.removeUrlMappingMap("http://example.com/apps/bar");
-        Assert.assertEquals("Retrieved size does not match with expected size",
-                2, urlMappingHolder.getUrlMappingOfApplication().size());
+        log.info("Testing removeUrlMappingMap () functionality");
+        Assert.assertEquals(urlMappingHolder.getUrlMappingOfApplication().size(), 2,
+                "Retrieved size does not match with expected size");
     }
 
     /**
      * Checks getUrlMappingsPerApplication functionality.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"})
     public void testGetUrlMappingsPerApplication () {
         URLMappingHolder urlMappingHolder = URLMappingHolder.getInstance();
         // calling set method
@@ -120,7 +114,15 @@ public class URLMappingHolderTest {
         urlMappingHolder.putUrlMappingForApplication("http://example.com/apps/abc", "foo");
         // checking map for size
         log.info("Testing getUrlMappingsPerApplication () per given application");
-        Assert.assertEquals("Retrieved size does not match with expected size",
-                2, urlMappingHolder.getUrlMappingsPerApplication("foo").size());
+        Assert.assertEquals(urlMappingHolder.getUrlMappingsPerApplication("foo").size(), 2,
+                "Retrieved size does not match with expected size");
+    }
+
+    @AfterMethod
+    public void ClearURLMappingOfApplication () {
+        URLMappingHolder urlMappingHolder = URLMappingHolder.getInstance();
+        if (urlMappingHolder.getUrlMappingOfApplication().size() > 0) {
+            urlMappingHolder.getUrlMappingOfApplication().clear();
+        }
     }
 }

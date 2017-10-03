@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.internal;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -34,10 +34,8 @@ public class CarbonRealmServiceHolderTest {
 
     private static final Logger log = Logger.getLogger("CarbonRealmServiceHolderTest");
 
-    /**
-     * Testing getters and setters for Realm Service.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"},
+            description = "Testing getters and setters for Realm Service.")
     public void testRealmService () {
         // mocking inputs
         RealmService realmService = mock(RealmService.class);
@@ -45,14 +43,12 @@ public class CarbonRealmServiceHolderTest {
         CarbonRealmServiceHolder.setRealmService(realmService);
         // checking retrieved values
         log.info("Testing getters and setters for realmService");
-        Assert.assertEquals("retrieved value did not match with set value for realmService",
-                realmService, CarbonRealmServiceHolder.getRealmService());
+        Assert.assertEquals(CarbonRealmServiceHolder.getRealmService(), realmService,
+                "retrieved value did not match with set value for realmService");
     }
 
-    /**
-     * Testing getters and setters for Registry Service.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"},
+            description = "Testing getters and setters for Registry Service.")
     public void testRegistryService () {
         // mocking inputs
         RegistryService registryService = mock(RegistryService.class);
@@ -60,7 +56,7 @@ public class CarbonRealmServiceHolderTest {
         CarbonRealmServiceHolder.setRegistryService(registryService);
         // checking retrieved values
         log.info("Testing getters and setters for registryService");
-        Assert.assertEquals("retrieved value did not match with set value for registryService",
-                registryService, CarbonRealmServiceHolder.getRegistryService());
+        Assert.assertEquals(CarbonRealmServiceHolder.getRegistryService(), registryService,
+                "retrieved value did not match with set value for registryService");
     }
 }

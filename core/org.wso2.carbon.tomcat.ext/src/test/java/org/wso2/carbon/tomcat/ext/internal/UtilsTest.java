@@ -17,8 +17,8 @@
 package org.wso2.carbon.tomcat.ext.internal;
 
 import org.apache.catalina.connector.Request;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import org.mockito.Mockito;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -44,7 +44,7 @@ public class UtilsTest {
      * Case 1: Checks if the method returns supper tenant domain when a supper tenant
      * user (here it's admin) accesses the carbon console after a successful login.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetTenantDomainWithCase1 () {
         // mocking inputs
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
@@ -55,8 +55,8 @@ public class UtilsTest {
         String received = Utils.getTenantDomain(httpServletRequest);
         // check for case 1
         log.info("Testing getTenantDomain () with case 1");
-        Assert.assertTrue("Super tenant request URI does not return correct domain 'carbon.super'",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "Super tenant request URI does not return correct domain 'carbon.super'");
     }
 
     /**
@@ -64,7 +64,7 @@ public class UtilsTest {
      * Case 2: Checks if the method returns correct tenant domain when a
      * tenant user (here it's tenant admin) accesses the carbon console after a successful login.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetTenantDomainWithCase2 () {
         // mocking inputs
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
@@ -75,8 +75,8 @@ public class UtilsTest {
         String received = Utils.getTenantDomain(httpServletRequest);
         // check for case 2
         log.info("Testing getTenantDomain () with case 2");
-        Assert.assertTrue("Tenant specific request URI does not return correct domain",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "Tenant specific request URI does not return correct domain");
     }
 
     /**
@@ -84,7 +84,7 @@ public class UtilsTest {
      * Case 1: Checks if the method returns correct service name when
      * a specific super tenant service request URI is given.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetServiceNameWithCase1 () {
         // mocking inputs
         String sampleRequestURI = "/services/echo";
@@ -94,8 +94,8 @@ public class UtilsTest {
         String received = Utils.getServiceName(sampleRequestURI);
         // check for case 1
         log.info("Testing getServiceName () with case 1");
-        Assert.assertTrue("getServiceName () does not extract correct service name",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getServiceName () does not extract correct service name");
     }
 
     /**
@@ -103,7 +103,7 @@ public class UtilsTest {
      * Case 2: Checks if the method returns correct service name when
      * a tenant specific service request URI is given.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetServiceNameWithCase2 () {
         // mocking inputs
         String sampleRequestURI = "/services/t/abc.com/echo";
@@ -113,8 +113,8 @@ public class UtilsTest {
         String received = Utils.getServiceName(sampleRequestURI);
         // check for case 2
         log.info("Testing getServiceName () with case 2");
-        Assert.assertTrue("getServiceName () does not extract correct service name",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getServiceName () does not extract correct service name");
     }
 
     /**
@@ -122,7 +122,7 @@ public class UtilsTest {
      * Case 1: Checks if the method returns correct app name when
      * a service request URI is given.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetAppNameFromRequestWithCase1 () {
         // mocking inputs
         Request request = mock(Request.class);
@@ -133,8 +133,8 @@ public class UtilsTest {
         String received = Utils.getAppNameFromRequest(request);
         // check for case 1
         log.info("Testing getAppNameFromRequest () with case 1: service requests");
-        Assert.assertTrue("getAppNameFromRequest () does not extract correct app name for services",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getAppNameFromRequest () does not extract correct app name for services");
     }
 
     /**
@@ -142,7 +142,7 @@ public class UtilsTest {
      * Case 2: Checks if the method returns correct app name when
      * a web-app request URI is given.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetAppNameFromRequestWithCase2 () {
         // mocking inputs
         Request request = mock(Request.class);
@@ -153,8 +153,8 @@ public class UtilsTest {
         String received = Utils.getAppNameFromRequest(request);
         // check for case 2
         log.info("Testing getAppNameFromRequest () with case 2: webapp requests");
-        Assert.assertTrue("getAppNameFromRequest () does not extract correct app name for web-apps",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getAppNameFromRequest () does not extract correct app name for web-apps");
     }
 
     /**
@@ -162,7 +162,7 @@ public class UtilsTest {
      * Case 3: Checks if the method returns correct app name when
      * a jaggery-app request URI is given.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetAppNameFromRequestWithCase3 () {
         // mocking inputs
         Request request = mock(Request.class);
@@ -173,8 +173,8 @@ public class UtilsTest {
         String received = Utils.getAppNameFromRequest(request);
         // check for case 3
         log.info("Testing getAppNameFromRequest () with case 3: jaggery-app requests");
-        Assert.assertTrue("getAppNameFromRequest () does not extract correct app name for jaggery-apps",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getAppNameFromRequest () does not extract correct app name for jaggery-apps");
     }
 
     /**
@@ -182,7 +182,7 @@ public class UtilsTest {
      * Case 4: Checks if the method returns correct app name when
      * a jax-web-app request URI is given.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetAppNameFromRequestWithCase4 () {
         // mocking inputs
         Request request = mock(Request.class);
@@ -193,15 +193,15 @@ public class UtilsTest {
         String received = Utils.getAppNameFromRequest(request);
         // check for case 4
         log.info("Testing getAppNameFromRequest () with case 4: jax-web-app requests");
-        Assert.assertTrue("getAppNameFromRequest () does not extract correct app name for jax-web-apps",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getAppNameFromRequest () does not extract correct app name for jax-web-apps");
     }
 
     /**
      * Checks createDummyTenantContextDir with Case 1.
      * Case 1: Checks if the method can successfully create a directory, given a valid folder location
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testCreateDummyTenantContextDirWithCase1 () {
         // mocking inputs
         when(CarbonUtils.getTmpDir()).thenReturn(System.getProperty("java.io.tmpdir"));
@@ -209,15 +209,15 @@ public class UtilsTest {
         File created = Utils.createDummyTenantContextDir();
         // check for case 1
         log.info("Testing createDummyTenantContextDir () with case 1");
-        Assert.assertTrue("createDummyTenantContextDir () does not create a directory," +
-                        " given a valid folder path",created != null && created.exists());
+        Assert.assertTrue(created != null && created.exists(),
+                "createDummyTenantContextDir () does not create a directory, given a valid folder path");
     }
 
     /**
      * Checks getTenantDomainFromURLMapping with Case 1.
      * Case 1: Checks if the method returns correct tenant domain for a given request call for super tenant.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetTenantDomainFromURLMappingWithCase1 () {
         // mocking inputs
         Request request = mock(Request.class, Mockito.RETURNS_DEEP_STUBS);
@@ -230,15 +230,15 @@ public class UtilsTest {
         String received = Utils.getTenantDomainFromURLMapping(request);
         // check for case 1
         log.info("Testing getTenantDomainFromURLMapping () with case 1");
-        Assert.assertTrue("getTenantDomainFromURLMapping () does not extract correct domain for super tenant",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getTenantDomainFromURLMapping () does not extract correct domain for super tenant");
     }
 
     /**
      * Checks getTenantDomainFromURLMapping with Case 2.
      * Case 2: Checks if the method returns correct tenant domain for a given request call for tenant.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testGetTenantDomainFromURLMappingWithCase2 () {
         // mocking inputs
         Request request = mock(Request.class, Mockito.RETURNS_DEEP_STUBS);
@@ -251,7 +251,7 @@ public class UtilsTest {
         String received = Utils.getTenantDomainFromURLMapping(request);
         // check for case 2
         log.info("Testing getTenantDomainFromURLMapping () with case 2");
-        Assert.assertTrue("getTenantDomainFromURLMapping () does not extract correct domain for tenant",
-                expected.equals(received));
+        Assert.assertTrue(expected.equals(received),
+                "getTenantDomainFromURLMapping () does not extract correct domain for tenant");
     }
 }

@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.internal;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 
@@ -34,10 +34,8 @@ public class CarbonTomcatServiceHolderTest {
 
     private static final Logger log = Logger.getLogger("CarbonTomcatServiceHolderTest");
 
-    /**
-     * Testing getters and setters for Server Configuration Service.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"},
+            description = "Testing getters and setters for Server Configuration Service.")
     public void testServerConfigurationService () {
         // mocking inputs
         ServerConfigurationService serverConfigurationService = mock(ServerConfigurationService.class);
@@ -45,14 +43,12 @@ public class CarbonTomcatServiceHolderTest {
         CarbonTomcatServiceHolder.setServerConfigurationService(serverConfigurationService);
         // checking retrieved values
         log.info("Testing getters and setters for serverConfigurationService");
-        Assert.assertEquals("retrieved value did not match with set value for serverConfigurationService",
-                serverConfigurationService, CarbonTomcatServiceHolder.getServerConfigurationService());
+        Assert.assertEquals(CarbonTomcatServiceHolder.getServerConfigurationService(), serverConfigurationService,
+                "retrieved value did not match with set value for serverConfigurationService");
     }
 
-    /**
-     * Testing getters and setters for Carbon Tomcat Service.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"},
+            description = "Testing getters and setters for Carbon Tomcat Service.")
     public void testCarbonTomcatService () {
         // mocking inputs
         CarbonTomcatService carbonTomcatService = mock(CarbonTomcatService.class);
@@ -60,14 +56,12 @@ public class CarbonTomcatServiceHolderTest {
         CarbonTomcatServiceHolder.setCarbonTomcatService(carbonTomcatService);
         // checking retrieved values
         log.info("Testing getters and setters for carbonTomcatService");
-        Assert.assertEquals("retrieved value did not match with set value for carbonTomcatService",
-                carbonTomcatService, CarbonTomcatServiceHolder.getCarbonTomcatService());
+        Assert.assertEquals(CarbonTomcatServiceHolder.getCarbonTomcatService(), carbonTomcatService,
+                "retrieved value did not match with set value for carbonTomcatService");
     }
 
-    /**
-     * Testing getters and setters for Class Loader.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"},
+            description = "Testing getters and setters for Class Loader.")
     public void testClassLoader () {
         // mocking inputs
         ClassLoader tccl = mock(ClassLoader.class);
@@ -75,7 +69,7 @@ public class CarbonTomcatServiceHolderTest {
         CarbonTomcatServiceHolder.setTccl(tccl);
         // checking retrieved values
         log.info("Testing getters and setters for tccl");
-        Assert.assertEquals("retrieved value did not match with set value for tccl",
-                tccl, CarbonTomcatServiceHolder.getTccl());
+        Assert.assertEquals(CarbonTomcatServiceHolder.getTccl(), tccl,
+                "retrieved value did not match with set value for tccl");
     }
 }

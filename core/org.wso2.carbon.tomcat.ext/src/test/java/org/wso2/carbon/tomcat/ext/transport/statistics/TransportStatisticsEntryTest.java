@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.tomcat.ext.transport.statistics;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.util.logging.Logger;
 
@@ -31,49 +31,47 @@ public class TransportStatisticsEntryTest {
 
     private static final Logger log = Logger.getLogger("TransportStatisticsEntryTest");
 
-    /**
-     * Checks getters and setters of requestSize, responseSize and requestUrl.
-     */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.transport.statistics"},
+            description = "Testing getters and setters for requestSize, responseSize and requestUrl.")
     public void testTransportStatisticsEntry () {
         log.info("Testing getters and setters for TransportStatisticsEntry" +
                 " requestSize, responseSize and requestUrl");
         TransportStatisticsEntry transportStatisticsEntry = new TransportStatisticsEntry
                 (146515L, 162315L, "http://example.com/services/t/abc.com/echo");
-        Assert.assertTrue("Returned byte size does not match to set size",
-                transportStatisticsEntry.getRequestSize() == 146515L);
-        Assert.assertTrue("Returned byte size does not match to set size",
-                transportStatisticsEntry.getResponseSize() == 162315L);
-        Assert.assertTrue("Returned URL does not match to set URL",
-                "http://example.com/services/t/abc.com/echo".equals(transportStatisticsEntry.getRequestUrl()));
+        Assert.assertTrue(transportStatisticsEntry.getRequestSize() == 146515L,
+                "Returned byte size does not match to set size");
+        Assert.assertTrue(transportStatisticsEntry.getResponseSize() == 162315L,
+                "Returned byte size does not match to set size");
+        Assert.assertTrue("http://example.com/services/t/abc.com/echo".equals(transportStatisticsEntry
+                .getRequestUrl()), "Returned URL does not match to set URL");
         // update transportStatisticsEntry with new request URL
         transportStatisticsEntry.setRequestUrl("http://example.com/services/t/abc.com/foo");
         // check if transportStatisticsEntry was updated with the new request URL
-        Assert.assertTrue("Returned URL does not match to set URL",
-                "http://example.com/services/t/abc.com/foo".equals(transportStatisticsEntry.getRequestUrl()));
+        Assert.assertTrue("http://example.com/services/t/abc.com/foo".equals(transportStatisticsEntry.getRequestUrl()),
+                "Returned URL does not match to set URL");
     }
 
     /**
      * Checks getTenantName functionality for services.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.transport.statistics"})
     public void testGetTenantName () {
         log.info("Testing getTenantName () functionality for services");
         TransportStatisticsEntry transportStatisticsEntry = new TransportStatisticsEntry
                 (146515L, 162315L, "http://example.com/services/t/abc.com/echo");
-        Assert.assertTrue("Returned tenant domain does not match with expected",
-                "abc.com".equals(transportStatisticsEntry.getTenantName()));
+        Assert.assertTrue("abc.com".equals(transportStatisticsEntry.getTenantName()),
+                "Returned tenant domain does not match with expected");
     }
 
     /**
      * Checks getContext functionality for services.
      */
-    @Test
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.transport.statistics"})
     public void testGetContext () {
         log.info("Testing getContext () functionality for services");
         TransportStatisticsEntry transportStatisticsEntry = new TransportStatisticsEntry
                 (146515L, 162315L, "http://example.com/services/t/abc.com/echo");
-        Assert.assertTrue("Returned application context does not match with expected",
-                "services".equals(transportStatisticsEntry.getContext()));
+        Assert.assertTrue("services".equals(transportStatisticsEntry.getContext()),
+                "Returned application context does not match with expected");
     }
 }
