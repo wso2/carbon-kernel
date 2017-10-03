@@ -1,17 +1,19 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
  *  http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 package org.wso2.carbon.context;
 
@@ -29,7 +31,7 @@ import java.nio.file.Paths;
 public class CarbonContextTest {
     private static final Path testDir = Paths.get("src", "test");
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.context"})
     public void testCarbonContext() throws Exception {
         System.setProperty(ServerConstants.CARBON_HOME, testDir.toString());
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
@@ -42,27 +44,30 @@ public class CarbonContextTest {
                 CarbonContextDataHolder.getThreadLocalCarbonContextHolder());
     }
 
-    @Test(dependsOnMethods = "testCarbonContext")
+    @Test(groups = {"org.wso2.carbon.context"}, dependsOnMethods = "testCarbonContext")
     public void testPrivilegeCarbonContext() throws Exception {
-        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-        String tenantDomain = "test";
-        int tenantID = 123;
-        String applicationName = "testApp";
-        String username = "testUser";
+        try {
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            String tenantDomain = "test";
+            int tenantID = 123;
+            String applicationName = "testApp";
+            String username = "testUser";
 
-        privilegedCarbonContext.setTenantDomain(tenantDomain);
-        privilegedCarbonContext.setTenantId(tenantID);
-        privilegedCarbonContext.setApplicationName(applicationName);
-        privilegedCarbonContext.setUsername(username);
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain);
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantId(), tenantID);
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getApplicationName(), applicationName);
-        Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getUsername(), username);
-        PrivilegedCarbonContext.destroyCurrentContext();
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+            privilegedCarbonContext.setTenantId(tenantID);
+            privilegedCarbonContext.setApplicationName(applicationName);
+            privilegedCarbonContext.setUsername(username);
+            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain);
+            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantId(), tenantID);
+            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getApplicationName(), applicationName);
+            Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getUsername(), username);
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
+        }
     }
 
 
-    @Test(dependsOnMethods = "testPrivilegeCarbonContext")
+    @Test(groups = {"org.wso2.carbon.context"}, dependsOnMethods = "testPrivilegeCarbonContext")
     public void testTenantCarbonContext1() throws Exception {
         try {
             try {
@@ -84,14 +89,13 @@ public class CarbonContextTest {
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }
-
             testSecondTenantFlow();
         } finally {
             PrivilegedCarbonContext.destroyCurrentContext();
         }
     }
 
-    @Test(dependsOnMethods = "testTenantCarbonContext1")
+    @Test(groups = {"org.wso2.carbon.context"}, dependsOnMethods = "testTenantCarbonContext1")
     public void testTenantCarbonContext2() throws Exception {
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -146,13 +150,13 @@ public class CarbonContextTest {
     }
 
 
-    @Test(dependsOnMethods = "testTenantCarbonContext2")
+    @Test(groups = {"org.wso2.carbon.context"}, dependsOnMethods = "testTenantCarbonContext2")
     public void testMultiThreadedCarbonContextInvocation() throws Exception {
         for (int id = 1; id <= 10; id++) {
             CarbonContextInvoker invoker = new CarbonContextInvoker(id, "ccTenantDomain" + id);
             invoker.start();
             while (invoker.isAlive()) {
-                Thread.sleep(00);
+                Thread.sleep(100);
             }
         }
     }

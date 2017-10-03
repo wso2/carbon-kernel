@@ -50,7 +50,7 @@ import java.util.Set;
  */
 public class GhostDeployerUtilsTest extends BaseTest {
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.utils.deployment"})
     public void testDeployActualService() throws Exception {
         String serviceName = "Version";
         ConfigurationContext configurationContext = createTestConfigurationContext();
@@ -71,7 +71,7 @@ public class GhostDeployerUtilsTest extends BaseTest {
         Assert.assertEquals(deployedService.getName(), actualService.getName());
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.utils.deployment"})
     public void testIsPartialUpdateEnabled() throws Exception {
         String serviceName = "Version";
         ConfigurationContext configurationContext = createTestConfigurationContext();
@@ -84,7 +84,7 @@ public class GhostDeployerUtilsTest extends BaseTest {
         Assert.assertNotNull(GhostDeployerUtils.dispatchServiceFromTransitGhosts(messageContext));
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.utils.deployment"})
     public void testWaitForServiceToLeaveTransit() throws Exception {
         String serviceName = "Version";
         ConfigurationContext configurationContext = createTestConfigurationContext();
@@ -121,7 +121,7 @@ public class GhostDeployerUtilsTest extends BaseTest {
         }
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.utils.deployment"})
     public void testIsGhostService() throws Exception {
         String serviceName = "Version";
         AxisService service = new AxisService(serviceName);
@@ -130,7 +130,7 @@ public class GhostDeployerUtilsTest extends BaseTest {
         Assert.assertTrue(GhostDeployerUtils.isGhostService(service));
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.utils.deployment"})
     public void testCreateGhostServiceGroup() throws Exception {
         String serviceName = "Version";
         File ghostMetaFile = Paths.get(testDir, "axis2services_Version.xml").toFile();
@@ -152,7 +152,7 @@ public class GhostDeployerUtilsTest extends BaseTest {
         GhostDeployerUtils.deployGhostServiceGroup(ghostMetaFile, deploymentFileData, axisConfiguration);
     }
 
-    @Test
+    @Test(groups = {"org.wso2.carbon.utils.deployment"})
     public void testGhostService() throws Exception {
         String serviceName = "Version";
         copyArtifacts();
