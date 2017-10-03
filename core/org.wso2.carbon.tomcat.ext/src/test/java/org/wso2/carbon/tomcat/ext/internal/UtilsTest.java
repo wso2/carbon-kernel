@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * UtilsTest includes test scenarios for
  * [1] functions, getTenantDomain (), getServiceName (), getAppNameFromRequest (),
- * createDummyTenantContextDir () and getTenantDomainFromURLMapping ().
+ * createDummyTenantContextDir () and getTenantDomainFromURLMapping () of Utils.
  * @since 4.4.19
  */
 public class UtilsTest {

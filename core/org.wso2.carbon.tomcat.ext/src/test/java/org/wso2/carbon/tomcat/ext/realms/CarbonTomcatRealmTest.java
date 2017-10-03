@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 /**
  * CarbonTomcatRealmTest includes test scenarios for
- * [1] functions, getName (), getPassword (), authenticate ().
+ * [1] functions, getName (), getPassword () and authenticate () of CarbonTomcatRealm.
  * [2] properties, isSaaSEnabled of CarbonTomcatRealm.
  * @since 4.4.19
  */

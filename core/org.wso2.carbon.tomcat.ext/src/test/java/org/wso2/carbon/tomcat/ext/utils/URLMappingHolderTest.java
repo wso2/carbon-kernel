@@ -24,8 +24,8 @@ import java.util.logging.Logger;
 /**
  * URLMappingHolderTest includes test scenarios for
  * [1] functions, getInstance (),  and getTenantName (), isUrlMappingExists (),
- * removeUrlMappingMap () and getUrlMappingsPerApplication URLMappingHolder.
- * [2] properties, defaultHost and urlMappingOfApplication.
+ * removeUrlMappingMap () and getUrlMappingsPerApplication of URLMappingHolder.
+ * [2] properties, defaultHost and urlMappingOfApplication of URLMappingHolder.
  * @since 4.4.19
  */
 public class URLMappingHolderTest {
