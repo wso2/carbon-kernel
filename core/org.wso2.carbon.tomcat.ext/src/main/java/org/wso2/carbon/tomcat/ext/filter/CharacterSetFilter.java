@@ -34,6 +34,10 @@ public class CharacterSetFilter implements Filter {
 
     private String encoding;
 
+    public String getEncoding () {
+        return this.encoding;
+    }
+
     @Override
     public void init(FilterConfig config) throws ServletException {
         encoding = config.getInitParameter("requestEncoding");
