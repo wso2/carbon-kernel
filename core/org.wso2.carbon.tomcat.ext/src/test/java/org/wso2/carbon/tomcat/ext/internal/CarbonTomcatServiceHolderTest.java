@@ -25,6 +25,11 @@ import java.util.logging.Logger;
 
 import static org.mockito.Mockito.mock;
 
+/**
+ * CarbonTomcatServiceHolderTest includes test scenarios for
+ * [1] properties, serverConfigurationService, carbonTomcatService and tccl of CarbonTomcatServiceHolder.
+ * @since 4.4.19
+ */
 public class CarbonTomcatServiceHolderTest {
 
     private static final Logger log = Logger.getLogger("CarbonTomcatServiceHolderTest");

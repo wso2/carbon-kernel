@@ -29,6 +29,12 @@ import java.util.logging.Logger;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * UtilsTest includes test scenarios for
+ * [1] functions, getTenantDomain (), getServiceName (), getAppNameFromRequest (),
+ * createDummyTenantContextDir () and getTenantDomainFromURLMapping ().
+ * @since 4.4.19
+ */
 public class UtilsTest {
 
     private static final Logger log = Logger.getLogger("UtilsTest");

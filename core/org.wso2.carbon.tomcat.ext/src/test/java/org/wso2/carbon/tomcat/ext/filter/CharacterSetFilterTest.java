@@ -29,6 +29,11 @@ import java.util.logging.Logger;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * CharacterSetFilterTest includes test scenarios
+ * for functions, init () and doFilter () of CharacterSetFilter.
+ * @since 4.4.19
+ */
 public class CharacterSetFilterTest {
 
     private static final Logger log = Logger.getLogger("CharacterSetFilterTest");

@@ -21,6 +21,12 @@ import org.junit.Test;
 
 import java.util.logging.Logger;
 
+/**
+ * TransportStatisticsEntryTest includes test scenarios for
+ * [1] functions, getContext () and getTenantName ().
+ * [2] properties, requestSize, responseSize and requestUrl of TransportStatisticsEntry.
+ * @since 4.4.19
+ */
 public class TransportStatisticsEntryTest {
 
     private static final Logger log = Logger.getLogger("TransportStatisticsEntryTest");
