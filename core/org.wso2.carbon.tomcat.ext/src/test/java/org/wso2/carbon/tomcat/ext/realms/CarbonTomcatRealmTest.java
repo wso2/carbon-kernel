@@ -21,6 +21,12 @@ import org.junit.Test;
 
 import java.util.logging.Logger;
 
+/**
+ * CarbonTomcatRealmTest includes test scenarios for
+ * [1] functions, getName (), getPassword (), authenticate ().
+ * [2] properties, isSaaSEnabled of CarbonTomcatRealm.
+ * @since 4.4.19
+ */
 public class CarbonTomcatRealmTest {
 
     private static final Logger log = Logger.getLogger("CarbonTomcatRealmTest");
@@ -52,7 +58,7 @@ public class CarbonTomcatRealmTest {
     }
 
     /**
-     * Checks getPassword with its expected behaviour of throwing an illegal state exception.
+     * Checks getPassword () with its expected behaviour of throwing an illegal state exception.
      */
     @Test(expected = IllegalStateException.class)
     public void testGetPasswordForDefaultBehaviour () throws Exception {
@@ -62,7 +68,7 @@ public class CarbonTomcatRealmTest {
     }
 
     /**
-     * Checks authenticate with its expected behaviour of throwing an illegal state exception.
+     * Checks authenticate () with its expected behaviour of throwing an illegal state exception.
      */
     @Test(expected = IllegalStateException.class)
     public void testAuthenticateForDefaultBehaviour () throws Exception {

@@ -24,6 +24,12 @@ import java.util.logging.Logger;
 
 public class TenantSaaSRulesTest {
 
+    /**
+     * TenantSaaSRulesTest includes test scenarios for
+     * [1] function, isTenantRulesDefined ().
+     * [2] properties, tenants, users and roles of CarbonTomcatRealm.
+     * @since 4.4.19
+     */
     private static final Logger log = Logger.getLogger("TenantSaaSRulesTest");
 
     /**

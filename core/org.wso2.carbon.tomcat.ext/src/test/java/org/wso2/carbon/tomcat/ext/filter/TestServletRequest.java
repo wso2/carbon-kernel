@@ -24,6 +24,11 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * TestServletRequest is an implementation of ServletRequest
+ * made to test out CharacterSetFilter test scenarios.
+ * @since 4.4.19
+ */
 public class TestServletRequest implements ServletRequest {
 
     // properties used for testing

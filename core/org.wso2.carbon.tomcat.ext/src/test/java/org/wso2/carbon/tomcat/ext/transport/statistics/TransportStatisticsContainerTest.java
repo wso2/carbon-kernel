@@ -23,6 +23,11 @@ import java.util.logging.Logger;
 
 import static org.mockito.Mockito.mock;
 
+/**
+ * TransportStatisticsContainerTest includes test scenarios for
+ * [1] property, transportStatistics.
+ * @since 4.4.19
+ */
 public class TransportStatisticsContainerTest {
 
     private static final Logger log = Logger.getLogger("TransportStatisticsContainerTest");

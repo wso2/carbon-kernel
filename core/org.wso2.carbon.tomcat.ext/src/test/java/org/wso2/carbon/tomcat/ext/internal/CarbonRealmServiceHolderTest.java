@@ -25,6 +25,11 @@ import java.util.logging.Logger;
 
 import static org.mockito.Mockito.mock;
 
+/**
+ * CarbonRealmServiceHolderTest includes test scenarios for
+ * [1] properties, realmService and registryService of CarbonRealmServiceHolder.
+ * @since 4.4.19
+ */
 public class CarbonRealmServiceHolderTest {
 
     private static final Logger log = Logger.getLogger("CarbonRealmServiceHolderTest");

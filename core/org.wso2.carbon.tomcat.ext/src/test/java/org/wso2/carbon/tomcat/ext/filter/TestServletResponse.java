@@ -22,6 +22,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
+/**
+ * TestServletResponse is an implementation of ServletResponse
+ * made to test out CharacterSetFilter test scenarios.
+ * @since 4.4.19
+ */
 public class TestServletResponse implements ServletResponse {
 
     // properties used for testing
