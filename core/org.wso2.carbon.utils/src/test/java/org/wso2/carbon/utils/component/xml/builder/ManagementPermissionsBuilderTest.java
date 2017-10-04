@@ -65,6 +65,5 @@ public class ManagementPermissionsBuilderTest extends BaseTest {
                 }
             }
         }
-
     }
 }

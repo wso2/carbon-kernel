@@ -70,6 +70,5 @@ public class DeployerConfigBuilderTest extends BaseTest {
                 }
             }
         }
-
     }
 }
