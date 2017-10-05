@@ -1,0 +1,117 @@
+package org.wso2.carbon.user.core.ldap;
+
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.xdbm.Index;
+
+import java.io.File;
+import java.util.HashSet;
+
+/**
+ * Embedded directory server for testing.
+ */
+public class TestDirectoryServer {
+
+    /** The directory service */
+    private DirectoryService service;
+    private LdapServer ldapService;
+    private File workDir;
+
+    /**
+     * Main class. We just do a lookup on the server to check that it's available.
+     *
+     * @param args Not used.
+     */
+    public static void main(String[] args) //throws Exception
+    {
+        try {
+            // Create the server
+            TestDirectoryServer ads = new TestDirectoryServer();
+            ads.startLdapServer(12389);
+
+            Thread.sleep(100000);
+            ads.stopLdapService();
+        } catch (Exception e) {
+            // Ok, we have something wrong going on ...
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Add a new partition to the server
+     *
+     * @param partitionId The partition Id
+     * @param partitionDn The partition DN
+     * @return The newly added partition
+     * @throws Exception If the partition can't be added
+     */
+    private Partition addPartition(String partitionId, String partitionDn) throws Exception {
+        // Create a new partition named 'foo'.
+        Partition partition = new JdbmPartition();
+        partition.setId(partitionId);
+        partition.setSuffix(partitionDn);
+        service.addPartition(partition);
+
+        return partition;
+    }
+
+    /**
+     * Add a new set of index on the given attributes
+     *
+     * @param partition The partition on which we want to add index
+     * @param attrs The list of attributes to index
+     */
+    private void addIndex(Partition partition, String... attrs) {
+        // Index some attributes on the apache partition
+        HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
+
+        for (String attribute : attrs) {
+            indexedAttributes.add(new JdbmIndex<Object, ServerEntry>(attribute));
+        }
+
+        ((JdbmPartition) partition).setIndexedAttributes(indexedAttributes);
+    }
+
+    public void startLdapServer(int port) throws Exception {
+
+        workDir = new File(System.getProperty("java.io.tmpdir"), "TEMP_APACHEDS-" + System.currentTimeMillis());
+        workDir.mkdirs();
+        // Initialize the LDAP service
+        ldapService = new LdapServer();
+        ldapService.setTransports(new TcpTransport(port));
+
+        service = new DefaultDirectoryService();
+        ldapService.setDirectoryService(service);
+        service.setWorkingDirectory(workDir);
+
+        // Disable the ChangeLog system
+        service.getChangeLog().setEnabled(false);
+        service.setDenormalizeOpAttrsEnabled(true);
+
+        // Create some new partitions named 'foo', 'bar' and 'apache'.
+        Partition wso2Partition = addPartition("test", "dc=WSO2,dc=ORG");
+
+        // And start the service
+        service.startup();
+
+        //Load the LDIF file
+        String ldif = this.getClass().getResource("/ldif/data.ldif").getFile();
+        LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldif);
+        ldifLoader.execute();
+
+        ldapService.start();
+    }
+
+    public void stopLdapService() {
+        ldapService.stop();
+        workDir.delete();
+    }
+}
