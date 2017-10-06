@@ -370,7 +370,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         }
 
-        String cacheExpiryTimeAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS);
+        cacheExpiryTimeAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS);
 
         String cacheCapacityAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_CACHE_CAPACITY);
         if (cacheCapacityAttribute != null) {
@@ -3623,7 +3623,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, userCacheExpiryMilliseconds)).
                         setStoreByValue(false);
                 userDnCache = cacheBuilder.build();
-                userDnCache.start();
             } else {
                 // We use system-wide settings to build the cache.
                 if (log.isDebugEnabled()) {
