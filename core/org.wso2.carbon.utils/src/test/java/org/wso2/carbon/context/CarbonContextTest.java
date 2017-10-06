@@ -18,6 +18,8 @@
 package org.wso2.carbon.context;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
@@ -28,6 +30,7 @@ import java.nio.file.Paths;
 /**
  * Test class for CarbonContext API usage.
  */
+@Test(dependsOnGroups = {"org.wso2.carbon.utils.logging"})
 public class CarbonContextTest {
     private static final Path testDir = Paths.get("src", "test");
 
@@ -187,5 +190,4 @@ public class CarbonContextTest {
             Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), null);
         }
     }
-
 }
