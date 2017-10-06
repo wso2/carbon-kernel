@@ -1418,12 +1418,6 @@
                 <artifactId>org.wso2.carbon.identity.governance.stub</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jacoco</groupId>
-                <artifactId>org.jacoco.agent</artifactId>
-                <classifier>runtime</classifier>
-                <version>${jacoco.version}</version>
-            </dependency>
         </dependencies>
 
     </dependencyManagement>
