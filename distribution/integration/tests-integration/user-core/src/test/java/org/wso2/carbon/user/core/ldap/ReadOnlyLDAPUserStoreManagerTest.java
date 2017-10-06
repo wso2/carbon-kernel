@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.user.core.ldap;
 
 import org.apache.commons.logging.Log;
@@ -18,9 +36,13 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -61,16 +83,26 @@ public class ReadOnlyLDAPUserStoreManagerTest {
     private static final String U_NAME_ATTR = "uName";
     private static final String USER_NAME_1 = "LName1";
     private static final String USER_NAME_2 = "LName2";
-    private static final String USER_1_U_NAME = "U_Name_1";
     private static final String USER_UPDATED_LAST_NAME = "LNameX";
     private static final String SEARCH_BASE = "ou=Users,dc=WSO2,dc=ORG";
     private static final int LDAP_SERVER_PORT = 12389;
+    private static final int TEST_TENANT_1 = 10001;
+    private static final String TEST_TENANT_DOMAIN_1 = "" + TEST_TENANT_1;
 
     private JdbcDataSource dataSource;
     private LDAPConnectionContext ldapConnectionContext;
     private ClaimManager claimManager;
     private Map<String, String> claimMap = new HashMap<String, String>();
     private TestDirectoryServer testDirectoryServer;
+
+    @AfterSuite
+    public void tearDown() throws UserStoreException {
+        try {
+            clearTestUsers();
+        } finally {
+            testDirectoryServer.stopLdapService();
+        }
+    }
 
     @BeforeSuite
     public void setUp() throws Exception {
@@ -100,16 +132,21 @@ public class ReadOnlyLDAPUserStoreManagerTest {
             }
         }).when(claimManager).getClaimMapping(Matchers.anyString());
 
+        TenantManager tenantManager = Mockito.mock(TenantManager.class);
+        Mockito.doReturn(TEST_TENANT_DOMAIN_1).when(tenantManager).getDomain(Matchers.anyInt());
+
+        RealmService realmService = Mockito.mock(RealmService.class);
+        Mockito.doReturn(tenantManager).when(realmService).getTenantManager();
+
+        Method setRealmServiceMethod = UserStoreMgtDSComponent.class
+                .getDeclaredMethod("setRealmService", RealmService.class);
+        setRealmServiceMethod.setAccessible(true);
+        setRealmServiceMethod.invoke(new UserStoreMgtDSComponent(), realmService);
+
         testDirectoryServer = new TestDirectoryServer();
         testDirectoryServer.startLdapServer(LDAP_SERVER_PORT);
 
         clearTestUsers();
-    }
-
-    @AfterSuite
-    public void tearDown() throws UserStoreException {
-        clearTestUsers();
-        testDirectoryServer.stopLdapService();
     }
 
     @Test
@@ -123,6 +160,7 @@ public class ReadOnlyLDAPUserStoreManagerTest {
         claims.put(SNAME_CLAIM, USER_UPDATED_LAST_NAME);
         claims.put(U_NAME_CLAIM, USER_NAME_1);
 
+        startTenantFlow(TEST_TENANT_1, TEST_TENANT_DOMAIN_1);
         if (!readWriteLDAPUserStoreManager1.isExistingUser(USER_NAME_1)) {
             readWriteLDAPUserStoreManager1.doAddUser(USER_NAME_1, "test1", new String[0], claims, "defult");
         }
@@ -131,12 +169,11 @@ public class ReadOnlyLDAPUserStoreManagerTest {
         try {
             rename(USER_NAME_1, USER_NAME_2);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in renaming LDAP user " + USER_NAME_1, e);
             //Ignore any exception.
         }
-        /*
-        DoAuthenticate should cause the user to be cached.
-         */
+
+        // DoAuthenticate should cause the user to be cached.
         isAuthenticated = readOnlyLDAPUserStoreManager1.doAuthenticate(USER_UPDATED_LAST_NAME, "test1");
         Assert.assertTrue(isAuthenticated);
 
@@ -144,35 +181,30 @@ public class ReadOnlyLDAPUserStoreManagerTest {
                 .getUserPropertyValues(USER_NAME_1, new String[] { CN_ATTR }, "default");
         Assert.assertNotNull(userProps);
 
-        /*
-        Raname the user back
-         */
+        // Rename the user back
         rename(USER_NAME_2, USER_NAME_1);
 
         try {
             readOnlyLDAPUserStoreManager1.getUserClaimValue(USER_UPDATED_LAST_NAME, SNAME_CLAIM, "default");
-            Assert.fail("The user search should fail, due to cache holding previous DN for the user");
+            Assert.fail("The user search should fail, due to cache holding previous DN for the user, "
+                    + "and a UserStoreException should have been thrown.");
         } catch (UserStoreException expectedException) {
             //This exception expected due to cache.
         }
 
         clearCache(readOnlyLDAPUserStoreManager1);
 
-        String lastName = readOnlyLDAPUserStoreManager1.getUserClaimValue(USER_UPDATED_LAST_NAME, SNAME_CLAIM, "default");
+        String lastName = readOnlyLDAPUserStoreManager1
+                .getUserClaimValue(USER_UPDATED_LAST_NAME, SNAME_CLAIM, "default");
         Assert.assertNotNull(lastName);
-
+        PrivilegedCarbonContext.endTenantFlow();
     }
 
     private void clearCache(ReadOnlyLDAPUserStoreManager readOnlyLDAPUserStoreManager1) {
         final String cacheManagerName = "UserCacheManager";
         final String userCacheNamePrefix = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
         try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            carbonContext.setTenantId(org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext
-                    .setTenantDomain(org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-
+            startTenantFlow(TEST_TENANT_1, TEST_TENANT_DOMAIN_1);
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(cacheManagerName);
             Cache userCache = cacheManager.getCache(userCacheNamePrefix + readOnlyLDAPUserStoreManager1.hashCode());
             userCache.removeAll();
@@ -210,7 +242,7 @@ public class ReadOnlyLDAPUserStoreManagerTest {
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
         properties.put(UserCoreConstants.FIRST_STARTUP_CHECK, false);
 
-        return new ReadWriteLDAPUserStoreManager(realmConfig, properties, claimManager, null, null, 0);
+        return new ReadWriteLDAPUserStoreManager(realmConfig, properties, claimManager, null, null, TEST_TENANT_1);
     }
 
     private ReadOnlyLDAPUserStoreManager getReadOnlyLDAPUserStoreManager() throws UserStoreException {
@@ -219,7 +251,7 @@ public class ReadOnlyLDAPUserStoreManagerTest {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
-        return new ReadOnlyLDAPUserStoreManager(realmConfig, properties, claimManager, null, null, 0);
+        return new ReadOnlyLDAPUserStoreManager(realmConfig, properties, claimManager, null, null, TEST_TENANT_1);
     }
 
     private RealmConfiguration getRealmConfiguration() {
@@ -282,4 +314,13 @@ public class ReadOnlyLDAPUserStoreManagerTest {
         }
     }
 
+    /**
+     * Common utility method to start the Super tenant flow.
+     */
+    private void startTenantFlow(int tenantId, String tenantDomain) {
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        carbonContext.setTenantId(tenantId);
+        carbonContext.setTenantDomain(tenantDomain);
+    }
 }

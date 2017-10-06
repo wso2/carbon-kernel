@@ -946,9 +946,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
                 String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the AD");
 
-        setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "0" ,
+        setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "",
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
-        setAdvancedProperty(LDAPConstants.USER_CACHE_CAPACITY, USER_CACHE_CAPACITY_ATTRIBUTE_NAME, ""+MAX_USER_CACHE ,
+        setAdvancedProperty(LDAPConstants.USER_CACHE_CAPACITY, USER_CACHE_CAPACITY_ATTRIBUTE_NAME, "" + MAX_USER_CACHE,
                 USER_CACHE_CAPACITY_ATTRIBUTE_DESCRIPTION);
     }
 

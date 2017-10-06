@@ -1,6 +1,6 @@
--- ################################
--- USER MANAGER TABLES
--- ################################
+-- ##########################################
+-- USER MANAGER TABLES FOR INTEGRATION TESTS
+-- ##########################################
 
 CREATE TABLE IF NOT EXISTS UM_TENANT (
 			UM_ID INTEGER NOT NULL AUTO_INCREMENT,

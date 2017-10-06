@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~  WSO2 Inc. licenses this file to you under the Apache License,
   ~  Version 2.0 (the "License"); you may not use this file except
@@ -42,23 +42,24 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${org.mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database.wso2</groupId>
-            <artifactId>h2-database-engine</artifactId>
-            <version>1.2.140.wso2v3</version>
+            <groupId>org.wso2.orbit.com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
-            <version>1.5.5</version>
+            <version>${org.apacheds.version}</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.directory.shared</groupId>
@@ -69,20 +70,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.5.8</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
     </dependencies>
-
-    <build>
-        <plugins>
-        </plugins>
-    </build>
+    
 
     <properties>
-        <carbon.kernel.version>4.4.11</carbon.kernel.version>
-        <testng.version>6.9.4</testng.version>
-        <org.mockito.version>1.9.5</org.mockito.version>
+        <carbon.kernel.version>${project.version}</carbon.kernel.version>
     </properties>
 </project>
 

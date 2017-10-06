@@ -586,6 +586,8 @@
 
         <test.framework.version>4.4.3</test.framework.version>
         <testng.verson>6.1.1</testng.verson>
+        <org.mockito.version>1.9.5</org.mockito.version>
+        <org.apacheds.version>1.5.5</org.apacheds.version>
 
         <!-- Unit/Integration tests -->
         <jacoco.version>0.7.9</jacoco.version>
