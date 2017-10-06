@@ -21,6 +21,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.testng.annotations.BeforeTest;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.File;
@@ -48,5 +49,10 @@ public class BaseTest {
                 axis2Repo);
         return ConfigurationContextFactory.
                 createConfigurationContextFromFileSystem(axis2Repo, Paths.get(testDir, "axis2.xml").toString());
+    }
+
+    protected void initTestServerConfiguration() throws ServerConfigurationException {
+        String serverConfigPath = Paths.get(testDir, "carbon.xml").toString();
+        ServerConfiguration.getInstance().forceInit(serverConfigPath);
     }
 }
