@@ -47,6 +47,9 @@ public class Constants {
     public static final String CREATE_NEW_ZIP_FILE_PROPERTY = "create";
     public static final String ENCODING_TYPE_PROPERTY = "encoding";
 
+    //SPY-Fly property
+    public static final String SPI_PROVIDER = "SPI-Provider";
+
     /**
      * Prevents instantiating this class.
      */

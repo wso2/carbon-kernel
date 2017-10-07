@@ -104,6 +104,7 @@ public class BundleGeneratorUtils {
                 attributes.putValue(Constants.EXPORT_PACKAGE, exportedPackages);
                 attributes.putValue(Constants.BUNDLE_CLASSPATH, ".," + tempJarFilePathHolder.toString());
                 attributes.putValue(Constants.DYNAMIC_IMPORT_PACKAGE, "*");
+                attributes.putValue(Constants.SPI_PROVIDER, "*");
 
                 if (!(Files.exists(extensionBundle))) {
                     logger.log(Level.FINE, "Creating the OSGi bundle for JAR file " + jarFile.toString());
