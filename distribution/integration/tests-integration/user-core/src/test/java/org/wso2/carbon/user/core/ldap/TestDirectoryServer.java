@@ -41,27 +41,7 @@ public class TestDirectoryServer {
     private DirectoryService service;
     private LdapServer ldapService;
     private File workDir;
-
-    /**
-     * Main class. We just do a lookup on the server to check that it's available.
-     *
-     * @param args Not used.
-     */
-    public static void main(String[] args) //throws Exception
-    {
-        try {
-            // Create the server
-            TestDirectoryServer ads = new TestDirectoryServer();
-            ads.startLdapServer(12389);
-
-            Thread.sleep(100000);
-            ads.stopLdapService();
-        } catch (Exception e) {
-            // Ok, we have something wrong going on ...
-            e.printStackTrace();
-        }
-
-    }
+    
 
     /**
      * Add a new partition to the server
