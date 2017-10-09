@@ -33,12 +33,41 @@ public class TenantCache {
     /**
      * Getting existing cache if the cache available, else returns a newly created cache.
      * This logic handles by javax.cache implementation
+     * This logic is handled by javax.cache implementation
+     * @param tenantId tenant Id for which the cache is required
+     * @param <T> Type of object to be cached
+     * @return Cache holding objects of <T> for the input tenant
      */
-    private <T> Cache<TenantIdKey, T> getTenantCache() {
-        Cache<TenantIdKey, T> cache = null;
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(TENANT_CACHE_MANAGER);
-        cache = cacheManager.getCache(TENANT_CACHE);
-        return cache;
+    private <T> Cache<TenantIdKey, T> getTenantCache(int tenantId) {
+        Cache<TenantIdKey, T> cache;
+
+        if ((tenantId > 0) &&
+                (MultitenantConstants.SUPER_TENANT_ID == PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId())) {
+
+            // As per the CacheManagerFactoryImpl, the CacheManager for each tenant is contained in a hash-map keyed
+            // by the tenant domain. Therefore, if the tenant is modified from within the super tenant carbon
+            // context, an obsolete CacheManager mapped to the super tenant domain will be updated, causing 2
+            // CacheManagers per tenant.
+
+            // To overcome this, we are executing a temporary tenant flow to access the correct CacheManager for the
+            // tenant.
+
+            try {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+
+                privilegedCarbonContext.setTenantId(tenantId, true);
+
+                cache = Caching.getCacheManagerFactory().getCacheManager(TENANT_CACHE_MANAGER).getCache
+                        (TENANT_CACHE);
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+            return cache;
+
+        } else {
+            return Caching.getCacheManagerFactory().getCacheManager(TENANT_CACHE_MANAGER).getCache(TENANT_CACHE);
+        }
     }
 
     /**
@@ -60,7 +89,7 @@ public class TenantCache {
             // Element already in the cache. Remove it first
             clearCacheEntry(key);
 
-            Cache<TenantIdKey, T> cache = getTenantCache();
+            Cache<TenantIdKey, T> cache = getTenantCache(key.getTenantId());
             if (cache != null) {
                 cache.put(key, entry);
                 if (log.isDebugEnabled()) {
@@ -93,7 +122,7 @@ public class TenantCache {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-            Cache<TenantIdKey, T> cache = getTenantCache();
+            Cache<TenantIdKey, T> cache = getTenantCache(key.getTenantId());
             if (cache != null) {
                 if (cache.containsKey(key)) {
                     T entry = cache.get(key);
@@ -134,7 +163,7 @@ public class TenantCache {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-            Cache<TenantIdKey, Object> cache = getTenantCache();
+            Cache<TenantIdKey, Object> cache = getTenantCache(key.getTenantId());
             if (cache != null) {
                 if (cache.containsKey(key)) {
                     cache.remove(key);
@@ -172,7 +201,10 @@ public class TenantCache {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-            Cache<TenantIdKey, Object> cache = getTenantCache();
+            // This is called only when initializing the tenant manager implementation. Therefore using the super tenant
+            // context to clear any cache.
+            Cache<TenantIdKey, Object> cache = getTenantCache(carbonContext.getTenantId());
+
             if (cache != null) {
                 cache.removeAll();
                 if (log.isDebugEnabled()) {
