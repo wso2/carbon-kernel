@@ -56,13 +56,19 @@ public class Axis2ServiceRegistryTest extends Axis2ModuleRegistryTest {
         headers.put(Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
         headers.put(Constants.BUNDLE_VERSION, bundleVersion);
         File serviceDirectory = Paths.get(testDir, "services").toFile();
-        Assert.assertTrue(serviceDirectory.exists() && serviceDirectory.isDirectory());
-        Enumeration<URL> manifestEntries =
-                new Axis2ModuleRegistryTest.ManifestModuleIterator(fileList(serviceDirectory.getAbsolutePath()));
+        File wsdlDirectory = Paths.get(testDir, "wsdls").toFile();
+        Assert.assertTrue(serviceDirectory.exists() && serviceDirectory.isDirectory() &&
+        wsdlDirectory.exists() && wsdlDirectory.isDirectory());
+        Enumeration<URL> serviceEntries = new Axis2ModuleRegistryTest.
+                ManifestModuleIterator(getFileListFromGiveDirectory(serviceDirectory.getAbsolutePath()));
+        Enumeration<URL> wsdlEntries = new Axis2ModuleRegistryTest.
+                ManifestModuleIterator(getFileListFromGiveDirectory(serviceDirectory.getAbsolutePath()));
         when(bundle.getHeaders()).thenReturn(headers);
-        when(bundle.findEntries("META-INF", "*services.xml", true)).thenReturn(manifestEntries);
+        when(bundle.findEntries("META-INF", "*services.xml", true)).thenReturn(serviceEntries);
+        when(bundle.findEntries("META-INF", "*.wsdl", true)).thenReturn(wsdlEntries);
         when(bundle.getBundleId()).thenReturn(1L);
         when(bundle.getLastModified()).thenReturn(System.currentTimeMillis());
+        when(bundle.getLocation()).thenReturn(wsdlDirectory.toURI().toString());
         Class echoServiceClass = Axis2ServiceRegistryTest.class.getClassLoader().loadClass(fqcn);
         when(bundle.loadClass(fqcn)).thenReturn(echoServiceClass);
         axis2ServiceRegistry.register(bundle);
