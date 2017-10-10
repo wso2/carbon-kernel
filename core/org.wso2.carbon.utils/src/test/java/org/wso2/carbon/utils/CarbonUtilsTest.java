@@ -32,6 +32,7 @@ import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.httpclient.Header;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
@@ -53,9 +54,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
+
 /**
  * Test class for CarbonUtils API usage.
  */
+@Test(dependsOnGroups = {"org.wso2.carbon.utils.deployment"})
 public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"})
@@ -312,13 +316,13 @@ public class CarbonUtilsTest extends BaseTest{
         String urlForSession = "https://wso2.com/services/from/session";
         String urlForServlet = "https://wso2.com/services/from/servlet";
 
-        HttpSession httpSession = new MockHttpSession();
-        ServletContext servletContext = new MockServletContext();
+        HttpSession httpSession = Mockito.mock(HttpSession.class);
+        ServletContext servletContext = Mockito.mock(ServletContext.class);
 
-        servletContext.setAttribute(CarbonConstants.SERVER_URL, urlForServlet);
+        when(servletContext.getAttribute(CarbonConstants.SERVER_URL)).thenReturn(urlForServlet);
         Assert.assertEquals(CarbonUtils.getServerURL(servletContext, httpSession, configurationContext), urlForServlet);
 
-        httpSession.setAttribute(CarbonConstants.SERVER_URL, urlForSession);
+        when(httpSession.getAttribute(CarbonConstants.SERVER_URL)).thenReturn(urlForSession);
         Assert.assertEquals(CarbonUtils.getServerURL(servletContext, httpSession, configurationContext), urlForSession);
     }
 
