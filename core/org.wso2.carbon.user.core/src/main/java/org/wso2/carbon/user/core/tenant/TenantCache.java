@@ -7,7 +7,6 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
-import javax.cache.CacheManager;
 import javax.cache.Caching;
 
 public class TenantCache {
@@ -42,7 +41,8 @@ public class TenantCache {
         Cache<TenantIdKey, T> cache;
 
         if ((tenantId > 0) &&
-                (MultitenantConstants.SUPER_TENANT_ID == PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId())) {
+                (MultitenantConstants.SUPER_TENANT_ID == PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                        .getTenantId())) {
 
             // As per the CacheManagerFactoryImpl, the CacheManager for each tenant is contained in a hash-map keyed
             // by the tenant domain. Therefore, if the tenant is modified from within the super tenant carbon
@@ -58,8 +58,7 @@ public class TenantCache {
 
                 privilegedCarbonContext.setTenantId(tenantId, true);
 
-                cache = Caching.getCacheManagerFactory().getCacheManager(TENANT_CACHE_MANAGER).getCache
-                        (TENANT_CACHE);
+                cache = Caching.getCacheManagerFactory().getCacheManager(TENANT_CACHE_MANAGER).getCache(TENANT_CACHE);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }
