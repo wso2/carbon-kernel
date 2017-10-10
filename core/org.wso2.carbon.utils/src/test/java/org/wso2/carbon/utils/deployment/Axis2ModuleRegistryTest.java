@@ -66,7 +66,8 @@ public class Axis2ModuleRegistryTest extends BaseTest {
         headers.put(Constants.BUNDLE_VERSION, bundleVersion);
         File modulesDirectory = Paths.get(testDir, "modules").toFile();
         Assert.assertTrue(modulesDirectory.exists() && modulesDirectory.isDirectory());
-        Enumeration<URL> manifestEntries = new ManifestModuleIterator(fileList(modulesDirectory.getAbsolutePath()));
+        Enumeration<URL> manifestEntries = new ManifestModuleIterator(getFileListFromGiveDirectory(modulesDirectory.
+                getAbsolutePath()));
         when(bundle.getHeaders()).thenReturn(headers);
         when(bundle.findEntries("META-INF", "module.xml", true)).thenReturn(manifestEntries);
         axis2ModuleRegistry.register(bundle);
@@ -106,7 +107,7 @@ public class Axis2ModuleRegistryTest extends BaseTest {
         }
     }
 
-    List<String> fileList(String directory) {
+    List<String> getFileListFromGiveDirectory(String directory) {
         List<String> fileNames = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
             for (Path path : directoryStream) {
