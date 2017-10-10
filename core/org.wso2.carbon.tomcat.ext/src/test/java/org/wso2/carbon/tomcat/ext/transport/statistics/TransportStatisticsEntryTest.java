@@ -52,7 +52,7 @@ public class TransportStatisticsEntryTest {
     }
 
     /**
-     * Checks getTenantName functionality for services.
+     * Checks getTenantName functionality for service, webapp and other app requests.
      */
     @Test(groups = {"org.wso2.carbon.tomcat.ext.transport.statistics"})
     public void testGetTenantName () {
@@ -61,10 +61,20 @@ public class TransportStatisticsEntryTest {
                 (146515L, 162315L, "http://example.com/services/t/abc.com/echo");
         Assert.assertTrue("abc.com".equals(transportStatisticsEntry.getTenantName()),
                 "Returned tenant domain does not match with expected");
+        log.info("Testing getTenantName () functionality for webapps");
+        transportStatisticsEntry = new TransportStatisticsEntry
+                (146515L, 162315L, "http://example.com/t/foo.com/webapps/echo");
+        Assert.assertTrue("foo.com".equals(transportStatisticsEntry.getTenantName()),
+                "Returned tenant domain does not match with expected");
+        log.info("Testing getTenantName () functionality for other app contexts ");
+        transportStatisticsEntry = new TransportStatisticsEntry
+                (146515L, 162315L, "http://example.com/t/foo.com/jaggeryapps/echo");
+        Assert.assertTrue(transportStatisticsEntry.getTenantName() == null,
+                "Returned value for tenant domain does not match with expected");
     }
 
     /**
-     * Checks getContext functionality for services.
+     * Checks getContext functionality for service, webapp and other app requests.
      */
     @Test(groups = {"org.wso2.carbon.tomcat.ext.transport.statistics"})
     public void testGetContext () {
@@ -73,5 +83,15 @@ public class TransportStatisticsEntryTest {
                 (146515L, 162315L, "http://example.com/services/t/abc.com/echo");
         Assert.assertTrue("services".equals(transportStatisticsEntry.getContext()),
                 "Returned application context does not match with expected");
+        log.info("Testing getContext () functionality for webapps");
+        transportStatisticsEntry = new TransportStatisticsEntry
+                (146515L, 162315L, "http://example.com/t/foo.com/webapps/echo");
+        Assert.assertTrue("webapps".equals(transportStatisticsEntry.getContext()),
+                "Returned application context does not match with expected");
+        log.info("Testing getContext () functionality for other app contexts");
+        transportStatisticsEntry = new TransportStatisticsEntry
+                (146515L, 162315L, "http://example.com/t/foo.com/jaggeryapps/echo");
+        Assert.assertTrue(transportStatisticsEntry.getContext() == null,
+                "Returned value for application context does not match with expected");
     }
 }

@@ -18,7 +18,9 @@ package org.wso2.carbon.tomcat.ext.realms;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.tomcat.ext.saas.TenantSaaSRules;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -45,7 +47,7 @@ public class CarbonTomcatRealmTest {
     }
 
     /**
-     * Testing getName() for its expected behaviour.
+     * Checks getName() for its expected behaviour.
      */
     @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"})
     public void testGetName () throws Exception {
@@ -77,4 +79,85 @@ public class CarbonTomcatRealmTest {
                 "md5-string");
     }
 
+    /**
+     * Checks for correct tenantSaaSRulesMap value with its setters and getters for Case 1.
+     * Case 1 : SaasRules contain one tenant and its two users.
+     * @throws Exception An exception is thrown according to CarbonTomcatRealm constructor definition.
+     */
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"})
+    public void testTenantSaaSRulesMapWithCase1 () throws Exception {
+        CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
+        log.info("Testing getters and setters for tenantSaaSRulesMap with users");
+        carbonTomcatRealm.setSaasRules("carbon.super:users=admin,bob");
+        Map saasRules = carbonTomcatRealm.getSaasRules();
+        // Testing tenantSaaSRulesMap for correct number of tenants
+        Assert.assertEquals(saasRules.size(), 1,
+                "Received number of tenants does not match expected size");
+        // Testing tenantSaaSRulesMap for correct number of tenant users
+        Assert.assertEquals(((TenantSaaSRules)saasRules.get("carbon.super")).getUsers().size(), 2,
+                "Received number of tenant users does not match expected size");
+    }
+
+    /**
+     * Checks for correct tenantSaaSRulesMap value with its setters and getters for Case 2.
+     * Case 2 : SaasRules contain two tenants and their roles.
+     * @throws Exception An exception is thrown according to CarbonTomcatRealm constructor definition.
+     */
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"})
+    public void testTenantSaaSRulesMapWithCase2 () throws Exception {
+        CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
+        log.info("Testing getters and setters for tenantSaaSRulesMap with roles");
+        carbonTomcatRealm.setSaasRules("carbon.super:roles=admin;abc.com:roles=admin,manager,clerk");
+        Map saasRules = carbonTomcatRealm.getSaasRules();
+        // Testing tenantSaaSRulesMap for correct number of tenants
+        Assert.assertEquals(saasRules.size(), 2,
+                "Received number of tenants does not match expected size");
+        // Testing tenantSaaSRulesMap for correct number of tenant users
+        Assert.assertEquals(((TenantSaaSRules)saasRules.get("abc.com")).getRoles().size(), 3,
+                "Received number of tenant users does not match expected size");
+    }
+
+    /**
+     * Checks for correct tenantSaaSRulesMap value with its setters and getters for Case 3.
+     * Case 3 : SaasRules contain two tenants, their roles and users.
+     * @throws Exception An exception is thrown according to CarbonTomcatRealm constructor definition.
+     */
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"})
+    public void testTenantSaaSRulesMapWithCase3 () throws Exception {
+        CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
+        log.info("Testing getters and setters for tenantSaaSRulesMap with roles and users");
+        carbonTomcatRealm.setSaasRules("carbon.super:roles=admin;abc.com:users=admin,bob,smith");
+        Map saasRules = carbonTomcatRealm.getSaasRules();
+        // Testing tenantSaaSRulesMap for correct number of tenants
+        Assert.assertEquals(saasRules.size(), 2,
+                "Received number of tenants does not match expected size");
+        // Testing tenantSaaSRulesMap for correct number of tenant roles
+        Assert.assertEquals(((TenantSaaSRules)saasRules.get("carbon.super")).getRoles().size(), 1,
+                "Received number of tenant roles does not match expected size");
+        // Testing tenantSaaSRulesMap for correct number of tenant users
+        Assert.assertEquals(((TenantSaaSRules)saasRules.get("abc.com")).getUsers().size(), 3,
+                "Received number of tenant users does not match expected size");
+    }
+
+    /**
+     * Checks for correct tenantSaaSRulesMap value with its setters and getters for Case 4.
+     * Case 4 : SaasRules contain only tenants, but no roles or users.
+     * @throws Exception An exception is thrown according to CarbonTomcatRealm constructor definition.
+     */
+    @Test(groups = {"org.wso2.carbon.tomcat.ext.realms"})
+    public void testTenantSaaSRulesMapWithCase4 () throws Exception {
+        CarbonTomcatRealm carbonTomcatRealm = new CarbonTomcatRealm();
+        log.info("Testing getters and setters for tenantSaaSRulesMap with no roles and users");
+        carbonTomcatRealm.setSaasRules("carbon.super;abc.com;xyz.com");
+        Map saasRules = carbonTomcatRealm.getSaasRules();
+        // Testing tenantSaaSRulesMap for correct number of tenants
+        Assert.assertEquals(saasRules.size(), 3,
+                "Received number of tenants does not match expected size");
+        // Testing tenantSaaSRulesMap for correct number of tenant roles
+        Assert.assertEquals(((TenantSaaSRules)saasRules.get("carbon.super")).getRoles(), null,
+                "Received number of tenant roles does not match expected size");
+        // Testing tenantSaaSRulesMap for correct number of tenant users
+        Assert.assertEquals(((TenantSaaSRules)saasRules.get("abc.com")).getUsers(), null,
+                "Received number of tenant users does not match expected size");
+    }
 }

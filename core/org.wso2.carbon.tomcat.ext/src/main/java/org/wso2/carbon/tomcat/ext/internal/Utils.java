@@ -161,8 +161,8 @@ public class Utils {
         String uri = URLMappingHolder.getInstance().getApplicationFromUrlMapping(hostName);
         if (uri != null) {
             //setting application id for the webapps which has deployed in a virtual host
-            if(uri.startsWith("/services/")) {
-                appName = getServiceName(uri);
+            if (uri.startsWith("/services/")) {
+                temp = getServiceName(uri);
             } else if (uri.contains(WEB_APP_PATTERN)) {
                 //if the request from webapps, getting appName from uri
                 temp = uri.substring(uri.indexOf(WEB_APP_PATTERN) + 9);
