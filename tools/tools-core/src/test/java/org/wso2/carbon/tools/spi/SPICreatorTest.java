@@ -16,14 +16,17 @@
 package org.wso2.carbon.tools.spi;
 
 import org.testng.annotations.Test;
+import org.wso2.carbon.tools.Constants;
 import org.wso2.carbon.tools.TestConstants;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -36,15 +39,27 @@ public class SPICreatorTest {
     @Test
     public void testAddingSPI() throws IOException {
         SPICreator spiCreator = new SPICreator();
-        spiCreator.execute("org.wso2.spi.TestSPI", "org.wso2.carbon.impl.TestSPIImpl", sampleJARFile.toString(),
-                           converterTestResources.toString());
+        String spi = "org.wso2.spi.TestSPI";
+        String spiImpl = "org.wso2.carbon.impl.TestSPIImpl";
+        spiCreator.execute(spi, spiImpl, sampleJARFile.toString(), converterTestResources.toString());
 
         String jarFileName = sampleJARFile.getFileName().toString();
         Path tmpDir = converterTestResources.resolve(jarFileName.substring(0, jarFileName.lastIndexOf(".")));
-        Path finalJarPath = tmpDir.resolve(jarFileName);
+        int i = jarFileName.lastIndexOf(".");
+        Path finalJarPath = tmpDir.resolve(
+                new StringBuilder(jarFileName.replace("-", "_")).replace(i, i + 1, "_1.0.0.").toString());
         assertTrue(Files.exists(finalJarPath));
 
-        JarFile jarFile = new JarFile(finalJarPath.toFile());
-        assertNotNull(jarFile.getJarEntry("META-INF/services/org.wso2.spi.TestSPI"));
+        Path extractPath = tmpDir.resolve("carbon-spi-fly.jar");
+        try (JarFile jarFile = new JarFile(finalJarPath.toFile());
+             InputStream is = jarFile.getInputStream(jarFile.getEntry(jarFileName))) {
+            assertEquals("*", jarFile.getManifest().getMainAttributes().getValue(Constants.SPI_PROVIDER));
+            assertNotNull(jarFile.getJarEntry(jarFileName));
+            Files.copy(is, extractPath);
+            assertTrue(Files.exists(extractPath));
+        }
+        try (JarFile jarFile = new JarFile(extractPath.toString())) {
+            jarFile.getEntry("META-INF/services/" + spi);
+        }
     }
 }

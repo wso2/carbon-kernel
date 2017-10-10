@@ -49,7 +49,7 @@ public class Constants {
 
     //SPY-Fly property
     public static final String SPI_PROVIDER = "SPI-Provider";
-
+    public static final String SERVICES = "services";
     /**
      * Prevents instantiating this class.
      */

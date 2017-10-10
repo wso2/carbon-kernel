@@ -104,7 +104,6 @@ public class BundleGeneratorUtils {
                 attributes.putValue(Constants.EXPORT_PACKAGE, exportedPackages);
                 attributes.putValue(Constants.BUNDLE_CLASSPATH, ".," + tempJarFilePathHolder.toString());
                 attributes.putValue(Constants.DYNAMIC_IMPORT_PACKAGE, "*");
-                attributes.putValue(Constants.SPI_PROVIDER, "*");
 
                 if (!(Files.exists(extensionBundle))) {
                     logger.log(Level.FINE, "Creating the OSGi bundle for JAR file " + jarFile.toString());
@@ -158,7 +157,7 @@ public class BundleGeneratorUtils {
      * @throws CarbonToolException if {@link Path} {@code zipFilePath} does not refer to a .jar file or if
      *                             {@link Path} {@code zipFilePath} has zero elements
      */
-    private static boolean isOSGiBundle(Path jaFilePath) throws IOException, CarbonToolException {
+    public static boolean isOSGiBundle(Path jaFilePath) throws IOException, CarbonToolException {
         boolean hasSymbolicName, hasVersion;
         try (FileSystem zipFileSystem = BundleGeneratorUtils.createZipFileSystem(jaFilePath, false)) {
             Path manifestPath = zipFileSystem.getPath(Constants.JAR_MANIFEST_FOLDER, Constants.MANIFEST_FILE_NAME);

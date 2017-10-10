@@ -16,21 +16,38 @@
 package org.wso2.carbon.tools.spi;
 
 import org.wso2.carbon.tools.CarbonTool;
+import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.wso2.carbon.tools.Constants.JAR_MANIFEST_FOLDER;
+import static org.wso2.carbon.tools.Constants.MANIFEST_FILE_NAME;
+import static org.wso2.carbon.tools.Constants.SERVICES;
+import static org.wso2.carbon.tools.Constants.SPI_PROVIDER;
+
 /**
  * This will add the given SPI to META-INF/services of given jar file, which are need to be exposed to OSGi env.
+ *
+ * @since 5.2.1
  */
 public class SPICreator implements CarbonTool {
 
@@ -40,8 +57,8 @@ public class SPICreator implements CarbonTool {
     public void execute(String... toolArgs) {
         if (toolArgs.length != 4) {
             String message = "Improper usage detected. " +
-                             "Usage: spicreator.sh/.bat [SPI] [SPI Implementation] [jarfile] [destination]" +
-                             "All arguments are compulsory";
+                             "Usage: spicreator.sh|bat [SPI] [SPI Implementation] [jarfile] [destination] " +
+                             "All 4 arguments are compulsory.";
             logger.log(Level.INFO, message);
             return;
         }
@@ -67,18 +84,36 @@ public class SPICreator implements CarbonTool {
                 Path finalJarPath = tmpDir.resolve(jarFileName);
                 Files.copy(jarFile, finalJarPath);
 
-                Path metaInf = tmpDir.resolve(Paths.get("META-INF", "services"));
+                Path metaInf = tmpDir.resolve(Paths.get(JAR_MANIFEST_FOLDER, SERVICES));
                 final Path parent = metaInf.getParent();
                 if (parent != null) {
                     Files.createDirectory(parent);
                 }
                 Files.createDirectory(metaInf);
+
+                StringBuilder existingSPIs = new StringBuilder(spiImpl).append("\n");
+                // Get existing SPI impl if exist
+                try (JarFile jar = new JarFile(finalJarPath.toString())) {
+                    if (jar.getJarEntry("META-INF/services/" + spi) != null) {
+                        Map<String, String> env = new HashMap<>();
+                        env.put("create", "true");
+                        // locate file system by using the syntax
+                        // defined in java.net.JarURLConnection
+                        URI uri = URI.create("jar:file:" + finalJarPath.toString());
+                        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+                            Path existingSPIPath = zipfs.getPath(JAR_MANIFEST_FOLDER, SERVICES, spi);
+                            Files.readAllLines(existingSPIPath).forEach(s -> existingSPIs.append(s).append("\n"));
+                        }
+                    }
+                }
+
                 try (PrintWriter printWriter = new PrintWriter(
                         new OutputStreamWriter(new FileOutputStream(metaInf.resolve(spi).toFile()), "UTF-8"))) {
-                    printWriter.println(spiImpl);
+                    printWriter.println(existingSPIs.toString());
                     printWriter.flush();
                 } catch (FileNotFoundException e) {
                     logger.log(Level.SEVERE, "Couldn't find required SPI file.", e);
+                    throw e;
                 }
 
                 StringBuilder command = new StringBuilder();
@@ -91,10 +126,16 @@ public class SPICreator implements CarbonTool {
                 logger.log(Level.INFO, "Executing '" + command.toString() + "'");
                 process = Runtime.getRuntime().exec(command.toString());
                 process.waitFor(5, TimeUnit.SECONDS);
+                //Add 'SPI-Provider' header to MANIFEST.MF
+                addSPIProviderHeader(finalJarPath, tmpDir);
+
+                logger.log(Level.INFO, "Created jar file: '" + finalJarPath.toString());
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error while running SPI Creator", e);
             } catch (InterruptedException e) {
                 logger.log(Level.SEVERE, "Error while adding SPI", e);
+            } catch (CarbonToolException e) {
+                logger.log(Level.SEVERE, "Error while converting to bundle", e);
             } finally {
                 if (process != null) {
                     process.destroy();
@@ -104,6 +145,40 @@ public class SPICreator implements CarbonTool {
             String message = "The destination location '" + tmpDir.toString() +
                              "' already exist/does not have write permissions or jar file doesn't exist";
             logger.log(Level.WARNING, message);
+        }
+    }
+
+    /**
+     * Add SPI-Provider: * header to MANIFEST.MF file.
+     *
+     * @param finalJarPath Path of the jar file
+     * @param destination  Destination path where jar get created.
+     * @throws IOException         if an error occur while reading/writing jar file
+     * @throws CarbonToolException if an error occur when converting to bundle
+     */
+    private void addSPIProviderHeader(Path finalJarPath, Path destination) throws IOException, CarbonToolException {
+        Manifest manifest = new Manifest();
+        manifest.getMainAttributes().putValue(SPI_PROVIDER, "*");
+        if (BundleGeneratorUtils.isOSGiBundle(finalJarPath)) {
+            logger.log(Level.INFO, "Adding '" + SPI_PROVIDER + ": *' to " + MANIFEST_FILE_NAME);
+            Path manifestmfFile = destination.resolve(MANIFEST_FILE_NAME);
+            try (JarFile jar = new JarFile(finalJarPath.toString()); PrintWriter printWriter = new PrintWriter(
+                    new OutputStreamWriter(new FileOutputStream(manifestmfFile.toFile()), "UTF-8"))) {
+                jar.getManifest().getMainAttributes().forEach((key, val) -> manifest.getMainAttributes().put(key, val));
+                manifest.getMainAttributes().forEach((o, o2) -> printWriter.println(o + ": " + o2));
+                printWriter.flush();
+            }
+
+            Map<String, String> env = new HashMap<>();
+            env.put("create", "true");
+            URI uri = URI.create("jar:file:" + finalJarPath.toString());
+            try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+                Path pathInZipfile = zipfs.getPath(JAR_MANIFEST_FOLDER, MANIFEST_FILE_NAME);
+                Files.copy(manifestmfFile, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } else {
+            logger.log(Level.INFO, "Running jar to bundle conversion");
+            BundleGeneratorUtils.convertFromJarToBundle(finalJarPath, destination, manifest, "");
         }
     }
 }
