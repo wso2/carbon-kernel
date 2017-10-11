@@ -194,3 +194,16 @@ In order to solve this problem, we have introduced an interface called `Capabili
         }
 
 As explained above, the startup order resolver processes the `Carbon-Component` manifest headers, and figures out the components that need to be notified when all requirements are satisfied. Similarly, the startup order resolver figures out the expected number of OSGi services for each startup listener component. The startup order resolver listens to OSGi service events, and notifies startup listener components, as and when their requirements are satisfied.
+
+### Skipping OSGi service registrations from Carbon Startup Order Resolver
+
+There are some usecases where OSGi services will be registered dynamically in the server startup, but those 
+registrations won't affect the services startup order (e.g. starting services per deploying artifact). In those 
+scenarios, developers can skip such OSGi service registrations from the Carbon Startup Order Resolver by setting the 
+`skipCarbonStartupResolver` property to `true` in the associated service registration properties.
+
+```java
+Dictionary<String, Object> properties = new Hashtable<>();
+properties.put("skipCarbonStartupResolver", true);
+bundleContext.registerService(SomeService.class, new SomeServiceImpl(), properties);
+```
