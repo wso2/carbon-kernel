@@ -19,6 +19,8 @@ package org.wso2.carbon.kernel.internal.startupresolver.beans;
 
 import org.osgi.framework.Bundle;
 
+import java.util.Locale;
+
 /**
  * Represents a generic capability provided by an OSGi bundle.
  *
@@ -47,8 +49,12 @@ public class Capability {
      * It could be in either EXPECTED state or AVAILABLE state
      */
     public enum CapabilityState {
-        EXPECTED,
-        AVAILABLE
+        EXPECTED, AVAILABLE;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase(Locale.ENGLISH);
+        }
     }
 
     /**

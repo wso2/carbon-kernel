@@ -170,8 +170,7 @@ class StartupComponentManager {
                         logger.warn("You are trying to add an {} capability {} from bundle({}:{}) to an already " +
                                         "activated startup listener component {} in bundle({}:{}). Refer the Startup " +
                                         "Order Resolver documentation and verify your configuration",
-                                (capability.getState() == Capability.CapabilityState.AVAILABLE) ?
-                                        "available" : "expected",
+                                capability.getState(),
                                 capability.getName(),
                                 capability.getBundle().getSymbolicName(),
                                 capability.getBundle().getVersion(),
@@ -183,8 +182,7 @@ class StartupComponentManager {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding {} required capability {} from bundle({}:{}) to " +
                                         "startup listener component {}.",
-                                (capability.getState() == Capability.CapabilityState.AVAILABLE) ?
-                                        "available" : "expected",
+                                capability.getState(),
                                 capability.getName(),
                                 capability.getBundle().getSymbolicName(),
                                 capability.getBundle().getVersion(),
@@ -211,8 +209,7 @@ class StartupComponentManager {
                                     "Either specify the capability in the " + CARBON_COMPONENT_HEADER +
                                     " manifest header or explicitly skip the Startup Order Resolver. " +
                                     "Refer the Startup Order Resolver documentation for more information.",
-                                    (capability.getState() == Capability.CapabilityState.AVAILABLE) ?
-                                            "available" : "expected",
+                                    capability.getState(),
                                     capability.getName(),
                                     capability.getBundle().getSymbolicName(),
                                     capability.getBundle().getVersion(),
