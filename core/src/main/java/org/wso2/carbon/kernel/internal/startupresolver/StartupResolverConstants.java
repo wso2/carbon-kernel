@@ -26,6 +26,7 @@ class StartupResolverConstants {
 
     static final String CARBON_COMPONENT_HEADER = "Carbon-Component";
     static final String CAPABILITY_NAME = "capabilityName";
+    static final String SKIP_CARBON_STARTUP_RESOLVER = "skipCarbonStartupResolver";
     static final String COMPONENT_NAME = "componentName";
     static final String STARTUP_LISTENER_COMPONENT = "startup.listener";
     static final String OSGI_SERVICE_COMPONENT = "osgi.service";
