@@ -41,6 +41,7 @@ import java.util.stream.IntStream;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CAPABILITY_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.COMPONENT_NAME;
 import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.OBJECT_CLASS;
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.SKIP_CARBON_STARTUP_RESOLVER;
 import static org.wso2.carbon.utils.StringUtils.getNonEmptyStringAfterTrim;
 
 /**
@@ -170,9 +171,14 @@ class OSGiServiceCapabilityTracker {
                                         bundle,
                                         true)));
             } else {
+                if (Boolean.TRUE.equals(reference.getProperty(SKIP_CARBON_STARTUP_RESOLVER))) {
+                    logger.debug("Skipping tracking of service {} which implements {}.", serviceImplClassName,
+                                 serviceInterfaceClassName);
+                    return null;
+                }
+
                 logger.debug("Updating indirect dependencies in components for interface={} via the implementation={}",
                         serviceInterfaceClassName, serviceImplClassName);
-
                 startupComponentManager.updateCapability(new OSGiServiceCapability(
                         serviceInterfaceClassName,
                         Capability.CapabilityType.OSGi_SERVICE,
