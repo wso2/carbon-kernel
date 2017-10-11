@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.wso2.carbon.kernel.internal.startupresolver.StartupResolverConstants.CARBON_COMPONENT_HEADER;
+
 /**
  * Manages StartupComponents.
  *
@@ -202,7 +204,24 @@ class StartupComponentManager {
         startupComponentMap.values()
                 .stream()
                 .filter(startupComponent -> startupComponent.isServiceRequired(capability.getName()))
-                .forEach(startupComponent -> startupComponent.updateCapability(capability));
+                .forEach(startupComponent -> {
+                    if (startupComponent.isSatisfied()) {
+                        logger.warn("You are trying to add an {} capability {} from bundle({}:{}) to an already " +
+                                    "satisfied startup listener component {} in bundle({}:{}). " +
+                                    "Either specify the capability in the " + CARBON_COMPONENT_HEADER +
+                                    " manifest header or explicitly skip the Startup Order Resolver. " +
+                                    "Refer the Startup Order Resolver documentation for more information.",
+                                    (capability.getState() == Capability.CapabilityState.AVAILABLE) ?
+                                            "available" : "expected",
+                                    capability.getName(),
+                                    capability.getBundle().getSymbolicName(),
+                                    capability.getBundle().getVersion(),
+                                    startupComponent.getName(),
+                                    startupComponent.getBundle().getSymbolicName(),
+                                    startupComponent.getBundle().getVersion());
+                    }
+                    startupComponent.updateCapability(capability);
+                });
     }
 
     /**
