@@ -23,7 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.BaseTest;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
-import org.wso2.carbon.utils.component.xml.config.ManagementPermission;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

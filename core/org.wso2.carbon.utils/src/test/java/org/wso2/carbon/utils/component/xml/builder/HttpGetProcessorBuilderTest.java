@@ -22,7 +22,6 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.BaseTest;
-import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import org.wso2.carbon.utils.component.xml.config.HTTPGetRequestProcessorConfig;
 
 import java.io.FileInputStream;

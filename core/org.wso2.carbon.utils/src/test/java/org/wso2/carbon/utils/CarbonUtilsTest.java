@@ -34,8 +34,6 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.httpclient.Header;
 import org.mockito.Mockito;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.BaseTest;
 import org.wso2.carbon.CarbonConstants;
