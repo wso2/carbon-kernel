@@ -35,7 +35,7 @@ public class BaseTest {
     protected static final String testDir = Paths.get(basedir, "src", "test", "resources", "carbon-utils").toString();
     protected static final File testSampleDirectory = Paths.get("target", "carbon-utils-test-directory").toFile();
 
-    @BeforeTest
+    @BeforeTest(alwaysRun = true)
     public void setup() {
         testSampleDirectory.mkdirs();
         System.setProperty(ServerConstants.CARBON_HOME, testDir);
