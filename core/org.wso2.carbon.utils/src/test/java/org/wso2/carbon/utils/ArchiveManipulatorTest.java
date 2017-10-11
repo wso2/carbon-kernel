@@ -37,7 +37,7 @@ public class ArchiveManipulatorTest extends BaseTest {
     private Path extractDirectory = Paths.get(testSampleDirectory.getAbsolutePath(), "testExtractDirectory");
 
     @BeforeTest(alwaysRun = true)
-    public void setup() {
+    public void createDirectories() {
         archiveDirectory.toFile().mkdirs();
         extractDirectory.toFile().mkdirs();
     }
