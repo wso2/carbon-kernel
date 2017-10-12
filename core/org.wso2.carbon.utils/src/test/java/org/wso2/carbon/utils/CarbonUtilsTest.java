@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
  * Test class for CarbonUtils API usage.
  */
 @Test(dependsOnGroups = {"org.wso2.carbon.utils.deployment"})
-public class CarbonUtilsTest extends BaseTest{
+public class CarbonUtilsTest extends BaseTest {
 
     @Test(groups = {"org.wso2.carbon.utils.base"})
     public void testGetServerConfiguration() {
@@ -109,7 +109,8 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetTransportProxyPort")
     public void testGetAxis2Xml() throws Exception {
-        String axis2XmlPath = Paths.get(testDir, "repository", "conf", "axis2", "axis2.xml").toString();
+        String axis2XmlPath = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "conf", "axis2",
+                "axis2.xml").toString();
         Assert.assertEquals(axis2XmlPath, CarbonUtils.getAxis2Xml());
         ServerConfiguration.getInstance().overrideConfigurationProperty("Axis2Config.ConfigurationFile", null);
         System.setProperty(Constants.AXIS2_CONF, "custom/axis2.xml");
@@ -126,15 +127,15 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetAxis2XRepo")
     public void testGetRegistryXMLPath() throws Exception {
-        System.setProperty(ServerConstants.CARBON_HOME, testDir);
-        String registryXmlPath = Paths.get(testDir + "/repository/conf/registry.xml").toString();
+        String registryXmlPath = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "conf", "registry.xml").
+                toString();
         Assert.assertEquals(registryXmlPath, CarbonUtils.getRegistryXMLPath());
     }
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetRegistryXMLPath")
     public void testGetUserMgtXMLPath() throws Exception {
-        System.setProperty(ServerConstants.CARBON_HOME, testDir);
-        String userMgtXmlPath = Paths.get(testDir + "/repository/conf/user-mgt.xml").toString();
+        String userMgtXmlPath = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "conf", "user-mgt.xml").
+                toString();
         Assert.assertEquals(userMgtXmlPath, CarbonUtils.getUserMgtXMLPath());
     }
 
@@ -191,7 +192,8 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCommandListenerPort")
     public void testGetCarbonCatalinaHome() throws Exception {
-        String carbonCatalinaHome = Paths.get(testDir, "lib", "tomcat", "work", "Catalina").toString();
+        String carbonCatalinaHome = Paths.get(testSampleDirectory.getAbsolutePath(), "lib", "tomcat", "work",
+                "Catalina").toString();
         Assert.assertEquals(carbonCatalinaHome, CarbonUtils.getCarbonCatalinaHome());
         System.setProperty(ServerConstants.CARBON_CATALINA_HOME, testDir);
         Assert.assertEquals(testDir, CarbonUtils.getCarbonCatalinaHome());
@@ -199,7 +201,7 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCarbonCatalinaHome")
     public void testGetCarbonTenantsDirPath() throws Exception {
-        String carbonTenantDirPath = Paths.get(testDir, "repository", "tenants").toString();
+        String carbonTenantDirPath = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "tenants").toString();
         Assert.assertEquals(carbonTenantDirPath, CarbonUtils.getCarbonTenantsDirPath());
         System.setProperty(ServerConstants.CARBON_TENANTS_DIR_PATH, testDir);
         Assert.assertEquals(testDir, CarbonUtils.getCarbonTenantsDirPath());
@@ -207,7 +209,7 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCarbonTenantsDirPath")
     public void testGetCarbonConfigDirPath() throws Exception {
-        String carbonConfigHome = Paths.get(testDir, "repository", "conf").toString();
+        String carbonConfigHome = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "conf").toString();
         Assert.assertEquals(carbonConfigHome, CarbonUtils.getCarbonConfigDirPath());
         System.setProperty(ServerConstants.CARBON_CONFIG_DIR_PATH, testDir);
         Assert.assertEquals(testDir, CarbonUtils.getCarbonConfigDirPath());
@@ -216,19 +218,20 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCarbonConfigDirPath")
     public void testGetEtcCarbonConfigDirPath() throws Exception {
-        String carbonEtcHome = Paths.get(testDir, "repository", "conf", "etc").toString();
+        String carbonEtcHome = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "conf", "etc").toString();
         Assert.assertEquals(carbonEtcHome, CarbonUtils.getEtcCarbonConfigDirPath());
     }
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetEtcCarbonConfigDirPath")
     public void testGetCarbonSecurityConfigDirPath() throws Exception {
-        String carbonSecurityHome = Paths.get(testDir, "repository", "conf", "security").toString();
+        String carbonSecurityHome = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "conf", "security").
+                toString();
         Assert.assertEquals(carbonSecurityHome, CarbonUtils.getCarbonSecurityConfigDirPath());
     }
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCarbonSecurityConfigDirPath")
     public void testGetCarbonLogsPath() throws Exception {
-        String carbonLogsHome = Paths.get(testDir, "repository", "logs").toString();
+        String carbonLogsHome = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "logs").toString();
         Assert.assertEquals(carbonLogsHome, CarbonUtils.getCarbonLogsPath());
         System.setProperty(ServerConstants.CARBON_LOGS_PATH, testDir);
         Assert.assertEquals(testDir, CarbonUtils.getCarbonLogsPath());
@@ -237,7 +240,8 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCarbonLogsPath")
     public void testGetCarbonPluginsRepo() throws Exception {
-        String carbonPluginsHome = Paths.get(testDir, "repository", "components", "plugins").toString();
+        String carbonPluginsHome = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "components",
+                "plugins").toString();
         Assert.assertEquals(CarbonUtils.getComponentsRepo(), carbonPluginsHome);
         System.setProperty(ServerConstants.COMPONENT_REP0, testDir);
         Assert.assertEquals(CarbonUtils.getComponentsRepo(), testDir);
@@ -246,7 +250,8 @@ public class CarbonUtilsTest extends BaseTest{
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetCarbonPluginsRepo")
     public void testGetCarbonDropinsRepo() throws Exception {
-        String carbonDropinsHome = Paths.get(testDir, "repository", "components", "dropins").toString();
+        String carbonDropinsHome = Paths.get(testSampleDirectory.getAbsolutePath(), "repository", "components",
+                "dropins").toString();
         Assert.assertEquals(CarbonUtils.getCarbonOSGiDropinsDir(), carbonDropinsHome);
         System.setProperty(CarbonBaseConstants.CARBON_DROPINS_DIR_PATH, testDir);
         Assert.assertEquals(CarbonUtils.getCarbonOSGiDropinsDir(), testDir);
