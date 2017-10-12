@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.9.1-SNAPSHOT</version>
+    <version>5.10.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -72,7 +72,7 @@
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
-        <module>test-utils/org.wso2.carbon.identity.test-util</module>
+        <module>test-utils/org.wso2.carbon.identity.testutil</module>
     </modules>
 
     <repositories>
