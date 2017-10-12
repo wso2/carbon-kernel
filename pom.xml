@@ -72,6 +72,7 @@
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
+        <module>test-utils/org.wso2.carbon.identity.test-util</module>
     </modules>
 
     <repositories>
@@ -1436,7 +1437,11 @@
                 <version>${project.version}</version>
             </dependency>
 
-
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng-common</artifactId>
+                <version>${org.powermock.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1687,6 +1692,7 @@
         <testng.version>6.9.10</testng.version>
         <jacoco.version>0.7.9</jacoco.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+        <org.powermock.version>1.7.3</org.powermock.version>
     </properties>
 
     <build>
