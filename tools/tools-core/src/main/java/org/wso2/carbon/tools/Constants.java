@@ -29,6 +29,7 @@ public class Constants {
     public static final String BUNDLE_MANIFEST_VERSION = "Bundle-ManifestVersion";
     public static final String BUNDLE_NAME = "Bundle-Name";
     public static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
+    public static final String BUNDLE_ACTIVATOR = "Bundle-Activator";
     public static final String BUNDLE_VERSION = "Bundle-Version";
     public static final String EXPORT_PACKAGE = "Export-Package";
     public static final String BUNDLE_CLASSPATH = "Bundle-ClassPath";
