@@ -18,7 +18,7 @@ package org.wso2.carbon.tools;
 import org.wso2.carbon.tools.converter.BundleGeneratorTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 import org.wso2.carbon.tools.osgilib.OSGiLibDeployerTool;
-import org.wso2.carbon.tools.spi.SPICreator;
+import org.wso2.carbon.tools.spi.ICFRegisterTool;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -74,8 +74,8 @@ public class CarbonToolExecutor {
         case "osgi-lib-deployer":
             carbonTool = new OSGiLibDeployerTool();
             break;
-        case "spi-creator":
-            carbonTool = new SPICreator();
+        case "icf-register":
+            carbonTool = new ICFRegisterTool();
             break;
         default:
             carbonTool = null;

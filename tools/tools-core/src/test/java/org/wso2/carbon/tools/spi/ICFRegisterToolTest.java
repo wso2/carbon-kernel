@@ -30,7 +30,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-public class SPICreatorTest {
+public class ICFRegisterToolTest {
     private static final Path converterTestResources =
             Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES,
                       TestConstants.CONVERTER_TEST_RESOURCES);
@@ -38,10 +38,12 @@ public class SPICreatorTest {
 
     @Test
     public void testAddingSPI() throws IOException {
-        SPICreator spiCreator = new SPICreator();
-        String spi = "org.wso2.spi.TestSPI";
+        ICFRegisterTool icfRegisterTool = new ICFRegisterTool();
         String spiImpl = "org.wso2.carbon.impl.TestSPIImpl";
-        spiCreator.execute(spi, spiImpl, sampleJARFile.toString(), converterTestResources.toString());
+        icfRegisterTool.execute(spiImpl, sampleJARFile.toString(), converterTestResources.toString(),
+                                converterTestResources.getParent().resolve("lib")
+                                                      .resolve("org.eclipse.osgi_3.11.0.v20160603-1336.jar")
+                                                      .toString());
 
         String jarFileName = sampleJARFile.getFileName().toString();
         Path tmpDir = converterTestResources.resolve(jarFileName.substring(0, jarFileName.lastIndexOf(".")));
@@ -53,13 +55,14 @@ public class SPICreatorTest {
         Path extractPath = tmpDir.resolve("carbon-spi-fly.jar");
         try (JarFile jarFile = new JarFile(finalJarPath.toFile());
              InputStream is = jarFile.getInputStream(jarFile.getEntry(jarFileName))) {
-            assertEquals("*", jarFile.getManifest().getMainAttributes().getValue(Constants.SPI_PROVIDER));
+            assertEquals("internal.CustomBundleActivator",
+                         jarFile.getManifest().getMainAttributes().getValue(Constants.BUNDLE_ACTIVATOR));
             assertNotNull(jarFile.getJarEntry(jarFileName));
             Files.copy(is, extractPath);
             assertTrue(Files.exists(extractPath));
         }
         try (JarFile jarFile = new JarFile(extractPath.toString())) {
-            jarFile.getEntry("META-INF/services/" + spi);
+            assertNotNull(jarFile.getEntry("internal/CustomBundleActivator.class"));
         }
     }
 }
