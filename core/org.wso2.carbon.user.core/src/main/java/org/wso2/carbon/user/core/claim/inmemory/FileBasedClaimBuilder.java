@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.claim.ClaimKey;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -39,6 +40,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 public class FileBasedClaimBuilder {
 
@@ -74,11 +77,11 @@ public class FileBasedClaimBuilder {
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
     public static ClaimConfig buildClaimMappingsFromConfigFile() throws IOException, XMLStreamException,
-            UserStoreException {
+                                                                        UserStoreException {
 
         OMElement dom;
-        Map<String, ClaimMapping> claims = new HashMap<>();
-        Map<String, Map<String, String>> propertyHolder = new HashMap<>();
+        Map<ClaimKey, ClaimMapping> claims = new HashMap<>();
+        Map<ClaimKey, Map<String, String>> propertyHolder = new HashMap<>();
 
         String dialectUri;
 
@@ -128,17 +131,22 @@ public class FileBasedClaimBuilder {
                         properties.put(key, value);
                         properties.put(LOCAL_NAME_DIALECT, dialectUri);
                     }
+                    //Unique key for claim.
+                    ClaimKey claimKey = new ClaimKey();
+                    claimKey.setClaimUri(claimUri);
+                    claimKey.setDialectUri(dialectUri);
 
-                    propertyHolder.put(claimUri, properties);
+                    propertyHolder.put(claimKey, properties);
                     claimMapping = new ClaimMapping();
                     claimMapping.setClaim(claim);
                     setMappedAttributes(claimMapping, attributeId);
-
-                    claims.put(claimUri, claimMapping);
+                    claims.put(claimKey, claimMapping);
                 }
             }
         }
-        claimConfig = new ClaimConfig(claims, propertyHolder);
+        claimConfig = new ClaimConfig();
+        claimConfig.setClaimMap(claims);
+        claimConfig.setPropertyHolderMap(propertyHolder);
         return claimConfig;
     }
 
