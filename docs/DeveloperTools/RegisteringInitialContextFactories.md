@@ -1,4 +1,4 @@
-# Registering InitialContextFactory classes to OSGI env
+# Registering InitialContextFactory classes to OSGi env
 > The process of registering InitialContextFactory to OSGi env in a WSO2 product is explained below. For the full list of capabilities available in this kernel version, see the **features** section in the [root README.md file](../../README.md#key-features-and-tools). 
 
 ICF Register is a standalone tool that can be used for products that are based on Carbon 5 (WSO2 Carbon 5 platform). The implementation of this tool has been added to the freshly introduced Tools module (Maven module) of the WSO2 Carbon 5 platform.
