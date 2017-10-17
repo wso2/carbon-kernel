@@ -56,9 +56,9 @@ import static org.wso2.carbon.tools.Constants.MANIFEST_FILE_NAME;
  *
  * @since 5.2.1
  */
-public class ICFRegisterTool implements CarbonTool {
+public class ICFProviderTool implements CarbonTool {
 
-    private static final Logger logger = Logger.getLogger(ICFRegisterTool.class.getName());
+    private static final Logger logger = Logger.getLogger(ICFProviderTool.class.getName());
     private static final String ACTIVATOR_CLASS_FILE = "CustomBundleActivator.class";
     private static final String ACTIVATOR_JAVA_FILE = "CustomBundleActivator.java";
     private static final String INTERNAL_PKG_NAME = "internal";
@@ -91,7 +91,7 @@ public class ICFRegisterTool implements CarbonTool {
     public void execute(String... toolArgs) {
         if (toolArgs.length < 3 || toolArgs.length > 4) {
             String message = "Improper usage detected. " +
-                             "Usage: icf-register.sh|bat [ICF Impl class] [jar file] [destination] [OSGi jar path]" +
+                             "Usage: icf-provider.sh|bat [ICF Impl class] [jar file] [destination] [OSGi jar path]" +
                              "First 3 arguments are compulsory.";
             logger.log(Level.INFO, message);
             return;

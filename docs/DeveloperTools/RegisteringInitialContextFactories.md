@@ -17,7 +17,7 @@ You can execute the relevant script using the following steps:
 2. Navigate to the `<PRODUCT_HOME>/bin` directory. The scripts for executing this tool are stored in this folder.
 3. Execute the relevant script:
 
-  * In a Unix system:  `sh icf-register.sh` [Full qualified name of ICF impl class name] [path to source jar] [destination] 
-  * In the Windows platform: `icf-register.bat` [Full qualified name of ICF impl class name] [path to source jar] [destination] 
+  * In a Unix system:  `sh icf-provider.sh` [Full qualified name of ICF impl class name] [path to source jar] [destination] 
+  * In the Windows platform: `icf-provider.bat` [Full qualified name of ICF impl class name] [path to source jar] [destination] 
 
 > Restrictions: Note that the required file permissions are considered when reading source JARs and the destination directory.

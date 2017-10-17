@@ -30,7 +30,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-public class ICFRegisterToolTest {
+public class ICFProviderToolTest {
     private static final Path converterTestResources =
             Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES,
                       TestConstants.CONVERTER_TEST_RESOURCES);
@@ -38,9 +38,9 @@ public class ICFRegisterToolTest {
 
     @Test
     public void testAddingSPI() throws IOException {
-        ICFRegisterTool icfRegisterTool = new ICFRegisterTool();
+        ICFProviderTool icfProviderTool = new ICFProviderTool();
         String spiImpl = "org.wso2.carbon.impl.TestSPIImpl";
-        icfRegisterTool.execute(spiImpl, sampleJARFile.toString(), converterTestResources.toString(),
+        icfProviderTool.execute(spiImpl, sampleJARFile.toString(), converterTestResources.toString(),
                                 converterTestResources.getParent().resolve("lib")
                                                       .resolve("org.eclipse.osgi_3.11.0.v20160603-1336.jar")
                                                       .toString());
