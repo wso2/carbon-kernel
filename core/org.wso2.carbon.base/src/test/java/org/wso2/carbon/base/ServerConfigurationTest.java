@@ -60,7 +60,7 @@ public class ServerConfigurationTest {
 
     @BeforeMethod
     public void setIsInitializedToFalse() throws NoSuchFieldException, IllegalAccessException {
-        //setting isInitialized to false before every test
+        // Setting isInitialized to false before every test
         Field isInitializedField = ServerConfiguration.class.getDeclaredField("isInitialized");
         isInitializedField.setAccessible(true);
         isInitializedField.set(ServerConfiguration.getInstance(), false);
@@ -87,13 +87,13 @@ public class ServerConfigurationTest {
     @Test(groups = {"org.wso2.carbon.base"})
     public void testSetConfigurationProperty() throws Exception {
         ServerConfiguration.getInstance().setConfigurationProperty("ServerKey", "AM");
-        //TODO need to update the test after issue #1560 is fixed
+        // TODO need to update the test after issue #1560 is fixed
     }
 
     @Test(groups = {"org.wso2.carbon.base"})
     public void testOverrideConfigurationProperty() {
         ServerConfiguration.getInstance().overrideConfigurationProperty("RegistryHttpPort", "9764");
-        //TODO need to update the test after issue #1560 is fixed
+        // TODO need to update the test after issue #1560 is fixed
     }
 
     @Test(groups = {"org.wso2.carbon.base"})
@@ -162,17 +162,24 @@ public class ServerConfigurationTest {
     }
 
     /**
-     * This is used to get the contents of the txt file as an input stream
+     * This returns the contents of the txt file as an input stream.
      *
      * @param path location path to the relevant txt file
      * @return an inputstream containing the contents of the given file
      */
-    private static InputStream readFile(String path) {
+    private InputStream readFile(String path) {
         ClassLoader classLoader = ServerConfigurationTest.class.getClassLoader();
         return classLoader.getResourceAsStream(path);
     }
 
-    private static boolean getIsInitialized(ServerConfiguration carbonServerConfiguration, String name) throws
+    /**
+     * This checks whether the carbon server is initialized.
+     *
+     * @param carbonServerConfiguration Carbon server configuration instance
+     * @param name                      Property being used for validation
+     * @return The server is initialized or not
+     */
+    private boolean getIsInitialized(ServerConfiguration carbonServerConfiguration, String name) throws
             NoSuchFieldException, IllegalAccessException {
         Field isInitializedField = ServerConfiguration.class.getDeclaredField(name);
         isInitializedField.setAccessible(true);

@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -34,15 +35,15 @@ public class CarbonContextHolderBaseTest {
 
     @Test(groups = {"org.wso2.carbon.base"})
     public void testSetDiscoveryServiceProvider() throws Exception {
-        DiscoveryServiceImpl expectedDiscoveryServiceImpl = new DiscoveryServiceImpl();
+        DiscoveryService expectedDiscoveryServiceImpl = mock(DiscoveryService.class);
         CarbonContextHolderBase.setDiscoveryServiceProvider(expectedDiscoveryServiceImpl);
         DiscoveryService actualDiscoveryService = CarbonContextHolderBase.getDiscoveryServiceProvider();
         assertEquals(actualDiscoveryService, expectedDiscoveryServiceImpl);
     }
 
     @Test(groups = {"org.wso2.carbon.base"})
-    public void test1RegisterUnloadTenantTask() throws Exception {
-        UnloadTenantTaskImpl unloadTenantTask = new UnloadTenantTaskImpl();
+    public void testRegisterUnloadTenantTask() throws Exception {
+        UnloadTenantTask unloadTenantTask = mock(UnloadTenantTask.class);
         CarbonContextHolderBase.registerUnloadTenantTask(unloadTenantTask);
         Field unloadTenantTaskslistField = CarbonContextHolderBase.class.getDeclaredField("unloadTenantTasks");
         unloadTenantTaskslistField.setAccessible(true);
@@ -59,7 +60,7 @@ public class CarbonContextHolderBaseTest {
         int actualTenantId = CarbonContextHolderBase.getCurrentCarbonContextHolderBase().getTenantId();
         String actualUsername = CarbonContextHolderBase.getCurrentCarbonContextHolderBase().getUsername();
         String actualTenantDomain = CarbonContextHolderBase.getCurrentCarbonContextHolderBase().getTenantDomain();
-        Map<String, Object> actualPropertied = (Map<String, Object>) propertiesField.get(CarbonContextHolderBase
+        Map<String, Object> actualProperties = (Map<String, Object>) propertiesField.get(CarbonContextHolderBase
                 .getCurrentCarbonContextHolderBase());
 
         int expectedTenantId = -1;
@@ -68,6 +69,6 @@ public class CarbonContextHolderBaseTest {
         assertEquals(expectedTenantId, actualTenantId);
         assertEquals(expectedUsername, actualUsername);
         assertEquals(expectedTenantDomain, actualTenantDomain);
-        assertTrue(actualPropertied.isEmpty());
+        assertTrue(actualProperties.isEmpty());
     }
 }

@@ -62,7 +62,7 @@ public class CarbonBaseUtilsTest {
     @Test(groups = {"org.wso2.carbon.base"})
     public void testGetCarbonConfigDirPath() throws ClassNotFoundException, IllegalAccessException,
             NoSuchFieldException {
-        //setting env variables for testing getCarbonConfigDirPath() in CarbonBaseUtils
+        // Setting env variables for testing getCarbonConfigDirPath() in CarbonBaseUtils
         setEnvironmentVariables(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH_ENV, "/wso2am-2.1.0/repository/conf");
         assertEquals(CarbonBaseUtils.getCarbonConfigDirPath(),
                 "/wso2am-2.1.0/repository/conf", "Must provide the location where carbon.xml resides");
@@ -101,12 +101,12 @@ public class CarbonBaseUtilsTest {
     }
 
     /**
-     * Set environment variable for a given key and value.
+     * Sets environment variable for a given key and value.
      *
      * @param key   Environment variable key.
      * @param value Environment variable value.
      */
-    public static void setEnvironmentVariables(String key, String value) throws IllegalAccessException,
+    private void setEnvironmentVariables(String key, String value) throws IllegalAccessException,
             NoSuchFieldException, ClassNotFoundException {
         Map<String, String> newEnv = new HashMap<>();
         newEnv.put(key, value);
@@ -114,11 +114,11 @@ public class CarbonBaseUtilsTest {
     }
 
     /**
-     * Set environment variable from given map.
+     * Sets environment variable from given map.
      *
      * @param newVariables Map of variables to put into environment variables.
      */
-    public static void setEnvironmentVariables(Map<String, String> newVariables) throws IllegalAccessException,
+    private void setEnvironmentVariables(Map<String, String> newVariables) throws IllegalAccessException,
             NoSuchFieldException, ClassNotFoundException {
         Map<String, String> newEnv = new HashMap<>();
         newEnv.putAll(System.getenv());
@@ -127,11 +127,11 @@ public class CarbonBaseUtilsTest {
     }
 
     /**
-     * Unset environment variable for a given key.
+     * Unsets environment variable for a given key.
      *
      * @param key Environment variable key.
      */
-    public static void unsetEnvironmentVariables(String key) throws IllegalAccessException, NoSuchFieldException,
+    private void unsetEnvironmentVariables(String key) throws IllegalAccessException, NoSuchFieldException,
             ClassNotFoundException {
         Map<String, String> newEnv = new HashMap<>();
         newEnv.putAll(System.getenv());
@@ -140,11 +140,11 @@ public class CarbonBaseUtilsTest {
     }
 
     /**
-     * Set environment variable from given map.
+     * Sets environment variable from given map.
      *
      * @param environmentVariables Map of variables to put into environment variables.
      */
-    private static void setEnvVariables(Map<String, String> environmentVariables) throws ClassNotFoundException,
+    private void setEnvVariables(Map<String, String> environmentVariables) throws ClassNotFoundException,
             IllegalAccessException, NoSuchFieldException {
         try {
             Class<?> processEnvironmentClass = Class.forName(PROCESS_ENVIRONMENT);
