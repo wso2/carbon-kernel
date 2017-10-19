@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 /**
  * Test cases to verify DatabaseCreator functionality.
  */
+@Test(dependsOnGroups = "org.wso2.carbon.context")
 public class DatabaseCreatorTest extends BaseTest {
 
     private File dataSourceDirectory = Paths.get(testSampleDirectory.getPath(), "testDataSourceDirectory").toFile();

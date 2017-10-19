@@ -43,7 +43,7 @@ public class CarbonQueueManager {
      */
     public static void setInstance(CarbonQueueManager instance) {
         synchronized (lock) {
-            if (instance != null) {
+            if (CarbonQueueManager.instance != null) {
                 throw new RuntimeException("A queue manager instance has already been set.");
             }
             CarbonQueueManager.instance = instance;
