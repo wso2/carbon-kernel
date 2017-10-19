@@ -148,6 +148,11 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

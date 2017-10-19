@@ -179,6 +179,7 @@ public class CarbonUtilsTest extends BaseTest {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(123);
         Assert.assertEquals(Paths.get(tmpDir, "tenants", "123").toString(),
                 CarbonUtils.getTenantTmpDirPath(createTestConfigurationContext().getAxisConfiguration()));
+        PrivilegedCarbonContext.destroyCurrentContext();
     }
 
     @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetTenantTmpDir")
