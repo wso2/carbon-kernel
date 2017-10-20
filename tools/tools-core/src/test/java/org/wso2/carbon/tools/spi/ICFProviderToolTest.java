@@ -30,12 +30,22 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+/**
+ * Test class for {@link ICFProviderTool}.
+ * <p>
+ * {@since 5.2.1}
+ */
 public class ICFProviderToolTest {
     private static final Path converterTestResources =
             Paths.get(TestConstants.TARGET_FOLDER, TestConstants.TEST_RESOURCES,
                       TestConstants.CONVERTER_TEST_RESOURCES);
     private static final Path sampleJARFile = Paths.get(converterTestResources.toString(), TestConstants.ARTIFACT_FIVE);
 
+    /**
+     * Test case for adding a SPI.
+     *
+     * @throws IOException on exception on adding a SPI
+     */
     @Test
     public void testAddingSPI() throws IOException {
         ICFProviderTool icfProviderTool = new ICFProviderTool();
