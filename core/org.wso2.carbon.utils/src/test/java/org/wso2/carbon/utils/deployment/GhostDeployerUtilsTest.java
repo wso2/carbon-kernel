@@ -99,7 +99,7 @@ public class GhostDeployerUtilsTest extends BaseTest {
         Assert.assertFalse(transitGhostMap.containsKey(serviceName));
     }
 
-    private class TransitGhostServiceRemovalThread extends Thread {
+    private static class TransitGhostServiceRemovalThread extends Thread {
 
         private final AxisConfiguration axisConfiguration;
         private final String serviceName;

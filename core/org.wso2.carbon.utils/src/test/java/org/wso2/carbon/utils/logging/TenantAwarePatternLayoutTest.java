@@ -97,7 +97,7 @@ public class TenantAwarePatternLayoutTest extends BaseTest {
             String actual = tenantAwarePatternLayout.format(loggingEvent);
             String expected = String.format("TID\\: \\[\\] \\[%s\\] \\[%s\\] \\[%s\\] \\[%s\\] \\[%s\\] \\[%s\\] " +
                             "\\[\\] \\[%s\\] \\[%s\\] \\[\\d{4}\\-\\d{2}\\-\\d{2} " +
-                            "\\d{2}\\:\\d{2}\\:\\d{2}\\,\\d{3}\\]  %s \\{%s\\} \\-\\  %s\n",
+                            "\\d{2}\\:\\d{2}\\:\\d{2}\\,\\d{3}\\]  %s \\{%s\\} \\-\\  %s%n",
                     serverKey, userName, applicationName, tenantDomain, instanceId, hostAddress, uuid.toString(),
                     userName + "@" + tenantDomain, logLevel.toString(), fqcn, message);
 

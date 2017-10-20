@@ -316,7 +316,6 @@ public class CarbonContextDataHolderTest extends BaseTest {
         Class<?> icfClazz = initialContextFactory.getClass();
         ServerConfiguration.getInstance().overrideConfigurationProperty("JNDI.DefaultInitialContextFactory",
                 icfClazz.getName());
-        CarbonContextDataHolder carbonContextDataHolder = CarbonContextDataHolder.getThreadLocalCarbonContextHolder();
         Hashtable<String, String> env = new Hashtable<>();
         env.put("java.naming.factory.url.pkgs", "org.wso2.carbon.naming");
         return new InitialContext(env);

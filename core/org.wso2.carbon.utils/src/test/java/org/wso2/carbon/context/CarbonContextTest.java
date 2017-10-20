@@ -31,8 +31,6 @@ import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserRealmService;
 
-import java.nio.file.Paths;
-
 import static org.mockito.Mockito.when;
 
 /**
@@ -170,7 +168,7 @@ public class CarbonContextTest extends BaseTest {
         }
     }
 
-    private class CarbonContextInvoker extends Thread {
+    private static class CarbonContextInvoker extends Thread {
         int tenantID;
         String tenantDomain;
 

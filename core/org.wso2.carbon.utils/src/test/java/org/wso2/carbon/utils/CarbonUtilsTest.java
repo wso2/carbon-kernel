@@ -48,6 +48,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -374,7 +375,7 @@ public class CarbonUtilsTest extends BaseTest {
         String userName = "user";
         String password = "pass";
         String userNamePassword = userName + ":" + password;
-        String encodedString = Base64Utils.encode(userNamePassword.getBytes());
+        String encodedString = Base64Utils.encode(userNamePassword.getBytes(StandardCharsets.UTF_8));
         CarbonUtils.setBasicAccessSecurityHeaders("user", "pass", true, serviceClient);
         List<Header> headers = (List<Header>) serviceClient.getOptions().getProperty(HTTPConstants.HTTP_HEADERS);
         assert headers != null;
@@ -388,7 +389,7 @@ public class CarbonUtilsTest extends BaseTest {
         String userName = "user";
         String password = "pass";
         String userNamePassword = userName + ":" + password;
-        String encodedString = Base64Utils.encode(userNamePassword.getBytes());
+        String encodedString = Base64Utils.encode(userNamePassword.getBytes(StandardCharsets.UTF_8));
         CarbonUtils.setBasicAccessSecurityHeaders("user", "pass", true, messageContext);
         List<Header> headers = (List<Header>) messageContext.getOptions().getProperty(HTTPConstants.HTTP_HEADERS);
         assert headers != null;
@@ -409,12 +410,15 @@ public class CarbonUtilsTest extends BaseTest {
     public void testReplaceSystemVariablesInXml() throws IOException, CarbonException, ServerConfigurationException {
         String serverRoleName = "CarbonTestServer";
         Path serverConfigPath = Paths.get(testDir, "carbon.xml");
-        Assert.assertNotNull(CarbonUtils.replaceSystemVariablesInXml(new String(Files.readAllBytes(serverConfigPath))));
+        Assert.assertNotNull(CarbonUtils.replaceSystemVariablesInXml(new String(Files.readAllBytes(serverConfigPath),
+                StandardCharsets.UTF_8)));
         System.setProperty("product.key", "Carbon");
         System.setProperty("carbon.server.role", serverRoleName);
         System.setProperty("rmi.server.port", "11111");
-        String serverConfig = CarbonUtils.replaceSystemVariablesInXml(new String(Files.readAllBytes(serverConfigPath)));
-        ServerConfiguration.getInstance().forceInit(new ByteArrayInputStream(serverConfig.getBytes()));
+        String serverConfig = CarbonUtils.replaceSystemVariablesInXml(new String(Files.readAllBytes(serverConfigPath),
+                StandardCharsets.UTF_8));
+        ServerConfiguration.getInstance().forceInit(new ByteArrayInputStream(serverConfig.
+                getBytes(StandardCharsets.UTF_8)));
         Assert.assertEquals(ServerConfiguration.getInstance().getFirstProperty("ServerRoles.Role"), serverRoleName);
     }
 
