@@ -50,7 +50,8 @@ import static org.mockito.Mockito.when;
 /**
  * Test cases for CarbonContextDataHolder.
  */
-@Test(dependsOnGroups = {"org.wso2.carbon.context", "org.wso2.carbon.utils.base"})
+@Test(dependsOnGroups = {"org.wso2.carbon.context", "org.wso2.carbon.utils.base"},
+        description = "CarbonContextDataHolder related test cases")
 public class CarbonContextDataHolderTest extends BaseTest {
 
     @Test
