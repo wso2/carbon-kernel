@@ -585,13 +585,15 @@
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
         <test.framework.version>4.4.3</test.framework.version>
-        <testng.verson>6.1.1</testng.verson>
+        <testng.verson>6.10</testng.verson>
+        <org.apacheds.version>1.5.5</org.apacheds.version>
 
         <!-- Unit/Integration tests -->
         <jacoco.version>0.7.9</jacoco.version>
         <maven.surefire.plugin.version>2.20.1</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>2.20.1</maven.failsafe.plugin.version>
-        <mockito.version>2.10.0</mockito.version>
+        <mockito.version>2.8.9</mockito.version>
+        <powermock.version>1.7.3</powermock.version>
 
         <!-- OWASP CSRFGuard Version -->
         <orbit.version.csrfguard>3.1.0.wso2v2</orbit.version.csrfguard>
@@ -1677,6 +1679,16 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito2</artifactId>
+                <version>${powermock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng</artifactId>
+                <version>${powermock.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
