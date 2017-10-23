@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * TestHttpServletRequest is an implementation of ServletRequest
+ * TestServletRequest is an implementation of ServletRequest
  * made to test out CharacterSetFilter test scenarios.
  * @since 4.4.19
  */

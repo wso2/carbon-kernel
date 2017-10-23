@@ -23,7 +23,7 @@ import java.io.PrintWriter;
 import java.util.Locale;
 
 /**
- * TestHttpServletResponse is an implementation of ServletResponse
+ * TestServletResponse is an implementation of ServletResponse
  * made to test out CharacterSetFilter test scenarios.
  * @since 4.4.19
  */
