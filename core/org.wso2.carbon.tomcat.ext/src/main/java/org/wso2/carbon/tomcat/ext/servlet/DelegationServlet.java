@@ -29,6 +29,10 @@ public class DelegationServlet implements Servlet {
     private Servlet httpServiceServlet = new HttpServiceServlet();
     private boolean initiated = false;
 
+    boolean isInitiated() {
+        return initiated;
+    }
+
     public void init(ServletConfig config) throws ServletException {
         if (log.isDebugEnabled()) {
             log.debug("within the init method of DelegationServlet ");
