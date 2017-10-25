@@ -948,8 +948,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "",
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
-        setAdvancedProperty(LDAPConstants.USER_CACHE_CAPACITY, USER_CACHE_CAPACITY_ATTRIBUTE_NAME, "" + MAX_USER_CACHE,
-                USER_CACHE_CAPACITY_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
+                USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
     }
 
 
