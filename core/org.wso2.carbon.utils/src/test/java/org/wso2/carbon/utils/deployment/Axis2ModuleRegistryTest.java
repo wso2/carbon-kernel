@@ -98,6 +98,11 @@ public class Axis2ModuleRegistryTest extends BaseTest {
             }
         }
 
+        @Override
+        public void remove() {
+            //ignore
+        }
+
         public boolean hasMoreElements() {
             return hasNext();
         }
