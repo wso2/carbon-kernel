@@ -92,6 +92,6 @@ public class LDAPConstants {
 
     public static final String CONNECTION_POOLING_ENABLED = "ConnectionPoolingEnabled";
     public static final String USER_CACHE_EXPIRY_MILLISECONDS = "UserCacheExpiryMilliseconds";
-    public static final String USER_CACHE_CAPACITY = "UserCacheCapacity";
+    public static final String USER_DN_CACHE_ENABLED = "UserDNCacheEnabled";
 
 }
