@@ -75,6 +75,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             return Boolean.FALSE;
         }
     };
+    private static final String SKIP_RESOURCE_PERMISSIONS_ROLE_CACHE = "skip.resource.permissions.role.cache";
 
     public JDBCAuthorizationManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                     ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
@@ -331,7 +332,20 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
 
         TreeNode.Permission permission = PermissionTreeUtil.actionToPermission(action);
-        permissionTree.updatePermissionTree();
+
+        String skipResourcePermissionCache = System.getProperty(SKIP_RESOURCE_PERMISSIONS_ROLE_CACHE);
+        boolean skipCache = false;
+        if (skipResourcePermissionCache != null && "true".equalsIgnoreCase(skipResourcePermissionCache)) {
+            skipCache = true;
+            log.info("SKIP CACHE IS SET TO TRUE");
+        }
+
+        if(!skipCache) {
+            permissionTree.updatePermissionTree();
+        } else {
+            permissionTree.updatePermissionTree(resourceId);
+        }
+
         SearchResult sr =
                 permissionTree.getAllowedRolesForResource(null,
                         null,
@@ -345,8 +359,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 log.debug("role: " + role);
             }
         }
-
-        return sr.getAllowedEntities().toArray(new String[sr.getAllowedEntities().size()]);
+        String[] roleArray = sr.getAllowedEntities().toArray(new String[sr.getAllowedEntities().size()]);
+        log.info("RESOURCE ID " + resourceId);
+        for(String s : roleArray) {
+            log.info("ROLE NAME " + s);
+        }
+        return roleArray;
     }
 
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)

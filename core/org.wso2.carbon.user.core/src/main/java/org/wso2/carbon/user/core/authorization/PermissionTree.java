@@ -36,6 +36,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -166,11 +167,13 @@ public class PermissionTree {
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
             if (sr.getUnprocessedPaths() != null) {
+                log.info("UNPROCESSED PATHS ARE NOT NULL");
                 List<String> paths = sr.getUnprocessedPaths();
                 TreeNode tn = sr.getLastNode().create(paths);
                 tn.authorizeRole(roleName, PermissionTreeUtil.actionToPermission(action));
 
             } else {
+                log.info("UNPROCESSED PATHS ARE NULL");
                 sr.getLastNode().authorizeRole(roleName,
                         PermissionTreeUtil.actionToPermission(action));
             }
@@ -1005,6 +1008,93 @@ public class PermissionTree {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * update permission tree from cache
+     *
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
+     */
+    void updatePermissionTree(String resourceId) throws UserStoreException {
+        Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> permissionCache = this.getPermissionTreeCache();
+        if (permissionCache != null) {
+            PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+            GhostResource<TreeNode> cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
+            if (permissionCache.containsKey(cacheKey) && cacheEntry != null) {
+                if (cacheEntry.getResource() == null) {
+                    synchronized (this) {
+                        cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
+                        if (cacheEntry == null || cacheEntry.getResource() == null) {
+                            updatePermissionTreeFromDB();
+                            if (cacheEntry == null) {
+                                cacheEntry = new GhostResource<TreeNode>(root);
+                                permissionCache.put(cacheKey, cacheEntry);
+                            } else {
+                                cacheEntry.setResource(root);
+                            }
+                            if (log.isDebugEnabled()) {
+                                log.debug("Set resource to true");
+                            }
+                        }
+                    }
+                } else {
+                    log.info("UPDATING ROLE PERMISSIONS FROM DATABASE");
+                    updateResourcePermissionsById(resourceId);
+                }
+            } else {
+                synchronized (this) {
+                    updatePermissionTreeFromDB();
+                    cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+                    cacheEntry = new GhostResource<TreeNode>(root);
+                    permissionCache.put(cacheKey, cacheEntry);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Loaded from database");
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * update permission tree from cache
+     *
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
+     */
+    void updateResourcePermissionsById(String resourceId) throws UserStoreException {
+        Connection dbConnection = null;
+        ResultSet rs = null;
+        PreparedStatement statement = null;
+        try {
+            PermissionTree tree = new PermissionTree();
+            tree.root = this.root;
+            dbConnection = getDBConnection();
+            // Populating role permissions
+            statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID);
+            statement.setInt(1, tenantId);
+            statement.setInt(2, tenantId);
+            statement.setString(3, resourceId);
+            rs = statement.executeQuery();
+            write.lock();
+            try {
+                while (rs.next()) {
+                    short allow = rs.getShort(3);
+                    String roleName = rs.getString(1);
+                    String domain = rs.getString(5);
+                    String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
+                    if (allow == UserCoreConstants.ALLOW) {
+                        log.info("GETTING ROLE FROM DATABASE " + roleName);
+                        tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
+                    }
+                }
+            } finally {
+                write.unlock();
+            }
+        } catch (SQLException e) {
+            throw new UserStoreException(
+                    "Error loading authorizations. Please check the database. Error message is "
+                            + e.getMessage(), e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, statement);
         }
     }
 
