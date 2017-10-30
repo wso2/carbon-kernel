@@ -28,17 +28,17 @@
     <!--
        Product Name
     -->
-    <Name>WSO2 API Manager</Name>
+    <Name>${product.name}</Name>
 
     <!--
        machine readable unique key to identify each product
     -->
-    <ServerKey>AM</ServerKey>
+    <ServerKey>${product.key}</ServerKey>
 
     <!--
        Product Version
     -->
-    <Version>2.1.0</Version>
+    <Version>${product.version}</Version>
 
     <!--
        Host name or IP address of the machine hosting this server
@@ -75,7 +75,7 @@
     Ex : <Role>.*</Role> means this server can act any role
     -->
     <ServerRoles>
-        <Role>APIManager</Role>
+        <Role>${default.server.role}</Role>
     </ServerRoles>
 
     <!-- uncommnet this line to subscribe to a bam instance automatically -->

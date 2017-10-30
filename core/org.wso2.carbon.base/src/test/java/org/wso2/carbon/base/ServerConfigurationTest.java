@@ -86,14 +86,18 @@ public class ServerConfigurationTest {
 
     @Test(groups = {"org.wso2.carbon.base"})
     public void testSetConfigurationProperty() throws Exception {
-        ServerConfiguration.getInstance().setConfigurationProperty("ServerKey", "AM");
-        // TODO need to update the test after issue #1560 is fixed
+        ServerConfiguration.getInstance().setConfigurationProperty("ServerKey", "AM-test");
+        String[] actualElement = ServerConfiguration.getInstance().getProperties("ServerKey");
+        String[] expectedElement = {"${product.key}", "AM-test"};
+        assertEquals(actualElement, expectedElement);
     }
 
     @Test(groups = {"org.wso2.carbon.base"})
     public void testOverrideConfigurationProperty() {
-        ServerConfiguration.getInstance().overrideConfigurationProperty("RegistryHttpPort", "9764");
-        // TODO need to update the test after issue #1560 is fixed
+        ServerConfiguration.getInstance().overrideConfigurationProperty("RegistryHttpPort", "9780");
+        String actualElement = ServerConfiguration.getInstance().getFirstProperty("RegistryHttpPort");
+        String expectedElement = "9780";
+        assertEquals(actualElement, expectedElement);
     }
 
     @Test(groups = {"org.wso2.carbon.base"})
