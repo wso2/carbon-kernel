@@ -708,7 +708,7 @@
                 <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-collections.wso2</groupId>
+                <groupId>org.wso2.orbit.commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
             </dependency>
@@ -1558,7 +1558,7 @@
 
         <!-- Commons -->
         <commons-beanutils.version>1.8.0</commons-beanutils.version>
-        <commons-collections.version>3.2.0.wso2v1</commons-collections.version>
+        <commons-collections.version>3.2.2.wso2v1</commons-collections.version>
         <commons-digester.version>1.8</commons-digester.version>
         <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
         <commons.io.wso2.osgi.version.range>[2.4.0,3.0.0)</commons.io.wso2.osgi.version.range>
