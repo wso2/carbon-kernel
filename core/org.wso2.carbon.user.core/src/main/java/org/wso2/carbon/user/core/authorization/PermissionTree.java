@@ -1027,52 +1027,6 @@ public class PermissionTree {
     }
 
     /**
-     * update permission tree from database for given resource id if permission tree is already cached
-     * If permission tree isn't cached, then this method will load full permission tree
-     *
-     * @param resourceId registry resource path
-     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
-     */
-    void updatePermissionTree(String resourceId) throws UserStoreException {
-        Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> permissionCache = this.getPermissionTreeCache();
-        if (permissionCache != null) {
-            PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-            GhostResource<TreeNode> cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
-            if (permissionCache.containsKey(cacheKey) && cacheEntry != null) {
-                if (cacheEntry.getResource() == null) {
-                    synchronized (this) {
-                        cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
-                        if (cacheEntry == null || cacheEntry.getResource() == null) {
-                            updatePermissionTreeFromDB();
-                            if (cacheEntry == null) {
-                                cacheEntry = new GhostResource<TreeNode>(root);
-                                permissionCache.put(cacheKey, cacheEntry);
-                            } else {
-                                cacheEntry.setResource(root);
-                            }
-                            if (log.isDebugEnabled()) {
-                                log.debug("Set resource to true");
-                            }
-                        }
-                    }
-                } else {
-                    //If permission tree is cached, only update the permissions of given resource path
-                    updateResourcePermissionsById(resourceId);
-                }
-            } else {
-                synchronized (this) {
-                    updatePermissionTreeFromDB();
-                    cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-                    cacheEntry = new GhostResource<TreeNode>(root);
-                    permissionCache.put(cacheKey, cacheEntry);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded from database");
-                    }
-                }
-            }
-        }
-    }
-    /**
      * update permission tree from cache
      *
      * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
