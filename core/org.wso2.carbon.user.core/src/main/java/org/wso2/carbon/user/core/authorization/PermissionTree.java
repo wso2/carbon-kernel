@@ -1027,48 +1027,6 @@ public class PermissionTree {
     }
 
     /**
-     * update permission tree from cache
-     *
-     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
-     */
-    void updateResourcePermissionsById(String resourceId) throws UserStoreException {
-        Connection dbConnection = null;
-        ResultSet rs = null;
-        PreparedStatement statement = null;
-        try {
-            PermissionTree tree = new PermissionTree();
-            tree.root = this.root;
-            dbConnection = getDBConnection();
-            // Populating role permissions
-            statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID);
-            statement.setInt(1, tenantId);
-            statement.setInt(2, tenantId);
-            statement.setString(3, resourceId);
-            rs = statement.executeQuery();
-            write.lock();
-            try {
-                while (rs.next()) {
-                    short allow = rs.getShort(3);
-                    String roleName = rs.getString(1);
-                    String domain = rs.getString(5);
-                    String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
-                    if (allow == UserCoreConstants.ALLOW) {
-                        tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
-                    }
-                }
-            } finally {
-                write.unlock();
-            }
-        } catch (SQLException e) {
-            throw new UserStoreException(
-                    "Error loading authorizations. Please check the database. Error message is "
-                            + e.getMessage(), e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, statement);
-        }
-    }
-
-    /**
      * Update permission tree from cache.
      *
      * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
