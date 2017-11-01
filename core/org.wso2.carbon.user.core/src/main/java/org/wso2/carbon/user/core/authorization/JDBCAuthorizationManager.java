@@ -349,6 +349,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         return sr.getAllowedEntities().toArray(new String[sr.getAllowedEntities().size()]);
     }
 
+    public void refreshAllowedRolesForResource(String resourceId)
+            throws UserStoreException {
+        permissionTree.updatePermissionTree(resourceId);
+    }
+
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
             throws UserStoreException {
 

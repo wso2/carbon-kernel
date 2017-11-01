@@ -544,6 +544,14 @@ public class EmbeddedRegistry implements Registry {
         } finally {
             if (transactionSucceeded) {
                 commitTransaction();
+                if (registryContext.isNoCachePath(path) && realmService != null) {
+                    try {
+                        realmService.getTenantUserRealm(CurrentSession.getCallerTenantId())
+                                                        .getAuthorizationManager().refreshAllowedRolesForResource(path);
+                    } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                        log.error("Error while refresh the allowed roles for resource", e);
+                    }
+                }
             } else {
                 try {
                     registryContext.getHandlerManager(
