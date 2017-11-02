@@ -24,6 +24,7 @@ limitations under the License.
             <class name="org.wso2.carbon.tools.converter.ListPackagesTest"/>
             <class name="org.wso2.carbon.tools.converter.ConversionTest"/>
             <class name="org.wso2.carbon.tools.osgilib.OSGiLibDeployerToolTest"/>
+            <class name="org.wso2.carbon.tools.spi.ICFProviderToolTest"/>
         </classes>
     </test>
 </suite>

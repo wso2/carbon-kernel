@@ -157,7 +157,7 @@ public class BundleGeneratorUtils {
      * @throws CarbonToolException if {@link Path} {@code zipFilePath} does not refer to a .jar file or if
      *                             {@link Path} {@code zipFilePath} has zero elements
      */
-    private static boolean isOSGiBundle(Path jaFilePath) throws IOException, CarbonToolException {
+    public static boolean isOSGiBundle(Path jaFilePath) throws IOException, CarbonToolException {
         boolean hasSymbolicName, hasVersion;
         try (FileSystem zipFileSystem = BundleGeneratorUtils.createZipFileSystem(jaFilePath, false)) {
             Path manifestPath = zipFileSystem.getPath(Constants.JAR_MANIFEST_FOLDER, Constants.MANIFEST_FILE_NAME);
