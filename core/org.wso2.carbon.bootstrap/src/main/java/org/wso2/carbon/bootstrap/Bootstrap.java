@@ -18,12 +18,16 @@
 package org.wso2.carbon.bootstrap;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -38,8 +42,9 @@ public class Bootstrap {
 
 	private final Set<URL> classpath = new LinkedHashSet<URL>();
 	private static final String CARBON_HOME = "carbon.home";
-    private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
+        private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
 	protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
+        private static final String CARBON_PROPERTIES = "carbon.properties";
 
     public static void main(String args[]) {
         new Bootstrap().loadClass(args);
@@ -47,6 +52,7 @@ public class Bootstrap {
 
     protected final void loadClass(String args[]) {
         try {
+            addSystemProperties();
             addClassPathEntries();
             ClassLoader cl = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
 
@@ -79,6 +85,37 @@ public class Bootstrap {
         } else {
             addFileUrl(new File(internalLib));
             addJarFileUrls(new File(internalLib));
+        }
+    }
+
+    private void addSystemProperties(){
+        Properties properties = new Properties();
+        String filePath = ROOT + File.separator + "repository" + File.separator
+                + "conf" + File.separator + CARBON_PROPERTIES;
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            InputStream in = null;
+            try {
+                in = new FileInputStream(file);
+                properties.load(in);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+
+                    }
+                }
+            }
+        }
+
+        Set<Object> keys = properties.keySet();
+        for (Object key: keys)  {
+            System.setProperty((String)key, (String)properties.get(key));
         }
     }
 
