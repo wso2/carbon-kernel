@@ -44,7 +44,7 @@ public class Bootstrap {
 	private static final String CARBON_HOME = "carbon.home";
     private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
 	protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
-        private static final String CARBON_PROPERTIES = "carbon-system.properties";
+        private static final String CARBON_PROPERTIES = "carbon.properties";
 
     public static void main(String args[]) {
         new Bootstrap().loadClass(args);
