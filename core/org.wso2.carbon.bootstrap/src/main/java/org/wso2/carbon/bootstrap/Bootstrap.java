@@ -74,6 +74,37 @@ public class Bootstrap {
 
     }
 
+    private void addSystemProperties(){
+        Properties properties = new Properties();
+        String filePath = ROOT + File.separator + "repository" + File.separator
+                + "conf" + File.separator + CARBON_PROPERTIES;
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            InputStream in = null;
+            try {
+                in = new FileInputStream(file);
+                properties.load(in);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+                        // Exception is ignored as there is no need to break the execution here
+                    }
+                }
+            }
+        }
+
+        Set<Object> keys = properties.keySet();
+        for (Object key: keys)  {
+            System.setProperty((String)key, (String)properties.get(key));
+        }
+    }
+
     protected void addClassPathEntries() throws MalformedURLException {
 
         // Add lib
