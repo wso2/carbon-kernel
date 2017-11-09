@@ -38,6 +38,7 @@
     </scm>
 
     <modules>
+        <module>test-utils/org.wso2.carbon.identity.testutil</module>
         <module>service-stubs/identity</module>
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
@@ -72,7 +73,6 @@
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
-        <module>test-utils/org.wso2.carbon.identity.testutil</module>
     </modules>
 
     <repositories>
