@@ -18,7 +18,6 @@ Carbon Kernel is a modular, light-weight, OSGi-based server development framewor
 Follow the links given below for details of the core capabilities of Carbon Kernel.
 
 * [Resolving the Component Startup Order](docs/KernelFeatures/ResolvingtheComponentStartupOrder.md)
-* [Adding New Transports](docs/KernelFeatures/AddingNewTransports.md)
 * [Plugging a New Runtime](docs/KernelFeatures/PluggingaNewRuntime.md)
 * [Using the CarbonContext API](docs/KernelFeatures/UsingtheCarbonContext.md)
 * [Developing a Carbon tool](docs/KernelFeatures/DevelopingaCarbonTool.md)
