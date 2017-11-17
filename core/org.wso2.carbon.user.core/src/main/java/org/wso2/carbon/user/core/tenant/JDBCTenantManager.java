@@ -145,7 +145,7 @@ public class JDBCTenantManager implements TenantManager {
      */
     public int addTenantWithGivenId(org.wso2.carbon.user.api.Tenant tenant) throws UserStoreException {
         // check if tenant id is available, if not available throw exception.
-        if (getTenant(tenant.getId()) != null) {
+        if (getTenantFromStore(tenant.getId()) != null) {
             String errorMsg = "Tenant with tenantId:" + tenant.getId() + " is already created. Tenant creation is " +
                     "aborted for tenant domain:" + tenant.getDomain();
             log.error(errorMsg);
@@ -299,6 +299,17 @@ public class JDBCTenantManager implements TenantManager {
         if ((entry != null) && (entry.getTenant() != null)) {
             return entry.getTenant();
         }
+
+        return getTenantFromStore(tenantId);
+    }
+
+    /**
+     * Query the tenant from database.
+     * @param tenantId Id of tenant
+     * @return tenant object
+     * @throws UserStoreException 
+     */
+    private Tenant getTenantFromStore(int tenantId) throws UserStoreException {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet result = null;
@@ -542,8 +553,6 @@ public class JDBCTenantManager implements TenantManager {
 
     public void activateTenant(int tenantId) throws UserStoreException {
 
-        clearTenantCache(tenantId);
-
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -563,14 +572,15 @@ public class JDBCTenantManager implements TenantManager {
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
+            clearTenantCache(tenantId);
         }
     }
 
     public void deactivateTenant(int tenantId) throws UserStoreException {
 
         // Remove tenant information from the cache.
-        tenantIdDomainMap.remove(tenantId);
         clearTenantCache(tenantId);
+        tenantIdDomainMap.remove(tenantId);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
