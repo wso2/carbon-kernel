@@ -1390,6 +1390,18 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!--Carbon Registry Dependencies-->
+            <dependency>
+                <groupId>org.wso2.carbon.registry</groupId>
+                <artifactId>org.wso2.carbon.registry.common</artifactId>
+                <version>${org.wso2.carbon.registry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.registry</groupId>
+                <artifactId>org.wso2.carbon.registry.indexing</artifactId>
+                <version>${org.wso2.carbon.registry.version}</version>
+            </dependency>
+
             <!-- Testing related dependencies -->
             <dependency>
                 <groupId>org.testng</groupId>
@@ -1457,6 +1469,11 @@
         <identity.framework.version>${project.version}</identity.framework.version>
         <carbon.identity.package.export.version>${project.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
+
+        <!--Carbon registry version-->
+        <org.wso2.carbon.registry.version>4.6.19</org.wso2.carbon.registry.version>
+        <carbon.registry.common.imp.pkg.version.range>[0.0.0,1.0.0)</carbon.registry.common.imp.pkg.version.range>
+        <carbon.registry.indexing.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.registry.indexing.imp.pkg.version.range>
 
         <!--Carbon component version-->
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
