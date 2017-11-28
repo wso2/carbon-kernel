@@ -36,7 +36,7 @@
                 <include>xml-apis.wso2:xml-apis:jar</include>
                 <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
                 <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar</include>
-                <include>org.apache.geronimo.specs.wso2:geronimo-jms_1.1_spec:jar</include>
+                <include>org.wso2.orbit.org.apache.geronimo.specs:geronimo-jms_1.1_spec:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
