@@ -33,11 +33,13 @@ public class CarbonDistributionBaseOption implements Option {
     private MavenUrlReference distributionMavenURL;
     private String name;
     private Path unpackDirectory;
+    private String carbonRuntimeName;
 
     public CarbonDistributionBaseOption() {
         distributionDirectoryPath = null;
         distributionMavenURL = null;
         name = null;
+        carbonRuntimeName = null;
     }
 
     /**
@@ -88,6 +90,18 @@ public class CarbonDistributionBaseOption implements Option {
     }
 
     /**
+     * Sets the carbon runtime name of the Distribution.
+     *
+     * @param carbonRuntimeName runtime name
+     * @return this
+     */
+    public CarbonDistributionBaseOption carbonRuntimeName(String carbonRuntimeName) {
+        NullArgumentException.validateNotNull(carbonRuntimeName, "Distribution Carbon Runtime Name");
+        this.carbonRuntimeName = carbonRuntimeName;
+        return this;
+    }
+
+    /**
      * Define the unpack directory for the carbon distribution. In this directory a UUID named
      * directory will be created for each environment.
      *
@@ -117,6 +131,10 @@ public class CarbonDistributionBaseOption implements Option {
 
     public Path getUnpackDirectory() {
         return unpackDirectory;
+    }
+
+    public String getCarbonRuntimeName() {
+        return carbonRuntimeName;
     }
 
 }

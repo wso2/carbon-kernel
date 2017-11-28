@@ -48,6 +48,8 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.testcontainer.DistributionZipTest"/>
             <class name="org.wso2.carbon.osgi.testcontainer.DistributionDirectoryTest"/>
             <class name="org.wso2.carbon.osgi.testcontainer.CopyOSGiLibTest"/>
+            <class name="org.wso2.carbon.osgi.testcontainer.DistributionDirectoryWithCarbonRuntimeNameTest"/>
+            <class name="org.wso2.carbon.osgi.testcontainer.DistributionMavenWithCarbonRuntimeNameTest"/>
 
             <class name="org.wso2.carbon.osgi.carbon.touchpoint.CarbonTouchpointOSGiTest"/>
 
