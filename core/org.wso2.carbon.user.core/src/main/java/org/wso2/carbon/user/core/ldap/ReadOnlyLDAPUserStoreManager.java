@@ -3634,13 +3634,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param value the LDAP name (DN)
      */
     protected void putToUserCache(String name, LdapName value) {
-        Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
-        if (userDnCache == null) {
-            // User cache may be null while initializing.
-            return;
-        }
         try {
             startTenantFlow();
+            Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
+            if (userDnCache == null) {
+                // User cache may be null while initializing.
+                return;
+            }
             userDnCache.put(name, value);
         } catch (IllegalStateException e) {
             // There is no harm ignoring the put, as the cache(local) is already is of no use. Mis-penalty is low.
@@ -3657,13 +3657,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @return cached DN, if exists. null if the cache does not contain the DN for the userName.
      */
     protected LdapName getFromUserCache(String userName) {
-        Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
-        if (userDnCache == null) {
-            // User cache may be null while initializing.
-            return null;
-        }
         try {
             startTenantFlow();
+            Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
+            if (userDnCache == null) {
+                // User cache may be null while initializing.
+                return null;
+            }
             return userDnCache.get(userName);
         } catch (IllegalStateException e) {
             log.error("Error occurred while getting User DN from cache having search base : " + userSearchBase, e);
@@ -3680,14 +3680,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @return true if removal was successful.
      */
     protected boolean removeFromUserCache(String userName) {
-        Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
-        if (userDnCache == null) {
-            // User cache may be null while initializing.
-            // Return true as removal result is successful when there is no cache. Nothing was held.
-            return true;
-        }
         try {
             startTenantFlow();
+            Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
+            if (userDnCache == null) {
+                // User cache may be null while initializing.
+                // Return true as removal result is successful when there is no cache. Nothing was held.
+                return true;
+            }
             return userDnCache.remove(userName);
         } catch (IllegalStateException e) {
             // There is no harm ignoring the removal, as the cache(local) is already is of no use.
