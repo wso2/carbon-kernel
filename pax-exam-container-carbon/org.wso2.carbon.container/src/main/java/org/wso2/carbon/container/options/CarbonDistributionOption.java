@@ -44,6 +44,17 @@ public class CarbonDistributionOption {
     }
 
     /**
+     * Set the carbon distribution maven url and carbon runtime name options.
+     *
+     * @return an option to set the path to distribution.
+     */
+    public static CarbonDistributionBaseOption carbonDistribution(MavenUrlReference mavenUrlReference,
+                                                                  String runtimeName) {
+        return new CarbonDistributionBaseOption().distributionMavenURL(mavenUrlReference)
+                .carbonRuntimeName(runtimeName);
+    }
+
+    /**
      * Set the carbon distribution path option.
      *
      * @return an option to set the path to distribution.
@@ -53,6 +64,19 @@ public class CarbonDistributionOption {
             return new CarbonDistributionBaseOption().distributionZipPath(path);
         } else {
             return new CarbonDistributionBaseOption().distributionDirectoryPath(path);
+        }
+    }
+
+    /**
+     * Set the carbon distribution path and carbon runtime name options.
+     *
+     * @return an option to set the path to distribution.
+     */
+    public static CarbonDistributionBaseOption carbonDistribution(Path path, String runtimeName) {
+        if (path.toString().endsWith("zip")) {
+            return new CarbonDistributionBaseOption().distributionZipPath(path).carbonRuntimeName(runtimeName);
+        } else {
+            return new CarbonDistributionBaseOption().distributionDirectoryPath(path).carbonRuntimeName(runtimeName);
         }
     }
 
