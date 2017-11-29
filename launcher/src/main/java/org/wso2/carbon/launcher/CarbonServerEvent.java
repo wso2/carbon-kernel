@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.launcher;
 
+import org.osgi.framework.BundleContext;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
 /**
@@ -32,6 +33,20 @@ public class CarbonServerEvent {
     public static final int STARTING = 0x00000001;
 
     /**
+     * The CarbonServer is in the process of starting.
+     * <p>
+     * This event is fired just before the CarbonServer launches the OSGi framework.
+     */
+    public static final int BEFORE_LOADING_INITIAL_BUNDLES = 0x00000004;
+
+    /**
+     * The CarbonServer is in the process of starting.
+     * <p>
+     * This event is fired just before the CarbonServer launches the OSGi framework.
+     */
+    public static final int AFTER_LOADING_INITIAL_BUNDLES = 0x00000008;
+
+    /**
      * The CarbonServer is in the process of stopping.
      * <p>
      * This event is fired just after the CarbonServer stops the OSGi framework.
@@ -47,6 +62,11 @@ public class CarbonServerEvent {
      * Carbon launch configuration object.
      */
     private final CarbonLaunchConfig config;
+
+    /**
+     * Carbon launch configuration object.
+     */
+    private BundleContext systemBundleContext;
 
     /**
      * Constructor.
@@ -75,5 +95,18 @@ public class CarbonServerEvent {
      */
     public CarbonLaunchConfig getConfig() {
         return config;
+    }
+
+    /**
+     * returns the OSGi system bundle context.
+     * @return system bundle context
+     */
+    public BundleContext getSystemBundleContext() {
+        return systemBundleContext;
+    }
+
+    // Sets the system bundle context for the CarbonServerEvent
+    void setSystemBundleContext(BundleContext systemBundleContext) {
+        this.systemBundleContext = systemBundleContext;
     }
 }
