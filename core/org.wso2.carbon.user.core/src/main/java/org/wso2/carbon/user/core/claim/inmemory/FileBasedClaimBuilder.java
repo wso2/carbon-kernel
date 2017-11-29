@@ -29,8 +29,6 @@ import org.wso2.carbon.user.core.claim.ClaimKey;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

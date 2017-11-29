@@ -22,10 +22,8 @@ import java.io.Serializable;
 
 /**
  * Unique key to represent a claim across the dialect.
- *
  */
-//implements Serializable
-public class ClaimKey  {
+public class ClaimKey implements Serializable {
     private static final long serialVersionUID = -2002899750350065724L;
     private String claimUri;
     private String dialectUri;

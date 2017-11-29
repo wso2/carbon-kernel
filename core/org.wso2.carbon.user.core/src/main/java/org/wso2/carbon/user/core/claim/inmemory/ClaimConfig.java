@@ -49,11 +49,11 @@ public class ClaimConfig {
     /**
      * Contains the claims and the related meta data info.
      *
-     * @param claims
-     *         contains claim uri as the key and claim mapping of each claim as the value.
-     * @param propertyHolder
-     *         inside map contains meta data value as the key and value of that meta data as the value (including claim
-     *         dialect info). PropertyHolder map contains that meta data map and the related claim uri as key value.
+     * @param claims         contains claim uri as the key and claim mapping of each claim as the value.
+     * @param propertyHolder inside map contains meta data value as the key and value of that meta data as the value
+     *                       (including claim
+     *                       dialect info). PropertyHolder map contains that meta data map and the related claim uri
+     *                       as key value.
      */
     public ClaimConfig(Map<String, ClaimMapping> claims, Map<String, Map<String, String>> propertyHolder) {
         setClaims(claims);
