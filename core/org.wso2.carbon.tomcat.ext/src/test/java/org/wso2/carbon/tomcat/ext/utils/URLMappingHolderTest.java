@@ -43,6 +43,9 @@ public class URLMappingHolderTest {
                 "Returned instance class does not match to 'URLMappingHolder'");
     }
 
+    /**
+     * Checks isUrlMappingExists functionality.
+     */
     @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"},
             description = "Testing getters and setters for defaultHost.")
     public void testDefaultHost () {
@@ -55,6 +58,9 @@ public class URLMappingHolderTest {
                 "Retrieved value did not match with set value for defaultHost");
     }
 
+    /**
+     * Checks getApplicationFromUrlMapping functionality.
+     */
     @Test(groups = {"org.wso2.carbon.tomcat.ext.utils"},
             description = "Testing getters and setters for urlMappingOfApplication.")
     public void testUrlMappingOfApplication () {
