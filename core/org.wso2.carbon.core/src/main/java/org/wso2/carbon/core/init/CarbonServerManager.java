@@ -53,6 +53,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.CarbonAxisConfigurator;
 import org.wso2.carbon.core.CarbonConfigurationContextFactory;
 import org.wso2.carbon.core.CarbonThreadCleanup;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.ServerInitializer;
 import org.wso2.carbon.core.ServerManagement;
@@ -162,8 +163,8 @@ public final class CarbonServerManager implements Controllable {
     private final Object pendingItemsLock = new Object();
 
     private GenericArtifactUnloader genericArtifactUnloader = new GenericArtifactUnloader();
-    private static final ScheduledExecutorService artifactsCleanupExec
-            = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService artifactsCleanupExec =
+            Executors.newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("ArtifactCleanupThread")));
 
     public CarbonServerManager() {
     }

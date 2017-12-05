@@ -23,7 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -57,6 +59,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import javax.cache.Cache;
+import javax.cache.CacheBuilder;
+import javax.cache.CacheConfiguration;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.Status;
 import javax.naming.AuthenticationException;
 import javax.naming.CompositeName;
 import javax.naming.InvalidNameException;
@@ -82,8 +91,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String OBJECT_GUID = "objectGUID";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
+    private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
+    private static final String USER_CACHE_MANAGER = "UserCacheManager";
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
-    private final int MAX_USER_CACHE = 200;
+    protected static final int MAX_USER_CACHE = 200;
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
@@ -96,12 +107,31 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
+    protected static final String USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME = "User Cache Expiry milliseconds";
+    protected static final String USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME = "Enable User DN Cache";
+    protected static final String USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION =
+            "Configure the user cache expiry in milliseconds. "
+                    + "Values  {0: expire immediately, -1: never expire, '': i.e. empty, system default}.";
+    protected static final String USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION = "Enables the user cache. Default true,"
+            + " Unless set to false. Empty value is interpreted as true.";
     //Authenticating to LDAP via Anonymous Bind
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
 
-    // Todo: use a cache provided by carbon kernel
-    Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
+    private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
+    private long userDnCacheExpiryTime = 0; //Default: No cache
+    private CacheBuilder userDnCacheBuilder = null; //Use cache manager if not null to get cache
+    private String userDnCacheName;
+    private boolean userDnCacheEnabled = true;
+    protected CacheManager cacheManager;
+    protected String tenantDomain;
+
+    /**
+     * The use of this Map is Deprecated. Please use userDnCache.
+     * Retained so that any extended class will function as it used to be.
+     */
+    @Deprecated
+    Map<String, Object> userCache = new ConcurrentHashMap<>(MAX_USER_CACHE);
     protected LDAPConnectionContext connectionSource = null;
     protected String userSearchBase = null;
     protected String groupSearchBase = null;
@@ -120,7 +150,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     public ReadOnlyLDAPUserStoreManager() {
-
     }
 
     public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig,
@@ -147,7 +176,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                         ProfileConfigurationManager profileManager,
                                         UserRealm realm, Integer tenantId, boolean skipInitData)
             throws UserStoreException {
-
         if (log.isDebugEnabled()) {
             log.debug("Initialization Started " + System.currentTimeMillis());
         }
@@ -210,6 +238,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
          * AbstractUserStoreManager
          */
         initUserRolesCache();
+
+        initUserCache();
 
         if (log.isDebugEnabled()) {
             log.debug("Initialization Ended " + System.currentTimeMillis());
@@ -341,6 +371,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         "Required MembershipAttribute property is not set at the LDAP configurations");
             }
         }
+
+        // User DN cache properties
+        cacheExpiryTimeAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS);
+        String userDnCacheEnabledAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_CACHE_ENABLED);
+        if (StringUtils.isNotEmpty(userDnCacheEnabledAttribute)) {
+            userDnCacheEnabled = Boolean.parseBoolean(userDnCacheEnabledAttribute);
+        }
     }
 
     /**
@@ -378,7 +415,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             boolean bValue = false;
             // check cached user DN first.
             String name = null;
-            LdapName ldn = (LdapName) userCache.get(userName);
+            LdapName ldn = getFromUserCache(userName);
             if (ldn != null) {
                 name = ldn.toString();
                 try {
@@ -429,7 +466,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 bValue = this.bindAsUser(userName, name, credentialObj);
                                 if (bValue) {
                                     LdapName ldapName = new LdapName(name);
-                                    userCache.put(userName, ldapName);
+                                    putToUserCache(userName, ldapName);
                                     break;
                                 }
                             }
@@ -453,7 +490,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         bValue = this.bindAsUser(userName, name, credentialObj);
                         if (bValue) {
                             LdapName ldapName = new LdapName(name);
-                            userCache.put(userName, ldapName);
+                            putToUserCache(userName, ldapName);
                         }
                     }
                 } catch (NamingException e) {
@@ -495,7 +532,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         String userAttributeSeparator = ",";
         String userDN = null;
-        LdapName ldn = (LdapName) userCache.get(userName);
+        LdapName ldn = getFromUserCache(userName);
 
         if (ldn == null) {
             // read list of patterns from user-mgt.xml
@@ -760,7 +797,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             String searchBase = null;
             String userDN = null;
-            LdapName ldn = (LdapName)userCache.get(userName);
+            LdapName ldn = getFromUserCache(userName);
             if(ldn == null){
                 String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
                 if (userDNPattern != null && userDNPattern.trim().length() > 0) {
@@ -771,7 +808,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         if (userDN != null && userDN.length() > 0) {
                             bFound = true;
                             LdapName ldapName = new LdapName(userDN);
-                            userCache.put(userName, ldapName);
+                            putToUserCache(userName, ldapName);
                             break;
                         }
                     }
@@ -783,7 +820,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (userDN != null && userDN.length() > 0) {
                     bFound = true;
                 } else {
-                    userCache.remove(userName);
+                    removeFromUserCache(userName);
                 }
             }
             if(!bFound){
@@ -1192,7 +1229,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug("Clearing cache for DN: " + dn);
             }
             if (userName != null) {
-                userCache.remove(userName);
+                removeFromUserCache(userName);
             }
 
         } finally {
@@ -1977,7 +2014,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     memberOfProperty);
                 } else {
                     // use cache
-                    LdapName ldn = (LdapName) userCache.get(userName);
+                    LdapName ldn = getFromUserCache(userName);
                     if (ldn != null) {
                         searchBase = ldn.toString();
                     } else {
@@ -2135,7 +2172,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         // check the cache first
         LdapName ldn = null;
         if (userName != null) {
-            ldn = (LdapName) userCache.get(userName);
+            ldn = getFromUserCache(userName);
         } else {
             throw new UserStoreException("userName value is null.");
         }
@@ -2178,8 +2215,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (userName == null) {
             throw new UserStoreException("userName value is null.");
         }
-        if (userCache.get(userName) != null) {
-            return userCache.get(userName).toString();
+        Object cachedDn = getFromUserCache(userName);
+        if ( cachedDn != null) {
+            return cachedDn.toString();
         }
 
         String userDN = null;
@@ -2213,7 +2251,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
             if (userDN != null) {
                 LdapName ldn = new LdapName(userDN);
-                userCache.put(userName, ldn);
+                putToUserCache(userName, ldn);
             }
             if (debug) {
                 log.debug("Name in space for " + userName + " is " + userDN);
@@ -2673,7 +2711,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 memberOfProperty);
             } else {
                 // use cache
-                LdapName ldn = (LdapName) userCache.get(userName);
+                LdapName ldn = getFromUserCache(userName);
                 if (ldn != null) {
                     searchBases = ldn.toString();
                 } else {
@@ -3495,6 +3533,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 .getClaimOperationsSupportedDisplayName, "false", UserStoreConfigConstants.claimOperationsSupportedDescription);
         setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
                 String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the LDAP");
+        setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "",
+                USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
+                USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,
@@ -3502,5 +3544,222 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         Property property = new Property(name, value, displayName + "#" + description, null);
         RO_LDAP_UM_ADVANCED_PROPERTIES.add(property);
 
+    }
+
+    /**
+     * Initialize the user cache.
+     * Uses Javax cache. Any existing cache with the same name will be removed and re-attach an new one.
+     */
+    protected void initUserCache() throws UserStoreException {
+        if (!userDnCacheEnabled) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "User DN cache is disabled in configuration on UserStore having SearchBase: " + userSearchBase);
+            }
+            return;
+        }
+        boolean isUserDnCacheCustomExpiryValuePresent = false;
+
+        if (StringUtils.isNotEmpty(cacheExpiryTimeAttribute)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache expiry time : " + cacheExpiryTimeAttribute
+                        + " configured for the user DN cache having search base: " + userSearchBase);
+            }
+            try {
+                userDnCacheExpiryTime = Long.parseLong(cacheExpiryTimeAttribute);
+                isUserDnCacheCustomExpiryValuePresent = true;
+            } catch (NumberFormatException nfe) {
+                log.error("Could not convert the cache expiry time to Number (long) : " + cacheExpiryTimeAttribute
+                        + " . Will default to system wide expiry settings.", nfe);
+            }
+        }
+
+        RealmService realmService = UserStoreMgtDSComponent.getRealmService();
+        if (realmService != null && realmService.getTenantManager() != null) {
+            try {
+                tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+                if (log.isDebugEnabled()) {
+                    log.debug("Tenant domain : " + tenantDomain + " found for the tenant ID : " + tenantId);
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Could not get the tenant domain for tenant id : " + tenantId, e);
+            }
+        }
+
+        if (tenantDomain == null && tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            // Assign super-tenant domain, If this is super tenant and the tenant domain is not yet known.
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        }
+
+        if (tenantDomain == null) {
+            // Do not create the cache if there is no tenant domain, which means the given tenant ID is invalid.
+            // Any cache access i.e. getX, putX or deleteX will simply behave as no-op in this case.
+            if (log.isDebugEnabled()) {
+                log.debug("Could not find a tenant domain for the tenant ID : " + tenantId
+                        + ". Not initializing the User DN cache.");
+            }
+            return;
+        }
+        try {
+            startTenantFlow();
+            userDnCacheName = USER_CACHE_NAME_PREFIX + this.hashCode();
+            cacheManager = Caching.getCacheManagerFactory().getCacheManager(USER_CACHE_MANAGER);
+
+            // Unconditionally remove the cache, so that it can be reconfigured.
+            cacheManager.removeCache(userDnCacheName);
+
+            if (isUserDnCacheCustomExpiryValuePresent) {
+                // We use cache builder to create the cache with custom expiry values.
+                if (log.isDebugEnabled()) {
+                    log.debug("Using cache expiry time : " + userDnCacheExpiryTime
+                            + " configured for the user DN cache having search base: " + userSearchBase);
+                }
+                userDnCacheBuilder = cacheManager.createCacheBuilder(userDnCacheName);
+                userDnCacheBuilder.setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                        new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, userDnCacheExpiryTime)).
+                        setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, userDnCacheExpiryTime)).
+                        setStoreByValue(false);
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+
+    /**
+     * Puts the DN into the cache.
+     *
+     * @param name  the user name.
+     * @param value the LDAP name (DN)
+     */
+    protected void putToUserCache(String name, LdapName value) {
+        try {
+            startTenantFlow();
+            Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
+            if (userDnCache == null) {
+                // User cache may be null while initializing.
+                return;
+            }
+            userDnCache.put(name, value);
+        } catch (IllegalStateException e) {
+            // There is no harm ignoring the put, as the cache(local) is already is of no use. Mis-penalty is low.
+            log.error("Error occurred while putting User DN to the cache having search base : " + userSearchBase, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * Returns the LDAP Name (DN) for the given user name, if it exists in the cache.
+     *
+     * @param userName
+     * @return cached DN, if exists. null if the cache does not contain the DN for the userName.
+     */
+    protected LdapName getFromUserCache(String userName) {
+        try {
+            startTenantFlow();
+            Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
+            if (userDnCache == null) {
+                // User cache may be null while initializing.
+                return null;
+            }
+            return userDnCache.get(userName);
+        } catch (IllegalStateException e) {
+            log.error("Error occurred while getting User DN from cache having search base : " + userSearchBase, e);
+            return null;
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * Removes the cache entry given the user name.
+     *
+     * @param userName the User name to remove.
+     * @return true if removal was successful.
+     */
+    protected boolean removeFromUserCache(String userName) {
+        try {
+            startTenantFlow();
+            Cache<String, LdapName> userDnCache = createOrGetUserDnCache();
+            if (userDnCache == null) {
+                // User cache may be null while initializing.
+                // Return true as removal result is successful when there is no cache. Nothing was held.
+                return true;
+            }
+            return userDnCache.remove(userName);
+        } catch (IllegalStateException e) {
+            // There is no harm ignoring the removal, as the cache(local) is already is of no use.
+            log.error("Error occurred while removing User DN from cache having search base : " + userSearchBase, e);
+            return true;
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * Common utility method to start the Super tenant flow.
+     */
+    private void startTenantFlow() {
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        carbonContext.setTenantId(tenantId);
+        carbonContext.setTenantDomain(tenantDomain);
+    }
+
+    /**
+     * Returns the User DN Cache. Creates one if not exists in the cache manager.
+     * Cache manager removes the cache if it is idle and empty for some time. Hence we need to create,
+     * with our owen settings if needed.
+     * @return
+     */
+    private Cache<String, LdapName> createOrGetUserDnCache() {
+        if (cacheManager == null || !userDnCacheEnabled) {
+            if (log.isDebugEnabled()) {
+                log.debug("Not using the cache on UserDN. cacheManager: " + cacheManager + " , Enabled : "
+                        + userDnCacheEnabled);
+            }
+            return null;
+        }
+
+        Cache<String, LdapName> userDnCache;
+
+        if (userDnCacheBuilder != null) {
+            // We use cache builder to create the cache with custom expiry values.
+            if (log.isDebugEnabled()) {
+                log.debug("Using cache bulder to get the cache, for UserSearchBase: " + userSearchBase);
+            }
+            userDnCache = userDnCacheBuilder.build();
+        } else {
+            // We use system-wide settings to build the cache.
+            if (log.isDebugEnabled()) {
+                log.debug("Using default configurations for the user DN cache, having search base : " + userSearchBase);
+            }
+            userDnCache = cacheManager.getCache(userDnCacheName);
+        }
+
+        return userDnCache;
+    }
+
+    /**
+     * Removes
+     *  1. Current User cache from the respective cache manager.
+     *
+     * @throws Throwable
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        if (cacheManager != null && userDnCacheName != null) {
+            // Remove the userDN cache, as we created a DN cache per an instance of this class.
+            // Any change in LDAP User Store config, too should invalidate the cache and remove it from memory.
+            try {
+                startTenantFlow();
+                cacheManager.removeCache(userDnCacheName);
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+        }
+        super.finalize();
     }
 }

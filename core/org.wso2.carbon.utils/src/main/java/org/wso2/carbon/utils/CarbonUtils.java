@@ -58,6 +58,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -1089,16 +1090,11 @@ public class CarbonUtils {
      * @throws CarbonException
      */
     public static InputStream replaceSystemVariablesInXml(InputStream xmlConfiguration) throws CarbonException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+
+        DocumentBuilderFactory documentBuilderFactory = getSecuredDocumentBuilder();
         DocumentBuilder documentBuilder;
         Document doc;
         try {
-            documentBuilderFactory.setNamespaceAware(true);
-            documentBuilderFactory.setExpandEntityReferences(false);
-            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            SecurityManager securityManager = new SecurityManager();
-            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
-            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
             documentBuilder.setEntityResolver(new CarbonEntityResolver());
             doc = documentBuilder.parse(xmlConfiguration);
@@ -1307,4 +1303,33 @@ public class CarbonUtils {
 		}
 		return proxyContextPath;
 	}
+
+    private static DocumentBuilderFactory getSecuredDocumentBuilder() {
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        try {
+            dbf.setFeature(org.apache.xerces.impl.Constants.SAX_FEATURE_PREFIX +
+                    org.apache.xerces.impl.Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+            dbf.setFeature(org.apache.xerces.impl.Constants.SAX_FEATURE_PREFIX +
+                    org.apache.xerces.impl.Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+            dbf.setFeature(org.apache.xerces.impl.Constants.XERCES_FEATURE_PREFIX +
+                    org.apache.xerces.impl.Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (ParserConfigurationException e) {
+            log.error(
+                    "Failed to load XML Processor Feature " +
+                            org.apache.xerces.impl.Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
+                            org.apache.xerces.impl.Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " +
+                            org.apache.xerces.impl.Constants.LOAD_EXTERNAL_DTD_FEATURE);
+        }
+
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        dbf.setAttribute(org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
+                org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+        return dbf;
+    }
 }

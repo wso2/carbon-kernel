@@ -80,6 +80,7 @@ public class ArchiveManipulator {
         FileInputStream in = new FileInputStream(from);
         try {
             out = new ZipOutputStream(new FileOutputStream(to));
+            out.putNextEntry(new ZipEntry(from));
             byte[] buffer = new byte[BUFFER_SIZE];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {

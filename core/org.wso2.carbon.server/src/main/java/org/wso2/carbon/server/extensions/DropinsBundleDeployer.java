@@ -50,6 +50,7 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
 
     private static String  dropinsDirPath;
     private static String bundlesInfoDirPath;
+    private static final String DEFAULT_BUNDLE_VERSION = "0.0.0";
 
     static {
         dropinsDirPath = System.getProperty(LauncherConstants.CARBON_DROPINS_DIR_PATH);
@@ -138,7 +139,7 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
                 String bundleVersion = jarFile.getManifest().getMainAttributes().
                         getValue(LauncherConstants.BUNDLE_VERSION);
 
-                if (bundleSymbolicName == null || bundleVersion == null) {
+                if (bundleSymbolicName == null) {
                     log.error("Required Bundle manifest headers do not exists: " + file.getAbsoluteFile());
                     continue;
                 } else {
@@ -147,6 +148,10 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
                     if (bundleSymbolicName.contains(";")) {
                         bundleSymbolicName = bundleSymbolicName.split(";")[0];
                     }
+                }
+                //According to the OSGi spec, Bundle-Version is an optional header; the default value is 0.0.0
+                if (bundleVersion == null) {
+                    bundleVersion = DEFAULT_BUNDLE_VERSION;
                 }
 
                 //Checking whether this bundle is a fragment or not.

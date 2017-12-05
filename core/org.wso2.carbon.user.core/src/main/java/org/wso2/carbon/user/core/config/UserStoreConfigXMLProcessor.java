@@ -61,6 +61,7 @@ public class UserStoreConfigXMLProcessor {
 
     private static final Log log = LogFactory.getLog(UserStoreConfigXMLProcessor.class);
     private static BundleContext bundleContext;
+    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
     private static PrivateKey privateKey = getPrivateKey();
     private SecretResolver secretResolver;
     private String filePath = null;
@@ -306,6 +307,7 @@ public class UserStoreConfigXMLProcessor {
      */
     private String resolveEncryption(OMElement propElem) throws org.wso2.carbon.user.api.UserStoreException {
         String propValue = propElem.getText();
+        Cipher keyStoreCipher;
         if (propValue != null) {
             String secretPropName = propElem.getAttributeValue(new QName("encrypted"));
             if (secretPropName != null && secretPropName.equalsIgnoreCase("true")) {
@@ -314,7 +316,12 @@ public class UserStoreConfigXMLProcessor {
                             UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME)));
                 }
                 try {
-                    Cipher keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                    String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+                    if(cipherTransformation != null) {
+                        keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                    } else {
+                        keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                    }
                     privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
                     if (privateKey == null) {
                         throw new org.wso2.carbon.user.api.UserStoreException(
