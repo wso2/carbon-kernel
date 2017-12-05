@@ -203,8 +203,6 @@ public class UtilsTest {
      */
     @Test(groups = {"org.wso2.carbon.tomcat.ext.internal"})
     public void testCreateDummyTenantContextDirWithCase1 () {
-        // mocking inputs
-        when(CarbonUtils.getTmpDir()).thenReturn(System.getProperty("java.io.tmpdir"));
         // received output
         File created = Utils.createDummyTenantContextDir();
         // check for case 1
