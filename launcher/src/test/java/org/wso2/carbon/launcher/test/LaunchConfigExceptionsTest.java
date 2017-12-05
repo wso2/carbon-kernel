@@ -116,9 +116,9 @@ public class LaunchConfigExceptionsTest extends BaseTest {
 
         CarbonLaunchConfig carbonLaunchConfig = new CarbonLaunchConfig(launchPropFile);
         List<CarbonInitialBundle> bundles = carbonLaunchConfig.getInitialBundles();
-        Assert.assertTrue(bundles.get(0).getLocation().toString().contains("org.apache.felix.gogo.runtime"));
-        Assert.assertTrue(bundles.get(1).getLocation().toString().contains("org.apache.felix.gogo.command"));
-        Assert.assertTrue(bundles.get(2).getLocation().toString().contains("org.eclipse.equinox.simpleconfigurator"));
+        Assert.assertTrue(bundles.get(0).getLocation().toString().contains("org.eclipse.equinox.simpleconfigurator"));
+        Assert.assertTrue(bundles.get(1).getLocation().toString().contains("org.apache.felix.gogo.runtime"));
+        Assert.assertTrue(bundles.get(2).getLocation().toString().contains("org.apache.felix.gogo.command"));
     }
 
     /**
