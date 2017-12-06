@@ -130,7 +130,7 @@ public class CryptoUtil {
                 Certificate[] certs = keyStore.getCertificateChain(keyAlias);
                 String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
-                if(cipherTransformation != null) {
+                if (cipherTransformation != null) {
                     keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
                 } else {
                     keyStoreCipher = Cipher.getInstance("RSA", "BC");
@@ -184,7 +184,7 @@ public class CryptoUtil {
                         keyPass.toCharArray());
                 String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
-                if(cipherTransformation != null) {
+                if (cipherTransformation != null) {
                     keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
                 } else {
                     keyStoreCipher = Cipher.getInstance("RSA", "BC");
