@@ -24,30 +24,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNull;
 
 /**
  * Tests functionality of Bootstrap class
  */
 public class BootstrapTest {
     private Bootstrap bootstrap = new Bootstrap();
-    private final Set<URL> classpath = new LinkedHashSet<URL>();
     private File libFile;
-
-    /**
-     * Create necessary temporary files.
-     *
-     * @throws IOException for file operation failures
-     */
-    @BeforeMethod
-    public void setUp() throws IOException {
-        libFile = Files.createTempDirectory("libFile").toFile();
-    }
 
     /**
      * Test if loadClass throws ClassNotFoundException when trying to load
@@ -57,24 +45,29 @@ public class BootstrapTest {
      */
     @Test(expectedExceptions = ClassNotFoundException.class)
     public void testLoadClassException() throws Exception {
-        bootstrap.addFileUrl(libFile);
-        bootstrap.addClassPathEntries();
-        ClassLoader cl = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
+        ClassLoader cl = new URLClassLoader(new URL[0]);
         assertNotNull(cl);
         cl.loadClass("simple.test.class");
     }
 
     /**
-     * Test if addClassPathEntries method sets a given directory path as the
-     * lib path
+     * Test launch of carbon server.
      *
-     * @throws Exception for malformed URL or file operation failures
+     * Necessary system properties are set and a test org.wso2.carbon.Main class
+     * is created within the test directory to avoid cyclic dependencies
+     *
+     * @throws IOException for file operation failures
      */
     @Test
-    public void testAddClassPathEntries() throws Exception {
+    public void testMain() throws IOException {
+        libFile = Files.createTempDirectory("libFile").toFile();
         System.setProperty("carbon.internal.lib.dir.path", libFile.getParent());
-        bootstrap.addFileUrl(libFile);
-        bootstrap.addClassPathEntries();
+        Path carbonHome = Files.createTempDirectory("carbonHome");
+        System.setProperty("carbon.home", carbonHome.toString());
+
+        assertNull(System.getProperty("carbon.server.status"));
+        Bootstrap.main(new String[] {});
+        assertEquals(System.getProperty("carbon.server.status"), "up");
     }
 
     /**
@@ -98,23 +91,7 @@ public class BootstrapTest {
     public void testAddJarFileUrls() throws MalformedURLException {
         URL obj = new URL("fil://path/to/file");
         File libFile = new File(obj.toString());
-        bootstrap.addFileUrl(libFile);
-    }
-
-    /**
-     * Test if addJarFileUrls method adds JAR files found in the given directory
-     * to the list of URLs for directories with children
-     *
-     * @throws Exception for malformed URL or file operation failures
-     */
-    @Test
-    public void testAddJarFileUrlsWithChildren() throws Exception {
-        File tmpFile = Files.createTempDirectory("tmp").toFile();
-        File childFolder = new File(tmpFile.getAbsolutePath(), "tmp_child");
-        new File(childFolder.getAbsolutePath(), "test.jar");
-
-        assertTrue(tmpFile.exists());
-        bootstrap.addJarFileUrls(tmpFile);
+        bootstrap.addJarFileUrls(libFile);
     }
 
     /**

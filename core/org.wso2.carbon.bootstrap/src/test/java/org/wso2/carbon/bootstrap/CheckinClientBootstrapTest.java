@@ -43,7 +43,7 @@ public class CheckinClientBootstrapTest {
     /**
      * Test if the file path assigning is successful
      *
-     * @throws MalformedURLException
+     * @throws MalformedURLException if a URL is malformed
      */
     @Test
     public void testAddClassPathEntries() throws MalformedURLException {

@@ -39,32 +39,12 @@ public class CarbonSecurityManagerTest {
     }
 
     /**
-     * Test printDeniedSystemProperties method when denied.system.properties is specified
-     * The method is private and accessed by the constructor
-     */
-    @Test
-    public void testPrintDeniedSystemProperties() {
-        System.setProperty("denied.system.properties", "mockDeniedProperty");
-        carbonSecurityManager = new CarbonSecurityManager();
-    }
-
-    /**
-     * Test checkPropertyAccess method for an allowed property using a mock carbonSecurityManager
-     */
-    @Test
-    public void testCheckPropertyAccess() {
-        carbonSecurityManager = mock(CarbonSecurityManager.class);
-        carbonSecurityManager.checkPropertiesAccess();
-        Mockito.verify(carbonSecurityManager).checkPropertiesAccess();
-    }
-
-    /**
      * Test testCheckPropertyAccess throws AccessControlException for a denied property
      */
     @Test(expectedExceptions = AccessControlException.class)
     public void testCheckPropertyAccessDeniedProperty() {
         String key = "mockDeniedProperty";
-        System.setProperty("denied.system.properties", "mockDeniedProperty");
+        System.setProperty("denied.system.properties", key);
         carbonSecurityManager = new CarbonSecurityManager();
         carbonSecurityManager.checkPropertyAccess(key);
     }
@@ -72,9 +52,10 @@ public class CarbonSecurityManagerTest {
     /**
      * Test if checkAccessThread method checks permission for a Thread
      */
-    @Test
+    @Test(expectedExceptions = AccessControlException.class)
     public void testCheckAccessThread() {
-        carbonSecurityManager = mock(CarbonSecurityManager.class);
+        System.setProperty("denied.system.properties", "mockDeniedProperty");
+        carbonSecurityManager = new CarbonSecurityManager();
         Thread thread = mock(Thread.class);
         carbonSecurityManager.checkAccess(thread);
     }
@@ -82,9 +63,10 @@ public class CarbonSecurityManagerTest {
     /**
      * Test if checkAccessThread method checks permission for a ThreadGroup
      */
-    @Test
+    @Test(expectedExceptions = AccessControlException.class)
     public void testCheckAccessThreadGroup() {
-        carbonSecurityManager = mock(CarbonSecurityManager.class);
+        System.setProperty("denied.system.properties", "mockDeniedProperty");
+        carbonSecurityManager = new CarbonSecurityManager();
         ThreadGroup threadGroup = mock(ThreadGroup.class);
         carbonSecurityManager.checkAccess(threadGroup);
     }
@@ -92,9 +74,10 @@ public class CarbonSecurityManagerTest {
     /**
      * Test if checkAccessThread handles a null Thread
      */
-    @Test
+    @Test(expectedExceptions = NullPointerException.class)
     public void testCheckAccessNullThread() {
-        carbonSecurityManager = mock(CarbonSecurityManager.class);
+        System.setProperty("denied.system.properties", "mockDeniedProperty");
+        carbonSecurityManager = new CarbonSecurityManager();
         Thread thread = null;
         assertNull(thread);
         carbonSecurityManager.checkAccess(thread);
@@ -103,9 +86,10 @@ public class CarbonSecurityManagerTest {
     /**
      * Test if checkAccessThread handles a null ThreadGroup
      */
-    @Test
+    @Test(expectedExceptions = NullPointerException.class)
     public void testCheckAccessNullThreadGroup() {
-        carbonSecurityManager = mock(CarbonSecurityManager.class);
+        System.setProperty("denied.system.properties", "mockDeniedProperty");
+        carbonSecurityManager = new CarbonSecurityManager();
         ThreadGroup threadGroup = null;
         assertNull(threadGroup);
         carbonSecurityManager.checkAccess(threadGroup);
