@@ -59,7 +59,7 @@ import static org.wso2.carbon.launcher.Constants.OSGI_INSTANCE_AREA;
 public class CarbonLaunchConfig {
 
     private static final Logger logger = Logger.getLogger(CarbonLaunchConfig.class.getName());
-    private static final String VAR_REGEXP = "(?<=@)(\\d)";
+    private static final String VAR_REGEXP = "(?<=@)(\\d+)";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     private URL carbonOSGiRepository;
