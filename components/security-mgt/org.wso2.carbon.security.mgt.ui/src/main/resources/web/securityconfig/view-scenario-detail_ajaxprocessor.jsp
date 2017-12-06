@@ -19,8 +19,14 @@
 <%
     String scenarioIdNumber = "";
     String scenarioId = request.getParameter("scenarioId");
+    try {
+        Integer.parseInt(scenarioId);
+    } catch (Exception e) {
+        //scenarioId should be an integer. Otherwise set to null.
+        scenarioId = null;
+    }
     String scenarioSummary = request.getParameter("scenarioSummary");
-    if(scenarioId != null && !scenarioId.equals("")){
+    if (scenarioId != null && !scenarioId.equals("")) {
         scenarioIdNumber = "scenario" + scenarioId;
     }
 %>
