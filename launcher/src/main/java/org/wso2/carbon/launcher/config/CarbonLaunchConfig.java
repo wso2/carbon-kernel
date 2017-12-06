@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,8 @@ import static org.wso2.carbon.launcher.Constants.OSGI_INSTANCE_AREA;
 public class CarbonLaunchConfig {
 
     private static final Logger logger = Logger.getLogger(CarbonLaunchConfig.class.getName());
+    private static final String VAR_REGEXP = "(?<=@)(\\d)";
+    private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     private URL carbonOSGiRepository;
     private URL carbonProfileRepository;
@@ -143,8 +146,26 @@ public class CarbonLaunchConfig {
         String[] customBundlesArray = Utils.tokenize(customBundles, ",");
         List list = Arrays.stream(defaultBundlesArray).collect(Collectors.toList());
         list.addAll(list.size() - 1, Arrays.stream(customBundlesArray).collect(Collectors.toList()));
+        Collections.sort(list, initialBundleComparator);
         return list.toString().substring(1, list.toString().length() - 1);
     }
+
+    private static Comparator<String> initialBundleComparator = new Comparator<String>() {
+        public int compare(String o1, String o2) {
+            return extractInt(o1) - extractInt(o2);
+        }
+
+        int extractInt(String bundle) {
+            Matcher matcher = varPattern.matcher(bundle);
+            if (!matcher.find()) {
+                String errorMsg = "Invalid carbon.initial.osgi bundle found in launch.properties: " + bundle;
+                logger.log(Level.SEVERE, errorMsg);
+                throw new RuntimeException(errorMsg);
+            }
+            String num = matcher.group(0);
+            return Integer.parseInt(num);
+        }
+    };
 
     /**
      * Load carbon configuration from a java.io.File object.
