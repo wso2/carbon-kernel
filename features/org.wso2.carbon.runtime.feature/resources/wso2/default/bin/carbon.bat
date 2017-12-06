@@ -52,6 +52,7 @@ if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
 
 rem ----- Only set RUNTIME_HOME if not already set ----------------------------
 :setRuntimeHome
+setlocal
 if "%RUNTIME_HOME%"=="" set RUNTIME_HOME=%~sdp0..
 rem --- derive RUNTIME NAME from the RUNTIME_HOME path.
 cd /d %RUNTIME_HOME%
