@@ -38,7 +38,7 @@ import java.nio.file.StandardCopyOption;
 public class CARBON16062PrimaryHazelcastConfigNullTestCase extends CarbonIntegrationBaseTest {
 
     public static final String ARTIFACTS_DIRECTORY = "artifacts";
-    public static final String CUSTOM_JAR_NAME = "org.wso2.membershipScheme.dummy-1.0-SNAPSHOT.jar";
+    public static final String CUSTOM_JAR_NAME = "org.wso2.membershipScheme.dummy-1.0.jar";
     public static final String REPOSITORY_DIRECTORY = "repository";
     public static final String CLUSTER_INITIALIZATION_COMPLETED_MESSAGE = "Cluster initialization completed";
     private final int PORT_OFFSET = 10;
@@ -46,7 +46,8 @@ public class CARBON16062PrimaryHazelcastConfigNullTestCase extends CarbonIntegra
     private AutomationContext context;
     private Process process;
 
-    @BeforeClass(alwaysRun = true) public void initTests() throws Exception {
+    @BeforeClass(alwaysRun = true)
+    public void initTests() throws Exception {
         super.init();
         context = new AutomationContext();
 
