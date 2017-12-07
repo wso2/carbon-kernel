@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.kernel.internal.startupresolver;
 
+import org.owasp.encoder.Encode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,12 +57,12 @@ public class StartupServiceCache {
      */
     public void update(String componentName, Class interfaceName) {
         logger.debug("Updating StartupServiceCache, componentName={}, interfaceName={}.",
-                componentName, interfaceName.getName());
+                getEncodedString(componentName), getEncodedString(interfaceName.getName()));
 
         synchronized (componentMap) {
             Map<String, Long> componentServicesMap = componentMap.get(componentName);
             if (componentServicesMap == null) {
-                logger.debug("Creating a Component Services Map for component {}", componentName);
+                logger.debug("Creating a Component Services Map for component {}", getEncodedString(componentName));
                 componentServicesMap = new HashMap<>();
                 componentMap.put(componentName, componentServicesMap);
             }
@@ -69,7 +70,7 @@ public class StartupServiceCache {
             Long serviceCount = componentServicesMap.get(interfaceName.getName());
             if (serviceCount == null) {
                 logger.debug("Creating a Service Instance List for interface {} in component {}",
-                        interfaceName, componentName);
+                        getEncodedString(interfaceName.toString()), getEncodedString(componentName));
                 serviceCount = 1L;
             } else {
                 serviceCount++;
@@ -95,5 +96,14 @@ public class StartupServiceCache {
                     .collect(Collectors.toMap(Map.Entry::getKey,
                             stringLongEntry -> Long.valueOf(stringLongEntry.getValue())));
         }
+    }
+
+    private static String getEncodedString(String str) {
+        String cleanedString = str.replace('\n', '_').replace('\r', '_');
+        cleanedString = Encode.forHtml(cleanedString);
+        if (!cleanedString.equals(str)) {
+            cleanedString += " (Encoded)";
+        }
+        return cleanedString;
     }
 }

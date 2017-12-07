@@ -18,6 +18,7 @@ package org.wso2.carbon.tools.spi;
 import org.wso2.carbon.tools.CarbonTool;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.tools.util.LogEncoder;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -150,7 +151,7 @@ public class ICFProviderTool implements CarbonTool {
                        .append(tmpDir.toString())
                        .append(" ")
                        .append(internal.resolve(ACTIVATOR_CLASS_FILE).toString().replace(tmpDir.toString(), ""));
-                logger.log(Level.INFO, "Executing '" + command.toString() + "'");
+                logger.log(Level.INFO, LogEncoder.getEncodedString("Executing '" + command.toString() + "'"));
                 process = Runtime.getRuntime().exec(command.toString());
                 process.waitFor(5, TimeUnit.SECONDS);
                 addBundleActivatorHeader(finalJarPath, tmpDir);
@@ -175,7 +176,7 @@ public class ICFProviderTool implements CarbonTool {
         } else {
             String message = "The destination location '" + tmpDir.toString() +
                              "' already exist/does not have write permissions or jar file doesn't exist";
-            logger.log(Level.WARNING, message);
+            logger.log(Level.WARNING, LogEncoder.getEncodedString(message));
         }
     }
 
@@ -211,7 +212,7 @@ public class ICFProviderTool implements CarbonTool {
                 Path pathInZipfile = zipfs.getPath(JAR_MANIFEST_FOLDER, MANIFEST_FILE_NAME);
                 Files.copy(manifestmfFile, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
             }
-            logger.log(Level.INFO, "Created bundle file: '" + finalJarPath.toString());
+            logger.log(Level.INFO, LogEncoder.getEncodedString("Created bundle file: '" + finalJarPath.toString()));
         } else {
             logger.log(Level.INFO, "Running jar to bundle conversion");
             BundleGeneratorUtils.convertFromJarToBundle(finalJarPath, destination, manifest, "");

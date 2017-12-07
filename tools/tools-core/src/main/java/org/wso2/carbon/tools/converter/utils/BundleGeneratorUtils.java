@@ -17,6 +17,7 @@ package org.wso2.carbon.tools.converter.utils;
 
 import org.wso2.carbon.tools.Constants;
 import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.tools.util.LogEncoder;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -80,7 +81,8 @@ public class BundleGeneratorUtils {
             String fileName = tempJarFilePathHolder.toString();
             if (fileName.endsWith(Constants.JAR_FILE_EXTENSION)) {
                 if (BundleGeneratorUtils.isOSGiBundle(jarFile)) {
-                    logger.log(Level.WARNING, "Path " + jarFile.toString() + " refers to an OSGi bundle");
+                    logger.log(Level.WARNING, LogEncoder.getEncodedString(
+                            "Path " + jarFile.toString() + " refers to an OSGi bundle"));
                 }
 
                 if (manifest == null) {
@@ -106,16 +108,19 @@ public class BundleGeneratorUtils {
                 attributes.putValue(Constants.DYNAMIC_IMPORT_PACKAGE, "*");
 
                 if (!(Files.exists(extensionBundle))) {
-                    logger.log(Level.FINE, "Creating the OSGi bundle for JAR file " + jarFile.toString());
-                    logger.log(Level.FINE, "Creating an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
-                            ", at target directory " + extensionBundle.toString() + ".");
+                    logger.log(Level.FINE, LogEncoder.getEncodedString(
+                            "Creating the OSGi bundle for JAR file " + jarFile.toString()));
+                    logger.log(Level.FINE, LogEncoder.getEncodedString(
+                            "Creating an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
+                            ", at target directory " + extensionBundle.toString() + "."));
                     BundleGeneratorUtils.createBundle(jarFile, extensionBundle, manifest);
-                    logger.log(Level.FINE, "Created an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
-                            ", at target directory " + extensionBundle.toString());
-                    logger.log(Level.INFO, "Created the OSGi bundle " + pluginName + " for JAR file " +
-                            jarFile.toString());
+                    logger.log(Level.FINE, LogEncoder.getEncodedString("Created an OSGi bundle for JAR file " +
+                            tempJarFilePathHolder.toString() + ", at target directory " + extensionBundle.toString()));
+                    logger.log(Level.INFO, LogEncoder.getEncodedString("Created the OSGi bundle " +
+                            pluginName + " for JAR file " + jarFile.toString()));
                 } else {
-                    logger.log(Level.INFO, "OSGi bundle " + pluginName + " already exists in the target directory");
+                    logger.log(Level.INFO, LogEncoder.getEncodedString(
+                            "OSGi bundle " + pluginName + " already exists in the target directory"));
                 }
             } else {
                 String message = "Path jarFile does not point to a JAR file";
@@ -197,13 +202,13 @@ public class BundleGeneratorUtils {
                      OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
                      FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
                     manifest.write(manifestOutputStream);
-                    logger.log(Level.FINE,
-                            "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " + jarFile.toString());
+                    logger.log(Level.FINE, LogEncoder.getEncodedString(
+                            "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " + jarFile.toString()));
                     p2InfOutputStream.write("instructions.configure=markStarted(started:true);".
                             getBytes(Charset.forName("UTF-8")));
                     p2InfOutputStream.flush();
-                    logger.log(Level.FINE,
-                            "Generated the OSGi bundlePath p2.inf for the JAR file " + jarFile.toString());
+                    logger.log(Level.FINE, LogEncoder.getEncodedString(
+                            "Generated the OSGi bundlePath p2.inf for the JAR file " + jarFile.toString()));
 
                     Path manifestFolderPath = zipFileSystem.getPath(Constants.JAR_MANIFEST_FOLDER);
                     if (!Files.exists(manifestFolderPath)) {
@@ -249,7 +254,7 @@ public class BundleGeneratorUtils {
                         });
             }
         }
-        logger.log(Level.FINE, "Deleting " + path + ".");
+        logger.log(Level.FINE, LogEncoder.getEncodedString("Deleting " + path + "."));
         return Files.deleteIfExists(path);
     }
 
@@ -296,7 +301,8 @@ public class BundleGeneratorUtils {
                     }
                 });
 
-        logger.log(Level.FINE, "Returning a List<String> of packages from the JAR file " + jarFile.toString());
+        logger.log(Level.FINE, LogEncoder.getEncodedString(
+                "Returning a List<String> of packages from the JAR file " + jarFile.toString()));
         return exportedPackagesList;
     }
 

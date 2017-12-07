@@ -19,6 +19,7 @@ import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.extensions.OSGiLibBundleDeployerUtils;
 import org.wso2.carbon.launcher.extensions.model.BundleInfo;
 import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.tools.util.LogEncoder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -62,17 +63,17 @@ class OSGiLibDeployerToolUtils {
                             try {
                                 OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, carbonProfile, newBundlesInfo);
                             } catch (IOException e) {
-                                logger.log(Level.SEVERE,
+                                logger.log(Level.SEVERE, LogEncoder.getEncodedString(
                                         "Failed to update the OSGi bundle information of Carbon Runtime: "
-                                                + carbonProfile, e);
+                                                + carbonProfile), e);
                             }
                         });
             } else {
                 try {
                     OSGiLibBundleDeployerUtils.updateOSGiLib(carbonHome, profile, newBundlesInfo);
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE,
-                            "Failed to update the OSGi bundle information of Carbon Runtime: " + profile, e);
+                    logger.log(Level.SEVERE, LogEncoder.getEncodedString(
+                            "Failed to update the OSGi bundle information of Carbon Runtime: " + profile), e);
                 }
             }
         }
