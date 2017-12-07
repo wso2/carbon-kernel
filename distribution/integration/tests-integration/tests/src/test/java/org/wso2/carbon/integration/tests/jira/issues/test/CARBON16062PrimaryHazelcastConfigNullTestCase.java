@@ -31,6 +31,7 @@ import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -58,7 +59,6 @@ public class CARBON16062PrimaryHazelcastConfigNullTestCase extends CarbonIntegra
         carbonHome = carbonServerManager.setUpCarbonHome(carbonZipLocation);
 
         copyCustomMemberShipSchemeBundleToDropins();
-
         replaceAxis2XML();
 
         process = startServer(PORT_OFFSET);
@@ -66,24 +66,17 @@ public class CARBON16062PrimaryHazelcastConfigNullTestCase extends CarbonIntegra
     }
 
     private void replaceAxis2XML() throws IOException {
-        String source = TestConfigurationProvider.getResourceLocation() + File.separator + ARTIFACTS_DIRECTORY + File.separator + "CARBON" + File.separator + "CARBON16062" + File.separator + "axis2.xml";
-
-        String target = carbonHome + File.separator + REPOSITORY_DIRECTORY +
-                File.separator + "conf" + File.separator + "axis2" + File.separator + "axis2.xml";
-
-        Files.copy(Paths.get(source), Paths.get(target), StandardCopyOption.REPLACE_EXISTING);
-
+        Path sourcePath = Paths.get(TestConfigurationProvider.getResourceLocation(), ARTIFACTS_DIRECTORY, "CARBON",
+                "CARBON16062", "axis2.xml");
+        Path targetPath = Paths.get(carbonHome, REPOSITORY_DIRECTORY, "conf", "axis2", "axis2.xml");
+        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private void copyCustomMemberShipSchemeBundleToDropins() throws IOException, CarbonToolsIntegrationTestException {
-        String source = TestConfigurationProvider.getResourceLocation() + File.separator + ARTIFACTS_DIRECTORY + File.separator + "CARBON" + File.separator + "CARBON16062" +
-                File.separator + CUSTOM_JAR_NAME;
-
-        String target = carbonHome + File.separator + REPOSITORY_DIRECTORY +
-                File.separator + "components" + File.separator + "lib" + File.separator
-                + CUSTOM_JAR_NAME;
-
-        Files.copy(Paths.get(source), Paths.get(target));
+        Path sourcePath = Paths.get(TestConfigurationProvider.getResourceLocation(), ARTIFACTS_DIRECTORY, "CARBON",
+                "CARBON16062", CUSTOM_JAR_NAME);
+        Path targetPath = Paths.get(carbonHome, REPOSITORY_DIRECTORY, "components", "lib", CUSTOM_JAR_NAME);
+        Files.copy(sourcePath, targetPath);
     }
 
     @Test(groups = "carbon.core", description = "Test custom membership scheme where Primary hazelcast config "
@@ -97,11 +90,9 @@ public class CARBON16062PrimaryHazelcastConfigNullTestCase extends CarbonIntegra
         errorStreamHandler.start();
 
         long time = System.currentTimeMillis() + 60 * 1000;
-
         String output = inputStreamHandler.getOutput();
 
-        while (!output.contains(CLUSTER_INITIALIZATION_COMPLETED_MESSAGE)
-                && System.currentTimeMillis() < time) {
+        while (!output.contains(CLUSTER_INITIALIZATION_COMPLETED_MESSAGE) && System.currentTimeMillis() < time) {
             output = inputStreamHandler.getOutput();
         }
 
@@ -115,14 +106,13 @@ public class CARBON16062PrimaryHazelcastConfigNullTestCase extends CarbonIntegra
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             String[] cmdArray;
             cmdArray = new String[] { "cmd.exe", "wso2server.bat", "-DportOffset=" + portOffset };
-
             process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
         } else {
             String[] cmdArray;
             cmdArray = new String[] { "sh", "wso2server.sh", "-DportOffset=" + portOffset };
-
             process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
         }
         return process;
     }
 }
+
