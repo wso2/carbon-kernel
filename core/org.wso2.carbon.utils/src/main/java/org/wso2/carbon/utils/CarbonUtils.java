@@ -1090,7 +1090,8 @@ public class CarbonUtils {
      * @throws CarbonException
      */
     public static InputStream replaceSystemVariablesInXml(InputStream xmlConfiguration) throws CarbonException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+
+        DocumentBuilderFactory documentBuilderFactory = getSecuredDocumentBuilder();
         DocumentBuilder documentBuilder;
         Document doc;
         try {
