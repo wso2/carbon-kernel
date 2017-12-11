@@ -23,7 +23,6 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.utils.i18n.Messages;
 
 import javax.crypto.Cipher;
 import java.security.KeyStore;
@@ -47,6 +46,8 @@ public class CryptoUtil {
     private RegistryService registryService;
 
     private static CryptoUtil instance = null;
+
+    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -113,7 +114,6 @@ public class CryptoUtil {
      * @throws CryptoException On error during encryption
      */
     public byte[] encrypt(byte[] plainTextBytes) throws CryptoException {
-
         byte[] encryptedKey;
         SymmetricEncryption encryption = SymmetricEncryption.getInstance();
 
@@ -121,17 +121,23 @@ public class CryptoUtil {
             if (Boolean.valueOf(encryption.getSymmetricKeyEncryptEnabled())) {
                 encryptedKey = encryption.encryptWithSymmetricKey(plainTextBytes);
             } else {
+                Cipher keyStoreCipher;
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID,
                         this.getServerConfigService(),
                         this.getRegistryService());
                 KeyStore keyStore = keyMan.getPrimaryKeyStore();
-
                 Certificate[] certs = keyStore.getCertificateChain(keyAlias);
-                Cipher cipher = Cipher.getInstance("RSA", "BC");
-                cipher.init(Cipher.ENCRYPT_MODE, certs[0].getPublicKey());
+                String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
-                encryptedKey = cipher.doFinal(plainTextBytes);
+                if (cipherTransformation != null) {
+                    keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                } else {
+                    keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                }
+
+                keyStoreCipher.init(Cipher.ENCRYPT_MODE, certs[0].getPublicKey());
+                encryptedKey = keyStoreCipher.doFinal(plainTextBytes);
             }
         } catch (Exception e) {
             throw new
@@ -161,7 +167,6 @@ public class CryptoUtil {
      * @throws CryptoException On an error during decryption
      */
     public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
-
         byte[] decyptedValue;
         SymmetricEncryption encryption = SymmetricEncryption.getInstance();
 
@@ -169,6 +174,7 @@ public class CryptoUtil {
             if (Boolean.valueOf(encryption.getSymmetricKeyEncryptEnabled())) {
                 decyptedValue = encryption.decryptWithSymmetricKey(cipherTextBytes);
             } else {
+                Cipher keyStoreCipher;
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID,
                         this.getServerConfigService(),
@@ -176,11 +182,16 @@ public class CryptoUtil {
                 KeyStore keyStore = keyMan.getPrimaryKeyStore();
                 PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias,
                         keyPass.toCharArray());
+                String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
-                Cipher cipher = Cipher.getInstance("RSA", "BC");
-                cipher.init(Cipher.DECRYPT_MODE, privateKey);
+                if (cipherTransformation != null) {
+                    keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                } else {
+                    keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                }
 
-                decyptedValue = cipher.doFinal(cipherTextBytes);
+                keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
+                decyptedValue = keyStoreCipher.doFinal(cipherTextBytes);
             }
         } catch (Exception e) {
             throw new CryptoException("errorDuringDecryption", e);
@@ -200,4 +211,3 @@ public class CryptoUtil {
         return decrypt(Base64.decode(base64CipherText));
     }
 }
-
