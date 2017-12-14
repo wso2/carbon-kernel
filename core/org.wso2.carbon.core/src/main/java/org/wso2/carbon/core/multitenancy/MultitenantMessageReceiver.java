@@ -764,7 +764,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
      * @param messageContext Axis2 Message context
      * @return {boolean} Whether current message is HTTP/HTTPS
      */
-    protected static boolean isHTTPOrHTTPsRequest(org.apache.axis2.context.MessageContext messageContext) {
+    private boolean isHTTPOrHTTPsRequest(org.apache.axis2.context.MessageContext messageContext) {
         if (messageContext.getTransportOut() != null) {
             String incomingTransportName = String.valueOf(messageContext.getTransportOut().getName());
             if (incomingTransportName.equals("http") || incomingTransportName.equals("https")) {
