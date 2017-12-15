@@ -20,6 +20,8 @@ wso2.carbon:
   id: ${sys:server.id}
     # server name
   name: ${env:SERVER_NAME}
+    # enable/disable hostname verifier
+  hostnameVerificationEnabled: false
   tenant: ${sec:wso2.sample.tenant}
 
     # ports used by this server

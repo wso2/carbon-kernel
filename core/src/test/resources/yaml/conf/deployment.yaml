@@ -17,6 +17,7 @@
 wso2.carbon:
   id: carbon-kernel
   name: WSO2 Carbon Kernel
+  hostnameVerificationEnabled: false
   version: ${carbon.version}
   tenant: default
 

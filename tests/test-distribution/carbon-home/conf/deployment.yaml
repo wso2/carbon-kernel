@@ -18,6 +18,8 @@ wso2.carbon:
   id: carbon-kernel
     # server name
   name: WSO2 Carbon Kernel
+  # enable/disable hostname verifier
+  hostnameVerificationEnabled: false
     # ports used by this server
   ports:
       # port offset

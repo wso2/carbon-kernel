@@ -20,6 +20,8 @@ wso2.carbon:
   id: carbon-kernel
     # server name
   name: WSO2 Carbon Kernel
+    # enable/disable hostname verifier
+  hostnameVerificationEnabled: false
   tenant: ${tenant.name}
 
     # ports used by this server
