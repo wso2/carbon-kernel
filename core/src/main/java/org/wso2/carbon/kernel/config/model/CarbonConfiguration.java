@@ -44,6 +44,9 @@ public class CarbonConfiguration {
     @Element(description = "server name")
     private String name = "WSO2 Carbon Kernel";
 
+    @Element(description = "enable/disable hostname verifier")
+    private boolean hostnameVerificationEnabled = true;
+
     @Ignore
     private String version;
 
@@ -64,6 +67,14 @@ public class CarbonConfiguration {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isHostnameVerificationEnabled() {
+        return hostnameVerificationEnabled;
+    }
+
+    public void setHostnameVerificationEnabled(boolean hostnameVerificationEnabled) {
+        this.hostnameVerificationEnabled = hostnameVerificationEnabled;
     }
 
     public String getVersion() {
