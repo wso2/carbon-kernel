@@ -20,6 +20,8 @@ wso2.carbon:
   id: ${server.key}
     # server name
   name: ${server.name}
+    # enable/disable hostname verifier
+  hostnameVerificationEnabled: false
     # server version
   version: ${server.version}
   tenant: default
