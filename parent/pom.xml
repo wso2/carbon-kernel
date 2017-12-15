@@ -630,7 +630,7 @@
         <carbon.touchpoint.version>1.1.0</carbon.touchpoint.version>
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.2.6-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.package.export.version>5.2.0</carbon.kernel.package.export.version>
+        <carbon.kernel.package.export.version>${carbon.kernel.version}</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <!--Logging API version range-->
