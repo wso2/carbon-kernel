@@ -103,21 +103,29 @@ public final class MemoryAppender extends AbstractAppender {
     }
 
     /**
-     * Taken from the previous MemoryAppender
+     * Gets the Circular Buffer containing queued log events.
+     * This method should be used to publish log events into the management console.
+     *
+     * @return CircularBuffer<LogEvent> circular buffer containing the queued log events
      */
     public CircularBuffer<LogEvent> getCircularQueue() {
         return circularBuffer;
     }
 
     /**
-     * Taken from the previous MemoryAppender
+     * Sets the Circular Buffer of type LogEvent to queue log events.
+     * This method should be used to publish log events into the management console.
+     *
+     * @param circularBuffer Circular Buffer of type LogEvent
      */
     public void setCircularBuffer(CircularBuffer<LogEvent> circularBuffer) {
         this.circularBuffer = circularBuffer;
     }
 
     /**
-     * Taken from the previous MemoryAppender
+     * Creates an instance of CircularBuffer of type LogEvent.
+     * Creates with the given buffer size if it is specified. Else,
+     * sets the size to a default value if buffer size is not specified.
      */
     public void activateOptions() {
         if (bufferSize < 0) {
@@ -130,14 +138,20 @@ public final class MemoryAppender extends AbstractAppender {
     }
 
     /**
-     * Taken from the previous MemoryAppender
+     * Gets the buffer size of Circular Buffer.
+     * This method should be used to publish log events into the management console.
+     *
+     * @return buffer size of Circular Buffer
      */
     public int getBufferSize() {
         return bufferSize;
     }
 
     /**
-     * Taken from the previous MemoryAppender
+     * Sets the buffer size of Circular Buffer.
+     * This method should be used to publish log events into the management console.
+     *
+     * @param bufferSize buffer size of the Circular Buffer
      */
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
