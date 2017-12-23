@@ -23,6 +23,7 @@
     <test name="carbon-core-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.core.dependencies.commons.collections.TestInvokerTransformer"/>
+            <class name="org.wso2.carbon.core.multitenancy.transports.TenantTransportSender"/>
         </classes>
     </test>
 </suite>
