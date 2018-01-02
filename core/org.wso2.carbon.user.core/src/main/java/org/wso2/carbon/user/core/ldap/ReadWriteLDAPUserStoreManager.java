@@ -98,6 +98,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+    private static final String SKIP_SAVE_USER_NAME_AS_ATTRIBUTE = "SkipSaveUserNameAsAttribute";
 
     protected Random random = new Random();
 
@@ -389,10 +390,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             objectClass.add("subschema");
         }
         basicAttributes.put(objectClass);
-        BasicAttribute userNameAttribute = new BasicAttribute(
-                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
-        userNameAttribute.add(userName);
-        basicAttributes.put(userNameAttribute);
+        if(isSaveUserNameAsAnAttribute()) {
+            BasicAttribute userNameAttribute = new BasicAttribute(realmConfig.
+                    getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+            userNameAttribute.add(userName);
+            basicAttributes.put(userNameAttribute);
+        }
 
         if (kdcEnabled) {
             CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
@@ -419,6 +422,17 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             basicAttributes.put(versionNumberAttribute);
         }
         return basicAttributes;
+    }
+
+    /**
+     * Returns true iff Saving username as an attribute is not disabled.
+     * @return
+     */
+    private boolean isSaveUserNameAsAnAttribute() {
+
+        String saveUserNameAsAnAttribute =
+                realmConfig.getUserStoreProperty(SKIP_SAVE_USER_NAME_AS_ATTRIBUTE);
+        return ! Boolean.parseBoolean(saveUserNameAsAnAttribute);
     }
 
     /**
@@ -2016,6 +2030,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(SKIP_SAVE_USER_NAME_AS_ATTRIBUTE, "Skip Saving the User Name as an Attribute",
+                "false","Skip Saving the user name as attribute. Some LDAP servers may save duplicate CN without this.");
     }
 
 //
