@@ -1716,7 +1716,8 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
-                    <version>${maven.scr.plugin.version}</version>
+                    <!--<version>${maven.scr.plugin.version}</version>-->
+                    <version>1.7.2</version>
                     <executions>
                         <execution>
                             <id>generate-scr-scrdescriptor</id>
