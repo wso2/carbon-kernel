@@ -390,7 +390,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             objectClass.add("subschema");
         }
         basicAttributes.put(objectClass);
-        if(isSaveUserNameAsAnAttribute()) {
+        if (shouldSaveUserNameAsAnAttribute()) {
             BasicAttribute userNameAttribute = new BasicAttribute(realmConfig.
                     getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
             userNameAttribute.add(userName);
@@ -425,17 +425,16 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     /**
-     * Returns true iff Saving username as an attribute is not disabled.
+     * Returns true iff saving username as an attribute is not disabled.
      * @return
      */
-    private boolean isSaveUserNameAsAnAttribute() {
+    private boolean shouldSaveUserNameAsAnAttribute() {
 
-        String saveUserNameAsAnAttribute =
-                realmConfig.getUserStoreProperty(ADD_USER_NAME_AS_ATTRIBUTE);
-        if(StringUtils.isEmpty(saveUserNameAsAnAttribute)) {
+        String saveUserNameAsAnAttribute = realmConfig.getUserStoreProperty(ADD_USER_NAME_AS_ATTRIBUTE);
+        if (StringUtils.isEmpty(saveUserNameAsAnAttribute)) {
             return true;
         }
-        return  Boolean.parseBoolean(saveUserNameAsAnAttribute);
+        return Boolean.parseBoolean(saveUserNameAsAnAttribute);
     }
 
     /**
