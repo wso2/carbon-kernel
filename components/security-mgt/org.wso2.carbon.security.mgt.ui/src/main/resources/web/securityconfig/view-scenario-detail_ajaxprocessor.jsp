@@ -19,10 +19,14 @@
 <%
     String scenarioIdNumber = "";
     String scenarioId = request.getParameter("scenarioId");
-    String scenarioSummary = request.getParameter("scenarioSummary");
-    if(scenarioId != null && !scenarioId.equals("")){
+    try {
+        Integer.parseInt(scenarioId);
         scenarioIdNumber = "scenario" + scenarioId;
+    } catch (Exception e) {
+        //scenarioId should be an integer.
+        scenarioId = null;
     }
+    String scenarioSummary = request.getParameter("scenarioSummary");
 %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:bundle basename="org.wso2.carbon.security.ui.i18n.Resources">
