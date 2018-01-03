@@ -28,6 +28,7 @@ import org.wso2.carbon.utils.WSO2Constants;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class KeyStoreMgtUtil {
             File pubCert = new File(workDir + File.separator + "pub_certs");
 
             if (fileName == null) {
-                fileName = String.valueOf(System.currentTimeMillis() + Math.random()) + ".cert";
+                fileName = String.valueOf(System.currentTimeMillis() + new SecureRandom().nextDouble()) + ".cert";
             }
             if (!pubCert.exists()) {
                 pubCert.mkdirs();

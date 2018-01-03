@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.9.0-SNAPSHOT</version>
+    <version>5.11.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -38,6 +38,7 @@
     </scm>
 
     <modules>
+        <module>test-utils/org.wso2.carbon.identity.testutil</module>
         <module>service-stubs/identity</module>
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
@@ -299,17 +300,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.charon</groupId>
-                <artifactId>org.wso2.charon.core</artifactId>
-                <version>${charon.wso2.version.identity}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.charon</groupId>
-                <artifactId>org.wso2.charon.utils</artifactId>
-                <version>${charon.wso2.version.identity}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.wso2.balana</groupId>
                 <artifactId>org.wso2.balana</artifactId>
                 <version>${balana.version}</version>
@@ -438,7 +428,7 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
-                <version>${org.apache.cxf.cxf-rt-transports-jetty.version}</version>
+                <version>${org.apache.cxf.cxf-rt.version}</version>
             </dependency>
 
             <dependency>
@@ -479,12 +469,6 @@
                 <artifactId>junit</artifactId>
                 <scope>test</scope>
                 <version>${junit.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>au.com.bytecode.opencsv.wso2</groupId>
@@ -724,7 +708,7 @@
                 <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-collections.wso2</groupId>
+                <groupId>org.wso2.orbit.commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
             </dependency>
@@ -732,11 +716,6 @@
                 <groupId>org.apache.httpcomponents.wso2</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${httpcore.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1410,15 +1389,77 @@
                 <artifactId>org.wso2.carbon.identity.governance.stub</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!--Carbon Registry Dependencies-->
+            <dependency>
+                <groupId>org.wso2.carbon.registry</groupId>
+                <artifactId>org.wso2.carbon.registry.common</artifactId>
+                <version>${org.wso2.carbon.registry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.registry</groupId>
+                <artifactId>org.wso2.carbon.registry.indexing</artifactId>
+                <version>${org.wso2.carbon.registry.version}</version>
+            </dependency>
+
+            <!-- Testing related dependencies -->
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jmockit</groupId>
+                <artifactId>jmockit</artifactId>
+                <scope>test</scope>
+                <version>${jmockit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <classifier>runtime</classifier>
+                <version>${jacoco.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng</artifactId>
+                <version>${org.powermock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>${org.powermock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng-common</artifactId>
+                <version>${org.powermock.version}</version>
+            </dependency>
+            <!-- Common test utility -->
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.testutil</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    
     <properties>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.4.11</carbon.kernel.version>
+        <carbon.kernel.version>4.4.19</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
 
@@ -1427,6 +1468,7 @@
         <osgi.framework.imp.pkg.version.range>[1.7.0, 2.0.0)</osgi.framework.imp.pkg.version.range>
         <osgi.util.tracker.imp.pkg.version.range>[1.5.1, 2.0.0)</osgi.util.tracker.imp.pkg.version.range>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
+        <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
         <!--Carbon commons version-->
         <carbon.commons.version>4.5.2</carbon.commons.version>
@@ -1436,6 +1478,11 @@
         <identity.framework.version>${project.version}</identity.framework.version>
         <carbon.identity.package.export.version>${project.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
+
+        <!--Carbon registry version-->
+        <org.wso2.carbon.registry.version>4.6.19</org.wso2.carbon.registry.version>
+        <carbon.registry.common.imp.pkg.version.range>[0.0.0,1.0.0)</carbon.registry.common.imp.pkg.version.range>
+        <carbon.registry.indexing.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.registry.indexing.imp.pkg.version.range>
 
         <!--Carbon component version-->
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
@@ -1481,7 +1528,7 @@
         <derby.version>10.4.2.0</derby.version>
         <activation.version>1.1</activation.version>
         <javamail.version>1.4</javamail.version>
-        <wss4j.version>1.5.11.wso2v16</wss4j.version>
+        <wss4j.version>1.5.11.wso2v17</wss4j.version>
         <wss4j.xml.security.imp.pkg.version.range>[1.4.2.patched,2.0.0)</wss4j.xml.security.imp.pkg.version.range>
         <wss4j.ws.security.imp.pkg.version.range>[1.5.11,2.0.0)</wss4j.ws.security.imp.pkg.version.range>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
@@ -1496,7 +1543,6 @@
         <xercesImpl.version>2.8.1.wso2v2</xercesImpl.version>
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
         <junit.version>4.11</junit.version>
-        <mockito.version>1.9.5</mockito.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
@@ -1528,7 +1574,7 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.wso2.version>1.6.1.wso2v24</rampart.wso2.version>
+        <rampart.wso2.version>1.6.1.wso2v25</rampart.wso2.version>
         <rampart.wso2.osgi.version.range>[1.6.1,2.0.0)</rampart.wso2.osgi.version.range>
 
         <!-- Equinox -->
@@ -1538,7 +1584,7 @@
 
         <!-- Commons -->
         <commons-beanutils.version>1.8.0</commons-beanutils.version>
-        <commons-collections.version>3.2.0.wso2v1</commons-collections.version>
+        <commons-collections.version>3.2.2.wso2v1</commons-collections.version>
         <commons-digester.version>1.8</commons-digester.version>
         <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
         <commons.io.wso2.osgi.version.range>[2.4.0,3.0.0)</commons.io.wso2.osgi.version.range>
@@ -1585,12 +1631,10 @@
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
         <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>
         <google.guice.imp.pkg.version.range>[1.3.0,2.0.0)</google.guice.imp.pkg.version.range>
-        <charon.wso2.version.identity>2.1.0</charon.wso2.version.identity>
-        <charon.core.imp.pkg.version.range>[2.1.0,3.0.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>1.0.0</openid4java.version>
         <openid4java.wso2.version>1.0.0.wso2v2</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
-        <balana.version>1.1.2</balana.version>
+        <balana.version>1.1.3</balana.version>
         <balana.imp.pkg.version.range>[1.1.0,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,2.0.0)</gdata-core.imp.pkg.version.range>
@@ -1619,8 +1663,11 @@
 
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
         <openspml.version>192-20100413</openspml.version>
-        <testng.version>6.3.1</testng.version>
-        <surefire.plugin.version>2.20</surefire.plugin.version>
+        <testng.version>6.9.10</testng.version>
+        <jacoco.version>0.7.9</jacoco.version>
+        <jmockit.version>1.35</jmockit.version>
+        <powermock.version>1.6.6</powermock.version>
+        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <thetransactioncompany.cors-filter.wso2.version>1.7.0.wso2v1</thetransactioncompany.cors-filter.wso2.version>
         <thetransactioncompany.utils.wso2.version>1.9.0.wso2v1</thetransactioncompany.utils.wso2.version>
         <jsr311-api.version>1.1.1</jsr311-api.version>
@@ -1637,8 +1684,7 @@
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
-        <org.apache.cxf.cxf-rt.version>2.7.8</org.apache.cxf.cxf-rt.version>
-        <org.apache.cxf.cxf-rt-transports-jetty.version>2.7.15</org.apache.cxf.cxf-rt-transports-jetty.version>
+        <org.apache.cxf.cxf-rt.version>2.7.18</org.apache.cxf.cxf-rt.version>
         <io.swagger.version>1.5.8</io.swagger.version>
 
         <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
@@ -1646,13 +1692,22 @@
 
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <maven.compiler.plugin.version>3.2</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
-        <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
 
         <jersey-version>1.19.1</jersey-version>
+
+        <!-- Unit test versions -->
+        <testng.version>6.9.10</testng.version>
+        <jacoco.version>0.7.9</jacoco.version>
+        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+        <slf4j.api.version>1.7.12</slf4j.api.version>
+        <org.powermock.version>1.7.3</org.powermock.version>
+
+        <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
+        <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
     </properties>
 
     <build>
@@ -1661,7 +1716,8 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
-                    <version>${maven.scr.plugin.version}</version>
+                    <!--<version>${maven.scr.plugin.version}</version>-->
+                    <version>1.7.2</version>
                     <executions>
                         <execution>
                             <id>generate-scr-scrdescriptor</id>
@@ -1717,13 +1773,11 @@
                 <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
                 <inherited>true</inherited>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
