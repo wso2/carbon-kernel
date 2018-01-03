@@ -98,7 +98,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
-    private static final String SKIP_SAVE_USER_NAME_AS_ATTRIBUTE = "SkipSaveUserNameAsAttribute";
+    private static final String ADD_USER_NAME_AS_ATTRIBUTE = "AddUserNameAsAttribute";
 
     protected Random random = new Random();
 
@@ -431,8 +431,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private boolean isSaveUserNameAsAnAttribute() {
 
         String saveUserNameAsAnAttribute =
-                realmConfig.getUserStoreProperty(SKIP_SAVE_USER_NAME_AS_ATTRIBUTE);
-        return ! Boolean.parseBoolean(saveUserNameAsAnAttribute);
+                realmConfig.getUserStoreProperty(ADD_USER_NAME_AS_ATTRIBUTE);
+        if(StringUtils.isEmpty(saveUserNameAsAnAttribute)) {
+            return true;
+        }
+        return  Boolean.parseBoolean(saveUserNameAsAnAttribute);
     }
 
     /**
@@ -2030,8 +2033,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
-        setAdvancedProperty(SKIP_SAVE_USER_NAME_AS_ATTRIBUTE, "Skip Saving the User Name as an Attribute",
-                "false","Skip Saving the user name as attribute. Some LDAP servers may save duplicate CN without this.");
+        setAdvancedProperty(ADD_USER_NAME_AS_ATTRIBUTE, "Always add the User Name as an Attribute",
+                "true","Adds the user name as attribute. Some LDAP servers may save duplicate CN with this enabled.");
     }
 
 //
