@@ -1693,7 +1693,7 @@
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
+        <maven.scr.plugin.version>1.7.2</maven.scr.plugin.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
 
