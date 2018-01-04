@@ -5,4 +5,5 @@ cache:
   directories:
   - .autoconf
   - $HOME/.m2
-script: _JAVA_OPTIONS=-Djava.util.Arrays.useLegacyMergeSort=true mvn clean install
+before_script: _JAVA_OPTIONS=-Djava.util.Arrays.useLegacyMergeSort=true
+script: mvn clean install

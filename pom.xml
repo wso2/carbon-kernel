@@ -1695,7 +1695,7 @@
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <!-- until the osgi classes are annotated with new scr annotations keeping the scr plugin version downgraded.
         Once the annotations are updated with new format update this version-->
-        <maven.scr.plugin.version>1.7.4</maven.scr.plugin.version>
+        <maven.scr.plugin.version>1.7.2</maven.scr.plugin.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
 
