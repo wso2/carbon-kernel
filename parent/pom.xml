@@ -398,7 +398,7 @@
         <imp.pkg.version.abdera>[1.0.0.wso2v3, 2)</imp.pkg.version.abdera>
 
         <!-- Apache Geronimo -->
-        <version.geronimo.saaj.spec>1.0.1.wso2v1</version.geronimo.saaj.spec>
+        <version.geronimo.saaj.spec>1.0.1.wso2v2</version.geronimo.saaj.spec>
         <version.geronimo.jms.spec>1.1.1.wso2v1</version.geronimo.jms.spec>
         <version.geronimo.stax.api.spec>1.0.1.wso2v2</version.geronimo.stax.api.spec>
         <version.geronimo.stax.spec>1.2</version.geronimo.stax.spec>
