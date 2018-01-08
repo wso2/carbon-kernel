@@ -22,9 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.user.api.Authentication;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.listener.SecretHandleableListener;
-import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.user.api.User;
+import org.wso2.carbon.user.api.UserIdManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -41,17 +42,19 @@ import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
+import org.wso2.carbon.user.core.model.UserImpl;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -70,6 +73,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.sql.DataSource;
 
 public abstract class AbstractUserStoreManager implements UserStoreManager {
 
@@ -448,6 +452,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final boolean authenticate(final String userName, final Object credential) throws UserStoreException {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Boolean>() {
@@ -465,6 +470,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
         }
+    }
+
+    @Override
+    public final Authentication authenticate(User user, Object credential) throws UserStoreException {
+
+        Authentication authentication = new Authentication();
+        UserIdManager userIdManager = new UserIdManagerImpl();
+        User userWithId = new UserImpl();
+
+        String userId = userIdManager.getUserIdFromUsername(user.getUsername());
+
+        if (this.authenticate(userId, credential)) {
+            authentication.setSuccess(true);
+            authentication.setUser(userWithId);
+        }
+
+        return authentication;
     }
 
     protected boolean authenticate(final String userName, final Object credential, final boolean domainProvided)

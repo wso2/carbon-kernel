@@ -19,31 +19,26 @@
 package org.wso2.carbon.user.api;
 
 /**
- * Represents an User in user store.
+ * Represents an authentication result.
  */
-public interface User {
+public class Authentication {
 
-    /**
-     * Get the username assigned to this user object.
-     * @return Username of this user as a string.
-     */
-    String getUsername();
+    private boolean success;
+    private User user;
 
-    /**
-     * Get the user id assigned to this user.
-     * @return user id of this user as a string.
-     */
-    String getUserId();
+    public boolean isSuccess() {
+        return success;
+    }
 
-    /**
-     * Set the username of this user.
-     * @param username Username of the this user.
-     */
-    void setUsername(String username);
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 
-    /**
-     * Set the userId of this user. This will be used as a pseudonym for the username.
-     * @param userId User id of this user.
-     */
-    void setUserId(String userId);
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

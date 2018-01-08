@@ -19,31 +19,28 @@
 package org.wso2.carbon.user.api;
 
 /**
- * Represents an User in user store.
+ * Manager to handle username and user id mapping.
  */
-public interface User {
+public interface UserIdManager {
 
     /**
-     * Get the username assigned to this user object.
-     * @return Username of this user as a string.
+     * Retrieve username from user's user id.
+     * @param userId User id of the user.
+     * @return Username as a string.
      */
-    String getUsername();
+    String getUsernameFromUserId(String userId);
 
     /**
-     * Get the user id assigned to this user.
-     * @return user id of this user as a string.
+     * Retrieve user id from user's username.
+     * @param username Username of the user.
+     * @return User id as a string.
      */
-    String getUserId();
+    String getUserIdFromUsername(String username);
 
     /**
-     * Set the username of this user.
-     * @param username Username of the this user.
+     * Add an user id for user that does not currently have an user id.
+     * @param username Username of the user.
+     * @param userId id of the user.
      */
-    void setUsername(String username);
-
-    /**
-     * Set the userId of this user. This will be used as a pseudonym for the username.
-     * @param userId User id of this user.
-     */
-    void setUserId(String userId);
+    void addUserIdForUsername(String username, String userId);
 }

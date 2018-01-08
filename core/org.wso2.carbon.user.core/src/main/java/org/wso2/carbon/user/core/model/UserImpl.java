@@ -8,7 +8,7 @@ import org.wso2.carbon.user.api.User;
 public class UserImpl implements User {
 
     private String username;
-    private String pseudonym;
+    private String userId;
 
     @Override
     public String getUsername() {
@@ -16,8 +16,8 @@ public class UserImpl implements User {
     }
 
     @Override
-    public String getPseudonym() {
-        return pseudonym;
+    public String getUserId() {
+        return userId;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class UserImpl implements User {
     }
 
     @Override
-    public void setPseudonym(String pseudonym) {
-        this.pseudonym = pseudonym;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
