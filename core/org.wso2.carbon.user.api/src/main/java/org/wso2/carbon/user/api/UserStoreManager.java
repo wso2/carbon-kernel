@@ -41,6 +41,16 @@ public interface UserStoreManager {
     boolean authenticate(String userName, Object credential) throws UserStoreException;
 
     /**
+     * Authenticate the user against the given user object and credential.
+     *
+     * @param user User that should be authenticated.
+     * @param credential Credentials of the user.
+     * @return If success, Authentication will return value success true with User object that has an user id.
+     * @throws UserStoreException If user store level error occurs.
+     */
+    Authentication authenticate(User user, Object credential) throws UserStoreException;
+
+    /**
      * Retrieves a list of user names upto a maximum limit
      *
      * @param filter       The string to filter out user

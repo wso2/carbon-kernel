@@ -18,10 +18,11 @@ package org.wso2.carbon.registry.core.jdbc.realm;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.api.Authentication;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -62,6 +63,12 @@ public class RegistryUserStoreManager implements UserStoreManager {
      */
     public boolean authenticate(String userName, Object credential) throws UserStoreException {
         return getUserStoreManager().authenticate(userName, credential);
+    }
+
+    @Override
+    public Authentication authenticate(User user, Object credential)
+            throws org.wso2.carbon.user.api.UserStoreException {
+        return getUserStoreManager().authenticate(user, credential);
     }
 
 //    /**
