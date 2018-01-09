@@ -18,14 +18,11 @@ package org.wso2.carbon.launcher;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -207,38 +204,21 @@ public class Main {
      * @param runtimePath wso2.runtime.path sys property value.
      */
     private static void writePID(String runtimePath) {
-
-        String[] cmd = {"bash", "-c", "echo $PPID"};
-        Process p;
-        String pid = "";
-        try {
-            p = Runtime.getRuntime().exec(cmd);
-        } catch (IOException e) {
-            //Ignored. We might be invoking this on a Window platform. Therefore if an error occurs
-            //we simply ignore the error.
+        // Adopted from: https://stackoverflow.com/a/7690178
+        String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        int indexOfAt = jvmName.indexOf('@');
+        if (indexOfAt < 1) {
+            logger.log(Level.WARNING, "Cannot extract current process ID from JVM name '" + jvmName + "'.");
             return;
         }
+        String pid = jvmName.substring(0, indexOfAt);
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(),
-                StandardCharsets.UTF_8))) {
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-            pid = builder.toString();
+        Path runtimePidFile = Paths.get(runtimePath, "runtime.pid");
+        try {
+            Files.write(runtimePidFile, pid.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-
-        if (pid.length() != 0) {
-            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(Paths.get(runtimePath, "runtime.pid").toString()),
-                    StandardCharsets.UTF_8))) {
-                writer.write(pid);
-            } catch (IOException e) {
-                logger.log(Level.WARNING, "Cannot write runtime.pid file");
-            }
+            logger.log(Level.WARNING,
+                       "Cannot write process ID '" + pid + "' to '" + runtimePidFile.toString() + "' file.", e);
         }
     }
 }
