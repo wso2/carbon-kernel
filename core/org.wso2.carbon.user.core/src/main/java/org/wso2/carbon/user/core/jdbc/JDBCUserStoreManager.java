@@ -18,6 +18,8 @@ z * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -1831,22 +1833,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         for (String role : rolesList) {
 
-            String[] deletedRoleNames = role.split(CarbonConstants.DOMAIN_SEPARATOR);
-            if (deletedRoleNames.length > 1) {
-                role = deletedRoleNames[1];
-            }
+            if (StringUtils.isNotEmpty(role)) {
+                String[] deletedRoleNames = role.split(CarbonConstants.DOMAIN_SEPARATOR);
+                if (deletedRoleNames.length > 1) {
+                    role = deletedRoleNames[1];
+                }
 
-            JDBCRoleContext ctx = (JDBCRoleContext) createRoleContext(role);
-            role = ctx.getRoleName();
-            int roleTenantId = ctx.getTenantId();
-            boolean isShared = ctx.isShared();
+                JDBCRoleContext ctx = (JDBCRoleContext) createRoleContext(role);
+                role = ctx.getRoleName();
+                int roleTenantId = ctx.getTenantId();
+                boolean isShared = ctx.isShared();
 
-            if (isShared) {
-                sharedRoles.add(role);
-                sharedTenantIds.add(roleTenantId);
-            } else {
-                roles.add(role);
-                tenantIds.add(roleTenantId);
+                if (isShared) {
+                    sharedRoles.add(role);
+                    sharedTenantIds.add(roleTenantId);
+                } else {
+                    roles.add(role);
+                    tenantIds.add(roleTenantId);
+                }
             }
 
         }
@@ -1931,11 +1935,25 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             if (newRoles != null && newRoles.length > 0) {
+
+                ArrayList<String> newRoleList = new ArrayList<>();
+                for (String role : newRoles) {
+                    if(!isExistingRole(role)){
+                        String errorMessage = "The role: " + role + " does not exist.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                    if (!isUserInRole(userName, role)) {
+                        newRoleList.add(role);
+                    }
+                }
+
+                String[] rolesToAdd = newRoleList.toArray(new String[newRoleList.size()]);
                 // if user name and role names are prefixed with domain name,
                 // remove the domain name
+                RoleBreakdown breakdown = getSharedRoleBreakdown(rolesToAdd);
 
-                RoleBreakdown breakdown = getSharedRoleBreakdown(newRoles);
                 String[] roles = breakdown.getRoles();
+
                 // Integer[] tenantIds = breakdown.getTenantIds();
 
                 String[] sharedRoles = breakdown.getSharedRoles();
@@ -2002,6 +2020,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+        } catch (UserStoreException e) {
+            String errorMessage = "Error occurred while updating role list of user.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(e.getMessage(), e);
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting database type from DB connection";
             if (log.isDebugEnabled()) {
