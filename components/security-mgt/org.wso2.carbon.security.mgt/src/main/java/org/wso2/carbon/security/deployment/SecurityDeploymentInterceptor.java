@@ -43,6 +43,11 @@ import org.apache.neethi.builders.xml.XmlPrimtiveAssertion;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.context.CarbonContext;
@@ -101,22 +106,18 @@ import java.util.Properties;
  * hence should not be added to the axis2.xml directly. If done so, it will throw NPEs, since
  * the registry & userRealm references are set through the OSGi decalative service framework.
  *
- * @scr.component name="org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor"
- * immediate="true"
- * @scr.reference name="registry.service"
- * interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic" bind="setRegistryService"
- * unbind="unsetRegistryService"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  */
 
+@Component(
+        name = "org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor",
+        immediate = true
+)
 public class SecurityDeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(SecurityDeploymentInterceptor.class);
     private static final String NO_POLICY_ID = "NoPolicy";
     private static final String APPLY_POLICY_TO_BINDINGS = "applyPolicyToBindings";
 
-
+    @Activate
     protected void activate(ComponentContext ctxt) {
         BundleContext bundleCtx = ctxt.getBundleContext();
         try {
@@ -529,10 +530,24 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         // This method will not be used
     }
 
+    @Reference(
+            name = "registry.service",
+            service = RegistryService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRegistryService"
+    )
     protected void setRegistryService(RegistryService registryService) {
         SecurityServiceHolder.setRegistryService(registryService);
     }
 
+    @Reference(
+            name = "user.realmservice.default",
+            service = RealmService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRealmService"
+    )
     protected void setRealmService(RealmService realmService) {
         SecurityServiceHolder.setRealmService(realmService);
     }
