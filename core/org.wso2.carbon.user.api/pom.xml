@@ -33,6 +33,10 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>carbon-privacy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.base</artifactId>
         </dependency>
     </dependencies>
@@ -51,6 +55,7 @@
                             org.wso2.carbon.user.api.*;version=1.0.1,
                         </Export-Package>
                         <Import-Package>
+                            org.wso2.carbon.privacy.*,
                             org.wso2.carbon.base.*
                         </Import-Package>
                     </instructions>

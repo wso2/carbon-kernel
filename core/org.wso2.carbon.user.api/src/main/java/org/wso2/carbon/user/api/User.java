@@ -18,22 +18,15 @@
 
 package org.wso2.carbon.user.api;
 
+import org.wso2.carbon.privacy.Identifiable;
+import org.wso2.carbon.privacy.annotation.Confidential;
+import org.wso2.carbon.privacy.annotation.Pseudonym;
+
 /**
  * Represents an User in user store.
  */
-public interface User {
-
-    /**
-     * Get the username assigned to this user object.
-     * @return Username of this user as a string.
-     */
-    String getUsername();
-
-    /**
-     * Get the user id assigned to this user.
-     * @return user id of this user as a string.
-     */
-    String getUserId();
+@Confidential
+public interface User extends Identifiable {
 
     /**
      * Set the username of this user.
@@ -46,4 +39,8 @@ public interface User {
      * @param userId User id of this user.
      */
     void setUserId(String userId);
+
+    @Override
+    @Pseudonym
+    String getId();
 }
