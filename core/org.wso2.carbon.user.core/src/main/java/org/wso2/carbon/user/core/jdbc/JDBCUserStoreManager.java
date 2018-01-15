@@ -1886,8 +1886,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 userName = userNames[1];
             }
             if (deletedRoles != null && deletedRoles.length > 0) {
-                // if user name and role names are prefixed with domain name,
-                // remove the domain name
+                // Break the provided role list based on whether roles are shared or not
                 RoleBreakdown breakdown = getSharedRoleBreakdown(deletedRoles);
                 String[] roles = breakdown.getRoles();
                 // Integer[] tenantIds = breakdown.getTenantIds();
@@ -2021,7 +2020,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(msg, e);
         } catch (UserStoreException e) {
-            String errorMessage = "Error occurred while updating role list of user.";
+            String errorMessage = "Error occurred while updating role list of user:" + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
