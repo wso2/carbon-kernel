@@ -22,10 +22,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.privacy.DefaultIdManager;
+import org.wso2.carbon.privacy.IdManager;
+import org.wso2.carbon.privacy.PrivacyInsulator;
+import org.wso2.carbon.privacy.exception.IdManagerException;
 import org.wso2.carbon.user.api.Authentication;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.User;
-import org.wso2.carbon.user.api.UserIdManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -131,6 +134,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return Boolean.FALSE;
         }
     };
+    private IdManager idManager = null;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
@@ -476,14 +480,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public final Authentication authenticate(User user, Object credential) throws UserStoreException {
 
         Authentication authentication = new Authentication();
-        UserIdManager userIdManager = new UserIdManagerImpl();
+
+        // TODO: Get the correct data source.
+        IdManager userIdManager = new JDBCUserIdManager(null);
         User userWithId = new UserImpl();
 
-        String userId = userIdManager.getUserIdFromUsername(user.getUsername());
+        String userId = null;
+        try {
+            userId = userIdManager.getIdFromName(user.getName());
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
 
         if (this.authenticate(userId, credential)) {
             authentication.setSuccess(true);
-            authentication.setUser(userWithId);
+            authentication.setUser(new PrivacyInsulator<>(userWithId));
         }
 
         return authentication;
@@ -1699,27 +1710,24 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         + "' already exists in the system. Please pick another username.");
             }
 
-
-            List<String> internalRoles = new ArrayList<String>();
-            List<String> externalRoles = new ArrayList<String>();
+            List<String> internalRoles = new ArrayList<>();
+            List<String> externalRoles = new ArrayList<>();
             int index;
-            if (roleList != null) {
-                for (String role : roleList) {
-                    if (role != null && role.trim().length() > 0) {
-                        index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                        if (index > 0) {
-                            String domain = role.substring(0, index);
-                            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                                internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                                continue;
-                            } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) ||
-                                    WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                                internalRoles.add(role);
-                                continue;
-                            }
+            for (String role : roleList) {
+                if (role != null && role.trim().length() > 0) {
+                    index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                    if (index > 0) {
+                        String domain = role.substring(0, index);
+                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                            internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                            continue;
+                        } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) ||
+                                WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                            internalRoles.add(role);
+                            continue;
                         }
-                        externalRoles.add(UserCoreUtil.removeDomainFromName(role));
                     }
+                    externalRoles.add(UserCoreUtil.removeDomainFromName(role));
                 }
             }
 
@@ -1736,21 +1744,28 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
 
-            if (claims != null) {
-                for (Map.Entry<String, String> entry : claims.entrySet()) {
-                    ClaimMapping claimMapping = null;
-                    try {
-                        claimMapping = (ClaimMapping) claimManager.getClaimMapping(entry.getKey());
-                    } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                        String errorMessage = "Error in obtaining claim mapping for persisting user attributes.";
-                        throw new UserStoreException(errorMessage, e);
-                    }
-                    if (claimMapping == null) {
-                        String errorMessage = "Invalid claim uri has been provided: " + entry.getKey();
-                        throw new UserStoreException(errorMessage);
-                    }
+            for (Map.Entry<String, String> entry : claims.entrySet()) {
+                ClaimMapping claimMapping = null;
+                try {
+                    claimMapping = (ClaimMapping) claimManager.getClaimMapping(entry.getKey());
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    String errorMessage = "Error in obtaining claim mapping for persisting user attributes.";
+                    throw new UserStoreException(errorMessage, e);
+                }
+                if (claimMapping == null) {
+                    String errorMessage = "Invalid claim uri has been provided: " + entry.getKey();
+                    throw new UserStoreException(errorMessage);
                 }
             }
+
+            if (idManager == null) {
+                throw new UserStoreException("Id manager instance is null.");
+            }
+
+            User user = new UserImpl();
+            user.setUsername(userName);
+
+            idManager.addIdForName(user);
 
             doAddUser(userName, credentialObj, externalRoles.toArray(new String[externalRoles.size()]),
                     claims, profileName, requirePasswordChange);
@@ -1773,6 +1788,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     return;
                 }
             }
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
         } finally {
             credentialObj.clear();
         }
@@ -3941,6 +3958,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected void doInitialSetup() throws UserStoreException {
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
         hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        if (idManager == null) {
+            idManager = new DefaultIdManager();
+        }
     }
 
     /**
@@ -4514,5 +4534,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
     public HybridRoleManager getInternalRoleManager() {
         return hybridRoleManager;
+    }
+
+    /**
+     * Set the id manager that is used for this instance.
+     * @param idManager Instance of the id manager.
+     */
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
     }
 }

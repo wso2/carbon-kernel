@@ -10,14 +10,13 @@ public class UserImpl implements User {
     private String username;
     private String userId;
 
-    @Override
-    public String getUsername() {
-        return username;
+    public UserImpl() {
+        super();
     }
 
-    @Override
-    public String getUserId() {
-        return userId;
+    public UserImpl(String id, String username) {
+        this.userId = id;
+        this.username = username;
     }
 
     @Override
@@ -28,5 +27,15 @@ public class UserImpl implements User {
     @Override
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public String getId() {
+        return userId;
+    }
+
+    @Override
+    public String getName() {
+        return username;
     }
 }

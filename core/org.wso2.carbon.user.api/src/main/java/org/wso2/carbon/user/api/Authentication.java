@@ -18,13 +18,15 @@
 
 package org.wso2.carbon.user.api;
 
+import org.wso2.carbon.privacy.PrivacyInsulator;
+
 /**
  * Represents an authentication result.
  */
 public class Authentication {
 
     private boolean success;
-    private User user;
+    private PrivacyInsulator<User> user;
 
     public boolean isSuccess() {
         return success;
@@ -34,11 +36,11 @@ public class Authentication {
         this.success = success;
     }
 
-    public User getUser() {
+    public PrivacyInsulator<User> getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(PrivacyInsulator<User> user) {
         this.user = user;
     }
 }
