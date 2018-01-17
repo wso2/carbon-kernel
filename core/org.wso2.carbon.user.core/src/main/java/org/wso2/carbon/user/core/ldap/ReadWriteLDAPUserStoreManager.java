@@ -257,7 +257,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         DirContext dirContext = getSearchBaseDirectoryContext();
 
 		/* getting add user basic attributes */
-        BasicAttributes basicAttributes = getAddUserBasicAttributes(escapeSpecialCharactersForDN(userName));
+        BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
         String passwordHashMethod = this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
@@ -487,13 +487,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         if (!isCNExists) {
             BasicAttribute cn = new BasicAttribute("cn");
-            cn.add(escapeSpecialCharactersForDNWithStar(userName));
+            cn.add(userName);
             basicAttributes.put(cn);
         }
 
         if (!isSNExists) {
             BasicAttribute sn = new BasicAttribute("sn");
-            sn.add(escapeSpecialCharactersForDNWithStar(userName));
+            sn.add(userName);
             basicAttributes.put(sn);
         }
     }
