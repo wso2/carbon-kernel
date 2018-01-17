@@ -98,6 +98,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+    private static final String ADD_USER_NAME_AS_ATTRIBUTE = "AddUserNameAsAttribute";
 
     protected Random random = new Random();
 
@@ -389,10 +390,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             objectClass.add("subschema");
         }
         basicAttributes.put(objectClass);
-        BasicAttribute userNameAttribute = new BasicAttribute(
-                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
-        userNameAttribute.add(userName);
-        basicAttributes.put(userNameAttribute);
+        if (shouldSaveUserNameAsAnAttribute()) {
+            BasicAttribute userNameAttribute = new BasicAttribute(realmConfig.
+                    getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+            userNameAttribute.add(userName);
+            basicAttributes.put(userNameAttribute);
+        }
 
         if (kdcEnabled) {
             CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
@@ -419,6 +422,19 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             basicAttributes.put(versionNumberAttribute);
         }
         return basicAttributes;
+    }
+
+    /**
+     * Returns true iff saving username as an attribute is not disabled.
+     * @return
+     */
+    private boolean shouldSaveUserNameAsAnAttribute() {
+
+        String saveUserNameAsAnAttribute = realmConfig.getUserStoreProperty(ADD_USER_NAME_AS_ATTRIBUTE);
+        if (StringUtils.isEmpty(saveUserNameAsAnAttribute)) {
+            return true;
+        }
+        return Boolean.parseBoolean(saveUserNameAsAnAttribute);
     }
 
     /**
@@ -2016,6 +2032,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(ADD_USER_NAME_AS_ATTRIBUTE, "Always add the User Name as an Attribute",
+                "true","Adds the user name as attribute. Some LDAP servers may save duplicate CN with this enabled.");
     }
 
 //
