@@ -24,6 +24,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -34,29 +40,10 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-/**
- * @scr.component name="security.mgt.service.component" immediate="true"
- * @scr.reference name="registry.service"
- * interface=
- * "org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic" bind="setRegistryService"
- * unbind="unsetRegistryService"
- * @scr.reference name="config.context.service"
- * interface="org.wso2.carbon.utils.ConfigurationContextService"
- * cardinality="1..1"
- * policy="dynamic" bind="setConfigurationContextService"
- * unbind="unsetConfigurationContextService"
- * @scr.reference name="user.realmservice.default"
- * interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"
- * unbind="unsetRealmService"
- * @scr.reference name="registry.loader.default"
- * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
- * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
- * @scr.reference name="identityCoreInitializedEventService"
- * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
- * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
- */
+@Component(
+        name = "security.mgt.service.component",
+        immediate = true
+)
 public class SecurityMgtServiceComponent {
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
     private static Log log = LogFactory.getLog(SecurityMgtServiceComponent.class);
@@ -68,6 +55,7 @@ public class SecurityMgtServiceComponent {
         return configContextService.getServerConfigContext();
     }
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
         try {
             ConfigurationContext mainConfigCtx = configContextService.getServerConfigContext();
@@ -95,6 +83,7 @@ public class SecurityMgtServiceComponent {
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         try {
             AxisConfiguration serverAxisConfig =
@@ -108,6 +97,13 @@ public class SecurityMgtServiceComponent {
         }
     }
 
+    @Reference(
+            name = "config.context.service",
+            service = ConfigurationContextService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetConfigurationContextService"
+    )
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
         if (log.isDebugEnabled()) {
             log.debug("Setting the ConfigurationContext");
@@ -116,6 +112,13 @@ public class SecurityMgtServiceComponent {
         SecurityServiceHolder.setConfigurationContextService(contextService);
     }
 
+    @Reference(
+            name = "registry.service",
+            service = RegistryService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRegistryService"
+    )
     protected void setRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
             log.debug("Setting the RegistryService");
@@ -124,6 +127,13 @@ public class SecurityMgtServiceComponent {
         SecurityServiceHolder.setRegistryService(registryService);
     }
 
+    @Reference(
+            name = "user.realmservice.default",
+            service = RealmService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRealmService"
+    )
     protected void setRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
             log.debug("Setting the RealmService");
@@ -156,6 +166,13 @@ public class SecurityMgtServiceComponent {
         SecurityServiceHolder.setRegistryService(registryService);  // TODO: Serious OSGi bug here. FIXME Thilina
     }
 
+    @Reference(
+            name = "registry.loader.default",
+            service = TenantRegistryLoader.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetTenantRegistryLoader"
+    )
     protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
         if (log.isDebugEnabled()) {
             log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
@@ -170,6 +187,13 @@ public class SecurityMgtServiceComponent {
         SecurityServiceHolder.setTenantRegistryLoader(null);
     }
 
+    @Reference(
+            name = "identityCoreInitializedEventService",
+            service = IdentityCoreInitializedEvent.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetIdentityCoreInitializedEventService"
+    )
     protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
         /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
          is started */
