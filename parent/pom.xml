@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.20-SNAPSHOT</version>
+    <version>4.4.21-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -289,7 +289,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.20-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.4.21-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
@@ -398,7 +398,7 @@
         <imp.pkg.version.abdera>[1.0.0.wso2v3, 2)</imp.pkg.version.abdera>
 
         <!-- Apache Geronimo -->
-        <version.geronimo.saaj.spec>1.0.1.wso2v1</version.geronimo.saaj.spec>
+        <version.geronimo.saaj.spec>1.0.1.wso2v2</version.geronimo.saaj.spec>
         <version.geronimo.jms.spec>1.1.1.wso2v1</version.geronimo.jms.spec>
         <version.geronimo.stax.api.spec>1.0.1.wso2v2</version.geronimo.stax.api.spec>
         <version.geronimo.stax.spec>1.2</version.geronimo.stax.spec>
