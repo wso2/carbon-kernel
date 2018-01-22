@@ -162,9 +162,6 @@ public class ResourceServlet extends HttpServlet {
                         servletOutputStream.write(contentChunk, 0, byteCount);
                     }
 
-                    response.flushBuffer();
-                    servletOutputStream.flush();
-
                 } finally {
                     contentStream.close();
                 }
