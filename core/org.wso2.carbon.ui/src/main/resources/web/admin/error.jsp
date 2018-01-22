@@ -114,7 +114,7 @@
                     	if(carbonMessage.isShowStackTrace()){
                     	    pw.write("<b>The following error details are available. Please refer logs for more details.</b><br/>");
                             e.printStackTrace(pw);
-                            String errorStr = sw.toString();
+                            String errorStr = Encode.forHtml(sw.toString());
                             errorStr = errorStr.replaceAll("\n", "<br/>");
                             for (int i = 0; i < errorStr.length(); i++) {
                                 out.write(errorStr.charAt(i));
