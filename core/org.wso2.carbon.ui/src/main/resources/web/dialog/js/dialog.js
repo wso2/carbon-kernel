@@ -228,7 +228,7 @@ CARBON.showConfirmationDialog = function(message, handleYes, handleNo, closeCall
  * @return {Boolean}
  */
 CARBON.showPopupDialog = function(message, title, windowHight, okButton, callback, windowWidth) {
-    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'>" + message + "</div></div>";
+    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlEncode(message) + "</div>";
     var requiredWidth = 750;
     if (windowWidth) {
         requiredWidth = windowWidth;
