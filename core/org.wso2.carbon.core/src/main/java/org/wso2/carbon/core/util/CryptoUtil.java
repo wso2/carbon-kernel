@@ -35,6 +35,8 @@ import java.security.cert.Certificate;
  */
 public class CryptoUtil {
 
+    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
+
     private static Log log = LogFactory.getLog(CryptoUtil.class);
 
     private String keyAlias;
@@ -46,8 +48,6 @@ public class CryptoUtil {
     private RegistryService registryService;
 
     private static CryptoUtil instance = null;
-
-    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -114,6 +114,7 @@ public class CryptoUtil {
      * @throws CryptoException On error during encryption
      */
     public byte[] encrypt(byte[] plainTextBytes) throws CryptoException {
+
         byte[] encryptedKey;
         SymmetricEncryption encryption = SymmetricEncryption.getInstance();
 
@@ -127,17 +128,27 @@ public class CryptoUtil {
                         this.getServerConfigService(),
                         this.getRegistryService());
                 KeyStore keyStore = keyMan.getPrimaryKeyStore();
+
                 Certificate[] certs = keyStore.getCertificateChain(keyAlias);
                 String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+                boolean isCipherTransformEnabled = false;
 
                 if (cipherTransformation != null) {
                     keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                    isCipherTransformEnabled = true;
                 } else {
                     keyStoreCipher = Cipher.getInstance("RSA", "BC");
                 }
 
                 keyStoreCipher.init(Cipher.ENCRYPT_MODE, certs[0].getPublicKey());
-                encryptedKey = keyStoreCipher.doFinal(plainTextBytes);
+                if (isCipherTransformEnabled && plainTextBytes.length == 0) {
+                    encryptedKey = "".getBytes();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Empty value for plainTextBytes null will persist to DB");
+                    }
+                } else {
+                    encryptedKey = keyStoreCipher.doFinal(plainTextBytes);
+                }
             }
         } catch (Exception e) {
             throw new
@@ -167,6 +178,7 @@ public class CryptoUtil {
      * @throws CryptoException On an error during decryption
      */
     public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
+
         byte[] decyptedValue;
         SymmetricEncryption encryption = SymmetricEncryption.getInstance();
 
@@ -183,15 +195,25 @@ public class CryptoUtil {
                 PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias,
                         keyPass.toCharArray());
                 String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+                boolean isCipherTransformEnabled = false;
 
                 if (cipherTransformation != null) {
                     keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                    isCipherTransformEnabled = true;
                 } else {
                     keyStoreCipher = Cipher.getInstance("RSA", "BC");
                 }
 
                 keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
-                decyptedValue = keyStoreCipher.doFinal(cipherTextBytes);
+
+                if (isCipherTransformEnabled && cipherTextBytes.length == 0) {
+                    decyptedValue = "".getBytes();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Empty value for plainTextBytes null will persist to DB");
+                    }
+                } else {
+                    decyptedValue = keyStoreCipher.doFinal(cipherTextBytes);
+                }
             }
         } catch (Exception e) {
             throw new CryptoException("errorDuringDecryption", e);
@@ -211,3 +233,4 @@ public class CryptoUtil {
         return decrypt(Base64.decode(base64CipherText));
     }
 }
+
