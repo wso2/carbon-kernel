@@ -1352,38 +1352,47 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 // updating the LDAP.
                 for (String deletedRole : deletedRoles) {
 
-                    LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
-                    deletedRole = context.getRoleName();
-                    String searchFilter = context.getSearchFilter();
+                    if (StringUtils.isNotEmpty(deletedRole)) {
+                        LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
+                        deletedRole = context.getRoleName();
+                        String searchFilter = context.getSearchFilter();
 
-                    if (isExistingRole(deletedRole)) {
-                        roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
-                        String[] returningAttributes = new String[]{membershipAttribute};
-                        String searchBase = context.getSearchBase();
-                        NamingEnumeration<SearchResult> groupResults =
-                                searchInGroupBase(roleSearchFilter,
-                                        returningAttributes,
-                                        SearchControls.SUBTREE_SCOPE,
-                                        mainDirContext,
+                        if (isExistingRole(deletedRole)) {
+                            roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
+                            String[] returningAttributes = new String[]{membershipAttribute};
+                            String searchBase = context.getSearchBase();
+                            NamingEnumeration<SearchResult> groupResults =
+                                    searchInGroupBase(roleSearchFilter,
+                                            returningAttributes,
+                                            SearchControls.SUBTREE_SCOPE,
+                                            mainDirContext,
+                                            searchBase);
+                            SearchResult resultedGroup = null;
+                            String groupDN = null;
+                            if (groupResults.hasMore()) {
+                                resultedGroup = groupResults.next();
+                                groupDN = resultedGroup.getName();
+                            }
+                            if (resultedGroup != null && isUserInRole(userNameDN, resultedGroup)) {
+                                this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
                                         searchBase);
-                        SearchResult resultedGroup = null;
-                        String groupDN = null;
-                        if (groupResults.hasMore()) {
-                            resultedGroup = groupResults.next();
-                            groupDN = resultedGroup.getName();
+                            } else {
+                                errorMessage =
+                                        "User: " + userName + " does not belongs to role: " +
+                                                deletedRole;
+                                throw new UserStoreException(errorMessage);
+                            }
+
+                            JNDIUtil.closeNamingEnumeration(groupResults);
+
+                            // need to update authz cache of user since roles
+                            // are deleted
+                            userRealm.getAuthorizationManager().clearUserAuthorization(userName);
+
+                        } else {
+                            errorMessage = "The role: " + deletedRole + " does not exist.";
+                            throw new UserStoreException(errorMessage);
                         }
-                        this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
-                                searchBase);
-
-                        JNDIUtil.closeNamingEnumeration(groupResults);
-
-                        // need to update authz cache of user since roles
-                        // are deleted
-                        userRealm.getAuthorizationManager().clearUserAuthorization(userName);
-
-                    } else {
-                        errorMessage = "The role: " + deletedRole + " does not exist.";
-                        throw new UserStoreException(errorMessage);
                     }
                 }
             }
@@ -1391,43 +1400,45 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                 for (String newRole : newRoles) {
 
-                    LDAPRoleContext context = (LDAPRoleContext) createRoleContext(newRole);
-                    newRole = context.getRoleName();
-                    String searchFilter = context.getSearchFilter();
+                    if (StringUtils.isNotEmpty(newRole)) {
+                        LDAPRoleContext context = (LDAPRoleContext) createRoleContext(newRole);
+                        newRole = context.getRoleName();
+                        String searchFilter = context.getSearchFilter();
 
-                    if (isExistingRole(newRole)) {
-                        roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
-                        String[] returningAttributes = new String[]{membershipAttribute};
-                        String searchBase = context.getSearchBase();
+                        if (isExistingRole(newRole)) {
+                            roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
+                            String[] returningAttributes = new String[]{membershipAttribute};
+                            String searchBase = context.getSearchBase();
 
-                        NamingEnumeration<SearchResult> groupResults =
-                                searchInGroupBase(roleSearchFilter,
-                                        returningAttributes,
-                                        SearchControls.SUBTREE_SCOPE,
-                                        mainDirContext,
+                            NamingEnumeration<SearchResult> groupResults =
+                                    searchInGroupBase(roleSearchFilter,
+                                            returningAttributes,
+                                            SearchControls.SUBTREE_SCOPE,
+                                            mainDirContext,
+                                            searchBase);
+                            SearchResult resultedGroup = null;
+                            // assume only one group with given group name
+                            String groupDN = null;
+                            if (groupResults.hasMore()) {
+                                resultedGroup = groupResults.next();
+                                groupDN = resultedGroup.getName();
+                            }
+                            if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
+                                modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
                                         searchBase);
-                        SearchResult resultedGroup = null;
-                        // assume only one group with given group name
-                        String groupDN = null;
-                        if (groupResults.hasMore()) {
-                            resultedGroup = groupResults.next();
-                            groupDN = resultedGroup.getName();
-                        }
-                        if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
-                            modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
-                                    searchBase);
+                            } else {
+                                errorMessage =
+                                        "User: " + userName + " already belongs to role: " +
+                                                groupDN;
+                                throw new UserStoreException(errorMessage);
+                            }
+
+                            JNDIUtil.closeNamingEnumeration(groupResults);
+
                         } else {
-                            errorMessage =
-                                    "User: " + userName + " already belongs to role: " +
-                                            groupDN;
+                            errorMessage = "The role: " + newRole + " does not exist.";
                             throw new UserStoreException(errorMessage);
                         }
-
-                        JNDIUtil.closeNamingEnumeration(groupResults);
-
-                    } else {
-                        errorMessage = "The role: " + newRole + " does not exist.";
-                        throw new UserStoreException(errorMessage);
                     }
                 }
             }
