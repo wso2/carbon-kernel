@@ -41,6 +41,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -94,7 +95,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
-    public static final String UTF_8 = "UTF-8";
 
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
@@ -1392,7 +1392,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             userRealm.getAuthorizationManager().clearUserAuthorization(userName);
 
                         } else {
-                            errorMessage = "The role: " + URLEncoder.encode(deletedRole, UTF_8) + " does not exist.";
+                            errorMessage = "The role: " + URLEncoder.encode(deletedRole, String.valueOf
+                                    (StandardCharsets.UTF_8)) + " does not exist.";
                             throw new UserStoreException(errorMessage);
                         }
                     }
@@ -1438,7 +1439,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             JNDIUtil.closeNamingEnumeration(groupResults);
 
                         } else {
-                            errorMessage = "The role: " + URLEncoder.encode(newRole, UTF_8) + " does not exist.";
+                            errorMessage = "The role: " + URLEncoder.encode(newRole, String.valueOf(StandardCharsets.UTF_8)) + " does not exist.";
                             throw new UserStoreException(errorMessage);
                         }
                     }
