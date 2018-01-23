@@ -1381,7 +1381,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                                         searchBase);
                             } else {
                                 errorMessage =
-                                        "User: " + userName + " does not belongs to role: " + deletedRole;
+                                        "User: " + URLEncoder.encode(userName, String.valueOf
+                                                (StandardCharsets.UTF_8)) + " does not belongs to role: " +
+                                                URLEncoder.encode(deletedRole, String.valueOf(StandardCharsets.UTF_8));
                                 throw new UserStoreException(errorMessage);
                             }
 
