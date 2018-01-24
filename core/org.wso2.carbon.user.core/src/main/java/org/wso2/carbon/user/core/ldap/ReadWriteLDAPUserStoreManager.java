@@ -39,6 +39,9 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1378,8 +1381,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                                         searchBase);
                             } else {
                                 errorMessage =
-                                        "User: " + userName + " does not belongs to role: " +
-                                                deletedRole;
+                                        "User: " + URLEncoder.encode(userName, String.valueOf
+                                                (StandardCharsets.UTF_8)) + " does not belongs to role: " +
+                                                URLEncoder.encode(deletedRole, String.valueOf(StandardCharsets.UTF_8));
                                 throw new UserStoreException(errorMessage);
                             }
 
@@ -1390,7 +1394,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             userRealm.getAuthorizationManager().clearUserAuthorization(userName);
 
                         } else {
-                            errorMessage = "The role: " + deletedRole + " does not exist.";
+                            errorMessage = "The role: " + URLEncoder.encode(deletedRole, String.valueOf
+                                    (StandardCharsets.UTF_8)) + " does not exist.";
                             throw new UserStoreException(errorMessage);
                         }
                     }
@@ -1436,7 +1441,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             JNDIUtil.closeNamingEnumeration(groupResults);
 
                         } else {
-                            errorMessage = "The role: " + newRole + " does not exist.";
+                            errorMessage = "The role: " + URLEncoder.encode(newRole, String.valueOf(StandardCharsets.UTF_8)) + " does not exist.";
                             throw new UserStoreException(errorMessage);
                         }
                     }
@@ -1445,6 +1450,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         } catch (NamingException e) {
             errorMessage = "Error occurred while modifying the role list of user: " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (UnsupportedEncodingException e) {
+            errorMessage = "Error occurred while encoding the role value.";
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
