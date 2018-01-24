@@ -136,8 +136,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
     /**
      * This method is used by the support system to read properties
      */
-    protected abstract Map<String, String> getUserPropertyValues(User user, String[] propertyNames,
-                                                                 String profileName) throws UserStoreException;
+    protected Map<String, String> getUserPropertyValues(User user, String[] propertyNames, String profileName)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Check for existing roles.
@@ -172,7 +174,9 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @return True if user exist.
      * @throws UserStoreException Error while doing the operation.
      */
-    protected abstract boolean doCheckExistingUser(User user) throws UserStoreException;
+    protected boolean doCheckExistingUser(User user) throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Retrieves a list of user names for given user's property in user profile
@@ -211,7 +215,9 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * user name.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract boolean doAuthenticate(User user, Object credential) throws UserStoreException;
+    protected boolean doAuthenticate(User user, Object credential) throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
 
     /**
@@ -241,9 +247,11 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param requirePasswordChange whether password required is need
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doAddUser(User user, Object credential, String[] roleList, Map<String, String> claims,
+    protected void doAddUser(User user, Object credential, String[] roleList, Map<String, String> claims,
                                       String profileName, boolean requirePasswordChange)
-            throws UserStoreException;
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Update the credential/password of the user
@@ -265,8 +273,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param oldCredential The old credential/password
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doUpdateCredential(User user, Object newCredential, Object oldCredential)
-            throws UserStoreException;
+    protected void doUpdateCredential(User user, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Update credential/password by the admin of another user
@@ -285,7 +295,9 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param newCredential The new credential
      * @throws UserStoreException An unexpected exception has occurred
      */
-     protected abstract void doUpdateCredentialByAdmin(User user, Object newCredential) throws UserStoreException;
+     protected void doUpdateCredentialByAdmin(User user, Object newCredential) throws UserStoreException {
+         throw new UnsupportedOperationException("Method should be overridden in the child class.");
+     }
 
     /**
      * Delete the user with the given user name
@@ -302,7 +314,9 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param user The object.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doDeleteUser(User user) throws UserStoreException;
+    protected void doDeleteUser(User user) throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Set a single user claim value
@@ -326,8 +340,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doSetUserClaimValue(User user, String claimURI, String claimValue, String profileName)
-            throws UserStoreException;
+    protected void doSetUserClaimValue(User user, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Set many user claim values
@@ -349,8 +365,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doSetUserClaimValues(User user, Map<String, String> claims, String profileName)
-            throws UserStoreException;
+    protected void doSetUserClaimValues(User user, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Delete a single user claim value
@@ -372,8 +390,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doDeleteUserClaimValue(User user, String claimURI, String profileName)
-            throws UserStoreException;
+    protected void doDeleteUserClaimValue(User user, String claimURI, String profileName)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Delete many user claim values.
@@ -397,8 +417,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doDeleteUserClaimValues(User user, List<String> claims, String profileName)
-            throws UserStoreException;
+    protected void doDeleteUserClaimValues(User user, List<String> claims, String profileName)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Update user list of a particular role
@@ -431,8 +453,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @param newRoles     Array of role names, that is going to be added to the user
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doUpdateRoleListOfUser(User user, String[] deletedRoles, String[] newRoles)
-            throws UserStoreException;
+    protected void doUpdateRoleListOfUser(User user, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Only gets the internal roles of the user with internal domain name
@@ -496,8 +520,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @return
      * @throws UserStoreException
      */
-    protected abstract String[] doGetExternalRoleListOfUser(User user, String filter)
-            throws UserStoreException;
+    protected String[] doGetExternalRoleListOfUser(User user, String filter)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
     /**
      * Returns the shared roles list of the user
@@ -517,8 +543,10 @@ public abstract class AbstractUserStoreManager extends AbstractSecuredEntityMana
      * @return Array of user objects.
      * @throws UserStoreException
      */
-    protected abstract String[] doGetSharedRoleListOfUser(User user, String tenantDomain, String filter)
-            throws UserStoreException;
+    protected String[] doGetSharedRoleListOfUser(User user, String tenantDomain, String filter)
+            throws UserStoreException {
+        throw new UnsupportedOperationException("Method should be overridden in the child class.");
+    }
 
 
     /**

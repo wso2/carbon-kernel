@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.user.api;
 
+import org.wso2.carbon.privacy.IdManager;
+import org.wso2.carbon.privacy.exception.IdManagerException;
 
 /**
  * The Realm of the WSO2 user Kernel.
@@ -67,4 +69,10 @@ public interface UserRealm {
      */
     RealmConfiguration getRealmConfiguration() throws UserStoreException;
 
+    /**
+     * Get the Id Manager associated with this user realm.
+     * @return Id manager instance.
+     * @throws IdManagerException If error
+     */
+    IdManager getIdManager() throws IdManagerException;
 }

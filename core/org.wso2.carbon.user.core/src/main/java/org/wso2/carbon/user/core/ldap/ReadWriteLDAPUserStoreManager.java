@@ -259,7 +259,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         /* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
-		/* getting add user basic attributes */
+        /* getting add user basic attributes */
         BasicAttributes basicAttributes = getAddUserBasicAttributes(escapeSpecialCharactersForDN(userName));
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
@@ -272,22 +272,23 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         userPassword.add(passwordToStore);
         basicAttributes.put(userPassword);
 
-		/* setting claims */
+        /* setting claims */
         setUserClaims(claims, basicAttributes, userName);
 
         try {
 
             NameParser ldapParser = dirContext.getNameParser("");
             Name compoundName = ldapParser.parse(realmConfig
-                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + escapeSpecialCharactersForDN(userName));
+                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + escapeSpecialCharactersForDN
+                    (userName));
 
             if (log.isDebugEnabled()) {
                 log.debug("Binding user: " + compoundName);
             }
             dirContext.bind(compoundName, null, basicAttributes);
         } catch (NamingException e) {
-            String errorMessage = "Cannot access the directory context or "
-                    + "user already exists in the system for user :" + userName;
+            String errorMessage = "Cannot access the directory context or user already exists in the system for " +
+                    "user with id:" + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -298,9 +299,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             UserCoreUtil.clearSensitiveBytes(passwordToStore);
         }
 
-        if(roleList != null && roleList.length > 0) {
+        if (roleList != null && roleList.length > 0) {
             try {
-            /* update the user roles */
+                // update the user roles
                 doUpdateRoleListOfUser(userName, null, roleList);
                 if (log.isDebugEnabled()) {
                     log.debug("Roles are added for user  : " + userName + " successfully.");

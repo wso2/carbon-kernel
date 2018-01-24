@@ -99,11 +99,4 @@ public interface UserRealm extends org.wso2.carbon.user.api.UserRealm {
      */
     RealmConfiguration getRealmConfiguration() throws UserStoreException;
 
-    /**
-     * Get the Id Manager associated with this user realm.
-     * @return Id manager instance.
-     * @throws IdManagerException If error
-     */
-    IdManager getIdManager() throws IdManagerException;
-
 }

@@ -887,7 +887,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (Exception e) {
-            String errorMessage = "Error occurred while checking existence of user : " + user.getId();
+            String errorMessage = "Error occurred while checking existence of user with id : " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
