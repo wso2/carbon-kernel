@@ -54,6 +54,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String EXCESS_TRANSPORT_HEADERS = "EXCESS_TRANSPORT_HEADERS";
     private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
     private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
+    private static final String DELETE_REQUEST_WITH_PAYLOAD = "DELETE_REQUEST_WITH_PAYLOAD";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -234,6 +235,8 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
             superTenantOutMessageContext.setProperty(NO_ENTITY_BODY, msgContext.getProperty(NO_ENTITY_BODY));
         }
 
+        setDeleteRequestWithPayloadProperty(superTenantOutMessageContext, msgContext);
+
         EndpointReference epr = getDestinationEPR(msgContext);
         // this is a request message so we need to set the response message context
         if (epr != null) {
@@ -307,5 +310,19 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
             return msgContext.getTo();
         }
         return null;
+    }
+
+    /**
+     * Set property DELETE_REQUEST_WITH_PAYLOAD to superTenantOutMessageContext.
+     *
+     * @param superTenantOutMessageContext message context to be send out
+     * @param msgContext                   message context coming in
+     */
+    protected void setDeleteRequestWithPayloadProperty(MessageContext superTenantOutMessageContext,
+            MessageContext msgContext) {
+        if (msgContext.getProperty(DELETE_REQUEST_WITH_PAYLOAD) != null) {
+            superTenantOutMessageContext
+                    .setProperty(DELETE_REQUEST_WITH_PAYLOAD, msgContext.getProperty(DELETE_REQUEST_WITH_PAYLOAD));
+        }
     }
 }
