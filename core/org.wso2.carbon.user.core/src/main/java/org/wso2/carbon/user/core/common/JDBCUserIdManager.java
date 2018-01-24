@@ -91,6 +91,18 @@ public class JDBCUserIdManager implements IdManager {
     }
 
     @Override
+    public Identifiable getIdentifiableFromName(String s) throws IdManagerException {
+
+        return null;
+    }
+
+    @Override
+    public Identifiable getIdentifiableFromId(String s) throws IdManagerException {
+
+        return null;
+    }
+
+    @Override
     public Identifiable addIdForName(Identifiable identifiable) throws IdManagerException {
 
         if (StringUtils.isEmpty(identifiable.getName())) {

@@ -23,9 +23,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.privacy.exception.IdManagerException;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -249,11 +251,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
-    public void doAddUser(String userName, Object credential, String[] roleList,
-                          Map<String, String> claims, String profileName, boolean requirePasswordChange)
-            throws UserStoreException {
+    protected void doAddUser(User user, Object credential, String[] roleList, Map<String, String> claims,
+                             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
-		/* getting search base directory context */
+        String userName = user.getName();
+
+        /* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
 		/* getting add user basic attributes */
@@ -284,7 +287,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             dirContext.bind(compoundName, null, basicAttributes);
         } catch (NamingException e) {
             String errorMessage = "Cannot access the directory context or "
-                                  + "user already exists in the system for user :" + userName;
+                    + "user already exists in the system for user :" + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -310,6 +313,21 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 throw new UserStoreException(errorMessage, e);
             }
         }
+    }
+
+    @Override
+    @Deprecated
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName, boolean requirePasswordChange)
+            throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doAddUser(user, credential, roleList, claims, profileName, requirePasswordChange);
     }
 
     /**
@@ -498,9 +516,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public void doDeleteUser(String userName) throws UserStoreException {
+    protected void doDeleteUser(User user) throws UserStoreException {
+
+        String userName = user.getName();
 
         boolean debug = log.isDebugEnabled();
 
@@ -535,11 +554,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             // LDAP roles of user to delete the mapping
 
-            List<String> roles = new ArrayList<String>();
-            String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
+            List<String> roles = new ArrayList<>();
+            String[] externalRoles = doGetExternalRoleListOfUser(user, "*");
             roles.addAll(Arrays.asList(externalRoles));
             if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUser(null, userName, "*");
+                String[] sharedRoles = doGetSharedRoleListOfUser(user, userName, "*");
                 if (sharedRoles != null) {
                     roles.addAll(Arrays.asList(sharedRoles));
                 }
@@ -557,7 +576,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     searchFilter = ((LDAPRoleContext) context).getSearchFilter();
                     role = context.getRoleName();
 
-                    if (role.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > -1) {
+                    if (role.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
                         role = (role.split(CarbonConstants.DOMAIN_SEPARATOR))[1];
                     }
                     String grpSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
@@ -570,17 +589,17 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         groupResult = groupResults.next();
                     }
                     if (isOnlyUserInRole(userDN, groupResult) && !emptyRolesAllowed) {
-                        String errorMessage = "User: " + userName + " is the only user " + "in "
-                                + role + "." + "There should be at " + "least one user"
-                                + " in the role. Hence can" + " not delete the user.";
+                        String errorMessage = "User with id: " + user.getId() + " is the only user in "
+                                + role + ". There should be at least one user in the role. Hence can not delete the "
+                                + "user.";
                         throw new UserStoreException(errorMessage);
                     }
                 }
-                // delete role list
+                // Delete role list.
                 doUpdateRoleListOfUser(userName, rolesOfUser, new String[]{});
             }
 
-            // delete user entry if it exist
+            // Delete user entry if it exist.
             if (userResult != null &&
                     userResult.getAttributes().get(userNameAttribute).get().toString().toLowerCase()
                             .equals(userName.toLowerCase())) {
@@ -592,7 +611,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
             removeFromUserCache(userName);
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while deleting the user : " + userName;
+            String errorMessage = "Error occurred while deleting the user with id: " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -606,10 +625,24 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings("deprecation")
     @Override
-    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
-            throws UserStoreException {
+    @Deprecated
+    public void doDeleteUser(String userName) throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doDeleteUser(user);
+    }
+
+    @Override
+    protected void doUpdateCredential(User user, Object newCredential, Object oldCredential) throws UserStoreException {
+
+        String userName = user.getName();
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -626,7 +659,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration passwords = null;
 
         try {
-            namingEnumeration = dirContext.search(escapeDNForSearch(searchBase),searchFilter, searchControls);
+            namingEnumeration = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
             // here we assume only one user
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
@@ -654,13 +687,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
             // we check whether both carbon admin entry and ldap connection
             // entry are the same
-            if (searchResult.getNameInNamespace()
+            if (searchResult != null && searchResult.getNameInNamespace()
                     .equals(realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME))) {
                 this.connectionSource.updateCredential(newCredential);
             }
 
         } catch (NamingException e) {
-            String errorMessage = "Can not access the directory service for user : " + userName;
+            String errorMessage = "Can not access the directory service for user with id : " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -674,10 +707,26 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    @Deprecated
+    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doUpdateCredential(user, newCredential, oldCredential);
+    }
+
 
     @Override
-    public void doUpdateCredentialByAdmin(String userName, Object newCredential)
-            throws UserStoreException {
+    protected void doUpdateCredentialByAdmin(User user, Object newCredential) throws UserStoreException {
+
+        String userName = user.getName();
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -743,13 +792,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
             // we check whether both carbon admin entry and ldap connection
             // entry are the same
-            if (searchResult.getNameInNamespace().equals(
+            if (searchResult != null && searchResult.getNameInNamespace().equals(
                     realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME))) {
                 this.connectionSource.updateCredential(newCredential);
             }
 
         } catch (NamingException e) {
-            String errorMessage = "Can not access the directory service for user : " + userName;
+            String errorMessage = "Can not access the directory service for user with id : " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -761,6 +810,20 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
+    }
+
+    @Override
+    @Deprecated
+    public void doUpdateCredentialByAdmin(String userName, Object newCredential)
+            throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doUpdateCredentialByAdmin(user, newCredential);
     }
 
     /**
@@ -813,18 +876,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         return suffixName.toString().replaceFirst(",", "");
     }
 
-    /**
-     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
-     * of updating user's profile information in LDAP user store.
-     *
-     * @param userName
-     * @param claims
-     * @param profileName
-     * @throws UserStoreException
-     */
     @Override
-    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+    protected void doSetUserClaimValues(User user, Map<String, String> claims, String profileName)
             throws UserStoreException {
+
+        String userName = user.getName();
 
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -856,7 +912,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
 
         } catch (NamingException e) {
-            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            String errorMessage = "Results could not be retrieved from the directory context for user with id : "
+                    + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -866,15 +923,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
 
         if (profileName == null) {
-
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        if (claims.get(UserCoreConstants.PROFILE_CONFIGURATION) == null) {
+        claims.putIfAbsent(UserCoreConstants.PROFILE_CONFIGURATION, UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
 
-            claims.put(UserCoreConstants.PROFILE_CONFIGURATION,
-                    UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
-        }
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
 
@@ -944,12 +997,36 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
+    }
 
+    /**
+     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
+     * of updating user's profile information in LDAP user store.
+     *
+     * @param userName
+     * @param claims
+     * @param profileName
+     * @throws UserStoreException
+     */
+    @Override
+    @Deprecated
+    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doSetUserClaimValues(user, claims, profileName);
     }
 
     @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String value,
-                                    String profileName) throws UserStoreException {
+    protected void doSetUserClaimValue(User user, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        String userName = user.getName();
 
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -970,7 +1047,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         searchControls.setReturningAttributes(null);
 
         NamingEnumeration<SearchResult> returnedResultList = null;
-        String returnedUserEntry = null;
+        String returnedUserEntry;
 
         try {
 
@@ -994,16 +1071,17 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // if there is no attribute for profile configuration in LDAP, skip
             // updating it.
             // get the claimMapping related to this claimURI
-            String attributeName = null;
+            String attributeName;
             attributeName = getClaimAtrribute(claimURI, userName, null);
 
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-			/* if updated attribute value is null, remove its values. */
-            if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
+
+            // if updated attribute value is null, remove its values.
+            if (EMPTY_ATTRIBUTE_STRING.equals(claimValue)) {
                 currentUpdatedAttribute.clear();
             } else {
                 if (attributeName.equals("uid") || attributeName.equals("sn")) {
-                    currentUpdatedAttribute.add(value);
+                    currentUpdatedAttribute.add(claimValue);
                 } else {
                     String userAttributeSeparator = ",";
                     String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
@@ -1011,8 +1089,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         userAttributeSeparator = claimSeparator;
                     }
 
-                    if (value.contains(userAttributeSeparator)) {
-                        StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+                    if (claimValue.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(claimValue, userAttributeSeparator);
                         while (st.hasMoreElements()) {
                             String newVal = st.nextElement().toString();
                             if (newVal != null && newVal.trim().length() > 0) {
@@ -1020,16 +1098,14 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             }
                         }
                     } else {
-                        currentUpdatedAttribute.add(value);
+                        currentUpdatedAttribute.add(claimValue);
                     }
 
                 }
             }
             updatedAttributes.put(currentUpdatedAttribute);
 
-            // update the attributes in the relevant entry of the directory
-            // store
-
+            // Update the attributes in the relevant entry of the directory store.
             subDirContext = (DirContext) dirContext.lookup(userSearchBase);
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
@@ -1040,12 +1116,26 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
-
     }
 
+    @Override
+    @Deprecated
+    public void doSetUserClaimValue(String userName, String claimURI, String value, String profileName)
+            throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doSetUserClaimValue(user, claimURI, value, profileName);
+    }
 
     @Override
-    public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+    protected void doDeleteUserClaimValue(User user, String claimURI, String profileName) throws UserStoreException {
+
+        String userName = user.getName();
 
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -1105,7 +1195,24 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
-    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
+    @Deprecated
+    public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doDeleteUserClaimValue(user, claimURI, profileName);
+    }
+
+    @Override
+    protected void doDeleteUserClaimValues(User user, List<String> claims, String profileName)
+            throws UserStoreException {
+
+        String userName = user.getName();
+
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -1161,6 +1268,19 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
+    }
+
+    @Override
+    @Deprecated
+    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doDeleteUserClaimValues(user, Arrays.asList(claims), profileName);
     }
 
     /**
@@ -1284,22 +1404,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
 
         }
-
     }
 
-
-    /**
-     * Update role list of user by writing to LDAP.
-     *
-     * @param userName
-     * @param deletedRoles
-     * @param newRoles
-     * @throws UserStoreException
-     */
-    @SuppressWarnings("deprecation")
     @Override
-    public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+    protected void doUpdateRoleListOfUser(User user, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
+
+        String userName = user.getName();
 
         // get the DN of the user entry
         String userNameDN = this.getNameInSpaceForUserName(userName);
@@ -1309,8 +1420,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		/*
 		 * check deleted roles and delete member entries from relevant groups.
 		 */
-        String errorMessage = null;
-        String roleSearchFilter = null;
+        String errorMessage;
+        String roleSearchFilter;
 
         DirContext mainDirContext = this.connectionSource.getContext();
 
@@ -1340,9 +1451,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     }
                     if (resultedGroup != null && isOnlyUserInRole(userNameDN, resultedGroup) &&
                             !emptyRolesAllowed) {
-                        errorMessage =
-                                userName + " is the only user in the role: " + deletedRole +
-                                        ". Hence can not delete user from role.";
+                        errorMessage = "User with id: " + user.getId() + " is the only user in the role: "
+                                + deletedRole + ". Hence can not delete user from role.";
                         throw new UserStoreException(errorMessage);
                     }
 
@@ -1417,9 +1527,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
                                     searchBase);
                         } else {
-                            errorMessage =
-                                    "User: " + userName + " already belongs to role: " +
-                                            groupDN;
+                            errorMessage =  "User with id: " + user.getId() + " already belongs to role: " + groupDN;
                             throw new UserStoreException(errorMessage);
                         }
 
@@ -1433,7 +1541,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
 
         } catch (NamingException e) {
-            errorMessage = "Error occurred while modifying the role list of user: " + userName;
+            errorMessage = "Error occurred while modifying the role list of user with id: " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -1441,6 +1549,29 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } finally {
             JNDIUtil.closeContext(mainDirContext);
         }
+    }
+
+
+    /**
+     * Update role list of user by writing to LDAP.
+     *
+     * @param userName
+     * @param deletedRoles
+     * @param newRoles
+     * @throws UserStoreException
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+
+        User user;
+        try {
+            user = (User) getIdManager().getIdentifiableFromName(userName);
+        } catch (IdManagerException e) {
+            throw new UserStoreException(e);
+        }
+        doUpdateRoleListOfUser(user, deletedRoles, newRoles);
     }
 
     /**

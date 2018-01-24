@@ -119,17 +119,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         checkRequiredUserStoreConfigurations();
     }
 
-    /**
-     *
-     */
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName) throws UserStoreException {
         this.addUser(userName, credential, roleList, claims, profileName, false);
     }
 
-    /**
-     *
-     */
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
@@ -254,9 +248,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         }
     }
 
-    /**
-     *
-     */
+    @Override
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
@@ -524,10 +516,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        if (claims.get(UserCoreConstants.PROFILE_CONFIGURATION) == null) {
-            claims.put(UserCoreConstants.PROFILE_CONFIGURATION,
-                    UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
-        }
+        claims.putIfAbsent(UserCoreConstants.PROFILE_CONFIGURATION, UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
 
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
@@ -865,8 +854,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
      * @return
      */
     private String escapeDNForSearch(String dn){
-        boolean replaceEscapeCharacters = true;
 
+        boolean replaceEscapeCharacters = true;
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
 
@@ -886,8 +875,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     private static void setAdvancedProperties() {
-        //Set Advanced Properties
 
+        // Set Advanced Properties.
         ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
                 .SCIMEnabledDescription);

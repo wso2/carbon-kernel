@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -121,6 +122,12 @@ public class RegistryUserStoreManager implements UserStoreManager {
                 requirePasswordChange);
     }
 
+    @Override
+    public void addUser(User user, Object credential, List<String> roleList, Map<String, String> claims,
+                        String profileName, boolean requirePasswordChange) throws UserStoreException {
+        getUserStoreManager().addUser(user, credential, roleList, claims, profileName, requirePasswordChange);
+    }
+
     /**
      * Delete role.
      *
@@ -199,6 +206,11 @@ public class RegistryUserStoreManager implements UserStoreManager {
     public void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException {
         getUserStoreManager().deleteUserClaimValues(userName, claims, profileName);
+    }
+
+    @Override
+    public void deleteUserClaimValues(User user, List<String> claims, String profileName) throws UserStoreException {
+        getUserStoreManager().deleteUserClaimValues(user, claims, profileName);
     }
 
     /**

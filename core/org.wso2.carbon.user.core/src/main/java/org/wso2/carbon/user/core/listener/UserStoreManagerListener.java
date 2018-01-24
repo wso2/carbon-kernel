@@ -18,9 +18,11 @@
  */
 package org.wso2.carbon.user.core.listener;
 
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserStoreManagerListener {
@@ -66,7 +68,25 @@ public interface UserStoreManagerListener {
      * UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
+    @Deprecated
     boolean addUser(String userName, Object credential, String[] roleList,
+                    Map<String, String> claims, String profileName,
+                    UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Add a user to the user store.
+     *
+     * @param user             User object.
+     * @param credential       The credential/password of the user
+     * @param roleList         The roles that user belongs
+     * @param claims           Properties of the user
+     * @param profileName      The name of the profile
+     * @param userStoreManager The underlying UserStoreManager
+     * @return Whether execution of this method of the underlying
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    boolean addUser(User user, Object credential, List<String> roleList,
                     Map<String, String> claims, String profileName,
                     UserStoreManager userStoreManager) throws UserStoreException;
 

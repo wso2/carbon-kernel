@@ -83,7 +83,7 @@ public class CarbonContextCreatorValve extends ValveBase {
         carbonContext.setApplicationName(appName);
 
         //String userName = (String) request.getSession().getAttribute(ServerConstants.USER_LOGGED_IN);
-        //carbonContext.setUsername(userName);
+        //carbonContext.setUserName(userName);
 
         if (tenantDomain != null) {
         	UserRealmService userRealmService = CarbonRealmServiceHolder.getRealmService();

@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.user.core;
 
+import org.wso2.carbon.privacy.IdManager;
+import org.wso2.carbon.privacy.exception.IdManagerException;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
@@ -96,5 +98,12 @@ public interface UserRealm extends org.wso2.carbon.user.api.UserRealm {
      * @throws UserStoreException
      */
     RealmConfiguration getRealmConfiguration() throws UserStoreException;
+
+    /**
+     * Get the Id Manager associated with this user realm.
+     * @return Id manager instance.
+     * @throws IdManagerException If error
+     */
+    IdManager getIdManager() throws IdManagerException;
 
 }

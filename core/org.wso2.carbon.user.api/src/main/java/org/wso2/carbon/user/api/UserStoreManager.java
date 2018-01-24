@@ -16,6 +16,7 @@
 package org.wso2.carbon.user.api;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -331,8 +332,19 @@ public interface UserStoreManager {
      *                    considered.
      * @throws UserStoreException
      */
-    void deleteUserClaimValues(String userName, String[] claims, String profileName)
-            throws UserStoreException;
+    @Deprecated
+    void deleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException;
+
+    /**
+     * Delete many user claim values.
+     *
+     * @param user        User object.
+     * @param claims      URIs of the claims to be deleted.
+     * @param profileName The profile name, can be null. If null the default profile is
+     *                    considered.
+     * @throws UserStoreException
+     */
+    void deleteUserClaimValues(User user, List<String> claims, String profileName) throws UserStoreException;
 
     /**
      * Gets a list of hybrid roles

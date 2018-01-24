@@ -21,14 +21,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
-import org.wso2.carbon.user.core.common.UserRolesCache;
+import org.wso2.carbon.user.core.common.AbstractSecuredEntityManager;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
+import org.wso2.carbon.user.core.model.UserImpl;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -41,18 +43,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HybridRoleManager {
+public class HybridRoleManager extends AbstractSecuredEntityManager {
 
     private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
     private final int DEFAULT_MAX_ROLE_LIST_SIZE = 1000;
     private final int DEFAULT_MAX_SEARCH_TIME = 1000;
     protected UserRealm userRealm = null;
-    protected UserRolesCache userRolesCache = null;
-    int tenantId;
+    protected int tenantId;
     private DataSource dataSource;
-    private RealmConfiguration realmConfig;
     private String isCascadeDeleteEnabled;
-    private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
 
@@ -377,13 +376,22 @@ public class HybridRoleManager {
         }
     }
 
+    @Deprecated
+    public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(userName);
+        return getHybridRoleListOfUser(user, filter);
+    }
+
     /**
-     * @param userName
+     * @param user
      * @return
      * @throws UserStoreException
      */
-    public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
+    public String[] getHybridRoleListOfUser(User user, String filter) throws UserStoreException {
 
+        String userName = user.getName();
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
         String sqlStmt;
         if (isCaseSensitiveUsername()) {
@@ -438,7 +446,7 @@ public class HybridRoleManager {
                 return roles;
             }
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while getting hybrid role list of user : " + userName;
+            String errorMessage = "Error occurred while getting hybrid role list of user with id : " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -448,23 +456,35 @@ public class HybridRoleManager {
         }
     }
 
+    @Deprecated
+    public void updateHybridRoleListOfUser(String username, String[] deletedRoles, String[] addRoles)
+            throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(username);
+        updateHybridRoleListOfUser(user, deletedRoles, addRoles);
+    }
+
     /**
+     *
      * @param user
      * @param deletedRoles
      * @param addRoles
      * @throws UserStoreException
      */
-    public void updateHybridRoleListOfUser(String user, String[] deletedRoles, String[] addRoles)
+    public void updateHybridRoleListOfUser(User user, String[] deletedRoles, String[] addRoles)
             throws UserStoreException {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL;
         Connection dbConnection = null;
 
+        String userName = user.getName();
+
         try {
 
-            user = UserCoreUtil.addDomainToName(user, getMyDomainName());
-            String domain = UserCoreUtil.extractDomainFromName(user);
+            userName = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            String domain = UserCoreUtil.extractDomainFromName(userName);
             // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
@@ -479,21 +499,21 @@ public class HybridRoleManager {
 
             if (deletedRoles != null && deletedRoles.length > 0) {
                 DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, deletedRoles,
-                        tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
+                        tenantId, UserCoreUtil.removeDomainFromName(userName), tenantId, tenantId, domain);
             }
             if (addRoles != null && addRoles.length > 0) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE;
-                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userName,
                             tenantId, addRoles, tenantId);
                 } else {
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, addRoles,
-                            tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
+                            tenantId, UserCoreUtil.removeDomainFromName(userName), tenantId, tenantId, domain);
                 }
             }
             dbConnection.commit();
         } catch (SQLException | UserStoreException e) {
-            String errorMessage = "Error occurred while updating hybrid role list of user : " + user;
+            String errorMessage = "Error occurred while updating hybrid role list of user with id : " + user.getId();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -509,7 +529,7 @@ public class HybridRoleManager {
         }
         // Authorization cache of user should also be updated if deleted roles are involved
         if (deletedRoles != null && deletedRoles.length > 0) {
-            userRealm.getAuthorizationManager().clearUserAuthorization(user);
+            userRealm.getAuthorizationManager().clearUserAuthorization(userName);
         }
     }
 
@@ -619,41 +639,6 @@ public class HybridRoleManager {
         }
 
         return false;
-//		if (UserCoreUtil.isEveryoneRole(roleName, realmConfig)) {
-//			return true;
-//		}
-//
-//		userName = UserCoreUtil.addDomainToName(userName, getMyDomainName());
-//        String domain = UserCoreUtil.extractDomainFromName(userName);
-//		// ########### Domain-less Roles and Domain-aware Users from here onwards #############
-//
-//		Connection dbConnection = null;
-//		PreparedStatement prepStmt = null;
-//		ResultSet rs = null;
-//		boolean isUserInRole = false;
-//		try {
-//			dbConnection = DatabaseUtil.getDBConnection(dataSource);
-//			prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.IS_USER_IN_ROLE_SQL);
-//			prepStmt.setString(1, userName);
-//			prepStmt.setString(2, roleName);
-//			prepStmt.setInt(3, tenantId);
-//            prepStmt.setInt(4, tenantId);
-//            prepStmt.setInt(5, tenantId);
-//			prepStmt.setString(6, domain);
-//			rs = prepStmt.executeQuery();
-//			if (rs.next()) {
-//				int value = rs.getInt(1);
-//				if (value != -1) {
-//					isUserInRole = true;
-//				}
-//			}
-//			dbConnection.commit();
-//		} catch (SQLException e) {
-//			throw new UserStoreException(e.getMessage(), e);
-//		} finally {
-//			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
-//		}
-//		return isUserInRole;
     }
 
     /**
@@ -692,38 +677,6 @@ public class HybridRoleManager {
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, preparedStatement);
-        }
-    }
-
-    /**
-     *
-     */
-    protected void initUserRolesCache() {
-
-        String userRolesCacheEnabledString = (realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLES_CACHE_ENABLED));
-
-        if (userRolesCacheEnabledString != null && !userRolesCacheEnabledString.equals("")) {
-            userRolesCacheEnabled = Boolean.parseBoolean(userRolesCacheEnabledString);
-            if (log.isDebugEnabled()) {
-                log.debug("User Roles Cache is configured to:" + userRolesCacheEnabledString);
-            }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.info("User Roles Cache is not configured. Default value: "
-                        + userRolesCacheEnabled + " is taken.");
-            }
-        }
-
-        if (userRolesCacheEnabled) {
-            int timeOut = UserCoreConstants.USER_ROLE_CACHE_DEFAULT_TIME_OUT;
-            String timeOutString = realmConfig.
-                    getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_ROLE_CACHE_TIME_OUT);
-            if (timeOutString != null) {
-                timeOut = Integer.parseInt(timeOutString);
-            }
-            userRolesCache = UserRolesCache.getInstance();
-            userRolesCache.setTimeOut(timeOut);
         }
     }
 

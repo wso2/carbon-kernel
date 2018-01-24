@@ -39,7 +39,6 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
-import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
@@ -59,7 +58,6 @@ import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.nio.CharBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -78,10 +76,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
-public abstract class AbstractUserStoreManager implements UserStoreManager {
+public abstract class AbstractUserStoreManager extends AbstractSecuredEntityManager implements UserStoreManager {
 
-    protected static final String TRUE_VALUE = "true";
+    private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
+
     protected static final String FALSE_VALUE = "false";
+    protected static final String TRUE_VALUE = "true";
+
     private static final String MAX_LIST_LENGTH = "100";
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
@@ -92,8 +93,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String USER_NOT_FOUND = "UserNotFound";
     private static final String EXISTING_USER = "UserAlreadyExisting";
-    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
-    private static final String INVALID_USER_NAME = "InvalidUserName";
     private static final String EXISTING_ROLE = "RoleExisting";
     private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
     private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
@@ -108,114 +107,72 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String INVALID_PASSWORD = "PasswordInvalid";
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
+
     protected int tenantId;
     protected DataSource dataSource = null;
-    protected RealmConfiguration realmConfig = null;
     protected ClaimManager claimManager = null;
     protected UserRealm userRealm = null;
     protected HybridRoleManager hybridRoleManager = null;
+
     // User roles cache
-    protected UserRolesCache userRolesCache = null;
     protected SystemUserRoleManager systemUserRoleManager = null;
     protected boolean readGroupsEnabled = false;
     protected boolean writeGroupsEnabled = false;
     private UserStoreManager secondaryUserStoreManager;
-    private boolean userRolesCacheEnabled = true;
-    private String cacheIdentifier;
     private boolean replaceEscapeCharactersAtUserLogin = true;
-    private Map<String, UserStoreManager> userStoreManagerHolder = new HashMap<String, UserStoreManager>();
+    private Map<String, UserStoreManager> userStoreManagerHolder = new HashMap<>();
     private Map<String, Integer> maxUserListCount = null;
     private Map<String, Integer> maxRoleListCount = null;
-    private List<UserStoreManagerConfigurationListener> listener = new ArrayList<UserStoreManagerConfigurationListener>();
-    private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
+    private List<UserStoreManagerConfigurationListener> listener = new ArrayList<>();
     private IdManager idManager = null;
-
-    private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
-        if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
-            this.claimManager = claimManager;
-        } else {
-            throw new IllegalAccessException("Set claim manager is not allowed");
-        }
-    }
-
-    /**
-     * This method is used by the APIs' in the AbstractUserStoreManager
-     * to make compatible with Java Security Manager.
-     */
-    private Object callSecure(final String methodName, final Object[] objects, final Class[] argTypes)
-            throws UserStoreException {
-
-        final AbstractUserStoreManager instance = this;
-
-        isSecureCall.set(Boolean.TRUE);
-        final Method method;
-        try {
-            Class clazz = Class.forName("org.wso2.carbon.user.core.common.AbstractUserStoreManager");
-            method = clazz.getDeclaredMethod(methodName, argTypes);
-
-        } catch (NoSuchMethodException e) {
-            log.error("Error occurred when calling method " + methodName, e);
-            throw new UserStoreException(e);
-        } catch (ClassNotFoundException e) {
-            log.error("Error occurred when calling class " + methodName, e);
-            throw new UserStoreException(e);
-        }
-
-        try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    return method.invoke(instance, objects);
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof
-                    UserStoreException) {
-                // Actual UserStoreException get wrapped with two exceptions
-                throw new UserStoreException(e.getCause().getCause().getMessage(), e);
-
-            } else {
-                String msg = "Error occurred while accessing Java Security Manager Privilege Block";
-                log.error(msg);
-                throw new UserStoreException(msg, e);
-            }
-        } finally {
-            isSecureCall.set(Boolean.FALSE);
-        }
-    }
 
     /**
      * This method is used by the support system to read properties
      */
-    protected abstract Map<String, String> getUserPropertyValues(String userName,
-                                                                 String[] propertyNames, String profileName) throws UserStoreException;
+    @Deprecated
+    protected abstract Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
+                                                                 String profileName) throws UserStoreException;
 
     /**
-     * @param roleName
-     * @return
+     * This method is used by the support system to read properties
+     */
+    protected abstract Map<String, String> getUserPropertyValues(User user, String[] propertyNames,
+                                                                 String profileName) throws UserStoreException;
+
+    /**
+     * Check for existing roles.
+     *
+     * @param roleName name of the role.
+     * @return True if role exist.
      */
     protected abstract boolean doCheckExistingRole(String roleName) throws UserStoreException;
 
     /**
      * Creates the search base and other relevant parameters for the provided role name
      *
-     * @param roleName
-     * @return
+     * @param roleName Name of the role.
+     * @return Role context.
      */
     protected abstract RoleContext createRoleContext(String roleName) throws UserStoreException;
 
     /**
-     * @param userName
-     * @return
-     * @throws UserStoreException
+     * Check for existing users.
+     *
+     * @param userName User name of the user.
+     * @return True if user exist.
+     * @throws UserStoreException Error while doing the operation.
      */
+    @Deprecated
     protected abstract boolean doCheckExistingUser(String userName) throws UserStoreException;
+
+    /**
+     * Check for existing users.
+     *
+     * @param user User object.
+     * @return True if user exist.
+     * @throws UserStoreException Error while doing the operation.
+     */
+    protected abstract boolean doCheckExistingUser(User user) throws UserStoreException;
 
     /**
      * Retrieves a list of user names for given user's property in user profile
@@ -240,8 +197,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * user name.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract boolean doAuthenticate(String userName, Object credential)
-            throws UserStoreException;
+    @Deprecated
+    protected abstract boolean doAuthenticate(String userName, Object credential) throws UserStoreException;
+
+    /**
+     * Given the user name and a credential object, the implementation code must validate whether
+     * the user is authenticated.
+     *
+     * @param user   The user object.
+     * @param credential The credential of a user
+     * @return If the value is true the provided credential match with the user name. False is
+     * returned for invalid credential, invalid user name and mismatching credential with
+     * user name.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract boolean doAuthenticate(User user, Object credential) throws UserStoreException;
+
 
     /**
      * Add a user to the user store.
@@ -254,8 +225,24 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param requirePasswordChange whether password required is need
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doAddUser(String userName, Object credential, String[] roleList,
-                                      Map<String, String> claims, String profileName, boolean requirePasswordChange)
+    @Deprecated
+    protected abstract void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+                                      String profileName, boolean requirePasswordChange)
+            throws UserStoreException;
+
+    /**
+     * Add a user to the user store.
+     *
+     * @param user                  User object.
+     * @param credential            The credential/password of the user
+     * @param roleList              The roles that user belongs
+     * @param claims                Properties of the user
+     * @param profileName           profile name, can be null. If null the default profile is considered.
+     * @param requirePasswordChange whether password required is need
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doAddUser(User user, Object credential, String[] roleList, Map<String, String> claims,
+                                      String profileName, boolean requirePasswordChange)
             throws UserStoreException;
 
     /**
@@ -266,8 +253,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param oldCredential The old credential/password
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doUpdateCredential(String userName, Object newCredential,
-                                               Object oldCredential) throws UserStoreException;
+    @Deprecated
+    protected abstract void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException;
+
+    /**
+     * Update the credential/password of the user
+     *
+     * @param user          The user object.
+     * @param newCredential The new credential/password
+     * @param oldCredential The old credential/password
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doUpdateCredential(User user, Object newCredential, Object oldCredential)
+            throws UserStoreException;
 
     /**
      * Update credential/password by the admin of another user
@@ -276,8 +275,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param newCredential The new credential
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doUpdateCredentialByAdmin(String userName, Object newCredential)
-            throws UserStoreException;
+    @Deprecated
+    protected abstract void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException;
+
+    /**
+     * Update credential/password by the admin of another user
+     *
+     * @param user          The user object.
+     * @param newCredential The new credential
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+     protected abstract void doUpdateCredentialByAdmin(User user, Object newCredential) throws UserStoreException;
 
     /**
      * Delete the user with the given user name
@@ -285,7 +293,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param userName The user name
      * @throws UserStoreException An unexpected exception has occurred
      */
+    @Deprecated
     protected abstract void doDeleteUser(String userName) throws UserStoreException;
+
+    /**
+     * Delete the user with the given user name
+     *
+     * @param user The object.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doDeleteUser(User user) throws UserStoreException;
 
     /**
      * Set a single user claim value
@@ -296,8 +313,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doSetUserClaimValue(String userName, String claimURI,
-                                                String claimValue, String profileName) throws UserStoreException;
+    @Deprecated
+    protected abstract void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
+            throws UserStoreException;
+
+    /**
+     * Set a single user claim value
+     *
+     * @param user        The user object.
+     * @param claimURI    The claim URI
+     * @param claimValue  The value
+     * @param profileName The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doSetUserClaimValue(User user, String claimURI, String claimValue, String profileName)
+            throws UserStoreException;
 
     /**
      * Set many user claim values
@@ -307,19 +337,43 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doSetUserClaimValues(String userName, Map<String, String> claims,
-                                                 String profileName) throws UserStoreException;
+    @Deprecated
+    protected abstract void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException;
 
     /**
-     * o * Delete a single user claim value
+     * Set many user claim values
+     *
+     * @param user        The user object.
+     * @param claims      Map of claim URIs against values
+     * @param profileName The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doSetUserClaimValues(User user, Map<String, String> claims, String profileName)
+            throws UserStoreException;
+
+    /**
+     * Delete a single user claim value
      *
      * @param userName    The user name
      * @param claimURI    Name of the claim
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doDeleteUserClaimValue(String userName, String claimURI,
-                                                   String profileName) throws UserStoreException;
+    @Deprecated
+    protected abstract void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
+            throws UserStoreException;
+
+    /**
+     * Delete a single user claim value
+     *
+     * @param user        The user object.
+     * @param claimURI    Name of the claim
+     * @param profileName The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doDeleteUserClaimValue(User user, String claimURI, String profileName)
+            throws UserStoreException;
 
     /**
      * Delete many user claim values.
@@ -328,9 +382,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param claims      URIs of the claims to be deleted.
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
+     * @deprecated Please override the method doDeleteUserClaimValues(String userName, List<String> claims,
+     *                                                                String profileName)
      */
+    @Deprecated
     protected abstract void doDeleteUserClaimValues(String userName, String[] claims,
                                                     String profileName) throws UserStoreException;
+
+    /**
+     * Delete many user claim values.
+     *
+     * @param user        The user object.
+     * @param claims      URIs of the claims to be deleted.
+     * @param profileName The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doDeleteUserClaimValues(User user, List<String> claims, String profileName)
+            throws UserStoreException;
 
     /**
      * Update user list of a particular role
@@ -351,32 +419,63 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param newRoles     Array of role names, that is going to be added to the user
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doUpdateRoleListOfUser(String userName, String[] deletedRoles,
-                                                   String[] newRoles) throws UserStoreException;
+    @Deprecated
+    protected abstract void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException;
+
+    /**
+     * Update role list of a particular user
+     *
+     * @param user         The user object.
+     * @param deletedRoles Array of role names, that is going to be removed from the user
+     * @param newRoles     Array of role names, that is going to be added to the user
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected abstract void doUpdateRoleListOfUser(User user, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException;
 
     /**
      * Only gets the internal roles of the user with internal domain name
      *
-     * @param userName Name of the user - who we need to find roles.
-     * @return
-     * @throws UserStoreException
+     * @param userName User object - who we need to find roles.
+     * @return Array of roles.
+     * @throws UserStoreException User store exception.
      */
+    @Deprecated
     protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(userName);
+        return doGetInternalRoleListOfUser(user, filter);
+    }
+
+    /**
+     * Only gets the internal roles of the user with internal domain name
+     *
+     * @param user User object - who we need to find roles.
+     * @return Array of roles.
+     * @throws UserStoreException User store exception.
+     */
+    protected String[] doGetInternalRoleListOfUser(User user, String filter) throws UserStoreException {
+
         if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
             String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
-                Map<String, String> map = getUserPropertyValues(userName, new String[]{userNameAttribute}, null);
+                Map<String, String> map = getUserPropertyValues(user, new String[]{userNameAttribute}, null);
                 String tempUserName = map.get(userNameAttribute);
                 if (tempUserName != null) {
-                    userName = tempUserName;
                     if (log.isDebugEnabled()) {
-                        log.debug("Replaced user name : " + userName + " from user property value : " + tempUserName);
+                        log.debug("Replaced user name for id : " + user.getId() + " from user property value : "
+                                + tempUserName);
                     }
                 }
             }
         }
-        log.debug("Retrieving internal roles for user name :  " + userName + " and search filter " + filter);
-        return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieving internal roles for user with id :  " + user.getId() + " and search filter " + filter);
+        }
+        return hybridRoleManager.getHybridRoleListOfUser(user, filter);
     }
 
     /**
@@ -386,9 +485,19 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
+    @Deprecated
     protected abstract String[] doGetExternalRoleListOfUser(String userName, String filter)
             throws UserStoreException;
 
+    /**
+     * Only gets the external roles of the user.
+     *
+     * @param user User object of the user - who we need to find roles.
+     * @return
+     * @throws UserStoreException
+     */
+    protected abstract String[] doGetExternalRoleListOfUser(User user, String filter)
+            throws UserStoreException;
 
     /**
      * Returns the shared roles list of the user
@@ -397,8 +506,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    protected abstract String[] doGetSharedRoleListOfUser(String userName,
-                                                          String tenantDomain, String filter) throws UserStoreException;
+    @Deprecated
+    protected abstract String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException;
+
+    /**
+     * Returns the shared roles list of the user
+     *
+     * @param user User object.
+     * @return Array of user objects.
+     * @throws UserStoreException
+     */
+    protected abstract String[] doGetSharedRoleListOfUser(User user, String tenantDomain, String filter)
+            throws UserStoreException;
+
 
     /**
      * Add role with a list of users and permissions provided.
@@ -449,7 +570,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected abstract String[] doListUsers(String filter, int maxItemLimit)
             throws UserStoreException;
 
-    /*This is to get the display names of users in hybrid role according to the underlying user store, to be shown in UI*/
+    /**
+     * This is to get the display names of users in hybrid role according to the underlying user store, to be shown in UI
+     *
+     *  @param userNames
+     * @return
+     * @throws UserStoreException
+     */
     protected abstract String[] doGetDisplayNamesForInternalRole(String[] userNames)
             throws UserStoreException;
 
@@ -459,17 +586,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     @Override
     public final boolean authenticate(final String userName, final Object credential) throws UserStoreException {
         try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Boolean>() {
-                @Override
-                public Boolean run() throws Exception {
-                    if (userName == null || credential == null) {
-                        log.error("Authentication failure. Either Username or Password is null");
-                        return false;
-                    }
-                    int index = userName != null ? userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
-                    boolean domainProvided = index > 0;
-                    return authenticate(userName, credential, domainProvided);
+            return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>) () -> {
+                if (userName == null || credential == null) {
+                    log.error("Authentication failure. Either Username or Password is null");
+                    return false;
                 }
+                int index = userName != null ? userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
+                boolean domainProvided = index > 0;
+                return authenticate(userName, credential, domainProvided);
             });
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
@@ -481,20 +605,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         Authentication authentication = new Authentication();
 
-        // TODO: Get the correct data source.
-        IdManager userIdManager = new JDBCUserIdManager(null);
-        User userWithId = new UserImpl();
-
-        String userId = null;
-        try {
-            userId = userIdManager.getIdFromName(user.getName());
-        } catch (IdManagerException e) {
-            throw new UserStoreException(e);
-        }
-
-        if (this.authenticate(userId, credential)) {
+        if (this.authenticate(user.getName(), credential)) {
             authentication.setSuccess(true);
-            authentication.setUser(new PrivacyInsulator<>(userWithId));
+            authentication.setUser(new PrivacyInsulator<>(user));
         }
 
         return authentication;
@@ -504,16 +617,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throws UserStoreException {
 
         try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Boolean>() {
-                @Override
-                public Boolean run() throws Exception {
-                    return authenticateInternal(userName, credential, domainProvided);
-                }
-            });
+            return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>) () ->
+                    authenticateInternal(userName, credential, domainProvided));
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
         }
-
     }
 
     /**
@@ -526,7 +634,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private boolean authenticateInternal(String userName, Object credential, boolean domainProvided)
             throws UserStoreException {
 
-        boolean authenticated = false;
+        boolean authenticated;
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -637,19 +745,27 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         return authenticated;
     }
 
+    @Deprecated
+    public final String getUserClaimValue(String userName, String claim, String profileName) throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(userName);
+        return getUserClaimValue(user, claim, profileName);
+    }
+
     /**
      * {@inheritDoc}
      */
-    public final String getUserClaimValue(String userName, String claim, String profileName)
+    public final String getUserClaimValue(User user, String claim, String profileName)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, String.class};
-            Object object = callSecure("getUserClaimValue", new Object[]{userName, claim, profileName}, argTypes);
+            Class argTypes[] = new Class[]{User.class, String.class, String.class};
+            Object object = callSecure("getUserClaimValue", new Object[]{user, claim, profileName}, argTypes);
             return (String) object;
         }
 
-        UserStore userStore = getUserStore(userName);
+        UserStore userStore = getUserStore(user.getId());
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValue(userStore.getDomainFreeName(),
                     claim, profileName);
@@ -658,12 +774,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw an exception
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
+        if (!doCheckExistingUser(user)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User with id " + user.getId() + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
 
-        Map<String, String> finalValues = doGetUserClaimValues(userName, new String[]{claim},
+        Map<String, String> finalValues = doGetUserClaimValues(user, new String[]{claim},
                 userStore.getDomainName(), profileName);
 
         String value = null;
@@ -683,7 +799,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 .getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetUserClaimValue(userName, claim, list, profileName, this)) {
+                if (!newListener.doPostGetUserClaimValue(user.getUsername(), claim, list, profileName, this)) {
                     break;
                 }
             }
@@ -699,6 +815,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public final Claim[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
 
@@ -754,42 +871,51 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         return finalValues;
     }
 
+    @Deprecated
+    public final Map<String, String> getUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(userName);
+
+        return getUserClaimValues(user, claims, profileName);
+    }
+
     /**
      * {@inheritDoc}
      */
-    public final Map<String, String> getUserClaimValues(String userName, String[] claims,
-                                                        String profileName) throws UserStoreException {
+    public final Map<String, String> getUserClaimValues(User user, String[] claims, String profileName)
+            throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class};
-            Object object = callSecure("getUserClaimValues", new Object[]{userName, claims, profileName}, argTypes);
+            Class argTypes[] = new Class[]{User.class, String[].class, String.class};
+            Object object = callSecure("getUserClaimValues", new Object[]{user, claims, profileName}, argTypes);
             return (Map<String, String>) object;
         }
 
-        UserStore userStore = getUserStore(userName);
+        UserStore userStore = getUserStore(user.getId());
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValues(
                     userStore.getDomainFreeName(), claims, profileName);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
+        if (!doCheckExistingUser(user)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User for id " + user.getId() + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
         // check for null claim list
         if (claims == null) {
             claims = new String[0];
         }
-        Map<String, String> finalValues = doGetUserClaimValues(userName, claims,
-                userStore.getDomainName(), profileName);
+        Map<String, String> finalValues = doGetUserClaimValues(user, claims, userStore.getDomainName(), profileName);
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetUserClaimValues(userStore.getDomainFreeName(), claims, profileName,
+                if (!newListener.doPostGetUserClaimValues(user.getUsername(), claims, profileName,
                         finalValues, this)) {
                     break;
                 }
@@ -948,6 +1074,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
 
             if (userManager instanceof AbstractUserStoreManager) {
+
                 // Get the user list and return with domain appended.
                 AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
                 String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
@@ -1268,9 +1395,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     protected String getClaimAtrribute(String claimURI, String identifier, String domainName)
             throws org.wso2.carbon.user.api.UserStoreException {
+
         domainName =
                 (domainName == null || domainName.isEmpty())
-                        ? (identifier.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > -1
+                        ? (identifier.contains(UserCoreConstants.DOMAIN_SEPARATOR)
                         ? identifier.split(UserCoreConstants.DOMAIN_SEPARATOR)[0]
                         : realmConfig.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME))
                         : domainName;
@@ -1542,19 +1670,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
-    public final void deleteUserClaimValues(String userName, String[] claims, String profileName)
+    public final void deleteUserClaimValues(User user, List<String> claims, String profileName)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class};
-            callSecure("deleteUserClaimValues", new Object[]{userName, claims, profileName}, argTypes);
+            Class argTypes[] = new Class[]{User.class, String[].class, String.class};
+            callSecure("deleteUserClaimValues", new Object[]{user, claims, profileName}, argTypes);
             return;
         }
 
-        UserStore userStore = getUserStore(userName);
+        UserStore userStore = getUserStore(user.getId());
         if (userStore.isRecurssive()) {
-            userStore.getUserStoreManager().deleteUserClaimValues(userStore.getDomainFreeName(),
-                    claims, profileName);
+            userStore.getUserStoreManager().deleteUserClaimValues(user, claims, profileName);
             return;
         }
 
@@ -1562,40 +1689,202 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
+        if (!doCheckExistingUser(user)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User for id " + user.getId() + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
 
         if (claims == null) {
-            claims = new String[0];
+            claims = new ArrayList<>();
         }
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPreDeleteUserClaimValues(userName, claims, profileName, this)) {
-                return;
+            if (StringUtils.isEmpty(user.getId())) {
+                if (!listener.doPreDeleteUserClaimValues(user, claims, profileName, this)) {
+                    return;
+                }
+            } else {
+                if (!listener.doPreDeleteUserClaimValues(user, claims, profileName, this)) {
+                    return;
+                }
             }
         }
         // #################### </Listeners> #####################################################
 
 
-        doDeleteUserClaimValues(userName, claims, profileName);
+        doDeleteUserClaimValues(user, claims, profileName);
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPostDeleteUserClaimValues(userName, this)) {
-                return;
+            if (StringUtils.isEmpty(user.getId())) {
+                if (!listener.doPostDeleteUserClaimValues(user.getName(), this)) {
+                    return;
+                }
+            } else {
+                if (!listener.doPostDeleteUserClaimValues(user, this)) {
+                    return;
+                }
             }
         }
         // #################### </Listeners> #####################################################
 
     }
 
+    @Deprecated
+    public final void deleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(userName);
+        deleteUserClaimValues(user, Arrays.asList(claims), profileName);
+    }
+
+    @Override
+    public void addUser(User user, Object credential, List<String> roleList, Map<String, String> claims,
+                        String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{User.class, Object.class, String[].class, Map.class, String.class,
+                    boolean.class};
+            callSecure("addUser", new Object[]{user, credential, roleList, claims, profileName,
+                    requirePasswordChange}, argTypes);
+            return;
+        }
+
+        if (StringUtils.isEmpty(user.getId())) {
+            try {
+                user = (User) idManager.addIdForName(user);
+            } catch (IdManagerException e) {
+                throw new UserStoreException(e);
+            }
+        }
+
+        String userId = user.getId();
+        String username = user.getName();
+
+        UserStore userStore = getUserStore(userId);
+        if (userStore.isRecurssive()) {
+            userStore.getUserStoreManager().addUser(user, credential, roleList, claims, profileName,
+                    requirePasswordChange);
+            return;
+        }
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        try {
+            if (userStore.isSystemStore()) {
+                systemUserRoleManager.addSystemUser(username, credentialObj, roleList);
+                return;
+            }
+
+            // #################### Domain Name Free Zone Starts Here ################################
+
+            if (isReadOnly()) {
+                throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
+            }
+            // This happens only once during first startup - adding administrator user/role.
+            if (userId.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+                userId = userStore.getDomainFreeName();
+                roleList = UserCoreUtil.removeDomainFromNames(roleList);
+            }
+            if (roleList == null) {
+                roleList = new ArrayList<>();
+            }
+            if (claims == null) {
+                claims = new HashMap<>();
+            }
+
+            // #################### <Pre-Listeners> #####################################################
+            if (!callPreAddUserStoreMangerListener(credential, credentialObj, null, user, roleList, claims,
+                    profileName)) {
+                return;
+            }
+
+            if (!callPreAddUserOperationEventLatiner(credential, credentialObj, null, user, roleList, claims,
+                    profileName)) {
+                return;
+            }
+            // #################### </Pre-Listeners> #####################################################
+
+            if (!checkUserNameValid(userStore.getDomainFreeName())) {
+                String message = "Username for " + userId + " is not valid. User name must be a non null string with " +
+                        "following format, ";
+                String regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                        .PROPERTY_USER_NAME_JAVA_REG_EX);
+                throw new UserStoreException(message + regEx);
+            }
+
+            if (!checkUserPasswordValid(credentialObj)) {
+                String message = "Credential not valid. Credential must be a non null string with following format, ";
+                String regEx = realmConfig.getUserStoreProperty(UserCoreConstants
+                        .RealmConfig.PROPERTY_JAVA_REG_EX);
+                throw new UserStoreException(message + regEx);
+            }
+
+            if (doCheckExistingUser(user)) {
+                throw new UserStoreException(EXISTING_USER + "Username for '" + user.getId() + "' already exists in " +
+                        "the system. Please pick another username.");
+            }
+
+            List<String> internalRoles = new ArrayList<>();
+            List<String> externalRoles = new ArrayList<>();
+
+            // Filter roles for internal and external.
+            filterRolesForExternalAndInternal(roleList, internalRoles, externalRoles);
+
+            // check existence of roles and claims before user is adding
+            for (String internalRole : internalRoles) {
+                if (!hybridRoleManager.isExistingRole(internalRole)) {
+                    throw new UserStoreException("Internal role is not exist : " + internalRole);
+                }
+            }
+
+            for (String externalRole : externalRoles) {
+                if (!doCheckExistingRole(externalRole)) {
+                    throw new UserStoreException("External role is not exist : " + externalRole);
+                }
+            }
+
+            // Validate the claim mappings.
+            validateClaimMapping(claims);
+
+            if (idManager == null) {
+                throw new UserStoreException("Id manager instance is null.");
+            }
+
+            doAddUser(user, credentialObj, externalRoles.toArray(new String[externalRoles.size()]),
+                    claims, profileName, requirePasswordChange);
+
+            if (internalRoles.size() > 0) {
+                hybridRoleManager.updateHybridRoleListOfUser(user, null, internalRoles
+                        .toArray(new String[internalRoles.size()]));
+            }
+
+            // #################### <Post-Listeners> #####################################################
+            if (!callPostAddUserListener(credential, credentialObj, null, user, roleList, claims, profileName)) {
+                return;
+            }
+            // #################### </Post-Listeners> #####################################################
+
+        } finally {
+            credentialObj.clear();
+        }
+
+        // Clean the role cache since it contains old role information
+        clearUserRolesCache(user.getId());
+    }
+
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public final void addUser(String userName, Object credential, String[] roleList,
                               Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
@@ -1644,51 +1933,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             if (claims == null) {
                 claims = new HashMap<>();
             }
-            // #################### <Listeners> #####################################################
-            for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
-                Object credentialArgument;
-                if (listener instanceof SecretHandleableListener) {
-                    credentialArgument = credentialObj;
-                } else {
-                    credentialArgument = credential;
-                }
 
-                if (!listener.addUser(userName, credentialArgument, roleList, claims, profileName, this)) {
-                    return;
-                }
+            // #################### <Pre-Listeners> #####################################################
+
+            if (!callPreAddUserStoreMangerListener(credential, credentialObj, userName, null, Arrays.asList(roleList),
+                    claims, profileName)) {
+                return;
             }
 
-            // String buffers are used to let listeners to modify passwords
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (listener instanceof SecretHandleableListener) {
-                    if (!listener.doPreAddUser(userName, credentialObj, roleList, claims, profileName, this)) {
-                        return;
-                    }
-                } else {
-                    // String buffers are used to let listeners to modify passwords
-                    StringBuffer credBuff = null;
-                    if (credential == null) { // a default password will be set
-                        credBuff = new StringBuffer();
-                    } else if (credential instanceof String) {
-                        credBuff = new StringBuffer((String) credential);
-                    }
-
-                    if (credBuff != null) {
-                        if (!listener.doPreAddUser(userName, credBuff, roleList, claims, profileName, this)) {
-                            return;
-                        }
-                        // reading the modified value
-                        credential = credBuff.toString();
-                        credentialObj.clear();
-                        try {
-                            credentialObj = Secret.getSecret(credential);
-                        } catch (UnsupportedSecretTypeException e) {
-                            throw new UserStoreException("Unsupported credential type", e);
-                        }
-                    }
-                }
+            if (!callPreAddUserOperationEventLatiner(credential, credentialObj, userName, null, Arrays.asList(roleList),
+                    claims, profileName)) {
+                return;
             }
-            // #################### </Listeners> #####################################################
+
+            // #################### </Per-Listeners> #####################################################
 
             if (!checkUserNameValid(userStore.getDomainFreeName())) {
                 String message = "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a " +
@@ -1712,26 +1970,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
             List<String> internalRoles = new ArrayList<>();
             List<String> externalRoles = new ArrayList<>();
-            int index;
-            for (String role : roleList) {
-                if (role != null && role.trim().length() > 0) {
-                    index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                    if (index > 0) {
-                        String domain = role.substring(0, index);
-                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                            internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                            continue;
-                        } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) ||
-                                WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                            internalRoles.add(role);
-                            continue;
-                        }
-                    }
-                    externalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                }
-            }
 
-            // check existance of roles and claims before user is adding
+            // Filter roles for internal and external.
+            filterRolesForExternalAndInternal(Arrays.asList(roleList), internalRoles, externalRoles);
+
+            // check existence of roles and claims before user is adding
             for (String internalRole : internalRoles) {
                 if (!hybridRoleManager.isExistingRole(internalRole)) {
                     throw new UserStoreException("Internal role is not exist : " + internalRole);
@@ -1744,28 +1987,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
 
-            for (Map.Entry<String, String> entry : claims.entrySet()) {
-                ClaimMapping claimMapping = null;
-                try {
-                    claimMapping = (ClaimMapping) claimManager.getClaimMapping(entry.getKey());
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    String errorMessage = "Error in obtaining claim mapping for persisting user attributes.";
-                    throw new UserStoreException(errorMessage, e);
-                }
-                if (claimMapping == null) {
-                    String errorMessage = "Invalid claim uri has been provided: " + entry.getKey();
-                    throw new UserStoreException(errorMessage);
-                }
-            }
+            validateClaimMapping(claims);
 
             if (idManager == null) {
                 throw new UserStoreException("Id manager instance is null.");
             }
-
-            User user = new UserImpl();
-            user.setUsername(userName);
-
-            idManager.addIdForName(user);
 
             doAddUser(userName, credentialObj, externalRoles.toArray(new String[externalRoles.size()]),
                     claims, profileName, requirePasswordChange);
@@ -1775,27 +2001,164 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         internalRoles.toArray(new String[internalRoles.size()]));
             }
 
-            // #################### <Listeners> #####################################################
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                Object credentialArgument;
-                if (listener instanceof SecretHandleableListener) {
-                    credentialArgument = credentialObj;
-                } else {
-                    credentialArgument = credential;
-                }
-
-                if (!listener.doPostAddUser(userName, credentialArgument, roleList, claims, profileName, this)) {
-                    return;
-                }
+            // #################### <Post-Listeners> #####################################################
+            if (!callPostAddUserListener(credential, credentialObj, userName, null, Arrays.asList(roleList), claims,
+                    profileName)) {
+                return;
             }
-        } catch (IdManagerException e) {
-            throw new UserStoreException(e);
+            // #################### </Post-Listeners> #####################################################
+
         } finally {
             credentialObj.clear();
         }
 
         // Clean the role cache since it contains old role informations
         clearUserRolesCache(userName);
+    }
+
+    private boolean callPreAddUserStoreMangerListener(Object credential, Secret credentialObj, String username,
+                                                      User user, List<String> roleList, Map<String, String> claims,
+                                                      String profileName) throws UserStoreException {
+
+        for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
+            Object credentialArgument;
+            if (listener instanceof SecretHandleableListener) {
+                credentialArgument = credentialObj;
+            } else {
+                credentialArgument = credential;
+            }
+
+            if (StringUtils.isEmpty(username)) {
+                if (!listener.addUser(user, credentialArgument, roleList, claims, profileName, this)) {
+                    return false;
+                }
+            } else {
+                if (!listener.addUser(username, credentialArgument, roleList.toArray(new String[roleList.size()]),
+                        claims, profileName, this)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean callPreAddUserOperationEventLatiner(Object credential, Secret credentialObj, String username,
+                                                        User user, List<String> roleList, Map<String, String> claims,
+                                                        String profileName) throws UserStoreException {
+
+        // String buffers are used to let listeners to modify passwords
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof SecretHandleableListener) {
+                callDoPreAddUserListener(listener, credentialObj, username, user, roleList, claims, profileName);
+            } else {
+                // String buffers are used to let listeners to modify passwords
+                StringBuffer credBuff = null;
+                if (credential == null) { // a default password will be set
+                    credBuff = new StringBuffer();
+                } else if (credential instanceof String) {
+                    credBuff = new StringBuffer((String) credential);
+                }
+
+                if (credBuff != null) {
+                    callDoPreAddUserListener(listener, credBuff, username, user, roleList, claims, profileName);
+                    // reading the modified value
+                    credential = credBuff.toString();
+                    credentialObj.clear();
+                    try {
+                        credentialObj = Secret.getSecret(credential);
+                    } catch (UnsupportedSecretTypeException e) {
+                        throw new UserStoreException("Unsupported credential type", e);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean callDoPreAddUserListener(UserOperationEventListener listener, Object credentialObj, String username,
+                                             User user, List<String> roleList, Map<String, String> claims,
+                                             String profileName) throws UserStoreException {
+
+        if (StringUtils.isEmpty(username)) {
+            if (!listener.doPreAddUser(user, credentialObj, roleList, claims, profileName, this)) {
+                return false;
+            }
+        } else {
+            if (!listener.doPreAddUser(username, credentialObj, roleList.toArray(new String[roleList.size()]),
+                    claims, profileName, this)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean callPostAddUserListener(Object credential, Secret credentialObj, String username,
+                                            User user, List<String> roleList, Map<String, String> claims,
+                                            String profileName) throws UserStoreException {
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            Object credentialArgument;
+            if (listener instanceof SecretHandleableListener) {
+                credentialArgument = credentialObj;
+            } else {
+                credentialArgument = credential;
+            }
+
+            if (StringUtils.isEmpty(username)) {
+                if (!listener.doPostAddUser(username, credentialArgument, roleList.toArray(new String[roleList.size()]),
+                        claims, profileName, this)) {
+                    return false;
+                }
+            } else {
+                if (!listener.doPostAddUser(user, credentialArgument, roleList, claims, profileName, this)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private void filterRolesForExternalAndInternal(List<String> roleList, List<String> internalRoles, List<String>
+            externalRoles) {
+
+        int index;
+        for (String role : roleList) {
+            if (role != null && role.trim().length() > 0) {
+                index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                if (index > 0) {
+                    String domain = role.substring(0, index);
+                    if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                        internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                        continue;
+                    } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) ||
+                            WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                        internalRoles.add(role);
+                        continue;
+                    }
+                }
+                externalRoles.add(UserCoreUtil.removeDomainFromName(role));
+            }
+        }
+    }
+
+    private void validateClaimMapping(Map<String, String> claims) throws UserStoreException {
+
+        for (Map.Entry<String, String> entry : claims.entrySet()) {
+            ClaimMapping claimMapping;
+            try {
+                claimMapping = (ClaimMapping) claimManager.getClaimMapping(entry.getKey());
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                String errorMessage = "Error in obtaining claim mapping for persisting user attributes.";
+                throw new UserStoreException(errorMessage, e);
+            }
+            if (claimMapping == null) {
+                String errorMessage = "Invalid claim uri has been provided: " + entry.getKey();
+                throw new UserStoreException(errorMessage);
+            }
+        }
     }
 
     /**
@@ -1897,8 +2260,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if ((deletedUsers != null && deletedUsers.length > 0)
-                || (newUsers != null && newUsers.length > 0)) {
+        if (deletedUsers.length > 0 || newUsers.length > 0) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 doUpdateUserListOfRole(userStore.getDomainFreeName(),
                         UserCoreUtil.removeDomainFromNames(deletedUsers),
@@ -1927,12 +2289,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public final void updateRoleListOfUser(final String username, final String[] deletedRoles, final String[] newRoles)
             throws UserStoreException {
         try {
-            AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
-                @Override
-                public String run() throws Exception {
-                    updateRoleListOfUserInternal(username, deletedRoles, newRoles);
-                    return null;
-                }
+            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
+                updateRoleListOfUserInternal(username, deletedRoles, newRoles);
+                return null;
             });
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
@@ -1993,13 +2352,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             newRoles = UserCoreUtil.removeDomainFromNames(newRoles);
         }
 
-        List<String> internalRoleDel = new ArrayList<String>();
-        List<String> internalRoleNew = new ArrayList<String>();
+        List<String> internalRoleDel = new ArrayList<>();
+        List<String> internalRoleNew = new ArrayList<>();
 
-        List<String> roleDel = new ArrayList<String>();
-        List<String> roleNew = new ArrayList<String>();
+        List<String> roleDel = new ArrayList<>();
+        List<String> roleNew = new ArrayList<>();
 
-        if (deletedRoles != null && deletedRoles.length > 0) {
+        if (deletedRoles.length > 0) {
             for (String deleteRole : deletedRoles) {
                 if (UserCoreUtil.isEveryoneRole(deleteRole, realmConfig)) {
                     throw new UserStoreException("Everyone role cannot be updated");
@@ -2021,7 +2380,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             deletedRoles = roleDel.toArray(new String[roleDel.size()]);
         }
 
-        if (newRoles != null && newRoles.length > 0) {
+        if (newRoles.length > 0) {
             for (String newRole : newRoles) {
                 if (UserCoreUtil.isEveryoneRole(newRole, realmConfig)) {
                     throw new UserStoreException("Everyone role cannot be updated");
@@ -2057,8 +2416,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if ((deletedRoles != null && deletedRoles.length > 0)
-                || (newRoles != null && newRoles.length > 0)) {
+        if (deletedRoles.length > 0 || newRoles.length > 0) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 doUpdateRoleListOfUser(userName, deletedRoles, newRoles);
             } else {
@@ -2377,7 +2735,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Share Groups are not supported by this realm");
         }
 
-        String[] sharedRoles = null;
+        String[] sharedRoles;
         try {
             sharedRoles = ((AbstractUserStoreManager) manager).
                     doGetSharedRoleNames(null, filter, maxItemLimit);
@@ -2748,30 +3106,37 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         return userNames;
     }
 
+    @Deprecated
     public String[] getRoleListOfUser(String userName) throws UserStoreException {
 
+        User user = new UserImpl();
+        user.setUserName(userName);
+        return getRoleListOfUser(user);
+    }
+
+    public String[] getRoleListOfUser(User user) throws UserStoreException {
+
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("getRoleListOfUser", new Object[]{userName}, argTypes);
+            Class argTypes[] = new Class[]{User.class};
+            Object object = callSecure("getRoleListOfUser", new Object[]{user}, argTypes);
             return (String[]) object;
         }
 
-        String[] roleNames = null;
-
+        String[] roleNames;
 
         // anonymous user is only assigned to  anonymous role
-        if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
+        if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(user.getName())) {
             return new String[]{CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME};
         }
 
-        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+        String usernameWithDomain = UserCoreUtil.addDomainToName(user.getUsername(), getMyDomainName());
         // Check whether roles exist in cache
         roleNames = getRoleListOfUserFromCache(this.tenantId, usernameWithDomain);
         if (roleNames != null && roleNames.length > 0) {
             return roleNames;
         }
 
-        UserStore userStore = getUserStore(userName);
+        UserStore userStore = getUserStore(user.getId());
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getRoleListOfUser(userStore.getDomainFreeName());
         }
@@ -2781,7 +3146,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### Domain Name Free Zone Starts Here ################################
 
-        roleNames = doGetRoleListOfUser(userName, "*");
+        roleNames = doGetRoleListOfUser(user, "*");
 
         return roleNames;
 
@@ -3035,8 +3400,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @throws UserStoreException throw if the operation failed.
      */
     @Override
+    @Deprecated
     public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+
         UserStore userStore = getUserStore(userName);
+
+        if (userStore.isRecurssive()) {
+            return userStore.getUserStoreManager().getPasswordExpirationTime(userStore.getDomainFreeName());
+        }
+
+        return null;
+    }
+
+    public Date getPasswordExpirationTime(User user) throws UserStoreException {
+
+        UserStore userStore = getUserStore(user.getName());
 
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getPasswordExpirationTime(userStore.getDomainFreeName());
@@ -3378,18 +3756,19 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     /**
-     * @param userName
+     * Get claim values for given user.
+     * @param user User object.
      * @param claims
      * @param domainName
      * @return
      * @throws UserStoreException
      */
-    private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
+    private Map<String, String> doGetUserClaimValues(User user, String[] claims,
                                                      String domainName, String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
-            Object object = callSecure("doGetUserClaimValues", new Object[]{userName, claims, domainName,
+            Class argTypes[] = new Class[]{User.class, String[].class, String.class, String.class};
+            Object object = callSecure("doGetUserClaimValues", new Object[]{user, claims, domainName,
                     profileName}, argTypes);
             return (Map<String, String>) object;
         }
@@ -3404,14 +3783,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        Set<String> propertySet = new HashSet<String>();
+        Set<String> propertySet = new HashSet<>();
         for (String claim : claims) {
 
             // There can be cases some claim values being requested for claims
             // we don't have.
-            String property = null;
+            String property;
             try {
-                property = getClaimAtrribute(claim, userName, domainName);
+                property = getClaimAtrribute(claim, user.getName(), domainName);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
@@ -3435,11 +3814,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         String[] properties = propertySet.toArray(new String[propertySet.size()]);
-        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties,
-                profileName);
+        Map<String, String> uerProperties = this.getUserPropertyValues(user.getName(), properties, profileName);
 
-        List<String> getAgain = new ArrayList<String>();
-        Map<String, String> finalValues = new HashMap<String, String>();
+        Map<String, String> finalValues = new HashMap<>();
 
         for (String claim : claims) {
             ClaimMapping mapping;
@@ -3449,12 +3826,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 throw new UserStoreException(e);
             }
             String property = null;
-            String value = null;
+            String value;
             if (mapping != null) {
                 if (domainName != null) {
                     Map<String, String> attrMap = mapping.getMappedAttributes();
                     if (attrMap != null) {
-                        String attr = null;
+                        String attr;
                         if ((attr = attrMap.get(domainName.toUpperCase())) != null) {
                             property = attr;
                         } else {
@@ -3468,6 +3845,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 value = uerProperties.get(property);
 
                 if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
+
                     // Check whether we have a value for the requested attribute
                     if (value != null && value.trim().length() > 0) {
                         finalValues.put(claim, value);
@@ -3478,7 +3856,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     }
                 }
             } else {
-                if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
+                if (claim.equals(DISAPLAY_NAME_CLAIM)) {
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
@@ -3489,36 +3867,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        if (getAgain.size() > 0) {
-            // oh the beautiful recursion
-            Map<String, String> mapClaimValues = this.getUserClaimValues(userName,
-                    (String[]) getAgain.toArray(new String[getAgain.size()]),
-                    profileName);
-
-            Iterator<Map.Entry<String, String>> ite3 = mapClaimValues.entrySet().iterator();
-            while (ite3.hasNext()) {
-                Map.Entry<String, String> entry = ite3.next();
-                if (entry.getValue() != null) {
-                    finalValues.put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-
         // We treat roles claim in special way.
         String[] roles = null;
 
         if (requireRoles) {
-            roles = getRoleListOfUser(userName);
+            roles = getRoleListOfUser(user);
         } else if (requireIntRoles) {
-            roles = doGetInternalRoleListOfUser(userName, "*");
+            roles = doGetInternalRoleListOfUser(user, "*");
         } else if (requireExtRoles) {
-
-            List<String> rolesList = new ArrayList<String>();
-            String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
+            List<String> rolesList = new ArrayList<>();
+            String[] externalRoles = doGetExternalRoleListOfUser(user.getUsername(), "*");
             rolesList.addAll(Arrays.asList(externalRoles));
-            //if only shared enable
+
+            // If only shared enable.
             if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUser(userName, null, "*");
+                String[] sharedRoles = doGetSharedRoleListOfUser(user.getUsername(), null, "*");
                 if (sharedRoles != null) {
                     rolesList.addAll(Arrays.asList(sharedRoles));
                 }
@@ -3706,59 +4069,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     /**
-     * @param tenantID
-     * @param userName
-     * @param roleList
+     * Add the role list to roles cache.
+     * @param tenantID Tenant id.
+     * @param userId User id.
+     * @param roleList List of roles that are required to be added to the cache.
      */
-    protected void addToUserRolesCache(int tenantID, String userName, String[] roleList) {
+    protected void addToUserRolesCache(int tenantID, String userId, String[] roleList) {
         if (userRolesCache != null) {
-            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            String usernameWithDomain = UserCoreUtil.addDomainToName(userId, getMyDomainName());
             userRolesCache.addToCache(cacheIdentifier, tenantID, usernameWithDomain, roleList);
             AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
             authorizationCache.clearCacheByTenant(tenantID);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected void initUserRolesCache() {
-
-        String userRolesCacheEnabledString = (realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLES_CACHE_ENABLED));
-
-        String userCoreCacheIdentifier = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_CORE_CACHE_IDENTIFIER);
-
-        if (userCoreCacheIdentifier != null && userCoreCacheIdentifier.trim().length() > 0) {
-            cacheIdentifier = userCoreCacheIdentifier;
-        } else {
-            cacheIdentifier = UserCoreConstants.DEFAULT_CACHE_IDENTIFIER;
-        }
-
-        if (userRolesCacheEnabledString != null && !userRolesCacheEnabledString.equals("")) {
-            userRolesCacheEnabled = Boolean.parseBoolean(userRolesCacheEnabledString);
-            if (log.isDebugEnabled()) {
-                log.debug("User Roles Cache is configured to:" + userRolesCacheEnabledString);
-            }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.info("User Roles Cache is not configured. Default value: "
-                        + userRolesCacheEnabled + " is taken.");
-            }
-        }
-
-        if (userRolesCacheEnabled) {
-            int timeOut = UserCoreConstants.USER_ROLE_CACHE_DEFAULT_TIME_OUT;
-            String timeOutString = realmConfig.
-                    getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_ROLE_CACHE_TIME_OUT);
-            if (timeOutString != null) {
-                timeOut = Integer.parseInt(timeOutString);
-            }
-            userRolesCache = UserRolesCache.getInstance();
-            userRolesCache.setTimeOut(timeOut);
-        }
-
     }
 
     /**
@@ -3831,7 +4153,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         UserStoreManager secondary = this.getSecondaryUserStoreManager();
-        List<RoleDTO> roleList = new ArrayList<RoleDTO>();
+        List<RoleDTO> roleList = new ArrayList<>();
         while (secondary != null) {
             String domain = secondary.getRealmConfiguration().getUserStoreProperty(
                     UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
@@ -3879,32 +4201,47 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throws UserStoreException;
 
     /**
-     * @param userName
-     * @param filter
-     * @return
+     * Get filtered list of roles for user.
+     * @param username Username of the user.
+     * @param filter Filter for the username.
+     * @return List of roles for user.
      * @throws UserStoreException
      */
-    public final String[] doGetRoleListOfUser(String userName, String filter)
+    @Deprecated
+    public final String[] doGetRoleListOfUser(String username, String filter)
+            throws UserStoreException {
+
+        User user = new UserImpl();
+        user.setUserName(username);
+        return doGetRoleListOfUser(user, filter);
+    }
+
+    /**
+     * Get filtered list of roles for user.
+     * @param user   User object.
+     * @param filter Filter for the username.
+     * @return List of roles for user.
+     * @throws UserStoreException User store level exception.
+     */
+    public final String[] doGetRoleListOfUser(User user, String filter)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("doGetRoleListOfUser", new Object[]{userName, filter}, argTypes);
+            Class argTypes[] = new Class[]{User.class, String.class};
+            Object object = callSecure("doGetRoleListOfUser", new Object[]{user, filter}, argTypes);
             return (String[]) object;
         }
 
         String[] roleList;
-
-        String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
-
+        String[] internalRoles = doGetInternalRoleListOfUser(user, filter);
         String[] modifiedExternalRoleList = new String[0];
 
-        if (readGroupsEnabled && doCheckExistingUser(userName)) {
-            List<String> roles = new ArrayList<String>();
-            String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
+        if (readGroupsEnabled && doCheckExistingUser(user.getName())) {
+            List<String> roles = new ArrayList<>();
+            String[] externalRoles = doGetExternalRoleListOfUser(user.getName(), "*");
             roles.addAll(Arrays.asList(externalRoles));
             if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUser(userName, null, "*");
+                String[] sharedRoles = doGetSharedRoleListOfUser(user.getName(), null, "*");
                 if (sharedRoles != null) {
                     roles.addAll(Arrays.asList(sharedRoles));
                 }
@@ -3915,8 +4252,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
-
-        addToUserRolesCache(this.tenantId, userName, roleList);
+        addToUserRolesCache(this.tenantId, user.getId(), roleList);
 
         return roleList;
     }
@@ -3937,17 +4273,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     protected List<String> getMappingAttributeList(List<String> claimList)
             throws UserStoreException {
-        ArrayList<String> attributeList = null;
-        Iterator<String> claimIter = null;
 
-        attributeList = new ArrayList<String>();
+        ArrayList<String> attributeList;
+        Iterator<String> claimIterator;
+
+        attributeList = new ArrayList<>();
         if (claimList == null) {
             return attributeList;
         }
-        claimIter = claimList.iterator();
-        while (claimIter.hasNext()) {
+        claimIterator = claimList.iterator();
+        while (claimIterator.hasNext()) {
             try {
-                attributeList.add(claimManager.getAttributeName(claimIter.next()));
+                attributeList.add(claimManager.getAttributeName(claimIterator.next()));
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
@@ -3974,7 +4311,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!systemUserRoleManager.isExistingSystemUser(systemUser)) {
             systemUserRoleManager.addSystemUser(systemUser,
-                    UserCoreUtil.getPolicyFriendlyRandomPassword(systemUser), null);
+                    UserCoreUtil.getPolicyFriendlyRandomPassword(systemUser), new String[0]);
         }
 
         if (!systemUserRoleManager.isExistingRole(systemRole)) {
@@ -4073,14 +4410,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             } else {
                 if (initialSetup) {
-                    String message = "Admin user can not be created in primary user store. " +
-                            "Add-Admin has been set to false. " +
-                            "Please pick a User name which is exist in the primary user store as Admin user";
-                    if (initialSetup) {
-                        throw new UserStoreException(message);
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message);
-                    }
+                    String message = "Admin user can not be created in primary user store. Add-Admin has been " +
+                            "set to false. Please pick a User name which is exist in the primary user store " +
+                            "as Admin user";
+                    log.error(message);
+                    throw new UserStoreException(message);
                 }
             }
         }
@@ -4196,7 +4530,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return maxRoleListCount;
         }
 
-        Map<String, Integer> maxListCount = new HashMap<String, Integer>();
+        Map<String, Integer> maxListCount = new HashMap<>();
         for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
             UserStoreManager storeManager = entry.getValue();
             String maxConfig = storeManager.getRealmConfiguration().getUserStoreProperty(type);
@@ -4257,9 +4591,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             // Traverse through realm configuration chain since USM chain doesn't contains the disabled USMs
             RealmConfiguration realmConfigTmp = this.getRealmConfiguration();
             while (realmConfigTmp != null) {
-                String domainName = realmConfigTmp.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                String domainName = realmConfigTmp.getUserStoreProperty(UserCoreConstants.RealmConfig
+                        .PROPERTY_DOMAIN_NAME);
                 if (newDomain.equalsIgnoreCase(domainName)) {
-                    throw new UserStoreException("Cannot update persisted domain name " + oldDomain + " into " + newDomain + ". New domain name already in use");
+                    throw new UserStoreException("Cannot update persisted domain name " + oldDomain + " into "
+                            + newDomain + ". New domain name already in use");
                 }
                 realmConfigTmp = realmConfigTmp.getSecondaryRealmConfig();
             }
@@ -4446,12 +4782,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
             if (domainName != null) {
                 if (this.getSecondaryUserStoreManager(domainName) != null) {
-                    String errmsg = "Could not initialize new user store manager : " + domainName
+                    String errorMessage = "Could not initialize new user store manager : " + domainName
                             + " Duplicate domain names not allowed.";
                     if (log.isDebugEnabled()) {
-                        log.debug(errmsg);
+                        log.debug(errorMessage);
                     }
-                    throw new UserStoreException(errmsg);
+                    throw new UserStoreException(errorMessage);
                 } else {
                     // Fulfilled requirements for adding UserStore,
 
@@ -4463,7 +4799,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     tmpUserStoreManager.setSecondaryUserStoreManager(manager);
 
                     // update domainName-USM map to retrieve USM directly by its domain name
-                    this.addSecondaryUserStoreManager(domainName.toUpperCase(), tmpUserStoreManager.getSecondaryUserStoreManager());
+                    this.addSecondaryUserStoreManager(domainName.toUpperCase(), tmpUserStoreManager
+                            .getSecondaryUserStoreManager());
 
                     if (log.isDebugEnabled()) {
                         log.debug("UserStoreManager : " + domainName + "added to the list");
@@ -4490,15 +4827,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
-        if (userStoreDomainName == null) {
-            throw new UserStoreException("Cannot remove user store. User store domain name is null");
+        if (StringUtils.isEmpty(userStoreDomainName)) {
+            throw new UserStoreException("Cannot remove user store. User store domain name is null or empty.");
         }
-        if ("".equals(userStoreDomainName)) {
-            throw new UserStoreException("Cannot remove user store. User store domain name is empty");
-        }
-//    	if(!this.userStoreManagerHolder.containsKey(userStoreDomainName.toUpperCase())) {
-//    		throw new UserStoreException("Cannot remove user store. User store domain name does not exists");
-//    	}
 
         userStoreDomainName = userStoreDomainName.toUpperCase();
 
@@ -4511,24 +4842,29 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        boolean isUSMConatainsInChain = false;
+        boolean isUSMContainInChain = false;
         UserStoreManager prevUserStoreManager = this;
         while (prevUserStoreManager.getSecondaryUserStoreManager() != null) {
             UserStoreManager secondaryUSM = prevUserStoreManager.getSecondaryUserStoreManager();
-            if (secondaryUSM.getRealmConfiguration().getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME).equalsIgnoreCase(userStoreDomainName)) {
-                isUSMConatainsInChain = true;
+            if (secondaryUSM.getRealmConfiguration().getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME)
+                    .equalsIgnoreCase(userStoreDomainName)) {
+                isUSMContainInChain = true;
+
                 // Omit deleting user store manager from the chain
                 prevUserStoreManager.setSecondaryUserStoreManager(secondaryUSM.getSecondaryUserStoreManager());
-                log.info("User store: " + userStoreDomainName + " of tenant:" + tenantId + " is removed from user store chain.");
-                return;
+                log.info("User store: " + userStoreDomainName + " of tenant:" + tenantId
+                        + " is removed from user store chain.");
+                break;
             }
             prevUserStoreManager = secondaryUSM;
         }
 
-        if (!isUSMContainsInMap && isUSMConatainsInChain) {
-            throw new UserStoreException("Removed user store manager : " + userStoreDomainName + " didnt exists in userStoreManagerHolder map");
-        } else if (isUSMContainsInMap && !isUSMConatainsInChain) {
-            throw new UserStoreException("Removed user store manager : " + userStoreDomainName + " didnt exists in user store manager chain");
+        if (!isUSMContainsInMap && isUSMContainInChain) {
+            throw new UserStoreException("Removed user store manager : " + userStoreDomainName +
+                    " didn't exists in userStoreManagerHolder map");
+        } else if (isUSMContainsInMap && !isUSMContainInChain) {
+            throw new UserStoreException("Removed user store manager : " + userStoreDomainName +
+                    " didn't exists in user store manager chain");
         }
     }
 
@@ -4542,5 +4878,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
+    }
+
+    /**
+     * Get the id manager that is used for this instance.
+     * @return IdManager instance.
+     */
+    protected IdManager getIdManager() {
+        return idManager;
     }
 }

@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.system;
 import org.apache.axis2.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -231,7 +232,13 @@ public class SystemUserRoleManager {
         }
     }
 
+    @Deprecated
     public void updateSystemRoleListOfUser(String user, String[] deletedRoles, String[] addRoles)
+            throws UserStoreException {
+        updateSystemRoleListOfUser(user, Arrays.asList(deletedRoles), Arrays.asList(addRoles));
+    }
+
+    public void updateSystemRoleListOfUser(String user, List<String> deletedRoles, List<String> addRoles)
             throws UserStoreException {
 
         String sqlStmt1 = SystemJDBCConstants.REMOVE_ROLE_FROM_USER_SQL;
@@ -243,11 +250,11 @@ public class SystemUserRoleManager {
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = SystemJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL;
             }
-            if (deletedRoles != null && deletedRoles.length > 0) {
+            if (deletedRoles != null && deletedRoles.size() > 0) {
                 DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, deletedRoles,
                         tenantId, user, tenantId);
             }
-            if (addRoles != null && addRoles.length > 0) {
+            if (addRoles != null && addRoles.size() > 0) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     sqlStmt2 = SystemJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
@@ -338,11 +345,15 @@ public class SystemUserRoleManager {
         }
     }
 
-    public void addSystemUser(String userName, Object credential,
-                              String[] roleList) throws UserStoreException {
+    @Deprecated
+    public void addSystemUser(String userName, Object credential, String[] roleList) throws UserStoreException {
+        addSystemUser(userName, credential, Arrays.asList(roleList));
+    }
+
+    public void addSystemUser(String userName, Object credential, List<String> roleList) throws UserStoreException {
 
         Connection dbConnection = null;
-        Secret credentialObj = null;
+        Secret credentialObj;
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
@@ -353,17 +364,7 @@ public class SystemUserRoleManager {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String sqlStmt1 = SystemJDBCConstants.ADD_USER_SQL;
 
-            String saltValue = null;
-            try {
-                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
-                byte[] bytes = new byte[16];
-                //secureRandom is automatically seeded by calling nextBytes
-                secureRandom.nextBytes(bytes);
-                saltValue = Base64.encode(bytes);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
-            }
-
+            String saltValue = UserCoreUtil.generateSaltValue();
             String password = this.preparePassword(credentialObj, saltValue);
 
             this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password,
@@ -379,7 +380,7 @@ public class SystemUserRoleManager {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
-                log.error("Error while rollbacking add system user operation", e1);
+                log.error("Error while rollback add system user operation", e1);
             }
             if (log.isDebugEnabled()) {
                 log.debug(e.getMessage(), e);

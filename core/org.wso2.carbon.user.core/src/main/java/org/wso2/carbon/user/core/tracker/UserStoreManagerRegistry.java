@@ -30,12 +30,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
+
     private static Log log = LogFactory.getLog(UserStoreManagerRegistry.class);
     private static ServiceTracker userStoreManagerTracker;
-    private static Map<String, Properties> userStoreManagers = new HashMap<String, Properties>();
+    private static Map<String, Properties> userStoreManagers = new HashMap<>();
 
 
     public static void init(BundleContext bc) throws Exception {
+
         try {
             userStoreManagerTracker = new ServiceTracker(bc, UserStoreManager.class.getName(), null);
             userStoreManagerTracker.open();
@@ -59,12 +61,11 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
     private static Map<String, Properties> getUserStoreManagers() {
 
         Object[] objects = userStoreManagerTracker.getServices();
-        int length = objects.length;
         UserStoreManager userStoreManager;
         Properties userStoreProperties;
 
-        for (int i = 0; i < length; i++) {
-            userStoreManager = (UserStoreManager) objects[i];
+        for (Object object : objects) {
+            userStoreManager = (UserStoreManager) object;
             if (userStoreManager.getDefaultUserStoreProperties() != null) {
                 userStoreProperties = userStoreManager.getDefaultUserStoreProperties();
                 userStoreManagers.put(userStoreManager.getClass().getName(), userStoreProperties);
@@ -97,8 +98,5 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
         Properties properties;
         properties = getUserStoreManagers().get(className);
         return properties;
-
     }
-
-
 }

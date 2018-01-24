@@ -30,17 +30,47 @@ public interface User extends Identifiable {
 
     /**
      * Set the username of this user.
-     * @param username Username of the this user.
+     * @param name Username of the this user.
      */
-    void setUsername(String username);
+    void setUserName(String name);
 
     /**
      * Set the userId of this user. This will be used as a pseudonym for the username.
-     * @param userId User id of this user.
+     * @param id User id of this user.
      */
-    void setUserId(String userId);
+    void setId(String id);
 
     @Override
     @Pseudonym
     String getId();
+
+    /**
+     * Get the user's user name.
+     * @return Username of this user.
+     */
+    String getUsername();
+
+    /**
+     * Set tenant id for this user.
+     * @param id Tenant id.
+     */
+    void setTenantId(int id);
+
+    /**
+     * Get the tenant id of this user.
+     * @return tenant id of the user.
+     */
+    int getTenantId();
+
+    /**
+     * Set the domain name of this user.
+     * @param domainName Domain name.
+     */
+    void setDomainName(String domainName);
+
+    /**
+     * Get the domain name of this user.
+     * @return Domain name.
+     */
+    String getDomainName();
 }
