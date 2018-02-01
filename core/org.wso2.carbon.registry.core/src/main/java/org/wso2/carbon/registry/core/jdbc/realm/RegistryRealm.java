@@ -19,6 +19,8 @@ package org.wso2.carbon.registry.core.jdbc.realm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.privacy.IdManager;
+import org.wso2.carbon.privacy.exception.IdManagerException;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.internal.RegistryDataHolder;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -185,6 +187,16 @@ public class RegistryRealm implements UserRealm {
      */
     public RealmConfiguration getRealmConfiguration() throws UserStoreException {
         return getRealm().getRealmConfiguration();
+    }
+
+    @Override
+    public IdManager getIdManager() throws IdManagerException {
+
+        try {
+            return getRealm().getIdManager();
+        } catch (UserStoreException e) {
+            throw new IdManagerException(e);
+        }
     }
 
     /**

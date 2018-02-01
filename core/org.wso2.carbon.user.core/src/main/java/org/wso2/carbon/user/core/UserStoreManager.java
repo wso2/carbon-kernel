@@ -16,10 +16,12 @@
 package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -172,8 +174,12 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     void addUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                  String profileName) throws UserStoreException;
 
+    @Deprecated
     void addUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                  String profileName, boolean requirePasswordChange) throws UserStoreException;
+
+    void addUser(User user, Object credential, List<String> roleList, Map<String, String> claims, String profileName,
+                boolean requirePasswordChange) throws UserStoreException;
 
     /**
      * Update the credential/password of the user
@@ -259,8 +265,19 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException
      */
+    @Deprecated
     void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException;
+
+    /**
+     * Delete many user claim values.
+     *
+     * @param user        User object.
+     * @param claims      URIs of the claims to be deleted.
+     * @param profileName The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException
+     */
+    void deleteUserClaimValues(User user, List<String> claims, String profileName) throws UserStoreException;
 
     String[] getHybridRoles() throws UserStoreException;
 

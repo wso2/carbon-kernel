@@ -20,6 +20,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.api.Permission;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -30,7 +31,7 @@ import java.util.Map;
 /**
  *
  */
-public class AbstractUserOperationEventListener implements UserOperationEventListener {
+public abstract class AbstractUserOperationEventListener implements UserOperationEventListener {
 
     @Override
     public int getExecutionOrderId() {
@@ -57,11 +58,25 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     @Override
+    public boolean doPreAddUser(User user, Object credential, List<String> roleList, Map<String, String> claims,
+                                String profile, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return false;
+    }
+
+    @Override
     public boolean doPostAddUser(String userName, Object credential, String[] roleList,
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
+    }
+
+    @Override
+    public boolean doPostAddUser(User user, Object credential, List<String> roleList, Map<String, String> claims,
+                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return false;
     }
 
     @Override

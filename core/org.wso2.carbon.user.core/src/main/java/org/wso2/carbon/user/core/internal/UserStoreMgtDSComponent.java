@@ -23,10 +23,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.privacy.IdManager;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.JDBCUserIdManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
@@ -88,13 +90,16 @@ public class UserStoreMgtDSComponent {
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), jdbcUserStoreManager, null);
 
             UserStoreManager readWriteLDAPUserStoreManager = new ReadWriteLDAPUserStoreManager();
-            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager, null);
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager,
+                    null);
 
             UserStoreManager readOnlyLDAPUserStoreManager = new ReadOnlyLDAPUserStoreManager();
-            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readOnlyLDAPUserStoreManager, null);
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readOnlyLDAPUserStoreManager,
+                    null);
 
             UserStoreManager activeDirectoryUserStoreManager = new ActiveDirectoryUserStoreManager();
-            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager, null);
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager,
+                    null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 
@@ -115,6 +120,7 @@ public class UserStoreMgtDSComponent {
     }
 
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+
         if (log.isDebugEnabled()) {
             log.debug("Unsetting the ServerConfigurationService");
         }
@@ -126,6 +132,7 @@ public class UserStoreMgtDSComponent {
     }
 
     protected void setClaimManagerFactory(ClaimManagerFactory claimManagerFactory) {
+
         this.claimManagerFactory = claimManagerFactory;
         try {
             if (claimManagerFactory.createClaimManager(MultitenantConstants.SUPER_TENANT_ID) != null) {

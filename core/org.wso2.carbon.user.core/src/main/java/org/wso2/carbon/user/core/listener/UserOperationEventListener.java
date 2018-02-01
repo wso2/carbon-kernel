@@ -20,9 +20,12 @@
 package org.wso2.carbon.user.core.listener;
 
 import org.wso2.carbon.user.api.Permission;
+import org.wso2.carbon.user.api.User;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -74,10 +77,26 @@ public interface UserOperationEventListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
-    public boolean doPreAddUser(String userName, Object credential, String[] roleList,
+    @Deprecated
+    boolean doPreAddUser(String userName, Object credential, String[] roleList,
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager)
             throws UserStoreException;
+
+    /**
+     * Define any additional actions before user is added.
+     *
+     * @param user             User object.
+     * @param credential       Credential/password of the user
+     * @param roleList         role list of user
+     * @param claims           Properties of the user
+     * @param profile          profile name of user
+     * @param userStoreManager The underlying UserStoreManager
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    boolean doPreAddUser(User user, Object credential, List<String> roleList, Map<String, String> claims,
+                         String profile, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Define any additional actions after user is added.
@@ -87,10 +106,19 @@ public interface UserOperationEventListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
-    public boolean doPostAddUser(String userName, Object credential, String[] roleList,
-                                 Map<String, String> claims, String profile,
-                                 UserStoreManager userStoreManager)
-            throws UserStoreException;
+    boolean doPostAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+                          String profile, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Define any additional actions after user is added.
+     *
+     * @param user             User object.
+     * @param userStoreManager The underlying UserStoreManager
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    boolean doPostAddUser(User user, Object credential, List<String> roleList, Map<String, String> claims,
+                          String profile, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Define any additional actions before credential is updated by user
@@ -231,9 +259,22 @@ public interface UserOperationEventListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
-    public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName,
+    @Deprecated
+    boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName,
                                               UserStoreManager userStoreManager)
             throws UserStoreException;
+    /**
+     * Defines any additional actions before user attributes are deleted by Admin
+     *
+     * @param user             User object.
+     * @param claims           claim uri and claim value map
+     * @param profileName      user profile name
+     * @param userStoreManager The underlying UserStoreManager
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    boolean doPreDeleteUserClaimValues(User user, List<String> claims, String profileName,
+                                       UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Defines any additional actions after user attributes are deleted by Admin
@@ -243,8 +284,18 @@ public interface UserOperationEventListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
-    public boolean doPostDeleteUserClaimValues(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException;
+    @Deprecated
+    boolean doPostDeleteUserClaimValues(String userName, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions after user attributes are deleted by Admin
+     *
+     * @param user             User object.
+     * @param userStoreManager The underlying UserStoreManager
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    boolean doPostDeleteUserClaimValues(User user, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Defines any additional actions before user attribute is deleted by Admin

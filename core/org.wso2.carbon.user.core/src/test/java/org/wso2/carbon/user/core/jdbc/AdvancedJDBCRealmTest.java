@@ -97,7 +97,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         //add USER
         admin.addUser("dimuthu", "credential", null, null, null, false);
         try {
-            admin.addUser(null, null, null, null, null, false);
+            admin.addUser(null, null, new String[0], null, null, false);
             TestCase.assertTrue(false);
         } catch (Exception ex) {
             //expected error
@@ -115,7 +115,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             }
         }
         try {
-            admin.addUser(null, "credential", null, null, null, false);
+            admin.addUser(null, "credential", new String[0], null, null, false);
             TestCase.assertTrue(false);
         } catch (Exception ex) {
             //expected error
@@ -207,7 +207,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
 
         //Authenticate USER
         assertTrue(admin.authenticate("dimuthu", "credential"));
-        assertFalse(admin.authenticate(null, "credential"));
+        assertFalse(admin.authenticate("", "credential"));
         assertFalse(admin.authenticate("dimuthu", null));
 
         //update by ADMIN

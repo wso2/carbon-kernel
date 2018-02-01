@@ -47,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +66,9 @@ public final class UserCoreUtil {
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
     private static RealmService realmService = null;
+
+    private static final String SHA_1_PRNG = "SHA1PRNG";
+
     /*
      * When user authenticates with out domain, need to set the domain of the user store that he
      * belongs to, as a thread local variable.
@@ -615,25 +619,34 @@ public final class UserCoreUtil {
      * @param names
      * @return
      */
+    @Deprecated
     public static String[] removeDomainFromNames(String[] names) {
+        return removeDomainFromNames(Arrays.asList(names)).toArray(new String[0]);
+    }
+
+    public static List<String> removeDomainFromNames(List<String> names) {
+
         List<String> nameList = new ArrayList<String>();
         int index;
-        if (names != null && names.length != 0) {
-            for (String name : names) {
-                if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
-                    String domain = name.substring(0, index);
-                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+        if (names == null) {
+            return Collections.emptyList();
+        }
+
+        for (String name : names) {
+            if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
+                String domain = name.substring(0, index);
+                if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
                         && !APPLICATION_DOMAIN.equalsIgnoreCase(domain) && !WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                        // remove domain name if exist
-                        nameList.add(name.substring(index + 1));
-                    } else {
-                        nameList.add(name);
-                    }
+                    // remove domain name if exist
+                    nameList.add(name.substring(index + 1));
+                } else {
+                    nameList.add(name);
                 }
             }
         }
+
         if (nameList.size() != 0) {
-            return nameList.toArray(new String[nameList.size()]);
+            return nameList;
         } else {
             return names;
         }
@@ -651,9 +664,8 @@ public final class UserCoreUtil {
 		 * displayName format: domainName/userName|domainName/displayName
 		 */
         // if name and display name are equal, keep only one
-        String combinedName = null;
-        if (domainName != null &&
-                !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
+        String combinedName;
+        if (domainName != null && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
             domainName = domainName.toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR;
             if ((!userName.equals(displayName)) && (displayName != null)) {
                 userName = domainName + userName;
@@ -740,7 +752,8 @@ public final class UserCoreUtil {
     }
 
     /**
-     * @param
+     * @param oldStore
+     * @param newStore
      * @param realmConfig
      * @return
      */
@@ -1093,5 +1106,26 @@ public final class UserCoreUtil {
         }
 
         Arrays.fill(bytes, (byte) 0);
+    }
+
+    /**
+     * This private method returns a saltValue using SecureRandom.
+     *
+     * @return saltValue
+     */
+    public static String generateSaltValue() {
+
+        String saltValue;
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+            byte[] bytes = new byte[16];
+
+            // SecureRandom is automatically seeded by calling nextBytes.
+            secureRandom.nextBytes(bytes);
+            saltValue = Base64.encode(bytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+        }
+        return saltValue;
     }
 }

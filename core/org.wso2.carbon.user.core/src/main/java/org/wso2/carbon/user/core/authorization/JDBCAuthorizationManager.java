@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractSecuredEntityManager;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
@@ -34,10 +35,6 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class JDBCAuthorizationManager implements AuthorizationManager {
+public class JDBCAuthorizationManager extends AbstractSecuredEntityManager implements AuthorizationManager {
 
     /**
      * The root node of the tree
@@ -60,21 +57,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private PermissionTree permissionTree = null;
     private AuthorizationCache authorizationCache = null;
     private UserRealm userRealm = null;
-    private RealmConfiguration realmConfig = null;
     private boolean caseInSensitiveAuthorizationRules;
     private boolean preserveCaseForResources = true;
     private boolean verifyByRetrievingAllUserRoles;
-    private String cacheIdentifier;
     private int tenantId;
     private String isCascadeDeleteEnabled;
     private static final String DELETE_ROLE_PERMISSIONS = "DeleteRolePermissions";
     private static final String DELETE_USER_PERMISSIONS = "DeleteUserPermissions";
-    private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
 
     public JDBCAuthorizationManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                     ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
@@ -1362,51 +1351,4 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
         return roles;
     }
-
-    /**
-     * This method is used by the APIs' in the JDBCAuthorizationManager
-     * to make compatible with Java Security Manager.
-     */
-    private Object callSecure(final String methodName, final Object[] objects, final Class[] argTypes)
-            throws UserStoreException {
-
-        final JDBCAuthorizationManager instance = this;
-
-        isSecureCall.set(Boolean.TRUE);
-        final Method method;
-        try {
-            Class clazz = Class.forName("org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager");
-            method = clazz.getDeclaredMethod(methodName, argTypes);
-
-        } catch (NoSuchMethodException e) {
-            log.error("Error occurred when calling method " + methodName, e);
-            throw new UserStoreException(e);
-        } catch (ClassNotFoundException e) {
-            log.error("Error occurred when calling class " + methodName, e);
-            throw new UserStoreException(e);
-        }
-
-        try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    return method.invoke(instance, objects);
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof
-                    UserStoreException) {
-                // Actual UserStoreException get wrapped with two exceptions
-                throw new UserStoreException(e.getCause().getCause().getMessage(), e);
-
-            } else {
-                String msg = "Error occurred while accessing Java Security Manager Privilege Block";
-                log.error(msg);
-                throw new UserStoreException(msg, e);
-            }
-        } finally {
-            isSecureCall.set(Boolean.FALSE);
-        }
-    }
-
 }

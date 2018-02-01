@@ -19,6 +19,8 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.privacy.IdManager;
+import org.wso2.carbon.privacy.exception.IdManagerException;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -57,6 +59,7 @@ public class DefaultRealm implements UserRealm {
     private int tenantId;
 
     private UserStoreManager userStoreManager = null;
+    private IdManager idManager = null;
     private AuthorizationManager authzManager = null;
     private Map<String, Object> properties = null;
 
@@ -212,6 +215,16 @@ public class DefaultRealm implements UserRealm {
         return realmConfig;
     }
 
+    @Override
+    public IdManager getIdManager() throws IdManagerException {
+
+        if (idManager != null) {
+            return idManager;
+        }
+
+        throw new IdManagerException("Id manager is not initialized.");
+    }
+
     private void initializeObjects() throws UserStoreException {
         try {
 
@@ -222,6 +235,9 @@ public class DefaultRealm implements UserRealm {
                 this.userStoreManager = (UserStoreManager) createObjectWithOptions(value,
                         realmConfig, properties);
             }
+
+            // Initialize the default Id manager that user core provides.
+            this.idManager = new JDBCUserIdManager(dataSource);
 
             RealmConfiguration tmpRealmConfig = realmConfig.getSecondaryRealmConfig();
             UserStoreManager tmpUserStoreManager = userStoreManager;
