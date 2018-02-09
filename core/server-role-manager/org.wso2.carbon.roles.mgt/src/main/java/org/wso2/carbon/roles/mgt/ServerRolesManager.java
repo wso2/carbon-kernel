@@ -123,20 +123,20 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
 
             Resource resource = this.getResourceFromRegistry(configReg, regPath);
             if (resource == null) {
-                try {
-                    resource = configReg.newResource();
-                    resource.setProperty(serverRoleType, serverRolesListToAdd);
-                } catch (RegistryException e) {
-                    this.handleException(e.getMessage(), e);
-                }
+                resource = configReg.newResource();
+                resource.setProperty(serverRoleType, serverRolesListToAdd);
             } else {
                 List<String> serverRolesList = resource.getPropertyValues(serverRoleType);
                 //todo manage duplicates - done(used Sets)
                 serverRolesList = ServerRoleUtils.mergeLists(serverRolesList, serverRolesListToAdd);
                 resource.setProperty(serverRoleType, serverRolesList);
-                status = true;
             }
-            putResourceToRegistry(configReg, resource, regPath);
+            try {
+                putResourceToRegistry(configReg, resource, regPath);
+                status = true;
+            } catch (RegistryException e) {
+                this.handleException(e.getMessage(), e);
+            }
 
             // We have to update the modified flag in any case.. serverRoleType above
             // is always custom.
