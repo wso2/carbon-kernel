@@ -148,8 +148,8 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             if (defaultResource != null) {
                 defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
                         ServerRoleConstants.MODIFIED_TAG_TRUE);
+                putResourceToRegistry(configReg, defaultResource, defaultPath);
             }
-            putResourceToRegistry(configReg, defaultResource, defaultPath);
         }
         return status;
     }
