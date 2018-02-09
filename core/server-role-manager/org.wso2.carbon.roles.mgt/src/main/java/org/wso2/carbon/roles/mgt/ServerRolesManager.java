@@ -153,7 +153,7 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
         return status;
     }
     
-    private void createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList) {
+    private Resource createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList) {
         Resource resource = configReg.newResource();
         resource.setProperty(ServerRoleConstants.DEFAULT_ROLES_ID, productServerRolesList);
         resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
