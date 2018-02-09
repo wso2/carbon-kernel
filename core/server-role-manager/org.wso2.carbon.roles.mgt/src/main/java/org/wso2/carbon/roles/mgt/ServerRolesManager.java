@@ -123,7 +123,6 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
                     resource.setProperty(serverRoleType, serverRolesListToAdd);
                 } catch (RegistryException e) {
                     this.handleException(e.getMessage(), e);
-                    return false;
                 }
             } else {
                 List<String> serverRolesList = resource.getPropertyValues(serverRoleType);
