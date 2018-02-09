@@ -34,15 +34,8 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
 
             if (resource == null) {
-                try {
-                    resource = configReg.newResource();
-                    resource.setProperty(serverRoleType, productServerRolesList);
-                    resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                            ServerRoleConstants.MODIFIED_TAG_FALSE);
-                    this.putResourceToRegistry(configReg, resource, regPath);
-                } catch (RegistryException e) {
-                    this.handleException(e.getMessage(), e);
-                }
+                this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                this.putResourceToRegistry(configReg, resource, regPath);
             } else {
                 modified = resource.getProperty(ServerRoleConstants.MODIFIED_TAG);
                 if (modified == null || ServerRoleConstants.MODIFIED_TAG_FALSE.equals(modified)) {
@@ -117,7 +110,6 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             throws ServerRolesException {
         log.debug("Adding " + serverRoleType + " Server-Roles to Registry.");
 
-        boolean status = false;
         Registry configReg = getConfigSystemRegistry();
         String regPath = this.getRegistryPath(serverRoleType);
 
@@ -137,7 +129,6 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
                 //todo manage duplicates - done(used Sets)
                 serverRolesList = ServerRoleUtils.mergeLists(serverRolesList, serverRolesListToAdd);
                 resource.setProperty(serverRoleType, serverRolesList);
-                status = true;
             }
             putResourceToRegistry(configReg, resource, regPath);
 
@@ -145,13 +136,30 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             // is always custom.
             String defaultPath = getRegistryPath(ServerRoleConstants.DEFAULT_ROLES_ID);
             Resource defaultResource = getResourceFromRegistry(configReg, defaultPath);
-            if (defaultResource != null) {
-                defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                        ServerRoleConstants.MODIFIED_TAG_TRUE);
-                putResourceToRegistry(configReg, defaultResource, defaultPath);
+            if (defaultResource == null) {
+                List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
+                defaultResource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
             }
+            defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                    ServerRoleConstants.MODIFIED_TAG_TRUE);
+            putResourceToRegistry(configReg, defaultResource, defaultPath);
         }
-        return status;
+        return true;
+    }
+    
+    private Resource createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList)
+        throws ServerRolesException {
+        Resource resource = null;
+        try {
+            resource = configReg.newResource();
+            resource.setProperty(ServerRoleConstants.DEFAULT_ROLES_ID, productServerRolesList);
+            resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                    ServerRoleConstants.MODIFIED_TAG_FALSE);
+        } catch (RegistryException e) {
+            this.handleException(e.getMessage(), e);
+        }
+
+        return resource;
     }
 
     /**
