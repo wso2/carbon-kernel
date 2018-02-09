@@ -34,12 +34,8 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
 
             if (resource == null) {
-                try {
-                    this.createDefaultProductServerRoles(configReg, productServerRolesList);
-                    this.putResourceToRegistry(configReg, resource, regPath);
-                } catch (RegistryException e) {
-                    this.handleException(e.getMessage(), e);
-                }
+                this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                this.putResourceToRegistry(configReg, resource, regPath);
             } else {
                 modified = resource.getProperty(ServerRoleConstants.MODIFIED_TAG);
                 if (modified == null || ServerRoleConstants.MODIFIED_TAG_FALSE.equals(modified)) {
@@ -131,12 +127,8 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
                 serverRolesList = ServerRoleUtils.mergeLists(serverRolesList, serverRolesListToAdd);
                 resource.setProperty(serverRoleType, serverRolesList);
             }
-            try {
-                putResourceToRegistry(configReg, resource, regPath);
-                status = true;
-            } catch (RegistryException e) {
-                this.handleException(e.getMessage(), e);
-            }
+            putResourceToRegistry(configReg, resource, regPath);
+            status = true;
 
             // We have to update the modified flag in any case.. serverRoleType above
             // is always custom.
