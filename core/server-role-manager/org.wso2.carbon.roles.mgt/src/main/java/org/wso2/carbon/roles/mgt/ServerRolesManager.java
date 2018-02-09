@@ -35,10 +35,7 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
 
             if (resource == null) {
                 try {
-                    resource = configReg.newResource();
-                    resource.setProperty(serverRoleType, productServerRolesList);
-                    resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                            ServerRoleConstants.MODIFIED_TAG_FALSE);
+                    this.createDefaultProductServerRoles(configReg, productServerRolesList);
                     this.putResourceToRegistry(configReg, resource, regPath);
                 } catch (RegistryException e) {
                     this.handleException(e.getMessage(), e);
@@ -145,13 +142,23 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             // is always custom.
             String defaultPath = getRegistryPath(ServerRoleConstants.DEFAULT_ROLES_ID);
             Resource defaultResource = getResourceFromRegistry(configReg, defaultPath);
-            if (defaultResource != null) {
-                defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                        ServerRoleConstants.MODIFIED_TAG_TRUE);
+            if (defaultResource == null) {
+                List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
+                defaultResource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
             }
+            defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                    ServerRoleConstants.MODIFIED_TAG_TRUE);
             putResourceToRegistry(configReg, defaultResource, defaultPath);
         }
         return status;
+    }
+    
+    private void createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList) {
+        Resource resource = configReg.newResource();
+        resource.setProperty(ServerRoleConstants.DEFAULT_ROLES_ID, productServerRolesList);
+        resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                ServerRoleConstants.MODIFIED_TAG_FALSE);
+        return resource;
     }
 
     /**
