@@ -34,8 +34,12 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
 
             if (resource == null) {
-                resource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
-                this.putResourceToRegistry(configReg, resource, regPath);
+                try {
+                    resource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                    this.putResourceToRegistry(configReg, resource, regPath);
+                } catch (RegistryException e) {
+                    this.handleException(e.getMessage(), e);
+                }
             } else {
                 modified = resource.getProperty(ServerRoleConstants.MODIFIED_TAG);
                 if (modified == null || ServerRoleConstants.MODIFIED_TAG_FALSE.equals(modified)) {
@@ -138,7 +142,11 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             Resource defaultResource = getResourceFromRegistry(configReg, defaultPath);
             if (defaultResource == null) {
                 List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
-                defaultResource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                try {
+                    defaultResource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                } catch (RegistryException e) {
+                    this.handleException(e.getMessage(), e);
+                }
             }
             defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
                     ServerRoleConstants.MODIFIED_TAG_TRUE);
@@ -148,16 +156,11 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
     }
     
     private Resource createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList)
-        throws ServerRolesException {
-        Resource resource = null;
-        try {
-            resource = configReg.newResource();
-            resource.setProperty(ServerRoleConstants.DEFAULT_ROLES_ID, productServerRolesList);
-            resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                    ServerRoleConstants.MODIFIED_TAG_FALSE);
-        } catch (RegistryException e) {
-            this.handleException(e.getMessage(), e);
-        }
+            throws RegistryException, ServerRolesException {
+        Resource resource = configReg.newResource();
+        resource.setProperty(ServerRoleConstants.DEFAULT_ROLES_ID, productServerRolesList);
+        resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                ServerRoleConstants.MODIFIED_TAG_FALSE);
 
         return resource;
     }
