@@ -50,4 +50,12 @@ public class Permission {
         this.action = action;
     }
 
+    @Override
+    public String toString() {
+
+        return "{" +
+                "resourceId='" + resourceId + '\'' +
+                ", action='" + action + '\'' +
+                '}';
+    }
 }
