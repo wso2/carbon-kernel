@@ -34,7 +34,7 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
 
             if (resource == null) {
-                this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                resource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
                 this.putResourceToRegistry(configReg, resource, regPath);
             } else {
                 modified = resource.getProperty(ServerRoleConstants.MODIFIED_TAG);
