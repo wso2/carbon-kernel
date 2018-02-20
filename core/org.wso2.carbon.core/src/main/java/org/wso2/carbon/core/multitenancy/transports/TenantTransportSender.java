@@ -89,6 +89,8 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         OperationContext operationContext = serviceContext.createOperationContext(axisOperation);
         operationContext.addMessageContext(superTenantOutMessageContext);
 
+        operationContext.getAxisOperation().setMessageExchangePattern(msgContext.getAxisOperation().
+                getMessageExchangePattern());
         superTenantOutMessageContext.setOperationContext(operationContext);
 
         String transportOutName = msgContext.getTransportOut().getName();
