@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.security.mgt.stub.keystore.AddKeyStore;
+import org.wso2.carbon.security.mgt.stub.keystore.AddTrustStore;
 import org.wso2.carbon.security.mgt.stub.keystore.DeleteStore;
 import org.wso2.carbon.security.mgt.stub.keystore.GetKeyStoresResponse;
 import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfo;
@@ -95,6 +96,25 @@ public class KeyStoreAdminClient {
             stub.addKeyStore(request);
         } catch (java.lang.Exception e) {
             log.error("Error in adding keystore", e);
+            throw e;
+        }
+    }
+
+    public void addTrustStore(byte[] content, String filename, String password, String provider,
+                              String type) throws java.lang.Exception {
+
+        try {
+            String data = Base64.encode(content);
+            AddTrustStore request = new AddTrustStore();
+
+            request.setFileData(data);
+            request.setFilename(filename);
+            request.setPassword(password);
+            request.setProvider(provider);
+            request.setType(type);
+            stub.addTrustStore(request);
+        } catch (java.lang.Exception e) {
+            log.error("Error in adding truststore", e);
             throw e;
         }
     }

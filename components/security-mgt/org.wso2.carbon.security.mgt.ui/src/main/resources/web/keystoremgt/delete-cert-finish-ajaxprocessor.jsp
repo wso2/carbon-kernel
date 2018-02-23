@@ -24,6 +24,7 @@
 <%@page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
 
 <%
     String httpMethod = request.getMethod();
@@ -44,6 +45,7 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
 		client.removeCertificateFromKeyStore(keyStore, certificateAlias);
+        session.removeAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA);
         String message = resourceBundle.getString("cert.delete");
         forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
