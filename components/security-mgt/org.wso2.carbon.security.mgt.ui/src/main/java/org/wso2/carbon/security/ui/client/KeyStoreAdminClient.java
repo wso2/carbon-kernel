@@ -101,7 +101,7 @@ public class KeyStoreAdminClient {
     }
 
     public void addTrustStore(byte[] content, String filename, String password, String provider,
-                              String type) throws java.lang.Exception {
+                              String type) {
 
         try {
             String data = Base64.encode(content);
@@ -115,7 +115,6 @@ public class KeyStoreAdminClient {
             stub.addTrustStore(request);
         } catch (java.lang.Exception e) {
             log.error("Error in adding truststore", e);
-            throw e;
         }
     }
 
