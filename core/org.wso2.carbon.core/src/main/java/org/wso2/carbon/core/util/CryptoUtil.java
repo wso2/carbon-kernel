@@ -168,9 +168,9 @@ public class CryptoUtil {
                     }
                 } else {
                     encryptedKey = keyStoreCipher.doFinal(plainTextBytes);
-                    if (isCipherTransformEnabled && returnSelfContainedCipherText) {
-                        encryptedKey = createSelfContainedCiphertext(encryptedKey, cipherTransformation, certs[0]);
-                    }
+                }
+                if (isCipherTransformEnabled && returnSelfContainedCipherText) {
+                    encryptedKey = createSelfContainedCiphertext(encryptedKey, cipherTransformation, certs[0]);
                 }
             }
         } catch (Exception e) {
