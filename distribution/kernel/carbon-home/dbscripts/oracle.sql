@@ -605,44 +605,6 @@ CREATE OR REPLACE TRIGGER UM_ACCOUNT_MAPPING_TRIGGER
                     END;
 /
 
-CREATE TABLE HYBRID_ROLE (
-                    UM_ID INTEGER,
-                    UM_ROLE_ID VARCHAR(255) NOT NULL,
-                    UM_TENANT_ID INTEGER DEFAULT 0,
-                    PRIMARY KEY (UM_ID, UM_TENANT_ID),
-                    UNIQUE(UM_ROLE_ID, UM_TENANT_ID))
-/
-CREATE SEQUENCE HYBRID_ROLE_SEQUENCE START WITH 1 INCREMENT BY 1 NOCACHE
-/
-CREATE OR REPLACE TRIGGER HYBRID_ROLE_TRIGGER
-                    BEFORE INSERT
-                    ON HYBRID_ROLE
-                    REFERENCING NEW AS NEW
-                    FOR EACH ROW
-                    BEGIN
-                    SELECT HYBRID_ROLE_SEQUENCE.nextval INTO :NEW.UM_ID FROM dual;
-                    END;
-/  
-			
-CREATE TABLE HYBRID_USER_ROLE (
-                    UM_ID INTEGER,
-                    UM_USER_ID VARCHAR(255),
-                    UM_ROLE_ID VARCHAR(255) NOT NULL,
-                    UM_TENANT_ID INTEGER DEFAULT 0,
-                    PRIMARY KEY (UM_ID, UM_TENANT_ID))
-/
-CREATE SEQUENCE HYBRID_USER_ROLE_SEQUENCE START WITH 1 INCREMENT BY 1 NOCACHE
-/
-CREATE OR REPLACE TRIGGER HYBRID_USER_ROLE_TRIGGER
-                    BEFORE INSERT
-                    ON HYBRID_USER_ROLE
-                    REFERENCING NEW AS NEW
-                    FOR EACH ROW
-                    BEGIN
-                    SELECT HYBRID_USER_ROLE_SEQUENCE.nextval INTO :NEW.UM_ID FROM dual;
-			  END;
-/                    
-
 CREATE TABLE UM_DIALECT(
             UM_ID INTEGER, 
             UM_DIALECT_URI VARCHAR(255) NOT NULL,
