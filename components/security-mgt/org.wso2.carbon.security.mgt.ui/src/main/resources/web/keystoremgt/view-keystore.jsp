@@ -261,11 +261,11 @@
 				%>
 			</tbody>
         </table>
-        <carbon:paginator pageNumber="<%=pageNumberInt%>"
+        <paginationValue pageNumber="<%=pageNumberInt%>"
                           numberOfPages="<%=numberOfPages%>"
                           page="view-keystore.jsp"
                           pageNumberParameterName="pageNumber"
-                          parameters="<%=paginationValue%>"
+                          parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
                           resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
                           prevKey="prev" nextKey="next"/>
     </div>
