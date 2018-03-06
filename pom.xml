@@ -405,26 +405,11 @@
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
-         <!--   <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>${org.apache.cxf.cxf-rt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${org.apache.cxf.cxf-rt.version}</version>
-            </dependency>-->
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${org.wso2.securevault.version}</version>
             </dependency>
-          <!--  <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http-jetty</artifactId>
-                <version>${org.apache.cxf.cxf-rt.version}</version>
-            </dependency>-->
 
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.directory</groupId>
@@ -1678,7 +1663,6 @@
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
-        <org.apache.cxf.cxf-rt.version>2.7.16</org.apache.cxf.cxf-rt.version>
         <io.swagger.version>1.5.8</io.swagger.version>
 
         <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
