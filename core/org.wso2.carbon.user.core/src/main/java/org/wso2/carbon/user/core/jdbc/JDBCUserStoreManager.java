@@ -2049,9 +2049,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("Cannot set null values.");
         }
         Connection dbConnection = null;
+        String property = null;
         try {
             dbConnection = getDBConnection();
-            String property = getClaimAtrribute(claimURI, userName, null);
+            property = getClaimAtrribute(claimURI, userName, null);
             String value = getProperty(dbConnection, userName, property, profileName);
             if (value == null) {
                 addProperty(dbConnection, userName, property, claimValue, profileName);
@@ -2067,6 +2068,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+        } catch (UserStoreException e) {
+            String errorMessage =
+                    "Error occurred while adding or updating claim value for user : " + userName + " & claim URI : " +
+                    claimURI + " attribute : " + property + " profile : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMessage =
                     "Error occurred while getting claim attribute for user : " + userName + " & claim URI : " +
