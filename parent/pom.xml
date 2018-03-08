@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.24-SNAPSHOT</version>
+    <version>4.4.25-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -289,7 +289,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.24-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.4.25-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
@@ -437,12 +437,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v24</version.axis2>
+        <version.axis2>1.6.1-wso2v23</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v24</version.addressing>
-        <orbit.version.axis2>1.6.1-wso2v24</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.1-wso2v24</axis2.client.osgi.version>
-        <version.axis2.json>1.6.1-wso2v24</version.axis2.json>
+        <version.addressing>1.6.1-wso2v23</version.addressing>
+        <orbit.version.axis2>1.6.1-wso2v23</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1-wso2v23</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v23</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
