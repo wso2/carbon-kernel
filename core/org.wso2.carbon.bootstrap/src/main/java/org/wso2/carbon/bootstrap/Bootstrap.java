@@ -40,10 +40,10 @@ import java.util.Set;
  */
 public class Bootstrap {
 
-	private final Set<URL> classpath = new LinkedHashSet<URL>();
-	private static final String CARBON_HOME = "carbon.home";
+    private final Set<URL> classpath = new LinkedHashSet<URL>();
+    private static final String CARBON_HOME = "carbon.home";
     private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
-	protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
+    protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
     private static final String CARBON_PROPERTIES = "carbon.properties";
     private static final String CONF_DIRECTORY_PATH = "carbon.config.dir.path";
 
