@@ -143,10 +143,14 @@ public class ResourceServlet extends HttpServlet {
                 }
             }
             response.setHeader("ETag", currentETag);
-            response.setHeader(
-                    "Content-Disposition",
-                    "attachment; filename=" + RegistryUtils.getResourceName(path));
-            response.setContentType("application/force-download");
+            if (resource.getMediaType() != null && resource.getMediaType().length() > 0) {
+                response.setContentType(resource.getMediaType());
+            } else {
+                response.setHeader(
+                        "Content-Disposition",
+                        "attachment; filename=" + RegistryUtils.getResourceName(path));
+                response.setContentType("application/download");
+            }
 
             InputStream contentStream = null;
             if (resource.getContent() != null) {
