@@ -40,11 +40,12 @@ import java.util.Set;
  */
 public class Bootstrap {
 
-	private final Set<URL> classpath = new LinkedHashSet<URL>();
-	private static final String CARBON_HOME = "carbon.home";
-        private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
-	protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
-        private static final String CARBON_PROPERTIES = "carbon.properties";
+    private final Set<URL> classpath = new LinkedHashSet<URL>();
+    private static final String CARBON_HOME = "carbon.home";
+    private static final String INTERNAL_CARBON_LIB_DIR_PATH = "carbon.internal.lib.dir.path";
+    protected static final String ROOT = System.getProperty(CARBON_HOME, ".");
+    private static final String CARBON_PROPERTIES = "carbon.properties";
+    private static final String CONF_DIRECTORY_PATH = "carbon.config.dir.path";
 
     public static void main(String args[]) {
         new Bootstrap().loadClass(args);
@@ -76,8 +77,7 @@ public class Bootstrap {
 
     private void addSystemProperties(){
         Properties properties = new Properties();
-        String filePath = ROOT + File.separator + "repository" + File.separator
-                + "conf" + File.separator + CARBON_PROPERTIES;
+        String filePath = System.getProperty(CONF_DIRECTORY_PATH) + File.separator + CARBON_PROPERTIES;
         File file = new File(filePath);
 
         if (file.exists()) {
