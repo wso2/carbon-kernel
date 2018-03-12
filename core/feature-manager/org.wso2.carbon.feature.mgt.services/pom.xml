@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>feature-manager</artifactId>
-        <version>4.4.25-SNAPSHOT</version>
+        <version>4.4.25</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
