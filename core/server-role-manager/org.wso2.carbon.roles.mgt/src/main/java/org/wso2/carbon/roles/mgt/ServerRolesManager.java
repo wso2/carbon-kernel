@@ -114,6 +114,7 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             throws ServerRolesException {
         log.debug("Adding " + serverRoleType + " Server-Roles to Registry.");
 
+        boolean status = false;
         Registry configReg = getConfigSystemRegistry();
         String regPath = this.getRegistryPath(serverRoleType);
 
@@ -151,8 +152,9 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
                     ServerRoleConstants.MODIFIED_TAG_TRUE);
             putResourceToRegistry(configReg, defaultResource, defaultPath);
+            status = true;
         }
-        return true;
+        return status;
     }
     
     private Resource createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList)
