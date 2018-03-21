@@ -2,7 +2,7 @@
 
 |  Branch | Build Status |
 | :------------ |:-------------
-| master      | [![Build Status](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/badge/icon)](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/) |
+| master      | [![Build Status](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework_5.11.x/badge/icon)](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework_5.11.x/) |
 
 
 This repository contains the core components and features required by the [WSO2 Identity Server](https://github.com/wso2/product-is) product.
