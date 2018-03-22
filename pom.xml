@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.10.135-SNAPSHOT</version>
+    <version>5.11.149-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -57,6 +57,7 @@
         <module>components/workflow-mgt</module>
         <module>components/policy-editor</module>
         <module>components/carbon-authenticators</module>
+        <module>components/consent-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -73,6 +74,7 @@
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
+        <module>features/consent-mgt</module>
     </modules>
 
     <repositories>
@@ -1422,6 +1424,17 @@
                 <artifactId>org.wso2.carbon.identity.testutil</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- Consent Management -->
+            <dependency>
+                <groupId>org.wso2.carbon.consent.mgt</groupId>
+                <artifactId>org.wso2.carbon.consent.mgt.core</artifactId>
+                <version>${carbon.consent.mgt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.consent.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1439,9 +1452,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.4.19</carbon.kernel.version>
+        <carbon.kernel.version>4.4.23</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
+        <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.consent.mgt.imp.pkg.version.range>
 
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <osgi.service.http.imp.pkg.version.range>[1.2.1, 2.0.0)</osgi.service.http.imp.pkg.version.range>
@@ -1614,7 +1628,7 @@
         <openid4java.version>1.0.0</openid4java.version>
         <openid4java.wso2.version>1.0.0.wso2v2</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
-        <balana.version>1.1.3</balana.version>
+        <balana.version>1.1.5</balana.version>
         <balana.imp.pkg.version.range>[1.1.0,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,2.0.0)</gdata-core.imp.pkg.version.range>
@@ -1664,6 +1678,7 @@
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
         <io.swagger.version>1.5.8</io.swagger.version>
+        <carbon.consent.mgt.version>1.0.46</carbon.consent.mgt.version>
 
         <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
         <org.apache.xml.security.range>[0.0.0,2.0.0)</org.apache.xml.security.range>
@@ -1683,6 +1698,9 @@
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
         <org.powermock.version>1.7.3</org.powermock.version>
+
+        <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
+        <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
     </properties>
 
     <build>
@@ -1747,13 +1765,11 @@
                 <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
                 <inherited>true</inherited>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.7</source>
-                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
