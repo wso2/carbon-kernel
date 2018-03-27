@@ -29,23 +29,20 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.xml.StringUtils;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.sql.DataSource;
 
 public class PermissionTree {
 
@@ -1007,15 +1004,13 @@ public class PermissionTree {
                     try {
                         permissionCache.put(cacheKey, cacheEntry);
                     } catch (IllegalStateException e) {
-                        if (e.getMessage().contains(ILLEGAL_STATE_EXCEPTION_MESSAGE)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Error when trying to put an entry to permissionCache. Retrying..");
-                            }
-                            permissionCache = this.getPermissionTreeCache();
-                            permissionCache.put(cacheKey, cacheEntry);
-                        } else {
-                            // We only handle a specific IllegalStateException.
-                            throw e;
+                        // There is no harm ignoring cache update. as the local cache is already of no use.
+                        // Mis-penalty is low.
+                        String msg = "Error occurred while adding the permission tree to cache while trying to " +
+                                "update resource: " + resourceId + " in tenant: " + tenantId;
+                        log.warn(msg);
+                        if (log.isDebugEnabled()) {
+                            log.debug(msg, e);
                         }
                     }
                     if (log.isDebugEnabled()) {
