@@ -482,23 +482,26 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             } else {
                 name = getNameInSpaceForUserName(userName);
-                try {
-                    if (name != null) {
-                        if (debug) {
-                            log.debug("Authenticating with " + name);
+                // if it is the same user DN found in the cache no need of futher authentication required.
+                if (!failedUserDN.equalsIgnoreCase(name)) {
+                    try {
+                        if (name != null) {
+                            if (debug) {
+                                log.debug("Authenticating with " + name);
+                            }
+                            bValue = this.bindAsUser(userName, name, credentialObj);
+                            if (bValue) {
+                                LdapName ldapName = new LdapName(name);
+                                putToUserCache(userName, ldapName);
+                            }
                         }
-                        bValue = this.bindAsUser(userName, name, credentialObj);
-                        if (bValue) {
-                            LdapName ldapName = new LdapName(name);
-                            putToUserCache(userName, ldapName);
+                    } catch (NamingException e) {
+                        String errorMessage = "Cannot bind user : " + userName;
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage, e);
                         }
+                        throw new UserStoreException(errorMessage, e);
                     }
-                } catch (NamingException e) {
-                    String errorMessage = "Cannot bind user : " + userName;
-                    if (log.isDebugEnabled()) {
-                        log.debug(errorMessage, e);
-                    }
-                    throw new UserStoreException(errorMessage, e);
                 }
             }
 
