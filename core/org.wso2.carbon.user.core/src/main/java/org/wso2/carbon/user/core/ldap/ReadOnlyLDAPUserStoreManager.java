@@ -482,11 +482,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             } else {
                 name = getNameInSpaceForUserName(userName);
-                // if it is the same user DN found in the cache no need of futher authentication required.
-                if (!failedUserDN.equalsIgnoreCase(name)) {
-                    try {
-                        if (name != null) {
-                            if (debug) {
+                try {
+                    if (name != null) {
+                        // if it is the same user DN found in the cache no need of futher authentication required.
+                        if (failedUserDN == null || !failedUserDN.equalsIgnoreCase(name)) {
+                            if (log.isDebugEnabled()) {
                                 log.debug("Authenticating with " + name);
                             }
                             bValue = this.bindAsUser(userName, name, credentialObj);
@@ -495,13 +495,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 putToUserCache(userName, ldapName);
                             }
                         }
-                    } catch (NamingException e) {
-                        String errorMessage = "Cannot bind user : " + userName;
-                        if (log.isDebugEnabled()) {
-                            log.debug(errorMessage, e);
-                        }
-                        throw new UserStoreException(errorMessage, e);
                     }
+                } catch (NamingException e) {
+                    String errorMessage = "Cannot bind user : " + userName;
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e);
+                    }
+                    throw new UserStoreException(errorMessage, e);
                 }
             }
 
