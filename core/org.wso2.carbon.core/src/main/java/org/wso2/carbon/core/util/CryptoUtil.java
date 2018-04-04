@@ -25,6 +25,7 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.core.RegistryResources.SecurityManagement;
 
 import javax.crypto.Cipher;
 import java.nio.charset.Charset;
@@ -42,21 +43,15 @@ import java.security.cert.CertificateEncodingException;
 public class CryptoUtil {
 
     private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
-
     private static Log log = LogFactory.getLog(CryptoUtil.class);
-
-    private String keyAlias;
-
-    private String keyPass;
-
+    private String primaryKeyStoreAlias;
+    private String internalKeyStoreAlias;
+    private String primaryKeyStoreKeyPass;
+    private String internalKeyStoreKeyPass;
     private ServerConfigurationService serverConfigService;
-
     private RegistryService registryService;
-
     private Gson gson = new Gson();
-
     private static CryptoUtil instance = null;
-
     private static final char[] HEX_CHARACTERS = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
                                                             'C', 'D', 'E', 'F'};
 
@@ -105,8 +100,14 @@ public class CryptoUtil {
                        RegistryService registryService) {
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
-        this.keyAlias = this.serverConfigService.getFirstProperty("Security.KeyStore.KeyAlias");
-        this.keyPass = this.serverConfigService.getFirstProperty("Security.KeyStore.KeyPassword");
+        this.primaryKeyStoreAlias = this.serverConfigService.getFirstProperty(SecurityManagement.
+                SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
+        this.internalKeyStoreAlias = this.serverConfigService.getFirstProperty(SecurityManagement.
+                SERVER_INTERNAL_KEYSTORE_KEY_ALIAS);
+        this.primaryKeyStoreKeyPass = this.serverConfigService.getFirstProperty(SecurityManagement.
+                SERVER_PRIVATE_KEY_PASSWORD);
+        this.internalKeyStoreKeyPass = this.serverConfigService.getFirstProperty(SecurityManagement.
+                SERVER_INTERNAL_PRIVATE_KEY_PASSWORD);
     }
 
     public ServerConfigurationService getServerConfigService() {
@@ -138,13 +139,19 @@ public class CryptoUtil {
                 encryptedKey = encryption.encryptWithSymmetricKey(plainTextBytes);
             } else {
                 Cipher keyStoreCipher;
+                KeyStore keyStore;
+                Certificate[] certs;
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID,
                         this.getServerConfigService(),
                         this.getRegistryService());
-                KeyStore keyStore = keyMan.getPrimaryKeyStore();
-
-                Certificate[] certs = keyStore.getCertificateChain(keyAlias);
+                if (keyMan.getInternalKeyStore() != null) {
+                    keyStore = keyMan.getInternalKeyStore();
+                    certs = keyStore.getCertificateChain(internalKeyStoreAlias);
+                } else {
+                    keyStore = keyMan.getPrimaryKeyStore();
+                    certs = keyStore.getCertificateChain(primaryKeyStoreAlias);
+                }
                 boolean isCipherTransformEnabled = false;
 
                 if (cipherTransformation != null) {
@@ -237,13 +244,19 @@ public class CryptoUtil {
                 decryptedValue = encryption.decryptWithSymmetricKey(cipherTextBytes);
             } else {
                 Cipher keyStoreCipher;
+                KeyStore keyStore;
+                PrivateKey privateKey;
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID,
                         this.getServerConfigService(),
                         this.getRegistryService());
-                KeyStore keyStore = keyMan.getPrimaryKeyStore();
-                PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias,
-                        keyPass.toCharArray());
+                if (keyMan.getInternalKeyStore() != null) {
+                    keyStore = keyMan.getInternalKeyStore();
+                    privateKey = (PrivateKey) keyStore.getKey(internalKeyStoreAlias, internalKeyStoreKeyPass.toCharArray());
+                } else {
+                    keyStore = keyMan.getPrimaryKeyStore();
+                    privateKey = (PrivateKey) keyStore.getKey(primaryKeyStoreAlias, primaryKeyStoreKeyPass.toCharArray());
+                }
                 String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
                 boolean isCipherTransformEnabled = false;
 
@@ -306,10 +319,19 @@ public class CryptoUtil {
                 decryptedValue = encryption.decryptWithSymmetricKey(cipherTextBytes);
             } else {
                 Cipher keyStoreCipher;
-                KeyStoreManager keyMan = KeyStoreManager
-                        .getInstance(MultitenantConstants.SUPER_TENANT_ID, this.getServerConfigService(), this.getRegistryService());
-                KeyStore keyStore = keyMan.getPrimaryKeyStore();
-                PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias, keyPass.toCharArray());
+                KeyStore keyStore;
+                PrivateKey privateKey;
+                KeyStoreManager keyMan = KeyStoreManager.getInstance(
+                        MultitenantConstants.SUPER_TENANT_ID,
+                        this.getServerConfigService(),
+                        this.getRegistryService());
+                if (keyMan.getInternalKeyStore() != null) {
+                    keyStore = keyMan.getInternalKeyStore();
+                    privateKey = (PrivateKey) keyStore.getKey(internalKeyStoreAlias, internalKeyStoreKeyPass.toCharArray());
+                } else {
+                    keyStore = keyMan.getPrimaryKeyStore();
+                    privateKey = (PrivateKey) keyStore.getKey(primaryKeyStoreAlias, primaryKeyStoreKeyPass.toCharArray());
+                }
                 if (cipherTransformation != null) {
                     keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
                 } else {
