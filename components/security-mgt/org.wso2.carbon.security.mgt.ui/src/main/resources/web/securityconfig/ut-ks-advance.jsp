@@ -179,7 +179,7 @@
     KerberosConfigData kerberosConfigData = null;
 
     if (cancelLink==null){
-    	cancelLink = "../service-mgt/service_info.jsp?serviceName="+ serviceName;
+    	cancelLink = "../service-mgt/service_info.jsp?serviceName="+ Encode.forUriComponent(serviceName);
     }
 
     try {
@@ -409,7 +409,7 @@
                   numberOfPages="<%=numberOfPages%>"
                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                   page="ut-ks-advance.jsp" pageNumberParameterName="pageNumber"
-                  parameters="<%="serviceName="+serviceName%>"/>
+                  parameters="<%="serviceName=" + Encode.forHtmlAttribute(serviceName)%>"/>
 <%
 
     if (category.contains("keystore")) {
@@ -597,7 +597,7 @@
     function doPaginate(page, pageNumberParameterName, pageNumber) {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&serviceName=" + '<%=serviceName%>');
+        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&serviceName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(serviceName))%>');
         var selectedRolesStr = "";
         $("input[type='checkbox']:checked").each(function (index) {
             if (!$(this).is(":disabled")) {
