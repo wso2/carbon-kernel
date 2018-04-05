@@ -318,6 +318,7 @@ public class DataSourceRepository {
 			this.getRegistry().put(DataSourceConstants.DATASOURCES_REPOSITORY_BASE_PATH + "/" +
 			        dsmInfo.getName(), resource);
 		} catch (Exception e) {
+			log.error("Error in persisting data source: " + dsmInfo.getName() + "-" + e.getMessage(), e);
 			throw new DataSourceException("Error in persisting data source: " + 
 		            dsmInfo.getName() + " - " + e.getMessage(), e);
 		}
