@@ -1393,7 +1393,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
 
                 try {
-                    this.doUpdateCredential(userName, newCredential, oldCredential);
+                    this.doUpdateCredential(userName, newCredentialObj, oldCredentialObj);
                 } catch (UserStoreException ex) {
                     handleUpdateCredentialFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getMessage(),
