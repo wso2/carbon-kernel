@@ -144,4 +144,10 @@ public class AbstractUserManagementErrorListener implements UserManagementErrorE
             String profileName, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
+
+    @Override
+    public boolean onUpdatePermissionsOfRoleFailure(String errorCode, String errorMessage, String roleName,
+            Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
 }

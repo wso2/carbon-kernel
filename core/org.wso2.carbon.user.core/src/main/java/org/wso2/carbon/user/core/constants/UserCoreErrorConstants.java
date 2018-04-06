@@ -177,7 +177,10 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE("31902", "Un-expected error during pre-step of "
                 + "updating user list of role, %s"),
         ERROR_CODE_ERROR_WHILE_POST_UPDATE_USERS_OF_ROLE("31903", "Un-expected error during post-step of "
-                + "updating user list of role, %s");
+                + "updating user list of role, %s"),
+
+        ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_USER("32101", "Un-expected error while updating permissions of  "
+                + "updating user,  %s");
 
         private final String code;
         private final String message;

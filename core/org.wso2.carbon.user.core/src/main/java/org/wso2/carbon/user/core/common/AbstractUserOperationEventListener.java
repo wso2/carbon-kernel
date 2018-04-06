@@ -372,4 +372,18 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
             throws UserStoreException {
         return true;
     }
+
+    /**
+     * Any additional tasks that need to be done after updating permissions of a role.
+     *
+     * @param roleName         Name of the role.
+     * @param permissions      Permissions related with role.
+     * @param userStoreManager User Store Manager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostUpdatePermissionsOfRole(String roleName, Permission[] permissions, UserStoreManager
+            userStoreManager) throws UserStoreException {
+        return true;
+    }
 }

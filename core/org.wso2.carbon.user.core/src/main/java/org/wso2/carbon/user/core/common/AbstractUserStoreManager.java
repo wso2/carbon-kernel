@@ -3802,6 +3802,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (readGroupsEnabled) {
             userNames = doGetUserListOfRole(roleName, "*");
+            handleDoPostGetUserListOfRole(roleName, userNames);
         }
 
         return userNames;

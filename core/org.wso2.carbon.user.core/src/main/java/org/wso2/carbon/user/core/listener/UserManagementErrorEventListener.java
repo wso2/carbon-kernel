@@ -306,4 +306,17 @@ public interface UserManagementErrorEventListener {
     boolean onGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue,
             String profileName, UserStoreManager userStoreManager) throws UserStoreException;
 
+    /**
+     * Defines any additional actions that need to be done if there is a failure while updating permissions of a role.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param roleName         Name of the role.
+     * @param permissions      Update permissions of the role.
+     * @param userStoreManager User Store Manager.
+     * @return true if handling succeeded.
+     * @throws UserStoreException User Store Exception will be thrown if there is an issue during execution.
+     */
+    boolean onUpdatePermissionsOfRoleFailure(String errorCode, String errorMessage, String roleName, Permission[]
+            permissions, UserStoreManager userStoreManager) throws UserStoreException;
 }
