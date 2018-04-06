@@ -77,7 +77,7 @@ public class UserCoreErrorConstants {
         // Error code related with update credential
         ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL("35001", "Un-expected error during pre update credential, %s"),
         ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL("35002", "Un-expected error while updating credential, %s"),
-        ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL("35002", "Un-expected error while updating credential, %s"),
+        ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL("35003", "Un-expected error while updating credential, %s"),
 
         // Error code related with update credential by admin
         ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL_BY_ADMIN("36001", "Un-expected error during pre update credential "
@@ -115,7 +115,7 @@ public class UserCoreErrorConstants {
                 + "user claim values, %s"),
         ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUES("31102", "Un-expected error during post step of deleting "
                 + "user claim values, %s"),
-        ERROR_CODE_ERROR_WHILE_DELETING_USER_CLAIM_VALUES("31203", "Un-expected error while deleting user claim "
+        ERROR_CODE_ERROR_WHILE_DELETING_USER_CLAIM_VALUES("31103", "Un-expected error while deleting user claim "
                 + "value, %s"),
 
         // Error code related with deleting user claim value.
@@ -179,8 +179,9 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_POST_UPDATE_USERS_OF_ROLE("31903", "Un-expected error during post-step of "
                 + "updating user list of role, %s"),
 
-        ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_USER("32101", "Un-expected error while updating permissions of  "
-                + "updating user,  %s");
+        // Error code related with updating permissions of role.
+        ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_ROLE("32101", "Un-expected error while updating permissions of  "
+                + "updating role,  %s");
 
         private final String code;
         private final String message;
