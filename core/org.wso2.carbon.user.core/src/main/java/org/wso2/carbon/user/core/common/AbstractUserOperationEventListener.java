@@ -343,4 +343,47 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
                                      UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
+
+    /**
+     * Any additional tasks that need to be done after getting the role list of a user.
+     *
+     * @param userName         Name of the user.
+     * @param filter           Relevant filter.
+     * @param roleList         List of roles.
+     * @param userStoreManager User Store Manager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException User Store Exception
+     */
+    public boolean doPostGetRoleListOfUser(String userName, String filter, String[] roleList,
+            UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    /**
+     * Any additional tasks that need to be done after getting user list a role.
+     *
+     * @param roleName         Name of the role.
+     * @param userList         List of users.
+     * @param userStoreManager User Store Manager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException UserStore Exception.
+     */
+    public boolean doPostGetUserListOfRole(String roleName, String[] userList, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        return true;
+    }
+
+    /**
+     * Any additional tasks that need to be done after updating permissions of a role.
+     *
+     * @param roleName         Name of the role.
+     * @param permissions      Permissions related with role.
+     * @param userStoreManager User Store Manager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostUpdatePermissionsOfRole(String roleName, Permission[] permissions, UserStoreManager
+            userStoreManager) throws UserStoreException {
+        return true;
+    }
 }

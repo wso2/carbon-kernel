@@ -128,7 +128,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
             userStoreManager.setUserClaimValues("saman", claimsMap, ClaimTestUtil.HOME_PROFILE_NAME);
         } catch (UserStoreException e) {
             Assert.assertTrue("Failed to receive the expected invalid operation exception.",
-                    e.getMessage().startsWith("InvalidOperation"));
+                    e.getMessage().contains("InvalidOperation"));
         }
         try {
             userStoreManager.setUserClaimValues("saman", new HashMap<String, String>(),
