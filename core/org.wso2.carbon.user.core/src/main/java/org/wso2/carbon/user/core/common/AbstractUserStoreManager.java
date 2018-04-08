@@ -3921,7 +3921,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
             throws org.wso2.carbon.user.api.UserStoreException {
 
-        if (!isRoleNameValid(roleName)) {
+        if (StringUtils.isEmpty(roleName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
             String errorMessage = String
@@ -3992,6 +3992,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             handleAddRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
                     ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, userList, permissions);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!isRoleNameValid(roleName)) {
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+            String errorMessage = String
+                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), roleName, regEx);
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
+            handleAddRoleFailure(errorCode, errorMessage, roleName, userList, permissions);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
         if (doCheckExistingRole(roleName)) {
