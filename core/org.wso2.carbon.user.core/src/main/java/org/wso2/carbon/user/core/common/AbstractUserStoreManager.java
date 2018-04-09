@@ -3922,13 +3922,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throws org.wso2.carbon.user.api.UserStoreException {
 
         if (StringUtils.isEmpty(roleName)) {
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
-            String errorMessage = String
-                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), roleName, regEx);
-            String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
-            handleAddRoleFailure(errorCode, errorMessage, roleName, userList, permissions);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            handleAddRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), roleName, userList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
 
         UserStore userStore = getUserStore(roleName);

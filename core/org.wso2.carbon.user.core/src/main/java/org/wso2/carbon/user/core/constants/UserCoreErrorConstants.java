@@ -160,6 +160,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_ADDING_ROLE("31702", "Un-expected error while adding role, %s"),
         ERROR_CODE_ERROR_DURING_POST_ADD_ROLE("31703", "Un-expected error during post-step of adding role, "
                 + "%s"),
+        ERROR_CODE_CANNOT_ADD_EMPTY_ROLE("31704", "Cannot add role with empty role name"),
 
         // Error code while deleting role
         ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE("31801", "Un-expected error during pre-step of delete "
