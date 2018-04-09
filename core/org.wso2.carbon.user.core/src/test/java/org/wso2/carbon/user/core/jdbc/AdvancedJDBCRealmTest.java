@@ -177,7 +177,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
                     + "adding the role", 1, sampleAbstractUserManagementErrorListener.getAddRoleFailureCount());
             Assert.assertTrue("Error code does not match with the exact errorneous scenario, actual message is " + ex
                     .getMessage(), ex.getMessage()
-                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode()));
+                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode()));
             //expected error
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", ex);
