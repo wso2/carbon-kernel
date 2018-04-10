@@ -124,6 +124,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private boolean clusterManagementMode;
     private String primaryDomain;
     private boolean isCoordinator;
+    private static final String LOCAL_MEMBER_IDENTIFIER = "localMemberIdentifier";
 
     public void init() throws ClusteringFault {
         MemberUtils.init(parameters, configurationContext);
@@ -133,6 +134,13 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         int configMode = getConfigMode();
         primaryHazelcastConfig = loadHazelcastConfig(configMode);
+
+        Parameter localParameter = getParameter(LOCAL_MEMBER_IDENTIFIER);
+        if (localParameter != null) {
+            MemberAttributeConfig memberAttributeConfig = new MemberAttributeConfig();
+            memberAttributeConfig.setStringAttribute(localParameter.getName(), localParameter.getValue().toString());
+            primaryHazelcastConfig.setMemberAttributeConfig(memberAttributeConfig);
+        }
 
         if (clusterManagementMode) {
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
