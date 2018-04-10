@@ -78,6 +78,7 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
         NetworkConfig primaryNwConfig = primaryHazelcastConfig.getNetworkConfig();
         Config config = new Config();
         config.setInstanceName(domain);
+        config.setMemberAttributeConfig(primaryHazelcastConfig.getMemberAttributeConfig());
         NetworkConfig groupNwConfig = config.getNetworkConfig();
         groupNwConfig.setPublicAddress(primaryNwConfig.getPublicAddress());
         if (primaryNwConfig.getPort() == groupMgtPort) {
