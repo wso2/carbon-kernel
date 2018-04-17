@@ -35,10 +35,7 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
 
             if (resource == null) {
                 try {
-                    resource = configReg.newResource();
-                    resource.setProperty(serverRoleType, productServerRolesList);
-                    resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                            ServerRoleConstants.MODIFIED_TAG_FALSE);
+                    resource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
                     this.putResourceToRegistry(configReg, resource, regPath);
                 } catch (RegistryException e) {
                     this.handleException(e.getMessage(), e);
@@ -137,7 +134,6 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
                 //todo manage duplicates - done(used Sets)
                 serverRolesList = ServerRoleUtils.mergeLists(serverRolesList, serverRolesListToAdd);
                 resource.setProperty(serverRoleType, serverRolesList);
-                status = true;
             }
             putResourceToRegistry(configReg, resource, regPath);
 
@@ -145,13 +141,30 @@ public class ServerRolesManager extends AbstractAdmin implements ServerRolesMana
             // is always custom.
             String defaultPath = getRegistryPath(ServerRoleConstants.DEFAULT_ROLES_ID);
             Resource defaultResource = getResourceFromRegistry(configReg, defaultPath);
-            if (defaultResource != null) {
-                defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
-                        ServerRoleConstants.MODIFIED_TAG_TRUE);
+            if (defaultResource == null) {
+                List<String> productServerRolesList = ServerRoleUtils.readProductServerRoles();
+                try {
+                    defaultResource = this.createDefaultProductServerRoles(configReg, productServerRolesList);
+                } catch (RegistryException e) {
+                    this.handleException(e.getMessage(), e);
+                }
             }
+            defaultResource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                    ServerRoleConstants.MODIFIED_TAG_TRUE);
             putResourceToRegistry(configReg, defaultResource, defaultPath);
+            status = true;
         }
         return status;
+    }
+    
+    private Resource createDefaultProductServerRoles(Registry configReg, List<String> productServerRolesList)
+            throws RegistryException, ServerRolesException {
+        Resource resource = configReg.newResource();
+        resource.setProperty(ServerRoleConstants.DEFAULT_ROLES_ID, productServerRolesList);
+        resource.setProperty(ServerRoleConstants.MODIFIED_TAG,
+                ServerRoleConstants.MODIFIED_TAG_FALSE);
+
+        return resource;
     }
 
     /**
