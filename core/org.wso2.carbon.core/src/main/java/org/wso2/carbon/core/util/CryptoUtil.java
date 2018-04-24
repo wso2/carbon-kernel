@@ -181,6 +181,7 @@ public class CryptoUtil {
                 }
             }
         } catch (Exception e) {
+            log.error("Error during encryption : ", e);
             throw new CryptoException("Error during encryption", e);
         }
         return encryptedKey;
