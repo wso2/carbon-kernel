@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.jdbc.caseinsensitive;
 public class JDBCCaseInsensitiveConstants {
     public static final String SELECT_USER_CASE_INSENSITIVE = "SelectUserSQLCaseInsensitive";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE = "UserFilterSQLCaseInsensitive";
+    public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED = "UserFilterPaginatedSQLCaseInsensitive";
     public static final String GET_USER_ROLE_CASE_INSENSITIVE = "UserRoleSQLCaseInsensitive";
     public static final String GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE = "UserSharedRoleSQLCaseInsensitive";
     public static final String GET_IS_USER_EXISTING_CASE_INSENSITIVE = "IsUserExistingSQLCaseInsensitive";
@@ -50,6 +51,8 @@ public class JDBCCaseInsensitiveConstants {
             "=LOWER(?) AND UM_TENANT_ID=?";
     public static final String GET_USER_FILTER_SQL_CASE_INSENSITIVE = "SELECT UM_USER_NAME FROM UM_USER WHERE LOWER" +
             "(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
+    public static final String GET_USER_FILTER_SQL_CASE_INSENSITIVE_PAGINATED = "SELECT UM_USER_NAME FROM UM_USER " +
+            "WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?";
     public static final String GET_USER_ROLE_SQL_CASE_INSENSITIVE = "SELECT UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, " +
             "UM_USER WHERE LOWER(UM_USER.UM_USER_NAME)=LOWER(?) AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE" +
             ".UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER" +

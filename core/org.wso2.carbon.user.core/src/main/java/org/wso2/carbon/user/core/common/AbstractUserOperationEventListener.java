@@ -345,6 +345,37 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     /**
+     * Post listener for the get paginated user list method.
+     * @param claimUri Claim URI.
+     * @param claimValue Value of the given claim URI.
+     * @param returnValues Values to be returned.
+     * @param userStoreManager User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostGetPaginatedUserList(String claimUri, String claimValue, final List<String> returnValues,
+                                     UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    /**
+     * Post listener for the list paginated users method.
+     *
+     * @param filter           username filter.
+     * @param limit            No of search results.
+     * @param offset           start index of the search.
+     * @param returnValues     Values to be returned.
+     * @param userStoreManager User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostListUsers(String filter, int limit, int offset, final List<String> returnValues,
+                                   UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Any additional tasks that need to be done after getting the role list of a user.
      *
      * @param userName         Name of the user.

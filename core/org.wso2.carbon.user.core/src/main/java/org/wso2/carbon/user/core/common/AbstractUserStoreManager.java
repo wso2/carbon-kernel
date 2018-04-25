@@ -23,14 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
-import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
-import org.wso2.carbon.user.core.listener.SecretHandleableListener;
-import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
-import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
-import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
-import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.user.core.PaginatedUserStoreManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -42,19 +35,26 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
+import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
+import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
+import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -73,8 +73,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.sql.DataSource;
 
-public abstract class AbstractUserStoreManager implements UserStoreManager {
+public abstract class AbstractUserStoreManager implements UserStoreManager, PaginatedUserStoreManager {
 
     protected static final String TRUE_VALUE = "true";
     protected static final String FALSE_VALUE = "false";
@@ -969,6 +970,54 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * paginated user list.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param claim        Claim URI.
+     * @param claimValue   Claim Value.
+     * @param profileName  Name of the profile.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleGetPaginatedUserListFailure(String errorCode, String errorMessage, String claim, String
+            claimValue, String profileName) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener).onGetPaginatedUserListFailure(errorCode,
+                    errorMessage, claim, claimValue, profileName, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to list the
+     * paginated users.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param filter       Username Filter.
+     * @param limit        No of search results.
+     * @param offset       Start index of the search.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleListPaginatedUsersFailure(String errorCode, String errorMessage, String filter, int limit, int
+            offset) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener).onListUsersFailure(errorCode,
+                    errorMessage, filter, limit, offset, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
      * To call the postGetUserList of relevant listeners.
      *
      * @param claim            Claim requested.
@@ -997,6 +1046,73 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_LIST.getMessage(),
                             ex.getMessage()), claim, claimValue, null);
+            throw ex;
+        }
+    }
+
+    /**
+     * To call the postGetPaginatedUserList of relevant listeners.
+     *
+     * @param claim            Claim requested.
+     * @param claimValue       Claim values.
+     * @param filteredUserList List of filtered users.
+     * @param isAuditLogOnly   To indicate whether to call only audit log listener.
+     * @throws UserStoreException User Store Exception.
+     */
+    private void handlePostGetPaginatedUserList(String claim, String claimValue, List<String> filteredUserList,
+                                       boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isAuditLogOnly && !listener.getClass().getName()
+                            .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                        continue;
+                    }
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPostGetPaginatedUserList(claim, claimValue, filteredUserList, this)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetPaginatedUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_PAGINATED_USER_LIST.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_PAGINATED_USER_LIST.getMessage(),
+                            ex.getMessage()), claim, claimValue, null);
+            throw ex;
+        }
+    }
+
+    /**
+     * To call the List paginated users of relevant listeners.
+     *
+     * @param filter           Username filter.
+     * @param limit            No of search results.
+     * @param offset           start index of the search.
+     * @param filteredUserList List of filtered users.
+     * @param isAuditLogOnly   To indicate whether to call only audit log listener.
+     * @throws UserStoreException User Store Exception.
+     */
+    private void handlePostListPaginatedUsers(String filter, int limit, int offset, List<String> filteredUserList,
+                                                boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isAuditLogOnly && !listener.getClass().getName()
+                            .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                        continue;
+                    }
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPostListUsers(filter, limit, offset, filteredUserList, this)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleListPaginatedUsersFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_LIST_PAGINATED_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_LIST_PAGINATED_USER.getMessage(),
+                            ex.getMessage()), filter, limit, offset);
             throw ex;
         }
     }
@@ -5777,4 +5893,104 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public HybridRoleManager getInternalRoleManager() {
         return hybridRoleManager;
     }
+
+    @Override
+    public String[] getUserList(String claim, String claimValue, String profileName, int limit, int offset) throws
+            UserStoreException {
+
+        return new String[0];
+    }
+
+    @Override
+    public String[] getUserList(Map<String, String> attributes, String profileName, int limit, int offset) throws
+            UserStoreException {
+
+        return new String[0];
+    }
+
+    @Override
+    public String[] listUsers(String filter, int limit, int offset) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, int.class, int.class};
+            Object object = callSecure("listUsers", new Object[]{filter, limit, offset}, argTypes);
+            return (String[]) object;
+        }
+
+        int index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        String[] userList;
+
+        if (index > 0) {
+            String domain = filter.substring(0, index);
+
+            UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+            if (secManager != null) {
+                // Secondary UserStoreManager registered for this domain.
+                filter = filter.substring(index + 1);
+                if (secManager instanceof AbstractUserStoreManager) {
+                    userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, limit, offset);
+                    handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList)), true);
+                    return userList;
+                }
+            }
+        } else if (index == 0) {
+            userList = doListUsers(filter.substring(index + 1), limit, offset);
+            handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList)), true);
+            return userList;
+        }
+
+        try {
+            userList = doListUsers(filter, limit, offset);
+            // All the users found in primary user store. No need to search on secondary.
+            if (userList != null && userList.length == limit) {
+                return userList;
+            }
+        } catch (UserStoreException ex) {
+            handleGetPaginatedUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getMessage(), ex.getMessage()),
+                    null, null, null);
+            throw ex;
+        }
+
+        String primaryDomain = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+        if (this.getSecondaryUserStoreManager() != null) {
+            for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(primaryDomain)) {
+                    continue;
+                }
+                UserStoreManager storeManager = entry.getValue();
+                if (storeManager instanceof AbstractUserStoreManager) {
+                    try {
+                        limit = limit - userList.length;
+                        offset = userList.length + 1;
+                        String[] secondUserList = ((AbstractUserStoreManager) storeManager)
+                                .doListUsers(filter, limit, offset);
+                        userList = UserCoreUtil.combineArrays(userList, secondUserList);
+                    } catch (UserStoreException ex) {
+                        handleGetPaginatedUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getMessage(),
+                                        ex.getMessage()), null, null, null);
+
+                        // We can ignore and proceed. Ignore the results from this user store.
+                        log.error(ex);
+                    }
+                }
+            }
+        }
+
+        handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList)), true);
+        return userList;
+    }
+
+    protected  String[] doListUsers(String filter, int limit, int offset)
+            throws UserStoreException{
+
+        if (log.isDebugEnabled()) {
+            log.debug("Operation is not supported in: " + this.getClass());
+        }
+        return new String[0];
+    }
+
 }

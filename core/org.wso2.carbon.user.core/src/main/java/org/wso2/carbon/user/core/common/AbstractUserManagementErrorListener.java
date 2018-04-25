@@ -150,4 +150,40 @@ public class AbstractUserManagementErrorListener implements UserManagementErrorE
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure retrieving paginated user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param claim            Claim URI
+     * @param claimValue       Claim Value
+     * @param profileName      Name of the profile.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onGetPaginatedUserListFailure(String errorCode, String errorMessage, String claim, String claimValue,
+                                          String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure retrieving paginated user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param filter           Username filter.
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onListUsersFailure(String errorCode, String errorMessage, String filter, int limit, int offset,
+                               UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

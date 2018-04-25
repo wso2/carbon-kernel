@@ -18,7 +18,6 @@ z * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -3217,6 +3216,143 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         searchCtx.setRoleName(roleNameParts[0]);
         return searchCtx;
+    }
+
+    @Override
+    protected String[] doListUsers(String filter, int limit, int offset) throws UserStoreException {
+
+        String[] users = new String[0];
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        int givenMax;
+        int searchTime;
+
+        if (limit == 0) {
+            return new String[0];
+        }
+
+        try {
+            givenMax = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_MAX_USER_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+
+        try {
+            searchTime = Integer.parseInt(realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+
+        if (limit < 0 || limit > givenMax) {
+            limit = givenMax;
+        }
+
+        try {
+
+            if (filter != null && filter.trim().length() != 0) {
+                filter = filter.trim();
+                filter = filter.replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            List<String> lst = new LinkedList<String>();
+
+            dbConnection = getDBConnection();
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants
+                        .GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setInt(3, limit);
+                prepStmt.setInt(4, offset);
+            } else {
+                prepStmt.setInt(2, limit);
+                prepStmt.setInt(3, offset);
+            }
+
+            try {
+                prepStmt.setQueryTimeout(searchTime);
+            } catch (Exception e) {
+                // this can be ignored since timeout method is not implemented
+                log.debug(e);
+            }
+
+            try {
+                rs = prepStmt.executeQuery();
+            } catch (SQLException e) {
+                if (e instanceof SQLTimeoutException) {
+                    log.error("The cause might be a time out. Hence ignored", e);
+                    return users;
+                }
+                String errorMessage =
+                        "Error while fetching users according to filter : " + filter + " & limit " +
+                                ": " + limit;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
+
+            while (rs.next()) {
+
+                String name = rs.getString(1);
+                if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(name)) {
+                    continue;
+                }
+                // append the domain if exist
+                String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                name = UserCoreUtil.addDomainToName(name, domain);
+                lst.add(name);
+            }
+            rs.close();
+
+            if (lst.size() > 0) {
+                users = lst.toArray(new String[lst.size()]);
+            }
+
+            Arrays.sort(users);
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users for filter : " + filter + " & limit : " + limit;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+        return users;
+    }
+
+    @Override
+    public String[] getUserList(String claim, String claimValue, String profileName, int limit, int offset) throws
+            UserStoreException {
+
+        return new String[0];
+
+    }
+
+    @Override
+    public String[] getUserList(Map<String, String> attributes, String profileName, int limit, int offset) throws
+            UserStoreException {
+
+        return new String[0];
     }
 
     public class RoleBreakdown {
