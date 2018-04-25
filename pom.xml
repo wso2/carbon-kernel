@@ -40,6 +40,7 @@
     <modules>
         <module>test-utils/org.wso2.carbon.identity.testutil</module>
         <module>service-stubs/identity</module>
+        <module>components/adaptive-authentication</module>
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
         <module>components/identity-core</module>
@@ -75,6 +76,7 @@
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
         <module>features/consent-mgt</module>
+        <module>features/adaptive-authentication</module>
     </modules>
 
     <repositories>
@@ -1435,6 +1437,28 @@
                 <artifactId>org.wso2.carbon.identity.consent.mgt</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!--Siddhi dependencies.-->
+            <dependency>
+                <groupId>org.wso2.siddhi</groupId>
+                <artifactId>siddhi-core</artifactId>
+                <version>${siddhi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.siddhi</groupId>
+                <artifactId>siddhi-query-api</artifactId>
+                <version>${siddhi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.siddhi</groupId>
+                <artifactId>siddhi-query-compiler</artifactId>
+                <version>${siddhi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.siddhi</groupId>
+                <artifactId>siddhi-annotations</artifactId>
+                <version>${siddhi.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1701,6 +1725,14 @@
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
+
+        <siddhi.version>4.1.17</siddhi.version>
+        <siddhi.version.range>[4.1.17,5.0.0)</siddhi.version.range>
+        <quartz.version>2.1.1.wso2v1</quartz.version>
+        <disruptor.orbit.version>3.3.2.wso2v2</disruptor.orbit.version>
+        <antlr.version>4.5</antlr.version>
+        <guava.version>19.0</guava.version>
+        <snakeyaml.version>1.11</snakeyaml.version>
     </properties>
 
     <build>
