@@ -188,7 +188,7 @@
 
     <messageBuilders>
         <messageBuilder contentType="application/xml"
-                        class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
+                        class="org.apache.axis2.builder.SecureApplicationXMLBuilder"/>
         <messageBuilder contentType="application/x-www-form-urlencoded"
                         class="org.apache.axis2.builder.XFormURLEncodedBuilder"/>
         <messageBuilder contentType="multipart/form-data"
