@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
@@ -3219,7 +3220,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected String[] doListUsers(String filter, int limit, int offset) throws UserStoreException {
+    protected PaginatedSearchResult doListUsers(String filter, int limit, int offset) throws UserStoreException {
 
         String[] users = new String[0];
         Connection dbConnection = null;
@@ -3229,8 +3230,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         int givenMax;
         int searchTime;
 
+        PaginatedSearchResult result = new PaginatedSearchResult();
+
         if (limit == 0) {
-            return new String[0];
+            return result;
+        }
+
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
         }
 
         try {
@@ -3280,11 +3289,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             prepStmt.setString(1, filter);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, limit);
-                prepStmt.setInt(4, offset);
+                prepStmt.setLong(3, limit);
+                prepStmt.setLong(4, offset);
             } else {
-                prepStmt.setInt(2, limit);
-                prepStmt.setInt(3, offset);
+                prepStmt.setLong(2, limit);
+                prepStmt.setLong(3, offset);
             }
 
             try {
@@ -3299,7 +3308,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             } catch (SQLException e) {
                 if (e instanceof SQLTimeoutException) {
                     log.error("The cause might be a time out. Hence ignored", e);
-                    return users;
+                    return result;
                 }
                 String errorMessage =
                         "Error while fetching users according to filter : " + filter + " & limit " +
@@ -3337,7 +3346,67 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
-        return users;
+        result.setUsers(users);
+
+        if (users.length == 0) {
+            result.setNonPaginatedUserCount(doGetListUsersCount(filter));
+        }
+        return result;
+    }
+
+    protected int doGetListUsersCount(String filter)
+            throws UserStoreException {
+
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        int count = 0;
+
+        try {
+
+            if (filter != null && StringUtils.isNotEmpty(filter.trim())) {
+                filter = filter.trim().replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            dbConnection = getDBConnection();
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants
+                        .GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users count for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+        return count;
+
     }
 
     @Override

@@ -53,8 +53,14 @@ public class JDBCRealmUtil {
         }
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED,
-                    JDBCRealmConstants.GET_USER_FILTER_SQL_PAGINATED);
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL);
         }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT,
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_SQL);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_IS_ROLE_EXISTING)) {
             properties.put(JDBCRealmConstants.GET_IS_ROLE_EXISTING,
                     JDBCRealmConstants.GET_IS_ROLE_EXISTING_SQL);
@@ -239,8 +245,14 @@ public class JDBCRealmUtil {
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED,
-                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE_PAGINATED);
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL);
         }
+
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_SQL);
+        }
+
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_SQL_CASE_INSENSITIVE);

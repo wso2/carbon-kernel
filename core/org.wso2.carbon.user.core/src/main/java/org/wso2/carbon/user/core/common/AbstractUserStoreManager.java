@@ -5918,7 +5918,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         int index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-        String[] userList;
+        PaginatedSearchResult userList;
+        String[] users = new String[0];
+
+        if (offset <= 0) {
+            offset = 1;
+        }
 
         if (index > 0) {
             String domain = filter.substring(0, index);
@@ -5928,23 +5933,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 // Secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
                 if (secManager instanceof AbstractUserStoreManager) {
-                    userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, limit, offset);
-                    handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList)), true);
-                    return userList;
+                     userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, limit, offset);
+                    handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList.getUsers())),
+                            true);
+                    return userList.getUsers();
                 }
             }
         } else if (index == 0) {
             userList = doListUsers(filter.substring(index + 1), limit, offset);
-            handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList)), true);
-            return userList;
+            handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList.getUsers())), true);
+            return userList.getUsers();
         }
 
         try {
             userList = doListUsers(filter, limit, offset);
-            // All the users found in primary user store. No need to search on secondary.
-            if (userList != null && userList.length == limit) {
-                return userList;
-            }
+            users = UserCoreUtil.combineArrays(users, userList.getUsers());
+            limit = limit - users.length;
         } catch (UserStoreException ex) {
             handleGetPaginatedUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getMessage(), ex.getMessage()),
@@ -5952,22 +5956,31 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             throw ex;
         }
 
-        String primaryDomain = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        String primaryDomain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
+        int nonPaginatedUserCount = userList.getNonPaginatedUserCount();
         if (this.getSecondaryUserStoreManager() != null) {
             for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+                if (limit <= 0) {
+                    return users;
+                }
                 if (entry.getKey().equalsIgnoreCase(primaryDomain)) {
                     continue;
                 }
                 UserStoreManager storeManager = entry.getValue();
                 if (storeManager instanceof AbstractUserStoreManager) {
                     try {
-                        limit = limit - userList.length;
-                        offset = userList.length + 1;
-                        String[] secondUserList = ((AbstractUserStoreManager) storeManager)
+                        if (users.length > 0) {
+                            offset = 1;
+                        } else {
+                            offset = offset - nonPaginatedUserCount;
+                        }
+
+                        PaginatedSearchResult secondUserList = ((AbstractUserStoreManager) storeManager)
                                 .doListUsers(filter, limit, offset);
-                        userList = UserCoreUtil.combineArrays(userList, secondUserList);
+                        nonPaginatedUserCount = secondUserList.getNonPaginatedUserCount();
+                        users = UserCoreUtil.combineArrays(users, secondUserList.getUsers());
+                        limit = limit - users.length;
                     } catch (UserStoreException ex) {
                         handleGetPaginatedUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getMessage(),
@@ -5980,17 +5993,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
         }
 
-        handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(userList)), true);
-        return userList;
+        handlePostListPaginatedUsers(filter, limit, offset, new ArrayList<>(Arrays.asList(users)), true);
+        return users;
     }
 
-    protected  String[] doListUsers(String filter, int limit, int offset)
+    protected PaginatedSearchResult doListUsers(String filter, int limit, int offset)
             throws UserStoreException{
 
         if (log.isDebugEnabled()) {
             log.debug("Operation is not supported in: " + this.getClass());
         }
-        return new String[0];
+        return new PaginatedSearchResult();
     }
 
 }
