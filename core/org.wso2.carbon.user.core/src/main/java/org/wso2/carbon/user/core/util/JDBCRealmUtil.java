@@ -85,6 +85,14 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_USERS_FOR_PROP,
                     JDBCRealmConstants.GET_USERS_FOR_PROP_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP)) {
+            properties.put(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP,
+                    JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP)) {
+            properties.put(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP,
+                    JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_PROFILE_NAMES)) {
             properties.put(JDBCRealmConstants.GET_PROFILE_NAMES,
                     JDBCRealmConstants.GET_PROFILE_NAMES_SQL);

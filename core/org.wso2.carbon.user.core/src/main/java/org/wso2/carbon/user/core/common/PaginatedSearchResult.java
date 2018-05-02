@@ -20,10 +20,10 @@ package org.wso2.carbon.user.core.common;
 
 public class PaginatedSearchResult {
 
-    public String[] users;
+    private String[] users;
 
     //This variable is set only when users.length = 0.
-    public int nonPaginatedUserCount;
+    private int nonPaginatedUserCount;
 
     public String[] getUsers() {
 

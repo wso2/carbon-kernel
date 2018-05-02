@@ -3410,18 +3410,139 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    public String[] getUserList(String claim, String claimValue, String profileName, int limit, int offset) throws
-            UserStoreException {
+    public PaginatedSearchResult getUserListFromProperties(String property, String value, String profileName, int limit, int offset)
+            throws UserStoreException {
 
-        return new String[0];
+        PaginatedSearchResult result = new PaginatedSearchResult();
 
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        if (limit == 0) {
+            return result;
+        }
+
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
+        }
+
+        if(value == null){
+            throw new IllegalArgumentException("Filter value cannot be null");
+        }
+        if (value.contains(QUERY_FILTER_STRING_ANY)) {
+            // This is to support LDAP like queries. Value having only * is restricted except one *.
+            if (!value.matches("(\\*)\\1+")) {
+                // Convert all the * to % except \*.
+                value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
+            }
+        }
+
+        String[] users = new String[0];
+        Connection dbConnection = null;
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        List<String> list = new ArrayList<String>();
+        try {
+            dbConnection = getDBConnection();
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, property);
+            prepStmt.setString(2, value);
+            prepStmt.setString(3, profileName);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(4, tenantId);
+                prepStmt.setInt(5, tenantId);
+                prepStmt.setInt(6, limit);
+                prepStmt.setInt(7, offset);
+            } else {
+                prepStmt.setInt(4, limit);
+                prepStmt.setInt(5, offset);
+            }
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String name = rs.getString(1);
+                list.add(name);
+            }
+
+            if (list.size() > 0) {
+                users = list.toArray(new String[list.size()]);
+            }
+            result.setUsers(users);
+        } catch (SQLException e) {
+            String msg =
+                    "Database error occurred while paginating users for a property : " + property + " & value : " +
+                            value + "& profile name : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        if (users.length == 0) {
+            result.setNonPaginatedUserCount(getUserListFromPropertiesCount(property, value, profileName));
+        }
+        return result;
     }
 
-    @Override
-    public String[] getUserList(Map<String, String> attributes, String profileName, int limit, int offset) throws
-            UserStoreException {
+    protected int getUserListFromPropertiesCount(String property, String value, String profileName)
+            throws UserStoreException {
 
-        return new String[0];
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException("Filter value cannot be null");
+        }
+        if (value.contains(QUERY_FILTER_STRING_ANY)) {
+            // This is to support LDAP like queries. Value having only * is restricted except one *.
+            if (!value.matches("(\\*)\\1+")) {
+                // Convert all the * to % except \*.
+                value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
+            }
+        }
+
+        int count = 0;
+        Connection dbConnection = null;
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            dbConnection = getDBConnection();
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP);
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, property);
+            prepStmt.setString(2, value);
+            prepStmt.setString(3, profileName);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(4, tenantId);
+                prepStmt.setInt(5, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Database error occurred while paginating users count for a property : " + property + " & " +
+                    "value :" + " " + value + "& profile name : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        return count;
     }
 
     public class RoleBreakdown {

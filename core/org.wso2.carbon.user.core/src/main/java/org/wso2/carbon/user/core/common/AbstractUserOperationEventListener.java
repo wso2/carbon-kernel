@@ -331,6 +331,24 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     /**
+     * Pre listener for the get paginated user list method.
+     *
+     * @param claimUri           Claim URI.
+     * @param claimValue         Value of the given claim URI.
+     * @param limit              No of search results.
+     * @param offset             Start index of the search.
+     * @param returnUserNameList List of user names that this listener will return.
+     * @param userStoreManager   User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPreGetUserList(String claimUri, String claimValue, int limit, int offset, final List<String>
+            returnUserNameList, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Post listener for the get user list method.
      * @param claimUri Claim URI.
      * @param claimValue Value of the given claim URI.
@@ -343,6 +361,25 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
                                      UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
+
+    /**
+     * Post listener for the get user list method.
+     *
+     * @param claimUri         Claim URI.
+     * @param claimValue       Value of the given claim URI.
+     * @param returnValues     Values to be returned.
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param userStoreManager User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostGetUserList(String claimUri, String claimValue, final List<String> returnValues, int limit,
+                                     int offset, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
 
     /**
      * Post listener for the get paginated user list method.

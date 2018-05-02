@@ -145,6 +145,26 @@ public class AbstractUserManagementErrorListener implements UserManagementErrorE
         return true;
     }
 
+    /**
+     * Defines any additional actions that need to be done if there is a failure retrieving user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param claim            Claim URI
+     * @param claimValue       Claim Value
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param profileName      Name of the profile.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    public boolean onGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue, int
+            limit, int offset, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
     @Override
     public boolean onUpdatePermissionsOfRoleFailure(String errorCode, String errorMessage, String roleName,
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
