@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.user.core;
 
-import java.util.Map;
+import org.wso2.carbon.user.core.model.Condition;
 
 /**
  * This interface provides the pagination support of user operations.
@@ -49,8 +49,7 @@ public interface PaginatedUserStoreManager {
             UserStoreException;
 
     /**
-     * @param attributes  Map of attributes to filter users. key --> claim URI, value --> claim Value. If the claim
-     *                    uri  is domain qualified, search the users respective user store. Else search recursively.
+     * @param condition   Conditional filter.
      * @param profileName User profile name.
      * @param limit       No of search results. If the given value is greater than the system configured max limit
      *                    it will be reset to the system configured max limit.
@@ -58,6 +57,7 @@ public interface PaginatedUserStoreManager {
      * @return An array of user names.
      * @throws UserStoreException User Store Exception.
      */
-    String[] getUserList(Map<String, String> attributes, String profileName, int limit, int offset) throws
-            UserStoreException;
+    String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
+            sortOrder) throws UserStoreException;
+
 }

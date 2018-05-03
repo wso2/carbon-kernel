@@ -36,6 +36,11 @@ import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
+import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionCondition;
+import org.wso2.carbon.user.core.model.ExpressionOperation;
+import org.wso2.carbon.user.core.model.OperationalCondition;
+import org.wso2.carbon.user.core.model.OperationalOperation;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -3217,6 +3222,129 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         searchCtx.setRoleName(roleNameParts[0]);
         return searchCtx;
+    }
+
+    @Override
+    public String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
+            sortOrder) throws UserStoreException {
+
+
+        validateCondition(condition);
+        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
+            throw new UserStoreException("Sorting is not supported.");
+        }
+//
+//        PaginatedSearchResult result = new PaginatedSearchResult();
+
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        if (limit == 0) {
+            return new String[0];
+        }
+
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
+        }
+
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+        getExpressionConditions(condition, expressionConditions);
+
+//
+//
+//
+//        String[] users = new String[0];
+//        Connection dbConnection = null;
+//        String sqlStmt = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        List<String> list = new ArrayList<String>();
+//        try {
+//            dbConnection = getDBConnection();
+//            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
+//            prepStmt = dbConnection.prepareStatement(sqlStmt);
+////            prepStmt.setString(1, property);
+////            prepStmt.setString(2, value);
+//            prepStmt.setString(3, profileName);
+//            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+//                prepStmt.setInt(4, tenantId);
+//                prepStmt.setInt(5, tenantId);
+//                prepStmt.setInt(6, limit);
+//                prepStmt.setInt(7, offset);
+//            } else {
+//                prepStmt.setInt(4, limit);
+//                prepStmt.setInt(5, offset);
+//            }
+//            rs = prepStmt.executeQuery();
+//            while (rs.next()) {
+//                String name = rs.getString(1);
+//                list.add(name);
+//            }
+//
+//            if (list.size() > 0) {
+//                users = list.toArray(new String[list.size()]);
+//            }
+//            result.setUsers(users);
+//        } catch (SQLException e) {
+//            String msg = "";
+////                    "Database error occurred while paginating users for a property : " + property + " & value : " +
+////                            value + "& profile name : " + profileName;
+//            if (log.isDebugEnabled()) {
+//                log.debug(msg, e);
+//            }
+//            throw new UserStoreException(msg, e);
+//        } finally {
+//            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+//        }
+//
+////        if (users.length == 0) {
+////            result.setNonPaginatedUserCount(getUserListFromPropertiesCount(property, value, profileName));
+////        }
+
+
+        return new String[0];
+    }
+
+    private void getExpressionConditions(Condition condition, List<ExpressionCondition> expressionConditions) {
+
+        if (condition instanceof ExpressionCondition) {
+            expressionConditions.add((ExpressionCondition) condition);
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            getExpressionConditions(leftCondition, expressionConditions);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            getExpressionConditions(rightCondition, expressionConditions);
+        }
+    }
+
+    private void validateCondition(Condition condition) throws UserStoreException {
+
+        if (condition instanceof ExpressionCondition) {
+            if (isNotSupportedExpressionOperation(condition)) {
+                throw new UserStoreException("Unsupported expression operation: " + condition.getOperation());
+            }
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            validateCondition(leftCondition);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            String operation = condition.getOperation();
+            if (!OperationalOperation.AND.toString().equals(operation)) {
+                throw new UserStoreException("Unsupported Conditional operation: " + condition.getOperation());
+            }
+            validateCondition(rightCondition);
+        }
+    }
+
+    private boolean isNotSupportedExpressionOperation(Condition condition) {
+
+        return !(ExpressionOperation.EQ.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.CO.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.SW.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.EW.toString().equals(condition.getOperation()));
     }
 
     @Override

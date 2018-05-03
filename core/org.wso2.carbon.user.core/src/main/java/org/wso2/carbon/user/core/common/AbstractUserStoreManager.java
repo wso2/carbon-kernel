@@ -47,6 +47,7 @@ import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
+import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
@@ -6198,8 +6199,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     @Override
-    public String[] getUserList(Map<String, String> attributes, String profileName, int limit, int offset) throws
-            UserStoreException {
+    public String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
+            sortOrder) throws UserStoreException {
 
         return new String[0];
     }
