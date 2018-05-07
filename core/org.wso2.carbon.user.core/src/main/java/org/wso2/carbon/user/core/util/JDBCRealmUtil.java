@@ -203,6 +203,25 @@ public class JDBCRealmUtil {
                     JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_ROLE)) {
+            properties.put(JDBCRealmConstants.GET_USERS_ROLE, JDBCRealmConstants.GET_USERS_ROLE_SQL);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE)) {
+            properties.put(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE,
+                    JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE_SQL);
+        }
+
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE);
+        }
+
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERS_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USERS_ROLE_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
+                    .GET_USERS_ROLE_SQL_CASE_INSENSITIVE);
+        }
+
         //openedge
         if (!properties.containsKey(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE)) {
             properties.put(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE,

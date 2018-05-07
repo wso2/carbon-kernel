@@ -26,6 +26,8 @@ public final class JDBCRealmConstants {
     public static final String GET_USER_ROLE = "UserRoleSQL";
     public static final String GET_SHARED_ROLES_FOR_USER = "UserSharedRoleSQL";
     public static final String GET_IS_ROLE_EXISTING = "IsRoleExistingSQL";
+    public static final String GET_USERS_ROLE = "UsersRoleSQL";
+    public static final String GET_USERS_PROPS_FOR_PROFILE = "GetUsersPropertiesForProfileSQL";
     public static final String GET_USERS_IN_ROLE = "GetUserListOfRoleSQL";
     public static final String GET_USERS_IN_SHARED_ROLE = "GetUserListOfSharedRoleSQL";
     public static final String GET_IS_USER_EXISTING = "IsUserExistingSQL";
@@ -94,6 +96,16 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_SQL = "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, UM_REQUIRE_CHANGE, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
     public static final String ADD_USER_TO_ROLE_SQL = "INSERT INTO UM_USER_ROLE (UM_USER_ID, UM_ROLE_ID, UM_TENANT_ID) VALUES ((SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?), ?)";
     public static final String ADD_USER_PERMISSION_SQL = "AddUserPermission";
+
+    public static final String GET_USERS_ROLE_SQL = "SELECT UM_USER_NAME,UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, " +
+            "UM_USER WHERE UM_USER.UM_USER_NAME IN (?) AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE" +
+            ".UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER"
+            + ".UM_TENANT_ID=?";
+
+    public static final String GET_USERS_PROPS_FOR_PROFILE_SQL = "SELECT UM_USER_NAME,UM_ATTR_NAME, UM_ATTR_VALUE " +
+            "FROM UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND UM_USER" +
+            ".UM_USER_NAME IN (?) AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+
     public static final String ADD_ROLE_SQL = "INSERT INTO UM_ROLE (UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?)";
     public static final String ADD_SHARED_ROLE_SQL = "UPDATE UM_ROLE SET UM_SHARED_ROLE = ? WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
     public static final String ADD_ROLE_TO_USER_SQL = "INSERT INTO UM_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_TENANT_ID) VALUES ((SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?), ?)";

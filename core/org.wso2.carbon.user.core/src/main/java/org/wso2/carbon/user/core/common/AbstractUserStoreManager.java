@@ -17,12 +17,14 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.PaginatedUserStoreManager;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
 import org.wso2.carbon.user.core.listener.SecretHandleableListener;
@@ -30,6 +32,7 @@ import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
+import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -74,7 +77,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractUserStoreManager implements UserStoreManager {
+public abstract class AbstractUserStoreManager implements UserStoreManager, PaginatedUserStoreManager {
 
     protected static final String TRUE_VALUE = "true";
     protected static final String FALSE_VALUE = "false";
@@ -361,6 +364,35 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         log.debug("Retrieving internal roles for user name :  " + userName + " and search filter " + filter);
         return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
+    }
+
+    protected Map<String, List<String>> doGetInternalRoleListOfUsers(List<String> userNames, String domainName)
+            throws UserStoreException {
+
+        if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
+            List<String> updatedUserNameList = new ArrayList<>();
+            for (String userName : userNames) {
+                String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
+                    Map<String, String> map = getUserPropertyValues(userName, new String[] { userNameAttribute }, null);
+                    String tempUserName = map.get(userNameAttribute);
+                    if (tempUserName != null) {
+                        updatedUserNameList.add(tempUserName);
+                        if (log.isDebugEnabled()) {
+                            log.debug(
+                                    "Replaced user name : " + userName + " from user property value : " + tempUserName);
+                        }
+                    } else {
+                        updatedUserNameList.add(userName);
+                    }
+                } else {
+                    updatedUserNameList.add(userName);
+                }
+            }
+            userNames = updatedUserNameList;
+        }
+
+        return hybridRoleManager.getHybridRoleListOfUsers(userNames, domainName);
     }
 
     /**
@@ -5716,6 +5748,205 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         + "Domain name is not defined");
             }
         }
+    }
+
+    @Override
+    public Map<String, List<String>> getRoleListOfUsers(String[] userNames) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String[].class };
+            Object object = callSecure("getRoleListOfUsers", new Object[] { userNames }, argTypes);
+            return (Map<String, List<String>>) object;
+        }
+
+        Map<String, List<String>> allRoleNames = new HashMap<>();
+        Map<String, List<String>> domainFreeUsers = getDomainFreeUsers(userNames);
+
+        for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
+            if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                Map<String, List<String>> roleNames = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                        .doGetRoleListOfUsers(entry.getValue(), entry.getKey());
+                allRoleNames.putAll(roleNames);
+            }
+        }
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof AbstractUserOperationEventListener) {
+                AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                if (!newListener.doPostGetRoleListOfUsers(userNames, allRoleNames)) {
+                    break;
+                }
+            }
+        }
+
+        return allRoleNames;
+    }
+
+    public Map<String, List<String>> doGetRoleListOfUsers(List<String> userNames, String domainName)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { List.class, String.class };
+            Object object = callSecure("doGetRoleListOfUsers", new Object[] { userNames, domainName }, argTypes);
+            return (Map<String, List<String>>) object;
+        }
+
+        Map<String, List<String>> internalRoles = doGetInternalRoleListOfUsers(userNames, domainName);
+
+        Map<String, List<String>> externalRoles = new HashMap<>();
+        if (readGroupsEnabled) {
+            externalRoles = doGetExternalRoleListOfUsers(userNames);
+        }
+
+        Map<String, List<String>> combinedRoles = new HashMap<>();
+        if (!internalRoles.isEmpty() && !externalRoles.isEmpty()) {
+            for (String userName : userNames) {
+                List<String> roles = new ArrayList<>();
+                if (internalRoles.get(userName) != null) {
+                    roles.addAll(internalRoles.get(userName));
+                }
+                if (externalRoles.get(userName) != null) {
+                    roles.addAll(externalRoles.get(userName));
+                }
+                if (!roles.isEmpty()) {
+                    combinedRoles.put(userName, roles);
+                }
+            }
+        } else if (!internalRoles.isEmpty()) {
+            combinedRoles = internalRoles;
+        } else if (!externalRoles.isEmpty()) {
+            combinedRoles = externalRoles;
+        }
+
+        return combinedRoles;
+    }
+
+    protected Map<String, List<String>> doGetExternalRoleListOfUsers(List<String> userNames) throws UserStoreException {
+
+        Map<String, List<String>> externalRoleListOfUsers = new HashMap<>();
+        for (String userName : userNames) {
+            String[] externalRoles = doGetExternalRoleListOfUser(userName, null);
+            if (!ArrayUtils.isEmpty(externalRoles)) {
+                externalRoleListOfUsers.put(userName, Arrays.asList(externalRoles));
+            }
+        }
+        return externalRoleListOfUsers;
+    }
+
+    @Override
+    public UserClaimSearchEntry[] getUsersClaimValues(String[] userNames, String[] claims, String profileName) throws
+            UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String[].class, String[].class, String.class};
+            Object object = callSecure("getUsersClaimValues", new Object[]{userNames, claims, profileName},
+                    argTypes);
+            return (UserClaimSearchEntry[]) object;
+        }
+
+        if (StringUtils.isEmpty(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        UserClaimSearchEntry[] allUsers = new UserClaimSearchEntry[0];
+        Map<String, List<String>> domainFreeUsers = getDomainFreeUsers(userNames);
+
+        for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
+            if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                        .doGetUsersClaimValues(entry.getValue(), claims, entry.getKey(), profileName);
+                allUsers = (UserClaimSearchEntry[]) ArrayUtils.addAll(users, allUsers);
+            }
+        }
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof AbstractUserOperationEventListener) {
+                AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                if (!newListener.doPostGetUsersClaimValues(userNames, claims, profileName, allUsers)) {
+                    break;
+                }
+            }
+        }
+
+        return allUsers;
+    }
+
+    public UserClaimSearchEntry[] doGetUsersClaimValues(List<String> users, String[] claims, String domainName,
+            String profileName) throws UserStoreException {
+
+        Set<String> propertySet = new HashSet<>();
+        Map<String, String> claimToAttributeMap = new HashMap<>();
+        List<UserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
+        for (String claim : claims) {
+            String property;
+            try {
+                property = getClaimAtrribute(claim, null, domainName);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
+            propertySet.add(property);
+            claimToAttributeMap.put(claim, property);
+        }
+
+        String[] properties = propertySet.toArray(new String[0]);
+        Map<String, Map<String, String>> userProperties = this.getUsersPropertyValues(users, properties, profileName);
+
+        for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
+            UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
+            userClaimSearchEntry.setUserName(UserCoreUtil.addDomainToName(entry.getKey(), domainName));
+            Map<String, String> userClaims = new HashMap<>();
+
+            for (String claim : claims) {
+                for (Map.Entry<String, String> userAttribute : entry.getValue().entrySet()) {
+                    if (claimToAttributeMap.get(claim) != null && claimToAttributeMap.get(claim)
+                            .equals(userAttribute.getKey())) {
+                        userClaims.put(claim, userAttribute.getValue());
+                    }
+                }
+            }
+            userClaimSearchEntry.setClaims(userClaims);
+            userClaimSearchEntryList.add(userClaimSearchEntry);
+
+        }
+
+        return userClaimSearchEntryList.toArray(new UserClaimSearchEntry[0]);
+    }
+
+    private Map<String, List<String>> getDomainFreeUsers(String[] userNames) {
+
+        Map<String, List<String>> domainAwareUsers = new HashMap<>();
+        if (ArrayUtils.isNotEmpty(userNames)) {
+            for (String username : userNames) {
+                String domainName = UserCoreUtil.extractDomainFromName(username);
+                if (StringUtils.isEmpty(domainName)) {
+                    domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+
+                List<String> users = domainAwareUsers.get(domainName);
+                if (users == null) {
+                    users = new ArrayList<>();
+                    domainAwareUsers.put(domainName.toUpperCase(), users);
+                }
+                users.add(UserCoreUtil.removeDomainFromName(username));
+            }
+        }
+
+        return domainAwareUsers;
+    }
+
+    protected Map<String, Map<String, String>> getUsersPropertyValues(List<String> users, String[] propertyNames,
+            String profileName) throws UserStoreException {
+
+        Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
+        for (String userName : users) {
+            Map<String, String> propertyValuesMap = getUserPropertyValues(userName, propertyNames, profileName);
+            if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
+                usersPropertyValuesMap.put(userName, propertyValuesMap);
+            }
+        }
+        return usersPropertyValuesMap;
     }
 
     /**

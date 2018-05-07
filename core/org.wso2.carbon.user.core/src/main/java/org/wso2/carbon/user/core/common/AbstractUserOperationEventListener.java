@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
+import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.List;
 import java.util.Map;
@@ -384,6 +385,37 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      */
     public boolean doPostUpdatePermissionsOfRole(String roleName, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+
+    /**
+     * Post listener for get role list of users.
+     *
+     * @param userNames       user names
+     * @param rolesOfUsersMap map of roles against users
+     * @return false in case of error
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean doPostGetRoleListOfUsers(String[] userNames, Map<String, List<String>> rolesOfUsersMap)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Post listener for get claim values of users
+     *
+     * @param userNames              user names
+     * @param claims                 claims
+     * @param profileName            profile name
+     * @param userClaimSearchEntries user claim search entries
+     * @return false in case of error
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean doPostGetUsersClaimValues(String[] userNames, String[] claims, String profileName,
+            UserClaimSearchEntry[] userClaimSearchEntries) throws UserStoreException {
+
         return true;
     }
 }
