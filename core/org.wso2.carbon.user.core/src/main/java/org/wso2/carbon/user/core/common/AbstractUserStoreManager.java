@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +49,11 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionCondition;
+import org.wso2.carbon.user.core.model.ExpressionOperation;
+import org.wso2.carbon.user.core.model.OperationalCondition;
+import org.wso2.carbon.user.core.model.OperationalOperation;
+import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
@@ -181,6 +187,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      */
     protected abstract Map<String, String> getUserPropertyValues(String userName,
                                                                  String[] propertyNames, String profileName) throws UserStoreException;
+
+    /**
+     * This method is used by the support system to read properties
+     */
+    protected Map<String, Map<String, String>> getUsersPropertyValues(List<String> users, String[] propertyNames, String
+            profileName) throws UserStoreException{
+
+        return new HashMap<>();
+    }
 
     /**
      * @param roleName
@@ -4148,6 +4163,108 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
     }
 
+    public Map<String, List<String>> getRoleListOfUsers(String[] userNames) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String[].class};
+            Object object = callSecure("getRoleListOfUsers", new Object[]{userNames}, argTypes);
+            return (Map<String, List<String>>) object;
+        }
+
+        Map<String, List<String>> allRoleNames = new HashMap<>();
+        Map<String, List<String>> domainFreeUsers = getDomainFreeUsers(userNames);
+
+        Iterator<Map.Entry<String, List<String>>> it = domainFreeUsers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, List<String>> entry = it.next();
+
+            try {
+                UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
+                if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                    Map<String, List<String>> roleNames = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                            .doGetRoleListOfUsers(entry.getValue(), entry.getKey());
+                    allRoleNames.putAll(roleNames);
+                }
+//                 doGetRoleListOfUsers(entry.getValue(), "*", entry.getKey());
+
+//                allUsers = (UserClaimSearchEntry[]) ArrayUtils.addAll(users, allUsers);
+            } catch (UserStoreException ex) {
+//            handleGetUserClaimValueFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getCode(),
+//                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getMessage(),
+//                            ex.getMessage()), userName, claim, profileName);
+                throw ex;
+            }
+
+            it.remove();
+        }
+
+
+
+//        // anonymous user is only assigned to  anonymous role
+//        if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
+//            return new String[]{CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME};
+//        }
+
+//        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+        // Check whether roles exist in cache
+//        roleNames = getRoleListOfUserFromCache(this.tenantId, usernameWithDomain);
+//        if (roleNames != null && roleNames.length > 0) {
+//            return roleNames;
+//        }
+
+//        UserStore userStore = getUserStore(userName);
+//        if (userStore.isRecurssive()) {
+//            return userStore.getUserStoreManager().getRoleListOfUser(userStore.getDomainFreeName());
+//        }
+//
+//        if (userStore.isSystemStore()) {
+//            return systemUserRoleManager.getSystemRoleListOfUser(userStore.getDomainFreeName());
+//        }
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        return allRoleNames;
+
+    }
+
+    public Map<String, List<String>> doGetRoleListOfUsers(List<String> userNames, String domainName)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{List.class, String.class};
+            Object object = callSecure("doGetRoleListOfUsers", new Object[]{userNames}, argTypes);
+            return (Map<String, List<String>>) object;
+        }
+
+        Map<String, List<String>> externalRoles = new HashMap<>();
+
+        //TODO need to get internal roles.
+//        String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
+
+        if (readGroupsEnabled) {
+            externalRoles = doGetExternalRoleListOfUsers(userNames);
+        }
+
+//        roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
+
+//        for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
+//                .getUserOperationEventListeners()) {
+//            if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
+//                if (!((AbstractUserOperationEventListener) userOperationEventListener)
+//                        .doPostGetRoleListOfUser(userName, filter, roleList, this)) {
+//                    break;
+//                }
+//            }
+//        }
+//        addToUserRolesCache(this.tenantId, userName, roleList);
+
+        return externalRoles;
+    }
+
+    protected Map<String, List<String>> doGetExternalRoleListOfUsers(List<String> userNames) throws UserStoreException {
+
+        return new HashMap<>();
+    }
+
     /**
      * Getter method for claim manager property specifically to be used in the implementations of
      * UserOperationEventListener implementations
@@ -6202,7 +6319,169 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     public String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
             sortOrder) throws UserStoreException {
 
-        return new String[0];
+        validateCondition(condition);
+        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
+            throw new UserStoreException("Sorting is not supported.");
+        }
+
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        PaginatedSearchResult users = doGetUserList(condition, profileName, limit, offset,  sortBy,  sortOrder);
+
+
+        return users.getUsers();
+    }
+
+    protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset, String sortBy,
+                                 String sortOrder) throws UserStoreException {
+
+        return new PaginatedSearchResult();
+    }
+
+    @Override
+    public UserClaimSearchEntry[] getUsersClaimValues(String[] userNames, String[] claims, String profileName) throws
+            UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String[].class, String[].class, String.class};
+            Object object = callSecure("getUsersClaimValues", new Object[]{userNames, claims, profileName},
+                    argTypes);
+            return (UserClaimSearchEntry[]) object;
+        }
+
+        if (StringUtils.isEmpty(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        UserClaimSearchEntry[] allUsers = new UserClaimSearchEntry[0];
+        Map<String, List<String>> domainFreeUsers = getDomainFreeUsers(userNames);
+
+        Iterator<Map.Entry<String, List<String>>> it = domainFreeUsers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, List<String>> entry = it.next();
+
+            UserClaimSearchEntry[] users = new UserClaimSearchEntry[0];
+            try {
+
+                UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
+                if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                    users = ((AbstractUserStoreManager) secondaryUserStoreManager).doGetUsersClaimValues(entry
+                            .getValue(), claims, entry.getKey(), profileName);
+                    allUsers = (UserClaimSearchEntry[]) ArrayUtils.addAll(users, allUsers);
+                }
+
+            } catch (UserStoreException ex) {
+//            handleGetUserClaimValueFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getCode(),
+//                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getMessage(),
+//                            ex.getMessage()), userName, claim, profileName);
+                throw ex;
+            }
+
+            it.remove();
+        }
+
+
+
+//        String value = null;
+//
+//        if (finalValues != null) {
+//            value = finalValues.get(claim);
+//        }
+//
+//        // #################### <Listeners> #####################################################
+//
+//        List<String> list = new ArrayList<String>();
+//        if (value != null) {
+//            list.add(value);
+//        }
+//
+//        try {
+//            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+//                if (listener instanceof AbstractUserOperationEventListener) {
+//                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+//                    if (!newListener.doPostGetUserClaimValue(userName, claim, list, profileName, this)) {
+//                        handleGetUserClaimValueFailure(
+//                                ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
+//                                String.format(
+//                                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getMessage(),
+//                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claim,
+//                                profileName);
+//                        break;
+//                    }
+//                }
+//            }
+//        } catch (UserStoreException ex) {
+//            handleGetUserClaimValueFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
+//                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getMessage(),
+//                            ex.getMessage()), userName, claim, profileName);
+//            throw ex;
+//        }
+//        // #################### </Listeners> #####################################################
+//
+//        if (!list.isEmpty()) {
+//            return list.get(0);
+//        }
+        return allUsers;
+    }
+
+    public UserClaimSearchEntry[] doGetUsersClaimValues(List<String> users, String[] claims, String domainName,
+                                                           String profileName) throws UserStoreException {
+
+        Set<String> propertySet = new HashSet<>();
+        Map<String, String> mapping = new HashMap<>();
+        List<UserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
+        for (String claim : claims) {
+            String property;
+            try {
+                property = getClaimAtrribute(claim, null, domainName);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
+            propertySet.add(property);
+            mapping.put(property, claim);
+        }
+
+        String[] properties = propertySet.toArray(new String[propertySet.size()]);
+        Map<String, Map<String, String>> userProperties = this.getUsersPropertyValues(users, properties, profileName);
+        for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
+            UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
+            userClaimSearchEntry.setUserName(UserCoreUtil.addDomainToName(entry.getKey(), domainName));
+            Map<String, String> userClaims = new HashMap<>();
+
+            for (Map.Entry<String, String> userAttribute : entry.getValue().entrySet()) {
+                if (mapping.get(userAttribute.getKey()) != null) {
+                    userClaims.put(mapping.get(userAttribute.getKey()), userAttribute.getValue());
+                }
+            }
+
+            userClaimSearchEntry.setClaims(userClaims);
+            userClaimSearchEntryList.add(userClaimSearchEntry);
+        }
+        return userClaimSearchEntryList.toArray(new UserClaimSearchEntry[0]);
+    }
+
+
+    private Map<String, List<String>> getDomainFreeUsers(String[] userNames) {
+
+        Map<String, List<String>> domainAwareUsers = new HashMap<>();
+        if (ArrayUtils.isNotEmpty(userNames)) {
+            for (String username : userNames) {
+                String domainName = UserCoreUtil.extractDomainFromName(username);
+                if (StringUtils.isEmpty(domainName)) {
+                    domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+
+                List<String> users = domainAwareUsers.get(domainName);
+                if (users == null) {
+                    users = new ArrayList<>();
+                    domainAwareUsers.put(domainName, users);
+                }
+                users.add(UserCoreUtil.removeDomainFromName(username));
+            }
+        }
+        return domainAwareUsers;
     }
 
     @Override
@@ -6307,6 +6586,32 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             limit, int offset) throws UserStoreException {
 
         return new PaginatedSearchResult();
+    }
+
+    private void validateCondition(Condition condition) throws UserStoreException {
+
+        if (condition instanceof ExpressionCondition) {
+            if (isNotSupportedExpressionOperation(condition)) {
+                throw new UserStoreException("Unsupported expression operation: " + condition.getOperation());
+            }
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            validateCondition(leftCondition);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            String operation = condition.getOperation();
+            if (!OperationalOperation.AND.toString().equals(operation)) {
+                throw new UserStoreException("Unsupported Conditional operation: " + condition.getOperation());
+            }
+            validateCondition(rightCondition);
+        }
+    }
+
+    private boolean isNotSupportedExpressionOperation(Condition condition) {
+
+        return !(ExpressionOperation.EQ.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.CO.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.SW.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.EW.toString().equals(condition.getOperation()));
     }
 
 }

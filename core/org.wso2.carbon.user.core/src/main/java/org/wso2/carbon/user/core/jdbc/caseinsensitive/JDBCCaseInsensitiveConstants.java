@@ -25,9 +25,12 @@ public class JDBCCaseInsensitiveConstants {
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT =
             "UserFilterPaginatedSQLCaseInsensitiveCount";
     public static final String GET_USER_ROLE_CASE_INSENSITIVE = "UserRoleSQLCaseInsensitive";
+    public static final String GET_USERS_ROLE_CASE_INSENSITIVE = "UsersRoleSQLCaseInsensitive";
     public static final String GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE = "UserSharedRoleSQLCaseInsensitive";
     public static final String GET_IS_USER_EXISTING_CASE_INSENSITIVE = "IsUserExistingSQLCaseInsensitive";
     public static final String GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE = "GetUserPropertiesForProfileSQLCaseInsensitive";
+    public static final String GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE =
+            "GetUsersPropertiesForProfileSQLCaseInsensitive";
     public static final String GET_PROP_FOR_PROFILE_CASE_INSENSITIVE = "GetUserPropertyForProfileSQLCaseInsensitive";
     public static final String GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE = "GetUserProfileNamesSQLCaseInsensitive";
     public static final String GET_USERID_FROM_USERNAME_CASE_INSENSITIVE = "GetUserIDFromUserNameSQLCaseInsensitive";
@@ -63,6 +66,12 @@ public class JDBCCaseInsensitiveConstants {
             "UM_USER WHERE LOWER(UM_USER.UM_USER_NAME)=LOWER(?) AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE" +
             ".UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER" +
             ".UM_TENANT_ID=?";
+
+    public static final String GET_USERS_ROLE_SQL_CASE_INSENSITIVE = "SELECT UM_USER_NAME,UM_ROLE_NAME FROM " +
+            "UM_USER_ROLE, UM_ROLE,UM_USER WHERE LOWER(UM_USER.UM_USER_NAME) IN(?) AND UM_USER.UM_ID=UM_USER_ROLE" +
+            ".UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE" +
+            ".UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+
     public static final String GET_SHARED_ROLES_FOR_USER_SQL_CASE_INSENSITIVE = "SELECT UM_ROLE_NAME, UM_ROLE" +
             ".UM_TENANT_ID, UM_SHARED_ROLE FROM UM_SHARED_USER_ROLE INNER JOIN UM_USER ON UM_SHARED_USER_ROLE" +
             ".UM_USER_ID = UM_USER.UM_ID INNER JOIN UM_ROLE ON UM_SHARED_USER_ROLE.UM_ROLE_ID = UM_ROLE.UM_ID WHERE " +
@@ -75,6 +84,11 @@ public class JDBCCaseInsensitiveConstants {
             "UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND LOWER(UM_USER" +
             ".UM_USER_NAME)=LOWER(?) AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER" +
             ".UM_TENANT_ID=?";
+    public static final String GET_USERS_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE = "SELECT UM_USER_NAME,UM_ATTR_NAME," +
+            " UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND " +
+            "LOWER(UM_USER.UM_USER_NAME) IN (?) AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER" +
+            ".UM_TENANT_ID=?";
+
     public static final String GET_PROP_FOR_PROFILE_SQL_CASE_INSENSITIVE = "SELECT UM_ATTR_VALUE FROM " +
             "UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND LOWER(UM_USER" +
             ".UM_USER_NAME)=LOWER(?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND " +

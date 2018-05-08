@@ -24,7 +24,7 @@ public class ExpressionCondition implements Condition {
 
     private String operation;
     private String attributeName;
-    private Condition attributeValue;
+    private String attributeValue;
 
     @Override
     public String getOperation() {
@@ -48,13 +48,20 @@ public class ExpressionCondition implements Condition {
         this.attributeName = attributeName;
     }
 
-    public Condition getAttributeValue() {
+    public String getAttributeValue() {
 
         return attributeValue;
     }
 
-    public void setAttributeValue(Condition attributeValue) {
+    public void setAttributeValue(String attributeValue) {
 
+        this.attributeValue = attributeValue;
+    }
+
+    public ExpressionCondition(String operation, String attributeName, String attributeValue) {
+
+        this.operation = operation;
+        this.attributeName = attributeName;
         this.attributeValue = attributeValue;
     }
 }

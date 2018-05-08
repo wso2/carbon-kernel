@@ -58,4 +58,11 @@ public class OperationalCondition implements Condition {
 
         this.rightCondition = rightCondition;
     }
+
+    public OperationalCondition(String operation, Condition leftCondition, Condition rightCondition) {
+
+        this.operation = operation;
+        this.leftCondition = leftCondition;
+        this.rightCondition = rightCondition;
+    }
 }

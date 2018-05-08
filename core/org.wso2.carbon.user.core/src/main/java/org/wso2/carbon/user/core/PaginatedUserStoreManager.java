@@ -16,6 +16,10 @@
 package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * This interface provides the pagination support of user operations.
@@ -60,4 +64,24 @@ public interface PaginatedUserStoreManager {
     String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
             sortOrder) throws UserStoreException;
 
+    /**
+     * Get claim values of users.
+     *
+     * @param userNames User names
+     * @param claims    Required claims
+     * @return User claim search entry set
+     * @throws UserStoreException
+     */
+    UserClaimSearchEntry[] getUsersClaimValues(String[] userNames, String[] claims, String profileName)
+            throws UserStoreException;
+
+
+    /**
+     * Get roles of a users.
+     *
+     * @param userNames user names
+     * @return A map contains a list of role names each user belongs.
+     * @throws UserStoreException
+     */
+    Map<String, List<String>> getRoleListOfUsers(String[] userNames) throws UserStoreException;
 }

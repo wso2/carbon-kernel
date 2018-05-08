@@ -37,10 +37,10 @@ import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
-import org.wso2.carbon.user.core.model.OperationalOperation;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -3225,129 +3225,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    public String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
-            sortOrder) throws UserStoreException {
-
-
-        validateCondition(condition);
-        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
-            throw new UserStoreException("Sorting is not supported.");
-        }
-//
-//        PaginatedSearchResult result = new PaginatedSearchResult();
-
-        if (profileName == null) {
-            profileName = UserCoreConstants.DEFAULT_PROFILE;
-        }
-
-        if (limit == 0) {
-            return new String[0];
-        }
-
-        if (offset <= 0) {
-            offset = 0;
-        } else {
-            offset = offset - 1;
-        }
-
-        List<ExpressionCondition> expressionConditions = new ArrayList<>();
-        getExpressionConditions(condition, expressionConditions);
-
-//
-//
-//
-//        String[] users = new String[0];
-//        Connection dbConnection = null;
-//        String sqlStmt = null;
-//        PreparedStatement prepStmt = null;
-//        ResultSet rs = null;
-//
-//        List<String> list = new ArrayList<String>();
-//        try {
-//            dbConnection = getDBConnection();
-//            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
-//            prepStmt = dbConnection.prepareStatement(sqlStmt);
-////            prepStmt.setString(1, property);
-////            prepStmt.setString(2, value);
-//            prepStmt.setString(3, profileName);
-//            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-//                prepStmt.setInt(4, tenantId);
-//                prepStmt.setInt(5, tenantId);
-//                prepStmt.setInt(6, limit);
-//                prepStmt.setInt(7, offset);
-//            } else {
-//                prepStmt.setInt(4, limit);
-//                prepStmt.setInt(5, offset);
-//            }
-//            rs = prepStmt.executeQuery();
-//            while (rs.next()) {
-//                String name = rs.getString(1);
-//                list.add(name);
-//            }
-//
-//            if (list.size() > 0) {
-//                users = list.toArray(new String[list.size()]);
-//            }
-//            result.setUsers(users);
-//        } catch (SQLException e) {
-//            String msg = "";
-////                    "Database error occurred while paginating users for a property : " + property + " & value : " +
-////                            value + "& profile name : " + profileName;
-//            if (log.isDebugEnabled()) {
-//                log.debug(msg, e);
-//            }
-//            throw new UserStoreException(msg, e);
-//        } finally {
-//            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
-//        }
-//
-////        if (users.length == 0) {
-////            result.setNonPaginatedUserCount(getUserListFromPropertiesCount(property, value, profileName));
-////        }
-
-
-        return new String[0];
-    }
-
-    private void getExpressionConditions(Condition condition, List<ExpressionCondition> expressionConditions) {
-
-        if (condition instanceof ExpressionCondition) {
-            expressionConditions.add((ExpressionCondition) condition);
-        } else if (condition instanceof OperationalCondition) {
-            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
-            getExpressionConditions(leftCondition, expressionConditions);
-            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
-            getExpressionConditions(rightCondition, expressionConditions);
-        }
-    }
-
-    private void validateCondition(Condition condition) throws UserStoreException {
-
-        if (condition instanceof ExpressionCondition) {
-            if (isNotSupportedExpressionOperation(condition)) {
-                throw new UserStoreException("Unsupported expression operation: " + condition.getOperation());
-            }
-        } else if (condition instanceof OperationalCondition) {
-            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
-            validateCondition(leftCondition);
-            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
-            String operation = condition.getOperation();
-            if (!OperationalOperation.AND.toString().equals(operation)) {
-                throw new UserStoreException("Unsupported Conditional operation: " + condition.getOperation());
-            }
-            validateCondition(rightCondition);
-        }
-    }
-
-    private boolean isNotSupportedExpressionOperation(Condition condition) {
-
-        return !(ExpressionOperation.EQ.toString().equals(condition.getOperation()) ||
-                ExpressionOperation.CO.toString().equals(condition.getOperation()) ||
-                ExpressionOperation.SW.toString().equals(condition.getOperation()) ||
-                ExpressionOperation.EW.toString().equals(condition.getOperation()));
-    }
-
-    @Override
     protected PaginatedSearchResult doListUsers(String filter, int limit, int offset) throws UserStoreException {
 
         String[] users = new String[0];
@@ -3617,6 +3494,354 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             result.setNonPaginatedUserCount(getUserListFromPropertiesCount(property, value, profileName));
         }
         return result;
+    }
+
+    protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset, String sortBy,
+                                     String sortOrder) throws UserStoreException {
+
+        boolean isGroupFiltering = false;
+        boolean isUsernameFiltering = false;
+        boolean isClaimFiltering = false;
+
+        PaginatedSearchResult result = new PaginatedSearchResult();
+
+        if (limit == 0) {
+            return result;
+        }
+
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
+        }
+
+        //Since we support only AND operation get expressions as a list.
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+        getExpressionConditions(condition, expressionConditions);
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+                isGroupFiltering = true;
+            } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                isUsernameFiltering = true;
+            } else {
+                isClaimFiltering = true;
+            }
+        }
+
+        if (isGroupFiltering && isUsernameFiltering && isClaimFiltering) {
+            System.out.println("");
+        } else if (isGroupFiltering && isUsernameFiltering) {
+            System.out.println("");
+        } else if (isGroupFiltering && isClaimFiltering) {
+            System.out.println("");
+        } else if (isGroupFiltering) {
+            System.out.println("");
+        } else if (isUsernameFiltering && isClaimFiltering) {
+
+        } else if (isUsernameFiltering) {
+            // only username filtering.
+            String sqlStatement = getSQLStatementForUsernameOnlyFilter(expressionConditions);
+        } else {
+            throw new UserStoreException("Condition is not valid.");
+        }
+
+//
+//
+//        String[] users = new String[0];
+//        Connection dbConnection = null;
+//        String sqlStmt = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        List<String> list = new ArrayList<String>();
+//        try {
+//            dbConnection = getDBConnection();
+//            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
+//            prepStmt = dbConnection.prepareStatement(sqlStmt);
+////            prepStmt.setString(1, property);
+////            prepStmt.setString(2, value);
+//            prepStmt.setString(3, profileName);
+//            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+//                prepStmt.setInt(4, tenantId);
+//                prepStmt.setInt(5, tenantId);
+//                prepStmt.setInt(6, limit);
+//                prepStmt.setInt(7, offset);
+//            } else {
+//                prepStmt.setInt(4, limit);
+//                prepStmt.setInt(5, offset);
+//            }
+//            rs = prepStmt.executeQuery();
+//            while (rs.next()) {
+//                String name = rs.getString(1);
+//                list.add(name);
+//            }
+//
+//            if (list.size() > 0) {
+//                users = list.toArray(new String[list.size()]);
+//            }
+//            result.setUsers(users);
+//        } catch (SQLException e) {
+//            String msg = "";
+////                    "Database error occurred while paginating users for a property : " + property + " & value : " +
+////                            value + "& profile name : " + profileName;
+//            if (log.isDebugEnabled()) {
+//                log.debug(msg, e);
+//            }
+//            throw new UserStoreException(msg, e);
+//        } finally {
+//            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+//        }
+//
+////        if (users.length == 0) {
+////            result.setNonPaginatedUserCount(getUserListFromPropertiesCount(property, value, profileName));
+////        }
+
+
+        return result;
+    }
+
+    private String getSQLStatementForUsernameOnlyFilter(List<ExpressionCondition> expressionConditions) {
+
+        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER_NAME FROM UM_USER WHERE ");
+        int count = 0;
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (count > 0) {
+                sqlStatement.append(" AND ");
+            }
+            if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME = ")
+                        .append("'")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("'");
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME LIKE ")
+                        .append("'%")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("%")
+                        .append("'");
+
+            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME LIKE ")
+                        .append("'%")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("'");
+            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME LIKE ")
+                        .append("'")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("%")
+                        .append("'");
+            }
+            count++;
+        }
+        return sqlStatement.toString();
+    }
+
+    private String getSQLStatementForRoleOnlyFilter(List<ExpressionCondition> expressionConditions) {
+
+        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER_NAME FROM UM_USER WHERE ");
+        int count = 0;
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (count > 0) {
+                sqlStatement.append(" AND ");
+            }
+            if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME = ")
+                        .append("'")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("'");
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME LIKE ")
+                        .append("'%")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("%")
+                        .append("'");
+
+            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME LIKE ")
+                        .append("'%")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("'");
+            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())) {
+                sqlStatement.append("UM_USER_NAME LIKE ")
+                        .append("'")
+                        .append(expressionCondition.getAttributeValue())
+                        .append("%")
+                        .append("'");
+            }
+            count++;
+        }
+        return sqlStatement.toString();
+    }
+
+    private void getExpressionConditions(Condition condition, List<ExpressionCondition> expressionConditions) {
+
+        if (condition instanceof ExpressionCondition) {
+            expressionConditions.add((ExpressionCondition) condition);
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            getExpressionConditions(leftCondition, expressionConditions);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            getExpressionConditions(rightCondition, expressionConditions);
+        }
+    }
+
+    protected Map<String, Map<String, String>> getUsersPropertyValues(List<String> users, String[] propertyNames,
+                                                                      String profileName) throws UserStoreException {
+
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        String[] propertyNamesSorted = propertyNames.clone();
+        Arrays.sort(propertyNamesSorted);
+
+        Map<String, Map<String, String>> map = new HashMap<>();
+        try {
+            dbConnection = getDBConnection();
+            StringBuilder usernameParameter = new StringBuilder();
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE);
+                for (int i = 0; i < users.size(); i++) {
+
+                    usernameParameter.append("'")
+                            .append(users.get(i))
+                            .append("'");
+
+                    if (i != users.size() - 1) {
+                        usernameParameter.append(",");
+                    }
+                }
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
+                for (int i = 0; i < users.size(); i++) {
+
+                    usernameParameter.append("LOWER('")
+                            .append(users.get(i))
+                            .append("')");
+
+                    if (i != users.size() - 1) {
+                        usernameParameter.append(",");
+                    }
+                }
+            }
+
+            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, profileName);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setInt(3, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String username = rs.getString(1);
+                String name = rs.getString(2);
+                String value = rs.getString(3);
+                if (Arrays.binarySearch(propertyNamesSorted, name) < 0) {
+                    continue;
+                }
+
+                if (map.get(username) != null) {
+                    map.get(username).put(name, value);
+                } else {
+                    Map<String, String> attributes = new HashMap<>();
+                    attributes.put(name, value);
+                    map.put(username, attributes);
+                }
+            }
+            return map;
+        } catch (SQLException e) {
+            String errorMessage = "Error Occurred while getting property values";
+            if (log.isDebugEnabled()) {
+                errorMessage = "Error Occurred while getting property values for users: " + users;
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    protected Map<String, List<String>> doGetExternalRoleListOfUsers(List<String> userNames) throws
+            UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting roles of users: " + userNames);
+        }
+
+        String sqlStmt;
+        Map<String, List<String>> roles = new HashMap<>();
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            dbConnection = getDBConnection();
+            StringBuilder usernameParameter = new StringBuilder();
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_ROLE);
+                if (sqlStmt == null) {
+                    throw new UserStoreException("The sql statement for retrieving users roles is null");
+                }
+                for (int i = 0; i < userNames.size(); i++) {
+
+                    usernameParameter.append("'")
+                            .append(userNames.get(i))
+                            .append("'");
+
+                    if (i != userNames.size() - 1) {
+                        usernameParameter.append(",");
+                    }
+                }
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USERS_ROLE_CASE_INSENSITIVE);
+                if (sqlStmt == null) {
+                    throw new UserStoreException("The sql statement for retrieving users roles is null");
+                }
+                for (int i = 0; i < userNames.size(); i++) {
+
+                    usernameParameter.append("LOWER('")
+                            .append(userNames.get(i))
+                            .append("')");
+
+                    if (i != userNames.size() - 1) {
+                        usernameParameter.append(",");
+                    }
+                }
+            }
+
+            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(1, tenantId);
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setInt(3, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String username = UserCoreUtil.addDomainToName(rs.getString(1), getMyDomainName());
+                String roleName = UserCoreUtil.addDomainToName(rs.getString(2), getMyDomainName());
+                if (roles.get(username) != null) {
+                    roles.get(username).add(roleName);
+                } else {
+                    List<String> roleNames = new ArrayList<>();
+                    roleNames.add(roleName);
+                    roles.put(username, roleNames);
+                }
+            }
+            return roles;
+        } catch (SQLException e) {
+            String errorMessage = "Error Occurred while getting role lists of users";
+            if (log.isDebugEnabled()) {
+                errorMessage = "Error Occurred while getting role lists of users: " + userNames;
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
     }
 
     protected int getUserListFromPropertiesCount(String property, String value, String profileName)

@@ -43,6 +43,11 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_ROLE)) {
             properties.put(JDBCRealmConstants.GET_USER_ROLE, JDBCRealmConstants.GET_USER_ROLE_SQL);
         }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_ROLE)) {
+            properties.put(JDBCRealmConstants.GET_USERS_ROLE, JDBCRealmConstants.GET_USERS_ROLE_SQL);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER)) {
             properties.put(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER,
                     JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_SQL);
@@ -76,6 +81,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_PROPS_FOR_PROFILE)) {
             properties.put(JDBCRealmConstants.GET_PROPS_FOR_PROFILE,
                     JDBCRealmConstants.GET_PROPS_FOR_PROFILE_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE)) {
+            properties.put(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE,
+                    JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE_SQL);
         }
         if (!properties.containsKey(JDBCRealmConstants.GET_PROP_FOR_PROFILE)) {
             properties.put(JDBCRealmConstants.GET_PROP_FOR_PROFILE,
@@ -243,6 +252,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
                     .GET_USER_ROLE_SQL_CASE_INSENSITIVE);
         }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERS_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USERS_ROLE_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
+                    .GET_USERS_ROLE_SQL_CASE_INSENSITIVE);
+        }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_SQL_CASE_INSENSITIVE);
@@ -268,6 +281,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE);
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_PROP_FOR_PROFILE_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_PROP_FOR_PROFILE_CASE_INSENSITIVE,
