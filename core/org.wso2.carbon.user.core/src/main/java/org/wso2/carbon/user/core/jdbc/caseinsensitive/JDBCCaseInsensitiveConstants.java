@@ -28,9 +28,6 @@ public class JDBCCaseInsensitiveConstants {
     public static final String GET_USERS_ROLE_CASE_INSENSITIVE = "UsersRoleSQLCaseInsensitive";
     public static final String GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE = "UserSharedRoleSQLCaseInsensitive";
     public static final String GET_IS_USER_EXISTING_CASE_INSENSITIVE = "IsUserExistingSQLCaseInsensitive";
-    public static final String GET_USERS_ROLE_CASE_INSENSITIVE = "UsersRoleSQLCaseInsensitive";
-    public static final String GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE =
-            "GetUsersPropertiesForProfileSQLCaseInsensitive";
     public static final String GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE = "GetUserPropertiesForProfileSQLCaseInsensitive";
     public static final String GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE =
             "GetUsersPropertiesForProfileSQLCaseInsensitive";
@@ -113,17 +110,6 @@ public class JDBCCaseInsensitiveConstants {
             "(UM_ROLE_ID, UM_USER_ID, UM_USER_TENANT_ID, UM_ROLE_TENANT_ID) VALUES ((SELECT UM_ID FROM UM_ROLE WHERE " +
             "UM_ROLE_NAME=? AND UM_TENANT_ID=?), (SELECT UM_ID FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND " +
             "UM_TENANT_ID=?), ?, ?)";
-
-    public static final String GET_USERS_ROLE_SQL_CASE_INSENSITIVE = "SELECT UM_USER_NAME,UM_ROLE_NAME FROM " +
-            "UM_USER_ROLE, UM_ROLE,UM_USER WHERE LOWER(UM_USER.UM_USER_NAME) IN(?) AND UM_USER.UM_ID=UM_USER_ROLE" +
-            ".UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE" +
-            ".UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
-
-    public static final String GET_USERS_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE = "SELECT UM_USER_NAME,UM_ATTR_NAME," +
-            " UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND " +
-            "LOWER(UM_USER.UM_USER_NAME) IN (?) AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER" +
-            ".UM_TENANT_ID=?";
-
     public static final String REMOVE_USER_FROM_SHARED_ROLE_SQL_CASE_INSENSITIVE = "DELETE FROM UM_SHARED_USER_ROLE " +
             "WHERE UM_ROLE_ID=(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?) AND UM_USER_ID=" +
             "(SELECT UM_ID FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=?) AND " +
