@@ -104,6 +104,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     private EvictionAlgorithm evictionAlgorithm = CachingConstants.DEFAULT_EVICTION_ALGORITHM;
 
+    private boolean forceLocalCache;
+
     public CacheImpl(String cacheName, CacheManager cacheManager) {
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
         if (carbonContext == null) {
@@ -121,7 +123,18 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         this.cacheManager = cacheManager;
         DistributedMapProvider distributedMapProvider =
                 DataHolder.getInstance().getDistributedMapProvider();
-        if (isLocalCache(cacheName, distributedMapProvider)) {
+
+        if (ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE) != null &&
+                ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE).equals("true")) {
+            isLocalCache = true;
+            forceLocalCache = true;
+            if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+                this.cacheName = cacheName;
+            } else {
+                this.cacheName = CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
+            }
+            cacheEntryListeners.add(clusterCacheInvalidationReqSender);
+        } else if (isLocalCache(cacheName, distributedMapProvider)) {
             if (log.isDebugEnabled()) {
                 log.debug("Using local cache");
             }
@@ -131,22 +144,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 log.debug("Using Hazelcast based distributed cache");
             }
 
-            if (ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE) != null &&
-                    ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE)
-                            .equals("true")) {
-                isLocalCache = true;
-                this.cacheName = CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
-            } else {
-                distributedCache = distributedMapProvider.getMap(
-                        Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
-                        new MapEntryListenerImpl());
-                distributedTimestampMap = distributedMapProvider.getMap(
-                        Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
-                                cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
-            }
+            distributedCache = distributedMapProvider.getMap(
+                    Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
+                    new MapEntryListenerImpl());
+            distributedTimestampMap = distributedMapProvider.getMap(
+                    Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
+                            cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
         }
-
-        cacheEntryListeners.add(clusterCacheInvalidationReqSender);
 
         cacheStatistics = new CacheStatisticsImpl();
         registerMBean();
@@ -512,7 +516,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     @Override
     public boolean remove(Object key) {
         boolean removed = removeLocal(key);
-        if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+        if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
             CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) key, null);
             clusterCacheInvalidationReqSender.send(cacheEntryEvent);
         }
