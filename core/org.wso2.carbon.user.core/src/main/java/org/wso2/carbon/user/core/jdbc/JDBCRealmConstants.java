@@ -24,6 +24,9 @@ public final class JDBCRealmConstants {
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_USER_FILTER = "UserFilterSQL";
     public static final String GET_USER_FILTER_PAGINATED = "UserFilterPaginatedSQL";
+    public static final String GET_USER_FILTER_PAGINATED_MSSQL = "UserFilterPaginatedSQL-mssql";
+    public static final String GET_USER_FILTER_PAGINATED_DB2 = "UserFilterPaginatedSQL-db2";
+    public static final String GET_USER_FILTER_PAGINATED_ORACLE = "UserFilterPaginatedSQL-oracle";
     public static final String GET_USER_FILTER_PAGINATED_COUNT = "UserFilterPaginatedCountSQL";
     public static final String GET_USER_ROLE = "UserRoleSQL";
     public static final String GET_USERS_ROLE = "UsersRoleSQL";
@@ -75,6 +78,15 @@ public final class JDBCRealmConstants {
     public static final String GET_USER_FILTER_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_PAGINATED_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME " +
             "LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?";
+    public static final String GET_USER_FILTER_PAGINATED_SQL_DB2 = "SELECT UM_USER_NAME FROM (SELECT ROW_NUMBER() " +
+            "OVER (ORDER BY UM_USER_NAME) AS rn, U.*  FROM UM_USER AS U) WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID " +
+            "= ? AND rn BETWEEN ? AND ?";
+    public static final String GET_USER_FILTER_PAGINATED_SQL_MSSQL = "SELECT UM_USER_NAME FROM (SELECT UM_USER_NAME," +
+            "UM_TENANT_ID, ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS RowNum FROM UM_USER) AS P WHERE P" +
+            ".UM_USER_NAME LIKE ? AND P.UM_TENANT_ID= ? AND P.RowNum BETWEEN ? AND ?";
+    public static final String GET_USER_FILTER_PAGINATED_SQL_ORACLE = "SELECT UM_USER_NAME FROM (SELECT UM_USER_NAME," +
+            " UM_TENANT_ID, rownum AS rnum FROM (SELECT UM_USER_NAME, UM_TENANT_ID FROM UM_USER ORDER BY " +
+            "UM_USER_NAME) WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? AND rownum <= ?) WHERE  rnum > ?";
     public static final String GET_USER_FILTER_PAGINATED_COUNT_SQL = "SELECT COUNT(UM_USER_NAME) FROM UM_USER WHERE " +
             "UM_USER_NAME LIKE ? AND UM_TENANT_ID=?";
     public static final String GET_USER_ROLE_SQL = "SELECT UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, UM_USER WHERE UM_USER.UM_USER_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";

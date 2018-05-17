@@ -60,12 +60,22 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED,
                     JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL);
         }
-
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_DB2)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_DB2,
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL_DB2);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_ORACLE)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_ORACLE,
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL_ORACLE);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_MSSQL)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_MSSQL,
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL_MSSQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT,
                     JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_SQL);
         }
-
         if (!properties.containsKey(JDBCRealmConstants.GET_IS_ROLE_EXISTING)) {
             properties.put(JDBCRealmConstants.GET_IS_ROLE_EXISTING,
                     JDBCRealmConstants.GET_IS_ROLE_EXISTING_SQL);
@@ -287,7 +297,18 @@ public class JDBCRealmUtil {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL);
         }
-
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_DB2)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_DB2,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL_DB2);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_MSSQL)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_MSSQL,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL_MSSQL);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_ORACLE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_ORACLE,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL_ORACLE);
+        }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_SQL);

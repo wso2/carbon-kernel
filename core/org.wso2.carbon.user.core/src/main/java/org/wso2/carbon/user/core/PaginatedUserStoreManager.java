@@ -55,14 +55,15 @@ public interface PaginatedUserStoreManager {
     /**
      * @param condition   Conditional filter.
      * @param profileName User profile name.
+     * @param domain      User Store Domain.
      * @param limit       No of search results. If the given value is greater than the system configured max limit
      *                    it will be reset to the system configured max limit.
      * @param offset      Start index of the user search.
      * @return An array of user names.
      * @throws UserStoreException User Store Exception.
      */
-    String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
-            sortOrder) throws UserStoreException;
+    String[] getUserList(Condition condition, String domain, String profileName, int limit, int offset, String sortBy,
+                         String sortOrder) throws UserStoreException;
 
     /**
      * Get claim values of users.

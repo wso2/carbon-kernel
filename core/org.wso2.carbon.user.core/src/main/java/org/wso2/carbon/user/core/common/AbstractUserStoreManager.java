@@ -6432,7 +6432,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     @Override
-    public String[] getUserList(Condition condition, String profileName, int limit, int offset, String sortBy, String
+    public String[] getUserList(Condition condition, String domain, String profileName, int limit, int offset, String sortBy, String
             sortOrder) throws UserStoreException {
 
         validateCondition(condition);
@@ -6440,18 +6440,28 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             throw new UserStoreException("Sorting is not supported.");
         }
 
-        if (profileName == null) {
+        if (StringUtils.isEmpty(domain)) {
+            domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+
+        if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        PaginatedSearchResult users = doGetUserList(condition, profileName, limit, offset,  sortBy,  sortOrder);
+        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+        if (secManager != null) {
+            if (secManager instanceof AbstractUserStoreManager) {
+                PaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserList(condition,
+                        profileName, limit, offset, sortBy, sortOrder);
+                return users.getUsers();
+            }
+        }
 
-
-        return users.getUsers();
+        return new String[0];
     }
 
-    protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset, String sortBy,
-                                 String sortOrder) throws UserStoreException {
+    protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset,
+                                                  String sortBy, String sortOrder) throws UserStoreException {
 
         return new PaginatedSearchResult();
     }
