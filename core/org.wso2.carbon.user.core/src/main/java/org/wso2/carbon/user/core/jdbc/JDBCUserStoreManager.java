@@ -3602,12 +3602,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return result;
         }
 
-        if (offset <= 0) {
-            offset = 0;
-        } else {
-            offset = offset - 1;
-        }
-
         if(value == null){
             throw new IllegalArgumentException("Filter value cannot be null");
         }
@@ -3628,7 +3622,30 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         List<String> list = new ArrayList<String>();
         try {
             dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+
+            if (offset <= 0) {
+                offset = 0;
+            } else {
+                offset = offset - 1;
+            }
+
+            if (ORACLE.equalsIgnoreCase(type)) {
+                limit = offset + limit;
+            } else if (MSSQL.equalsIgnoreCase(type)) {
+                int initialOffset = offset;
+                offset = limit + offset;
+                limit = initialOffset + 1;
+            } else if (DB2.equalsIgnoreCase(type)) {
+                int initialOffset = offset;
+                offset = offset + limit;
+                limit = initialOffset + 1;
+            }
+
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP + "-" + type);
+            if (sqlStmt == null) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             prepStmt.setString(2, value);
@@ -3652,9 +3669,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 users = list.toArray(new String[list.size()]);
             }
             result.setUsers(users);
-        } catch (SQLException e) {
-            String msg =
-                    "Database error occurred while paginating users for a property : " + property + " & value : " +
+        } catch (Exception e) {
+            String msg = "Database error occurred while paginating users for a property : " + property + " & value : " +
                             value + "& profile name : " + profileName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);

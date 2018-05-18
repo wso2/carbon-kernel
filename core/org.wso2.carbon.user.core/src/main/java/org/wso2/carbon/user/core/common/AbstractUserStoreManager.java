@@ -1030,6 +1030,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
     }
 
+    private void handleGetUserListFailure(String errorCode, String errorMassage, Condition condition, String domain,
+                                          String profileName, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener).onGetUserListFailure(errorCode,
+                    errorMassage, condition, domain, profileName, limit, offset, sortBy, sortOrder, this)) {
+                return;
+            }
+        }
+    }
+
     /**
      * This method is responsible for calling the relevant methods when there is a failure while trying to get the
      * paginated user list.
@@ -1145,6 +1159,61 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             throw ex;
         }
     }
+
+    private void handlePostGetUserList(Condition condition, String domain, String profileName, int limit, int offset,
+                                       String sortBy, String sortOrder, String[] users, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isAuditLogOnly && !listener.getClass().getName()
+                            .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                        continue;
+                    }
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPostGetUserList(condition, domain, profileName, limit, offset, sortBy,
+                            sortOrder, users, this)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST.getMessage(),
+                            ex.getMessage()), condition, domain, profileName, limit, offset, sortBy, sortOrder);
+            throw ex;
+        }
+    }
+
+    private void handlePreGetUserList(Condition condition, String domain, String profileName, int limit, int offset,
+                                      String sortBy, String sortOrder) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent
+                    .getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPreGetUserList(condition, domain, profileName, limit, offset, sortBy,
+                            sortOrder, this)) {
+
+                        handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), condition, domain,
+                                profileName, limit, offset, sortBy, sortOrder);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getMessage(),
+                            ex.getMessage()), condition, domain,
+                    profileName, limit, offset, sortBy, sortOrder);
+            throw ex;
+        }
+    }
+
 
     /**
      * To call the postGetPaginatedUserList of relevant listeners.
@@ -6448,16 +6517,28 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
+        handlePreGetUserList(condition, domain, profileName, limit, offset, sortBy, sortOrder);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Pre listener get conditional  user list for domain: " + domain);
+        }
+
+        String[] filteredUsers = new String[0];
         UserStoreManager secManager = getSecondaryUserStoreManager(domain);
         if (secManager != null) {
             if (secManager instanceof AbstractUserStoreManager) {
                 PaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserList(condition,
                         profileName, limit, offset, sortBy, sortOrder);
-                return users.getUsers();
+                filteredUsers = users.getUsers();
             }
         }
 
-        return new String[0];
+        handlePostGetUserList(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers, false);
+
+        if (log.isDebugEnabled()) {
+            log.debug("post listener get conditional  user list for domain: " + domain);
+        }
+        return filteredUsers;
     }
 
     protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset,

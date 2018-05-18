@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
+import org.wso2.carbon.user.core.model.Condition;
 
 import java.util.Map;
 
@@ -161,6 +162,27 @@ public class AbstractUserManagementErrorListener implements UserManagementErrorE
      */
     public boolean onGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue, int
             limit, int offset, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure on retrieving conditional user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMassage     Error Message.
+     * @param domain           user store domain.
+     * @param profileName      profile name.
+     * @param limit            number of search results.
+     * @param offset           start index of the search.
+     * @param sortBy           sort by attribute.
+     * @param sortOrder        sort order.
+     * @param userStoreManager user store domain.
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean onGetUserListFailure(String errorCode, String errorMassage, Condition condition, String domain,
+                                        String profileName, int limit, int offset, String sortBy, String sortOrder,
+                                        UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
