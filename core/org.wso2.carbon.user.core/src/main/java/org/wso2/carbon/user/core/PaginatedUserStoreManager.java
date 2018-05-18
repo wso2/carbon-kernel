@@ -39,6 +39,8 @@ public interface PaginatedUserStoreManager {
     String[] listUsers(String filter, int limit, int offset) throws UserStoreException;
 
     /**
+     * Retrieves a list of paginated user names from user claims.
+     *
      * @param claim       Claim URI. If the claim uri is domain qualified, search the users respective user store. Else
      *                    search recursively.
      * @param claimValue  Claim value.
@@ -53,6 +55,8 @@ public interface PaginatedUserStoreManager {
             UserStoreException;
 
     /**
+     * Retrieves a list of paginated user names conditionally.
+     *
      * @param condition   Conditional filter.
      * @param profileName User profile name.
      * @param domain      User Store Domain.

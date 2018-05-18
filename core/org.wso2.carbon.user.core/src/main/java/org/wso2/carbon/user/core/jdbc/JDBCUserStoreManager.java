@@ -3423,7 +3423,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 filter = "%";
             }
 
-            List<String> lst = new LinkedList<String>();
+            List<String> list = new LinkedList<>();
 
             dbConnection = getDBConnection();
 
@@ -3507,12 +3507,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 // append the domain if exist
                 String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                 name = UserCoreUtil.addDomainToName(name, domain);
-                lst.add(name);
+                list.add(name);
             }
             rs.close();
 
-            if (lst.size() > 0) {
-                users = lst.toArray(new String[lst.size()]);
+            if (list.size() > 0) {
+                users = list.toArray(new String[list.size()]);
             }
 
             Arrays.sort(users);
@@ -3528,13 +3528,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         result.setUsers(users);
 
         if (users.length == 0) {
-            result.setNonPaginatedUserCount(doGetListUsersCount(filter));
+            result.setSkippedUserCount(doGetListUsersCount(filter));
         }
         return result;
     }
 
-    protected int doGetListUsersCount(String filter)
-            throws UserStoreException {
+    protected int doGetListUsersCount(String filter) throws UserStoreException {
 
         Connection dbConnection = null;
         String sqlStmt;
@@ -3681,7 +3680,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (users.length == 0) {
-            result.setNonPaginatedUserCount(getUserListFromPropertiesCount(property, value, profileName));
+            result.setSkippedUserCount(getUserListFromPropertiesCount(property, value, profileName));
         }
         return result;
     }

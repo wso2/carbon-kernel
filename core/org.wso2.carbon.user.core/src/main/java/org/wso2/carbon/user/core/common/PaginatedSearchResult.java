@@ -22,8 +22,9 @@ public class PaginatedSearchResult {
 
     private String[] users;
 
-    //This variable is set only when users.length = 0.
-    private int nonPaginatedUserCount;
+    //This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
+    // required to know how many users skipped in that user store to identify the start index of next user store.
+    private int skippedUserCount;
 
     public String[] getUsers() {
 
@@ -38,13 +39,13 @@ public class PaginatedSearchResult {
         this.users = users;
     }
 
-    public int getNonPaginatedUserCount() {
+    public int getSkippedUserCount() {
 
-        return nonPaginatedUserCount;
+        return skippedUserCount;
     }
 
-    public void setNonPaginatedUserCount(int nonPaginatedUserCount) {
+    public void setSkippedUserCount(int skippedUserCount) {
 
-        this.nonPaginatedUserCount = nonPaginatedUserCount;
+        this.skippedUserCount = skippedUserCount;
     }
 }
