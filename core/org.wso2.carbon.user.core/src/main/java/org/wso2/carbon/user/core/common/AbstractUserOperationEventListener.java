@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
+import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.List;
@@ -332,6 +333,44 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     /**
+     * Pre listener for the get paginated  conditional user list method.
+     *
+     * @param condition        condition.
+     * @param domain           user store domain.
+     * @param profileName      profile name.
+     * @param limit            number of search results.
+     * @param offset           start index of the search.
+     * @param sortBy           sort By attribute
+     * @param sortOrder        sort order.
+     * @param userStoreManager userStoreManager.
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean doPreGetUserList(Condition condition, String domain, String profileName, int limit, int offset, String sortBy, String
+            sortOrder, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+
+    /**
+     * Pre listener for the get paginated user list method.
+     *
+     * @param claimUri           Claim URI.
+     * @param claimValue         Value of the given claim URI.
+     * @param limit              No of search results.
+     * @param offset             Start index of the search.
+     * @param returnUserNameList List of user names that this listener will return.
+     * @param userStoreManager   User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPreGetUserList(String claimUri, String claimValue, int limit, int offset, final List<String>
+            returnUserNameList, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Post listener for the get user list method.
      * @param claimUri Claim URI.
      * @param claimValue Value of the given claim URI.
@@ -342,6 +381,76 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      */
     public boolean doPostGetUserList(String claimUri, String claimValue, final List<String> returnValues,
                                      UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    /**
+     * Post listener for the get user list method.
+     *
+     * @param claimUri         Claim URI.
+     * @param claimValue       Value of the given claim URI.
+     * @param returnValues     Values to be returned.
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param userStoreManager User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostGetUserList(String claimUri, String claimValue, final List<String> returnValues, int limit,
+                                     int offset, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Post listener for the get user conditional list method.
+     *
+     * @param condition        condition.
+     * @param domain           user store domain.
+     * @param profileName      profile name.
+     * @param limit            number of search results.
+     * @param offset           start index of the search.
+     * @param sortBy           sort by attribute.
+     * @param sortOrder        sort order.
+     * @param userStoreManager user store manager.
+     * @param users            Filtered user list
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean doPostGetUserList(Condition condition, String domain, String profileName, int limit, int offset,
+                                     String sortBy, String sortOrder, String[] users, UserStoreManager
+                                             userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Post listener for the get paginated user list method.
+     * @param claimUri Claim URI.
+     * @param claimValue Value of the given claim URI.
+     * @param returnValues Values to be returned.
+     * @param userStoreManager User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostGetPaginatedUserList(String claimUri, String claimValue, final List<String> returnValues,
+                                     UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    /**
+     * Post listener for the list paginated users method.
+     *
+     * @param filter           username filter.
+     * @param limit            No of search results.
+     * @param offset           start index of the search.
+     * @param returnValues     Values to be returned.
+     * @param userStoreManager User store manager.
+     * @return False if error.
+     * @throws UserStoreException User Store Exception.
+     */
+    public boolean doPostListUsers(String filter, int limit, int offset, final List<String> returnValues,
+                                   UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 

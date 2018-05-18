@@ -73,6 +73,26 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST("34003", "Un-expected error while getting user list, %s"),
         ERROR_CODE_ERROR_DURING_POST_GET_USER_LIST("34004", "Un-expected error during post get user list, %s"),
         ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST("34005", "Un-expected error during pre get user list, %s"),
+        ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST("34006", "Un-expected error during post get " +
+                "conditional user list,%s"),
+        ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST("34007", "Un-expected error during pre get " +
+                "conditional user list, %s"),
+
+        // Error code related with GetPaginatedUserList
+        ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST("34103", "Un-expected error while getting paginated user " +
+                "list, %s"),
+        ERROR_CODE_ERROR_DURING_POST_GET_PAGINATED_USER_LIST("34104", "Un-expected error during post get " +
+                "paginated user list, %s"),
+        ERROR_CODE_ERROR_DURING_PRE_GET_PAGINATED_USER_LIST("34105", "Un-expected error during pre get paginated user" +
+                "list, %s"),
+
+
+        // Error code related with ListPaginatedUsers
+        ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS("34203", "Un-expected error while listing paginated user, %s"),
+        ERROR_CODE_ERROR_DURING_POST_LIST_PAGINATED_USER("34204", "Un-expected error during post list paginated " +
+                "users, %s"),
+        ERROR_CODE_ERROR_DURING_PRE_LIST_PAGINATED_USER("34205", "Un-expected error during pre list paginated " +
+                "users, %s"),
 
         // Error code related with update credential
         ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL("35001", "Un-expected error during pre update credential, %s"),
