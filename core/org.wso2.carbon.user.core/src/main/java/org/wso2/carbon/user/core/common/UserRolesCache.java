@@ -178,9 +178,7 @@ public class UserRolesCache {
                 userName = userName.toLowerCase();
             }
             UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
-            if (cache.containsKey(userRolesCacheKey)) {
-                cache.remove(userRolesCacheKey);
-            }
+            cache.remove(userRolesCacheKey);
 
             String userNameWithCacheIdentifier = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName;
 
@@ -190,9 +188,7 @@ public class UserRolesCache {
             }
 
             userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userNameWithCacheIdentifier);
-            if (cache.containsKey(userRolesCacheKey)) {
-                cache.remove(userRolesCacheKey);
-            }
+            cache.remove(userRolesCacheKey);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

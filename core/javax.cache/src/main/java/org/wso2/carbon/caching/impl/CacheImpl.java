@@ -67,6 +67,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.CLEAR_ALL_PREFIX;
 /**
  * TODO: class description
  * <p/>
@@ -74,6 +75,7 @@ import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPT
  */
 @SuppressWarnings("unchecked")
 public class CacheImpl<K, V> implements Cache<K, V> {
+
     private static final Log log = LogFactory.getLog(CacheImpl.class);
     private static final long MAX_CLEANUP_TIME = 60000;
     private static final int CACHE_LOADER_THREADS = 2;
@@ -642,6 +644,22 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     @Override
     public void removeAll() {
+
+        removeAllLocal();
+        if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
+            CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) CLEAR_ALL_PREFIX, null);
+            clusterCacheInvalidationReqSender.send(cacheEntryEvent);
+        }
+    }
+
+    /**
+     * This method is added to only remove the cache locally.
+     * This is required since {@link #removeAll()} method
+     * notifies the other nodes in a cluster in addition to removing
+     * the local cache.
+     */
+    public void removeAllLocal() {
+
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
@@ -650,11 +668,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             notifyCacheEntryRemoved(entry.getKey(), entry.getValue().getValue());
         }
         map.clear();
-        if(!isLocalCache){
+        if (!isLocalCache) {
             distributedCache.clear();
             distributedTimestampMap.clear();
         }
-        //TODO: Notify value removed
     }
 
     @Override

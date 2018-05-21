@@ -31,6 +31,8 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.CLEAR_ALL_PREFIX;
+
 /**
  * This is the cluster-wide local cache invalidation message that is sent
  * to all the other nodes in a cluster. This invalidates its own cache.
@@ -69,7 +71,11 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(cacheInfo.cacheManagerName);
             Cache<Object, Object> cache = cacheManager.getCache(cacheInfo.cacheName);
             if (cache instanceof CacheImpl) {
-                ((CacheImpl) cache).removeLocal(cacheInfo.cacheKey);
+                if (CLEAR_ALL_PREFIX.equals(cacheInfo.cacheKey)) {
+                    ((CacheImpl) cache).removeAllLocal();
+                } else {
+                    ((CacheImpl) cache).removeLocal(cacheInfo.cacheKey);
+                }
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
