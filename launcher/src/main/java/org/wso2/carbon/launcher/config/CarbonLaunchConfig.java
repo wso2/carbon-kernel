@@ -60,7 +60,7 @@ public class CarbonLaunchConfig {
 
     private static final Logger logger = Logger.getLogger(CarbonLaunchConfig.class.getName());
     private static final String VAR_REGEXP = "(?<=@)(\\d+)";
-    private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
+    private static final Pattern VAR_PATTERN = Pattern.compile(VAR_REGEXP);
 
     private URL carbonOSGiRepository;
     private URL carbonProfileRepository;
@@ -156,7 +156,7 @@ public class CarbonLaunchConfig {
         }
 
         int extractInt(String bundle) {
-            Matcher matcher = varPattern.matcher(bundle);
+            Matcher matcher = VAR_PATTERN.matcher(bundle);
             if (!matcher.find()) {
                 String errorMsg = "Invalid carbon.initial.osgi bundle found in launch.properties: " + bundle;
                 logger.log(Level.SEVERE, errorMsg);
