@@ -25,6 +25,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.lang.management.ManagementPermission;
+import java.nio.file.Paths;
 import java.security.Security;
 
 /**
@@ -68,6 +69,7 @@ public class CarbonCoreActivator implements BundleActivator {
         log.info("User             : " + System.getProperty("user.name") + ", " +
                  System.getProperty("user.language") + "-" + System.getProperty("user.country") +
                  ", " + System.getProperty("user.timezone"));
+        log.info("WUM Update Level : " + retrieveUpdateLevel(carbonHome));
 
         Security.addProvider(new BouncyCastleProvider());
         if(log.isDebugEnabled()){
@@ -77,5 +79,33 @@ public class CarbonCoreActivator implements BundleActivator {
 
     public void stop(BundleContext context) throws Exception {
         dataHolder.setBundleContext(null);
+    }
+
+    /**
+     * Find the wum update level of the pack.
+     * @param carbonHome home directory of the product.
+     * @return update level timestamp if the pack is updated. Otherwise zero
+     */
+    private long retrieveUpdateLevel(String carbonHome){
+        long updateTimestamp = 0;
+        File updateDirectory = Paths.get(carbonHome, "updates", "wum").toFile();
+        if (updateDirectory.exists() && updateDirectory.isDirectory()) {
+            File[] files = updateDirectory.listFiles();
+            if (files != null) {
+                for (final File file : files) {
+                    if (!file.isDirectory()) {
+                        String fileName = file.getName();
+                        try {
+                            long extractedUpdateTimestamp = Long.parseLong(fileName);
+                            if (extractedUpdateTimestamp > updateTimestamp) {
+                                updateTimestamp = extractedUpdateTimestamp;
+                            }
+                        } catch (NumberFormatException ignore) {
+                        }
+                    }
+                }
+            }
+        }
+        return updateTimestamp;
     }
 }
