@@ -32,10 +32,13 @@ import java.util.Set;
 public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
     private static Log log = LogFactory.getLog(UserStoreManagerRegistry.class);
     private static ServiceTracker userStoreManagerTracker;
-    private static Map<String, Properties> userStoreManagers = new HashMap<String, Properties>();
-
 
     public static void init(BundleContext bc) throws Exception {
+        if(userStoreManagerTracker != null) {
+            // Log an error as there is no need to call this other than UserStoreMgtDSComponent. We can not change the
+            // signature or behavior as it constitute an API change.
+            log.error("UserStoreManagerRegistry init called more than once, with trace, ", new Throwable());
+        }
         try {
             userStoreManagerTracker = new ServiceTracker(bc, UserStoreManager.class.getName(), null);
             userStoreManagerTracker.open();
@@ -58,6 +61,7 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
      */
     private static Map<String, Properties> getUserStoreManagers() {
 
+        Map<String, Properties> userStoreManagers = new HashMap<>();
         Object[] objects = userStoreManagerTracker.getServices();
         int length = objects.length;
         UserStoreManager userStoreManager;
@@ -68,8 +72,17 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
             if (userStoreManager.getDefaultUserStoreProperties() != null) {
                 userStoreProperties = userStoreManager.getDefaultUserStoreProperties();
                 userStoreManagers.put(userStoreManager.getClass().getName(), userStoreProperties);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "Adding UserStoreManager with name: " + userStoreManager.getClass().getName()+
+                                    ". UserStoreManager class: " + userStoreManager);
+                }
             } else {
-
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "The user store manager has no DefaultUserStoreProperties, " +
+                                    "and will be skipped. UserStoreManager : " + userStoreManager);
+                }
             }
 
         }
@@ -97,8 +110,5 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
         Properties properties;
         properties = getUserStoreManagers().get(className);
         return properties;
-
     }
-
-
 }
