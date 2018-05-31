@@ -94,6 +94,7 @@ public class CarbonCacheManager implements CacheManager {
             throw new NullPointerException("A cache name must not be null.");
         }
 
+        cacheName = getCacheName(cacheName);
         if (caches.get(cacheName) != null) {
             throw new CacheException("Cache " + cacheName + " already exists");
         }
