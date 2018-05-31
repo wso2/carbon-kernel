@@ -19,29 +19,13 @@ package org.wso2.carbon.caching.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender;
 import org.wso2.carbon.caching.impl.eviction.EvictionAlgorithm;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheLoader;
@@ -63,6 +47,23 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
 
@@ -129,12 +130,20 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             if (log.isDebugEnabled()) {
                 log.debug("Using Hazelcast based distributed cache");
             }
-            distributedCache = distributedMapProvider.getMap(
-                    Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
-                    new MapEntryListenerImpl());
-            distributedTimestampMap = distributedMapProvider.getMap(
-                    Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
-                            cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
+
+            if (ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE) != null &&
+                    ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE)
+                            .equals("true")) {
+                isLocalCache = true;
+                this.cacheName = CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
+            } else {
+                distributedCache = distributedMapProvider.getMap(
+                        Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
+                        new MapEntryListenerImpl());
+                distributedTimestampMap = distributedMapProvider.getMap(
+                        Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
+                                cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
+            }
         }
 
         cacheEntryListeners.add(clusterCacheInvalidationReqSender);

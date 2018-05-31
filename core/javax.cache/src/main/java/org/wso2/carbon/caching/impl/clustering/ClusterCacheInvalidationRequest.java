@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -48,6 +48,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
     private int tenantId;
 
     public ClusterCacheInvalidationRequest(CacheInfo cacheInfo, String tenantDomain, int tenantId) {
+
         this.cacheInfo = cacheInfo;
         this.tenantDomain = tenantDomain;
         this.tenantId = tenantId;
@@ -55,6 +56,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
 
     @Override
     public void execute(ConfigurationContext configurationContext) throws ClusteringFault {
+
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Received [" + this + "] ");
@@ -77,6 +79,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
 
     @Override
     public String toString() {
+
         return "ClusterCacheInvalidationRequest{" +
                 "tenantId=" + tenantId +
                 ", tenantDomain='" + tenantDomain + '\'' +
@@ -93,6 +96,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
     }
 
     public static class CacheInfo implements Serializable {
+
         private String cacheManagerName;
         private String cacheName;
         private Object cacheKey;
