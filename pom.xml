@@ -1519,8 +1519,8 @@
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
-        <axis2-transports.version>1.1.0-wso2v13</axis2-transports.version>
-        <axis2-transports.version.range>[1.1.0-wso2v13,2.0.0)</axis2-transports.version.range>
+        <axis2-transports.version>2.0.0-wso2v21</axis2-transports.version>
+        <axis2-transports.version.range>[2.0.0-wso2v21,3.0.0)</axis2-transports.version.range>
         <org.apache.axis2.transport.mail.version.range>[0.0.0,1.0.0)</org.apache.axis2.transport.mail.version.range>
 
         <!-- Axiom Version -->
