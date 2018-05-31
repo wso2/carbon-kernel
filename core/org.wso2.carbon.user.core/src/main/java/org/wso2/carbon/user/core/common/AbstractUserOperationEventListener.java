@@ -183,6 +183,90 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     /**
+     * Defines any additional actions before adding an internal role.
+     *
+     * @param roleName         Internal Role Name.
+     * @param userList         List of users.
+     * @param permissions      permissions.
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException.
+     */
+    public boolean doPreAddInternalRole(String roleName, String[] userList, Permission[] permissions,
+                                        UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions after adding an internal role.
+     *
+     * @param roleName         Internal Role Name.
+     * @param userList         List of users.
+     * @param permissions      permissions
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean doPostAddInternalRole(String roleName, String[] userList, Permission[] permissions,
+                                         UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions before updating an internal role name.
+     *
+     * @param roleName    current internal role Name.
+     * @param newRoleName new internal role Name.
+     * @throws org.wso2.carbon.user.core.UserStoreException UserStoreException
+     */
+    public boolean doPreUpdateInternalRoleName(String roleName, String newRoleName,
+                                               UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions after updating an internal role name.
+     *
+     * @param roleName    current internal role name.
+     * @param newRoleName new internal role name.
+     * @throws org.wso2.carbon.user.core.UserStoreException UserStoreException.
+     */
+    public boolean doPostUpdateInternalRoleName(String roleName, String newRoleName,
+                                                UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions before deleting an internal role.
+     *
+     * @param roleName         Internal Role Name.
+     * @param userStoreManager user store manager.
+     * @throws org.wso2.carbon.user.core.UserStoreException UserStoreException
+     */
+    public boolean doPreDeleteInternalRole(String roleName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions before deleting an internal role.
+     *
+     * @param roleName         Internal Role Name.
+     * @param userStoreManager user store manager.
+     * @throws org.wso2.carbon.user.core.UserStoreException UserStoreException
+     */
+    public boolean doPostDeleteInternalRole(String roleName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Defines any additional actions before deleting a role.
      *
      * @param roleName

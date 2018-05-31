@@ -3457,12 +3457,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             throws UserStoreException {
 
         try {
+            boolean internalRole = isAnInternalRole(roleName);
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
-                if (!listener.doPostUpdateRoleName(roleName, newRoleName, this)) {
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPostUpdateInternalRoleName(roleName,
+                            newRoleName, this);
+                } else if (!internalRole) {
+                    success = listener.doPostUpdateRoleName(roleName, newRoleName, this);
+                }
+
+                if (!success) {
                     handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_NAME.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_NAME.getMessage(),
                                     UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, newRoleName);
@@ -3472,6 +3482,48 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         } catch (UserStoreException ex) {
             handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_NAME.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_NAME.getMessage(),
+                            ex.getMessage()), roleName, newRoleName);
+            throw ex;
+        }
+    }
+
+    /**
+     * This method is responsible for calling pre update role name methods in listeners.
+     *
+     * @param roleName       Name of the internal role.
+     * @param newRoleName    New internal role name
+     * @param isAuditLogOnly to indicate whether to call only the audit log listener.
+     * @throws UserStoreException Exception that will be thrown by relevant listeners.
+     */
+    private void handlePreUpdateRoleName(String roleName, String newRoleName, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(roleName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreUpdateInternalRoleName(roleName,
+                            newRoleName, this);
+                } else if (!internalRole) {
+                    success = listener.doPreUpdateRoleName(roleName, newRoleName, this);
+                }
+
+                if (!success) {
+                    handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, newRoleName);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getMessage(),
                             ex.getMessage()), roleName, newRoleName);
             throw ex;
         }
@@ -3518,6 +3570,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
+            //Invoke pre listeners.
+            handlePreUpdateRoleName(roleName, newRoleName, false);
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
                         userStoreNew.getDomainFreeName());
@@ -3531,17 +3585,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     userStore.getDomainAwareName(), userStoreNew.getDomainAwareName());
 
             // To make sure to maintain the back-ward compatibility, only audit log listener will be called.
-            handlePostUpdateRoleName(roleName, newRoleName, true);
+            handlePostUpdateRoleName(roleName, newRoleName, false);
             // Need to update user role cache upon update of role names
             clearUserRolesCacheByTenant(this.tenantId);
             return;
         }
-//
-//		RoleContext ctx = createRoleContext(roleName);
-//        if (isOthersSharedRole(roleName)) {          // TODO do we need this
-//            throw new UserStoreException(
-//                    "Logged in user doesn't have permission to delete a role belong to other tenant");
-//        }
+
         if (!isRoleNameValid(roleName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
@@ -3560,21 +3609,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         // #################### <Listeners> #####################################################
-        try {
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPreUpdateRoleName(roleName, newRoleName, this)) {
-                    handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getMessage(),
-                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, newRoleName);
-                    return;
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getMessage(),
-                            ex.getMessage()), roleName, newRoleName);
-            throw ex;
-        }
+        handlePreUpdateRoleName(roleName, newRoleName, false);
         // #################### </Listeners> #####################################################
 
         if (!isReadOnly() && writeGroupsEnabled) {
@@ -4290,16 +4325,25 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @param isAuditLogOnly To indicate whether to only call the relevant audit logger.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handlePostAddRole(String roleName, String[] userList,
-            org.wso2.carbon.user.api.Permission[] permissions, boolean isAuditLogOnly) throws UserStoreException {
+    private void handlePostAddRole(String roleName, String[] userList, org.wso2.carbon.user.api.Permission[]
+            permissions, boolean isAuditLogOnly) throws UserStoreException {
 
         try {
+            boolean internalRole = isAnInternalRole(roleName);
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (isAuditLogOnly && !listener.getClass().getName()
-                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                if (isAuditLogOnly && !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
-                if (!listener.doPostAddRole(roleName, userList, permissions, this)) {
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPostAddInternalRole(roleName,
+                            userList, permissions, this);
+                } else if (!internalRole) {
+                    success = listener.doPostAddRole(roleName, userList, permissions, this);
+                }
+
+                if (!success) {
                     handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(),
                                     UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
@@ -4310,6 +4354,40 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         } catch (UserStoreException ex) {
             handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(), ex.getMessage()),
+                    roleName, userList, permissions);
+            throw ex;
+        }
+    }
+
+    private void handlePreAddRole(String roleName, String[] userList, org.wso2.carbon.user.api.Permission[]
+            permissions, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(roleName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreAddInternalRole(roleName,
+                            userList, permissions, this);
+                } else if (!internalRole) {
+                    success = listener.doPreAddRole(roleName, userList, permissions, this);
+                }
+
+                if (!success) {
+                    handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
+                            permissions);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
                     roleName, userList, permissions);
             throw ex;
         }
@@ -4338,10 +4416,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         if (userStore.isHybridRole()) {
+            //Invoke Pre listeners for hybrid roles.
+            handlePreAddRole(roleName, userList, permissions, false);
+
             doAddInternalRole(roleName, userList, permissions);
 
             // Calling only the audit logger, to maintain the back-ward compatibility
-            handlePostAddRole(roleName, userList, permissions, true);
+            handlePostAddRole(roleName, userList, permissions, false);
             return;
         }
 
@@ -4364,24 +4445,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             userList = UserCoreUtil.removeDomainFromNames(userList);
         }
 
-
         // #################### <Listeners> #####################################################
-        try {
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPreAddRole(roleName, userList, permissions, this)) {
-                    handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
-                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
-                            permissions);
-                    return;
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
-                    roleName, userList, permissions);
-            throw ex;
-        }
+        handlePreAddRole(roleName, userList, permissions, false);
         // #################### </Listeners> #####################################################
 
         // Check for validations
@@ -4514,12 +4579,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private void handleDoPostDeleteRole(String roleName, boolean isAuditLogOnly) throws UserStoreException {
 
         try {
+            boolean internalRole = isAnInternalRole(roleName);
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
-                if (!listener.doPostDeleteRole(roleName, this)) {
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPostDeleteInternalRole(roleName, this);
+                } else if (!internalRole) {
+                    success = listener.doPostDeleteRole(roleName, this);
+                }
+
+                if (!success) {
                     handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
                                     UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName);
@@ -4529,6 +4603,45 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         } catch (UserStoreException ex) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(), ex.getMessage()),
+                    roleName);
+            throw ex;
+        }
+    }
+
+    /**
+     * This method is responsible for calling pre delete methods of relevant listeners.
+     *
+     * @param roleName       Name of the role
+     * @param isAuditLogOnly To indicate whether to call only the audit logger.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleDoPreDeleteRole(String roleName, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(roleName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalRole(roleName, this);
+                } else if (!internalRole) {
+                    success = listener.doPreDeleteRole(roleName, this);
+                }
+
+                if (!success) {
+                    handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
                     roleName);
             throw ex;
         }
@@ -4569,6 +4682,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
+            // Invoke pre listeners.
+            handleDoPreDeleteRole(roleName, false);
             try {
                 if (APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName()) || WORKFLOW_DOMAIN
                         .equalsIgnoreCase(userStore.getDomainName())) {
@@ -4582,16 +4697,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                         roleName);
                 throw ex;
             }
-            handleDoPostDeleteRole(roleName, true);
+            handleDoPostDeleteRole(roleName, false);
             clearUserRolesCacheByTenant(tenantId);
             return;
         }
-//
-//		RoleContext ctx = createRoleContext(roleName);
-//		if (isOthersSharedRole(roleName)) {
-//			throw new UserStoreException(
-//			                             "Logged in user doesn't have permission to delete a role belong to other tenant");
-//		}
 
         if (!doCheckExistingRole(roleName)) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getCode(),
@@ -4600,22 +4709,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         // #################### <Listeners> #####################################################
-        try {
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPreDeleteRole(roleName, this)) {
-                    handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
-                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName);
-                    return;
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
-                    roleName);
-            throw ex;
-        }
-
+        handleDoPreDeleteRole(roleName, false);
         // #################### </Listeners> #####################################################
         if (isReadOnly()) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
@@ -6675,4 +6769,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 ExpressionOperation.EW.toString().equals(condition.getOperation()));
     }
 
+    private boolean isAnInternalRole(String roleName) {
+
+        return roleName.toLowerCase().startsWith(APPLICATION_DOMAIN.toLowerCase()) || roleName.toLowerCase()
+                .startsWith(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase()) || roleName.toLowerCase()
+                .startsWith(WORKFLOW_DOMAIN.toLowerCase());
+    }
 }
