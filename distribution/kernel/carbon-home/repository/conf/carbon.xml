@@ -263,7 +263,7 @@
     </Tenant>
 
     <!--
-     Caching related configuratio88ns
+     Caching related configurations
     -->
     <Cache>
         <!-- Default cache timeout in minutes -->
