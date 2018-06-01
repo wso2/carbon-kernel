@@ -94,6 +94,7 @@ public class CarbonCacheManager implements CacheManager {
             throw new NullPointerException("A cache name must not be null.");
         }
 
+        cacheName = getCacheName(cacheName);
         if (caches.get(cacheName) != null) {
             throw new CacheException("Cache " + cacheName + " already exists");
         }
@@ -116,6 +117,7 @@ public class CarbonCacheManager implements CacheManager {
             throw new IllegalStateException();
         }
         touch();
+        cacheName = getCacheName(cacheName);
         Cache<K, V> cache = (Cache<K, V>) caches.get(cacheName);
         if (cache == null) {
             synchronized (cacheName.intern()) {
@@ -136,6 +138,7 @@ public class CarbonCacheManager implements CacheManager {
     @SuppressWarnings("unchecked")
     final <K, V> Cache<K, V> getExistingCache(String cacheName) {
         touch();
+        cacheName = getCacheName(cacheName);
         return (Cache<K, V>) caches.get(cacheName);
     }
 
@@ -164,6 +167,7 @@ public class CarbonCacheManager implements CacheManager {
         if (cacheName == null) {
             throw new NullPointerException("Cache name cannot be null");
         }
+        cacheName = getCacheName(cacheName);
         CacheImpl<?, ?> oldCache;
         oldCache = (CacheImpl<?, ?>) caches.remove(cacheName);
         if (oldCache != null) {
@@ -226,6 +230,7 @@ public class CarbonCacheManager implements CacheManager {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         String cacheName = cache.getName();
+        cacheName = getCacheName(cacheName);
         caches.put(cacheName, cache);
         touch();
     }
@@ -266,5 +271,12 @@ public class CarbonCacheManager implements CacheManager {
     private boolean isIdle() {
         long timeDiff = System.currentTimeMillis() - lastAccessed;
         return caches.isEmpty() && (timeDiff >= CachingConstants.MAX_CACHE_IDLE_TIME_MILLIS);
+    }
+
+    private String getCacheName(String cacheName) {
+        if (!cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+            return CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
+        }
+        return cacheName;
     }
 }
