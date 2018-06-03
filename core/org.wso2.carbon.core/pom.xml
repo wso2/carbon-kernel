@@ -91,6 +91,10 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.crypto</groupId>
+            <artifactId>org.wso2.carbon.crypto.api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
