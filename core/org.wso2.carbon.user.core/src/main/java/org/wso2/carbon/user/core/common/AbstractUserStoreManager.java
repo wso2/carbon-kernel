@@ -3495,7 +3495,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @param isAuditLogOnly to indicate whether to call only the audit log listener.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handlePreUpdateRoleName(String roleName, String newRoleName, boolean isAuditLogOnly)
+    private boolean handlePreUpdateRoleName(String roleName, String newRoleName, boolean isAuditLogOnly)
             throws UserStoreException {
 
         try {
@@ -3518,7 +3518,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_NAME.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, newRoleName);
-                    return;
+                    return false;
                 }
             }
         } catch (UserStoreException ex) {
@@ -3527,6 +3527,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                             ex.getMessage()), roleName, newRoleName);
             throw ex;
         }
+        return true;
     }
 
     /**
@@ -3571,7 +3572,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (userStore.isHybridRole()) {
             //Invoke pre listeners.
-            handlePreUpdateRoleName(roleName, newRoleName, false);
+            if (!handlePreUpdateRoleName(roleName, newRoleName, false)) {
+                return;
+            }
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
                         userStoreNew.getDomainFreeName());
@@ -3609,7 +3612,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         // #################### <Listeners> #####################################################
-        handlePreUpdateRoleName(roleName, newRoleName, false);
+        if (!handlePreUpdateRoleName(roleName, newRoleName, false)) {
+            return;
+        }
         // #################### </Listeners> #####################################################
 
         if (!isReadOnly() && writeGroupsEnabled) {
@@ -4359,7 +4364,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
     }
 
-    private void handlePreAddRole(String roleName, String[] userList, org.wso2.carbon.user.api.Permission[]
+    private boolean handlePreAddRole(String roleName, String[] userList, org.wso2.carbon.user.api.Permission[]
             permissions, boolean isAuditLogOnly) throws UserStoreException {
 
         try {
@@ -4382,7 +4387,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
                             permissions);
-                    return;
+                    return false;
                 }
             }
         } catch (UserStoreException ex) {
@@ -4391,6 +4396,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     roleName, userList, permissions);
             throw ex;
         }
+        return true;
     }
 
     /**
@@ -4417,7 +4423,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (userStore.isHybridRole()) {
             //Invoke Pre listeners for hybrid roles.
-            handlePreAddRole(roleName, userList, permissions, false);
+            if (!handlePreAddRole(roleName, userList, permissions, false)) {
+                return;
+            }
 
             doAddInternalRole(roleName, userList, permissions);
 
@@ -4446,7 +4454,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         // #################### <Listeners> #####################################################
-        handlePreAddRole(roleName, userList, permissions, false);
+        if (!handlePreAddRole(roleName, userList, permissions, false)) {
+            return;
+        }
         // #################### </Listeners> #####################################################
 
         // Check for validations
@@ -4615,7 +4625,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @param isAuditLogOnly To indicate whether to call only the audit logger.
      * @throws UserStoreException Exception that will be thrown by relevant listener methods.
      */
-    private void handleDoPreDeleteRole(String roleName, boolean isAuditLogOnly) throws UserStoreException {
+    private boolean handleDoPreDeleteRole(String roleName, boolean isAuditLogOnly) throws UserStoreException {
 
         try {
             boolean internalRole = isAnInternalRole(roleName);
@@ -4636,7 +4646,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName);
-                    return;
+                    return false;
                 }
             }
         } catch (UserStoreException ex) {
@@ -4645,6 +4655,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     roleName);
             throw ex;
         }
+        return true;
     }
 
     /**
@@ -4683,7 +4694,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (userStore.isHybridRole()) {
             // Invoke pre listeners.
-            handleDoPreDeleteRole(roleName, false);
+            if (!handleDoPreDeleteRole(roleName, false)) {
+                return;
+            }
             try {
                 if (APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName()) || WORKFLOW_DOMAIN
                         .equalsIgnoreCase(userStore.getDomainName())) {
@@ -4709,7 +4722,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         // #################### <Listeners> #####################################################
-        handleDoPreDeleteRole(roleName, false);
+        if (!handleDoPreDeleteRole(roleName, false)) {
+            return;
+        }
         // #################### </Listeners> #####################################################
         if (isReadOnly()) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
