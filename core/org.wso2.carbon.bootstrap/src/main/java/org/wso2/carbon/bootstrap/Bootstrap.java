@@ -150,6 +150,10 @@ public class Bootstrap {
     }
 
     protected String getClassToLoad() {
+        String serverMainClass = System.getProperty("server.main.class");
+        if (serverMainClass != null) {
+            return serverMainClass;
+        }
         return "org.wso2.carbon.server.Main";
     }
 
