@@ -42,7 +42,7 @@ public class CacheListenerTestCase {
     public static final String TEST_CACHE_ENTRY_CREATED = "testCacheEntryCreated";
     private static final String TEST_FULL_SCENARIO_CACHE_REMOVED = "testFullScenarioCacheRemoved";
     private static final String TEST_FULL_SCENARIO_CACHE_EXPIRED = "testFullScenarioCacheExpired";
-    public static final String CACHE_NAME = CachingConstants.LOCAL_CACHE_PREFIX + "CacheListenerTestCase-cache";
+    public static final String CACHE_NAME = "CacheListenerTestCase-cache";
     private Cache<String, Long> cache;
     private CacheEntryCreatedListenerImpl<String, Long> cacheEntryCreatedListener;
     private CacheEntryExpiredListenerImpl<String, Long> cacheEntryExpiredListener;
