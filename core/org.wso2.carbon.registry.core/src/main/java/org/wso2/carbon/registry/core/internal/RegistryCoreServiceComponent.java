@@ -121,7 +121,7 @@ public class RegistryCoreServiceComponent {
         if(securityManager != null){
             securityManager.checkPermission(new ManagementPermission("control"));
         }
-        if(Boolean.parseBoolean(System.getProperty("NonRegistryMode"))) {
+        if (Boolean.parseBoolean(System.getProperty("NonRegistryMode"))) {
             log.debug("Registry component activated in Non-Registry Mode");
             return;
         }
