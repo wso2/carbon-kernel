@@ -62,7 +62,7 @@ public class Activator extends BundleCheckActivator {
             secMan.checkPermission(new ManagementPermission("control"));
         }
         try {
-            if(Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
+            if (Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
                 log.debug("UserCore component activated in NonUserCoreMode Mode");
                 return;
             }
