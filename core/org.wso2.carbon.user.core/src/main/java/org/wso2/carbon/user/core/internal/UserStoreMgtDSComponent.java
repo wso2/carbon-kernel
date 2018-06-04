@@ -77,7 +77,7 @@ public class UserStoreMgtDSComponent {
     }
 
     protected void activate(ComponentContext ctxt) {
-        if(Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
+        if (Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
             log.debug("UserCore component activated in NonUserCoreMode Mode");
             return;
         }
