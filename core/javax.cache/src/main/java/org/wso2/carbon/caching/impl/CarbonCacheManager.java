@@ -18,6 +18,7 @@
 package org.wso2.carbon.caching.impl;
 
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
@@ -274,8 +275,11 @@ public class CarbonCacheManager implements CacheManager {
     }
 
     private String getCacheName(String cacheName) {
-        if (!cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
-            return CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
+
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE))) {
+            if (!cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+                return CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
+            }
         }
         return cacheName;
     }
