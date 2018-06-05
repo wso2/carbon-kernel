@@ -40,7 +40,6 @@
     <modules>
         <module>test-utils/org.wso2.carbon.identity.testutil</module>
         <module>service-stubs/identity</module>
-        <module>components/adaptive-authentication</module>
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
         <module>components/identity-core</module>
@@ -76,7 +75,6 @@
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
         <module>features/consent-mgt</module>
-        <module>features/adaptive-authentication</module>
     </modules>
 
     <repositories>
