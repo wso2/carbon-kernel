@@ -5,13 +5,13 @@ can be downloaded from the following locations:
 	http://www.apache.org/licenses/LICENSE-2.0.txt
 
 This product also contains software under different licenses. This table below
-all the contained libraries (jar files) and the license under which they are 
+all the contained libraries (jar files) and the license under which they are
 provided to you.
 
 At the bottom of this file is a table that shows what each license indicated
 below is and where the actual text of the license can be found.
 
-Name                                                                            Type           License   
+Name                                                                            Type           License
 ---------------------------------------------------------------------------------------------------------
 abdera_1.0.0.wso2v3.jar                                                         bundle         apache2
 addressing-1.6.1-wso2v26.mar                                                    bundle         apache2
