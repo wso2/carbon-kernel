@@ -1462,6 +1462,13 @@
                 <artifactId>siddhi-annotations</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <scope>test</scope>
+                <version>${h2database.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1736,6 +1743,7 @@
         <antlr.version>4.5</antlr.version>
         <guava.version>19.0</guava.version>
         <snakeyaml.version>1.11</snakeyaml.version>
+        <h2database.version>1.2.140</h2database.version>
     </properties>
 
     <build>
