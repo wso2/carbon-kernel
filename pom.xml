@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1669,8 +1668,7 @@
         <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
-        <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)
-        </httpcomponents-httpclient.imp.pkg.version.range>
+        <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
         <hector-core.wso2.version>1.1.4.wso2v1</hector-core.wso2.version>
