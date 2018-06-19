@@ -666,7 +666,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
                         userName, credential);
                 // We can ignore and proceed. Ignore the results from this user store.
-                log.error(e);
+
+                if (log.isDebugEnabled()) {
+                  log.debug("Error occurred while authenticating user: " + userName, e);
+                } else {
+                  log.error(e);
+                }
                 authenticated = false;
             }
 
