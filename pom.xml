@@ -412,6 +412,11 @@
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${org.wso2.securevault.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.securevault</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.directory</groupId>
@@ -819,11 +824,6 @@
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>javax.servlet</artifactId>
                 <version>${version.javax.servlet}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet.jsp.jstl.wso2</groupId>
-                <artifactId>jstl</artifactId>
-                <version>${jstl.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
@@ -1573,7 +1573,6 @@
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
         <junit.version>4.11</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
-        <jstl.version>1.2.1.wso2v2</jstl.version>
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
