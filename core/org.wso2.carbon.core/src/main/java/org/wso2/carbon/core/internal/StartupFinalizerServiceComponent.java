@@ -177,7 +177,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         // port information is needed when populating Member information
         try {
             ClusteringUtil.enableClustering(configCtx);
-        } catch (AxisFault e) {
+        } catch (Throwable e) {
             String msg = "Cannot initialize cluster";
             log.error(msg, e);
             throw new RuntimeException(msg, e);
