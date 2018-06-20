@@ -227,7 +227,7 @@ CARBON.showConfirmationDialog = function(message, handleYes, handleNo, closeCall
  * @param {String} message to display
  * @return {Boolean}
  */
-CARBON.showPopupDialog = function(message, title, windowHight, okButton, callback, windowWidth) {
+CARBON.showPopupDialog = function(message, title, windowHeight, okButton, callback, windowWidth) {
     var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlEncode(message) + "</div>";
     var requiredWidth = 750;
     if (windowWidth) {
@@ -283,6 +283,90 @@ CARBON.showPopupDialog = function(message, title, windowHight, okButton, callbac
         jQuery(document).ready(func);
     } else {
         func();
+    }
+};
+
+/**
+ * Display any info inside a jQuery UI's confirmation widget.
+ * @method showPopupDialog
+ * @param {String} message to display html/text
+ * @return {Boolean}
+ */
+CARBON.showPopupConfirm = function(htmlmessage, title, windowHeight, okButton, callback, windowWidth) {
+    if(!isHTML(htmlmessage)){
+        htmlmessage = htmlEncode(htmlmessage);
+    }
+    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlmessage + "</div>";
+    var requiredWidth = 750;
+    if (windowWidth) {
+        requiredWidth = windowWidth;
+    }
+    var func = function() {
+        jQuery("#dcontainer").html(strDialog);
+        if (okButton) {
+            jQuery("#dialog").dialog({
+                close:function() {
+                    jQuery(this).dialog('destroy').remove();
+                    jQuery("#dcontainer").empty();
+                    return false;
+                },
+                buttons:{
+                    "OK":function() {
+                        if (callback && typeof callback == "function")
+                            callback();
+                        jQuery(this).dialog("destroy").remove();
+                        jQuery("#dcontainer").empty();
+                        return false;
+                    },
+                    "Cancel":function() {
+                        jQuery(this).dialog('destroy').remove();
+                        jQuery("#dcontainer").empty();
+                        return false;
+                    },
+                },
+                height:windowHeight,
+                width:requiredWidth,
+                minHeight:windowHeight,
+                minWidth:requiredWidth,
+                modal:true
+            });
+        } else {
+            jQuery("#dialog").dialog({
+                close:function() {
+                    jQuery(this).dialog('destroy').remove();
+                    jQuery("#dcontainer").empty();
+                    return false;
+                },
+                height:windowHeight,
+                width:requiredWidth,
+                minHeight:windowHeight,
+                minWidth:requiredWidth,
+                modal:true
+            });
+        }
+
+        jQuery('.ui-dialog-titlebar-close').click(function(){
+            jQuery('#dialog').dialog("destroy").remove();
+            jQuery("#dcontainer").empty();
+            jQuery("#dcontainer").html('');
+        });
+
+    };
+    if (!pageLoaded) {
+        jQuery(document).ready(func);
+    } else {
+        func();
+    }
+
+    function isHTML(str) {
+        var a = document.createElement('div');
+        a.innerHTML = str;
+
+        for (var c = a.childNodes, i = c.length; i--; ) {
+            if (c[i].nodeType == 1) return true;
+        }
+
+        return false;
     }
 };
 
