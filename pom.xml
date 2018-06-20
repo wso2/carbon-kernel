@@ -283,6 +283,12 @@
                 <groupId>org.apache.rampart.wso2</groupId>
                 <artifactId>rampart-core</artifactId>
                 <version>${rampart.wso2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.rampart.wso2</groupId>
