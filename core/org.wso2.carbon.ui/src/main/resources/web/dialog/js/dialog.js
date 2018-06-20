@@ -288,8 +288,10 @@ CARBON.showPopupDialog = function(message, title, windowHeight, okButton, callba
 
 /**
  * Display any info inside a jQuery UI's confirmation widget.
- * @method showPopupDialog
+ * @method showPopupConfirm
  * @param {String} message to display html/text
+ * @param {String} okButton to change ok button text
+ * @param {String} cancelButton to change cancel button text
  * @return {Boolean}
  */
 CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, cancelButton, callback, windowWidth) {
