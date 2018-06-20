@@ -292,60 +292,70 @@ CARBON.showPopupDialog = function(message, title, windowHeight, okButton, callba
  * @param {String} message to display html/text
  * @return {Boolean}
  */
-CARBON.showPopupConfirm = function(htmlmessage, title, windowHeight, okButton, callback, windowWidth) {
-    if(!isHTML(htmlmessage)){
-        htmlmessage = htmlEncode(htmlmessage);
+CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, cancelButton, callback, windowWidth) {
+    if (!isHTML(htmlMessage)) {
+        htmlMessage = htmlEncode(htmlMessage);
     }
-    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlmessage + "</div>";
+    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlMessage + "</div>";
     var requiredWidth = 750;
     if (windowWidth) {
         requiredWidth = windowWidth;
     }
-    var func = function() {
+    var func = function () {
         jQuery("#dcontainer").html(strDialog);
         if (okButton) {
             jQuery("#dialog").dialog({
-                close:function() {
+                close: function () {
                     jQuery(this).dialog('destroy').remove();
                     jQuery("#dcontainer").empty();
                     return false;
                 },
-                buttons:{
-                    "OK":function() {
+                buttons: {
+                    "OK": function () {
                         if (callback && typeof callback == "function")
                             callback();
                         jQuery(this).dialog("destroy").remove();
                         jQuery("#dcontainer").empty();
                         return false;
                     },
-                    "Cancel":function() {
+                    "Cancel": function () {
                         jQuery(this).dialog('destroy').remove();
                         jQuery("#dcontainer").empty();
                         return false;
                     },
                 },
-                height:windowHeight,
-                width:requiredWidth,
-                minHeight:windowHeight,
-                minWidth:requiredWidth,
-                modal:true
+                height: windowHeight,
+                width: requiredWidth,
+                minHeight: windowHeight,
+                minWidth: requiredWidth,
+                modal: true
             });
         } else {
             jQuery("#dialog").dialog({
-                close:function() {
+                close: function () {
                     jQuery(this).dialog('destroy').remove();
                     jQuery("#dcontainer").empty();
                     return false;
                 },
-                height:windowHeight,
-                width:requiredWidth,
-                minHeight:windowHeight,
-                minWidth:requiredWidth,
-                modal:true
+                height: windowHeight,
+                width: requiredWidth,
+                minHeight: windowHeight,
+                minWidth: requiredWidth,
+                modal: true
             });
         }
 
-        jQuery('.ui-dialog-titlebar-close').click(function(){
+        if (okButton) {
+            $('.ui-dialog-buttonpane button:contains(OK)').attr("id", "dialog-confirm_ok-button");
+            $('#dialog-confirm_ok-button').html(okButton);
+        }
+        if (cancelButton) {
+            $('.ui-dialog-buttonpane button:contains(Cancel)').attr("id", "dialog-confirm_cancel-button");
+            $('#dialog-confirm_cancel-button').html(cancelButton);
+        }
+
+
+        jQuery('.ui-dialog-titlebar-close').click(function () {
             jQuery('#dialog').dialog("destroy").remove();
             jQuery("#dcontainer").empty();
             jQuery("#dcontainer").html('');
@@ -362,13 +372,13 @@ CARBON.showPopupConfirm = function(htmlmessage, title, windowHeight, okButton, c
         var a = document.createElement('div');
         a.innerHTML = str;
 
-        for (var c = a.childNodes, i = c.length; i--; ) {
+        for (var c = a.childNodes, i = c.length; i--;) {
             if (c[i].nodeType == 1) return true;
         }
 
         return false;
     }
-};
+}
 
 /**
  * Display the Input dialog.
