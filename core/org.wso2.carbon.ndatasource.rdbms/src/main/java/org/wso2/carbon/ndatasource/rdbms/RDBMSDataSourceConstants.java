@@ -26,8 +26,7 @@ public class RDBMSDataSourceConstants {
 
 	public static final String ROLLBACK_ON_RETURN = "rollbackOnReturn";
 	
-	public static final String STANDARD_JDBC_INTERCEPTORS = "ConnectionState;StatementFinalizer;" +
-			"org.wso2.carbon.ndatasource.rdbms.ConnectionRollbackOnReturnInterceptor;";
+	public static final String STANDARD_JDBC_INTERCEPTORS = "ConnectionState;StatementFinalizer;";
 	
 	public static final class TX_ISOLATION_LEVELS {
 		
