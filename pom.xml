@@ -283,6 +283,12 @@
                 <groupId>org.apache.rampart.wso2</groupId>
                 <artifactId>rampart-core</artifactId>
                 <version>${rampart.wso2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.rampart.wso2</groupId>
@@ -472,16 +478,17 @@
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-api</artifactId>
                 <version>${axiom.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>wsdl4j.wso2</groupId>
                 <artifactId>wsdl4j</artifactId>
                 <version>${wsdl4j.wso2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.schema.wso2</groupId>
-                <artifactId>XmlSchema</artifactId>
-                <version>${orbit.version.xmlschema}</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -594,16 +601,6 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.provider</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-impl</artifactId>
-                <version>${axiom.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-dom</artifactId>
-                <version>${axiom.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-httpclient.wso2</groupId>
@@ -1462,6 +1459,13 @@
                 <artifactId>siddhi-annotations</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <scope>test</scope>
+                <version>${h2database.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1736,6 +1740,7 @@
         <antlr.version>4.5</antlr.version>
         <guava.version>19.0</guava.version>
         <snakeyaml.version>1.11</snakeyaml.version>
+        <h2database.version>1.2.140</h2database.version>
     </properties>
 
     <build>
