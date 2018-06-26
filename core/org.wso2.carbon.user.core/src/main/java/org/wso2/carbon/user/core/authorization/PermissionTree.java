@@ -993,7 +993,10 @@ public class PermissionTree {
                 } else {
                     if(!StringUtils.isEmpty(resourceId)) {
                         //If permission tree is cached, only update the permissions of given resource path
-                        updateResourcePermissionsById(resourceId);
+                        synchronized (this) {
+                            updateResourcePermissionsById(resourceId);
+                            cacheEntry.setResource(root);
+                        }
                     }
                 }
             } else {
@@ -1035,7 +1038,12 @@ public class PermissionTree {
             tree.root = this.root;
             dbConnection = getDBConnection();
             // Populating role permissions
-            statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID);
+            if (preserveCaseForResources) {
+                statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID_CASE_SENSITIVE);
+            } else {
+                statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID);
+            }
+
             statement.setInt(1, tenantId);
             statement.setInt(2, tenantId);
             statement.setString(3, resourceId);
@@ -1054,6 +1062,14 @@ public class PermissionTree {
             } finally {
                 write.unlock();
             }
+
+            write.lock();
+            try {
+                this.root = tree.root;
+            } finally {
+                write.unlock();
+            }
+
         } catch (SQLException e) {
             throw new UserStoreException(
                     "Error loading authorizations. Please check the database. Error message is "
