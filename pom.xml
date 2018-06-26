@@ -418,6 +418,11 @@
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${org.wso2.securevault.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.securevault</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.directory</groupId>
@@ -898,6 +903,11 @@
                 <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
                 <artifactId>encoder</artifactId>
                 <version>${encoder.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.owasp.encoder</groupId>
+                <artifactId>encoder-jsp</artifactId>
+                <version>${encoder-jsp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.eclipse.osgi</groupId>
@@ -1705,6 +1715,7 @@
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
+        <encoder-jsp.version>1.2.1</encoder-jsp.version>
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
