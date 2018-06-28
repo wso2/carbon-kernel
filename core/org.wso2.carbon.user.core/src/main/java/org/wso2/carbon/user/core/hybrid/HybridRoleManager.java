@@ -34,7 +34,6 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.xml.StringUtils;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,6 +43,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
 
 public class HybridRoleManager {
 
@@ -574,12 +574,25 @@ public class HybridRoleManager {
                         tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
             }
             if (addRoles != null && addRoles.length > 0) {
+                ArrayList<String> newRoleList = new ArrayList<>();
+                for (String role : addRoles) {
+                    if(!isExistingRole(role)){
+                        String errorMessage = "The role: " + role + " does not exist.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                    if (!isUserInRole(user, role)) {
+                        newRoleList.add(role);
+                    }
+                }
+
+                String[] rolesToAdd = newRoleList.toArray(new String[newRoleList.size()]);
+
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
-                            tenantId, addRoles, tenantId);
+                            tenantId, rolesToAdd, tenantId);
                 } else {
-                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, addRoles,
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, rolesToAdd,
                             tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
                 }
             }
