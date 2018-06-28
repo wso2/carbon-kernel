@@ -379,6 +379,13 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         admin.updateRoleListOfUser("saman", new String[]{"role2"}, new String[]{"role4",
                 "role3"});
         try {
+            admin.updateRoleListOfUser("saman", new String[]{"role2"}, new String[]{"role4",
+                    "role3"});
+        } catch (UserStoreException e) {
+            fail("Cannot assign same role to user again.");
+        }
+
+        try {
             admin.updateRoleListOfUser(null, null, new String[]{"role2"});
             fail("Exceptions at missing user name");
         } catch (Exception ex) {
