@@ -1476,6 +1476,18 @@
                 <scope>test</scope>
                 <version>${h2database.version}</version>
             </dependency>
+
+            <!-- MSF4J currently used only on tests, and dependency is added at this project only, not at root pom -->
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-core</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-microservice</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
