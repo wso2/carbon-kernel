@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.11.262-SNAPSHOT</version>
+    <version>5.12.15-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -283,6 +283,12 @@
                 <groupId>org.apache.rampart.wso2</groupId>
                 <artifactId>rampart-core</artifactId>
                 <version>${rampart.wso2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.rampart.wso2</groupId>
@@ -412,6 +418,11 @@
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${org.wso2.securevault.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.securevault</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.directory</groupId>
@@ -472,16 +483,17 @@
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-api</artifactId>
                 <version>${axiom.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>wsdl4j.wso2</groupId>
                 <artifactId>wsdl4j</artifactId>
                 <version>${wsdl4j.wso2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.schema.wso2</groupId>
-                <artifactId>XmlSchema</artifactId>
-                <version>${orbit.version.xmlschema}</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -594,16 +606,6 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.provider</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-impl</artifactId>
-                <version>${axiom.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-dom</artifactId>
-                <version>${axiom.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-httpclient.wso2</groupId>
@@ -901,6 +903,11 @@
                 <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
                 <artifactId>encoder</artifactId>
                 <version>${encoder.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.owasp.encoder</groupId>
+                <artifactId>encoder-jsp</artifactId>
+                <version>${encoder-jsp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.eclipse.osgi</groupId>
@@ -1294,11 +1301,6 @@
                 <version>${json.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbusds.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
@@ -1462,6 +1464,25 @@
                 <artifactId>siddhi-annotations</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <scope>test</scope>
+                <version>${h2database.version}</version>
+            </dependency>
+
+            <!-- MSF4J currently used only on tests, and dependency is added at this project only, not at root pom -->
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-core</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-microservice</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1570,8 +1591,6 @@
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.imp.pkg.version.range>[1.5.7,2.0.0)</apacheds.imp.pkg.version.range>
-        <nimbusds.version>2.26.1.wso2v3</nimbusds.version>
-        <nimbusds.osgi.version.range>[2.26.1,3.0.0)</nimbusds.osgi.version.range>
         <bcprov.version>1.49.0.wso2v2</bcprov.version>
 
         <!-- Orbits -->
@@ -1685,6 +1704,7 @@
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
         <openspml.version>192-20100413</openspml.version>
         <testng.version>6.9.10</testng.version>
+        <msf4j.version>2.6.2</msf4j.version>
         <jacoco.version>0.7.9</jacoco.version>
         <jmockit.version>1.35</jmockit.version>
         <powermock.version>1.6.6</powermock.version>
@@ -1701,6 +1721,7 @@
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
+        <encoder-jsp.version>1.2.1</encoder-jsp.version>
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
@@ -1736,6 +1757,7 @@
         <antlr.version>4.5</antlr.version>
         <guava.version>19.0</guava.version>
         <snakeyaml.version>1.11</snakeyaml.version>
+        <h2database.version>1.2.140</h2database.version>
     </properties>
 
     <build>
