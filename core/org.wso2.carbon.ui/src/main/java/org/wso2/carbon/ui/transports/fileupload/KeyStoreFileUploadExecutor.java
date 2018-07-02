@@ -85,7 +85,7 @@ public class KeyStoreFileUploadExecutor extends org.wso2.carbon.ui.transports.fi
         } catch (Exception e) {
             log.error("KeyStore file upload failed", e);
             out.write("<script type=\"text/javascript\">" +
-                      "top.wso2.wsf.Util.alertWarning('KeyStore file upload FAILED. Reason : " + e + "');" +
+                      "top.wso2.wsf.Util.alertWarning('KeyStore file upload FAILED. Reason : " + e.getMessage() + "');" +
                       "</script>");
         } finally {
             out.close();
