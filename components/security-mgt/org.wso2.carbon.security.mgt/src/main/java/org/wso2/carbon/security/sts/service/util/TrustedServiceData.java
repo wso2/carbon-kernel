@@ -18,10 +18,19 @@
 
 package org.wso2.carbon.security.sts.service.util;
 
+import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Trusted service information
  */
-public class TrustedServiceData {
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class TrustedServiceData implements Serializable {
+
+    private static final long serialVersionUID = 8180341106812151691L;
 
     private String serviceAddress;
     private String certAlias;
@@ -33,17 +42,23 @@ public class TrustedServiceData {
      * @param certAlias      Alias of the cert of the service
      */
     public TrustedServiceData(String serviceAddress, String certAlias) {
+
         this.serviceAddress = serviceAddress;
         this.certAlias = certAlias;
     }
 
+    public TrustedServiceData() {
+
+    }
+
     public String getServiceAddress() {
+
         return serviceAddress;
     }
 
     public String getCertAlias() {
+
         return certAlias;
     }
-
 
 }

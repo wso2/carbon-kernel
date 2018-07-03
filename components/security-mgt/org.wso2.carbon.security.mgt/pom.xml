@@ -81,6 +81,14 @@
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -108,7 +116,8 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.xml.namespace,
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
-
+                            javax.xml.bind,
+                            javax.xml.bind.annotation,
                             org.w3c.dom,
                             org.jaxen; version="${axiom.org.jaxen.imp.pkg.version.range}",
 
