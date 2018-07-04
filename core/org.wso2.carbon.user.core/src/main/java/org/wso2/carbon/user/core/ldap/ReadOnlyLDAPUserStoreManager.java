@@ -35,9 +35,12 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
+import org.wso2.carbon.user.core.model.*;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -2637,6 +2640,221 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         return values.toArray(new String[values.size()]);
+    }
+
+    protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset,
+                                                  String sortBy, String sortOrder) throws UserStoreException {
+
+        boolean isGroupFiltering = false;
+        boolean isUsernameFiltering = false;
+        boolean isClaimFiltering = false;
+        boolean debug = log.isDebugEnabled();
+        PaginatedSearchResult result = new PaginatedSearchResult();
+
+        String userAttributeSeparator = ",";
+        String serviceNameAttribute = "sn";
+        List<String> values = new ArrayList<String>();
+        String userPropertyName="";
+
+        //Since we support only AND operation get expressions as a list.
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+        getExpressionConditions(condition, expressionConditions);
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+                isGroupFiltering = true;
+                userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+            } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                isUsernameFiltering = true;
+                userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+            } else {
+                isClaimFiltering = true;
+                userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+            }
+        }
+
+        String searchFilter = getSearchFitler(isGroupFiltering,isUsernameFiltering,isClaimFiltering,expressionConditions);
+        log.debug("search filter is: " + searchFilter);
+
+        String[] users = new String[0];
+        DirContext dirContext = this.connectionSource.getContext();
+        NamingEnumeration<?> answer = null;
+        NamingEnumeration<?> attrs = null;
+        if (debug) {
+            log.debug("Listing users with Property: userName" + " SearchFilter: " + searchFilter); //+ property +
+        }
+
+        String[] returnedAttributes = new String[]{ userPropertyName, serviceNameAttribute };
+        try {
+            answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.next();
+                Attributes attributes = sr.getAttributes();
+                if (attributes != null) {
+                    Attribute attribute = attributes.get(userPropertyName);
+                    if (attribute != null) {
+                        StringBuffer attrBuffer = new StringBuffer();
+                        for (attrs = attribute.getAll(); attrs.hasMore(); ) {
+                            String attr = (String) attrs.next();
+                            if (attr != null && attr.trim().length() > 0) {
+
+                                String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                                if (attrSeparator != null && !attrSeparator.trim().isEmpty()) {
+                                    userAttributeSeparator = attrSeparator;
+                                }
+                                attrBuffer.append(attr + userAttributeSeparator);
+                                if (debug) {
+                                    log.debug(userPropertyName + " : " + attr);
+                                }
+                            }
+                        }
+                        String propertyValue = attrBuffer.toString();
+                        Attribute serviceNameObject = attributes.get(serviceNameAttribute);
+                        String serviceNameAttributeValue = null;
+                        if (serviceNameObject != null) {
+                            serviceNameAttributeValue = (String) serviceNameObject.get();
+                        }
+                        // Length needs to be more than userAttributeSeparator.length() for a valid
+                        // attribute, since we
+                        // attach userAttributeSeparator.
+                        if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
+                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
+                                continue;
+                            }
+                            propertyValue = propertyValue.substring(0, propertyValue.length() - userAttributeSeparator.length());
+                            values.add(propertyValue);
+                        }
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            String errorMessage = "Error occur while doGetUserList for multi attribute searching";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            // close the naming enumeration and free up resources
+            JNDIUtil.closeNamingEnumeration(attrs);
+            JNDIUtil.closeNamingEnumeration(answer);
+            // close directory context
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        if (log.isDebugEnabled()) {
+            String[] results = values.toArray(new String[values.size()]);
+            for (String r : results) {
+                log.debug("result: " + r);
+            }
+        }
+
+        if (values.size() > 0) {
+            users = values.toArray(new String[values.size()]);
+        }
+        result.setUsers(users);
+        return result;
+    }
+
+    private void getExpressionConditions(Condition condition, List<ExpressionCondition> expressionConditions){
+
+        if (condition instanceof ExpressionCondition) {
+            expressionConditions.add((ExpressionCondition) condition);
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            getExpressionConditions(leftCondition, expressionConditions);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            getExpressionConditions(rightCondition, expressionConditions);
+        }
+    }
+
+
+    private String getSearchFitler(boolean isGroupFiltering, boolean isUsernameFiltering, boolean
+            isClaimFilteringList, List<ExpressionCondition> expressionConditions ){
+
+        String searchFilter="";
+        String filterQuery="";
+        String userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String groupPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+
+        if (isUsernameFiltering && isClaimFilteringList) {
+            searchFilter=realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+        }else if (isGroupFiltering && isClaimFilteringList) {
+            searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
+        }else if (isUsernameFiltering) {
+            searchFilter=realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+        }else if (isGroupFiltering){
+            searchFilter=realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
+        }else if (isClaimFilteringList){
+            searchFilter=realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+        }
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
+                    .ROLE.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery +  "(" + groupPropertyName + "="
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) +")";
+
+            } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery +  "(" + userPropertyName + "="
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) +")";
+
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
+                    .ROLE.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery + "(" + groupPropertyName + "=*"
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
+
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
+                    .USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery + "(" + userPropertyName + "=*"
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
+
+            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery + "(" + groupPropertyName + "=*"
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + ")";
+
+            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery + "(" + userPropertyName + "=*"
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + ")";
+
+            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
+                    .ROLE.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery + "(" + groupPropertyName + "="
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
+
+            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
+                    .USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+
+                filterQuery = filterQuery + "(" + userPropertyName + "="
+                        + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
+
+            } else {
+                if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                    filterQuery = filterQuery +  "(" + expressionCondition.getAttributeName() + "="
+                            + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) +")";
+                } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())) {
+                    filterQuery = filterQuery + "(" + expressionCondition.getAttributeName() + "=*"
+                            + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
+                } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())) {
+                    filterQuery = filterQuery + "(" + expressionCondition.getAttributeName() + "=*"
+                            + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + ")";
+                } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())) {
+                    filterQuery = filterQuery + "(" + expressionCondition.getAttributeName() + "="
+                            + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
+                }
+            }
+        }
+        searchFilter = "(&" + searchFilter +"" + filterQuery + ")";
+        return searchFilter;
     }
 
     protected String convertBytesToHexString(byte[] bytes) {
