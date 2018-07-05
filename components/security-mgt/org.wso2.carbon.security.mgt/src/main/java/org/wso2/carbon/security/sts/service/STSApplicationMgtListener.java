@@ -61,6 +61,8 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
     @Override
     public int getDefaultOrderId() {
 
+        // Force this listener to be executed last as we are deleting the ws trust configurations in th pre-delete
+        // method.
         return 998;
     }
 
