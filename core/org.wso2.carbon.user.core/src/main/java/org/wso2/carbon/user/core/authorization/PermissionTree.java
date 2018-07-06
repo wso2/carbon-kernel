@@ -1060,16 +1060,9 @@ public class PermissionTree {
                     }
                 }
             } finally {
-                write.unlock();
-            }
-
-            write.lock();
-            try {
                 this.root = tree.root;
-            } finally {
                 write.unlock();
             }
-
         } catch (SQLException e) {
             throw new UserStoreException(
                     "Error loading authorizations. Please check the database. Error message is "
