@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.12.18-SNAPSHOT</version>
+    <version>5.12.21</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -34,7 +34,7 @@
         <url>https://github.com/wso2/carbon-identity-framework.git</url>
         <developerConnection>scm:git:https://github.com/wso2/carbon-identity-framework.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon-identity-framework.git</connection>
-        <tag>HEAD</tag>
+        <tag>v5.12.21</tag>
     </scm>
 
     <modules>
@@ -1503,7 +1503,7 @@
         <carbon.kernel.version>4.4.27</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
-        <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.consent.mgt.imp.pkg.version.range>
+        <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 3.0.0)</carbon.consent.mgt.imp.pkg.version.range>
 
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <osgi.service.http.imp.pkg.version.range>[1.2.1, 2.0.0)</osgi.service.http.imp.pkg.version.range>
@@ -1726,7 +1726,7 @@
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
         <io.swagger.version>1.5.8</io.swagger.version>
-        <carbon.consent.mgt.version>1.0.46</carbon.consent.mgt.version>
+        <carbon.consent.mgt.version>2.0.0</carbon.consent.mgt.version>
 
         <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
         <org.apache.xml.security.range>[0.0.0,2.0.0)</org.apache.xml.security.range>
