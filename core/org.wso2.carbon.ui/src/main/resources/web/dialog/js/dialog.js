@@ -303,13 +303,15 @@ CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, 
     if (windowWidth) {
         requiredWidth = windowWidth;
     }
+    var dContainer = jQuery("#dcontainer");
+    var popUpDialog = jQuery("#dialog");
     var func = function () {
-        jQuery("#dcontainer").html(strDialog);
+        dContainer.html(strDialog);
         if (okButton) {
-            jQuery("#dialog").dialog({
+            popUpDialog.dialog({
                 close: function () {
                     jQuery(this).dialog('destroy').remove();
-                    jQuery("#dcontainer").empty();
+                    dContainer.empty();
                     return false;
                 },
                 buttons: {
@@ -317,12 +319,12 @@ CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, 
                         if (callback && typeof callback == "function")
                             callback();
                         jQuery(this).dialog("destroy").remove();
-                        jQuery("#dcontainer").empty();
+                        dContainer.empty();
                         return false;
                     },
                     "Cancel": function () {
                         jQuery(this).dialog('destroy').remove();
-                        jQuery("#dcontainer").empty();
+                        dContainer.empty();
                         return false;
                     },
                 },
@@ -333,10 +335,10 @@ CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, 
                 modal: true
             });
         } else {
-            jQuery("#dialog").dialog({
+            popUpDialog.dialog({
                 close: function () {
                     jQuery(this).dialog('destroy').remove();
-                    jQuery("#dcontainer").empty();
+                    dContainer.empty();
                     return false;
                 },
                 height: windowHeight,
@@ -359,8 +361,7 @@ CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, 
 
         jQuery('.ui-dialog-titlebar-close').click(function () {
             jQuery('#dialog').dialog("destroy").remove();
-            jQuery("#dcontainer").empty();
-            jQuery("#dcontainer").html('');
+            dContainer.empty();
         });
 
     };
@@ -371,14 +372,8 @@ CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, 
     }
 
     function isHTML(str) {
-        var a = document.createElement('div');
-        a.innerHTML = str;
-
-        for (var c = a.childNodes, i = c.length; i--;) {
-            if (c[i].nodeType == 1) return true;
-        }
-
-        return false;
+        var regex = RegExp(/<[a-z][\s\S]*>/i);
+        return regex.test(str);
     }
 }
 
@@ -401,7 +396,7 @@ CARBON.showInputDialog = function(message, handleOk, handleCancel, closeCallback
     var strInput = "<div style='margin:20px;'><p>"+message+ "</p><br/>"+
                    "<input type='text' id='carbon-ui-dialog-input' size='40' name='carbon-dialog-inputval'></div>";
     var strDialog = "<div id='dialog' title='WSO2 Carbon'>" + strInput + "</div>";
-    var func = function() {   
+    var func = function() {
 	    jQuery("#dcontainer").html(strDialog);
 	    jQuery("#dialog").dialog({
 	        close:function() {
