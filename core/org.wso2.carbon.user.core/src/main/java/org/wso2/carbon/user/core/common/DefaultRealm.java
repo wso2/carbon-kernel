@@ -243,16 +243,24 @@ public class DefaultRealm implements UserRealm {
             }
 
             while (tmpRealmConfig != null) {
+
+                if (tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
+                    isDisabled = Boolean.parseBoolean(
+                            tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
+                }
+                domainName = tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                 value = tmpRealmConfig.getUserStoreClass();
                 if (value == null) {
-                    log.info("System is functioning without user store writing ability. User add/edit/delete will not work");
+                    log.info(
+                            "System is functioning without user store writing ability. User add/edit/delete will not work");
+                } else if (isDisabled){
+                    log.warn("Secondary user store disabled with domain " + domainName + ".");
+                    tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
+                    continue;
                 } else {
                     try {
-                        UserStoreManager manager = (UserStoreManager) createObjectWithOptions(
-                                value, tmpRealmConfig, properties);
-
-                        domainName = tmpRealmConfig
-                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                        UserStoreManager manager = (UserStoreManager) createObjectWithOptions(value, tmpRealmConfig,
+                                properties);
 
                         if (domainName != null) {
                             if (userStoreManager.getSecondaryUserStoreManager(domainName) != null) {
@@ -261,20 +269,6 @@ public class DefaultRealm implements UserRealm {
                                 tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
                                 continue;
                             } else {
-                                isDisabled = false;
-
-                                if (tmpRealmConfig
-                                        .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
-                                    isDisabled = Boolean
-                                            .parseBoolean(tmpRealmConfig
-                                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
-                                    if (isDisabled) {
-                                        log.warn("Secondary user store disabled with domain " + domainName
-                                                + ".");
-                                        tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
-                                        continue;
-                                    }
-                                }
 
                                 tmpUserStoreManager.setSecondaryUserStoreManager(manager);
                                 userStoreManager.addSecondaryUserStoreManager(domainName,
