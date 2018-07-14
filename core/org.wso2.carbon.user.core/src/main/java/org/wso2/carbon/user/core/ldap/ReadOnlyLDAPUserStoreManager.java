@@ -2820,10 +2820,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     filterQuery = filterQuery + "(" + groupPropertyName + "=*"
                             + escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()) + "*)";
                 }
-
             } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
                     .USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-
                 if (membershipPropertyFound) {
                     throw new UserStoreException("Can't use 'co' filter operation on 'member' property.");
                 } else {
