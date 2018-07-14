@@ -1497,6 +1497,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
+
     /**
      *
      */
@@ -1623,6 +1624,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public RealmConfiguration getRealmConfiguration() {
         return this.realmConfig;
     }
+
 
     /**
      *
@@ -2129,6 +2131,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return getLDAPRoleListOfUser(userName, filter, searchBase, false);
     }
 
+
     @Override
     protected String[] doGetSharedRoleListOfUser(String userName,
                                                  String tenantDomain, String filter) throws UserStoreException {
@@ -2358,7 +2361,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
             String errorMessage = "Error occurred while GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " +
-                    searchBase + " SearchFilter: " + searchFilter;
+                                   searchBase + " SearchFilter: " + searchFilter;
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
@@ -3513,10 +3516,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (Exception e) {
             log.error("Validating remember me token failed for" + userName);
-            /*
-             * not throwing exception. because we need to seamlessly direct them
-             * to login uis
-             */
+                        /*
+                         * not throwing exception. because we need to seamlessly direct them
+                         * to login uis
+                         */
         }
         return false;
     }
@@ -3600,6 +3603,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return properties;
     }
 
+
     @Override
     public boolean isSharedRole(String roleName, String roleNameBase) {
         if (super.isSharedRole(roleName, roleNameBase) && roleNameBase != null) {
@@ -3612,6 +3616,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         return false;
     }
+
 
     @Override
     protected boolean isOwnRole(String roleName) {
@@ -3699,7 +3704,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param ldn
      * @return
      */
-    private String escapeLdapNameForFilter(LdapName ldn) {
+    private String escapeLdapNameForFilter(LdapName ldn){
 
         if (ldn == null) {
             if (log.isDebugEnabled()) {
@@ -3935,6 +3940,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return false;
     }
 
+
     private static void setAdvancedProperties() {
         //Set Advanced Properties
 
@@ -4061,6 +4067,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
+
 
     /**
      * Puts the DN into the cache.
