@@ -55,7 +55,6 @@ import javax.xml.bind.Unmarshaller;
 
 public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
 
-
     private static Log log = LogFactory.getLog(STSApplicationMgtListener.class);
 
     @Override
@@ -78,7 +77,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
             InboundAuthenticationRequestConfig[] configs = serviceProvider.getInboundAuthenticationConfig()
                     .getInboundAuthenticationRequestConfigs();
             for (InboundAuthenticationRequestConfig config : configs) {
-                if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
+                if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
                         config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
                     try {
                         AxisService stsService = getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -110,7 +109,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
     }
 
     @Override
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+    public void onPreCreateInbound(ServiceProvider serviceProvider, boolean isUpdate)
             throws IdentityApplicationManagementException {
 
         List<String> validationMsg = new ArrayList<>();
@@ -121,7 +120,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
             for (InboundAuthenticationRequestConfig authConfig
                     : inboundAuthenticationConfig.getInboundAuthenticationRequestConfigs()) {
 
-                if (StringUtils.equals(authConfig.getInboundAuthType(), "wstrust")) {
+                if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(authConfig.getInboundAuthType())) {
                     if (authConfig.getInboundConfiguration() != null) {
                         TrustedServiceData trustedServiceData = unmarshalTrustedServiceData(
                                 authConfig.getInboundConfiguration(), serviceProvider.getApplicationName(),
@@ -143,7 +142,6 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
         if (!validationMsg.isEmpty()) {
             throw new IdentityApplicationManagementValidationException(validationMsg.toArray(new String[0]));
         }
-        return true;
     }
 
     @Override
@@ -155,12 +153,12 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
 
             for (InboundAuthenticationRequestConfig authConfig
                     : inboundAuthenticationConfig.getInboundAuthenticationRequestConfigs()) {
-                if (StringUtils.equals(authConfig.getInboundAuthType(), "wstrust")) {
+                if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(authConfig.getInboundAuthType())) {
                     TrustedServiceData trustedServiceData = unmarshalTrustedServiceData(
                             authConfig.getInboundConfiguration(), serviceProvider.getApplicationName(),
                             serviceProvider.getOwner().getTenantDomain());
                     String inboundConfiguration = authConfig.getInboundConfiguration();
-                    if (inboundConfiguration == null || "".equals(inboundConfiguration)) {
+                    if (StringUtils.isBlank(inboundConfiguration)) {
                         String errorMsg = String.format("No inbound configurations found for wstrust in the imported " +
                                 "%s", serviceProvider.getApplicationName());
                         throw new IdentityApplicationManagementException(errorMsg);
@@ -188,7 +186,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
 
             for (InboundAuthenticationRequestConfig authConfig
                     : inboundAuthenticationConfig.getInboundAuthenticationRequestConfigs()) {
-                if (StringUtils.equals(authConfig.getInboundAuthType(), "wstrust")) {
+                if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(authConfig.getInboundAuthType())) {
                     String inboundAuthKey = authConfig.getInboundAuthKey();
 
                     try {
@@ -218,6 +216,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
      * @throws org.wso2.carbon.registry.api.RegistryException
      */
     private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws AxisFault, RegistryException {
+
         new SecurityServiceAdmin(getAxisConfig(), getConfigSystemRegistry()).
                 setServiceParameterElement(ServerConstants.STS_NAME, samlConfig.getParameter());
     }
@@ -228,6 +227,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
      * @return axis configuration
      */
     private AxisConfiguration getAxisConfig() {
+
         return SecurityMgtServiceComponent.getServerConfigurationContext().getAxisConfiguration();
     }
 
@@ -238,6 +238,7 @@ public class STSApplicationMgtListener extends AbstractApplicationMgtListener {
      * @throws org.wso2.carbon.registry.api.RegistryException
      */
     private Registry getConfigSystemRegistry() throws RegistryException {
+
         return SecurityMgtServiceComponent.getRegistryService().getConfigSystemRegistry();
     }
 
