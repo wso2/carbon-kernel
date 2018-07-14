@@ -2361,7 +2361,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
             String errorMessage = "Error occurred while GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " +
-                    searchBase + " SearchFilter: " + searchFilter;
+                                  searchBase + " SearchFilter: " + searchFilter;
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
@@ -3518,10 +3518,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (Exception e) {
             log.error("Validating remember me token failed for" + userName);
-                       /*
-                        * not throwing exception. because we need to seamlessly direct them
-                        * to login uis
-                        */
+                      /*
+                       * not throwing exception. because we need to seamlessly direct them
+                       * to login uis
+                       */
         }
         return false;
     }
