@@ -3193,7 +3193,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // adding roles list in to the cache
             if (list != null) {
                //avoid adding roles to cache if the cached user realm is not defined yet. otherwise, it will go into an
-               //infinite loop, if this method is called while creating a realm.
+               // infinite loop, if this method is called while creating a realm.
                 RealmService defaultRealmService = UserStoreMgtDSComponent.getRealmService();
                 if (defaultRealmService != null && defaultRealmService.getCachedUserRealm(tenantId) != null) {
                     addAllRolesToUserRolesCache(userName, list);
@@ -3518,10 +3518,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (Exception e) {
             log.error("Validating remember me token failed for" + userName);
-                      /*
-                       * not throwing exception. because we need to seamlessly direct them
-                       * to login uis
-                       */
+                       /*
+                        * not throwing exception. because we need to seamlessly direct them
+                        * to login uis
+                        */
         }
         return false;
     }
