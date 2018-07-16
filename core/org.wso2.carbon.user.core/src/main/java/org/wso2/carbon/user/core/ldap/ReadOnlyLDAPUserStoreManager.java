@@ -2767,13 +2767,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         if (filterCategory[0]) {
             String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
-            if (!memberOfProperty.isEmpty()) {
+            if (memberOfProperty != null && !memberOfProperty.isEmpty()) {
                 isMemberPropertyFound[0] = true;
                 searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
                 returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
             } else {
                 String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-                if (membershipProperty.isEmpty()) {
+                if (membershipProperty == null || membershipProperty.isEmpty()) {
                     throw new UserStoreException("Please set member of attribute or membership attribute");
                 }
                 isMemberPropertyFound[1] = true;
