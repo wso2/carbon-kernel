@@ -1414,16 +1414,19 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-testng</artifactId>
                 <version>${org.powermock.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito</artifactId>
                 <version>${org.powermock.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-testng-common</artifactId>
                 <version>${org.powermock.version}</version>
+                <scope>test</scope>
             </dependency>
             <!-- Common test utility -->
             <dependency>
@@ -1472,16 +1475,18 @@
                 <version>${h2database.version}</version>
             </dependency>
 
-            <!-- MSF4J currently used only on tests, and dependency is added at this project only, not at root pom -->
+            <!-- MSF4J currently used only on tests as of now -->
             <dependency>
                 <groupId>org.wso2.msf4j</groupId>
                 <artifactId>msf4j-core</artifactId>
                 <version>${msf4j.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.msf4j</groupId>
                 <artifactId>msf4j-microservice</artifactId>
                 <version>${msf4j.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
 
@@ -1757,7 +1762,7 @@
         <antlr.version>4.5</antlr.version>
         <guava.version>19.0</guava.version>
         <snakeyaml.version>1.11</snakeyaml.version>
-        <h2database.version>1.2.140</h2database.version>
+        <h2database.version>1.3.175</h2database.version>
     </properties>
 
     <build>
