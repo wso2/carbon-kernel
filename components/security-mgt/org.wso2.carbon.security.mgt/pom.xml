@@ -81,6 +81,14 @@
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -108,7 +116,8 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.xml.namespace,
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
-
+                            javax.xml.bind,
+                            javax.xml.bind.annotation,
                             org.w3c.dom,
                             org.jaxen; version="${axiom.org.jaxen.imp.pkg.version.range}",
 
@@ -139,8 +148,13 @@
                             org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.core.*;
-                            version="${carbon.identity.package.import.version.range}"
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.model; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.util; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.mgt; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.mgt.listener; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.mgt.dao; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.security.internal,
