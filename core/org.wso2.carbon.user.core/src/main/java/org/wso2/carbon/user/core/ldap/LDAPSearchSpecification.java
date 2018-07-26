@@ -93,9 +93,11 @@ public class LDAPSearchSpecification {
         String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
 
         if (isGroupFiltering && isMemberShipPropertyFound) {
-            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
+            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
+                    getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
         } else {
-            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
+            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
+                    getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
         }
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
@@ -135,10 +137,12 @@ public class LDAPSearchSpecification {
                 if (!isMemberShipPropertyFound) {
                     property = new StringBuilder(expressionCondition.getAttributeName());
                 } else {
-                    throw new UserStoreException("Can't do user claims filtering while using membership group filtering.");
+                    throw new UserStoreException("Claims filtering not supported while using membership" +
+                            " group filtering.");
                 }
             }
-            ExpressionCondition condition = new ExpressionCondition(operation, String.valueOf(property), String.valueOf(value));
+            ExpressionCondition condition = new ExpressionCondition(operation, String.valueOf(property),
+                    String.valueOf(value));
             ldapFilterQueryBuilder.addFilter(condition, isMembershipMulitGroupFilters);
         }
     }
