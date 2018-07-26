@@ -3473,6 +3473,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPostUpdateInternalRoleName(roleName,
                             newRoleName, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
                 } else if (!internalRole) {
                     success = listener.doPostUpdateRoleName(roleName, newRoleName, this);
                 }
@@ -3515,6 +3517,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPreUpdateInternalRoleName(roleName,
                             newRoleName, this);
+                }
+                if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
                 } else if (!internalRole) {
                     success = listener.doPreUpdateRoleName(roleName, newRoleName, this);
                 }
@@ -4349,6 +4354,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPostAddInternalRole(roleName,
                             userList, permissions, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
                 } else if (!internalRole) {
                     success = listener.doPostAddRole(roleName, userList, permissions, this);
                 }
@@ -4383,6 +4390,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPreAddInternalRole(roleName,
                             userList, permissions, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
                 } else if (!internalRole) {
                     success = listener.doPreAddRole(roleName, userList, permissions, this);
                 }
@@ -4604,6 +4613,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 boolean success = false;
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPostDeleteInternalRole(roleName, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
                 } else if (!internalRole) {
                     success = listener.doPostDeleteRole(roleName, this);
                 }
@@ -4643,6 +4654,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 boolean success = false;
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalRole(roleName, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
                 } else if (!internalRole) {
                     success = listener.doPreDeleteRole(roleName, this);
                 }
