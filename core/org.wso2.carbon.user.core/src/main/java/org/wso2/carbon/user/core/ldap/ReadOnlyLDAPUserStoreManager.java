@@ -2722,12 +2722,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (log.isDebugEnabled()) {
-            try {
-                log.debug("Searching for user(s) with SearchFilter: " + searchFilter + " in SearchBase: "
-                        + ldapContext.getNameInNamespace());
-            } catch (NamingException e) {
-                log.debug("Error while getting DN of search base", e);
-            }
+            log.debug("Searching for user(s) with SearchFilter: " + searchFilter);
             if (returnedAttributes == null) {
                 log.debug("No attributes requested");
             } else {
