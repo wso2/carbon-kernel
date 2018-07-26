@@ -2658,8 +2658,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param limit       The number of entries to return in a page.
      * @param offset      Start index.
      * @param sortBy      Sort according to the given attribute name.
-     * @param sortBy      Order of sorting.
-     *                    here sortBy,sortBy is null.
+     * @param sortBy      Sorting order.
      * @return A non-null PaginatedSearchResult instance. Typically contains user names with pagination.
      * @throws UserStoreException If an UserStoreException is encountered
      *                            while searching for users in a given condition.
@@ -2751,7 +2750,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         tempUserList = getUserListFromNonGroupFilterResult(answer, returnedAttributes);
                         pageIndex++;
 
-                        //
+                        //Handle pagination depends on given offset/start index.
                         if (pageIndex == (offset / pageSize)) {
                             int startPosition = (offset % pageSize);
                             if (startPosition < tempUserList.size() - 1 && 0 < startPosition) {
