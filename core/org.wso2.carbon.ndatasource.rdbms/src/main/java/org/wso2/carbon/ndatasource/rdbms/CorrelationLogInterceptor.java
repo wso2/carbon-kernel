@@ -39,6 +39,7 @@ import java.util.Map;
 public class CorrelationLogInterceptor extends AbstractQueryReport {
 
     private static final Log correlationLog = LogFactory.getLog("CORRELATION_LOG");
+    private static Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
 
     private static final String CORRELATION_LOG_TIME_TAKEN_KEY = "delta";
     private static final String CORRELATION_LOG_TIME_TAKEN_UNIT = "ms";
@@ -50,8 +51,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     private static final String CORRELATION_LOG_CONNECTION_URL_KEY = "connectionUrl";
     private static final String CORRELATION_LOG_SEPARATOR = " | ";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
-
-    private static Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
 
     @Override
     public void closeInvoked() {
@@ -128,6 +127,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
             String name = method.getName();
             boolean close = CorrelationLogInterceptor.this.compare("close", name);
             try {
+                //Checks if the method name is of type closed and will not log time taken for those methods
                 if (close && this.closed) {
                     return null;
                 } else if (CorrelationLogInterceptor.this.compare("isClosed", name)) {
@@ -135,8 +135,8 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
                 } else if (this.closed) {
                     throw new SQLException("Statement closed.");
                 } else {
-                    boolean process = false;
-                    process = CorrelationLogInterceptor.this.isExecute(method, process);
+                    boolean process;
+                    process = CorrelationLogInterceptor.this.isExecute(method, false);
 
                     long start = System.currentTimeMillis();
                     Object result = null;
@@ -174,22 +174,26 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
          */
         private void logQueryDetails(long start, long delta, String methodName) throws SQLException {
 
-            if (this.delegate instanceof PreparedStatement) {
-                PreparedStatement preparedStatement = (PreparedStatement) this.delegate;
-                if (preparedStatement.getConnection() != null) {
-                    DatabaseMetaData metaData = preparedStatement.getConnection().getMetaData();
-                    if (correlationLog.isDebugEnabled()) {
-                        Map<String, String> logPropertiesMap = new LinkedHashMap<>();
-                        logPropertiesMap.put(CORRELATION_LOG_TIME_TAKEN_KEY, Long.toString(delta) +
-                                " " + CORRELATION_LOG_TIME_TAKEN_UNIT);
-                        logPropertiesMap.put(CORRELATION_LOG_CALL_TYPE_KEY, CORRELATION_LOG_CALL_TYPE_VALUE);
-                        logPropertiesMap.put(CORRELATION_LOG_START_TIME_KEY, Long.toString(start));
-                        logPropertiesMap.put(CORRELATION_LOG_METHOD_NAME_KEY, methodName);
-                        logPropertiesMap.put(CORRELATION_LOG_QUERY_KEY, this.query);
-                        logPropertiesMap.put(CORRELATION_LOG_CONNECTION_URL_KEY, metaData.getURL());
-                        correlationLog.debug(createLogFormat(logPropertiesMap));
-                    }
-                }
+            if (!(this.delegate instanceof PreparedStatement)) {
+                return;
+            }
+
+            PreparedStatement preparedStatement = (PreparedStatement) this.delegate;
+            if (preparedStatement.getConnection() == null) {
+                return;
+            }
+
+            DatabaseMetaData metaData = preparedStatement.getConnection().getMetaData();
+            if (correlationLog.isDebugEnabled()) {
+                Map<String, String> logPropertiesMap = new LinkedHashMap<>();
+                logPropertiesMap.put(CORRELATION_LOG_TIME_TAKEN_KEY, Long.toString(delta) +
+                        " " + CORRELATION_LOG_TIME_TAKEN_UNIT);
+                logPropertiesMap.put(CORRELATION_LOG_CALL_TYPE_KEY, CORRELATION_LOG_CALL_TYPE_VALUE);
+                logPropertiesMap.put(CORRELATION_LOG_START_TIME_KEY, Long.toString(start));
+                logPropertiesMap.put(CORRELATION_LOG_METHOD_NAME_KEY, methodName);
+                logPropertiesMap.put(CORRELATION_LOG_QUERY_KEY, this.query);
+                logPropertiesMap.put(CORRELATION_LOG_CONNECTION_URL_KEY, metaData.getURL());
+                correlationLog.debug(createLogFormat(logPropertiesMap));
             }
         }
 

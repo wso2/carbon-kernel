@@ -213,6 +213,7 @@ public class LDAPConnectionContext {
 
                 try {
                     context = getDirContext(environment);
+
                 } catch (Exception e1) {
                     log.error("Error obtaining connection for the second time" + e.getMessage(), e);
                     throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
@@ -226,6 +227,7 @@ public class LDAPConnectionContext {
                 SRVRecord firstRecord = dcMap.get(firstKey);
                 //compose the connection URL
                 environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
+
                 context = getDirContext(environment);
 
             } catch (NamingException e) {
@@ -464,7 +466,7 @@ public class LDAPConnectionContext {
      * Creates the proxy for directory context and wrap the context.
      * Calculate the time taken for creation
      *
-     * @param environment Contains all the environment details
+     * @param environment Used to get provider url and principal
      * @return The wrapped context
      * @throws NamingException
      */
@@ -499,7 +501,7 @@ public class LDAPConnectionContext {
      * Creates the proxy for LDAP context and wrap the context.
      * Calculate the time taken for creation
      *
-     * @param environment        Contains all the environment details
+     * @param environment Used to get provider url and principal
      * @param connectionControls The wrapped context
      * @return ldap connection context
      * @throws NamingException
@@ -602,8 +604,8 @@ public class LDAPConnectionContext {
      */
     private void logDetails(CorrelationLogDTO correlationLogDTO) {
 
-        String providerUrl = " ";
-        String principal = " ";
+        String providerUrl = "No provider url found";
+        String principal = "No principal found";
 
         if (correlationLogDTO.getEnvironment().containsKey("java.naming.provider.url")) {
             providerUrl = (String) environment.get("java.naming.provider.url");
@@ -614,32 +616,32 @@ public class LDAPConnectionContext {
         }
 
         if (correlationLog.isDebugEnabled()) {
-            Map<String, String> map = new LinkedHashMap<>();
-            map.put(CORRELATION_LOG_TIME_TAKEN_KEY, Long.toString(correlationLogDTO.getDelta()) +
+            Map<String, String> logPropertiesMap = new LinkedHashMap<>();
+            logPropertiesMap.put(CORRELATION_LOG_TIME_TAKEN_KEY, Long.toString(correlationLogDTO.getDelta()) +
                     CORRELATION_LOG_TIME_TAKEN_UNIT);
-            map.put(CORRELATION_LOG_CALL_TYPE_KEY, CORRELATION_LOG_CALL_TYPE_VALUE);
-            map.put(CORRELATION_LOG_START_TIME_KEY, Long.toString(correlationLogDTO.getStartTime()));
-            map.put(CORRELATION_LOG_METHOD_NAME_KEY, correlationLogDTO.getMethodName());
-            map.put(CORRELATION_LOG_PROVIDER_URL_KEY, providerUrl);
-            map.put(CORRELATION_LOG_PRINCIPAL_KEY, principal);
-            map.put(CORRELATION_LOG_ARGS_LENGTH_KEY, Integer.toString(correlationLogDTO.getArgsLength()));
-            map.put(CORRELATION_LOG_ARGS_KEY, correlationLogDTO.getArgs());
-            correlationLog.debug(createLogFormat(map));
+            logPropertiesMap.put(CORRELATION_LOG_CALL_TYPE_KEY, CORRELATION_LOG_CALL_TYPE_VALUE);
+            logPropertiesMap.put(CORRELATION_LOG_START_TIME_KEY, Long.toString(correlationLogDTO.getStartTime()));
+            logPropertiesMap.put(CORRELATION_LOG_METHOD_NAME_KEY, correlationLogDTO.getMethodName());
+            logPropertiesMap.put(CORRELATION_LOG_PROVIDER_URL_KEY, providerUrl);
+            logPropertiesMap.put(CORRELATION_LOG_PRINCIPAL_KEY, principal);
+            logPropertiesMap.put(CORRELATION_LOG_ARGS_LENGTH_KEY, Integer.toString(correlationLogDTO.getArgsLength()));
+            logPropertiesMap.put(CORRELATION_LOG_ARGS_KEY, correlationLogDTO.getArgs());
+            correlationLog.debug(createLogFormat(logPropertiesMap));
         }
     }
 
     /**
      * Creates the log line that should be printed
      *
-     * @param map Contains the type and value that should be printed in the log
+     * @param logPropertiesMap Contains the type and value that should be printed in the log
      * @return The log line
      */
-    private String createLogFormat(Map<String, String> map) {
+    private String createLogFormat(Map<String, String> logPropertiesMap) {
 
         StringBuilder sb = new StringBuilder();
-        Object[] keys = map.keySet().toArray();
+        Object[] keys = logPropertiesMap.keySet().toArray();
         for (int i = 0; i < keys.length; i++) {
-            sb.append(map.get(keys[i]));
+            sb.append(logPropertiesMap.get(keys[i]));
             if (i < keys.length - 1) {
                 sb.append(CORRELATION_LOG_SEPARATOR);
             }

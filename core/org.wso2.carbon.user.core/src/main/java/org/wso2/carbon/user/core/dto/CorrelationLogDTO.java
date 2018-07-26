@@ -20,6 +20,9 @@ package org.wso2.carbon.user.core.dto;
 
 import java.util.Hashtable;
 
+/**
+ * Dto used when during creating timing logs for ldap calls
+ */
 public class CorrelationLogDTO {
 
     private long startTime;

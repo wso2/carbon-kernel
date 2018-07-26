@@ -84,8 +84,7 @@ public class RequestCorrelationIdValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         try {
-            Map<String, String> associateToThreadMap = new HashMap<>();
-            associateToThreadMap.putAll(getHeadersToAssociate(request));
+            Map<String, String> associateToThreadMap = new HashMap<>(getHeadersToAssociate(request));
             if (associateToThreadMap.size() == 0) {
                 associateToThreadMap.putAll(getQueryParamsToAssociate(request));
             }
@@ -95,7 +94,10 @@ public class RequestCorrelationIdValve extends ValveBase {
             } else {
                 associateToThread(associateToThreadMap);
             }
-            getNext().invoke(request, response);
+
+            if (getNext() != null) {
+                getNext().invoke(request, response);
+            }
         } finally {
             disAssociateFromThread();
             MDC.remove(correlationIdMdc);
@@ -158,6 +160,10 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
 
             Enumeration<String> parameterNames = httpServletRequest.getParameterNames();
+            if (parameterNames == null) {
+                return queryToAssociate;
+            }
+
             while (parameterNames.hasMoreElements()) {
                 String queryReceived = parameterNames.nextElement();
                 queryToAssociate.putAll(getQueryCorrelationIdValue(queryReceived, queryConfigured,
@@ -189,6 +195,10 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
 
             Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+            if(headerNames == null){
+                return headersToAssociate;
+            }
+
             while (headerNames.hasMoreElements()) {
                 String headerReceived = headerNames.nextElement();
                 headersToAssociate.putAll(getHeaderCorrelationIdValue(headerReceived, headerConfigured,
@@ -208,7 +218,8 @@ public class RequestCorrelationIdValve extends ValveBase {
      * @return A map which contains a header and value that should be associated to the thread
      */
     private Map<String, String> getHeaderCorrelationIdValue(String headerReceived, String headerConfigured,
-                                                            HttpServletRequest httpServletRequest, String correlationIdName) {
+                                                            HttpServletRequest httpServletRequest,
+                                                            String correlationIdName) {
 
         Map<String, String> headersToAssociate = new HashMap<>();
         if (StringUtils.isEmpty(headerReceived) || !StringUtils.equalsIgnoreCase(headerReceived, headerConfigured)) {
@@ -232,7 +243,8 @@ public class RequestCorrelationIdValve extends ValveBase {
      * @return A map which contains a query and value that should be associated to the thread
      */
     private Map<String, String> getQueryCorrelationIdValue(String queryReceived, String queryConfigured,
-                                                           HttpServletRequest httpServletRequest, String correlationIdName) {
+                                                           HttpServletRequest httpServletRequest,
+                                                           String correlationIdName) {
 
         Map<String, String> queryToAssociate = new HashMap<>();
 

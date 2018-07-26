@@ -43,7 +43,7 @@ import org.wso2.carbon.ndatasource.rdbms.utils.RDBMSDataSourceUtils;
  */
 public class RDBMSDataSource {
 
-       private static Log log = LogFactory.getLog(RDBMSDataSource.class);
+	private static Log log = LogFactory.getLog(RDBMSDataSource.class);
 
 	private DataSource dataSource;
 
