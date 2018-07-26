@@ -173,18 +173,18 @@ public class LDAPConnectionContext {
     }
 
     public DirContext getContext() throws UserStoreException {
+
         DirContext context = null;
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
             try {
-                context = new InitialDirContext(environment);
-
+                context = new InitialLdapContext(environment, null);
             } catch (NamingException e) {
                 log.error("Error obtaining connection. " + e.getMessage(), e);
                 log.error("Trying again to get connection.");
 
                 try {
-                    context = new InitialDirContext(environment);
+                    context = new InitialLdapContext(environment, null);
                 } catch (Exception e1) {
                     log.error("Error obtaining connection for the second time" + e.getMessage(), e);
                     throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
@@ -198,7 +198,7 @@ public class LDAPConnectionContext {
                 SRVRecord firstRecord = dcMap.get(firstKey);
                 //compose the connection URL
                 environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
-                context = new InitialDirContext(environment);
+                context = new InitialLdapContext(environment, null);
 
             } catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
@@ -208,7 +208,7 @@ public class LDAPConnectionContext {
                     try {
                         SRVRecord srv = dcMap.get(integer);
                         environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(srv));
-                        context = new InitialDirContext(environment);
+                        context = new InitialLdapContext(environment, null);
                         break;
                     } catch (NamingException e1) {
                         if (integer == (dcMap.lastKey())) {
@@ -221,7 +221,6 @@ public class LDAPConnectionContext {
             }
         }
         return (context);
-
     }
 
     @SuppressWarnings("unchecked")
