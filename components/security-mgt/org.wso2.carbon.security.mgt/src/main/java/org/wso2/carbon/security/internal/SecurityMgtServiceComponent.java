@@ -23,7 +23,6 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -32,13 +31,11 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
-import org.wso2.carbon.security.sts.service.STSApplicationMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -76,15 +73,6 @@ public class SecurityMgtServiceComponent {
                     new SecurityConfigAdmin(mainAxisConfig, registryService.getConfigSystemRegistry(), null), null);
             bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
                     new SecurityAxis2ConfigurationContextObserver(), null);
-            ServiceRegistration stsApplicationMgtListener = bundleCtx.registerService(ApplicationMgtListener
-                    .class.getName(), new STSApplicationMgtListener(), null);
-            if (stsApplicationMgtListener != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("STS - ApplicationMgtListener registered.");
-                }
-            } else {
-                log.error("STS - ApplicationMgtListener could not be registered.");
-            }
             log.debug("Security Mgt bundle is activated");
         } catch (Throwable e) {
             log.error("Failed to activate SecurityMgtServiceComponent", e);
