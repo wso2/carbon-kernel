@@ -2658,7 +2658,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param limit       The number of entries to return in a page.
      * @param offset      Start index.
      * @param sortBy      Sort according to the given attribute name.
-     * @param sortBy      Sorting order.
+     * @param sortOrder   Sorting order.
      * @return A non-null PaginatedSearchResult instance. Typically contains user names with pagination.
      * @throws UserStoreException If an UserStoreException is encountered
      *                            while searching for users in a given condition.
@@ -2802,7 +2802,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return result;
     }
 
-    private static byte[] parseControls(Control[] controls) throws NamingException {
+    private static byte[] parseControls(Control[] controls) {
 
         byte[] cookie = null;
         // Handle the paged results control response
