@@ -20,6 +20,9 @@ package org.wso2.carbon.user.core.ldap;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 
+/**
+ * This class is to generate LDAP search filter query. Also can add multiple filter with AND operation.
+ */
 public class LDAPFilterQueryBuilder {
 
     private StringBuilder searchFilter;

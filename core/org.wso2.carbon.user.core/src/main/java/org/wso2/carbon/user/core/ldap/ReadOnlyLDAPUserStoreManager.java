@@ -2651,7 +2651,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * This method support multi-attribute search filters for user.
+     * This method support multi-attribute search filters for user(s).
      *
      * @param condition   Validated Condiction tree
      * @param profileName Default profile name
@@ -2700,12 +2700,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         List<String> returnedAttributes = Arrays.asList(searchControls.getReturningAttributes());
         String searchFilter = ldapSearchSpecification.getSearchFilterQuery();
         int pageSize = limit;
-        //For group filtering can't apply pagination. We don't know how many group details will be return.
-        //so set to max value.
-        if (isMemberShipPropertyFound) {
-            pageSize = Integer.MAX_VALUE;
-        }
-
         byte[] cookie = null;
         int pageIndex = -1;
         DirContext dirContext = this.connectionSource.getContext();
@@ -2714,6 +2708,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         NamingEnumeration<SearchResult> answer = null;
         List<String> tempUserList = null;
         List<String> users = new ArrayList<>();
+
+        //For group filtering can't apply pagination. We don't know how many group details will be return.
+        //so set to max value.
+        if (isMemberShipPropertyFound) {
+            pageSize = Integer.MAX_VALUE;
+        }
 
         if (offset <= 0) {
             offset = 0;
@@ -2866,10 +2866,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
                 /*
-                 * To get the mutual users from multi group filtering with member attribute, get the all the members
-                 * from each group and then get the mutual users. When we use memberOf group filtering we can get
-                 * mutual users directly.
-                 * if returnedAttributes does not contain 'member' attribute, then it's memberOf group filter. if so we
+                 * To get the mutual users from multi group filtering with member attribute, need to get the all
+                 * the members from each group and then get the mutual users. When we use memberOf group filtering
+                 * we can able to get mutual users directly.
+                 * If returnedAttributes does not contain 'member' attribute, then it's memberOf group filter. If so we
                  * don't need to do post processing.
                  */
                 if (!returnedAttributes.contains(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))
@@ -3011,8 +3011,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     private List<String> getMatchUsersFromMemberList(List<ExpressionCondition> expressionConditions,
                                                      List<String> userNames) {
-        // if group filtering and username filtering found, we need to get match users names only
-        // 'member' filtering reterive all the members once the conditions matched because 'member' is a
+        // If group filtering and username filtering found, we need to get match users names only
+        // 'member' filtering retrieve all the members once the conditions matched because 'member' is a
         // multi valued attribute.
         List<String> newUsers = new ArrayList<>();
         for (ExpressionCondition expressionCondition : expressionConditions) {

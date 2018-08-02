@@ -28,6 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.naming.directory.SearchControls;
 
+/**
+ * In order to perform search on LDAP, need to generate search filter query also
+ * define search base and search controls depends on user input. This class able to
+ * generate and define required elements for LDAP search.
+ */
 public class LDAPSearchSpecification {
 
     RealmConfiguration realmConfig;
