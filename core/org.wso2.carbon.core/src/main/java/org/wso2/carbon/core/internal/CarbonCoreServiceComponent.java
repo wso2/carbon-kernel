@@ -26,7 +26,11 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.core.encryption.KeyStoreBasedExternalCryptoProvider;
 import org.wso2.carbon.core.init.CarbonServerManager;
+import org.wso2.carbon.crypto.api.CryptoService;
+import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
+import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -61,6 +65,8 @@ import java.util.List;
  * cardinality="0..n" policy="dynamic"  bind="addServerStartupObserver" unbind="removeServerStartupObserver"
  * @scr.reference name="carbonCoreInitializedEventService" interface="org.wso2.carbon.context.CarbonCoreInitializedEvent"
  * cardinality="1..1" policy="dynamic"  bind="setCarbonCoreInitializedEventService" unbind="unsetCarbonCoreInitializedEventService"
+ * @scr.reference name="carbonCryptoService" interface="org.wso2.carbon.crypto.api.CryptoService"
+ * cardinality="0..1" policy="dynamic"  bind="setCarbonCryptoService" unbind="unsetCarbonCryptoService"
   */
 public class CarbonCoreServiceComponent {
 
@@ -90,6 +96,11 @@ public class CarbonCoreServiceComponent {
                     new DeploymentServerStartupObserver(), null) ;
             SymmetricEncryption encryption = SymmetricEncryption.getInstance();
             encryption.generateSymmetricKey();
+
+            // Register the external crypto provider which is based on Carbon keystore management service.
+            ctxt.getBundleContext().registerService(ExternalCryptoProvider.class,
+                    new KeyStoreBasedExternalCryptoProvider(), null);
+
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {
@@ -158,6 +169,14 @@ public class CarbonCoreServiceComponent {
 
     protected void unSetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
         dataHolder.setTenantRegistryLoader(null);
+    }
+
+    protected void setCarbonCryptoService(CryptoService cryptoService){
+        dataHolder.setCryptoService(cryptoService);
+    }
+
+    protected void unsetCarbonCryptoService(CryptoService cryptoService){
+        dataHolder.setCryptoService(null);
     }
 
     protected void addServerShutdownHandler(ServerShutdownHandler shutdownHandler) {
