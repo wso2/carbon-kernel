@@ -2669,8 +2669,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         boolean isGroupFiltering = false;
         boolean isMultiGroupFiltering = false;
         boolean isUsernameFiltering = false;
+        boolean isClaimFiltering = false;
         PaginatedSearchResult result = new PaginatedSearchResult();
-        //Since we support only AND operation get expressions as a list.
+        // Since we support only AND operation get expressions as a list.
         List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
@@ -2681,38 +2682,37 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 isGroupFiltering = true;
             } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
                 isUsernameFiltering = true;
+            } else {
+                isClaimFiltering = true;
             }
-            expressionCondition.setAttributeValue(escapeSpecialCharactersForFilterWithStarAsRegex
-                    (expressionCondition.getAttributeValue()));
-        }
-
-        if (limit == 0 && !isGroupFiltering) {
-            return result;
+            expressionCondition.setAttributeValue(
+                    escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()));
         }
 
         LDAPSearchSpecification ldapSearchSpecification = new LDAPSearchSpecification(realmConfig);
         ldapSearchSpecification.setLDAPSearchParamters(isGroupFiltering, isMultiGroupFiltering,
                 expressionConditions, SearchControls.SUBTREE_SCOPE);
-
         boolean isMemberShipPropertyFound = ldapSearchSpecification.isMemberShipPropertyFound();
         String searchBases = ldapSearchSpecification.getSearchBases();
         SearchControls searchControls = ldapSearchSpecification.getSearchControls();
         List<String> returnedAttributes = Arrays.asList(searchControls.getReturningAttributes());
         String searchFilter = ldapSearchSpecification.getSearchFilterQuery();
-        int pageSize = limit;
-        byte[] cookie = null;
-        int pageIndex = -1;
-        DirContext dirContext = this.connectionSource.getContext();
-        LdapContext ldapContext = (LdapContext) dirContext;
-        String[] searchBaseAraay = searchBases.split("#");
-        NamingEnumeration<SearchResult> answer = null;
-        List<String> tempUserList = null;
-        List<String> users = new ArrayList<>();
+        int givenMax;
 
-        //For group filtering can't apply pagination. We don't know how many group details will be return.
-        //so set to max value.
-        if (isMemberShipPropertyFound) {
-            pageSize = Integer.MAX_VALUE;
+        try {
+            givenMax = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_MAX_USER_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        // For group filtering can't apply pagination. We don't know how many group details will be return.
+        // so set to max value.
+        if (isMemberShipPropertyFound || limit > givenMax) {
+            limit = givenMax;
+        }
+
+        if (limit == 0) {
+            return result;
         }
 
         if (offset <= 0) {
@@ -2720,6 +2720,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } else {
             offset = offset - 1;
         }
+
+        int pageSize = limit;
+        byte[] cookie;
+        int pageIndex = -1;
+        DirContext dirContext = this.connectionSource.getContext();
+        LdapContext ldapContext = (LdapContext) dirContext;
+        String[] searchBaseAraay = searchBases.split("#");
+        NamingEnumeration<SearchResult> answer = null;
+        List<String> tempUserList = new ArrayList<>();
+        List<String> users = new ArrayList<>();
 
         if (log.isDebugEnabled()) {
             log.debug("Searching for user(s) with SearchFilter: " + searchFilter);
@@ -2735,38 +2745,82 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL)});
             for (String searchBase : searchBaseAraay) {
+                int needMore = -1;
                 do {
                     answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
                     if (answer.hasMore() && isGroupFiltering) {
-                        users = getUserListFromGroupFilteringResult(answer, returnedAttributes);
-                        if (isGroupFiltering && isUsernameFiltering) {
-                            users = getMatchUsersFromMemberList(expressionConditions, users);
-                        }
+                        tempUserList = getUserListFromGroupFilteringResult(answer, returnedAttributes);
+                        pageIndex++;
                     } else if (answer.hasMore()) {
                         tempUserList = getUserListFromNonGroupFilterResult(answer, returnedAttributes);
                         pageIndex++;
+                    }
 
-                        //Handle pagination depends on given offset/start index.
-                        if (pageIndex == (offset / pageSize)) {
-                            int startPosition = (offset % pageSize);
-                            if (startPosition < tempUserList.size() - 1 && 0 < startPosition) {
-                                users.addAll(tempUserList.subList(startPosition, tempUserList.size()));
-                            } else if (startPosition == tempUserList.size() - 1) {
-                                users.add(tempUserList.get(tempUserList.size() - 1));
+                    if (!tempUserList.isEmpty()) {
+                        if (isMemberShipPropertyFound) {
+                            List<String> userList2 = new ArrayList<>();
+                            // When found group filtering with 'member' attribute, pagination is not supported also
+                            // we need do post processing if we found username filtering or claim filtering.
+                            // Because can't apply claim filtering with memberShip group filtering.
+                            // Also can't apply username filtering with 'CO', 'EW' filter operations.
+                            if (isUsernameFiltering) {
+                                users = getMatchUsersFromMemberList(expressionConditions, tempUserList);
+                            } else if (isClaimFiltering) {
+                                List<ExpressionCondition> derivedConditionList = expressionConditions;
+                                Iterator<ExpressionCondition> iterator = derivedConditionList.iterator();
+                                while (iterator.hasNext()) {
+                                    ExpressionCondition expressionCondition = iterator.next();
+                                    if (ExpressionAttribute.ROLE.toString().equals(
+                                            expressionCondition.getAttributeName())) {
+                                        iterator.remove();
+                                    }
+                                }
+                                LDAPSearchSpecification searchSpecification = new LDAPSearchSpecification(realmConfig);
+                                searchSpecification.setLDAPSearchParamters(false,
+                                        false, derivedConditionList, SearchControls.SUBTREE_SCOPE);
+                                SearchControls searchControls1 = searchSpecification.getSearchControls();
+                                DirContext dirContext1 = this.connectionSource.getContext();
+                                NamingEnumeration<SearchResult> tempAnswer;
+
+                                tempAnswer = dirContext1.search(searchSpecification.getSearchBases(),
+                                        searchSpecification.getSearchFilterQuery(), searchControls1);
+                                if (tempAnswer.hasMore()) {
+                                    userList2 = getUserListFromNonGroupFilterResult(answer,
+                                            Arrays.asList(searchControls1.getReturningAttributes()));
+                                }
+                                tempUserList.retainAll(userList2);
+                                users = tempUserList;
+                                JNDIUtil.closeContext(dirContext1);
+                                JNDIUtil.closeNamingEnumeration(tempAnswer);
                             } else {
                                 users = tempUserList;
-                                break;
-                            }
-                        } else if (pageIndex == (offset / pageSize) + 1) {
-                            int needMore = pageSize - users.size();
-                            if (needMore - 1 == 0) {
-                                users.add(tempUserList.get(0));
-                            } else if (tempUserList.size() > needMore) {
-                                users.addAll(tempUserList.subList(0, (needMore - 1)));
-                            } else {
-                                users.addAll(tempUserList);
                             }
                             break;
+                        } else {
+                            //Handle pagination depends on given offset, i.e. start index.
+                            if (pageIndex == (offset / pageSize)) {
+                                int startPosition = (offset % pageSize);
+                                if (startPosition < tempUserList.size() - 1 && 0 < startPosition) {
+                                    users.addAll(tempUserList.subList(startPosition, tempUserList.size()));
+                                } else if (startPosition == tempUserList.size() - 1) {
+                                    users.add(tempUserList.get(tempUserList.size() - 1));
+                                } else {
+                                    users = tempUserList;
+                                }
+                                needMore = pageSize - users.size();
+                                if (needMore == 0) {
+                                    break;
+                                }
+                            } else if (pageIndex == (offset / pageSize) + 1) {
+                                if (needMore - 1 == 0) {
+                                    users.add(tempUserList.get(0));
+                                } else if (tempUserList.size() > needMore) {
+                                    users.addAll(tempUserList.subList(0, (needMore - 1)));
+                                } else {
+                                    users.addAll(tempUserList);
+                                }
+                                break;
+                            }
                         }
                     }
                     cookie = parseControls(ldapContext.getResponseControls());
@@ -3017,7 +3071,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         List<String> newUsers = new ArrayList<>();
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                newUsers.addAll(getMatchUserNames(userNames, expressionCondition));
+                newUsers.addAll(getMatchUserNames(expressionCondition, userNames));
             }
         }
         LinkedHashSet<String> linkedHashSet = new LinkedHashSet<>();
@@ -3027,7 +3081,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return newUsers;
     }
 
-    private List<String> getMatchUserNames(List<String> users, ExpressionCondition expressionCondition) {
+    private List<String> getMatchUserNames(ExpressionCondition expressionCondition, List<String> users) {
 
         List<String> newUserNameList = new ArrayList<>();
         for (String user : users) {
@@ -3036,6 +3090,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 newUserNameList.add(user);
             } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
                     && user.equals(expressionCondition.getAttributeValue()) && !newUserNameList.contains(user)) {
+                newUserNameList.add(user);
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
+                    && user.contains(expressionCondition.getAttributeValue()) && !newUserNameList.contains(user)) {
+                newUserNameList.add(user);
+            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
+                    && user.endsWith(expressionCondition.getAttributeValue()) && !newUserNameList.contains(user)) {
                 newUserNameList.add(user);
             }
         }

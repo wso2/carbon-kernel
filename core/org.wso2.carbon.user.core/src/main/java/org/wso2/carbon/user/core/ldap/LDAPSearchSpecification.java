@@ -61,13 +61,31 @@ public class LDAPSearchSpecification {
         this.searchControls.setSearchScope(searchScope);
 
         if (isGroupFiltering) {
-            String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
-            //Give priority to memberOf attribute
-            if (StringUtils.isNotEmpty(memberOfProperty)) {
-                this.isMemberOfPropertyFound = true;
-                this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-                returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
-            } else {//check for member attribute
+            boolean isEQfound = false;
+            boolean otherOperationsFound = false;
+
+            for (ExpressionCondition expressionCondition : expressionConditions) {
+                if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
+                        ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                    isEQfound = true;
+                } else if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
+                        !ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                    otherOperationsFound = true;
+                }
+            }
+
+            //Only can use 'EQ' operation on 'memberOf' attribute, can not apply 'EW','SW','CO' filter operations.
+            if (isEQfound && !otherOperationsFound) {
+                String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
+                //Give priority to memberOf attribute
+                if (StringUtils.isNotEmpty(memberOfProperty)) {
+                    this.isMemberOfPropertyFound = true;
+                    this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+                    returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+                }
+            }
+
+            if (!isMemberOfPropertyFound) {
                 String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 if (StringUtils.isEmpty(membershipProperty)) {
                     throw new UserStoreException("Please set member of attribute or membership attribute");
@@ -131,7 +149,7 @@ public class LDAPSearchSpecification {
                     property = new StringBuilder(memberAttributeName).append("=").append(userPropertyName);
                     if (ExpressionOperation.CO.toString().equals(operation) ||
                             ExpressionOperation.EW.toString().equals(operation)) {
-                        throw new UserStoreException("Can't use 'co', 'ew' filters on 'member' property.");
+                        continue;
                     } else if (ExpressionOperation.EQ.toString().equals(operation)) {
                         value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE));
                     }
@@ -142,8 +160,7 @@ public class LDAPSearchSpecification {
                 if (!isMemberShipPropertyFound) {
                     property = new StringBuilder(expressionCondition.getAttributeName());
                 } else {
-                    throw new UserStoreException("Claims filtering not supported while using membership" +
-                            " group filtering.");
+                    continue;
                 }
             }
             ExpressionCondition condition = new ExpressionCondition(operation, String.valueOf(property),
