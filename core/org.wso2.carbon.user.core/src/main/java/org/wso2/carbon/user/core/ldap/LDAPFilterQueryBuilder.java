@@ -21,16 +21,22 @@ import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 
 /**
- * This class is to generate LDAP search filter query. Also can add multiple filter with AND operation.
+ * This class is to generate LDAP multi attribute search filter query.
+ * Currently only support for 'AND' operation.
  */
 public class LDAPFilterQueryBuilder {
+
+    private static final String OPEN_PARENTHESIS = "(";
+    private static final String CLOSE_PARENTHESIS = ")";
+    private static final String EQUALS_SIGN = "=";
+    private static final String ANY_STRING = "*";
 
     private StringBuilder searchFilter;
     private StringBuilder membershipMulitGroupFilters;
 
     public LDAPFilterQueryBuilder(String searchFilter) {
 
-        this.searchFilter = new StringBuilder("(&").append(searchFilter);
+        this.searchFilter = new StringBuilder(OPEN_PARENTHESIS).append("&").append(searchFilter);
         this.membershipMulitGroupFilters = new StringBuilder();
     }
 
@@ -62,30 +68,42 @@ public class LDAPFilterQueryBuilder {
 
     private String equalFilterBuilder(String property, String value) {
 
-        return "(" + property + "=" + value + ")";
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).append(value).append(CLOSE_PARENTHESIS);
+        return filter.toString();
     }
 
     private String containsFilterBuilder(String property, String value) {
 
-        return "(" + property + "=*" + value + "*)";
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).append(ANY_STRING).append(value).
+                append(ANY_STRING).append(CLOSE_PARENTHESIS);
+        return filter.toString();
     }
 
     private String endWithFilterBuilder(String property, String value) {
 
-        return "(" + property + "=*" + value + ")";
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).append(ANY_STRING).append(value).
+                append(CLOSE_PARENTHESIS);
+        return filter.toString();
     }
 
     private String startWithFilterBuilder(String property, String value) {
 
-        return "(" + property + "=" + value + "*)";
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).append(value).append(ANY_STRING).
+                append(CLOSE_PARENTHESIS);
+        return filter.toString();
     }
 
     public String getSearchFilterQuery() {
 
         if (membershipMulitGroupFilters != null && !membershipMulitGroupFilters.toString().equals("")) {
-            searchFilter.append("(| ").append(membershipMulitGroupFilters).append(")");
+            searchFilter.append(OPEN_PARENTHESIS).append("| ").append(membershipMulitGroupFilters).
+                    append(CLOSE_PARENTHESIS);
         }
-        searchFilter.append(")");
+        searchFilter.append(CLOSE_PARENTHESIS);
         return String.valueOf(searchFilter);
     }
 }

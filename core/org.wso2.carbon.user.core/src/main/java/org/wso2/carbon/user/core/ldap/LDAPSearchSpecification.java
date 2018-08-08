@@ -29,9 +29,8 @@ import java.util.List;
 import javax.naming.directory.SearchControls;
 
 /**
- * In order to perform search on LDAP, need to generate search filter query also
- * define search base and search controls depends on user input. This class able to
- * generate and define required elements for LDAP search.
+ * In order to perform the search on LDAP, need to generate filter query, search bases and SearchControls depends
+ * on user input. This class able to generate and define required elements for LDAP search.
  */
 public class LDAPSearchSpecification {
 
@@ -50,7 +49,6 @@ public class LDAPSearchSpecification {
         this.isMemberOfPropertyFound = false;
         this.isMemberShipPropertyFound = false;
         this.ldapFilterQueryBuilder = null;
-
     }
 
     public void setLDAPSearchParamters(boolean isGroupFiltering, boolean isMultiGroupFiltering,
@@ -74,10 +72,10 @@ public class LDAPSearchSpecification {
                 }
             }
 
-            //Only can use 'EQ' operation on 'memberOf' attribute, can not apply 'EW','SW','CO' filter operations.
+            // 'memberOf' attribute only support 'EQ' filter operation, can't apply 'EW','SW','CO' filter operations.
             if (isEQfound && !otherOperationsFound) {
                 String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
-                //Give priority to memberOf attribute
+                // Give priority to 'memberOf' attribute.
                 if (StringUtils.isNotEmpty(memberOfProperty)) {
                     this.isMemberOfPropertyFound = true;
                     this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -85,6 +83,7 @@ public class LDAPSearchSpecification {
                 }
             }
 
+            // If 'memberOf' attribute not found, go with membership attribute.
             if (!isMemberOfPropertyFound) {
                 String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 if (StringUtils.isEmpty(membershipProperty)) {
