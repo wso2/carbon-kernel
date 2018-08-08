@@ -34,64 +34,48 @@ import javax.naming.directory.SearchControls;
  */
 public class LDAPSearchSpecification {
 
-    RealmConfiguration realmConfig;
-    SearchControls searchControls;
-    String searchBases;
-    boolean isMemberOfPropertyFound;
-    boolean isMemberShipPropertyFound;
-    LDAPFilterQueryBuilder ldapFilterQueryBuilder;
+    private RealmConfiguration realmConfig;
+    private SearchControls searchControls = new SearchControls();
+    private String searchBases = null;
+    private boolean isGroupFiltering = false;
+    private boolean isMultiGroupFiltering = false;
+    private boolean isUsernameFiltering = false;
+    private boolean isClaimFiltering = false;
+    private boolean isMemberOfPropertyFound = false;
+    private boolean isMemberShipPropertyFound = false;
+    private LDAPFilterQueryBuilder ldapFilterQueryBuilder = null;
 
-    public LDAPSearchSpecification(RealmConfiguration realmConfig) {
+    public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions)
+            throws UserStoreException {
 
         this.realmConfig = realmConfig;
-        this.searchControls = new SearchControls();
-        this.searchBases = null;
-        this.isMemberOfPropertyFound = false;
-        this.isMemberShipPropertyFound = false;
-        this.ldapFilterQueryBuilder = null;
+        this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())
+                    && isGroupFiltering) {
+                isMultiGroupFiltering = true;
+            } else if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+                isGroupFiltering = true;
+            } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                isUsernameFiltering = true;
+            } else {
+                isClaimFiltering = true;
+            }
+        }
+        setLDAPSearchParamters(expressionConditions);
     }
 
-    public void setLDAPSearchParamters(boolean isGroupFiltering, boolean isMultiGroupFiltering,
-                                       List<ExpressionCondition> expressionConditions, int searchScope)
+    private void setLDAPSearchParamters(List<ExpressionCondition> expressionConditions)
             throws UserStoreException {
 
         List<String> returnedAttributes = new ArrayList<>();
-        this.searchControls.setSearchScope(searchScope);
 
         if (isGroupFiltering) {
-            boolean isEQfound = false;
-            boolean otherOperationsFound = false;
-
-            for (ExpressionCondition expressionCondition : expressionConditions) {
-                if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
-                        ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
-                    isEQfound = true;
-                } else if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
-                        !ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
-                    otherOperationsFound = true;
-                }
-            }
-
-            // 'memberOf' attribute only support 'EQ' filter operation, can't apply 'EW','SW','CO' filter operations.
-            if (isEQfound && !otherOperationsFound) {
-                String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
-                // Give priority to 'memberOf' attribute.
-                if (StringUtils.isNotEmpty(memberOfProperty)) {
-                    this.isMemberOfPropertyFound = true;
-                    this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-                    returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
-                }
-            }
-
+            checkForMemberOfAttribute(expressionConditions, returnedAttributes);
             // If 'memberOf' attribute not found, go with membership attribute.
             if (!isMemberOfPropertyFound) {
-                String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-                if (StringUtils.isEmpty(membershipProperty)) {
-                    throw new UserStoreException("Please set member of attribute or membership attribute");
-                }
-                this.isMemberShipPropertyFound = true;
-                this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
-                returnedAttributes.add(membershipProperty);
+                checkForMembershipAttribute(returnedAttributes);
             }
         } else {
             this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -106,6 +90,45 @@ public class LDAPSearchSpecification {
         searchFilterBuilder(isGroupFiltering, isMultiGroupFiltering, expressionConditions);
     }
 
+    private void checkForMembershipAttribute(List<String> returnedAttributes) throws UserStoreException {
+
+        String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+        if (StringUtils.isEmpty(membershipProperty)) {
+            throw new UserStoreException("Please set member of attribute or membership attribute");
+        }
+        this.isMemberShipPropertyFound = true;
+        this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+        returnedAttributes.add(membershipProperty);
+    }
+
+    private void checkForMemberOfAttribute(List<ExpressionCondition> expressionConditions,
+                                           List<String> returnedAttributes) {
+
+        boolean isEQfound = false;
+        boolean otherOperationsFound = false;
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
+                    ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                isEQfound = true;
+            } else if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
+                    !ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
+                otherOperationsFound = true;
+            }
+        }
+
+        // 'memberOf' attribute only support 'EQ' filter operation, can't apply 'EW','SW','CO' filter operations.
+        if (isEQfound && !otherOperationsFound) {
+            String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
+            // Give priority to 'memberOf' attribute.
+            if (StringUtils.isNotEmpty(memberOfProperty)) {
+                this.isMemberOfPropertyFound = true;
+                this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+                returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+            }
+        }
+    }
+
     private void searchFilterBuilder(boolean isGroupFiltering, boolean isMultiGroupFiltering,
                                      List<ExpressionCondition> expressionConditions) throws UserStoreException {
 
@@ -114,57 +137,94 @@ public class LDAPSearchSpecification {
         String memberOfAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
         String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
 
-        if (isGroupFiltering && isMemberShipPropertyFound) {
-            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
-                    getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
-        } else {
-            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
-                    getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
-        }
+        initiateLDAPQueryBuilder(isGroupFiltering);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
             StringBuilder property;
             String attributeName = expressionCondition.getAttributeName();
             StringBuilder value = new StringBuilder(expressionCondition.getAttributeValue());
             String operation = expressionCondition.getOperation();
-            boolean isMembershipMulitGroupFilters = false;
+            boolean isMembershipMultiGroupFilters = false;
 
             if (ExpressionAttribute.ROLE.toString().equals(attributeName)) {
                 if (isMemberOfPropertyFound) {
-                    if (ExpressionOperation.EQ.toString().equals(operation)) {
-                        property = new StringBuilder(memberOfAttributeName).append("=").append(groupPropertyName);
-                        value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
-                    } else {
-                        throw new UserStoreException("Can't do regex search on 'memberOf' property. ");
-                    }
+                    property = getMemberOfProperty(groupPropertyName, memberOfAttributeName, value, operation);
                 } else if (isMultiGroupFiltering && !isMemberOfPropertyFound) {
                     property = new StringBuilder(groupPropertyName);
-                    isMembershipMulitGroupFilters = true;
+                    isMembershipMultiGroupFilters = true;
                 } else {
                     property = new StringBuilder(groupPropertyName);
                 }
             } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                if (isMemberShipPropertyFound) {
-                    property = new StringBuilder(memberAttributeName).append("=").append(userPropertyName);
-                    if (ExpressionOperation.CO.toString().equals(operation) ||
-                            ExpressionOperation.EW.toString().equals(operation)) {
-                        continue;
-                    } else if (ExpressionOperation.EQ.toString().equals(operation)) {
-                        value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE));
-                    }
-                } else {
-                    property = new StringBuilder(userPropertyName);
-                }
+                property = getUserNameProperty(userPropertyName, memberAttributeName, value, operation);
+                if (property == null) continue;
             } else {
-                if (!isMemberShipPropertyFound) {
-                    property = new StringBuilder(expressionCondition.getAttributeName());
-                } else {
-                    continue;
-                }
+                property = getClaimProperty(expressionCondition);
+                if (property == null) continue;
             }
             ExpressionCondition condition = new ExpressionCondition(operation, String.valueOf(property),
                     String.valueOf(value));
-            ldapFilterQueryBuilder.addFilter(condition, isMembershipMulitGroupFilters);
+            ldapFilterQueryBuilder.addFilter(condition, isMembershipMultiGroupFilters);
+        }
+    }
+
+    private StringBuilder getUserNameProperty(String userPropertyName, String memberAttributeName, StringBuilder value, String operation) {
+
+        StringBuilder property;
+        if (isMemberShipPropertyFound) {
+            property = getMembershipProperty(userPropertyName, memberAttributeName, value, operation);
+            if (property == null) return null;
+        } else {
+            property = new StringBuilder(userPropertyName);
+        }
+        return property;
+    }
+
+    private StringBuilder getClaimProperty(ExpressionCondition expressionCondition) {
+
+        StringBuilder property;
+        if (!isMemberShipPropertyFound) {
+            property = new StringBuilder(expressionCondition.getAttributeName());
+        } else {
+            return null;
+        }
+        return property;
+    }
+
+    private StringBuilder getMembershipProperty(String userPropertyName, String memberAttributeName, StringBuilder value, String operation) {
+
+        StringBuilder property;
+        property = new StringBuilder(memberAttributeName).append("=").append(userPropertyName);
+        if (ExpressionOperation.CO.toString().equals(operation) ||
+                ExpressionOperation.EW.toString().equals(operation)) {
+            return null;
+        } else if (ExpressionOperation.EQ.toString().equals(operation)) {
+            value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE));
+        }
+        return property;
+    }
+
+    private StringBuilder getMemberOfProperty(String groupPropertyName, String memberOfAttributeName, StringBuilder value,
+                                              String operation) throws UserStoreException {
+
+        StringBuilder property;
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            property = new StringBuilder(memberOfAttributeName).append("=").append(groupPropertyName);
+            value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
+        } else {
+            throw new UserStoreException("Can't do regex search on 'memberOf' property. ");
+        }
+        return property;
+    }
+
+    private void initiateLDAPQueryBuilder(boolean isGroupFiltering) {
+
+        if (isGroupFiltering && isMemberShipPropertyFound) {
+            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
+                    getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
+        } else {
+            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
+                    getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
         }
     }
 
@@ -176,6 +236,21 @@ public class LDAPSearchSpecification {
     public String getSearchBases() {
 
         return searchBases;
+    }
+
+    public boolean isGroupFiltering() {
+
+        return isGroupFiltering;
+    }
+
+    public boolean isUsernameFiltering() {
+
+        return isUsernameFiltering;
+    }
+
+    public boolean isClaimFiltering() {
+
+        return isClaimFiltering;
     }
 
     public boolean isMemberOfPropertyFound() {
