@@ -32,14 +32,20 @@ public class LDAPFilterQueryBuilder {
     private static final String ANY_STRING = "*";
 
     private StringBuilder searchFilter;
-    private StringBuilder membershipMulitGroupFilters;
+    private StringBuilder membershipMultiGroupFilters;
 
     public LDAPFilterQueryBuilder(String searchFilter) {
 
         this.searchFilter = new StringBuilder(OPEN_PARENTHESIS).append("&").append(searchFilter);
-        this.membershipMulitGroupFilters = new StringBuilder();
+        this.membershipMultiGroupFilters = new StringBuilder();
     }
 
+    /**
+     * Add a new filter to the query.
+     *
+     * @param condition
+     * @param isMembershipMulitGroupFilters
+     */
     public void addFilter(ExpressionCondition condition, boolean isMembershipMulitGroupFilters) {
 
         String property = condition.getAttributeName();
@@ -47,12 +53,20 @@ public class LDAPFilterQueryBuilder {
         String value = condition.getAttributeValue();
 
         if (isMembershipMulitGroupFilters) {
-            buildFilter(membershipMulitGroupFilters, property, operation, value);
+            buildFilter(membershipMultiGroupFilters, property, operation, value);
         } else {
             buildFilter(searchFilter, property, operation, value);
         }
     }
 
+    /**
+     * Generate filter depends on given filter operation.
+     *
+     * @param stringBuilder
+     * @param property
+     * @param operation
+     * @param value
+     */
     private void buildFilter(StringBuilder stringBuilder, String property, String operation, String value) {
 
         if (ExpressionOperation.EQ.toString().equals(operation)) {
@@ -66,6 +80,13 @@ public class LDAPFilterQueryBuilder {
         }
     }
 
+    /**
+     * Generate "EQ" filter.
+     *
+     * @param property
+     * @param value
+     * @return
+     */
     private String equalFilterBuilder(String property, String value) {
 
         StringBuilder filter = new StringBuilder();
@@ -73,6 +94,13 @@ public class LDAPFilterQueryBuilder {
         return filter.toString();
     }
 
+    /**
+     * Generate "CO" filter.
+     *
+     * @param property
+     * @param value
+     * @return
+     */
     private String containsFilterBuilder(String property, String value) {
 
         StringBuilder filter = new StringBuilder();
@@ -81,6 +109,13 @@ public class LDAPFilterQueryBuilder {
         return filter.toString();
     }
 
+    /**
+     * Generate "EW" filter.
+     *
+     * @param property
+     * @param value
+     * @return
+     */
     private String endWithFilterBuilder(String property, String value) {
 
         StringBuilder filter = new StringBuilder();
@@ -89,6 +124,13 @@ public class LDAPFilterQueryBuilder {
         return filter.toString();
     }
 
+    /**
+     * Generate "SW" filter.
+     *
+     * @param property
+     * @param value
+     * @return
+     */
     private String startWithFilterBuilder(String property, String value) {
 
         StringBuilder filter = new StringBuilder();
@@ -97,10 +139,15 @@ public class LDAPFilterQueryBuilder {
         return filter.toString();
     }
 
+    /**
+     * Get final search filter query.
+     *
+     * @return
+     */
     public String getSearchFilterQuery() {
 
-        if (membershipMulitGroupFilters != null && !membershipMulitGroupFilters.toString().equals("")) {
-            searchFilter.append(OPEN_PARENTHESIS).append("| ").append(membershipMulitGroupFilters).
+        if (membershipMultiGroupFilters != null && !membershipMultiGroupFilters.toString().equals("")) {
+            searchFilter.append(OPEN_PARENTHESIS).append("| ").append(membershipMultiGroupFilters).
                     append(CLOSE_PARENTHESIS);
         }
         searchFilter.append(CLOSE_PARENTHESIS);

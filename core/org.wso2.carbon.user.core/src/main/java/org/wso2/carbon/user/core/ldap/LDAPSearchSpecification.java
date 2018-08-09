@@ -34,16 +34,19 @@ import javax.naming.directory.SearchControls;
  */
 public class LDAPSearchSpecification {
 
+    private static final String EQUALS_SIGN = "=";
+
     private RealmConfiguration realmConfig;
     private SearchControls searchControls = new SearchControls();
     private String searchBases = null;
-    private boolean isGroupFiltering = false;
-    private boolean isMultiGroupFiltering = false;
+    private LDAPFilterQueryBuilder ldapFilterQueryBuilder = null;
+
     private boolean isUsernameFiltering = false;
     private boolean isClaimFiltering = false;
+    private boolean isGroupFiltering = false;
+    private boolean isMultiGroupFiltering = false;
     private boolean isMemberOfPropertyFound = false;
     private boolean isMemberShipPropertyFound = false;
-    private LDAPFilterQueryBuilder ldapFilterQueryBuilder = null;
 
     public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions)
             throws UserStoreException {
@@ -66,6 +69,12 @@ public class LDAPSearchSpecification {
         setLDAPSearchParamters(expressionConditions);
     }
 
+    /**
+     * Set LDAP search parameters, such as define searchBases, define searchControls and generate search filter query.
+     *
+     * @param expressionConditions
+     * @throws UserStoreException
+     */
     private void setLDAPSearchParamters(List<ExpressionCondition> expressionConditions)
             throws UserStoreException {
 
@@ -90,6 +99,12 @@ public class LDAPSearchSpecification {
         searchFilterBuilder(isGroupFiltering, isMultiGroupFiltering, expressionConditions);
     }
 
+    /**
+     * Check for membership attribute exist or not.
+     *
+     * @param returnedAttributes
+     * @throws UserStoreException
+     */
     private void checkForMembershipAttribute(List<String> returnedAttributes) throws UserStoreException {
 
         String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
@@ -101,6 +116,12 @@ public class LDAPSearchSpecification {
         returnedAttributes.add(membershipProperty);
     }
 
+    /**
+     * Check for memberOf attribute can be found or not.
+     *
+     * @param expressionConditions
+     * @param returnedAttributes
+     */
     private void checkForMemberOfAttribute(List<ExpressionCondition> expressionConditions,
                                            List<String> returnedAttributes) {
 
@@ -129,6 +150,14 @@ public class LDAPSearchSpecification {
         }
     }
 
+    /**
+     * Building search filter query.
+     *
+     * @param isGroupFiltering
+     * @param isMultiGroupFiltering
+     * @param expressionConditions
+     * @throws UserStoreException
+     */
     private void searchFilterBuilder(boolean isGroupFiltering, boolean isMultiGroupFiltering,
                                      List<ExpressionCondition> expressionConditions) throws UserStoreException {
 
@@ -168,7 +197,56 @@ public class LDAPSearchSpecification {
         }
     }
 
-    private StringBuilder getUserNameProperty(String userPropertyName, String memberAttributeName, StringBuilder value, String operation) {
+    /**
+     * Initialize LDAP query builder with search category.
+     *
+     * @param isGroupFiltering
+     */
+    private void initiateLDAPQueryBuilder(boolean isGroupFiltering) {
+
+        if (isGroupFiltering && isMemberShipPropertyFound) {
+            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
+                    getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
+        } else {
+            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
+                    getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
+        }
+    }
+
+    /**
+     * Get memberOf attribute full property name.
+     *
+     * @param groupPropertyName
+     * @param memberOfAttributeName
+     * @param value
+     * @param operation
+     * @return
+     * @throws UserStoreException
+     */
+    private StringBuilder getMemberOfProperty(String groupPropertyName, String memberOfAttributeName,
+                                              StringBuilder value, String operation) throws UserStoreException {
+
+        StringBuilder property;
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            property = new StringBuilder(memberOfAttributeName).append(EQUALS_SIGN).append(groupPropertyName);
+            value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
+        } else {
+            throw new UserStoreException("Can't do regex search on 'memberOf' property. ");
+        }
+        return property;
+    }
+
+    /**
+     * Get full username property name depends on membership attribute.
+     *
+     * @param userPropertyName
+     * @param memberAttributeName
+     * @param value
+     * @param operation
+     * @return
+     */
+    private StringBuilder getUserNameProperty(String userPropertyName, String memberAttributeName,
+                                              StringBuilder value, String operation) {
 
         StringBuilder property;
         if (isMemberShipPropertyFound) {
@@ -180,21 +258,20 @@ public class LDAPSearchSpecification {
         return property;
     }
 
-    private StringBuilder getClaimProperty(ExpressionCondition expressionCondition) {
+    /**
+     * Get membership attribute full property name.
+     *
+     * @param userPropertyName
+     * @param memberAttributeName
+     * @param value
+     * @param operation
+     * @return
+     */
+    private StringBuilder getMembershipProperty(String userPropertyName, String memberAttributeName,
+                                                StringBuilder value, String operation) {
 
         StringBuilder property;
-        if (!isMemberShipPropertyFound) {
-            property = new StringBuilder(expressionCondition.getAttributeName());
-        } else {
-            return null;
-        }
-        return property;
-    }
-
-    private StringBuilder getMembershipProperty(String userPropertyName, String memberAttributeName, StringBuilder value, String operation) {
-
-        StringBuilder property;
-        property = new StringBuilder(memberAttributeName).append("=").append(userPropertyName);
+        property = new StringBuilder(memberAttributeName).append(EQUALS_SIGN).append(userPropertyName);
         if (ExpressionOperation.CO.toString().equals(operation) ||
                 ExpressionOperation.EW.toString().equals(operation)) {
             return null;
@@ -204,28 +281,21 @@ public class LDAPSearchSpecification {
         return property;
     }
 
-    private StringBuilder getMemberOfProperty(String groupPropertyName, String memberOfAttributeName, StringBuilder value,
-                                              String operation) throws UserStoreException {
+    /**
+     * Get claim property name.
+     *
+     * @param expressionCondition
+     * @return
+     */
+    private StringBuilder getClaimProperty(ExpressionCondition expressionCondition) {
 
         StringBuilder property;
-        if (ExpressionOperation.EQ.toString().equals(operation)) {
-            property = new StringBuilder(memberOfAttributeName).append("=").append(groupPropertyName);
-            value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
+        if (!isMemberShipPropertyFound) {
+            property = new StringBuilder(expressionCondition.getAttributeName());
         } else {
-            throw new UserStoreException("Can't do regex search on 'memberOf' property. ");
+            return null;
         }
         return property;
-    }
-
-    private void initiateLDAPQueryBuilder(boolean isGroupFiltering) {
-
-        if (isGroupFiltering && isMemberShipPropertyFound) {
-            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
-                    getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
-        } else {
-            ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
-                    getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
-        }
     }
 
     public SearchControls getSearchControls() {
