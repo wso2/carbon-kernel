@@ -1341,6 +1341,11 @@
                 <version>${javax.servelet.jstl.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.taglibs</groupId>
+                <artifactId>taglibs-standard-impl</artifactId>
+                <version>${taglibs-standard-impl.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.user.registration.stub</artifactId>
                 <version>${project.version}</version>
@@ -1560,6 +1565,7 @@
         <javax.jsp-api.version>2.0</javax.jsp-api.version>
         <version.javax.servlet.jsp>2.2.0.v201112011158</version.javax.servlet.jsp>
         <javax.servelet.jstl.version>1.2</javax.servelet.jstl.version>
+        <taglibs-standard-impl.version>1.2.5</taglibs-standard-impl.version>
         <imp.pkg.version.javax.servlet.jsp.jstl>[1.2.1, 2.0.0)</imp.pkg.version.javax.servlet.jsp.jstl>
         <imp.pkg.version.javax.servlet.jsp>[2.2.0, 3.0.0)</imp.pkg.version.javax.servlet.jsp>
 
