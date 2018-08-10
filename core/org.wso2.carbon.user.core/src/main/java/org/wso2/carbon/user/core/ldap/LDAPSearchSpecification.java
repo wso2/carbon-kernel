@@ -233,7 +233,7 @@ public class LDAPSearchSpecification {
             property = new StringBuilder(memberOfAttributeName).append(EQUALS_SIGN).append(groupPropertyName);
             value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
         } else {
-            throw new UserStoreException("Can't do regex search on 'memberOf' property. ");
+            throw new UserStoreException("MemberOf attribute only support 'EQ' filter operation.");
         }
         return property;
     }

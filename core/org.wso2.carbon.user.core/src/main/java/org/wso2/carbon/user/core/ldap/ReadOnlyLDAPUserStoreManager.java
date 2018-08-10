@@ -2651,7 +2651,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * This method support multi-attribute search filters for user(s).
+     * This method support multi-attribute filters with paginated search for user(s).
      *
      * @param condition   Validated Condition tree
      * @param profileName Default profile name
@@ -2690,9 +2690,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             result.setUsers(users.toArray(new String[0]));
             return result;
         } catch (NamingException e) {
-            throw new UserStoreException("Error occurred while performing paginated search", e);
+            log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
         } catch (IOException e) {
-            throw new UserStoreException("Error occurred while setting paged results controls for paginated search", e);
+            log.error(String.format("Error occurred while setting paged results controls for paginated search, %s",
+                    e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(dirContext);
             JNDIUtil.closeContext(ldapContext);
@@ -2966,7 +2969,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(attrs);
-            JNDIUtil.closeNamingEnumeration(answer);
         }
 
         // If 'member' attribute found, we need iterate over users' DN list and get userName.
@@ -3098,7 +3100,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } finally {
             // Close the naming enumeration and free up resources
             JNDIUtil.closeNamingEnumeration(attrs);
-            JNDIUtil.closeNamingEnumeration(answer);
         }
         return finalUserList;
     }
