@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -35,6 +36,8 @@ import javax.naming.directory.SearchControls;
 public class LDAPSearchSpecification {
 
     private static final String EQUALS_SIGN = "=";
+    private static final String SERVICE_NAME_ATTRIBUTE = "sn";
+    private static final String VALUE_SEPARATOR = ",";
 
     private RealmConfiguration realmConfig;
     private SearchControls searchControls = new SearchControls();
@@ -91,10 +94,10 @@ public class LDAPSearchSpecification {
             returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
             /* To get the serviceNameAttributeValue while interpreting the search result
             for username or claim filtering. */
-            returnedAttributes.add("sn");
+            returnedAttributes.add(SERVICE_NAME_ATTRIBUTE);
         }
 
-        if (returnedAttributes != null && returnedAttributes.size() > 0) {
+        if (CollectionUtils.isNotEmpty(returnedAttributes)) {
             this.searchControls.setReturningAttributes(returnedAttributes.toArray(new String[0]));
         }
 
@@ -231,7 +234,7 @@ public class LDAPSearchSpecification {
         StringBuilder property;
         if (ExpressionOperation.EQ.toString().equals(operation)) {
             property = new StringBuilder(memberOfAttributeName).append(EQUALS_SIGN).append(groupPropertyName);
-            value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
+            value.append(VALUE_SEPARATOR).append(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE));
         } else {
             throw new UserStoreException("MemberOf attribute only support 'EQ' filter operation.");
         }
@@ -278,7 +281,7 @@ public class LDAPSearchSpecification {
                 ExpressionOperation.EW.toString().equals(operation)) {
             return null;
         } else if (ExpressionOperation.EQ.toString().equals(operation)) {
-            value.append(",").append(realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE));
+            value.append(VALUE_SEPARATOR).append(realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE));
         }
         return property;
     }

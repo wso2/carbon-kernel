@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.ldap;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2843,7 +2844,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         tempUserList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer);
                         pageIndex++;
                     }
-                    if (!tempUserList.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(tempUserList)) {
                         if (isMemberShipPropertyFound) {
                             /*
                             Pagination is not supported for 'member' attribute group filtering. Also,

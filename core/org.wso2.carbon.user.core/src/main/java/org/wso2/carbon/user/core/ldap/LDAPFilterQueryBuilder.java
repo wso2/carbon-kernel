@@ -28,6 +28,8 @@ public class LDAPFilterQueryBuilder {
 
     private static final String OPEN_PARENTHESIS = "(";
     private static final String CLOSE_PARENTHESIS = ")";
+    private static final String AND_OPERATION = "&";
+    private static final String OR_OPERATION = "|";
     private static final String EQUALS_SIGN = "=";
     private static final String ANY_STRING = "*";
 
@@ -36,7 +38,7 @@ public class LDAPFilterQueryBuilder {
 
     public LDAPFilterQueryBuilder(String searchFilter) {
 
-        this.searchFilter = new StringBuilder(OPEN_PARENTHESIS).append("&").append(searchFilter);
+        this.searchFilter = new StringBuilder(OPEN_PARENTHESIS).append(AND_OPERATION).append(searchFilter);
         this.membershipMultiGroupFilters = new StringBuilder();
     }
 
@@ -147,7 +149,7 @@ public class LDAPFilterQueryBuilder {
     public String getSearchFilterQuery() {
 
         if (membershipMultiGroupFilters != null && !membershipMultiGroupFilters.toString().equals("")) {
-            searchFilter.append(OPEN_PARENTHESIS).append("| ").append(membershipMultiGroupFilters).
+            searchFilter.append(OPEN_PARENTHESIS).append(OR_OPERATION).append(membershipMultiGroupFilters).
                     append(CLOSE_PARENTHESIS);
         }
         searchFilter.append(CLOSE_PARENTHESIS);
