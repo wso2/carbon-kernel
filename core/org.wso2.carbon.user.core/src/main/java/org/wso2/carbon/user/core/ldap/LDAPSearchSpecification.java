@@ -89,6 +89,8 @@ public class LDAPSearchSpecification {
         } else {
             this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
             returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+            /* To get the serviceNameAttributeValue while interpreting the search result
+            for username or claim filtering. */
             returnedAttributes.add("sn");
         }
 
@@ -125,13 +127,13 @@ public class LDAPSearchSpecification {
     private void checkForMemberOfAttribute(List<ExpressionCondition> expressionConditions,
                                            List<String> returnedAttributes) {
 
-        boolean isEQfound = false;
+        boolean isEqOperationFound = false;
         boolean otherOperationsFound = false;
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
                     ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
-                isEQfound = true;
+                isEqOperationFound = true;
             } else if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName()) &&
                     !ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
                 otherOperationsFound = true;
@@ -139,7 +141,7 @@ public class LDAPSearchSpecification {
         }
 
         // 'memberOf' attribute only support 'EQ' filter operation, can't apply 'EW','SW','CO' filter operations.
-        if (isEQfound && !otherOperationsFound) {
+        if (isEqOperationFound && !otherOperationsFound) {
             String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
             // Give priority to 'memberOf' attribute.
             if (StringUtils.isNotEmpty(memberOfProperty)) {

@@ -2732,8 +2732,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } catch (Exception e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
         }
-        /* For group filtering can't apply pagination. We don't know how many group details will be return.
-        so set to max value. */
+        /*
+        For group filtering can't apply pagination. We don't know how many group details will be return.
+        So set to max value.
+         */
         if (isMemberShipPropertyFound || limit > givenMax) {
             limit = givenMax;
         }
@@ -2840,10 +2842,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                     if (!tempUserList.isEmpty()) {
                         if (isMemberShipPropertyFound) {
-                            /* Pagination is not supported for 'member' attribute group filtering. Also,
+                            /*
+                            Pagination is not supported for 'member' attribute group filtering. Also,
                             we need do post-processing if we found username filtering or claim filtering,
                             because can't apply claim filtering with memberShip group filtering and
-                            can't apply username filtering with 'CO', 'EW' filter operations. */
+                            can't apply username filtering with 'CO', 'EW' filter operations.
+                             */
                             users = membershipGroupFilterPostProcessing(isUsernameFiltering, isClaimFiltering,
                                     expressionConditions, tempUserList);
                             break;
@@ -2862,7 +2866,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } while ((cookie != null) && (cookie.length != 0));
             }
         } catch (PartialResultException e) {
-            // Can be due to referrals in AD. So just ignore error for group filtering in AD.
+            // Can be due to referrals in AD. So just ignore error.
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
@@ -3145,9 +3149,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     private List<String> getMatchUsersFromMemberList(List<ExpressionCondition> expressionConditions,
                                                      List<String> userNames) {
-        /* If group filtering and username filtering found, we need to get match users names only.
+        /*
+        If group filtering and username filtering found, we need to get match users names only.
         'member' filtering retrieve all the members once the conditions matched because 'member' is a
-        multi valued attribute. */
+        multi valued attribute.
+        */
         List<String> derivedUserList = new ArrayList<>();
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
