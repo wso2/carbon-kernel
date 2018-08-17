@@ -91,6 +91,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static final String SCIM_USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
+    private static final String SCIM2_USERNAME_CLAIM_URI = "urn:ietf:params:scim:schemas:core:2.0:User:userName";
     private static final String USERNAME_CLAIM_URI = "http://wso2.org/claims/username";
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
@@ -1350,7 +1351,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
         }
 
-        if (userManager instanceof JDBCUserStoreManager && SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
             if (userManager.isExistingUser(claimValue)) {
                 return new String[] {claimValue};
             } else {
@@ -6566,7 +6568,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
         }
 
-        if (userManager instanceof JDBCUserStoreManager && SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
             if (userManager.isExistingUser(claimValue)) {
                 return new String[]{claimValue};
             } else {
