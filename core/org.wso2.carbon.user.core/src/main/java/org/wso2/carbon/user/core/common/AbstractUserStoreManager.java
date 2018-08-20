@@ -682,10 +682,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (authenticated) {
             // Set domain in thread local variable for subsequent operations
-            String domain = UserCoreUtil.getDomainName(this.realmConfig);
-            if (domain != null) {
-                UserCoreUtil.setDomainInThreadLocal(domain.toUpperCase());
-            }
+            UserCoreUtil.setDomainInThreadLocal(UserCoreUtil.getDomainName(this.realmConfig));
         }
 
         // If authentication fails in the previous step and if the user has not specified a

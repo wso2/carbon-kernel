@@ -424,14 +424,13 @@ public final class UserCoreUtil {
      * @param domain
      */
     public static void setDomainInThreadLocal(String domain) {
-        if (domain != null && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domain)) {
-            threadLocalToSetDomain.set(domain.toUpperCase());
-        }
 
-        if (domain == null || (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase
-                (domain) && threadLocalToSetDomain.get() != null)) {
+        if (domain == null || domain.trim().isEmpty() || UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME
+                .equalsIgnoreCase(domain)) {
             // clear the thread local variable.
             threadLocalToSetDomain.remove();
+        } else {
+            threadLocalToSetDomain.set(domain.toUpperCase());
         }
     }
 
