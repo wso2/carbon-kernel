@@ -29,28 +29,28 @@ import org.apache.commons.logging.LogFactory;
  * Listener which should be used for non-guaranteed delivery mode.
  * e.g. Cache Invalidation Messages.
  */
-public class HazelcastClusterMessageAsyncListener implements MessageListener<AsyncClusteringMessage> {
+public class HazelcastIdempotentClusterMessageListener implements MessageListener<IdempotentWrappedClusteringMessage> {
 
-    private static final Log log = LogFactory.getLog(HazelcastClusterMessageAsyncListener.class);
+    private static final Log log = LogFactory.getLog(HazelcastIdempotentClusterMessageListener.class);
     private ConfigurationContext configurationContext;
     private String nodeId;
 
-    public HazelcastClusterMessageAsyncListener(ConfigurationContext configurationContext,
-                                                String nodeId) {
+    public HazelcastIdempotentClusterMessageListener(ConfigurationContext configurationContext,
+                                                     String nodeId) {
 
         this.configurationContext = configurationContext;
         this.nodeId = nodeId;
     }
 
     @Override
-    public void onMessage(Message<AsyncClusteringMessage> clusteringMessage) {
+    public void onMessage(Message<IdempotentWrappedClusteringMessage> clusteringMessage) {
 
         try {
             ClusteringMessage msg = clusteringMessage.getMessageObject();
-            if (msg instanceof AsyncClusteringMessage) {
-                AsyncClusteringMessage asyncClusteringMessage = (AsyncClusteringMessage) msg;
+            if (msg instanceof IdempotentWrappedClusteringMessage) {
+                IdempotentWrappedClusteringMessage idempotentWrappedClusteringMessage = (IdempotentWrappedClusteringMessage) msg;
                 if (nodeId != null && !nodeId.equals(
-                        asyncClusteringMessage.getClusterNodeId())) { // Ignore own messages
+                        idempotentWrappedClusteringMessage.getClusterNodeId())) { // Ignore own messages
                     if (log.isDebugEnabled()) {
                         log.debug("Received Cache invalidation message: " + msg);
                     }

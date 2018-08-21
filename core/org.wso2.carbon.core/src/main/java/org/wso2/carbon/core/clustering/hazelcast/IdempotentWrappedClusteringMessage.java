@@ -25,19 +25,29 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
 /**
- * Message sending and receiving in asynchronous mode.
+ * Message sending and receiving in idempotent mode. Idempotent mode turns off replay and retry handling.
  *
  * @param <T> ClusteringMessage which is being wrapped.
  */
-public class AsyncClusteringMessage<T extends ClusteringMessage> extends ClusteringMessage {
+public class IdempotentWrappedClusteringMessage<T extends ClusteringMessage> extends ClusteringMessage implements Externalizable {
 
-    private static final transient Log log = LogFactory.getLog(AsyncClusteringMessage.class);
+    private static final transient Log log = LogFactory.getLog(IdempotentWrappedClusteringMessage.class);
     private static final long serialVersionUID = 95L;
     private T wrappedMessage;
     private String clusterNodeId;
 
-    public AsyncClusteringMessage(T wrappedMessage) {
+    private IdempotentWrappedClusteringMessage() {
+    }
+
+    public IdempotentWrappedClusteringMessage(T wrappedMessage) {
 
         this.wrappedMessage = wrappedMessage;
     }
@@ -62,5 +72,22 @@ public class AsyncClusteringMessage<T extends ClusteringMessage> extends Cluster
     public String getClusterNodeId() {
 
         return clusterNodeId;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(wrappedMessage);
+        byte[] clusterNodeIdBytes = clusterNodeId.getBytes(StandardCharsets.ISO_8859_1);
+        out.writeInt(clusterNodeIdBytes.length);
+        out.write(clusterNodeIdBytes);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        wrappedMessage = (T) in.readObject();
+        int clusterNodeIdSize = in.readInt();
+        byte[] clusterNodeIdBytes = new byte[clusterNodeIdSize];
+        in.read(clusterNodeIdBytes);
+        clusterNodeId = new String(clusterNodeIdBytes, StandardCharsets.ISO_8859_1);
     }
 }
