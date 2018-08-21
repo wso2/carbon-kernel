@@ -61,8 +61,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonBaseUtils;
-import org.wso2.carbon.base.api.IdempotentMessage;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequest;
 import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
@@ -80,7 +80,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.net.SocketException;
 import java.nio.file.Files;
@@ -134,7 +133,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private HazelcastMembershipScheme membershipScheme;
     private ConfigurationContext configurationContext;
     private ITopic<ClusteringMessage> clusteringMessageTopic;
-    private ITopic<IdempotentWrappedClusteringMessage> idempotentNonReliableMessageTopic;
+    private ITopic<AsyncClusteringMessage> cacheInvalidationMessageTopic;
     private ITopic<GroupManagementCommand> groupManagementTopic;
     private List<ClusteringMessage> sentMsgsBuffer = new CopyOnWriteArrayList<ClusteringMessage>();
 
@@ -162,7 +161,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private static final String LOCAL_MEMBER_IDENTIFIER = "localMemberIdentifier";
     private HazelcastDistributedMapProvider distributedMapProvider;
     private HazelcastCarbonClusterImpl hazelcastCarbonCluster;
-    private ScheduledExecutorService msgCleanupScheduler;
     private String clusterNodeId;
 
     public void init() throws ClusteringFault {
@@ -193,7 +191,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
         long start = System.currentTimeMillis();
         log.info("Hazelcast cluster is initializing...");
-//        primaryHazelcastConfig.getSerializationConfig().getDataSerializableFactoryClasses().
         primaryHazelcastInstance = Hazelcast.newHazelcastInstance(primaryHazelcastConfig);
         log.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
         hazelcastCarbonCluster = new HazelcastCarbonClusterImpl(primaryHazelcastInstance);
@@ -201,12 +198,13 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         clusteringMessageTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
         clusteringMessageTopic.addMessageListener(new HazelcastClusterMessageListener(configurationContext,
-                recdMsgsBuffer, sentMsgsBuffer));
-        idempotentNonReliableMessageTopic = primaryHazelcastInstance.getTopic(
-                HazelcastConstants.CLUSTER_IDEMPOTENT_NON_RELIABLE_MESSAGE_TOPIC);
-        HazelcastIdempotentClusterMessageListener idempotentClusterMessageListener =
-                new HazelcastIdempotentClusterMessageListener(configurationContext, clusterNodeId);
-        idempotentNonReliableMessageTopic.addMessageListener(idempotentClusterMessageListener);
+                                                                                      recdMsgsBuffer, sentMsgsBuffer));
+        cacheInvalidationMessageTopic = primaryHazelcastInstance.getTopic(
+                HazelcastConstants.CACHE_INVALIDATION_MESSAGE_TOPIC);
+        HazelcastClusterMessageAsyncListener asyncListener = new HazelcastClusterMessageAsyncListener(
+                configurationContext,
+                clusterNodeId);
+        cacheInvalidationMessageTopic.addMessageListener(asyncListener);
         groupManagementTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.GROUP_MGT_CMD_TOPIC);
         groupManagementTopic.addMessageListener(new GroupManagementCommandListener(configurationContext));
         ITopic<ControlCommand> controlCommandTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.CONTROL_COMMAND_TOPIC);
@@ -290,7 +288,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         //-- Coordinator election algorithm ends here.
 
         registerOsgiServices();
-        msgCleanupScheduler = Executors
+        ScheduledExecutorService msgCleanupScheduler = Executors
                 .newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("ClusterMsgCleanupThread")));
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
@@ -609,7 +607,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                 log.error(msg);
                 throw new ClusteringFault(msg);
             }
-        }
+        } //TODO: AWS membership scheme support
     }
 
     private void initiateCustomMembershipScheme(Parameter classNameParameter, Config primaryHazelcastConfig) throws ClusteringFault {
@@ -700,9 +698,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         try {
             Hazelcast.shutdownAll();
         } catch (Exception ignored) {
-        }
-        if (msgCleanupScheduler != null) {
-            msgCleanupScheduler.shutdown();
         }
     }
 
@@ -812,11 +807,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     public List<ClusteringCommand> sendMessage(ClusteringMessage clusteringMessage,
                                                boolean isSync) throws ClusteringFault {
 
-        if (isIdempotent(clusteringMessage)) {
-            //Wrap with idempotent message and send
-            IdempotentWrappedClusteringMessage idempotentWrappedClusteringMessage = new IdempotentWrappedClusteringMessage(clusteringMessage);
-            idempotentWrappedClusteringMessage.setClusterNodeId(clusterNodeId);
-            sendToTopic(idempotentNonReliableMessageTopic, idempotentWrappedClusteringMessage);
+        if (clusteringMessage instanceof ClusterCacheInvalidationRequest) {
+            //Wrap with async and send
+            AsyncClusteringMessage asyncClusteringMessage = new AsyncClusteringMessage(clusteringMessage);
+            asyncClusteringMessage.setClusterNodeId(clusterNodeId);
+            sendToTopic(cacheInvalidationMessageTopic, asyncClusteringMessage);
             return Collections.emptyList();
         } else {
 
@@ -827,8 +822,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             return new ArrayList<ClusteringCommand>();  // TODO: How to get the response? Send to another topic, and use a correlation ID to correlate
         }
     }
-
-
 
     /**
      * Send message to selected topic.
@@ -850,21 +843,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                 // Ignoring this exception if the server is shutting down.
             }
         }
-    }
-
-    /**
-     * Checks if the message is replayable (idempotent).
-     *
-     * @param message
-     * @return
-     */
-    boolean isIdempotent(Object message) {
-        if (message == null) {
-            return true;
-        }
-        Annotation annotation = message.getClass().getAnnotation(IdempotentMessage.class);
-
-        return annotation != null;
     }
 
     private class ClusterMessageCleanupTask implements Runnable {

@@ -158,7 +158,7 @@ public class CacheManagerFactoryImpl implements CacheManagerFactory {
     }
 
     private void ensureExpirySchedulerRunning() {
-        //Synchronize
+
         if (cacheEvictionScheduler == null || cacheEvictionScheduler.isShutdown() || cacheEvictionScheduler
                 .isTerminated()) {
             int threadCount = calculateExpiryThreadCount();
