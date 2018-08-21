@@ -147,9 +147,13 @@
 		<%
 		while (itrCollapsedMenuItems.hasNext()) {
 			String menuItem = (String) itrCollapsedMenuItems.next();
-			out.print("if(getCookie('" + menuItem + "') == null){\n");
-			out.print("  setCookie('" + menuItem + "', 'none');\n");
-			out.print("}\n");
+            out.print("if(getCookie('" + menuItem + "') == null){\n");
+            out.print("if (window.location.protocol == \"https:\"){\n");
+            out.print("  setCookie('" + menuItem + "', 'none','','','secure');\n");
+            out.print("} else {");
+            out.print("  setCookie('" + menuItem + "', 'none');\n");
+            out.print("}\n");
+            out.print("}\n");
 		}
 		%>
 		</script>
