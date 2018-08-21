@@ -3325,10 +3325,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
-                    internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-                } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
                     internalRoleDel.add(deleteRole);
+                } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
+                    internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
                 } else {
                     // This is domain free role name.
                     roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
@@ -3350,10 +3350,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (index2 > 0) {
                     domain = newRole.substring(0, index2);
                 }
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
-                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
                     internalRoleNew.add(newRole);
+                } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
+                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
                 } else {
                     roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
                 }
