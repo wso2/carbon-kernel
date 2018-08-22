@@ -21,6 +21,7 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +126,7 @@ public class LoggingUtils {
         InputStream propsStream = null;
 
         try {
-            if (maskingFilePath != null) {
+            if (!StringUtils.isEmpty(maskingFilePath)) {
                 //Check whether the configured properties file is not null and the file is present.
                 if (!(Files.exists(Paths.get(maskingFilePath)) && !Files.isDirectory(Paths.get(maskingFilePath)))) {
                     System.err.println("Could not load the masking patterns from the provided file : "
