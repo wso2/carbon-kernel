@@ -49,6 +49,8 @@ public class SecurityConstants {
 
     public static final String CUSTOM_SECURITY_SCENARIO_SUMMARY = "Custom security policy";
 
+    public static final String ALLOW_ROLES_PROXY_PARAM_NAME = "allowRoles";
+
     public static final String PROP_USER_STORE = "service.userstore";
 
     public static final String EMPTY_SERVICE_VERSION = "SNAPSHOT";
