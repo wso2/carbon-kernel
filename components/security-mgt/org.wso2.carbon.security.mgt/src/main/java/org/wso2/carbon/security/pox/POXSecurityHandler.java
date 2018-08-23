@@ -231,6 +231,13 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
+        /**
+         * Return if incoming message is rest and not using basic auth
+         */
+        if (msgCtx.isDoingREST() && !isBasicAuth) {
+            return InvocationResponse.CONTINUE;
+        }
+
         //return if incoming message is soap and has soap security headers
         if (!soapWithoutSecHeader) {
             return InvocationResponse.CONTINUE;
