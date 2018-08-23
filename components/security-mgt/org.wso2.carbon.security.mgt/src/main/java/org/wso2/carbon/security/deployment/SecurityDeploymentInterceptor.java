@@ -442,6 +442,21 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             String resourceName = serviceGroupId + "/" + serviceName;
             removeAuthorization(userRealm, serviceGroupId, serviceName);
             String allowRolesParameter = configParams.getAllowedRoles();
+            
+            Parameter allowRolesProxyParam = 
+            		service.getParameter(SecurityConstants.ALLOW_ROLES_PROXY_PARAM_NAME);
+            String allowRolesProxyParamValue = (allowRolesProxyParam == null 
+            		? null : allowRolesProxyParam.getValue().toString());
+            
+            if (!StringUtils.isEmpty(allowRolesProxyParamValue))
+            {
+              if (StringUtils.isEmpty(allowRolesParameter)) {
+                allowRolesParameter = allowRolesProxyParamValue;
+              } else {
+                allowRolesParameter += ',' + allowRolesProxyParamValue;
+              }
+            }
+
             if (allowRolesParameter != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Authorizing roles " + allowRolesParameter);
