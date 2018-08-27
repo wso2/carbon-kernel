@@ -55,7 +55,11 @@ public class SqlBuilder {
 
         appendList(sql, wheres);
         wheres = new ArrayList<>();
-        return sql.toString()+ tail;
+        if (tail != null) {
+            return sql.toString() + tail;
+        } else {
+            return sql.toString();
+        }
     }
 
     public SqlBuilder where(String expr, String value) {
@@ -137,5 +141,22 @@ public class SqlBuilder {
             longParameters.put(count, value);
             count++;
         }
+    }
+
+    public String getSql() {
+
+        return sql.toString();
+    }
+
+    public List<String> getWheres() {
+
+        return wheres;
+    }
+
+    public void updateSql(String append) {
+
+        appendList(sql, wheres);
+        wheres = new ArrayList<>();
+        this.sql.append(append);
     }
 }
