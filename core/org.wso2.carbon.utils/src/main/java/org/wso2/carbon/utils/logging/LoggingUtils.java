@@ -1,5 +1,5 @@
 /*
- * Copyright 2005,2018 WSO2, Inc. http://www.wso2.org
+ * Copyright 2018 WSO2, Inc. http://www.wso2.org
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -89,10 +89,9 @@ public class LoggingUtils {
 
         // Check whether there are any masking patterns defined.
         if (maskingPatterns != null && maskingPatterns.size() > 0) {
-            Matcher matcher;
 
             for (Pattern pattern : maskingPatterns) {
-                matcher = pattern.matcher(logMessage);
+                Matcher matcher = pattern.matcher(logMessage);
                 StringBuffer stringBuffer = new StringBuffer();
 
                 while (matcher.find()) {
