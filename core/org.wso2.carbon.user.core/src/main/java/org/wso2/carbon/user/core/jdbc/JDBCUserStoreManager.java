@@ -92,6 +92,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String DB2 = "db2";
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
+    private static final String MYSQL = "mysql";
 
     public JDBCUserStoreManager() {
 
@@ -3793,6 +3794,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         StringBuilder sqlStatement;
         SqlBuilder sqlBuilder;
+        boolean hitGroupFilter = false;
+        boolean hitClaimFilter = false;
 
         if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
 
@@ -3887,10 +3890,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("Condition is not valid.");
         }
 
+        SqlBuilder header = new SqlBuilder(new StringBuilder(sqlBuilder.getSql()));
+        addingWheres(sqlBuilder, header);
+
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
                     .ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                sqlBuilder.where("R.UM_ROLE_NAME = ?", expressionCondition.getAttributeValue());
+                if (!MYSQL.equals(dbType)) {
+                    multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
+                    hitGroupFilter = true;
+                } else {
+                    //TODO
+                }
             } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation()) &&
                     ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
                 if (isCaseSensitiveUsername()) {
@@ -3898,51 +3909,37 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     sqlBuilder.where("U.UM_USER_NAME = LOWER(?)", expressionCondition.getAttributeValue());
                 }
-            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
-                    .ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
-            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
-                    .USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
-                } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue()
+                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue()
                             + "%");
+                } else {
+                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" +
+                            expressionCondition.getAttributeValue() + "%");
                 }
-            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation()) &&
-                    ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
             } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation()) &&
                     ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
+                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" +
+                            expressionCondition.getAttributeValue());
                 }
-            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
-                    .ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
-            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
-                    .USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("U.UM_USER_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue()
+                            + "%");
                 }
             } else {
-                if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = ?", expressionCondition.getAttributeName());
-                    sqlBuilder.where("UA.UM_ATTR_VALUE = ?", expressionCondition.getAttributeValue());
-                } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = ?", expressionCondition.getAttributeName());
-                    sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
-                } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = ?", expressionCondition.getAttributeName());
-                    sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + expressionCondition.getAttributeValue());
-
-                } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = ?", expressionCondition.getAttributeName());
-                    sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", expressionCondition.getAttributeValue() + "%");
+                if (!MYSQL.equals(dbType)) {
+                    multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
+                    hitClaimFilter = true;
+                } else {
+                    //TODO
                 }
             }
         }
@@ -3957,6 +3954,79 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
         }
         return sqlBuilder;
+    }
+
+    private void multiGroupQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
+                                        ExpressionCondition expressionCondition) {
+
+        if (hitFirstRound) {
+            sqlBuilder.updateSql(" INTERSECT " + header.getSql());
+            addingWheres(header, sqlBuilder);
+            buildGroupWhereConditions(sqlBuilder, expressionCondition.getOperation(),
+                    expressionCondition.getAttributeValue());
+        } else {
+            buildGroupWhereConditions(sqlBuilder, expressionCondition.getOperation(),
+                    expressionCondition.getAttributeValue());
+        }
+    }
+
+    private void buildGroupWhereConditions(SqlBuilder sqlBuilder, String operation, String value) {
+
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME = ?", value);
+        } else if (ExpressionOperation.EW.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", "%" + value);
+        } else if (ExpressionOperation.CO.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", "%" + value + "%");
+        } else if (ExpressionOperation.SW.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", value + "%");
+        }
+    }
+
+    private void multiClaimQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
+                                        ExpressionCondition expressionCondition) {
+
+        if (hitFirstRound) {
+            sqlBuilder.updateSql(" INTERSECT " + header.getSql());
+            addingWheres(header, sqlBuilder);
+            buildClaimWhereConditions(sqlBuilder, expressionCondition.getAttributeName(),
+                    expressionCondition.getOperation(), expressionCondition.getAttributeValue());
+        } else {
+            buildClaimWhereConditions(sqlBuilder, expressionCondition.getAttributeName(),
+                    expressionCondition.getOperation(), expressionCondition.getAttributeValue());
+        }
+    }
+
+    private void buildClaimWhereConditions(SqlBuilder sqlBuilder, String attributeName, String operation,
+                                           String attributeValue) {
+
+        sqlBuilder.where("UA.UM_ATTR_NAME = ?", attributeName);
+
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE = ?", attributeValue);
+        } else if (ExpressionOperation.EW.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue);
+        } else if (ExpressionOperation.CO.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
+        } else if (ExpressionOperation.SW.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
+        }
+    }
+
+    private void addingWheres(SqlBuilder baseSqlBuilder, SqlBuilder newSqlBuilder) {
+
+        for (int i = 0; i < baseSqlBuilder.getWheres().size(); i++) {
+
+            if (baseSqlBuilder.getIntegerParameters().containsKey(i + 1)) {
+                newSqlBuilder.where(baseSqlBuilder.getWheres().get(i), baseSqlBuilder.getIntegerParameters().get(i + 1));
+
+            } else if (baseSqlBuilder.getStringParameters().containsKey(i + 1)) {
+                newSqlBuilder.where(baseSqlBuilder.getWheres().get(i), baseSqlBuilder.getStringParameters().get(i + 1));
+
+            } else if (baseSqlBuilder.getIntegerParameters().containsKey(i + 1)) {
+                newSqlBuilder.where(baseSqlBuilder.getWheres().get(i), baseSqlBuilder.getLongParameters().get(i + 1));
+            }
+        }
     }
 
     private void getExpressionConditions(Condition condition, List<ExpressionCondition> expressionConditions) {
