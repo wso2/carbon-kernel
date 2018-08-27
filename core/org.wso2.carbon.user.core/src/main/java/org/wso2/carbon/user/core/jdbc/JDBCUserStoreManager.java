@@ -3894,7 +3894,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         addingWheres(sqlBuilder, header);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
-            if ( ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 if (!MYSQL.equals(dbType)) {
                     multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
                     hitGroupFilter = true;
@@ -3934,6 +3934,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                             + "%");
                 }
             } else {
+                // Claim filtering
                 if (!MYSQL.equals(dbType)) {
                     multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
                     hitClaimFilter = true;
