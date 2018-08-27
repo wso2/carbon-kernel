@@ -3894,8 +3894,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         addingWheres(sqlBuilder, header);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
-            if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation()) && ExpressionAttribute
-                    .ROLE.toString().equals(expressionCondition.getAttributeName())) {
+            if ( ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 if (!MYSQL.equals(dbType)) {
                     multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
                     hitGroupFilter = true;
