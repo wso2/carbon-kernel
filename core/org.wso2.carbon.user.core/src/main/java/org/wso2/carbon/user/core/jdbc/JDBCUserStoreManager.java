@@ -3692,6 +3692,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         boolean isGroupFiltering = false;
         boolean isUsernameFiltering = false;
         boolean isClaimFiltering = false;
+        // To identify Mysql multi group filter and multi claim filter.
+        int totalMultiGroupFilters = 0;
+        int totalMulitClaimFitlers = 0;
 
         PaginatedSearchResult result = new PaginatedSearchResult();
 
@@ -3706,10 +3709,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 isGroupFiltering = true;
+                totalMultiGroupFilters++;
             } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
                 isUsernameFiltering = true;
             } else {
                 isClaimFiltering = true;
+                totalMulitClaimFitlers++;
             }
         }
 
@@ -3743,19 +3748,49 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             SqlBuilder sqlBuilder = getQueryString(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
-                    expressionConditions, limit, offset, sortBy, sortOrder, profileName, type);
-            prepStmt = dbConnection.prepareStatement(sqlBuilder.getQuery());
-            populatePrepareStatement(sqlBuilder, prepStmt);
-            rs = prepStmt.executeQuery();
-            while (rs.next()) {
-                String name = rs.getString(1);
-                list.add(UserCoreUtil.addDomainToName(name, getMyDomainName()));
+                    expressionConditions, limit, offset, sortBy, sortOrder, profileName, type, totalMultiGroupFilters,
+                    totalMulitClaimFitlers);
+
+            if (MYSQL.equals(type) && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1) {
+                String fullQuery = sqlBuilder.getQuery();
+                String[] splits = fullQuery.split("INTERSECT ");
+                int startIndex = 0;
+                int endIndex = 0;
+                for (String query : splits) {
+                    List<String> tempUserList = new ArrayList<>();
+                    int occurance = StringUtils.countMatches(query, "?");
+                    endIndex = endIndex + occurance;
+                    prepStmt = dbConnection.prepareStatement(query);
+                    populatePrepareStatement(sqlBuilder, prepStmt, startIndex, endIndex);
+                    rs = prepStmt.executeQuery();
+                    while (rs.next()) {
+                        String name = rs.getString(1);
+                        tempUserList.add(UserCoreUtil.addDomainToName(name, getMyDomainName()));
+                    }
+
+                    if (startIndex == 0) {
+                        list = tempUserList;
+                    } else {
+                        list.retainAll(tempUserList);
+                    }
+                    startIndex += occurance;
+                }
+            } else {
+                prepStmt = dbConnection.prepareStatement(sqlBuilder.getQuery());
+                int occurance = StringUtils.countMatches(sqlBuilder.getQuery(), "?");
+                populatePrepareStatement(sqlBuilder, prepStmt, 0, occurance);
+                rs = prepStmt.executeQuery();
+                while (rs.next()) {
+                    String name = rs.getString(1);
+                    list.add(UserCoreUtil.addDomainToName(name, getMyDomainName()));
+                }
             }
 
             if (list.size() > 0) {
                 users = list.toArray(new String[list.size()]);
             }
             result.setUsers(users);
+
         } catch (Exception e) {
             String msg = "Error occur while doGetUserList for multi attribute searching";
             if (log.isDebugEnabled()) {
@@ -3769,33 +3804,43 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return result;
     }
 
-    private void populatePrepareStatement(SqlBuilder sqlBuilder, PreparedStatement prepStmt) throws SQLException {
+    private void populatePrepareStatement(SqlBuilder sqlBuilder, PreparedStatement prepStmt, int startIndex,
+                                          int endIndex) throws SQLException {
 
         Map<Integer, Integer> integerParameters = sqlBuilder.getIntegerParameters();
         Map<Integer, String> stringParameters = sqlBuilder.getStringParameters();
         Map<Integer, Long> longParameters = sqlBuilder.getLongParameters();
 
         for (Map.Entry<Integer, Integer> entry : integerParameters.entrySet()) {
-            prepStmt.setInt(entry.getKey(), entry.getValue());
+            if (entry.getKey() > startIndex && entry.getKey() <= endIndex) {
+                prepStmt.setInt(entry.getKey() - startIndex, entry.getValue());
+            }
         }
 
         for (Map.Entry<Integer, String> entry : stringParameters.entrySet()) {
-            prepStmt.setString(entry.getKey(), entry.getValue());
+            if (entry.getKey() > startIndex && entry.getKey() <= endIndex) {
+                prepStmt.setString(entry.getKey() - startIndex, entry.getValue());
+            }
         }
 
         for (Map.Entry<Integer, Long> entry : longParameters.entrySet()) {
-            prepStmt.setLong(entry.getKey(), entry.getValue());
+            if (entry.getKey() > startIndex && entry.getKey() <= endIndex) {
+                prepStmt.setLong(entry.getKey() - startIndex, entry.getValue());
+            }
         }
     }
 
     protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isUsernameFiltering, boolean
             isClaimFiltering, List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy,
-                                        String sortOrder, String profileName, String dbType) throws UserStoreException {
+                                        String sortOrder, String profileName, String dbType, int totalMultiGroupFilters,
+                                        int totalMulitClaimFitlers) throws UserStoreException {
 
         StringBuilder sqlStatement;
         SqlBuilder sqlBuilder;
         boolean hitGroupFilter = false;
         boolean hitClaimFilter = false;
+        int groupFilterCount = 0;
+        int claimFilterCount = 0;
 
         if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
 
@@ -3895,11 +3940,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                if (!MYSQL.equals(dbType)) {
+                if (!MYSQL.equals(dbType) || (MYSQL.equals(dbType) && totalMultiGroupFilters > 1 &&
+                        totalMulitClaimFitlers > 1)) {
                     multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
                     hitGroupFilter = true;
                 } else {
-                    //TODO
+                    multiGroupMySqlQueryBuilder(sqlBuilder, groupFilterCount, expressionCondition);
+                    groupFilterCount++;
                 }
             } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation()) &&
                     ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
@@ -3935,23 +3982,37 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             } else {
                 // Claim filtering
-                if (!MYSQL.equals(dbType)) {
+                if (!MYSQL.equals(dbType) || (MYSQL.equals(dbType) && totalMultiGroupFilters > 1 &&
+                        totalMulitClaimFitlers > 1)) {
                     multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
                     hitClaimFilter = true;
                 } else {
-                    //TODO
+                    multiClaimMySqlQueryBuilder(sqlBuilder, claimFilterCount, expressionCondition);
+                    claimFilterCount++;
                 }
             }
         }
 
-        if (DB2.equals(dbType)) {
-            sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
-        } else if (MSSQL.equals(dbType)) {
-            sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
-        } else if (ORACLE.equals(dbType)) {
-            sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
-        } else {
-            sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
+        if (MYSQL.equals(dbType)) {
+            sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME ");
+            if (groupFilterCount > 0) {
+                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
+            }
+            if (claimFilterCount > 0) {
+                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
+            }
+        }
+
+        if (!(MYSQL.equals(dbType) && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1)) {
+            if (DB2.equals(dbType)) {
+                sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+            } else if (MSSQL.equals(dbType)) {
+                sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+            } else if (ORACLE.equals(dbType)) {
+                sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
+            } else {
+                sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
+            }
         }
         return sqlBuilder;
     }
@@ -3983,6 +4044,31 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
+    private void multiGroupMySqlQueryBuilder(SqlBuilder sqlBuilder, int groupFilterCount,
+                                             ExpressionCondition expressionCondition) {
+
+        if (groupFilterCount == 0) {
+            buildGroupWhereConditions(sqlBuilder, expressionCondition.getOperation(),
+                    expressionCondition.getAttributeValue());
+        } else {
+            buildGroupConditionWithOROperator(sqlBuilder, expressionCondition.getOperation(),
+                    expressionCondition.getAttributeValue());
+        }
+    }
+
+    private void buildGroupConditionWithOROperator(SqlBuilder sqlBuilder, String operation, String value) {
+
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME = ?", value);
+        } else if (ExpressionOperation.EW.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME LIKE ?", "%" + value);
+        } else if (ExpressionOperation.CO.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME LIKE ?", "%" + value + "%");
+        } else if (ExpressionOperation.SW.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME LIKE ?", value + "%");
+        }
+    }
+
     private void multiClaimQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
                                         ExpressionCondition expressionCondition) {
 
@@ -4010,6 +4096,34 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
+        }
+    }
+
+    private void multiClaimMySqlQueryBuilder(SqlBuilder sqlBuilder, int claimFilterCount,
+                                             ExpressionCondition expressionCondition) {
+
+        if (claimFilterCount == 0) {
+            buildClaimWhereConditions(sqlBuilder, expressionCondition.getAttributeName()
+                    , expressionCondition.getOperation(), expressionCondition.getAttributeValue());
+        } else {
+            buildClaimConditionWithOROperator(sqlBuilder, expressionCondition.getAttributeName(),
+                    expressionCondition.getOperation(), expressionCondition.getAttributeValue());
+        }
+    }
+
+    private void buildClaimConditionWithOROperator(SqlBuilder sqlBuilder, String attributeName, String operation,
+                                                   String attributeValue) {
+
+        sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_NAME = ?", attributeName);
+
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE = ?", attributeValue);
+        } else if (ExpressionOperation.EW.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue);
+        } else if (ExpressionOperation.CO.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
+        } else if (ExpressionOperation.SW.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
         }
     }
 

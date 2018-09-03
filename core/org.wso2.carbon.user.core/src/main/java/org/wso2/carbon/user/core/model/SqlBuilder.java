@@ -31,6 +31,7 @@ public class SqlBuilder {
     private Map<Integer, Integer> integerParameters = new HashMap<>();
     private Map<Integer, String> stringParameters = new HashMap<>();
     private Map<Integer, Long> longParameters = new HashMap<>();
+    private boolean addedWhereStatement = false;
 
     public SqlBuilder(StringBuilder sql) {
 
@@ -39,15 +40,14 @@ public class SqlBuilder {
 
     private void appendList(StringBuilder sql, List<String> list) {
 
-        boolean first = true;
         for (String s : list) {
-            if (first) {
-                sql.append(" WHERE ");
-            } else {
+            if (addedWhereStatement) {
                 sql.append(" AND ");
+            } else {
+                sql.append(" WHERE ");
+                this.addedWhereStatement = true;
             }
             sql.append(s);
-            first = false;
         }
     }
 
@@ -55,6 +55,7 @@ public class SqlBuilder {
 
         appendList(sql, wheres);
         wheres = new ArrayList<>();
+        this.addedWhereStatement = false;
         if (tail != null) {
             return sql.toString() + tail;
         } else {
@@ -157,6 +158,22 @@ public class SqlBuilder {
 
         appendList(sql, wheres);
         wheres = new ArrayList<>();
+        this.addedWhereStatement = false;
         this.sql.append(append);
+    }
+
+    public void updateSqlWithOROperation(String expr, Object value) {
+
+        appendList(sql, wheres);
+        wheres = new ArrayList<>();
+        this.sql.append(" OR ").append(expr);
+        if (value instanceof String) {
+            stringParameters.put(count, String.valueOf(value));
+        } else if (value instanceof Integer) {
+            integerParameters.put(count, (Integer) value);
+        } else if (value instanceof Long) {
+            longParameters.put(count, (Long) value);
+        }
+        count++;
     }
 }
