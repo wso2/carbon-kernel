@@ -3993,13 +3993,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
         }
 
-        if (MYSQL.equals(dbType)){
+        if (MYSQL.equals(dbType)) {
             sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME ");
-            if (groupFilterCount >0){
-                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = "+ groupFilterCount);
+            if (groupFilterCount > 0) {
+                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
             }
-            if (claimFilterCount>0){
-                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = "+ claimFilterCount);
+            if (claimFilterCount > 0) {
+                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
             }
         }
 
