@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.utils.logging.appenders;
 
-import org.apache.log4j.*;
+import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.context.CarbonContext;
@@ -26,10 +26,14 @@ import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.logging.*;
-
+import java.util.List;
+import java.util.logging.LogRecord;
+import java.util.regex.Pattern;
 
 public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender implements LoggingBridge {
+
+    private String maskingPatternFile;
+    private List<Pattern> maskingPatterns;
 
     public void push(LogRecord record) {
         LoggingEvent loggingEvent = LoggingUtils.getLogEvent(record);
@@ -60,7 +64,7 @@ public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender imp
 
         // acquire the tenant aware logging event from the logging event
         final TenantAwareLoggingEvent tenantAwareLoggingEvent = LoggingUtils
-                .getTenantAwareLogEvent(loggingEvent, tenantId, serviceName);
+                .getTenantAwareLogEvent(maskingPatterns, loggingEvent, tenantId, serviceName);
 
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
@@ -69,5 +73,21 @@ public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender imp
             }
         });
 
+    }
+
+    public String getMaskingPatternFile() {
+
+        return this.maskingPatternFile;
+    }
+
+    /**
+     * Set the maskingPatternFile parameter.
+     * In this method, masking patterns will be loaded from the provided file.
+     *
+     * @param maskingPatternFile : The absolute path of the masking pattern file.
+     */
+    public void setMaskingPatternFile(String maskingPatternFile) {
+
+        this.maskingPatterns = LoggingUtils.loadMaskingPatterns(maskingPatternFile);
     }
 }
