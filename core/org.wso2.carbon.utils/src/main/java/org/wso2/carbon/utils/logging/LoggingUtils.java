@@ -41,6 +41,7 @@ public class LoggingUtils {
 
     private static final String REPLACEMENT_STRING = "*****";
     private static final String DEFAULT_MASKING_PATTERNS_FILE_NAME = "wso2-log-masking.properties";
+    private static final Logger log = Logger.getLogger(LoggingUtils.class);
 
     /**
      * Return a logging event from the given log record
@@ -128,7 +129,7 @@ public class LoggingUtils {
             if (!StringUtils.isEmpty(maskingFilePath)) {
                 //Check whether the configured properties file is not null and the file is present.
                 if (!(Files.exists(Paths.get(maskingFilePath)) && !Files.isDirectory(Paths.get(maskingFilePath)))) {
-                    System.err.println("Could not load the masking patterns from the provided file : "
+                    log.error("Could not load the masking patterns from the provided file : "
                             + maskingFilePath);
                     return maskingPatterns;
                 }
@@ -149,12 +150,14 @@ public class LoggingUtils {
             }
         } catch (IOException e) {
             // If the masking patterns cannot be loaded print an error message.
-            System.err.println("Error loading the masking patterns, due to : " + e.getMessage());
+            log.error("Error loading the masking patterns, due to : " + e.getMessage());
         } finally {
             if (propsStream != null) {
                 try {
                     propsStream.close();
-                } catch (IOException ignore) {}
+                } catch (IOException e) {
+                    // ignore this exception.
+                }
             }
         }
         return maskingPatterns;
