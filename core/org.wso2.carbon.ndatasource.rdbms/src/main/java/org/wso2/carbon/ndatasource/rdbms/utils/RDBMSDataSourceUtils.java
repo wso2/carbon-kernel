@@ -286,6 +286,14 @@ public class RDBMSDataSourceUtils {
 		if (config.isAlternateUsernameAllowed() != null) {
 			props.setAlternateUsernameAllowed(config.isAlternateUsernameAllowed());
 		}
+
+		if (config.getCommitOnReturn() != null) {
+			props.setCommitOnReturn(config.getCommitOnReturn());
+		}
+		if (config.getRollbackOnReturn() != null) {
+			props.setRollbackOnReturn(config.getRollbackOnReturn());
+		}
+
 		if (config.getDataSourceClassName() != null) {
 			handleExternalDataSource(props, config);
 		}
