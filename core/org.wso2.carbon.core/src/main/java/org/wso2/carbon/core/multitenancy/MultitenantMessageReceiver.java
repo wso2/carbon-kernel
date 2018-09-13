@@ -48,6 +48,7 @@ import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.core.internal.MultitenantMsgContextDataHolder;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -75,6 +76,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
     private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
     private static final String SYNAPSE_IS_RESPONSE = "synapse.isresponse";
     private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
+
+    private MultitenantMsgContextDataHolder dataHolder = MultitenantMsgContextDataHolder.getInstance();
 
     public void receive(MessageContext mainInMsgContext) throws AxisFault {
 
@@ -744,6 +747,13 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             String key = (String) itr.next();
             if (key != null) {                
                 tenantMsgCtx.setProperty(key, mainMsgCtx.getProperty(key));
+            }
+        }
+
+        // set additional multitenant message context properties read from multitenant-msg-context.properties file
+        for (String property : dataHolder.getTenantMsgContextProperties()) {
+            if (mainMsgCtx.getProperty(property) != null) {
+                tenantMsgCtx.setProperty(property, mainMsgCtx.getProperty(property));
             }
         }
     }
