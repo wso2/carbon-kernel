@@ -32,7 +32,7 @@ import java.util.Properties;
 
 /**
  * This service component is responsible for loading the list of additional multitenant message context property names
- * from tenant-msg-context.properties file if given in Carbon config directory. It will be read in Carbon
+ * from multitenant-msg-context.properties file if given in Carbon config directory. It will be read in Carbon
  * server startup. These property names are the properties which we need to additionally copy in to tenant message
  * context if available in original message context.
  *
@@ -69,9 +69,13 @@ public class MultitenantMsgContextServiceComponent {
                 //get only the keys of property file (multitenant message context property names)
                 for (Object key : properties.keySet()) {
                     tenantMsgContextProperties.add((String) key);
+                    if (log.isDebugEnabled()) {
+                        log.debug((String) key +
+                                " is added to MultitenantMsgContextDataHolder.tenantMsgContextProperties list");
+                    }
                 }
             } catch (IOException e) {
-                log.warn("Error while reading file from " + filePath);
+                log.warn("Error while reading file from " + filePath, e);
             }
         }
     }
