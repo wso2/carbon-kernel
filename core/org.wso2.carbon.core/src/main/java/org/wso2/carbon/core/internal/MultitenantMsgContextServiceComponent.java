@@ -58,7 +58,7 @@ public class MultitenantMsgContextServiceComponent {
      * This method is used to load the additional multitenant context property name list from the
      * multitenant-msg-context.properties file and add the list to the MultitenantMsgContextDataHolder.
      */
-    protected void loadTenantMessageContextProperties() {
+    private void loadTenantMessageContextProperties() {
         Properties properties = new Properties();
         List<String> tenantMsgContextProperties = dataHolder.getTenantMsgContextProperties();
         String filePath = CarbonUtils.getCarbonConfigDirPath() + File.separator + MULTITENANT_MSG_CONTEXT_PROPERTIES_FILE;
