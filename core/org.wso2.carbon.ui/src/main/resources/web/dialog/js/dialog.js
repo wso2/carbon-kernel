@@ -251,9 +251,9 @@ CARBON.showPopupDialog = function(message, title, windowHeight, okButton, callba
                     return false;
                 }
             },
-            height:windowHight,
+            height:windowHeight,
             width:requiredWidth,
-            minHeight:windowHight,
+            minHeight:windowHeight,
             minWidth:requiredWidth,
             modal:true
         });
@@ -264,9 +264,9 @@ CARBON.showPopupDialog = function(message, title, windowHeight, okButton, callba
                 jQuery("#dcontainer").empty();
                 return false;
             },
-            height:windowHight,
+            height:windowHeight,
             width:requiredWidth,
-            minHeight:windowHight,
+            minHeight:windowHeight,
             minWidth:requiredWidth,
             modal:true
         });
