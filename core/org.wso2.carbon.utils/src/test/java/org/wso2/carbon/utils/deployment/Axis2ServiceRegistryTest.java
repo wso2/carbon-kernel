@@ -19,7 +19,7 @@ package org.wso2.carbon.utils.deployment;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisServiceGroup;
-import org.eclipse.osgi.framework.internal.core.Constants;
+import org.osgi.framework.Constants;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.testng.Assert;
