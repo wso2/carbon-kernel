@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.context;
 
-import org.eclipse.osgi.framework.internal.core.FilterImpl;
+import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.mockito.Mockito;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;

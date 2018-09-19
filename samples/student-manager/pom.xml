@@ -16,7 +16,7 @@
 
     <properties>
         <student.manager.version>4.4.41-SNAPSHOT</student.manager.version>
-        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.6.1-SNAPSHOT</carbon.p2.plugin.version> <!-- maven-tools branch: master_java10 -->
         <maven.bundle.plugin.version>2.3.5</maven.bundle.plugin.version>
 
         <orbit.version.axis2>1.6.1.wso2v20</orbit.version.axis2>
