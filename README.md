@@ -1,8 +1,8 @@
 # carbon-identity-framework
 
-|  Branch | Build Status |
-| :------------ |:-------------
-| master      | [![Build Status](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/badge/icon)](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/) |
+|  Branch | Build Status | Travis CI Status |
+| :------------ |:------------- |:-------------
+| master      | [![Build Status](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/badge/icon)](https://wso2.org/jenkins/job/platform-builds/job/carbon-identity-framework/) | [![Travis CI Status](https://travis-ci.org/wso2/carbon-identity-framework.svg?branch=master)](https://travis-ci.org/wso2/carbon-identity-framework.svg?branch=master)|
 
 
 This repository contains the core components and features required by the [WSO2 Identity Server](https://github.com/wso2/product-is) product.
