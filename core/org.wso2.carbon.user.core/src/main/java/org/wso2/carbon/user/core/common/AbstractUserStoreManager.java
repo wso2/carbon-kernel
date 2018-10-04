@@ -5352,7 +5352,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
             String regularExpression =
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            return regularExpression == null || isFormatCorrect(regularExpression, credentialObj.getChars());
+            if (regularExpression != null) {
+                if (isFormatCorrect(regularExpression, credentialObj.getChars())) {
+                    return true;
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Submitted password does not match with the regex " + regularExpression);
+                    }
+                    return false;
+                }
+            }
+            return true;
         } finally {
             credentialObj.clear();
         }
@@ -5402,9 +5412,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             regularExpression = regularExpression.trim();
         }
 
-        return regularExpression == null || regularExpression.equals("")
-                || isFormatCorrect(regularExpression, userName);
-
+        if (StringUtils.isNotEmpty(regularExpression)) {
+            if (isFormatCorrect(regularExpression, userName)) {
+                return true;
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Username " + userName + " does not match with the regex "
+                            + regularExpression);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

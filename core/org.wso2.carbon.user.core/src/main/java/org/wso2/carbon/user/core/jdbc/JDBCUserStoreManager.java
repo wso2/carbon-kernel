@@ -1169,10 +1169,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
 
         if (!checkUserNameValid(userName)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Username validation failed");
+            }
             return false;
         }
 
         if (!checkUserPasswordValid(credential)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Password validation failed");
+            }
             return false;
         }
 
