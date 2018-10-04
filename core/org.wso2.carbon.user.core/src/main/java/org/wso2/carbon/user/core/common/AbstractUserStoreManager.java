@@ -3431,7 +3431,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     return false;
                 }
             }
-            return regularExpression == null;
+            return true;
         } finally {
             credentialObj.clear();
         }
@@ -3476,7 +3476,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             regularExpression = regularExpression.trim();
         }
 
-        if (regularExpression != null && !regularExpression.equals("")) {
+        if (StringUtils.isNotEmpty(regularExpression)) {
             if (isFormatCorrect(regularExpression, userName)) {
                 return true;
             } else {
@@ -3487,7 +3487,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 return false;
             }
         }
-        return regularExpression == null || regularExpression.equals("");
+        return true;
     }
 
     /**
