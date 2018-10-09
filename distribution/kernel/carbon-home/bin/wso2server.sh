@@ -313,6 +313,7 @@ do
     -Djava.net.preferIPv4Stack=true \
     -Dcom.ibm.cacheLocalHost=true \
     -DworkerNode=false \
+    -DenableCorrelationLogs=false \
     -Dhttpclient.hostnameVerifier="DefaultAndLocalhost" \
     org.wso2.carbon.bootstrap.Bootstrap $*
     status=$?
