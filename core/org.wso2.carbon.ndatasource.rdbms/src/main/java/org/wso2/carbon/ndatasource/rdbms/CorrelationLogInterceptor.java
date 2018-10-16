@@ -21,15 +21,17 @@ package org.wso2.carbon.ndatasource.rdbms;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.interceptor.AbstractQueryReport;
+import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.DatabaseMetaData;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Time-Logging interceptor for JDBC pool.
@@ -41,16 +43,26 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
 
-    private static final String CORRELATION_LOG_TIME_TAKEN_KEY = "delta";
-    private static final String CORRELATION_LOG_TIME_TAKEN_UNIT = "ms";
-    private static final String CORRELATION_LOG_CALL_TYPE_KEY = "callType";
     private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "jdbc";
-    private static final String CORRELATION_LOG_START_TIME_KEY = "startTime";
-    private static final String CORRELATION_LOG_METHOD_NAME_KEY = "methodName";
-    private static final String CORRELATION_LOG_QUERY_KEY = "query";
-    private static final String CORRELATION_LOG_CONNECTION_URL_KEY = "connectionUrl";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    private static final String BLACKLISTED_THREADS_SYSTEM_PROPERTY =
+            "org.wso2.CorrelationLogInterceptor.BlacklistedThreads";
+    private static final String DEFAULT_BLACKLISTED_THREAD = "MessageDeliveryTaskThreadPool";
+    private List<String> blacklistedThreadList = new ArrayList<>();
+
+    public CorrelationLogInterceptor() {
+
+        String blacklistedThreadNames = System.getProperty(BLACKLISTED_THREADS_SYSTEM_PROPERTY);
+
+        if (blacklistedThreadNames == null) {
+            blacklistedThreadList.add(DEFAULT_BLACKLISTED_THREAD);
+        }
+
+        if (!StringUtils.isEmpty(blacklistedThreadNames)) {
+            blacklistedThreadList.addAll(Arrays.asList(StringUtils.split(blacklistedThreadNames, ',')));
+        }
+    }
 
     @Override
     public void closeInvoked() {
@@ -183,35 +195,51 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
                 return;
             }
 
+            if (isCurrentThreadBlacklisted()) {
+                return;
+            }
+
             DatabaseMetaData metaData = preparedStatement.getConnection().getMetaData();
             if (correlationLog.isInfoEnabled()) {
-                Map<String, String> logPropertiesMap = new LinkedHashMap<>();
-                logPropertiesMap.put(CORRELATION_LOG_TIME_TAKEN_KEY, Long.toString(delta) +
-                        " " + CORRELATION_LOG_TIME_TAKEN_UNIT);
-                logPropertiesMap.put(CORRELATION_LOG_CALL_TYPE_KEY, CORRELATION_LOG_CALL_TYPE_VALUE);
-                logPropertiesMap.put(CORRELATION_LOG_START_TIME_KEY, Long.toString(start));
-                logPropertiesMap.put(CORRELATION_LOG_METHOD_NAME_KEY, methodName);
-                logPropertiesMap.put(CORRELATION_LOG_QUERY_KEY, this.query);
-                logPropertiesMap.put(CORRELATION_LOG_CONNECTION_URL_KEY, metaData.getURL());
-                correlationLog.info(createLogFormat(logPropertiesMap));
+                List<String> logPropertiesList = new ArrayList<>();
+                logPropertiesList.add(Long.toString(delta));
+                logPropertiesList.add(CORRELATION_LOG_CALL_TYPE_VALUE);
+                logPropertiesList.add(Long.toString(start));
+                logPropertiesList.add(methodName);
+                logPropertiesList.add(this.query);
+                logPropertiesList.add(metaData.getURL());
+                correlationLog.info(createFormattedLog(logPropertiesList));
             }
+        }
+
+        private boolean isCurrentThreadBlacklisted() {
+
+            String threadName = Thread.currentThread().getName();
+
+            for (String thread : blacklistedThreadList) {
+                if (threadName.startsWith(thread)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
          * Creates the log line that should be printed
          *
-         * @param logPropertiesMap Contains the type and value that should be printed in the log
+         * @param logPropertiesList Contains the log values that should be printed in the log
          * @return The log line
          */
-        private String createLogFormat(Map<String, String> logPropertiesMap) {
+        private String createFormattedLog(List<String> logPropertiesList) {
 
             StringBuilder sb = new StringBuilder();
-            Object[] keys = logPropertiesMap.keySet().toArray();
-            for (int i = 0; i < keys.length; i++) {
-                sb.append(logPropertiesMap.get(keys[i]));
-                if (i < keys.length - 1) {
+            int count = 0;
+            for (String property : logPropertiesList) {
+                sb.append(property);
+                if (count < logPropertiesList.size() - 1) {
                     sb.append(CORRELATION_LOG_SEPARATOR);
                 }
+                count++;
             }
             return sb.toString();
         }

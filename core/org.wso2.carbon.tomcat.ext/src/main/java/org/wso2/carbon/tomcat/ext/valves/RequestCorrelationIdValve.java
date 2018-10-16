@@ -24,6 +24,8 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
 
 import java.io.IOException;
@@ -51,6 +53,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RequestCorrelationIdValve extends ValveBase {
 
+    private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final String CORRELATION_ID_MDC = "Correlation-ID";
     private Map<String, String> headerToIdMapping;
     private Map<String, String> queryToIdMapping;
@@ -59,6 +62,10 @@ public class RequestCorrelationIdValve extends ValveBase {
     private String headerToCorrelationIdMapping;
     private String queryToCorrelationIdMapping;
     private String configuredCorrelationIdMdc;
+    private static final String CORRELATION_LOG_REQUEST_START = "HTTP-In-Request";
+    private static final String CORRELATION_LOG_SEPARATOR = "|";
+    private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
+    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -83,7 +90,9 @@ public class RequestCorrelationIdValve extends ValveBase {
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
+        long requestStartTime = System.currentTimeMillis();
         try {
+
             Map<String, String> associateToThreadMap = new HashMap<>(getHeadersToAssociate(request));
             if (associateToThreadMap.size() == 0) {
                 associateToThreadMap.putAll(getQueryParamsToAssociate(request));
@@ -95,13 +104,66 @@ public class RequestCorrelationIdValve extends ValveBase {
                 associateToThread(associateToThreadMap);
             }
 
+            if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+                long currentTime = System.currentTimeMillis();
+                long timeTaken = currentTime - requestStartTime;
+                logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_START, request);
+            }
+
             if (getNext() != null) {
                 getNext().invoke(request, response);
             }
         } finally {
+            if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+                long currentTime = System.currentTimeMillis();
+                long timeTaken = currentTime - requestStartTime;
+                logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_END, request);
+            }
             disAssociateFromThread();
             MDC.remove(correlationIdMdc);
         }
+    }
+
+    /**
+     * Logs the details from request
+     *
+     * @param start    Start time of the request
+     * @param delta    Time taken
+     * @param callType Shows the type of request printing
+     * @param request  It is used to get details about query parameters , url path and request method
+     */
+    private void logRequestDetails(long start, long delta, String callType, Request request) {
+
+        if (correlationLog.isInfoEnabled()) {
+            List<String> logPropertiesList = new ArrayList<>();
+            logPropertiesList.add(Long.toString(delta));
+            logPropertiesList.add(callType);
+            logPropertiesList.add(Long.toString(start));
+            logPropertiesList.add(request.getMethod());
+            logPropertiesList.add(request.getQueryString());
+            logPropertiesList.add(request.getRequestURI());
+            correlationLog.info(createFormattedLog(logPropertiesList));
+        }
+    }
+
+    /**
+     * Creates the log line that should be printed
+     *
+     * @param logPropertiesList Contains the log values that should be printed in the log
+     * @return The log line
+     */
+    private String createFormattedLog(List<String> logPropertiesList) {
+
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (String property : logPropertiesList) {
+            sb.append(property);
+            if (count < logPropertiesList.size() - 1) {
+                sb.append(CORRELATION_LOG_SEPARATOR);
+            }
+            count++;
+        }
+        return sb.toString();
     }
 
     /**
@@ -195,7 +257,7 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
 
             Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-            if(headerNames == null){
+            if (headerNames == null) {
                 return headersToAssociate;
             }
 

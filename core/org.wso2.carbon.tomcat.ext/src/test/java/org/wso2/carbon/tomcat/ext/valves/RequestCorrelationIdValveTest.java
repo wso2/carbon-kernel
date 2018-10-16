@@ -141,7 +141,8 @@ public class RequestCorrelationIdValveTest {
         headerReceivedMap.put(TEST_HEADER_RECEIVED, TEST_HEADER_RECEIVED_VALUE);
         Request testServletRequest = mock(Request.class);
         when(testServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerReceivedMap.keySet()));
-        when(testServletRequest.getHeader(TEST_HEADER_RECEIVED)).thenReturn(headerReceivedMap.get(TEST_HEADER_RECEIVED));
+        when(testServletRequest.getHeader(TEST_HEADER_RECEIVED))
+                .thenReturn(headerReceivedMap.get(TEST_HEADER_RECEIVED));
         return testServletRequest;
     }
 
@@ -149,8 +150,10 @@ public class RequestCorrelationIdValveTest {
 
         queryParamReceivedMap.put(TEST_PARAM_RECEIVED, TEST_PARAM_VALUE);
         Request testServletRequest = mock(Request.class);
-        when(testServletRequest.getParameterNames()).thenReturn(Collections.enumeration(queryParamReceivedMap.keySet()));
-        when(testServletRequest.getParameter(TEST_PARAM_RECEIVED)).thenReturn(queryParamReceivedMap.get(TEST_PARAM_RECEIVED));
+        when(testServletRequest.getParameterNames()).thenReturn(Collections
+                .enumeration(queryParamReceivedMap.keySet()));
+        when(testServletRequest.getParameter(TEST_PARAM_RECEIVED))
+                .thenReturn(queryParamReceivedMap.get(TEST_PARAM_RECEIVED));
         return testServletRequest;
     }
 }
