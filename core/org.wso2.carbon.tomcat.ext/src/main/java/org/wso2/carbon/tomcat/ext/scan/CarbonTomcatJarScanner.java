@@ -23,7 +23,7 @@ import org.apache.tomcat.util.file.Matcher;
 import org.apache.tomcat.util.res.StringManager;
 import org.apache.tomcat.util.scan.Constants;
 import org.apache.tomcat.util.scan.StandardJarScanner;
-import org.eclipse.osgi.framework.adaptor.BundleClassLoader;
+import org.eclipse.osgi.internal.loader.ModuleClassLoader;
 
 import javax.servlet.ServletContext;
 import java.io.File;
@@ -222,7 +222,8 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
                }
                // WSO2 Carbon specific code snippet
                // Setting the plugins directory only if the parent classLoader is a bundleClassLoader.
-               if (loader instanceof BundleClassLoader) {
+               // UPDATE: BundleClassLoader has been refactored into ModuleClassLoader in Luna
+               if (loader instanceof ModuleClassLoader) {
                    File  pluginsDir = new File(CARBON_PLUGINS_DIR_PATH);
                    File[] jarFiles = pluginsDir.listFiles(new FileFilter(){
                        public boolean accept(File file) {
