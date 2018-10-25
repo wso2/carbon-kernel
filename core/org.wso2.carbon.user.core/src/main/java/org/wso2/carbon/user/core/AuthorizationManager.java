@@ -197,6 +197,19 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
     String[] getAllowedUIResourcesForUser(String userName, String permissionRootPath)
             throws UserStoreException;
 
+    /**
+     * Returns the complete set of resources allowed for Role.
+     *
+     * @param roleName
+     * @return
+     * @throws org.wso2.carbon.user.api.UserStoreException
+     */
+    default String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException {
+        //This is new API addition and giving default empty implementation to give the backward compatibility.
+        return null;
+    }
+
 
     /**
      * this will get the tenant id associated with the user authorization manager
