@@ -170,21 +170,21 @@ public class DataSourceServiceComponent {
         return DataSourceServiceComponent.registryService;
     }
 
-	protected void setExternalCryptoProvider(ExternalCryptoProvider externalCryptoProvider) {
-		if (log.isDebugEnabled()) {
-			log.debug("ExternalCryptoProvider acquired");
-		}
-		this.externalCryptoProvider = externalCryptoProvider;
-		this.checkInitTenantUserDataSources();
+    protected void setExternalCryptoProvider(ExternalCryptoProvider externalCryptoProvider) {
+	if (log.isDebugEnabled()) {
+		log.debug("ExternalCryptoProvider acquired");
 	}
+	this.externalCryptoProvider = externalCryptoProvider;
+	this.checkInitTenantUserDataSources();
+    }
 
-	protected void unsetExternalCryptoProvider(ExternalCryptoProvider externalCryptoProvider) {
-		this.externalCryptoProvider = null;
-	}
+    protected void unsetExternalCryptoProvider(ExternalCryptoProvider externalCryptoProvider) {
+	this.externalCryptoProvider = null;
+    }
 
-	public static ExternalCryptoProvider getExternalCryptoProvider() {
-		return DataSourceServiceComponent.externalCryptoProvider;
-	}
+    public static ExternalCryptoProvider getExternalCryptoProvider() {
+	return DataSourceServiceComponent.externalCryptoProvider;
+    }
 	
     public static SecretCallbackHandlerService getSecretCallbackHandlerService() {
     	return DataSourceServiceComponent.secretCallbackHandlerService;
@@ -224,7 +224,7 @@ public class DataSourceServiceComponent {
     			DataSourceServiceComponent.getRegistryService() != null &&
     			DataSourceServiceComponent.getSecretCallbackHandlerService() != null && 
     			DataSourceServiceComponent.getServerConfigurationService() != null &&
-				DataSourceServiceComponent.getExternalCryptoProvider() != null) {
+			DataSourceServiceComponent.getExternalCryptoProvider() != null) {
     		this.initSuperTenantUserDataSources();
     	}
     }
