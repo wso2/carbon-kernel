@@ -1064,10 +1064,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     searchControls,
                                     displayNameAttribute, false);
                     // we expect only one display name
-                    String name =
-                            UserCoreUtil.getCombinedName(this.realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME),
-                                    userName, displayNames.get(0));
-                    combinedNames.add(name);
+                    if (displayNames != null && !displayNames.isEmpty()) {
+                        String name = UserCoreUtil.getCombinedName(this.realmConfig.getUserStoreProperty(
+                                UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME), userName, displayNames.get(0));
+                        combinedNames.add(name);
+                    }
                 }
                 return combinedNames.toArray(new String[combinedNames.size()]);
             } else {
