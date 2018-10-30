@@ -43,28 +43,30 @@ import org.wso2.carbon.ndatasource.rdbms.utils.RDBMSDataSourceUtils;
  */
 public class RDBMSDataSource {
 
-       private static Log log = LogFactory.getLog(RDBMSDataSource.class);
+	private static Log log = LogFactory.getLog(RDBMSDataSource.class);
 
 	private DataSource dataSource;
-	
+
 	private Reference dataSourceFactoryReference;
-	
+
 	private PoolConfiguration poolProperties;
-	
+
 	public RDBMSDataSource(RDBMSConfiguration config) throws DataSourceException {
 		this.poolProperties = RDBMSDataSourceUtils.createPoolConfiguration(config);
 		this.populateStandardProps();
 	}
-	
+
 	private void populateStandardProps() {
 		String jdbcInterceptors = this.poolProperties.getJdbcInterceptors();
 		if (jdbcInterceptors == null) {
 			jdbcInterceptors = "";
 		}
-		jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_JDBC_INTERCEPTORS + jdbcInterceptors;
+		//Correlation log interceptor is added to the interceptor chain
+		jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_JDBC_INTERCEPTORS + jdbcInterceptors
+		+ RDBMSDataSourceConstants.CORRELATION_LOG_INTERCEPTOR;
 		this.poolProperties.setJdbcInterceptors(jdbcInterceptors);
 	}
-	
+
 	public DataSource getDataSource() {
 		if (this.dataSource == null) {
 			this.dataSource = new DataSource(poolProperties);
@@ -105,15 +107,15 @@ public class RDBMSDataSource {
                                + mBean + " " + e.getMessage(), e);
                 }
        }
-	
+
 	public Reference getDataSourceFactoryReference() throws DataSourceException {
 		if (dataSourceFactoryReference == null) {
 			dataSourceFactoryReference = new Reference("org.apache.tomcat.jdbc.pool.DataSource",
 	                "org.apache.tomcat.jdbc.pool.DataSourceFactory", null);
-			
+
 			Map<String, String> poolConfigMap = RDBMSDataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
 			Iterator<Entry<String, String>> poolConfigMapIterator = poolConfigMap.entrySet().iterator();
-			
+
 			while (poolConfigMapIterator.hasNext()) {
 				Entry<String, String> pairs = poolConfigMapIterator.next();
 				dataSourceFactoryReference.add(new StringRefAddr(pairs.getKey(),
@@ -122,5 +124,5 @@ public class RDBMSDataSource {
 		}
 		return dataSourceFactoryReference;
 	}
-	
+
 }
