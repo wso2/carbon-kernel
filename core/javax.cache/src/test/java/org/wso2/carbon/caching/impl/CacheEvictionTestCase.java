@@ -56,7 +56,7 @@ public class CacheEvictionTestCase {
 
         String oldestKey = "x" + System.currentTimeMillis();
         cache.put(oldestKey, Integer.MAX_VALUE);
-        for (int i = 0; i < 1050; i++) {
+        for (int i = 0; i < 10500; i++) {
             cache.put("a" + System.currentTimeMillis(), i);
             try {
                 Thread.sleep(1);
@@ -70,7 +70,7 @@ public class CacheEvictionTestCase {
             CacheImpl cacheImpl = (CacheImpl) cache;
             cacheImpl.setEvictionAlgorithm(new LeastRecentlyUsedEvictionAlgorithm());
             cacheImpl.runCacheExpiry();
-            assertEquals(((CacheImpl) cache).getAll().size(), 750);
+            assertEquals(((CacheImpl) cache).getAll().size(), 7500);
             assertNull(cache.get(oldestKey));
             assertNotNull(cache.get(newestKey));
         }
