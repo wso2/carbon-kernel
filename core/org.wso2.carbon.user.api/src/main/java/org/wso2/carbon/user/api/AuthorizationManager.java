@@ -217,6 +217,19 @@ public interface AuthorizationManager {
             throws UserStoreException;
 
     /**
+     * Returns the complete set of resources allowed for Role.
+     *
+     * @param roleName
+     * @return
+     * @throws UserStoreException
+     */
+    default String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException{
+        //This is new API addition and giving default empty implementation to give the backward compatibility.
+        return new String[0];
+    }
+
+    /**
      * This will get the tenant id associated with the user authorization
      * manager
      *
