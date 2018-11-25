@@ -201,14 +201,14 @@ public class LDAPConnectionContext {
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
             try {
-                context = getDirContext(environment);
+                context = getLdapContext(environment,null);
 
             } catch (NamingException e) {
                 log.error("Error obtaining connection. " + e.getMessage(), e);
                 log.error("Trying again to get connection.");
 
                 try {
-                    context = getDirContext(environment);
+                    context = getLdapContext(environment,null);
                 } catch (Exception e1) {
                     log.error("Error obtaining connection for the second time" + e.getMessage(), e);
                     throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
@@ -223,7 +223,7 @@ public class LDAPConnectionContext {
                 //compose the connection URL
                 environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
 
-                context = getDirContext(environment);
+                context = getLdapContext(environment,null);
 
             } catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
@@ -233,7 +233,7 @@ public class LDAPConnectionContext {
                     try {
                         SRVRecord srv = dcMap.get(integer);
                         environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(srv));
-                        context = getDirContext(environment);
+                        context = getLdapContext(environment,null);
                         break;
                     } catch (NamingException e1) {
                         if (integer == (dcMap.lastKey())) {
