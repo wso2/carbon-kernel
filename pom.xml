@@ -1110,6 +1110,11 @@
                 <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
