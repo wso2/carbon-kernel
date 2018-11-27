@@ -50,6 +50,7 @@
     }
 
     int numberOfPages = 0;
+    int noOfPageLinksToDisplay = 5;
     String pageNumber = request.getParameter("pageNumber");
     if (pageNumber == null) {
         pageNumber = "0";
@@ -138,7 +139,12 @@
 
     <div id="workArea">
         <h3><fmt:message key="certificate.of.the.private.key"/></h3>
-        <table class="styledLeft">
+	    <carbon:paginator pageNumber="<%=pageNumberInt%>"
+	                      numberOfPages="<%=numberOfPages%>"
+	                      noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
+	                      page="view-keystore.jsp" pageNumberParameterName="pageNumber"/>
+	
+	    <table class="styledLeft">
             <thead>
 	            <tr>
 	                <th><fmt:message key="alias"/></th>
@@ -261,13 +267,10 @@
 				%>
 			</tbody>
         </table>
-        <paginationValue pageNumber="<%=pageNumberInt%>"
-                          numberOfPages="<%=numberOfPages%>"
-                          page="view-keystore.jsp"
-                          pageNumberParameterName="pageNumber"
-                          parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
-                          resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
-                          prevKey="prev" nextKey="next"/>
+	    <carbon:paginator pageNumber="<%=pageNumberInt%>"
+	                      numberOfPages="<%=numberOfPages%>"
+	                      noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
+	                      page="view-keystore.jsp" pageNumberParameterName="pageNumber"/>
     </div>
 </div>
 </fmt:bundle>
