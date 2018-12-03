@@ -1315,7 +1315,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to list users using username");
@@ -6557,7 +6558,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             log.debug("Listing and paginate users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to paginate users using username");
