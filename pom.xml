@@ -58,6 +58,7 @@
         <module>components/policy-editor</module>
         <module>components/carbon-authenticators</module>
         <module>components/consent-mgt</module>
+        <module>components/template-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -738,6 +739,33 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.template.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.template.mgt.ui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.template.mgt.endpoint</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.template.mgt.server.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.template.mgt.ui.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.openid4java</groupId>
@@ -1516,6 +1544,42 @@
                 <version>${msf4j.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-catalina</artifactId>
+                <version>${apache.tomcat-catalina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                <version>${apache.cxf-rt-frontend-jaxrs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description</artifactId>
+                <version>${apache.cxf-rt-rs-service-description.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>${codehaus.jackson-core-asl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${codehaus.jackson-mapper-asl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs</artifactId>
+                <version>${codehaus.jackson-jaxrs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${springframework.spring-web.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1529,6 +1593,15 @@
     </dependencies>
     
     <properties>
+        <apache.tomcat-catalina.version>9.0.11</apache.tomcat-catalina.version>
+        <apache.cxf-rt-frontend-jaxrs.version>2.7.16</apache.cxf-rt-frontend-jaxrs.version>
+        <apache.cxf-rt-rs-service-description.version>3.1.4</apache.cxf-rt-rs-service-description.version>
+        <codehaus.jackson-core-asl.version>1.8.6</codehaus.jackson-core-asl.version>
+        <codehaus.jackson-mapper-asl.version>1.8.6</codehaus.jackson-mapper-asl.version>
+        <codehaus.jackson-jaxrs.version>1.8.6</codehaus.jackson-jaxrs.version>
+        <springframework.spring-web.version>4.1.6.RELEASE</springframework.spring-web.version>
+        <jaxrx.jsr311.api.version>1.1.1</jaxrx.jsr311.api.version>
+        <org.apache.cxf.version>3.1.16</org.apache.cxf.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1629,6 +1702,7 @@
         <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.imp.pkg.version.range>[1.5.7,2.0.0)</apacheds.imp.pkg.version.range>
         <bcprov.version>1.49.0.wso2v2</bcprov.version>
+        <swagger.jaxrs.version>1.5.2</swagger.jaxrs.version>
 
         <!-- Orbits -->
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
@@ -1774,6 +1848,7 @@
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
+        <swagger2cxf-maven-plugin.version>1.0-SNAPSHOT</swagger2cxf-maven-plugin.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
 
@@ -1802,6 +1877,17 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.wso2.maven.plugins</groupId>
+                    <artifactId>swagger2cxf-maven-plugin</artifactId>
+                    <version>${swagger2cxf-maven-plugin.version}</version>
+                    <configuration>
+                        <inputSpec>
+                            ${project.basedir}/src/main/resources/org.wso2.carbon.identity.template.mgt.api.yaml
+                        </inputSpec>
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
