@@ -34,6 +34,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.cache.Caching;
 import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -635,6 +636,7 @@ public class JDBCTenantManager implements TenantManager {
             tenantDomainIdMap.remove(tenantDomain);
         }
         clearTenantCache(tenantId);
+        deleteCachemanager(tenantDomain, tenantId);
 
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
@@ -726,5 +728,22 @@ public class JDBCTenantManager implements TenantManager {
 
     private void clearTenantCache(int tenantId) {
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+    }
+
+    private void deleteCachemanager(String tenantDomain, int tenantId) {
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain);
+            carbonContext.setTenantId(tenantId);
+
+            Caching.getCacheManagerFactory().close();
+        } catch (Exception e) {
+            log.error("Unable to delete cache for tenant :"+tenantDomain);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+
     }
 }

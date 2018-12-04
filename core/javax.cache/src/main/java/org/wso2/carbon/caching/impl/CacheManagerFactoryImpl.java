@@ -115,6 +115,7 @@ public class CacheManagerFactoryImpl implements CacheManagerFactory {
                     cacheManager.shutdown();
                 }
                 cacheManagers.clear();
+                globalCacheManagerMap.remove(tenantDomain);
             }
         }
         if (cacheEvictionScheduler != null) {
