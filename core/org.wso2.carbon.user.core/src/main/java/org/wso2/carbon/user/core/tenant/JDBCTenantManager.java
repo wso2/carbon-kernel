@@ -731,19 +731,16 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     private void clearCachemanager(String tenantDomain, int tenantId) {
-
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain);
             carbonContext.setTenantId(tenantId);
-
             Caching.getCacheManagerFactory().close();
         } catch (Exception e) {
             log.error("Unable to delete cache for tenant : " + tenantDomain,e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
-
     }
 }
