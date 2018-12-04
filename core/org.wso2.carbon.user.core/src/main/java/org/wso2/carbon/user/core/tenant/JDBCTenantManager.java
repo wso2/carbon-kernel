@@ -730,6 +730,11 @@ public class JDBCTenantManager implements TenantManager {
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 
+    /**
+     * Clear all caches and shutdown all cache managers for a particular tenant.
+     * @param tenantDomain tenant domain
+     * @param tenantId  tenant id
+     */
     private void clearCachemanager(String tenantDomain, int tenantId) {
         try {
             PrivilegedCarbonContext.startTenantFlow();
