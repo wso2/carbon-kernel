@@ -740,7 +740,7 @@ public class JDBCTenantManager implements TenantManager {
 
             Caching.getCacheManagerFactory().close();
         } catch (Exception e) {
-            log.error("Unable to delete cache for tenant :"+tenantDomain);
+            log.error("Unable to delete cache for tenant : " + tenantDomain,e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
