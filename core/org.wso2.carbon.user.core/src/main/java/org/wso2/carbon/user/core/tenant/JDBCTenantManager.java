@@ -636,7 +636,7 @@ public class JDBCTenantManager implements TenantManager {
             tenantDomainIdMap.remove(tenantDomain);
         }
         clearTenantCache(tenantId);
-        clearCachemanager(tenantDomain, tenantId);
+        clearCacheManager(tenantDomain, tenantId);
 
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
@@ -735,7 +735,7 @@ public class JDBCTenantManager implements TenantManager {
      * @param tenantDomain tenant domain
      * @param tenantId  tenant id
      */
-    private void clearCachemanager(String tenantDomain, int tenantId) {
+    private void clearCacheManager(String tenantDomain, int tenantId) {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
