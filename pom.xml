@@ -58,6 +58,7 @@
         <module>components/policy-editor</module>
         <module>components/carbon-authenticators</module>
         <module>components/consent-mgt</module>
+        <module>components/functions-library-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -1109,6 +1110,11 @@
                 <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1118,6 +1124,11 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.stub</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt.stub</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
