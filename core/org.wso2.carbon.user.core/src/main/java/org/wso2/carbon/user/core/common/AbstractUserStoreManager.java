@@ -2705,6 +2705,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         if (StringUtils.isEmpty(userName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regEx) || StringUtils.isEmpty(regEx.trim())) {
+                regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+            }
             String message = String.format(ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getMessage(), null, regEx);
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getCode();
             handleAddUserFailure(errorCode, message, null, credential, roleList, claims, profileName);
@@ -2840,6 +2844,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             if (!checkUserNameValid(userStore.getDomainFreeName())) {
                 String regEx = realmConfig
                         .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+                //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+                if (StringUtils.isEmpty(regEx) || StringUtils.isEmpty(regEx.trim())) {
+                    regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+                }
                 String message = String
                         .format(ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getMessage(), userStore.getDomainFreeName(),
                                 regEx);
@@ -5401,6 +5409,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         String regularExpression = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+        //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+        if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+            regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+        }
 
         if (MultitenantUtils.isEmailUserName()) {
             regularExpression = realmConfig
@@ -5410,6 +5422,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
                         .PROPERTY_USER_NAME_JAVA_REG_EX);
             }
+
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+            }
+
             if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
                 regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
             }
