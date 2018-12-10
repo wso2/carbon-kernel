@@ -332,10 +332,16 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
         }
         if (!checkUserPasswordValid(credential)) {
+            String regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_USER_NAME_JAVA_REG_EX);
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                        .PROPERTY_USER_NAME_JAVA_REG);
+            }
             throw new UserStoreException(
                     "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+                            + regularExpression);
         }
         if (isExistingUser(userName)) {
             throw new UserStoreException("User " + userName + " already exist in the LDAP");
