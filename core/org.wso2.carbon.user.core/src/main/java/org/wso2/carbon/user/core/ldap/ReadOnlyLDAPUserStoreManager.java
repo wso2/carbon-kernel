@@ -1848,7 +1848,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 Attributes userAttributes;
                 try {
                     // '\' and '"' characters need another level of escaping before searching
-                    userAttributes = dirContext.getAttributes(new CompositeName().add(user), returnedAttributes);
+                    userAttributes = dirContext.getAttributes(escapeDNForSearch(user), returnedAttributes);
 
                     String displayName = null;
                     String userName = null;
@@ -3001,7 +3001,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             try {
                 String displayName = null;
                 String userName = null;
-                Attributes userAttributes = dirContext.getAttributes(new CompositeName().add(user), requiredAttributes);
+                Attributes userAttributes = dirContext.getAttributes(escapeDNForSearch(user), requiredAttributes);
 
                 if (userAttributes != null) {
                     Attribute userNameAttribute = userAttributes.get(userNameProperty);
@@ -4134,7 +4134,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @return composite name
      * @throws InvalidNameException failed to build composite name
      */
-    private Name escapeDNForSearch(String dn) throws InvalidNameException {
+    protected Name escapeDNForSearch(String dn) throws InvalidNameException {
+        // This is done to escape '/' which is not a LDAP special character but a JNDI special character.
+        // Refer: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4307193
         return new CompositeName().add(dn);
     }
 
