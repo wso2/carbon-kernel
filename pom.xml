@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.12.219-SNAPSHOT</version>
+    <version>5.12.226-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -58,6 +58,7 @@
         <module>components/policy-editor</module>
         <module>components/carbon-authenticators</module>
         <module>components/consent-mgt</module>
+        <module>components/functions-library-mgt</module>
         <module>components/template-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
@@ -76,6 +77,8 @@
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
         <module>features/consent-mgt</module>
+        <module>features/functions-library-mgt</module>
+        <module>features/template-mgt</module>
     </modules>
 
     <repositories>
@@ -1138,6 +1141,11 @@
                 <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1148,6 +1156,33 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.stub</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt.stub</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt.ui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt.server.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.functions.library.mgt.ui.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1383,11 +1418,6 @@
                 <version>${com.yubico.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${google.guava.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>jstl</artifactId>
                 <version>${javax.servelet.jstl.version}</version>
@@ -1592,7 +1622,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    
+
     <properties>
         <apache.tomcat-catalina.version>9.0.11</apache.tomcat-catalina.version>
         <apache.cxf-rt-frontend-jaxrs.version>2.7.16</apache.cxf-rt-frontend-jaxrs.version>
