@@ -46,6 +46,10 @@
             <groupId>org.apache.zookeeper.wso2</groupId>
             <artifactId>apache-zookeeper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
