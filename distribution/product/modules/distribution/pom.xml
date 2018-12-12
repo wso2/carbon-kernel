@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wso2carbon</artifactId>
     <packaging>jar</packaging>
-    <name>WSO2 Carbon - Distribution</name>
+    <name>WSO2 Carbon - Distribution wso2carbon</name>
     <description>WSO2 Carbon Distribution</description>
 
     <build>
