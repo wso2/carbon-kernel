@@ -296,9 +296,9 @@ JAVA_VER_BASED_OPTS=""
 if [ $java_version_formatted -le 0108 ]; then
     JAVA_VER_BASED_OPTS="-Djava.endorsed.dirs=$JAVA_ENDORSED_DIRS"
 fi
-if [ $java_version_formatted -ge 0900 ]; then
-    JAVA_VER_BASED_OPTS="--add-modules=java.activation,java.xml.bind"
-fi
+#if [ $java_version_formatted -ge 0900 ]; then
+#    JAVA_VER_BASED_OPTS="--add-modules=java.activation,java.xml.bind"
+#fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do
