@@ -1748,11 +1748,6 @@
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1.wso2v1</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>2.3.1.wso2v1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
