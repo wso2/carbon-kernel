@@ -172,8 +172,6 @@ public class DataSourceManager {
 	
 	private void initSystemDataSource(File sysDSFile) throws DataSourceException {
 		try {
-			// Set the javax.xml.bind.JAXBContext
-			System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
 		    JAXBContext ctx = JAXBContext.newInstance(SystemDataSourcesConfiguration.class);
             Document doc = DataSourceUtils.convertToDocument(sysDSFile);
             DataSourceUtils.secureResolveDocument(doc, true);
