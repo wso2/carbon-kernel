@@ -311,7 +311,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                         LDAPConstants.ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE,
                         createUnicodePassword(credentialObj)));
             }
-            subDirContext = (DirContext) dirContext.lookup(searchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(searchBase));
             subDirContext.modifyAttributes(user.getName(), mods);
 
         } catch (NamingException e) {
@@ -380,7 +380,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                             LDAPConstants.ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE,
                             createUnicodePassword(credentialObj)));
 
-                    subDirContext = (DirContext) dirContext.lookup(searchBase);
+                    subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(searchBase));
                     subDirContext.modifyAttributes(user.getName(), mods);
                 } finally {
                     credentialObj.clear();
@@ -588,7 +588,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             // update the attributes in the relevant entry of the directory
             // store
 
-            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
@@ -648,7 +648,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             String attributeName = getClaimAtrribute(claimURI, userName, null);
 
             if ("CN".equals(attributeName)) {
-                subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+                subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
                 subDirContext.rename(returnedUserEntry, "CN=" + value);
                 return;
             }
@@ -679,7 +679,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             // update the attributes in the relevant entry of the directory
             // store
 
-            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
@@ -854,34 +854,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             return sb.toString();
         } else {
             return text;
-        }
-
-    }
-
-    /**
-     * This method performs the additional level escaping for ldap search. In ldap search / and " characters
-     * have to be escaped again
-     * @param dn
-     * @return
-     */
-    private String escapeDNForSearch(String dn){
-        boolean replaceEscapeCharacters = true;
-
-        String replaceEscapeCharactersAtUserLoginString = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
-
-        if (replaceEscapeCharactersAtUserLoginString != null) {
-            replaceEscapeCharacters = Boolean
-                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Replace escape characters configured to: "
-                        + replaceEscapeCharactersAtUserLoginString);
-            }
-        }
-        if (replaceEscapeCharacters) {
-            return dn.replace("\\\\", "\\\\\\").replace("\\\"", "\\\\\"");
-        } else {
-            return dn;
         }
     }
 
