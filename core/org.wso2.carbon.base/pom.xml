@@ -45,7 +45,7 @@
                         <Bundle-Activator>org.wso2.carbon.base.internal.CarbonBaseActivator</Bundle-Activator>
                         <Export-Package>
                             !org.wso2.carbon.base.internal,
-                            org.wso2.carbon.base.*
+                            org.wso2.carbon.base.*; version="1.0.0"
                         </Export-Package>
                         <Import-Package>
                             javax.activation.*;version="[0.0.0, 1.0.0)",
