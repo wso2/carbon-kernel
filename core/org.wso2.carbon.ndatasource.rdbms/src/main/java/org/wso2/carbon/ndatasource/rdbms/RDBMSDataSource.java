@@ -62,9 +62,17 @@ public class RDBMSDataSource {
 			jdbcInterceptors = "";
 		}
 		//Correlation log interceptor is added to the interceptor chain
-		jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_JDBC_INTERCEPTORS + jdbcInterceptors
+		jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_JDBC_INTERCEPTORS + getJDBCInterceptors(jdbcInterceptors)
 		+ RDBMSDataSourceConstants.CORRELATION_LOG_INTERCEPTOR;
 		this.poolProperties.setJdbcInterceptors(jdbcInterceptors);
+	}
+
+	private String getJDBCInterceptors(String jdbcInterceptors) {
+		if (StringUtils.isEmpty(jdbcInterceptors) || jdbcInterceptors.endsWith(JDBC_INTERCEPTOR_SEPERATOR)) {
+			return jdbcInterceptors;
+		} else {
+			return jdbcInterceptors + JDBC_INTERCEPTOR_SEPERATOR;
+		}
 	}
 
 	public DataSource getDataSource() {
