@@ -30,6 +30,7 @@ import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -37,6 +38,8 @@ import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
 import org.wso2.carbon.ndatasource.core.utils.DataSourceUtils;
 import org.wso2.carbon.ndatasource.rdbms.utils.RDBMSDataSourceUtils;
+
+import static org.wso2.carbon.ndatasource.rdbms.RDBMSDataSourceConstants.JDBC_INTERCEPTOR_SEPARATOR;
 
 /**
  * RDBMS data source implementation.
@@ -68,10 +71,10 @@ public class RDBMSDataSource {
 	}
 
 	private String getJDBCInterceptors(String jdbcInterceptors) {
-		if (StringUtils.isEmpty(jdbcInterceptors) || jdbcInterceptors.endsWith(JDBC_INTERCEPTOR_SEPERATOR)) {
+		if (StringUtils.isEmpty(jdbcInterceptors) || jdbcInterceptors.endsWith(JDBC_INTERCEPTOR_SEPARATOR)) {
 			return jdbcInterceptors;
 		} else {
-			return jdbcInterceptors + JDBC_INTERCEPTOR_SEPERATOR;
+			return jdbcInterceptors + JDBC_INTERCEPTOR_SEPARATOR;
 		}
 	}
 
