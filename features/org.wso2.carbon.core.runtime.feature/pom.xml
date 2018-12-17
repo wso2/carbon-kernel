@@ -293,6 +293,7 @@
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.security</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
                                 </bundleDef>
+                                <bundleDef>org.apache.felix:org.apache.felix.scr</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.command</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime</bundleDef>
