@@ -23,7 +23,7 @@
         <axis2.client.osgi.version>1.6.1-wso2v29-SNAPSHOT</axis2.client.osgi.version>
         <orbit.version.axiom>1.2.11.wso2v12-SNAPSHOT</orbit.version.axiom>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-        <version.activation>1.1.1.wso2v1</version.activation>
+        <orbit.version.activation>1.1.1.wso2v1</orbit.version.activation>
     </properties>
 
     <dependencyManagement>
@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>org.wso2.orbit.javax.activation</groupId>
                 <artifactId>activation</artifactId>
-                <version>${version.activation}</version>
+                <version>${orbit.version.activation}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
