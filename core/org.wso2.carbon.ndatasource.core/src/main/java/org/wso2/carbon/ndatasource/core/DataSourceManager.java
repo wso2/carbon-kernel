@@ -169,27 +169,28 @@ public class DataSourceManager {
 		            e.getMessage(), e);
 		}
 	}
-	
-	private void initSystemDataSource(File sysDSFile) throws DataSourceException {
-		try {
-			// Set the javax.xml.bind.JAXBContext
-			System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
-		    JAXBContext ctx = JAXBContext.newInstance(SystemDataSourcesConfiguration.class);
+
+    private void initSystemDataSource(File sysDSFile) throws DataSourceException {
+
+        try {
+            // Set the javax.xml.bind.JAXBContext
+            System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
+            JAXBContext ctx = JAXBContext.newInstance(SystemDataSourcesConfiguration.class);
             OMElement doc = DataSourceUtils.convertToOMElement(sysDSFile);
             DataSourceUtils.secureResolveOMElement(doc, true);
-		    SystemDataSourcesConfiguration sysDS = (SystemDataSourcesConfiguration) ctx.createUnmarshaller().
-		    		unmarshal(doc.getXMLStreamReader());
-		    this.addDataSourceProviders(sysDS.getProviders());
-		    DataSourceRepository dsRepo = this.getDataSourceRepository(
-		    		MultitenantConstants.SUPER_TENANT_ID);
-		    for (DataSourceMetaInfo dsmInfo : sysDS.getDataSources()) {
-		    	dsmInfo.setSystem(true);
-		    	dsRepo.addDataSource(dsmInfo);
-		    }
-		} catch (Exception e) {
-			throw new DataSourceException("Error in initializing system data sources at '" +
-		            sysDSFile.getAbsolutePath() + "' - " + e.getMessage(), e);
-		}
-	}
+            SystemDataSourcesConfiguration sysDS = (SystemDataSourcesConfiguration) ctx.createUnmarshaller().
+                    unmarshal(doc.getXMLStreamReader());
+            this.addDataSourceProviders(sysDS.getProviders());
+            DataSourceRepository dsRepo = this.getDataSourceRepository(
+                    MultitenantConstants.SUPER_TENANT_ID);
+            for (DataSourceMetaInfo dsmInfo : sysDS.getDataSources()) {
+                dsmInfo.setSystem(true);
+                dsRepo.addDataSource(dsmInfo);
+            }
+        } catch (Exception e) {
+            throw new DataSourceException("Error in initializing system data sources at '" +
+                    sysDSFile.getAbsolutePath() + "' - " + e.getMessage(), e);
+        }
+    }
 
 }
