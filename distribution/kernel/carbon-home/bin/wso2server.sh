@@ -213,9 +213,9 @@ fi
 # ---------- Handle the SSL Issue with proper JDK version --------------------
 java_version=$("$JAVACMD" -version 2>&1 | awk -F '"' '/version/ {print $2}')
 java_version_formatted=$(echo "$java_version" | awk -F. '{printf("%02d%02d",$1,$2);}')
-if [ $java_version_formatted -lt 0107 ] || [ $java_version_formatted -gt 1000 ]; then
+if [ $java_version_formatted -lt 0107 ] || [ $java_version_formatted -gt 1100 ]; then
    echo " Starting WSO2 Carbon (in unsupported JDK)"
-   echo " [ERROR] CARBON is supported only on JDK 1.7, 1.8, 9 and 10"
+   echo " [ERROR] CARBON is supported only on JDK 1.7, 1.8, 9, 10 and 11"
 fi
 
 CARBON_XBOOTCLASSPATH=""
@@ -296,9 +296,6 @@ JAVA_VER_BASED_OPTS=""
 if [ $java_version_formatted -le 0108 ]; then
     JAVA_VER_BASED_OPTS="-Djava.endorsed.dirs=$JAVA_ENDORSED_DIRS"
 fi
-#if [ $java_version_formatted -ge 0900 ]; then
-#    JAVA_VER_BASED_OPTS="--add-modules=java.activation,java.xml.bind"
-#fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do
