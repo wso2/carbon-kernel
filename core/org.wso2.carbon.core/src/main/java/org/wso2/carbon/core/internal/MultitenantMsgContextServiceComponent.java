@@ -21,6 +21,9 @@ package org.wso2.carbon.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
@@ -36,8 +39,8 @@ import java.util.Properties;
  * server startup. These property names are the properties which we need to additionally copy in to tenant message
  * context if available in original message context.
  *
- * @scr.component name="org.wso2.carbon.core.internal.MultitenantMsgContextServiceComponent" immediate="true"
  */
+@Component(name="org.wso2.carbon.core.internal.MultitenantMsgContextServiceComponent", immediate=true)
 public class MultitenantMsgContextServiceComponent {
 
     private static final Log log = LogFactory.getLog(MultitenantMsgContextServiceComponent.class);
@@ -46,12 +49,13 @@ public class MultitenantMsgContextServiceComponent {
 
     private static String MULTITENANT_MSG_CONTEXT_PROPERTIES_FILE = "multitenant-msg-context.properties";
 
+    @Activate
     protected void activate(ComponentContext context)
     {
         //load the additional multitenant context property name list from property file if given and add to data holder
         loadTenantMessageContextProperties();
     }
-
+    @Deactivate
     protected void deactivate(ComponentContext context) { }
 
     /**
