@@ -18,6 +18,10 @@
  */
 package org.wso2.carbon.user.core.internal;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
 import org.wso2.carbon.user.core.listener.ClaimManagerListener;
 import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
@@ -30,39 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * @scr.component name="org.wso2.carbon.user.core.listener" immediate="true"
- * @scr.reference name="authorization.manager.listener.service"
- * interface="org.wso2.carbon.user.core.listener.AuthorizationManagerListener"
- * cardinality="0..n" policy="dynamic"
- * bind="setAuthorizationManagerListenerService"
- * unbind="unsetAuthorizationManagerListenerService"
- * @scr.reference name="user.store.manager.listener.service"
- * interface="org.wso2.carbon.user.core.listener.UserStoreManagerListener"
- * cardinality="0..n" policy="dynamic"
- * bind="setUserStoreManagerListenerService"
- * unbind="unsetUserStoreManagerListenerService"
- * @scr.reference name="user.operation.event.listener.service"
- * interface="org.wso2.carbon.user.core.listener.UserOperationEventListener"
- * cardinality="0..n" policy="dynamic"
- * bind="setUserOperationEventListenerService"
- * unbind="unsetUserOperationEventListenerService" *
- * @scr.reference name="claim.manager.listener.service"
- * interface="org.wso2.carbon.user.core.listener.ClaimManagerListener"
- * cardinality="0..n" policy="dynamic"
- * bind="setClaimManagerListenerService"
- * unbind="unsetClaimManagerListenerService" *
- * @scr.reference name="ldap.tenant.manager.listener.service"
- * interface="org.wso2.carbon.user.core.tenant.LDAPTenantManager"
- * cardinality="0..n" policy="dynamic"
- * bind="addLDAPTenantManager"
- * unbind="removeLDAPTenantManager"
- * @scr.reference name="user.management.error.event.listener.service"
- * interface="org.wso2.carbon.user.core.listener.UserManagementErrorEventListener"
- * cardinality="0..n" policy="dynamic"
- * bind="setUserManagementErrorEventListenerService"
- * unbind="unsetUserManagementErrorEventListenerService"
- */
+@Component(name = "org.wso2.carbon.user.core.listener", immediate = true)
 public class UMListenerServiceComponent {
 
     private static Map<Integer, AuthorizationManagerListener> authorizationManagerListeners;
@@ -77,7 +49,9 @@ public class UMListenerServiceComponent {
     private static Map<Integer, LDAPTenantManager> tenantManagers;
     private static Collection<UserManagementErrorEventListener> userManagementErrorEventListenerCollection;
 
-    protected static synchronized void setAuthorizationManagerListenerService(
+    @Reference(name = "authorization.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetAuthorizationManagerListenerService")
+    protected synchronized void setAuthorizationManagerListenerService(
             AuthorizationManagerListener authorizationManagerListenerService) {
         authorizationManagerListenerCollection = null;
         if (authorizationManagerListeners == null) {
@@ -88,7 +62,7 @@ public class UMListenerServiceComponent {
                 authorizationManagerListenerService);
     }
 
-    protected static synchronized void unsetAuthorizationManagerListenerService(
+    protected synchronized void unsetAuthorizationManagerListenerService(
             AuthorizationManagerListener authorizationManagerListenerService) {
         if (authorizationManagerListenerService != null
                 && authorizationManagerListeners != null) {
@@ -98,7 +72,9 @@ public class UMListenerServiceComponent {
         }
     }
 
-    protected static synchronized void setUserStoreManagerListenerService(
+    @Reference(name = "user.store.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetUserStoreManagerListenerService")
+    protected synchronized void setUserStoreManagerListenerService(
             UserStoreManagerListener userStoreManagerListenerService) {
         userStoreManagerListenerCollection = null;
         if (userStoreManagerListeners == null) {
@@ -109,7 +85,7 @@ public class UMListenerServiceComponent {
                 userStoreManagerListenerService);
     }
 
-    protected static synchronized void unsetUserStoreManagerListenerService(
+    protected synchronized void unsetUserStoreManagerListenerService(
             UserStoreManagerListener userStoreManagerListenerService) {
         if (userStoreManagerListenerService != null &&
                 userStoreManagerListeners != null) {
@@ -124,7 +100,9 @@ public class UMListenerServiceComponent {
      * @param userManagementErrorEventListenerService Relevant UserManagementErrorEventListenerService that need to
      *                                                be registered.
      */
-    protected static synchronized void setUserManagementErrorEventListenerService(
+    @Reference(name = "user.management.error.event.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetUserManagementErrorEventListenerService")
+    protected synchronized void setUserManagementErrorEventListenerService(
             UserManagementErrorEventListener userManagementErrorEventListenerService) {
 
         userManagementErrorEventListenerCollection = null;
@@ -141,7 +119,7 @@ public class UMListenerServiceComponent {
      * @param userManagementErrorEventListener Relevant UserManagementErrorEventListenerService that need to be
      *                                         un-registered.
      */
-    protected static synchronized void unsetUserManagementErrorEventListenerService(
+    protected synchronized void unsetUserManagementErrorEventListenerService(
             UserManagementErrorEventListener userManagementErrorEventListener) {
 
         if (userManagementErrorEventListener != null && userManagementErrorEventListeners != null) {
@@ -150,7 +128,9 @@ public class UMListenerServiceComponent {
         }
     }
 
-    protected static synchronized void setUserOperationEventListenerService(
+    @Reference(name = "user.operation.event.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetUserOperationEventListenerService")
+    protected synchronized void setUserOperationEventListenerService(
             UserOperationEventListener userOperationEventListenerService) {
         userOperationEventListenerCollection = null;
         if (userOperationEventListeners == null) {
@@ -160,7 +140,7 @@ public class UMListenerServiceComponent {
                 userOperationEventListenerService);
     }
 
-    protected static synchronized void unsetUserOperationEventListenerService(
+    protected synchronized void unsetUserOperationEventListenerService(
             UserOperationEventListener userOperationEventListenerService) {
         if (userOperationEventListenerService != null &&
                 userOperationEventListeners != null) {
@@ -169,7 +149,9 @@ public class UMListenerServiceComponent {
         }
     }
 
-    protected static synchronized void setClaimManagerListenerService(
+    @Reference(name = "claim.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetClaimManagerListenerService")
+    protected synchronized void setClaimManagerListenerService(
             ClaimManagerListener claimManagerListenerService) {
         claimManagerListenerCollection = null;
         if (claimManagerListeners == null) {
@@ -179,7 +161,7 @@ public class UMListenerServiceComponent {
                 claimManagerListenerService);
     }
 
-    protected static synchronized void unsetClaimManagerListenerService(
+    protected synchronized void unsetClaimManagerListenerService(
             ClaimManagerListener claimManagerListenerService) {
         if (claimManagerListenerService != null &&
                 claimManagerListeners != null) {
@@ -268,7 +250,9 @@ public class UMListenerServiceComponent {
      *
      * @param tenantManager An implementation of LDAPTenantManager.
      */
-    protected static synchronized void addLDAPTenantManager(LDAPTenantManager tenantManager) {
+    @Reference(name = "ldap.tenant.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "removeLDAPTenantManager")
+    protected synchronized void addLDAPTenantManager(LDAPTenantManager tenantManager) {
 
         if (tenantManagers == null) {
             tenantManagers = new HashMap<Integer, LDAPTenantManager>();
@@ -283,7 +267,7 @@ public class UMListenerServiceComponent {
      *
      * @param tenantManager An implementation of LDAPTenantManager.
      */
-    protected static synchronized void removeLDAPTenantManager(LDAPTenantManager tenantManager) {
+    protected synchronized void removeLDAPTenantManager(LDAPTenantManager tenantManager) {
 
         if (tenantManagers != null && tenantManagers.containsKey(tenantManager.hashCode())) {
             tenantManagers.remove(tenantManager.hashCode());

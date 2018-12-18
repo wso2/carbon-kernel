@@ -22,6 +22,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
@@ -69,22 +75,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-/**
- * The Registry Kernel Declarative Service Component.
- *
- * @scr.component name="registry.core.dscomponent" immediate="true"
- * @scr.reference name="user.realmservice.default"
- * interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
- * @scr.reference name="statistics.collector"
- * interface="org.wso2.carbon.registry.core.statistics.StatisticsCollector"
- * cardinality="0..n" policy="dynamic" bind="setStatisticsCollector"
- * unbind="unsetStatisticsCollector"
- * @scr.reference name="CacheInvalidator"
- * interface="org.wso2.carbon.caching.impl.CacheInvalidator"
- * cardinality="0..n" policy="dynamic" bind="setCacheInvalidatorService" unbind="unSetCacheInvalidatorService"
- */
 @SuppressWarnings("JavaDoc")
+@Component(name = "registry.core.dscomponent", immediate = true)
 public class RegistryCoreServiceComponent {
 
     @SuppressWarnings("deprecation")
@@ -110,6 +102,7 @@ public class RegistryCoreServiceComponent {
      * @param context the OSGi component context.
      */
     @SuppressWarnings("unused")
+    @Activate
     protected void activate(ComponentContext context) {
         // for new cahing, every thread should has its own populated CC. During the deployment time we assume super tenant
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -206,6 +199,7 @@ public class RegistryCoreServiceComponent {
      * @param context the OSGi component context.
      */
     @SuppressWarnings("unused")
+    @Deactivate
     protected void deactivate(ComponentContext context) {
         while (!registrations.empty()) {
             registrations.pop().unregister();
@@ -671,6 +665,8 @@ public class RegistryCoreServiceComponent {
      *
      * @param _cacheInvalidator the cache invalidator service.
      */
+    @Reference(name = "CacheInvalidator", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unSetCacheInvalidatorService")
     protected void setCacheInvalidatorService(CacheInvalidator _cacheInvalidator) {
         cacheInvalidator = _cacheInvalidator;
     }
@@ -700,6 +696,8 @@ public class RegistryCoreServiceComponent {
      *
      * @param realmService the realm service.
      */
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
         // this is used in check-in client
         updateRealmService(realmService);
@@ -721,6 +719,8 @@ public class RegistryCoreServiceComponent {
      * @param statisticsCollector the statistics collector service.
      */
     @SuppressWarnings("unused")
+    @Reference(name = "statistics.collector", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetStatisticsCollector")
     protected synchronized void setStatisticsCollector(StatisticsCollector statisticsCollector) {
         RegistryContext.getBaseInstance().addStatisticsCollector(statisticsCollector);
     }

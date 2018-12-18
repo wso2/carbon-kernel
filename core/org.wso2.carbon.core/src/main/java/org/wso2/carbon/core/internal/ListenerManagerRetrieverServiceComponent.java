@@ -16,21 +16,18 @@
 package org.wso2.carbon.core.internal;
 
 import org.apache.axis2.engine.ListenerManager;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
-/**
- * This service  component is responsible for retrieving the ListenerManager OSGi service
- * that is used  by the Carbon server. This ListenerManager will be required by Carbon core when the 
- * ListenerManager needs to be stopped.
- *
- * @scr.component name="org.wso2.carbon.core.internal.ListenerManagerRetrieverServiceComponent"
- * immediate="true"
- * @scr.reference name="listener.manager.service" interface="org.apache.axis2.engine.ListenerManager"
- * cardinality="1..1" policy="dynamic"  bind="setListenerManager" unbind="unsetListenerManager"
- */
+@Component(name = "org.wso2.carbon.core.internal.ListenerManagerRetrieverServiceComponent", immediate = true)
 public class ListenerManagerRetrieverServiceComponent {
 
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
 
+    @Reference(name = "listener.manager.service", cardinality = ReferenceCardinality.MANDATORY, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetListenerManager")
     protected void setListenerManager(ListenerManager listenerManager) {
         dataHolder.setListenerManager(listenerManager);
     }

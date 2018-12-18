@@ -23,19 +23,20 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.securevault.secret.SecretManager;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.securevault.SecretCallbackHandlerServiceImpl;
 import org.wso2.carbon.securevault.SecretManagerInitializer;
 
-
-/**
- * @scr.component name="secret.manager.initializer.component" immediate="true"
- */
+@Component(name = "secret.manager.initializer.component", immediate = true)
 public class SecretManagerInitializerComponent {
 
     private SecretManager secretManager = SecretManager.getInstance();
     private static final Log log = LogFactory.getLog(SecretManagerInitializerComponent.class);
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
 
         if (log.isDebugEnabled()) {
@@ -51,6 +52,7 @@ public class SecretManagerInitializerComponent {
 
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
 
         if (log.isDebugEnabled()) {
