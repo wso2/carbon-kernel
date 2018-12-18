@@ -19,6 +19,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
@@ -36,25 +40,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.lang.reflect.InvocationTargetException;
 
-/**
-* @scr.component name="org.wso2.carbon.ndatasource" immediate="true"
-* @scr.reference name="registry.service"
-* interface="org.wso2.carbon.registry.core.service.RegistryService" cardinality="0..1"
-* policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
-* @scr.reference name="secret.callback.handler.service"
-* interface="org.wso2.carbon.securevault.SecretCallbackHandlerService"
-* cardinality="1..1" policy="dynamic"
-* bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"
-* @scr.reference name="user.realmservice.default"
-* interface="org.wso2.carbon.user.core.service.RealmService" cardinality="0..1" policy="dynamic"
-* bind="setRealmService" unbind="unsetRealmService"
-* @scr.reference name="server.configuration.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
-* cardinality="0..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
-* @scr.reference name="config.context.service" interface="org.wso2.carbon.utils.ConfigurationContextService"
-* cardinality="0..1" policy="dynamic"  bind="setConfigurationContextService" unbind="unsetConfigurationContextService"
-* @scr.reference name="external.crypto.service" interface="org.wso2.carbon.crypto.api.ExternalCryptoProvider"
-* cardinality="0..1" policy="dynamic"  bind="setExternalCryptoProvider" unbind="unsetExternalCryptoProvider"
-*/
+@Component(name="org.wso2.carbon.ndatasource", immediate=true)
 public class DataSourceServiceComponent {
 
 	private static final Log log = LogFactory.getLog(DataSourceServiceComponent.class);
@@ -137,7 +123,7 @@ public class DataSourceServiceComponent {
 	public DataSourceService getDataSourceService() {
 		return dataSourceService;
 	}
-	
+	@Reference(name="user.realmservice.default", cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC, unbind="unsetRealmService")
     protected void setRealmService(RealmService realmService) {
     	if (log.isDebugEnabled()) {
     		log.debug("RealmService acquired");
@@ -153,7 +139,7 @@ public class DataSourceServiceComponent {
     public static RealmService getRealmService() {
     	return DataSourceServiceComponent.realmService;
     }
-	
+	@Reference(name="registry.service", cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC, unbind="unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
     	if (log.isDebugEnabled()) {
     		log.debug("RegistryService acquired");
@@ -169,7 +155,8 @@ public class DataSourceServiceComponent {
     public static RegistryService getRegistryService() {
         return DataSourceServiceComponent.registryService;
     }
-
+    @Reference(name="external.crypto.service", unbind="unsetExternalCryptoProvider", 
+    		cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
     protected void setExternalCryptoProvider(ExternalCryptoProvider externalCryptoProvider) {
 	if (log.isDebugEnabled()) {
 		log.debug("ExternalCryptoProvider acquired");
@@ -189,7 +176,9 @@ public class DataSourceServiceComponent {
     public static SecretCallbackHandlerService getSecretCallbackHandlerService() {
     	return DataSourceServiceComponent.secretCallbackHandlerService;
     }
-    
+    @Reference(name="secret.callback.handler.service", 
+    		policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.MANDATORY, 
+    		unbind="unsetSecretCallbackHandlerService")
     protected void setSecretCallbackHandlerService(
             SecretCallbackHandlerService secretCallbackHandlerService) {
     	if (log.isDebugEnabled()) {
@@ -258,7 +247,7 @@ public class DataSourceServiceComponent {
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         DataSourceServiceComponent.serverConfigurationService = null;
     }
-    
+    @Reference(name="server.configuration.service", policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.OPTIONAL, unbind="unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
     	if (log.isDebugEnabled()) {
     		log.debug("ServerConfigurationService acquired");
@@ -266,7 +255,7 @@ public class DataSourceServiceComponent {
     	DataSourceServiceComponent.serverConfigurationService = serverConfigurationService;
     	this.checkInitTenantUserDataSources();
     }
-    
+    @Reference(name="config.context.service", cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC, unbind="unsetConfigurationContextService")
     protected void setConfigurationContextService(ConfigurationContextService configContextService) {
     	DataSourceServiceComponent.configContextService = configContextService;
     }

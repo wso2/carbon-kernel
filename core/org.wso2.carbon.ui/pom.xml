@@ -166,14 +166,27 @@
             <groupId>org.wso2.tomcat</groupId>
             <artifactId>tomcat</artifactId>
         </dependency>
+        <dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.service.component.annotations</artifactId>
+		</dependency>
+		<dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.annotation</artifactId>
+		</dependency>
+		<dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.service.metatype.annotations</artifactId>
+		</dependency>
+		 <dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.compendium</artifactId>
+		  <scope>provided</scope>
+		</dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
