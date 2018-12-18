@@ -125,6 +125,23 @@
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
         </dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+	    <artifactId>org.osgi.service.component.annotations</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+	    <artifactId>org.osgi.service.metatype.annotations</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+	    <artifactId>org.osgi.compendium</artifactId>
+	    <scope>provided</scope>
+	</dependency>
     </dependencies>
 
     <build>
@@ -145,10 +162,6 @@
                         </Export-Package>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -34,10 +34,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
@@ -75,8 +71,7 @@
                             acegi-security;scope=compile|runtime;inline=false
                         </Embed-Dependency>
                         <Include-Resource>
-                            META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory,
-                            OSGI-INF/serviceComponents.xml=target/scr-plugin-generated/OSGI-INF/serviceComponents.xml,
+                            META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory
                         </Include-Resource>
                     </instructions>
                 </configuration>
@@ -457,6 +452,23 @@
             <artifactId>backport-util-concurrent</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.service.component.annotations</artifactId>
+		</dependency>		
+		<dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.annotation</artifactId>
+		</dependency>	
+		<dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.service.metatype.annotations</artifactId>
+		</dependency>	
+		 <dependency>
+		  <groupId>org.osgi</groupId>
+		  <artifactId>org.osgi.compendium</artifactId>
+		  <scope>provided</scope>
+		</dependency>
     </dependencies>
 
 </project>

@@ -21,6 +21,12 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -39,21 +45,7 @@ import org.wso2.carbon.user.core.claim.ClaimManagerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-/**
- * @scr.component name="user.store.mgt.dscomponent" immediate=true
- * @scr.reference name="user.realmservice.default"
- * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
- * policy="dynamic" bind="setRealmService"
- * unbind="unsetRealmService"
- * @scr.reference name="server.configuration.service"
- * interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
- * policy="dynamic"  bind="setServerConfigurationService"
- * unbind="unsetServerConfigurationService"
- * @scr.reference name="claim.mgt.component"
- * interface="org.wso2.carbon.user.core.claim.ClaimManagerFactory" cardinality="0..1"
- * policy="dynamic"  bind="setClaimManagerFactory"
- * unbind="unsetClaimManagerFactory"
- */
+@Component(name = "user.store.mgt.dscomponent", immediate = true)
 public class UserStoreMgtDSComponent {
     private static Log log = LogFactory.getLog(UserStoreMgtDSComponent.class);
     private static RealmService realmService;
@@ -64,6 +56,8 @@ public class UserStoreMgtDSComponent {
         return realmService;
     }
 
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetRealmService")
     protected void setRealmService(RealmService rlmService) {
         realmService = rlmService;
     }
@@ -72,10 +66,13 @@ public class UserStoreMgtDSComponent {
         return UserStoreMgtDSComponent.serverConfigurationService;
     }
 
+    @Reference(name = "server.configuration.service", cardinality = ReferenceCardinality.MANDATORY, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         UserStoreMgtDSComponent.serverConfigurationService = serverConfigurationService;
     }
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
         if (Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
             log.debug("UserCore component activated in NonUserCoreMode Mode");
@@ -108,6 +105,7 @@ public class UserStoreMgtDSComponent {
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.debug("Carbon UserStoreMgtDSComponent is deactivated ");
@@ -129,6 +127,8 @@ public class UserStoreMgtDSComponent {
         return UserStoreMgtDSComponent.claimManagerFactory;
     }
 
+    @Reference(name = "claim.mgt.component", cardinality = ReferenceCardinality.OPTIONAL, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetClaimManagerFactory")
     protected void setClaimManagerFactory(ClaimManagerFactory claimManagerFactory) {
         this.claimManagerFactory = claimManagerFactory;
         try {

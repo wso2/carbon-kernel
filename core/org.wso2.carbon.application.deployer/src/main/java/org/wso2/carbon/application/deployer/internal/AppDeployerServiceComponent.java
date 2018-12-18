@@ -28,6 +28,12 @@ import org.apache.axis2.engine.ListenerManager;
 import org.apache.axis2.AxisFault;
 import org.osgi.framework.*;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.application.deployer.*;
 import org.wso2.carbon.application.deployer.handler.AppDeploymentHandler;
@@ -45,17 +51,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
-/**
- * @scr.component name="application.deployer.dscomponent" immediate="true"
- * @scr.reference name="registry.service" interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
- * @scr.reference name="org.wso2.carbon.configCtx"
- * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- * policy="dynamic" bind="setConfigurationContext" unbind="unsetConfigurationContext"
- * @scr.reference name="app.handler" interface="org.wso2.carbon.application.deployer.handler.AppDeploymentHandler"
- * cardinality="0..n" policy="dynamic" bind="setAppHandler" unbind="unsetAppHandler"
- */
-
+@Component(name = "application.deployer.dscomponent", immediate = true)
 public class AppDeployerServiceComponent implements ServiceListener {
 
     private static RegistryService registryService;
@@ -71,6 +67,7 @@ public class AppDeployerServiceComponent implements ServiceListener {
     private static final Log log = LogFactory.getLog(AppDeployerServiceComponent.class);
     private Timer pendingServicesObservationTimer = new Timer();
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
 
         try {
@@ -135,12 +132,15 @@ public class AppDeployerServiceComponent implements ServiceListener {
         }
     }
 
+    @Deactivate 
     protected void deactivate(ComponentContext ctxt) {
         if (appManagerRegistration != null) {
             appManagerRegistration.unregister();
         }
     }
 
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService regService) {
         registryService = regService;
     }
@@ -149,6 +149,8 @@ public class AppDeployerServiceComponent implements ServiceListener {
         registryService = null;
     }
 
+    @Reference(name = "app.handler", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetAppHandler")
     protected void setAppHandler(AppDeploymentHandler handler) {
         ApplicationManager.getInstance().registerDeploymentHandler(handler);
     }
@@ -178,6 +180,8 @@ public class AppDeployerServiceComponent implements ServiceListener {
         return requiredFeatures;
     }
 
+    @Reference(name = "org.wso2.carbon.configCtx", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetConfigurationContext")
     protected void setConfigurationContext(ConfigurationContextService configCtx) {
         this.configCtx = configCtx.getServerConfigContext();
     }

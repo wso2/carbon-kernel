@@ -23,26 +23,26 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.feature.mgt.core.ProvCommandProviderExt;
 import org.wso2.carbon.feature.mgt.core.ProvisioningException;
 import org.wso2.carbon.feature.mgt.core.util.RepositoryUtils;
 
-/**
- * @scr.component name="component.manager.core.service.comp" immediate="true"
- * @scr.reference name="provisioning.agent.provider"
- * interface="org.eclipse.equinox.p2.core.IProvisioningAgentProvider"
- * cardinality="1..1" policy="dynamic" bind="setProvisioningAgentProvider"
- * unbind="unsetProvisioningAgentProvider"
- * @scr.reference name="server.config.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
- * cardinality="1..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
- */
+@Component(name = "component.manager.core.service.comp", immediate = true)
 public class ComponentMgtCoreServiceComponent {
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
         ctxt.getBundleContext().registerService(CommandProvider.class.getName(), new ProvCommandProviderExt(), null);       
     }
-
+    
+    @Reference(name = "provisioning.agent.provider", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetProvisioningAgentProvider")
     protected void setProvisioningAgentProvider(IProvisioningAgentProvider provisioningAgentProvider) {
         ServiceHolder.setProvisioningAgentProvider(provisioningAgentProvider);
     }
@@ -51,6 +51,8 @@ public class ComponentMgtCoreServiceComponent {
         ServiceHolder.setProvisioningAgentProvider(null);
     }
     
+    @Reference(name = "server.config.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfigService) {
 		ServiceHolder.setServerConfigurationService(serverConfigService);
 	}
