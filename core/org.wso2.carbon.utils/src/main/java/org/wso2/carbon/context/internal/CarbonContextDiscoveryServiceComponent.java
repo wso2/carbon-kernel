@@ -18,23 +18,28 @@
 package org.wso2.carbon.context.internal;
 
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.DiscoveryService;
 
-/**
- * @scr.component name="org.wso2.carbon.context.internal.CarbonContextDiscoveryServiceComponent" immediate="true"
- * @scr.reference name="discoveryService" interface="org.wso2.carbon.base.DiscoveryService"
- * cardinality="0..1" policy="dynamic"  bind="setDiscoveryService" unbind="unsetDiscoveryService"
- */
+@Component(name = "org.wso2.carbon.context.internal.CarbonContextDiscoveryServiceComponent", immediate = true)
 public class CarbonContextDiscoveryServiceComponent {
     private OSGiDataHolder dataHolder = OSGiDataHolder.getInstance();
 
-
+    @Activate
     protected void activate(ComponentContext componentContext) {
     }
-
+    
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
     }
 
+    @Reference(name = "discoveryService", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetDiscoveryService")
     protected void setDiscoveryService(DiscoveryService discoveryService) {
         CarbonContextDataHolder.setDiscoveryServiceProvider(discoveryService);
     }
