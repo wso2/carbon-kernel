@@ -123,7 +123,8 @@ public class DataSourceServiceComponent {
 	public DataSourceService getDataSourceService() {
 		return dataSourceService;
 	}
-	@Reference(name="user.realmservice.default", cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC, unbind="unsetRealmService")
+
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
     	if (log.isDebugEnabled()) {
     		log.debug("RealmService acquired");
@@ -139,7 +140,9 @@ public class DataSourceServiceComponent {
     public static RealmService getRealmService() {
     	return DataSourceServiceComponent.realmService;
     }
-	@Reference(name="registry.service", cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC, unbind="unsetRegistryService")
+
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
     	if (log.isDebugEnabled()) {
     		log.debug("RegistryService acquired");
@@ -155,8 +158,9 @@ public class DataSourceServiceComponent {
     public static RegistryService getRegistryService() {
         return DataSourceServiceComponent.registryService;
     }
-    @Reference(name="external.crypto.service", unbind="unsetExternalCryptoProvider", 
-    		cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
+
+    @Reference(name = "external.crypto.service", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetExternalCryptoProvider")
     protected void setExternalCryptoProvider(ExternalCryptoProvider externalCryptoProvider) {
 	if (log.isDebugEnabled()) {
 		log.debug("ExternalCryptoProvider acquired");
@@ -176,9 +180,9 @@ public class DataSourceServiceComponent {
     public static SecretCallbackHandlerService getSecretCallbackHandlerService() {
     	return DataSourceServiceComponent.secretCallbackHandlerService;
     }
-    @Reference(name="secret.callback.handler.service", 
-    		policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.MANDATORY, 
-    		unbind="unsetSecretCallbackHandlerService")
+
+    @Reference(name = "secret.callback.handler.service", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MANDATORY, 
+            unbind = "unsetSecretCallbackHandlerService")
     protected void setSecretCallbackHandlerService(
             SecretCallbackHandlerService secretCallbackHandlerService) {
     	if (log.isDebugEnabled()) {
@@ -247,7 +251,9 @@ public class DataSourceServiceComponent {
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         DataSourceServiceComponent.serverConfigurationService = null;
     }
-    @Reference(name="server.configuration.service", policy=ReferencePolicy.DYNAMIC, cardinality=ReferenceCardinality.OPTIONAL, unbind="unsetServerConfigurationService")
+
+    @Reference(name = "server.configuration.service", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL, 
+            unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
     	if (log.isDebugEnabled()) {
     		log.debug("ServerConfigurationService acquired");
@@ -255,7 +261,9 @@ public class DataSourceServiceComponent {
     	DataSourceServiceComponent.serverConfigurationService = serverConfigurationService;
     	this.checkInitTenantUserDataSources();
     }
-    @Reference(name="config.context.service", cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC, unbind="unsetConfigurationContextService")
+
+    @Reference(name = "config.context.service", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetConfigurationContextService")
     protected void setConfigurationContextService(ConfigurationContextService configContextService) {
     	DataSourceServiceComponent.configContextService = configContextService;
     }

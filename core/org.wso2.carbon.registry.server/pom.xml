@@ -53,7 +53,7 @@
         </plugins>
     </build>
 
-    <dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.utils</artifactId>
