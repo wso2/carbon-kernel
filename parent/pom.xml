@@ -1816,27 +1816,27 @@
                 <artifactId>xmlunit-assertj</artifactId>
                 <version>${xml.unit.verions}</version>
             </dependency>
-	<dependency>
-		<groupId>org.osgi</groupId>
-		<artifactId>org.osgi.service.component.annotations</artifactId>
-		<version>${version.org.osgi.service.component.annotations}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.osgi</groupId>
-		<artifactId>org.osgi.annotation</artifactId>
-		<version>${version.org.osgi.annotation}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.osgi</groupId>
-		<artifactId>org.osgi.service.metatype.annotations</artifactId>
-		<version>${version.org.osgi.service.metatype.annotations}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.osgi</groupId>
-		<artifactId>org.osgi.compendium</artifactId>
-		<version>${version.org.osgi.compendium}</version>
-		<scope>provided</scope>
-	</dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.service.component.annotations</artifactId>
+                <version>${version.org.osgi.service.component.annotations}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.annotation</artifactId>
+                <version>${version.org.osgi.annotation}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.service.metatype.annotations</artifactId>
+                <version>${version.org.osgi.service.metatype.annotations}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${version.org.osgi.compendium}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

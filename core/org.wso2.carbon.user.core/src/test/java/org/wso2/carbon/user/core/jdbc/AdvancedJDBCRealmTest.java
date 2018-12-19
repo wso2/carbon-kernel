@@ -90,7 +90,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         Method method = UMListenerServiceComponent.class.getDeclaredMethod("setUserManagementErrorEventListenerService",
                 UserManagementErrorEventListener.class);
         method.setAccessible(true);
-        method.invoke(null, sampleAbstractUserManagementErrorListener);
+        method.invoke(new UMListenerServiceComponent(), sampleAbstractUserManagementErrorListener);
         method.setAccessible(false);
     }
 
