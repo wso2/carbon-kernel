@@ -253,7 +253,7 @@ public class ErrorHandleValve extends ErrorReportValve {
         try {
             redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" +
-                    File.separator + "oauth2_server_error_response.html";
+                    File.separator + "server_error_response.html";
             fis = new FileInputStream(new File(redirectHtmlPath));
             exceptionResponseHtml = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
         } catch (FileNotFoundException e) {
