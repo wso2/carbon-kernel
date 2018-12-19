@@ -52,6 +52,10 @@
             <groupId>org.wso2.orbit.javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind.wso2</groupId>
+            <artifactId>jaxb</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
