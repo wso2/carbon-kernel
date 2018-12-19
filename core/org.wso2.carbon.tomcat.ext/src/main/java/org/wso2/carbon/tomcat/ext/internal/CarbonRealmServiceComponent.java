@@ -32,8 +32,8 @@ import org.wso2.carbon.user.core.service.RealmService;
 public class CarbonRealmServiceComponent {
     private static Log log = LogFactory.getLog(CarbonRealmServiceComponent.class);
 
-    @Reference(name="user.realm.provider", cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC,
-            unbind="unsetRealmService")
+    @Reference(name = "user.realm.provider", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService userRealmService) {
         CarbonRealmServiceHolder.setRealmService(userRealmService);
         if (log.isDebugEnabled()) {
@@ -48,8 +48,8 @@ public class CarbonRealmServiceComponent {
         }
     }
 
-    @Reference(name="registry.service.provider", cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC,
-            unbind="unsetRegistryService")
+    @Reference(name = "registry.service.provider", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         CarbonRealmServiceHolder.setRegistryService(registryService);
         if (log.isDebugEnabled()) {
