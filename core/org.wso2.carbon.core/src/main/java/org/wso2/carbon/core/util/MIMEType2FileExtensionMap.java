@@ -30,7 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-@Component(name="MIMEType2FileExtensionMap.component", service=org.wso2.carbon.core.util.MIMEType2FileExtensionMap.class, servicefactory=false)
+@Component(name = "MIMEType2FileExtensionMap.component", service = org.wso2.carbon.core.util.MIMEType2FileExtensionMap.class, 
+      servicefactory = false)
 public class MIMEType2FileExtensionMap {
 
     public static final String mappingFileName = "org/wso2/carbon/core/util/mime-mappings.xml";
