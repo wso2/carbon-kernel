@@ -428,7 +428,7 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v29-SNAPSHOT</version.axis2>
+        <version.axis2>1.6.1-wso2v29</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
         <version.addressing>1.6.1-wso2v28</version.addressing>
         <orbit.version.axis2>1.6.1-wso2v29-SNAPSHOT</orbit.version.axis2>
