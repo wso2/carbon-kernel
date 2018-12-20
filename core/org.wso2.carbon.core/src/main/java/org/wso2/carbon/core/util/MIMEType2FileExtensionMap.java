@@ -20,6 +20,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Component;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -29,10 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * @scr.component name="MIMEType2FileExtensionMap.component"
- * @scr.service interface="org.wso2.carbon.core.util.MIMEType2FileExtensionMap"
- */
+@Component(name = "MIMEType2FileExtensionMap.component", service = org.wso2.carbon.core.util.MIMEType2FileExtensionMap.class, 
+      servicefactory = false)
 public class MIMEType2FileExtensionMap {
 
     public static final String mappingFileName = "org/wso2/carbon/core/util/mime-mappings.xml";

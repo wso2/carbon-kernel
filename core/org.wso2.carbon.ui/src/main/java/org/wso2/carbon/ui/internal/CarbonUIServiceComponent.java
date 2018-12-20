@@ -30,6 +30,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -90,25 +96,7 @@ import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_PROPERTY;
 import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_WSO2CARBON;
 import static org.wso2.carbon.CarbonConstants.WSO2CARBON_NS;
 
-/**
- * @scr.component name="core.ui.dscomponent" immediate="true"
- * @scr.reference name="registry.service" interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic"  bind="setRegistryService" unbind="unsetRegistryService"
- * @scr.reference name="config.context.service" interface="org.wso2.carbon.utils.ConfigurationContextService"
- * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService" unbind="unsetConfigurationContextService"
- * @scr.reference name="server.configuration" interface="org.wso2.carbon.base.api.ServerConfigurationService"
- * cardinality="1..1" policy="dynamic" bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
- * @scr.reference name="package.admin" interface="org.osgi.service.packageadmin.PackageAdmin"
- * cardinality="1..1" policy="dynamic" bind="setPackageAdmin" unbind="unsetPackageAdmin"
- * @scr.reference name="http.service" interface="org.osgi.service.http.HttpService"
- * cardinality="1..1" policy="dynamic"  bind="setHttpService" unbind="unsetHttpService"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"  unbind="unsetRealmService"
- * @scr.reference name="ui.authentication.extender" interface="org.wso2.carbon.ui.UIAuthenticationExtender"
- * cardinality="0..1" policy="dynamic" bind="setUIAuthenticationExtender"  unbind="unsetUIAuthenticationExtender"
- * @scr.reference name="1..1" interface="org.wso2.carbon.tomcat.api.CarbonTomcatService"
- * cardinality="1..1" policy="dynamic" bind="setCarbonTomcatService"  unbind="unsetCarbonTomcatService"
- */
+@Component(name = "core.ui.dscomponent", immediate = true)
 public class CarbonUIServiceComponent {
 
     private static Log log = LogFactory.getLog(CarbonUIServiceComponent.class);
@@ -126,7 +114,8 @@ public class CarbonUIServiceComponent {
     private BundleContext bundleContext;
 
     private Servlet adaptedJspServlet;
-
+    
+    @Activate
     protected void activate(ComponentContext ctxt) {
         try {
             start(ctxt.getBundleContext());
@@ -203,6 +192,7 @@ public class CarbonUIServiceComponent {
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         log.debug("Carbon UI bundle is deactivated ");
     }
@@ -452,7 +442,9 @@ public class CarbonUIServiceComponent {
         } //$NON-NLS-1$
         return packageAdminInstance.getBundle(clazz);
     }
-
+    
+    @Reference(name = "config.context.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+    unbind = "unsetConfigurationContextService")
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
         ccServiceInstance = contextService;
     }
@@ -460,7 +452,9 @@ public class CarbonUIServiceComponent {
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
         ccServiceInstance = null;
     }
-
+    
+    @Reference(name = "tomcat.service.provider", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+    unbind = "unsetCarbonTomcatService")
     protected void setCarbonTomcatService(CarbonTomcatService contextService) {
         carbonTomcatService = contextService;
     }
@@ -468,6 +462,9 @@ public class CarbonUIServiceComponent {
     protected void unsetCarbonTomcatService(CarbonTomcatService contextService) {
         carbonTomcatService = null;
     }
+    
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         registryServiceInstance = registryService;
     }
@@ -476,6 +473,8 @@ public class CarbonUIServiceComponent {
         registryServiceInstance = null;
     }
 
+    @Reference(name = "server.configuration", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfiguration) {
         CarbonUIServiceComponent.serverConfiguration = serverConfiguration;
     }
@@ -484,6 +483,8 @@ public class CarbonUIServiceComponent {
         CarbonUIServiceComponent.serverConfiguration = null;
     }
 
+    @Reference(name = "package.admin", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetPackageAdmin")
     protected void setPackageAdmin(PackageAdmin packageAdmin) {
         packageAdminInstance = packageAdmin;
     }
@@ -492,6 +493,8 @@ public class CarbonUIServiceComponent {
         packageAdminInstance = null;
     }
 
+    @Reference(name = "http.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetHttpService")
     protected void setHttpService(HttpService httpService) {
         httpServiceInstance = httpService;
     }
@@ -500,6 +503,8 @@ public class CarbonUIServiceComponent {
         httpServiceInstance = null;
     }
 
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
         CarbonUIServiceComponent.realmService = realmService;
     }
@@ -512,6 +517,8 @@ public class CarbonUIServiceComponent {
         return realmService;
     }
 
+    @Reference(name = "ui.authentication.extender", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetUIAuthenticationExtender")
     protected void setUIAuthenticationExtender(UIAuthenticationExtender authenticationExtender) {
         CarbonUIServiceComponent.authenticationExtenders.add(authenticationExtender);
     }

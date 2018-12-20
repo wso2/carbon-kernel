@@ -21,6 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.common.IFileDownload;
 import org.wso2.carbon.core.common.IFileUpload;
@@ -32,27 +38,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-/**
- * @scr.component name="core.services.dscomponent" immediate="true"
- * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
- * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
- * @scr.reference name="server.configuration"
- *                interface="org.wso2.carbon.base.api.ServerConfigurationService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setServerConfiguration"
- *                unbind="unsetServerConfiguration"
- * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
- */
+@Component(name="core.services.dscomponent", immediate=true)
 public class CarbonServicesServiceComponent {
 
     private static RealmService realmService;
@@ -65,6 +51,7 @@ public class CarbonServicesServiceComponent {
 
     private static final Log log = LogFactory.getLog(CarbonServicesServiceComponent.class);
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
         try {
             BundleContext bc = ctxt.getBundleContext();
@@ -80,6 +67,8 @@ public class CarbonServicesServiceComponent {
         }
     }
 
+    @Reference(name = "server.configuration", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetServerConfiguration")
     protected void setServerConfiguration(ServerConfigurationService configuration) {
         serverConfiguration = configuration;
     }
@@ -87,12 +76,15 @@ public class CarbonServicesServiceComponent {
     protected void unsetServerConfiguration(ServerConfigurationService configuration) {
         serverConfiguration = null;
     }
-
+    
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         CarbonServicesServiceComponent.bundleContext = null;
         log.debug("Carbon Core Services bundle is deactivated ");
     }
 
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         CarbonServicesServiceComponent.registryService = registryService;
     }
@@ -100,7 +92,9 @@ public class CarbonServicesServiceComponent {
     protected void unsetRegistryService(RegistryService registryService) {
        CarbonServicesServiceComponent.registryService = null;
     }
-
+    
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
         CarbonServicesServiceComponent.realmService = realmService;
     }
@@ -150,6 +144,8 @@ public class CarbonServicesServiceComponent {
         return serverConfiguration;
     }
 
+    @Reference(name = "config.context.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetConfigurationContextService")
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
         CarbonServicesServiceComponent.configContextService = contextService;
     }

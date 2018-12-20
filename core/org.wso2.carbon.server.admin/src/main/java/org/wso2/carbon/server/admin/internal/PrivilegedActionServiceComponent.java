@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.wso2.carbon.server.admin.privilegedaction.PrivilegedAction;
@@ -13,14 +15,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * @scr.component name="org.wso2.carbon.server.admin.privilegedaction" immediate="true"
- */
+@Component(name = "org.wso2.carbon.server.admin.privilegedaction", immediate = true)
 public class PrivilegedActionServiceComponent {
 
     private static final Log log = LogFactory.getLog(PrivilegedActionServiceComponent.class);
     public static List<PrivilegedAction> privilegedActions = new ArrayList<PrivilegedAction>();
 
+    @Activate
     protected void activate (ComponentContext ctxt) {
 
         ServiceTracker serviceTracker = new ServiceTracker(ctxt.getBundleContext(),

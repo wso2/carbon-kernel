@@ -48,6 +48,7 @@
                             org.wso2.carbon.base.*; version="1.0.0"
                         </Export-Package>
                         <Import-Package>
+                            javax.activation.*;version="[0.0.0, 1.0.0)",
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             org.wso2.securevault.*,

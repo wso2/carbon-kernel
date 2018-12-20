@@ -21,23 +21,19 @@ package org.wso2.carbon.tomcat.ext.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 
-/**
- * @scr.component name="tomcat.ext.service.comp" immediate="true"
- * @scr.reference name="user.realm.provider"
- * interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"
- * unbind="unsetRealmService"
- * @scr.reference name="registry.service.provider"
- * interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic" bind="setRegistryService"
- * unbind="unsetRegistryService"
- */
+@Component(name = "tomcat.ext.service.comp", immediate = true)
 public class CarbonRealmServiceComponent {
     private static Log log = LogFactory.getLog(CarbonRealmServiceComponent.class);
 
+    @Reference(name = "user.realm.provider", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService userRealmService) {
         CarbonRealmServiceHolder.setRealmService(userRealmService);
         if (log.isDebugEnabled()) {
@@ -52,6 +48,8 @@ public class CarbonRealmServiceComponent {
         }
     }
 
+    @Reference(name = "registry.service.provider", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         CarbonRealmServiceHolder.setRegistryService(registryService);
         if (log.isDebugEnabled()) {

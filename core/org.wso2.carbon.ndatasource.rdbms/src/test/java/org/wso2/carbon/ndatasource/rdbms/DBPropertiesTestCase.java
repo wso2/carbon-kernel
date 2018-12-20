@@ -33,6 +33,7 @@ public class DBPropertiesTestCase {
 
     @Test
     public void modifyDBConfig() throws DataSourceException {
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
         RDBMSConfiguration configuration = new RDBMSConfiguration();
         List<RDBMSConfiguration.DataSourceProperty> propertyList = new ArrayList<>();
         RDBMSConfiguration.DataSourceProperty property = new RDBMSConfiguration.DataSourceProperty();

@@ -22,22 +22,17 @@ import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-/**
- * The SCR Component encapsulating the server-side functionality of the registry.
- *
- * @scr.component name="org.wso2.carbon.registry.server" immediate="true"
- * @scr.reference name="registry.service"
- * interface="org.wso2.carbon.registry.core.service.RegistryService" cardinality="1..1"
- * policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
- * @scr.reference name="config.context.service"
- * interface="org.wso2.carbon.utils.ConfigurationContextService"
- * cardinality="0..1" policy="dynamic"  bind="setConfigurationContextService"
- * unbind="unsetConfigurationContextService"
- */
 @SuppressWarnings({"JavaDoc", "unused"})
+@Component(name = "org.wso2.carbon.registry.server", immediate = true)
 public class RegistryServerServiceComponent {
 
     private static Log log = LogFactory.getLog(RegistryServerServiceComponent.class);
@@ -47,6 +42,7 @@ public class RegistryServerServiceComponent {
      *
      * @param context the OSGi component context.
      */
+    @Activate
     protected void activate(ComponentContext context) {
         log.debug("Registry Service bundle is activated ");
     }
@@ -56,6 +52,7 @@ public class RegistryServerServiceComponent {
      *
      * @param context the OSGi component context.
      */
+    @Deactivate
     protected void deactivate(ComponentContext context) {
         log.debug("Registry Service bundle is deactivated ");
     }
@@ -66,6 +63,8 @@ public class RegistryServerServiceComponent {
      *
      * @param registryService the registry service.
      */
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         Utils.setRegistryService(registryService);
     }
@@ -85,6 +84,8 @@ public class RegistryServerServiceComponent {
      *
      * @param contextService the configuration context service.
      */
+    @Reference(name = "config.context.service", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetConfigurationContextService")
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
         try {
             if (contextService.getServerConfigContext() != null &&
