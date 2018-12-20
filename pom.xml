@@ -60,6 +60,7 @@
         <module>components/consent-mgt</module>
         <module>components/functions-library-mgt</module>
         <module>components/template-mgt</module>
+        <module>components/configuration-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -1202,6 +1203,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.configuration.mgt.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.server.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
@@ -1627,7 +1633,7 @@
         <codehaus.jackson-jaxrs.version>1.8.6</codehaus.jackson-jaxrs.version>
         <springframework.spring-web.version>4.1.6.RELEASE</springframework.spring-web.version>
         <jaxrx.jsr311.api.version>1.1.1</jaxrx.jsr311.api.version>
-        <org.apache.cxf.version>3.1.16</org.apache.cxf.version>
+        <org.apache.cxf.version>3.2.0</org.apache.cxf.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1869,6 +1875,7 @@
 
         <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
         <org.apache.xml.security.range>[0.0.0,2.0.0)</org.apache.xml.security.range>
+        <org.apache.olingo.version>1.1.0</org.apache.olingo.version>
 
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
