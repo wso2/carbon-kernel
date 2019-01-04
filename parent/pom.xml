@@ -366,7 +366,7 @@
         <version.equinox.p2.transport.ecf>1.0.100.v20110902-0807</version.equinox.p2.transport.ecf>
         <version.ecf.provider.filetransfer.httpclient>4.0.200.v20120319-0616</version.ecf.provider.filetransfer.httpclient>
 
-        <carbon.p2.plugin.version>1.6.1-SNAPSHOT</carbon.p2.plugin.version> <!-- maven-tools branch: master_java10 -->
+        <carbon.p2.plugin.version>5.1.2</carbon.p2.plugin.version>
 
         <carbon.crypto.version>1.0.3</carbon.crypto.version>
 
