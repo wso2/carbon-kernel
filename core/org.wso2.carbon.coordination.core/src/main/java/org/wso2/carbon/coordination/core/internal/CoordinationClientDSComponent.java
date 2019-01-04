@@ -62,7 +62,7 @@ public class CoordinationClientDSComponent {
 	}
 	
 	@Deactivate
-    protected void deactivate(ComponentContext ctx) {
+	protected void deactivate(ComponentContext ctx) {
     	if (log.isDebugEnabled()) {
 			log.debug("Coordination component deactivation start..");
 		}
