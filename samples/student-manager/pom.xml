@@ -16,12 +16,12 @@
 
     <properties>
         <student.manager.version>4.4.39-SNAPSHOT</student.manager.version>
-        <carbon.p2.plugin.version>1.6.1-SNAPSHOT</carbon.p2.plugin.version> <!-- maven-tools branch: master_java10 -->
+        <carbon.p2.plugin.version>5.1.2</carbon.p2.plugin.version>
         <maven.bundle.plugin.version>2.3.5</maven.bundle.plugin.version>
 
         <orbit.version.axis2>1.6.1-wso2v29</orbit.version.axis2>
         <axis2.client.osgi.version>1.6.1-wso2v29</axis2.client.osgi.version>
-        <orbit.version.axiom>1.2.11.wso2v12-SNAPSHOT</orbit.version.axiom>
+        <orbit.version.axiom>1.2.11-wso2v12</orbit.version.axiom>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.activation>1.1.1.wso2v1</orbit.version.activation>
     </properties>
