@@ -2,8 +2,8 @@
 hostname = "wso2.com"
 https_port = "9443"       # Mgt console port
 local_member_host = "127.0.0.1"
-super_admin.username = ""      
-super_admin.password = "" 
+super_admin.username = "admin"      
+super_admin.password = "admin" 
 
 [[datasource]]      # can be multiple, hence an array
 jndi_name = "jdbc/WSO2CarbonDB"
@@ -54,7 +54,7 @@ port= 4000
 enabled = true
 [[shared_registry.db_config]]
 name = "govregistry"
-dataSource = "jdbc/WSO2REG_DB"
+dataSource = "jdbc/SharedDB"
 [[shared_registry.mounts]]
 instanceId = "gov"
 path = "/_system/governance"
