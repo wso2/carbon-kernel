@@ -1,0 +1,43 @@
+[[datasource]]      # can be multiple, hence an array
+type = "h2"     # h2, mysql, postgre, oracle, db2, custom
+jndi_name = "jdbc/WSO2CarbonDB"
+driver_class= "<Driver Class>" # only if datasource type as custom
+username = "<user>"
+url = "<connection_url>"
+password = "<password>"
+
+[deployement]
+hostname = "wso2.com"
+
+[userstore]
+type = "jdbc"  # read_only_ldap, active_directory, jdbc
+admin.username = "admin"      # only for non jdbc
+admin.password = "admin"      # only for non jdbc
+
+[[keystore]]
+id = "tls"
+path = "<path>"
+password = "<password>"
+alias = ""
+
+[[keystore]]
+id = "encryption"
+path = "<path>"
+password = "<password>"
+alias = ""
+
+[[keystore]]
+id = "truststore"
+path = "<path>"
+password = "<password>"
+
+[clustering]
+enabled = true
+membershipScheme = "wka"
+domain = "wso2.carbon.domain"
+local_member_host = "<ip address>"
+local_member_port = 4000
+
+[[clustering.members]]
+hostName= "127.0.0.1"
+port= 4000

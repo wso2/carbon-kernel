@@ -1,0 +1,57 @@
+[[datasource]]      # can be multiple, hence an array
+    jndi_name = "jdbc/WSO2CarbonDB"
+    type = "h2"     # h2, mysql, postgre, oracle, db2, custom
+    driver_class= "<Driver Class>" # only if datasource type as custom
+    url = "<connection_url>"
+    username = "<user>"
+    password = "<password>"
+
+[deployement]
+    hostname = "wso2.com"
+
+
+[userstore]
+    type = "jdbc"  # read_only_ldap, active_directory, jdbc
+    admin.username = "admin"      # only for non jdbc
+    admin.password = "admin"      # only for non jdbc
+
+[[keystore]]
+    id = "tls"
+    path = "<path>"
+    password = "<password>"
+    alias = ""
+
+ [[keystore]]
+    id = "encryption"
+    path = "<path>"
+    password = "<password>"
+    alias = ""
+
+[[keystore]]
+    id = "truststore"
+    path = "<path>"
+    password = "<password>"
+
+[clustering]
+enabled = true
+avoid_initiation = true
+membershipScheme = "wka"
+domain = "wso2.carbon.domain"
+mcastAddress = "127.0.0.1"
+mcastPort = 45564
+mcastTTL = 100
+mcastTimeout = 60
+local_member_host = "127.0.0.1"
+local_member_port = 4000
+backend_server_url = "https=//${hostName}=${httpsPort}/services/"
+mgtConsoleURL = "https=//${hostName}=${httpsPort}/"
+subDomain = "worker"
+  [[clustering.members]]
+  hostName= "127.0.0.1"
+  port= 4000
+  [clustering.groupManagement]
+  name= "wso2.apim.domain"
+  description= "APIM group"
+  subDomain= "worker"
+  port= 2222
+  enable= false
