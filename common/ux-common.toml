@@ -1,76 +1,89 @@
-[[datasource]]      # can be multiple, hence an array
-    jndi_name = "jdbc/WSO2CarbonDB"
-    type = "h2"     # h2, mysql, postgre, oracle, db2, custom
-    driver_class= "<Driver Class>" # only if datasource type as custom
-    url = "<connection_url>"
-    username = "<user>"
-    password = "<password>"
-
 [deployement]
-    hostname = "wso2.com"
+hostname = "wso2.com"
+https_port = "9443"       # Mgt console port
+local_member_host = "127.0.0.1"
+super_admin.username = ""      
+super_admin.password = "" 
 
+[[datasource]]      # can be multiple, hence an array
+jndi_name = "jdbc/WSO2CarbonDB"
+type = "h2"     # h2, mysql, postgre, oracle, db2, custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[[datasource]]      # can be multiple, hence an array
+jndi_name = "jdbc/UserDB"
+type = "mysql"     # h2, mysql, postgre, oracle, db2, custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[[datasource]]      # can be multiple, hence an array
+jndi_name = "jdbc/SharedDB"
+type = "custom"     # h2, mysql, postgre, oracle, db2, custom
+driver_class= "<Driver Class>" # only if datasource type as custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
 
 [userstore]
-    type = "jdbc"  # read_only_ldap, active_directory, jdbc
-    admin.username = "admin"      # only for non jdbc
-    admin.password = "admin"      # only for non jdbc
-
-[[keystore]]
-    id = "tls"
-    path = "<path>"
-    password = "<password>"
-    alias = ""
-
- [[keystore]]
-    id = "encryption"
-    path = "<path>"
-    password = "<password>"
-    alias = ""
-
-[[keystore]]
-    id = "truststore"
-    path = "<path>"
-    password = "<password>"
+type = "jdbc"  # read_only_ldap, active_directory, jdbc
+datasource = "jdbc/UserDB"
 
 [clustering]
 enabled = true
 avoid_initiation = true
 membershipScheme = "wka"
 domain = "wso2.carbon.domain"
-mcastAddress = "127.0.0.1"
+mcastAddress = "${deployement.local_member_host}"
 mcastPort = 45564
 mcastTTL = 100
 mcastTimeout = 60
-local_member_host = "127.0.0.1"
+local_member_host = "${deployement.local_member_host}"
 local_member_port = 4000
-backend_server_url = "https=//${hostName}=${httpsPort}/services/"
-mgtConsoleURL = "https=//${hostName}=${httpsPort}/"
+backend_server_url = "https://${deployement.hostname}:${deployement.https_port}/services/"
+mgtConsoleURL = "https://${deployement.hostname}:${deployement.https_port}/"
 subDomain = "worker"
-  [[clustering.members]]
-  hostName= "127.0.0.1"
-  port= 4000
-  [clustering.groupManagement]
-  name= "wso2.apim.domain"
-  description= "APIM group"
-  subDomain= "worker"
-  port= 2222
-  enable= false
 
-[shared-registry]
+[[clustering.members]]
+hostName= "${deployement.local_member_host}"
+port= 4000
+
+[shared_registry]
 enabled = true
-[[shared-registry.dbConfig]]
+[[shared_registry.db_config]]
 name = "govregistry"
 dataSource = "jdbc/WSO2REG_DB"
-[[shared-registry.mounts]]
+[[shared_registry.mounts]]
 instanceId = "gov"
 path = "/_system/governance"
 targetPath = "/_system/governance"
-[[shared-registry.mounts]]
+[[shared_registry.mounts]]
 instanceId = "gov"
 path = "/_system/config"
 targetPath = "/_system/config"
-[[shared-registry.remoteInstance]]
+[[shared_registry.remote_instance]]
 id = "gov"
 cacheId = ""
 dbConfig = "govregistry"
 url = ""
+
+[[keystore]]
+id = "tls"
+path = "<path>"
+password = "<password>"
+alias = ""
+key_password = ""
+
+[[keystore]]
+id = "carbon"
+path = "<path>"
+password = "<password>"
+alias = ""
+key_password = ""
+
+[[keystore]]
+id = "truststore"
+path = "<path>"
+password = "<password>"
