@@ -41,3 +41,6 @@ local_member_port = 4000
 [[clustering.members]]
 hostName= "127.0.0.1"
 port= 4000
+
+[shared-registry]
+enabled = true

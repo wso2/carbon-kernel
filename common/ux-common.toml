@@ -55,3 +55,22 @@ subDomain = "worker"
   subDomain= "worker"
   port= 2222
   enable= false
+
+[shared-registry]
+enabled = true
+[[shared-registry.dbConfig]]
+name = "govregistry"
+dataSource = "jdbc/WSO2REG_DB"
+[[shared-registry.mounts]]
+instanceId = "gov"
+path = "/_system/governance"
+targetPath = "/_system/governance"
+[[shared-registry.mounts]]
+instanceId = "gov"
+path = "/_system/config"
+targetPath = "/_system/config"
+[[shared-registry.remoteInstance]]
+id = "gov"
+cacheId = ""
+dbConfig = "govregistry"
+url = ""
