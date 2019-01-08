@@ -1,0 +1,89 @@
+[deployement]
+hostname = "wso2.com"
+https_port = "9443"       # Mgt console port
+local_member_host = "127.0.0.1"
+super_admin.username = "admin"      
+super_admin.password = "admin" 
+
+[[datasource]]      # can be multiple, hence an array
+jndi_name = "jdbc/WSO2CarbonDB"
+type = "h2"     # h2, mysql, postgre, oracle, db2, custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[[datasource]]      # can be multiple, hence an array
+jndi_name = "jdbc/UserDB"
+type = "mysql"     # h2, mysql, postgre, oracle, db2, custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[[datasource]]      # can be multiple, hence an array
+jndi_name = "jdbc/SharedDB"
+type = "custom"     # h2, mysql, postgre, oracle, db2, custom
+driver_class= "<Driver Class>" # only if datasource type as custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[userstore]
+type = "jdbc"  # read_only_ldap, active_directory, jdbc
+datasource = "jdbc/UserDB"
+
+[clustering]
+enabled = true
+avoid_initiation = true
+membershipScheme = "wka"
+domain = "wso2.carbon.domain"
+mcastAddress = "${deployement.local_member_host}"
+mcastPort = 45564
+mcastTTL = 100
+mcastTimeout = 60
+local_member_host = "${deployement.local_member_host}"
+local_member_port = 4000
+backend_server_url = "https://${deployement.hostname}:${deployement.https_port}/services/"
+mgtConsoleURL = "https://${deployement.hostname}:${deployement.https_port}/"
+subDomain = "worker"
+
+[[clustering.members]]
+hostName= "${deployement.local_member_host}"
+port= 4000
+
+[shared_registry]
+enabled = true
+[[shared_registry.db_config]]
+name = "govregistry"
+dataSource = "jdbc/SharedDB"
+[[shared_registry.mounts]]
+instanceId = "gov"
+path = "/_system/governance"
+targetPath = "/_system/governance"
+[[shared_registry.mounts]]
+instanceId = "gov"
+path = "/_system/config"
+targetPath = "/_system/config"
+[[shared_registry.remote_instance]]
+id = "gov"
+cacheId = ""
+dbConfig = "govregistry"
+url = ""
+
+[[keystore]]
+id = "tls"
+path = "<path>"
+password = "<password>"
+alias = ""
+key_password = ""
+
+[[keystore]]
+id = "carbon"
+path = "<path>"
+password = "<password>"
+alias = ""
+key_password = ""
+
+[[keystore]]
+id = "truststore"
+path = "<path>"
+password = "<password>"
