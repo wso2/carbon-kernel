@@ -1,46 +1,64 @@
-[[datasource]]      # can be multiple, hence an array
-type = "h2"     # h2, mysql, postgre, oracle, db2, custom
-jndi_name = "jdbc/WSO2CarbonDB"
-driver_class= "<Driver Class>" # only if datasource type as custom
-username = "<user>"
-url = "<connection_url>"
-password = "<password>"
-
-[deployement]
+[deployment]
 hostname = "wso2.com"
+https_port = "9443"       # Mgt console port
+local_member_host = "127.0.0.1"
+super_admin.username = "admin"
+super_admin.password = "admin"
 
-[userstore]
-type = "jdbc"  # read_only_ldap, active_directory, jdbc
-admin.username = "admin"      # only for non jdbc
-admin.password = "admin"      # only for non jdbc
+[[datasource]]      # can be multiple, hence an array
+id = "WSO2CarbonDB"
+type = "h2"     # h2, mysql, postgre, oracle, db2, custom
+hostname = "localhost"
+port = 3306
+database_name = "carbondb"
+username = "<user>"
+password = "<password>"
+
+[[datasource]]      # can be multiple, hence an array
+id = "UserDB"
+type = "mysql"     # h2, mysql, postgre, oracle, db2, custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[[datasource]]      # can be multiple, hence an array
+id = "SharedDB"
+type = "custom"     # h2, mysql, postgre, oracle, db2, custom
+driver_class= "<Driver Class>" # only if datasource type as custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[user_mgt]
+
+[user_mgt.userstore]
+type = "read_write_ldap"  # read_only_ldap, active_directory, jdbc
+read_write_ldap.ConnectionURL = ""
+read_write_ldap.ConnectionName = ""
+read_write_ldap.ConnectionPassword = ""
+read_write_ldap.UserSearchBase = ""
+read_write_ldap.GroupSearchBase = ""
+
+[clustering] # optional
+membershipScheme = "wka"
+domain = "wso2.carbon.domain"
+local_member_port = 4000
+
+[[clustering.member]] # optional
+hostName= "${deployement.local_member_host}"
+port= 4000
+
+[shared_registry]
+datasource = "SharedDB"
 
 [[keystore]]
-id = "tls"
+id = "carbon"
 path = "<path>"
 password = "<password>"
 alias = ""
+key_password = ""
 
-[[keystore]]
-id = "encryption"
-path = "<path>"
-password = "<password>"
-alias = ""
-
-[[keystore]]
+[truststore]
 id = "truststore"
 path = "<path>"
 password = "<password>"
-
-[clustering]
-enabled = true
-membershipScheme = "wka"
-domain = "wso2.carbon.domain"
-local_member_host = "<ip address>"
-local_member_port = 4000
-
-[[clustering.members]]
-hostName= "127.0.0.1"
-port= 4000
-
-[shared-registry]
-enabled = true
