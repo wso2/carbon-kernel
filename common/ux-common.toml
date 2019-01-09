@@ -32,9 +32,23 @@ url = "<connection_url>"
 username = "<user>"
 password = "<password>"
 
-[userstore] # optional
-type = "jdbc"  # read_only_ldap, active_directory, jdbc
+[user_mgt]
+create_super_admin = true
+role_to_assign_by_default = "everyone"
+property.ABC=""
 datasource = "UserDB"
+
+[user_mgt.userstore]
+type = "read_write_ldap"  # read_only_ldap, active_directory, jdbc
+read_write_ldap.ConnectionURL = ""
+read_write_ldap.ConnectionName = ""
+read_write_ldap.ConnectionPassword = ""
+read_write_ldap.UserSearchBase = ""
+read_write_ldap.GroupSearchBase = ""
+
+[user_mgt.authorization_mgt]
+property.AuthorizationCacheEnabled = true
+property.GetAllRolesOfUserEnabled = false
 
 [clustering] # optional
 membershipScheme = "wka"
@@ -65,7 +79,7 @@ mount.targetPath = "/_system/governance"
 
 [[shared_registry.remote_instance]] # optional
 id = "gov"
-url = "" 
+url = ""
 cache_id = ""
 datasource = "SharedDB"
 read_only = false
