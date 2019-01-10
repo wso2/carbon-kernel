@@ -1,0 +1,149 @@
+[api_manager]
+gateway_type = "Synapse"  # Synapse ,None
+enable_secure_vault = false
+[api_manager.auth_manager]
+auth_manager_host = "https://localhost:${mgt.transport.https.port}${carbon.context}services/"
+username = "${admin.username}"
+password = "${admin.password}"
+check_permission_remotely = false
+[api_manager.jwt]:
+enable = false
+header = "X-JWT-Assertion"
+claimRetriever = none # none,default,custom
+claim_retriever_implementation = "org.wso2.carbon.apimgt.impl.token.DefaultClaimsRetriever"
+consumer_dialect = "http://wso2.org/claims"
+signature_algorithm = "SHA256withRSA" # SHA256withRSA , None ,etc.
+jwt_generator = default # default,urlSafe,custom
+jwt_generator_implementation = "org.wso2.carbon.apimgt.keymgt.token.JWTGenerator"
+[api_manager.environment]
+name = "Production and Sandbox"
+description = "This is a hybrid gateway that handles both production and sandbox token traffic."
+username = "${admin.username}"
+password = "${admin.password}"
+gateway_management_loadbalance_endpoint = "https://localhost:9443/services/"
+gateway_worker_http_loadbalance_endpoint = "http://localhost:8280"
+gateway_worker_https_loadbalance_endpoint = "https://localhost:8243"
+gateway_worker_websocket_endpoint = "ws://${carbon.local.ip}:9099"
+type = "hybrid" # production,sandbox,hybrid
+api-console = true # true,false
+
+[api_manager.cache]
+gateway_token_cache = true # true,false
+gateway_resource_cache = true # true, false
+key_manager_token_cache = false # true,false
+recently_added_api_cache = false # true,false
+scope_cache = true # true,false
+publisher_role_cache = true # true,false
+jwt_claim_cache_expiry = 900
+token_cache_expiry = 900
+tag_cache_duration = 120000
+jwt_claim_cache = true # true,false
+
+[api_manager.analytics]
+data_publisher_hosts = "{tcp://localhost:7612}"
+data_publisher_authentication_hosts = "{ssl://localhost:7712}"
+analytics_rest_api_url = "https://localhost:7444"
+username = "admin"
+password = "admin"
+data_publisher_class = "custom only"
+publish_response_message_size = false # true, false
+
+
+[api_manager.key_validator]
+url = "https://localhost:9443/services/"
+username = "admin"
+password = "admin"
+connection_pool.max_idle = 100
+connection_pool.init_idle_capacity = 50
+key_validation_handler_class = ""
+
+[api_manager.oauth]
+remove_oauth_header_from_out_message = true
+authorization_header_name = "Authorization"
+  [[api_manager.oauth.white_listed_scope]]
+    name = "openid"
+  [[api_manager.oauth.white_listed_scope]]
+    name = "device_^"
+
+revoke_api_endpoint = "https://localhost:${https.nio.port}/revoke"
+encrypt_persisted_tokens = false
+token_hash_mode = false
+
+[api_manager.store]
+url = "https://localhost:${mgt.transport.https.port}/store"
+application_grouping = default # none,default,saml,custom
+grouping_extractor_implementation = "Custom Class" # if grouping
+compare_case_insensitively = true
+display_multiple_versions = false
+display_all_apis = false
+token_endpoint_display_url = "https://${carbon.local.ip}:${https.nio.port}"
+
+[api_manager.publisher]
+doc_visibility = false
+
+[api_manager.cors_configuration]
+enable = true
+access_control_allow_origin = "*"
+access_control_allow_methods = "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+access_control_allow_headers = "Access-Control-Allow-Headers": "authorization,Access-Control-Allow-Origin,Content-Type,SOAPAction"
+access_control_allow_origins = false
+
+[[api_manager.rest_api.white_listed_uris]]
+   uri = "/api/am/publisher/{version}/swagger.json"
+   methods = "GET,HEAD"
+[[api_manager.rest_api.etag_skip_uris]]
+   uri = "/api/am/store/{version}/apis"
+   methods = "GET"
+[api_manager.throttling.traffic_manager]
+type = "Binary" # Binary,Thrift
+receiver_url_group = "tcp://${carbon.local.ip}:${receiver.url.port}"
+auth_url_group = "ssl://${carbon.local.ip}:${auth.url.port}"
+username = "admin"
+password = "admin"
+
+[api_manager.throttling.data_publisher]
+enable = true
+pool.max_idle = 1000
+pool.init_idle_capacity = 200
+thread_pool.core_pool_size = 200
+thread_pool.maximum_pool_size = 1000
+thread_pool.keep_alive_time = 200
+
+[api_manager.throttling.policy_deployer]
+enabled = true
+load_balance_traffic_manager_service = "https://localhost:${mgt.transport.https.port}${carbon.context}services/"
+username = "admin"
+password = "admin"
+
+[api_manager.throttling.block_condition]
+enabled = true
+
+[api_manager.throttling.jms_details]
+enabled = true
+initial_delay = 300000
+jms_url  = "amqp://${admin.username}:${admin.password}@clientid/carbon?brokerlist='tcp://${carbon.local.ip}:${jms.port}'"
+[api_manager.jms_connection_parameters]
+transport.jms.ConnectionFactoryJNDIName = "TopicConnectionFactory"
+java.naming.factory.initial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory"
+
+
+[api_manager.throttling]
+enable_unlimited_tier = true
+enable_header_conditions = false
+enable_jwt_claim_conditions = false
+enable_query_param_conditions = false
+
+[api_manager.workflow]
+url = "https://localhost:9445/bpmn"
+username = "admin"
+password = "admin"
+callback_api = "https://localhost:${mgt.transport.https.port}/api/am/publisher/v0.14/workflows/update-workflow-status"
+token_endpoint = "https://localhost:${https.nio.port}/token"
+dcr_endpoint = "https://localhost:${mgt.transport.https.port}/client-registration/v0.14/register"
+
+[api_manager.client_generation]
+group_id = "org.wso2"
+artifact_id = "org.wso2.client."
+model_package = "org.wso2.client.model."
+api_package = "org.wso2.client.api."
+supported_languages = "java,android"
