@@ -9,7 +9,13 @@ https_port = "9443"         # Mgt console port
 proxy_port = "443"          # Proxy port
 local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
 super_admin.username = "admin"      # Super admin's credentials
-super_admin.password = "admin" 
+super_admin.password = "admin"
+proxy_context_path = "" # Relative Context to URl Generation
+
+[tenant_mgt]
+tenant_idle_timeout = 30  # Idle Timeout for tenants
+eager_loading_tenants = "" # tenant regex to load tenants at server startup
+
 
 [[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
 id = "WSO2CarbonDB"
