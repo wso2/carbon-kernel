@@ -1,0 +1,108 @@
+# Common configs
+# Refer values within the file - ${section::key}
+# Refer environment variables - $env{key}
+# Refer system variables - $sys{key}
+# Refer securevault variables - $sec{key}
+
+[deployment]                # Deployment related configuration
+hostname = "wso2.com"       # Public host name, If an LB is present this will be the LB's public hostname
+https_port = "9443"         # Mgt console port
+local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
+super_admin.username = "admin"      # Super admin's credentials
+super_admin.password = "admin"
+
+[[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
+id = "WSO2CarbonDB"
+type = "h2"                 # Can be h2, mysql, postgre, oracle, db2, custom
+hostname = "localhost"
+port = 3306
+database_name = "carbondb"
+username = "<user>"
+password = "<password>"
+db_options.useSSL= true
+pool_options.maxActive = 5
+
+[[datasource]]
+id = "UserDB"
+type = "mysql"
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+pool_options.maxActive = 5
+
+[[datasource]]
+id = "SharedDB"
+type = "custom"     # h2, mysql, postgre, oracle, db2, custom
+driver_class= "<Driver Class>" # only if datasource type as custom
+url = "<connection_url>"
+username = "<user>"
+password = "<password>"
+
+[user_mgt]
+create_super_admin = true               # Whether to attempt creating super admin user.
+role_to_assign_by_default = "everyone"  # Role name that will get assigned for all the users created
+property.ABC=""                         # Custom datasource properties if required
+datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
+
+[user_mgt.userstore]
+type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
+read_write_ldap.ConnectionURL = ""
+read_write_ldap.ConnectionName = ""
+read_write_ldap.ConnectionPassword = ""
+read_write_ldap.UserSearchBase = ""
+read_write_ldap.GroupSearchBase = ""
+
+[user_mgt.authorization_mgt]            # Userstore's authorization related properties
+property.AuthorizationCacheEnabled = true
+property.GetAllRolesOfUserEnabled = false
+
+[clustering] # optional
+membershipScheme = "wka"
+domain = "wso2.carbon.domain"
+mcastAddress = "${deployement.local_member_host}"
+mcastPort = 45564
+mcastTTL = 100
+mcastTimeout = 60
+local_member_host = "${deployement.local_member_host}"
+local_member_port = 4000
+
+[[clustering.member]] # optional
+hostName= "${deployement.local_member_host}"
+port= 4000
+
+[shared_registry]
+datasource = "SharedDB"
+
+[shared_registry.config] # optional
+id = "gov"
+mount.path = "/_system/config"
+mount.targetPath = "/_system/config"
+
+[shared_registry.governance] # optional
+id = "gov"
+mount.path = "/_system/governance"
+mount.targetPath = "/_system/governance"
+
+[[shared_registry.remote_instance]] # optional
+id = "gov"
+url = ""
+cache_id = ""
+datasource = "SharedDB"
+read_only = false
+enable_cache = true
+registry_root = "/"
+
+[[keystore]]
+id = "carbon"
+path = "<path>"
+password = "<password>"
+alias = ""
+key_password = ""
+
+[truststore]
+id = "truststore"
+path = "<path>"
+password = "<password>"
+
+# End of common configs
+
