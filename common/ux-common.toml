@@ -1,13 +1,18 @@
-[deployment]
-hostname = "wso2.com"
-https_port = "9443"       # Mgt console port
-local_member_host = "127.0.0.1"
-super_admin.username = "admin"      
+# Refer values within the file - ${section::key}
+# Refer environment variables - $env{key}
+# Refer system variables - $sys{key}
+# Refer securevault variables - $sec{key}
+
+[deployment]                # Deployment related configuration
+hostname = "wso2.com"       # Public host name, If an LB is present this will be the LB's public hostname
+https_port = "9443"         # Mgt console port
+local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
+super_admin.username = "admin"      # Super admin's credentials
 super_admin.password = "admin" 
 
-[[datasource]]      # can be multiple, hence an array
+[[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
 id = "WSO2CarbonDB"
-type = "h2"     # h2, mysql, postgre, oracle, db2, custom
+type = "h2"                 # Can be h2, mysql, postgre, oracle, db2, custom
 hostname = "localhost"
 port = 3306
 database_name = "carbondb"
@@ -16,15 +21,15 @@ password = "<password>"
 db_options.useSSL= true
 pool_options.maxActive = 5
 
-[[datasource]]      # can be multiple, hence an array
+[[datasource]]
 id = "UserDB"
-type = "mysql"     # h2, mysql, postgre, oracle, db2, custom
+type = "mysql"
 url = "<connection_url>"
 username = "<user>"
 password = "<password>"
 pool_options.maxActive = 5
 
-[[datasource]]      # can be multiple, hence an array
+[[datasource]]
 id = "SharedDB"
 type = "custom"     # h2, mysql, postgre, oracle, db2, custom
 driver_class= "<Driver Class>" # only if datasource type as custom
@@ -33,20 +38,20 @@ username = "<user>"
 password = "<password>"
 
 [user_mgt]
-create_super_admin = true
-role_to_assign_by_default = "everyone"
-property.ABC=""
-datasource = "UserDB"
+create_super_admin = true               # Whether to attempt creating super admin user.
+role_to_assign_by_default = "everyone"  # Role name that will get assigned for all the users created
+property.ABC=""                         # Custom datasource properties if required
+datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
 
 [user_mgt.userstore]
-type = "read_write_ldap"  # read_only_ldap, active_directory, jdbc
+type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
 read_write_ldap.ConnectionURL = ""
 read_write_ldap.ConnectionName = ""
 read_write_ldap.ConnectionPassword = ""
 read_write_ldap.UserSearchBase = ""
 read_write_ldap.GroupSearchBase = ""
 
-[user_mgt.authorization_mgt]
+[user_mgt.authorization_mgt]            # Userstore's authorization related properties
 property.AuthorizationCacheEnabled = true
 property.GetAllRolesOfUserEnabled = false
 
