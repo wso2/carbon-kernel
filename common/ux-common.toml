@@ -6,6 +6,7 @@
 [deployment]                # Deployment related configuration
 hostname = "wso2.com"       # Public host name, If an LB is present this will be the LB's public hostname
 https_port = "9443"         # Mgt console port
+proxy_port = "443"          # Proxy port
 local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
 super_admin.username = "admin"      # Super admin's credentials
 super_admin.password = "admin" 
@@ -44,6 +45,7 @@ property.ABC=""                         # Custom datasource properties if requir
 datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
 
 [user_mgt.userstore]
+username_attribute = "username"         # username, email
 type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
 read_write_ldap.ConnectionURL = ""
 read_write_ldap.ConnectionName = ""
