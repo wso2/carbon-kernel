@@ -117,6 +117,7 @@ password = "admin"
 
 [api_manager.throttling.block_condition]
 enabled = true
+initial_delay = 300000
 
 [api_manager.throttling.jms_details]
 enabled = true

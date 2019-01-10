@@ -15,8 +15,9 @@ proxy_context_path = "" # Relative Context to URl Generation
 [tenant_mgt]
 tenant_idle_timeout = 30  # Idle Timeout for tenants
 eager_loading_tenants = "" # tenant regex to load tenants at server startup
-tenant_mgt.class = "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
-[tenant_mgt.TenantManager]
+enable_email_domain = true
+[tenant_mgt.tenant_manager]
+class = "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
 config_builder = "org.wso2.carbon.user.core.config.multitenancy.CommonLDAPRealmConfigBuilder"
 RootPartition = "dc=wso2,dc=org"
 OrganizationalObjectClass = "organizationalUnit"
