@@ -148,3 +148,61 @@ artifact_id = "org.wso2.client."
 model_package = "org.wso2.client.model."
 api_package = "org.wso2.client.api."
 supported_languages = "java,android"
+
+
+# Event Processor Related Configurations
+
+[event-processsor]
+
+# Configuration Applies to TM Single node Deployment
+[event_processor.single]
+enable = true
+
+[event_processor.persistence]
+interval_in_minutes = 15
+schedular_pool_size = 10
+persister.type = "file" # file,db,custom
+persister.class = "org.wso2.carbon.event.processor.core.internal.persistence.FileSystemPersistenceStore" # only at custom
+persister.persistenceLocation = "cep_persistence"
+
+# Configuration Applies to TM HA Deployment
+
+[event-processsor.ha]
+enable = false
+node_type.worker = true
+node_type.presenter = false
+check_member_update_interval = 10000
+[event_processor.persistence]
+interval_in_minutes = 15
+schedular_pool_size = 10
+persister.type = "file" # file,db,custom
+persister.class = "org.wso2.carbon.event.processor.core.internal.persistence.FileSystemPersistenceStore" # only at custom
+persister.persistenceLocation = "cep_persistence"
+
+[event_processor.ha.event_sync]
+host_name = "0.0.0.0"
+port = 11224
+reconnection_interval = 20000
+server_threads = 20000
+publisher_tcp_send_buffer_size = 5242880
+publisher_charset = "UTF-8"
+publisher_buffer_size = 1024
+publisher_connection_status_check_interval = 30000
+receiver_queue_size = 1000000
+receiver_queue_max_size_in_mb = 10
+publisher_queue_size = 1000000
+publisher_queue_max_size_in_mb = 10
+
+[event_processor.ha.management]
+host_name = "0.0.0.0"
+port = 10005
+try_state_change_interval = 15000
+state_sync_retry_interval = 10000
+
+[event_processor.ha.presentation]
+host_name = "0.0.0.0"
+port = 11000
+publisher_tcp_send_buffer_size = 5242880
+publisher_charset = "UTF-8"
+publisher_buffer_size = 1024
+publisher_connection_status_check_interval = 30000
