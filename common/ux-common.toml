@@ -120,3 +120,55 @@ key_password = ""
 id = "truststore"
 path = "<path>"
 password = "<password>"
+
+[data-bridge]
+worker_threads = 10
+max_event_buffer_capacity = 10
+event_buffer_size = 2000
+client_timeout_in_minutes = 30
+
+[data-bridge.thrift]
+tcp_port = 7611
+ssl_port = 771
+ssl_enable_protocols = "TLSv1,TLSv1.1,TLSv1.2"
+ciphers = "SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA"
+tcp_max_worker_threads = 5
+tcp_min_worker_threads = 2
+tcp_request_timeout = 15
+tcp_stop_timeout = 15
+ssl_max_worker_threads = 5
+ssl_min_worker_threads = 2
+ssl_request_timeout = 15
+ssl_stop_timeout = 50
+
+[data-bridge.binary]
+tcp_port = 9611
+ssl_port = 9711
+ssl_receiver_thread_pool_size = 100
+tcp_receiver_thread_pool_size = 100
+ssl_enable_protocols = "TLSv1,TLSv1.1,TLSv1.2"
+ciphers = "SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA"
+
+[[data-agent]]
+type = binary # binary,thrift
+queue_size = 32768
+batch_sise = 200
+core_pool_size = 1
+socket_timout_millis = 30000
+max_pool_size = 1
+keep_alive_time = 20
+re_connection_interval = 30
+max_transport_pool_size = 250
+max_idle_connection = 250
+eviction_time_period = 5500
+min_idle_time = 5000
+secure_max_transport_pool_size = 250
+secure_max_idle_connections = 250
+secure_eviction_time_period = 5500
+secure_min_idle_time_in_pool = 5000
+ssl_enable_protocols = "TLSv1,TLSv1.1,TLSv1.2"
+ciphers = "SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA"
+
+[jmx]
+enable = true
+hostname = "localhost"
