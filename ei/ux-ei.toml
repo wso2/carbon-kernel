@@ -69,12 +69,140 @@ cacheId = ""
 dbConfig = "govregistry"
 url = ""
 
-[[keystore]]
-id = "tls"
-path = "<path>"
-password = "<password>"
-alias = ""
-key_password = ""
+[transports]
+hostname="${deployement.local_member_host}"
+
+[transports.passthru]
+# Optional
+socket_timeout_millis=180000
+core_worker_pool_size=400
+max_worker_pool_size=500
+worker_thread_keepalive_seconds=60
+worker_pool_queue_length=-1
+io_threads_per_reactor=2
+io_buffer_size_in_bytes=16384
+max_http_connection_per_host_port=32767
+reuse_address=true # bind to the same port after disconnecting. This will avoid issue when binding to ports in TIMED_WAIT state
+
+## Other parameters
+preserve_http_user_agent=false
+preserve_http_server_name=true
+preserve_http_headers="Content-Type"
+enable_connection_keepalive=true
+
+rest_dispatcher_service="MultitenantDispatcherService"
+# URI configurations that determine if it requires custom rest dispatcher
+rest_uri_api_regex="\\w+://.+:\\d+/t/.*|\\w+://.+\\w+/t/.*|^(/t/).*"
+rest_uri_proxy_regex="\\w+://.+:\\d+/services/t/.*|\\w+://.+\\w+/services/t/.*|^(/services/t/).*"
+
+# Message size validation based on the message size in bytes.
+enable_message_size_validation=true
+max_message_size_bytes=81920
+
+[transports.passthru.http.receiver]
+port=8280
+
+# Optional
+hostname="${deployement.local_member_host}"
+class_name="org.apache.synapse.transport.passthru.PassThroughHttpListener"
+non_blocking=true
+http_get_processor="org.wso2.carbon.mediation.transport.handlers.PassThroughNHttpGetProcessor"
+wsdl_epr_prefix="https://apachehost:port/somepath"
+
+# Optional
+[transport.passthru.http.sender]
+class_name="org.apache.synapse.transport.passthru.PassThroughHttpSender"
+non_blocking=true
+warn_on_http_500="*"
+proxy.hostname="${deployement.local_member_host}"
+proxy.port=3128
+non_proxy_hostnames="localhost|moon|sun"
+
+[transports.passthru.https]
+keystore_id="DefaultKeystore"
+truststore_id="DefaultTruststore"
+
+[transports.passthru.https.receiver]
+port=8243
+hostname="${deployement.local_member_host}"
+
+# Optional
+keystore_id="DefaultKeystore"
+truststore_id="DefaultTruststore"
+class_name="org.apache.synapse.transport.passthru.PassThroughHttpSSLListener"
+non_blocking=true
+protocols="TLSv1,TLSv1.1,TLSv1.2"
+wsdl_epr_prefix="https://apachehost:port/somepath"
+http_get_processor="org.wso2.carbon.mediation.transport.handlers.PassThroughNHttpGetProcessor"
+
+# Optional
+[transports.passthru.https.sender]
+keystore_id="DefaultKeystore"
+truststore_id="DefaultTruststore"
+class_name="org.apache.synapse.transport.passthru.PassThroughHttpSSLSender"
+non_blocking=true
+
+# Optional
+[transports.local.receiver]
+    receiver="org.wso2.carbon.core.transports.local.CarbonLocalTransportReceiver"
+[transports.local.sender]
+    sender="org.wso2.carbon.core.transports.local.CarbonLocalTransportSender"
+
+[mediation]
+synapse.core_threads = 20
+synapse.max_threads = 100
+synapse.threads_keepalive_millis = 5
+synapse.threads_queue_length = 10
+synapse.threads_group_name = "synapse-thread-group"
+synapse.threads_id_prefix = "SynapseWorker"
+
+synapse.sal_endpoints_sesssion_timeout_default_millis=600000
+synapse.global_timeout_interval_milis=120000
+#In memory statistics cleaning state
+statistics.enable_clean=true
+statistics.clean_interval_millis=1000
+
+# Dependency tracking Synapse observer
+# Comment out to disable dependency management
+synapse.observers="org.wso2.carbon.mediation.dependency.mgt.DependencyTracker"
+
+synapse.preserve_namespace_on_xml_to_json=false
+
+# User defined wsdlLocator/Schema Resolver Implementations.
+synapse.wsdl_resolver_class_name="org.wso2.carbon.mediation.initializer.RegistryWSDLLocator"
+synapse.schema_resolver_class_name="org.wso2.carbon.mediation.initializer.RegistryXmlSchemaURIResolver"
+
+# Uncomment following to support fallback XPATH 2.0 support with DOM and Saxon
+synapse.enable_xpath_dom_failover=true
+synapse.temp_data_chunk_size=3072
+
+# A configurator to add tenant information to the out thread local carbon context
+synapse.carbon_ext_tenant_info="org.wso2.carbon.mediation.initializer.handler.CarbonTenantInfoConfigurator"
+# An initiator to initialize thread local carbon context with tenant information
+synapse.carbon_ext_tenant_info_initiator="org.wso2.carbon.mediation.initializer.handler.CarbonTenantInfoInitiator"
+
+#external componenent registration for secure vault xpath funtion lookup
+synapse.xpath_func_extensions_class_name="org.wso2.carbon.mediation.security.vault.xpath.SecureVaultLookupXPathFunctionProvider"
+
+#configuration for the external debugger channels if server is started in debug mode
+synapse.command_debugger_port=9005
+synapse.event_debugger_port=9006
+
+# Script Mediator Pool (impatcts only external scripts)
+synapse.script_mediator_pool_size=15
+
+# Configuration to enable mediation flow analytics
+mediation.flow.statistics.enable=false
+mediation.flow.statistics.capture_all=false
+
+mediation.flow.statistics.tracer.collect_payloads=false
+mediation.flow.statistics.tracer.collect_properties=false
+mediation.flow.statistics.event.capture_interval_millis=1000
+mediation.flow.statistics.event.cleanup_interval_millis=15000
+# Configuration to enable statistics globally irrespective of the individual artifact level setting
+
+mediation.inbound.core_threads = 20
+mediation.inbound.max_threads = 100
 
 [[keystore]]
 id = "carbon"
@@ -83,7 +211,7 @@ password = "<password>"
 alias = ""
 key_password = ""
 
-[[keystore]]
-id = "truststore"
+[[truststore]]
+id = "DefaultTruststore"
 path = "<path>"
 password = "<password>"
