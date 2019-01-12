@@ -206,3 +206,17 @@ publisher_tcp_send_buffer_size = 5242880
 publisher_charset = "UTF-8"
 publisher_buffer_size = 1024
 publisher_connection_status_check_interval = 30000
+
+# output event adapter to configure email for notification
+[output_event_adapters.email]
+mail.smtp.from = abcd@gmail.com
+mail.smtp.user = abcd
+mail.smtp.password = xxxx
+mail.smtp.host = smtp.gmail.com
+mail.smtp.port = 587
+mail.smtp.starttls.enable = true
+mail.smtp.auth = true
+minThread = 8
+maxThread = 100
+keepAliveTimeInMillis = 20000
+jobQueueSize = 10000
