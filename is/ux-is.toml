@@ -27,7 +27,63 @@ trust_managet_type = ""
 
 # TODO : <Identity> section was ignored as no usages found, need to review and confirm
 
+
+[identity.authentication]
+prompt_user_consent = true  # Applies to non oidc protocols
+return_only_mapped_local_roles = true
+proxy_mode = "smart"
+
+[identity.authentication.endpoints]
+login = ""
+retry = ""
+get_missing_claims = ""
+
+[identity.authentication.extnsions]
+request_cordinator = ""
+authentication_request_handler = ""
+logout_request_handler = ""
+step_based_sequence_handler = ""
+step_handler = ""
+home_realm_discoverer = ""
+claim_handler = ""
+provisioning_handler = ""
+
+[[identity.authentication.authenticator]]
+name = ""
+alias = ""
+parameters = [
+    ["AuthMechanism","basic"]
+]
+
+[[identity.authentication.sequence]]
+app_id = "default"
+step.1.authenticators = ["basic"]
+
+[identity.authentication.adaptive]
+event_publisher.url = ""
+event_publisher.authentication = "basic"    # none, basic
+event_publisher.authentication.basic.username = "admin"
+event_publisher.authentication.basic.password = "admin"
+async_executer_pool_size = 5
+http_connections.max = 20
+http_connections.max_per_route = 20
+http_connections.connection_timeout_ms = 5000
+http_connections.read_timeout_ms = 5000
+http_connections.request_timeout_ms = 5000
+long_wait.page_refresh_interval_ms = 500
+long_wait.timout_ms = 500
+long_wait.prompt = 500
+
+[identity.authentication.endpoint.query_params_filter]
+action = "exclude"  # exclude, include
+parameters = []
+
+[identity.authentication.endpoint.redirect_params_filter]
+action = "exclude"  # exclude, include
+parameters = []
+
 # TODO : <OpenID> section was ignored as OpenID is deprecated
+
 
 [identity.oauth]
 timestamp_skew = 0      # TODO : Use top level config?
@@ -171,26 +227,6 @@ jwks_endpoint.read_timeout_ms = 1000
 jwks_endpoint.http_size_limit = 51200
 
 # XMPP setting seems to be not using any longer hence skipped. TODO confirm.
-
-
-[identity.authentication]
-prompt_user_consent = true  # Applies to non oidc protocols
-return_only_mapped_local_roles = true
-
-[identity.authentication.adaptive]
-event_publisher.url = ""
-event_publisher.authentication = "basic"    # none, basic
-event_publisher.authentication.basic.username = "admin"
-event_publisher.authentication.basic.password = "admin"
-async_executer_pool_size = 5
-http_connections.max = 20
-http_connections.max_per_route = 20
-http_connections.connection_timeout_ms = 5000
-http_connections.read_timeout_ms = 5000
-http_connections.request_timeout_ms = 5000
-long_wait.page_refresh_interval_ms = 500
-long_wait.timout_ms = 500
-long_wait.prompt = 500
 
 
 [identity.saml]
