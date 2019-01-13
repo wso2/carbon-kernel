@@ -1,108 +1,345 @@
-# Common configs
-# Refer values within the file - ${section::key}
-# Refer environment variables - $env{key}
-# Refer system variables - $sys{key}
-# Refer securevault variables - $sec{key}
+# Start of is
 
-[deployment]                # Deployment related configuration
-hostname = "wso2.com"       # Public host name, If an LB is present this will be the LB's public hostname
-https_port = "9443"         # Mgt console port
-local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
-super_admin.username = "admin"      # Super admin's credentials
-super_admin.password = "admin"
+[identity]
+datasource = "jdbc/SharedDB"
+clock_skew = 300
 
-[[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
-id = "WSO2CarbonDB"
-type = "h2"                 # Can be h2, mysql, postgre, oracle, db2, custom
-hostname = "localhost"
-port = 3306
-database_name = "carbondb"
-username = "<user>"
-password = "<password>"
-db_options.useSSL= true
-pool_options.maxActive = 5
+[identity.session_data]
+persist.temp_data = true
+persist.db_pool_size = 0
+cleanup.enable_for = ["expired_data","invalidated_data","temp_data"]
+cleanup.expired_data.expiry_time_mins = 20160
+cleanup.expired_data.frequency_mins = 1140
+cleanup.expired_data.in_chunks_of = 50000
+cleanup.temp_data.expiry_time_mins = 40
+cleanup.temp_data.db_pool_size = 20
 
-[[datasource]]
-id = "UserDB"
-type = "mysql"
-url = "<connection_url>"
-username = "<user>"
-password = "<password>"
-pool_options.maxActive = 5
+[identity.session_timeout]
+idle_session_timeout_mins = 15
+remember_me_session_timeout_mins = 20160
 
-[[datasource]]
-id = "SharedDB"
-type = "custom"     # h2, mysql, postgre, oracle, db2, custom
-driver_class= "<Driver Class>" # only if datasource type as custom
-url = "<connection_url>"
-username = "<user>"
-password = "<password>"
+[identity.key_mgt]
+keystore_dir = ""
+key_manager_type = ""
+trust_managet_type = ""
 
-[user_mgt]
-create_super_admin = true               # Whether to attempt creating super admin user.
-role_to_assign_by_default = "everyone"  # Role name that will get assigned for all the users created
-property.ABC=""                         # Custom datasource properties if required
-datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
+# TODO : <Identity> section was ignored as no usages found, need to review and confirm
 
-[user_mgt.userstore]
-type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
-read_write_ldap.ConnectionURL = ""
-read_write_ldap.ConnectionName = ""
-read_write_ldap.ConnectionPassword = ""
-read_write_ldap.UserSearchBase = ""
-read_write_ldap.GroupSearchBase = ""
+# TODO : <OpenID> section was ignored as OpenID is deprecated
 
-[user_mgt.authorization_mgt]            # Userstore's authorization related properties
-property.AuthorizationCacheEnabled = true
-property.GetAllRolesOfUserEnabled = false
+[identity.oauth]
+timestamp_skew = 0      # TODO : Move as a top level deployment config?
 
-[clustering] # optional
-membershipScheme = "wka"
-domain = "wso2.carbon.domain"
-mcastAddress = "${deployement.local_member_host}"
-mcastPort = 45564
-mcastTTL = 100
-mcastTimeout = 60
-local_member_host = "${deployement.local_member_host}"
-local_member_port = 4000
+token.cleanup.enable = true
+token.cleanup.backup_for_auditing = true
 
-[[clustering.member]] # optional
-hostName= "${deployement.local_member_host}"
-port= 4000
+token.partitioning.enable = false
+token.partitioning.domains = []
 
-[shared_registry]
-datasource = "SharedDB"
+token.validation.context.enable = false
+token.validation.context.token_generator = ""
+token.validation.context.claim_retriever = ""
+token.validation.context.consumer_dialect = ""
+token.validation.context.consumer_dialect = ""
+token.validation.context.signature_alg = ""
+token.validation.context.ttl = ""
+token.persistance.enable = true
+token.persistance.pool_size = 0
+token.persistance.retry_count_on_failure = 5
 
-[shared_registry.config] # optional
-id = "gov"
-mount.path = "/_system/config"
-mount.targetPath = "/_system/config"
+app_token.validity_time_seconds = 3600
+user_token.validity_time_seconds = 3600
+refresh_token.validity_time_seconds = 3600
+authz_code.validity_time_seconds = 300
 
-[shared_registry.governance] # optional
-id = "gov"
-mount.path = "/_system/governance"
-mount.targetPath = "/_system/governance"
+hash_client_secret = false
+map_federated_users_to_local = false
+consent.enabled_grant_types = ["authorization_code", "implicit"]
+# if above need properties for each we can have something like consent.implicit.property_name = "value"
+assertions.enable_for = []  # Username
 
-[[shared_registry.remote_instance]] # optional
-id = "gov"
-url = ""
-cache_id = ""
-datasource = "SharedDB"
-read_only = false
-enable_cache = true
-registry_root = "/"
 
-[[keystore]]
-id = "carbon"
-path = "<path>"
-password = "<password>"
-alias = ""
-key_password = ""
+[identity.oauth.oidc]
+prompt_user_consent = true  # eq. skipConsent = false
 
-[truststore]
-id = "truststore"
-path = "<path>"
-password = "<password>"
+id_token.builder = "builder_class_fqn"
+id_token.signature_alg = "SHA256withRSA"
+id_token.enable_audiences = true
+id_token.audiences = []
+id_token.issuer_id = ""
+id_token.claim_callback_hander = ""     # TODO: Rename?
+id_token.validity_time_seconds = 3600
+id_token.sign_with_tenant_of = "user"    # user, sp, (idp? in future)
+id_token.supported_encryption_algorithms = ["RSA1_5","RSA-OAEP"]    # encryption_alg will be the 1st item of this array.
+id_token.supported_encryption_methods = ["A128GCM","A192GCM"]       # encryption_method will be the 1st of this array.
 
-# End of common configs
+logout_token.validity_time_seconds = 120
+
+request_object.validator = "class_fqn"
+
+user_info.jwt_signature_alg = ""
+user_info.endpoint.claim_retriever = "class_fqn"
+user_info.endpoint.request_validator = "class_fqn"
+user_info.endpoint.token_validator = "class_fqn"
+user_info.endpoint.response_builder = "class_fqn"
+
+[[[identity.oauth.oidc.request_object_builder]]]
+type = "request_param_value_builder"
+class = "class_fqn"     # Optional for OOTB builders
+
+
+[identity.oauth.endpoints]
+oauth1.request_token = ""
+oauth1.authorize = ""
+oauth1.access_token = ""
+oauth2.authorize = ""
+oauth2.token = ""
+oauth2.revoke = ""
+oauth2.introspect = ""
+oauth2.userinfo = ""
+oauth2.consent = ""
+oauth2.error = ""
+oauth2.dcr = ""
+oauth2.jwks = ""
+oidc.check_session = ""
+oidc.logout = ""
+oidc.consent = ""
+oidc.logout_consent = ""
+oidc.web_finger = ""
+oidc.discovery = ""
+
+[[identity.oauth.response_type]]
+name = "token"
+handler_class = "f.q.n.of.class"    # Optional for default response_types
+
+[[identity.oauth.response_type]]
+name = "code"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.response_type]]
+name = "id_token"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.response_type]]
+name = "id_token token"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.grant_type]]
+name = "authorization_code"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.grant_type]]
+name = "password"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.grant_type]]
+name = "refresh_token"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.grant_type]]
+name = "client_credentials"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.grant_type]]
+name = "urn:ietf:params:oauth:grant-type:saml2-bearer"
+handler_class = "f.q.n.of.class"
+property.user_type = "FEDERATED"    # from SAML2Grant.UserType
+
+[[identity.oauth.grant_type]]
+name = "iwa:ntlm"
+handler_class = "f.q.n.of.class"
+
+[[identity.oauth.grant_type]]
+name = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+handler_class = "f.q.n.of.class"
+validator_class = "f.q.n.of.class"      # Optional
+
+[[identity.oauth.callback_handler]]
+name = "default"
+class = "f.q.n.of.class"
+
+[[identity.oauth.token_validator]]
+name = "jwt"    # represent the old attribute 'type'
+class = "f.q.n.of.class"    # Optional for OOTB validators
+
+[[identity.oauth.scope_validator]]
+name = "jdbc"
+class = "f.q.n.of.class"    # Optional for OOTB validators
+
+[[identity.oauth.scope_handler]]
+name = "oidc"
+class = "f.q.n.of.class"    # Optional for OOTB handlers
+
+[identity.oauth.jwt_validation]
+jwks_endpoint.connection_timeout_ms = 1000
+jwks_endpoint.read_timeout_ms = 1000
+jwks_endpoint.http_size_limit = 51200
+
+# XMPP setting seems to be not using any longer hence skipped. TODO confirm.
+
+[identity.authentication]
+prompt_user_consent = true  # Applies to non oidc protocols
+return_only_mapped_local_roles = true
+
+[identity.authentication.adaptive]
+event_publisher.url = ""
+event_publisher.authentication = "basic"    # none, basic
+event_publisher.authentication.basic.username = "admin"
+event_publisher.authentication.basic.password = "admin"
+
+async_executer_pool_size = 5
+http_connections.max = 20
+http_connections.max_per_route = 20
+http_connections.connection_timeout_ms = 5000
+http_connections.read_timeout_ms = 5000
+http_connections.request_timeout_ms = 5000
+
+long_wait.page_refresh_interval_ms = 500
+long_wait.timout_ms = 500
+long_wait.prompt = 500
+
+[identity.saml]
+entity_id = "${deployment.hostname}"
+attribute_claim_dialect = ""
+slo.retry_attempts = 5
+slo.retry_interval_ms = 60000
+slo.host_name_verification = true
+response.validity_mins = 5
+artifact.validity_mins = 5
+use_tenant_key_of = "user"  # user, sp
+tenant_partitioning.enable = true
+signing_alg = ""
+digest_alg = ""
+assertion_entryption_alg = ""
+key_encryption_alg = ""
+consent.enable = true
+
+
+[identity.saml.endpoints]
+idp_url = ""
+logout = ""
+notification = ""
+artifact_resolution = ""
+ecp = ""
+
+[identity.saml.extensions]
+assertion_builder = ""
+response_builder = ""
+encrypter = ""
+signer = ""
+redirect_signature_validator = ""
+
+[identity.sts.endpoints]
+idp = ""
+
+[identity.passive_sts]
+token_store_class = ""
+slo.host_name_verification = false
+
+[identity.passive_sts.endpoints]
+idp = ""
+retry = ""
+
+[identity.entitlement]
+thrift.enable = true
+thrift.receiver_port = 0
+thrift.client_timeout = 10000
+thrift.key_store.id = ""
+thrift.hostname = ""
+
+[identity.scim]
+user.endpoint = ""
+user.show_all_details = false
+group.endpoint = ""
+
+[[identity.scim.authenticator]]
+id = "basic"
+class = ""  # optional for OOTB
+priority = 10
+property.AuthorizationServer = "local://services"
+
+[identity.scim2]
+user.endpoint = ""
+group.endpoint = ""
+support_complex_multivalued = true
+
+[identity.mgt.recovery]
+notification.manage_internally = true
+notification.notify_success = false
+endpoint.enable = true
+username_recovery.recaptcha.enable = true
+username_recovery.with_notification.enable = true
+
+password_recovery.recaptcha.enable = true
+password_recovery.with_notification.enable = true
+password_recovery.with_challenge_question.enable = true
+password_recovery.with_challenge_question.notify_start = true
+password_recovery.with_challenge_question.separator_char = true
+password_recovery.with_challenge_question.min_answers = 2
+password_recovery.with_challenge_question.recaptcha.enable = true
+password_recovery.with_challenge_question.recaptcha.max_fails = 2
+password_recovery.by_admin.offline = false
+password_recovery.by_admin.otp = false
+password_recovery.by_admin.recovery_link = false
+
+[identity.mgt.email_verification]
+account.lock_on_creation = true
+notification.manage_internally = true
+notification.expiry_time_minutes = 1440
+ask_password.expiry_time_minutes = 1440
+ask_password.password_generator = ""
+ask_password.admin_console_ui.enable = true
+check_account_existance = true      # TODO. Need this configurable?
+
+[identity.mgt.self_registration]
+endpoint.enable = true
+account.lock_on_creation = true
+notification.manage_internally = true
+notification.expiry_time_minutes = 1440
+recaptcha.enable = true
+
+[identity.jit_provisioning]
+username.page = ""
+password.page = ""
+
+[[identity.event.listener]]
+id = ""
+type = ""
+name = ""
+order = 1
+
+[[identity.event.recorder]]
+id = ""
+type = ""   # eg. user_delete
+class = ""
+property.abc = ""
+
+# The default caches are enabled by default with default values. Can be disabled/change default config or add a new
+# cache here.
+[[identity.cache_manager.cache]]
+name = ""
+timeout = ""
+capacity = ""
+distributed = false
+
+[[identity.protected.resource]]
+context = ""
+secured = true
+http-method = "all"
+permissions = []
+
+[[identity.client_app.authentication]]
+name = ""
+hash = ""
+
+[identity.user.association]
+enable_for_federated_users = false
+
+[identity.tenanat_context.rewrite]
+webapps = []
+servlets = []
+
+[identity.intermediate_cert_validation]
+cert_cns = []
+exempt_contexts = []
 
