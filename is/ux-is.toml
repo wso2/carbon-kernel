@@ -108,7 +108,8 @@ authz_code.validity_time_s = 300
 hash_client_secret = false
 map_federated_users_to_local = false
 consent.enabled_grant_types = ["authorization_code", "implicit"]
-# if above need properties for each we can have something like consent.implicit.property_name = "value"
+# if above need properties for each we can have something like
+# consent.implicit.properties = [["key1","value1"],["key2","value2"]]
 assertions.enable_for = []  # Username
 
 [identity.oauth.oidc]
@@ -137,7 +138,7 @@ user_info.endpoint.response_builder = "class_fqn"
 
 [[identity.oauth.oidc.request_object_builder]]
 type = "request_param_value_builder"
-class = "class_fqn"     # Optional for OOTB builders
+class = ""     # Optional for OOTB builders
 
 [identity.oauth.endpoints]
 oauth1.request_token = ""
@@ -161,65 +162,67 @@ oidc.discovery = ""
 
 [[identity.oauth.response_type]]
 name = "token"
-handler_class = "f.q.n.of.class"    # Optional for default response_types
+handler_class = ""    # Optional for default response_types
 
 [[identity.oauth.response_type]]
 name = "code"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.response_type]]
 name = "id_token"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.response_type]]
 name = "id_token token"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.grant_type]]
 name = "authorization_code"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.grant_type]]
 name = "password"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.grant_type]]
 name = "refresh_token"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.grant_type]]
 name = "client_credentials"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.grant_type]]
 name = "urn:ietf:params:oauth:grant-type:saml2-bearer"
-handler_class = "f.q.n.of.class"
-property.user_type = "FEDERATED"    # from SAML2Grant.UserType
+handler_class = ""
+properties = [
+    ["user_type","FEDERATED"]    # from SAML2Grant.UserType
+]
 
 [[identity.oauth.grant_type]]
 name = "iwa:ntlm"
-handler_class = "f.q.n.of.class"
+handler_class = ""
 
 [[identity.oauth.grant_type]]
 name = "urn:ietf:params:oauth:grant-type:jwt-bearer"
-handler_class = "f.q.n.of.class"
-validator_class = "f.q.n.of.class"      # Optional
+handler_class = ""
+validator_class = ""      # Optional
 
 [[identity.oauth.callback_handler]]
 name = "default"
-class = "f.q.n.of.class"
+class = ""
 
 [[identity.oauth.token_validator]]
 name = "jwt"    # represent the old attribute 'type'
-class = "f.q.n.of.class"    # Optional for OOTB validators
+class = ""    # Optional for OOTB validators
 
 [[identity.oauth.scope_validator]]
 name = "jdbc"
-class = "f.q.n.of.class"    # Optional for OOTB validators
+class = ""    # Optional for OOTB validators
 
 [[identity.oauth.scope_handler]]
 name = "oidc"
-class = "f.q.n.of.class"    # Optional for OOTB handlers
+class = ""    # Optional for OOTB handlers
 
 [identity.oauth.jwt_validation]
 jwks_endpoint.connection_timeout_ms = 1000
@@ -385,3 +388,17 @@ servlets = []
 [identity.intermediate_cert_validation]
 cert_cns = []
 exempt_contexts = []
+
+
+[identity.google_recaptcha]
+api.url = "https://www.google.com/recaptcha/api.js"
+verify.url= "https://www.google.com/recaptcha/api/siteverify"
+site.key="6LeL8iATAAAAABEWUx1LwFAiSCT06fY7Kfra5WcT"
+secret.key="6LeL8iATAAAAAJUgXu_ZgEm_dOC3AT4gmWRstil4"
+
+[identity.embedded_ldap]
+ldap.properties = [[]]
+default_partition.properties = [[]]
+partition_admin.properties = [[]]
+partition_admin_group.properties = [[]]
+kdc_server.properties = [[]]
