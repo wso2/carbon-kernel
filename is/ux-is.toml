@@ -1,10 +1,11 @@
-# Start of is
+# Start of identity configuration
 
 [identity]
 datasource = "jdbc/SharedDB"
 clock_skew = 300
 
-[identity.session_data]
+
+[identity.session.data]
 persist.temp_data = true
 persist.db_pool_size = 0
 cleanup.enable_for = ["expired_data","invalidated_data","temp_data"]
@@ -14,9 +15,10 @@ cleanup.expired_data.in_chunks_of = 50000
 cleanup.temp_data.expiry_time_mins = 40
 cleanup.temp_data.db_pool_size = 20
 
-[identity.session_timeout]
+[identity.session.timeout]
 idle_session_timeout_mins = 15
 remember_me_session_timeout_mins = 20160
+
 
 [identity.key_mgt]
 keystore_dir = ""
@@ -28,14 +30,11 @@ trust_managet_type = ""
 # TODO : <OpenID> section was ignored as OpenID is deprecated
 
 [identity.oauth]
-timestamp_skew = 0      # TODO : Move as a top level deployment config?
-
+timestamp_skew = 0      # TODO : Use top level config?
 token.cleanup.enable = true
 token.cleanup.backup_for_auditing = true
-
 token.partitioning.enable = false
 token.partitioning.domains = []
-
 token.validation.context.enable = false
 token.validation.context.token_generator = ""
 token.validation.context.claim_retriever = ""
@@ -46,18 +45,15 @@ token.validation.context.ttl = ""
 token.persistance.enable = true
 token.persistance.pool_size = 0
 token.persistance.retry_count_on_failure = 5
-
-app_token.validity_time_seconds = 3600
-user_token.validity_time_seconds = 3600
-refresh_token.validity_time_seconds = 3600
-authz_code.validity_time_seconds = 300
-
+app_token.validity_time_s = 3600
+user_token.validity_time_s = 3600
+refresh_token.validity_time_s = 3600
+authz_code.validity_time_s = 300
 hash_client_secret = false
 map_federated_users_to_local = false
 consent.enabled_grant_types = ["authorization_code", "implicit"]
 # if above need properties for each we can have something like consent.implicit.property_name = "value"
 assertions.enable_for = []  # Username
-
 
 [identity.oauth.oidc]
 prompt_user_consent = true  # eq. skipConsent = false
@@ -68,12 +64,12 @@ id_token.enable_audiences = true
 id_token.audiences = []
 id_token.issuer_id = ""
 id_token.claim_callback_hander = ""     # TODO: Rename?
-id_token.validity_time_seconds = 3600
+id_token.validity_time_s = 3600
 id_token.sign_with_tenant_of = "user"    # user, sp, (idp? in future)
 id_token.supported_encryption_algorithms = ["RSA1_5","RSA-OAEP"]    # encryption_alg will be the 1st item of this array.
 id_token.supported_encryption_methods = ["A128GCM","A192GCM"]       # encryption_method will be the 1st of this array.
 
-logout_token.validity_time_seconds = 120
+logout_token.validity_time_s = 120
 
 request_object.validator = "class_fqn"
 
@@ -83,10 +79,9 @@ user_info.endpoint.request_validator = "class_fqn"
 user_info.endpoint.token_validator = "class_fqn"
 user_info.endpoint.response_builder = "class_fqn"
 
-[[[identity.oauth.oidc.request_object_builder]]]
+[[identity.oauth.oidc.request_object_builder]]
 type = "request_param_value_builder"
 class = "class_fqn"     # Optional for OOTB builders
-
 
 [identity.oauth.endpoints]
 oauth1.request_token = ""
@@ -177,6 +172,7 @@ jwks_endpoint.http_size_limit = 51200
 
 # XMPP setting seems to be not using any longer hence skipped. TODO confirm.
 
+
 [identity.authentication]
 prompt_user_consent = true  # Applies to non oidc protocols
 return_only_mapped_local_roles = true
@@ -186,17 +182,16 @@ event_publisher.url = ""
 event_publisher.authentication = "basic"    # none, basic
 event_publisher.authentication.basic.username = "admin"
 event_publisher.authentication.basic.password = "admin"
-
 async_executer_pool_size = 5
 http_connections.max = 20
 http_connections.max_per_route = 20
 http_connections.connection_timeout_ms = 5000
 http_connections.read_timeout_ms = 5000
 http_connections.request_timeout_ms = 5000
-
 long_wait.page_refresh_interval_ms = 500
 long_wait.timout_ms = 500
 long_wait.prompt = 500
+
 
 [identity.saml]
 entity_id = "${deployment.hostname}"
@@ -214,7 +209,6 @@ assertion_entryption_alg = ""
 key_encryption_alg = ""
 consent.enable = true
 
-
 [identity.saml.endpoints]
 idp_url = ""
 logout = ""
@@ -229,8 +223,10 @@ encrypter = ""
 signer = ""
 redirect_signature_validator = ""
 
+
 [identity.sts.endpoints]
 idp = ""
+
 
 [identity.passive_sts]
 token_store_class = ""
@@ -240,12 +236,14 @@ slo.host_name_verification = false
 idp = ""
 retry = ""
 
+
 [identity.entitlement]
 thrift.enable = true
 thrift.receiver_port = 0
 thrift.client_timeout = 10000
 thrift.key_store.id = ""
 thrift.hostname = ""
+
 
 [identity.scim]
 user.endpoint = ""
@@ -258,10 +256,12 @@ class = ""  # optional for OOTB
 priority = 10
 property.AuthorizationServer = "local://services"
 
+
 [identity.scim2]
 user.endpoint = ""
 group.endpoint = ""
 support_complex_multivalued = true
+
 
 [identity.mgt.recovery]
 notification.manage_internally = true
@@ -269,7 +269,6 @@ notification.notify_success = false
 endpoint.enable = true
 username_recovery.recaptcha.enable = true
 username_recovery.with_notification.enable = true
-
 password_recovery.recaptcha.enable = true
 password_recovery.with_notification.enable = true
 password_recovery.with_challenge_question.enable = true
@@ -298,9 +297,11 @@ notification.manage_internally = true
 notification.expiry_time_minutes = 1440
 recaptcha.enable = true
 
+
 [identity.jit_provisioning]
 username.page = ""
 password.page = ""
+
 
 [[identity.event.listener]]
 id = ""
@@ -314,6 +315,7 @@ type = ""   # eg. user_delete
 class = ""
 property.abc = ""
 
+
 # The default caches are enabled by default with default values. Can be disabled/change default config or add a new
 # cache here.
 [[identity.cache_manager.cache]]
@@ -322,24 +324,28 @@ timeout = ""
 capacity = ""
 distributed = false
 
+
 [[identity.protected.resource]]
 context = ""
 secured = true
 http-method = "all"
 permissions = []
 
+
 [[identity.client_app.authentication]]
 name = ""
 hash = ""
 
+
 [identity.user.association]
 enable_for_federated_users = false
+
 
 [identity.tenanat_context.rewrite]
 webapps = []
 servlets = []
 
+
 [identity.intermediate_cert_validation]
 cert_cns = []
 exempt_contexts = []
-
