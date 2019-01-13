@@ -92,6 +92,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import javax.naming.ldap.Rdn;
+import javax.naming.ldap.SortControl;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
@@ -2709,9 +2710,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         DirContext dirContext = this.connectionSource.getContext();
         LdapContext ldapContext = (LdapContext) dirContext;
         List<String> users;
-
+        String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         try {
-            ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL)});
+            ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
+                    new SortControl(userNameAttribute, Control.CRITICAL)});
             users = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
             result.setUsers(users.toArray(new String[0]));
             return result;
@@ -2891,8 +2893,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                     }
                     cookie = parseControls(ldapContext.getResponseControls());
+                    String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
                     ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
-                            Control.CRITICAL)});
+                            Control.CRITICAL), new SortControl(userNameAttribute, Control.CRITICAL)});
                 } while ((cookie != null) && (cookie.length != 0));
             }
         } catch (PartialResultException e) {
