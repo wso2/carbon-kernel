@@ -99,7 +99,7 @@ rest_uri_proxy_regex="\\w+://.+:\\d+/services/t/.*|\\w+://.+\\w+/services/t/.*|^
 enable_message_size_validation=true
 max_message_size_bytes=81920
 
-[transports.passthru.http.receiver]
+[transports.passthru.http.listener]
 port=8280
 
 # Optional
@@ -122,7 +122,7 @@ non_proxy_hostnames="localhost|moon|sun"
 keystore_id="DefaultKeystore"
 truststore_id="DefaultTruststore"
 
-[transports.passthru.https.receiver]
+[transports.passthru.https.listener]
 port=8243
 hostname="${deployement.local_member_host}"
 
@@ -143,10 +143,83 @@ class_name="org.apache.synapse.transport.passthru.PassThroughHttpSSLSender"
 non_blocking=true
 
 # Optional
-[transports.local.receiver]
-    receiver="org.wso2.carbon.core.transports.local.CarbonLocalTransportReceiver"
-[transports.local.sender]
-    sender="org.wso2.carbon.core.transports.local.CarbonLocalTransportSender"
+[transports.nio]
+buffer_size_in_bytes=8192
+tcp_nodelay=1
+connection_stalecheck=0
+
+# Uncomment the following property for an AIX based deployment
+interest_ops_queueing=true
+
+# HTTP Listener (Server Workers) thread pool parameters
+listener.socket_timeout_millis = 180000 # Client > EI Connection timeout
+listener.core_worker_pool_size = 20
+listener.max_worker_pool_size = 100
+listener.worker_thread_keepalive_seconds = 5
+listener.worker_queue_length = -1
+listener.io_threads_per_reactor = 2
+
+# HTTP Sender (Client Worker) thread pool parameters
+sender.socket_timeout_millis = 180000 # EI > BackEnd Connection timeout
+sender.core_worker_pool_size = 20
+sender.max_worker_pool_size = 20
+sender.worker_thread_keepalive_seconds = 5
+sender.worker_queue_length = -1
+sender.io_threads_per_reactor = 2
+
+rest_dispatcher_service=__MultitenantDispatcherService
+# URI configurations that determine if it requires custom rest dispatcher
+rest_uri_api_regex=\\w+://.+:\\d+/t/.*|\\w+://.+\\w+/t/.*|^(/t/).*
+rest_uri_proxy_regex=\\w+://.+:\\d+/services/t/.*|\\w+://.+\\w+/services/t/.*|^(/services/t/).*
+
+# bind to the same port after disconnecting. This will avoid issue when binding to ports in TIMED_WAIT state.
+reuse_address=true
+
+[transports.nio.http.listener]
+port=8280
+
+# Optional
+hostname = "${deployement.local_member_host}"
+class_name = "org.apache.synapse.transport.nhttp.HttpCoreNIOListener"
+non_blocking = true
+http_get_processor = "org.wso2.carbon.mediation.transport.handlers.NHttpGetProcessor"
+wsdl_epr_prefix = "https://apachehost:port/somepath"
+priority_config_file = "<location of priority configuration file>"
+enable_rest_service_dispatching = true
+
+[transports.nio.http.sender]
+class_name = "org.apache.synapse.transport.nhttp.HttpCoreNIOSender"
+non_blocking = true
+
+# Optional
+[transports.nio.https]
+keystore_id="DefaultKeystore"
+truststore_id="DefaultTruststore"
+
+# Optional
+[transports.nio.https.listener]
+port= 8243
+hostName = "${deployement.local_member_host}"
+non_blocking = true
+keystore_id="DefaultKeystore"
+truststore_id="DefaultTruststore"
+wsdl_epr_prefix = "https://apachehost:port/somepath"
+priority_config_file = "<location of priority configuration file>"
+enable_rest_service_dispatching = true
+
+# Optional
+[transports.nio.https.sender]
+keystore_id="DefaultKeystore"
+truststore_id="DefaultTruststore"
+class_name = "org.apache.synapse.transport.nhttp.HttpCoreNIOSSLSender"
+hostname_verifier = "DefaultAndLocalhost" # supports Strict|AllowAll|DefaultAndLocalhost or the default if none specified.
+certificate_revocation.cache_size = 50
+certificate_revocation.cache_delay_seconds = 5
+
+# Optional
+[transports.local]
+    type = "NonBlockingLocalTransport"
+
 
 [mediation]
 synapse.core_threads = 20
