@@ -4,7 +4,7 @@
 # Refer securevault variables - $sec{key}
 
 [deployment]                    # Deployment related configuration
-hostname = "wso2.com"               # Public host name, If an LB is present this will be the LB's public hostname
+hostname = "config.wso2.com"        # Public host name, If an LB is present this will be the LB's public hostname
 transports = ["https","http"]       # 1st is considered default. Refer transport section for additional properties
 local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
 proxy_context_path = ""             # Relative Context to URl Generation
@@ -35,8 +35,12 @@ port = 3306
 database_name = "carbondb"
 username = "<user>"
 password = "<password>"
-db_options.useSSL= true
-pool_options.maxActive = 5
+db_options = [              # Will be a n * 2 array which will contain 'n' key,value pairs.
+    ["useSSL","true"]
+]
+pool_options = [
+    ["maxActive","5"]
+]
 
 [[datasource]]
 id = "UserDB"
@@ -44,7 +48,9 @@ type = "mysql"
 url = "<connection_url>"
 username = "<user>"
 password = "<password>"
-pool_options.maxActive = 5
+pool_options = [
+    ["maxActive","5"]
+]
 
 [[datasource]]
 id = "SharedDB"
@@ -58,35 +64,40 @@ password = "<password>"
 [user_mgt]
 create_super_admin = true               # Whether to attempt creating super admin user.
 role_to_assign_by_default = "everyone"  # Role name that will get assigned for all the users created
-property.ABC=""                         # Custom datasource properties if required
+properties = [                          # Custom datasource properties if required
+    ["property1","value1"],
+    ["property2","value2"]
+]
 datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
 
 [user_mgt.userstore]
 username_attribute = "username"         # username, email
 type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
-read_write_ldap.ConnectionURL = ""
-read_write_ldap.ConnectionName = ""
-read_write_ldap.ConnectionPassword = ""
-read_write_ldap.UserSearchBase = ""
-read_write_ldap.GroupSearchBase = ""
+read_write_ldap.connection_uRL = ""
+read_write_ldap.connection_name = ""
+read_write_ldap.connection_password = ""
+read_write_ldap.user_search_base = ""
+read_write_ldap.group_search_base = ""
 
 [user_mgt.authorization_mgt]            # Userstore's authorization related properties
-property.AuthorizationCacheEnabled = true
-property.GetAllRolesOfUserEnabled = false
+properties = [
+    ["AuthorizationCacheEnabled", "true"],
+    ["GetAllRolesOfUserEnabled", "false"]
+]
 
 
 [clustering] # optional
 membershipScheme = "wka"
 domain = "wso2.carbon.domain"
-mcastAddress = "${deployement.local_member_host}"
+mcastAddress = "${deployement::local_member_host}"
 mcastPort = 45564
 mcastTTL = 100
 mcastTimeout = 60
-local_member_host = "${deployement.local_member_host}"
+local_member_host = "${deployement::local_member_host}"
 local_member_port = 4000
 
-[[clustering.member]] # optional
-hostName= "${deployement.local_member_host}"
+[[clustering.member]]                   # Local member will be added by default if clustering enabled
+hostName= "192.168.1.2"
 port= 4000
 
 
@@ -114,26 +125,25 @@ registry_root = "/"
 
 
 [[keystore]]
-id = "carbon"
-path = "<path>"
-password = "<password>"
+id = ""
+path = ""
+password = ""
 alias = ""
 key_password = ""
 
 
 [truststore]
-id = "truststore"
-path = "<path>"
-password = "<password>"
+path = ""
+password = ""
 
 
-[data-bridge]
+[data_bridge]
 worker_threads = 10
 max_event_buffer_capacity = 10
 event_buffer_size = 2000
 client_timeout_in_minutes = 30
 
-[data-bridge.thrift]
+[data_bridge.thrift]
 tcp_port = 7611
 ssl_port = 771
 ssl_enable_protocols = "TLSv1,TLSv1.1,TLSv1.2"
@@ -147,7 +157,7 @@ ssl_min_worker_threads = 2
 ssl_request_timeout = 15
 ssl_stop_timeout = 50
 
-[data-bridge.binary]
+[data_bridge.binary]
 tcp_port = 9611
 ssl_port = 9711
 ssl_receiver_thread_pool_size = 100
@@ -156,7 +166,7 @@ ssl_enable_protocols = "TLSv1,TLSv1.1,TLSv1.2"
 ciphers = "SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA"
 
 
-[[data-agent]]
+[[data_agent]]
 type = binary # binary,thrift
 queue_size = 32768
 batch_sise = 200
