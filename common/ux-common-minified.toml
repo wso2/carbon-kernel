@@ -12,7 +12,7 @@ super_admin.password = "admin"
 
 [[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
 id = "WSO2CarbonDB"
-type = "h2"                 # Can be h2, mysql, postgre, oracle, db2, custom
+type = "mysql"                 # Can be h2, mysql, postgre, oracle, db2, custom
 hostname = "localhost"
 port = 3306
 database_name = "carbondb"
@@ -81,6 +81,3 @@ password = "<password>"
 
 [transport.https]
 port = "9443"
-acceptor_thread_count = "2"
-max_threads = "250"
-server = "WSO2 Carbon Server"
