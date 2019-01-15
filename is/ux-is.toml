@@ -95,7 +95,6 @@ token.validation.context.enable = false
 token.validation.context.token_generator = ""
 token.validation.context.claim_retriever = ""
 token.validation.context.consumer_dialect = ""
-token.validation.context.consumer_dialect = ""
 token.validation.context.signature_alg = ""
 token.validation.context.ttl = ""
 token.persistance.enable = true
@@ -246,7 +245,6 @@ signing_alg = ""
 digest_alg = ""
 assertion_entryption_alg = ""
 key_encryption_alg = ""
-consent.enable = true
 
 [identity.saml.endpoints]
 idp_url = ""
