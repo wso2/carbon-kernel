@@ -6,7 +6,7 @@ auth_manager_host = "https://localhost:${mgt.transport.https.port}${carbon.conte
 username = "${admin.username}"
 password = "${admin.password}"
 check_permission_remotely = false
-[api_manager.jwt]:
+[api_manager.jwt]
 enable = false
 header = "X-JWT-Assertion"
 claimRetriever = none # none,default,custom
