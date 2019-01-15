@@ -30,9 +30,7 @@ organizational_subcontext_attribute = "ou"
 [[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
 id = "WSO2CarbonDB"
 type = "h2"                 # Can be h2, mysql, postgre, oracle, db2, custom
-hostname = "localhost"
-port = 3306
-database_name = "carbondb"
+url = "<connection_url>"
 username = "<user>"
 password = "<password>"
 db_options = [              # Will be a n * 2 array which will contain 'n' key,value pairs.
@@ -45,7 +43,9 @@ pool_options = [
 [[datasource]]
 id = "UserDB"
 type = "mysql"
-url = "<connection_url>"
+hostname = "localhost"
+port = 3306
+database_name = "UserDB"
 username = "<user>"
 password = "<password>"
 pool_options = [
