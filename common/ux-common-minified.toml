@@ -6,26 +6,17 @@
 [deployment]                    # Deployment related configuration
 hostname = "config.wso2.com"        # Public host name, If an LB is present this will be the LB's public hostname
 local_member_host = "192.168.1.1"   # Internal Hostname/IP of the node itself.
+create_super_admin = true               # Whether to attempt creating super admin user.
 super_admin.username = "admin"      # Super admin's credentials
 super_admin.password = "admin"
 
 
 [[datasource]]              # Configuration for DBs, Can be multiple if multiple DBs are used.
-id = "WSO2CarbonDB"
-type = "h2"                 # Can be h2, mysql, postgre, oracle, db2, custom
-url = "<connection_url>"
-username = "<user>"
-password = "<password>"
-pool_options = [
-    ["maxActive","5"]
-]
-
-[[datasource]]
 id = "UserDB"
 type = "mysql"
 hostname = "localhost"
 port = 3306
-database_name = "UserDB"
+database_name = "Userdb"
 username = "<user>"
 password = "<password>"
 pool_options = [
@@ -42,21 +33,22 @@ password = "<password>"
 
 
 [user_mgt]
-create_super_admin = true               # Whether to attempt creating super admin user.
 datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
 
 [user_mgt.userstore]
-username_attribute = "username"         # username, email
-type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
-read_write_ldap.connection_uRL = ""
-read_write_ldap.connection_name = ""
-read_write_ldap.connection_password = ""
-read_write_ldap.user_search_base = ""
-read_write_ldap.group_search_base = ""
+user_identifier_attribute = "username"         # username, email
+type = "jdbc"                                  # read_only_ldap, active_directory, jdbc
+# For IS, the default configuration will be as follows
+# type = "read_write_ldap"                
+# read_write_ldap.connection_url = ""
+# read_write_ldap.connection_name = ""
+# read_write_ldap.connection_password = ""
+# read_write_ldap.user_search_base = ""
+# read_write_ldap.group_search_base = ""
 
 
 [clustering]                            # Having this will enable clustering
-membershipScheme = "wka"
+membership_scheme = "wka"
 domain = "wso2.carbon.domain"
 
 [[clustering.member]]                   # Local member will be added by default if clustering enabled
