@@ -8,6 +8,7 @@ hostname = "config.wso2.com"        # Public host name, If an LB is present this
 transports = ["https","http"]       # 1st is considered default. Refer transport section for additional properties
 local_member_host = "127.0.0.1"     # Internal Hostname/IP of the node itself.
 proxy_context_path = ""             # Relative Context to URl Generation
+create_super_admin = true               # Whether to attempt creating super admin user.
 super_admin.username = "admin"      # Super admin's credentials
 super_admin.password = "admin"
 
@@ -62,7 +63,6 @@ password = "<password>"
 
 
 [user_mgt]
-create_super_admin = true               # Whether to attempt creating super admin user.
 role_to_assign_by_default = "everyone"  # Role name that will get assigned for all the users created
 properties = [                          # Custom datasource properties if required
     ["property1","value1"],
@@ -71,13 +71,15 @@ properties = [                          # Custom datasource properties if requir
 datasource = "UserDB"                   # Data source to be used for internal user mgt purposes
 
 [user_mgt.userstore]
-username_attribute = "username"         # username, email
-type = "read_write_ldap"                # read_only_ldap, active_directory, jdbc
-read_write_ldap.connection_uRL = ""
-read_write_ldap.connection_name = ""
-read_write_ldap.connection_password = ""
-read_write_ldap.user_search_base = ""
-read_write_ldap.group_search_base = ""
+user_identifier_attribute = "username"         # username, email
+type = "jdbc"                                  # read_only_ldap, active_directory, jdbc
+# For IS, the default configuration will be as follows
+# type = "read_write_ldap"
+# read_write_ldap.connection_url = ""
+# read_write_ldap.connection_name = ""
+# read_write_ldap.connection_password = ""
+# read_write_ldap.user_search_base = ""
+# read_write_ldap.group_search_base = ""
 
 [user_mgt.authorization_mgt]            # Userstore's authorization related properties
 properties = [
