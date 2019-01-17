@@ -26,7 +26,7 @@ pool_options = [
 [tenant_mgt]
 tenant_idle_timeout = 30  # Idle Timeout for tenants
 eager_loading_tenants = "" # tenant regex to load tenants at server startup
-enable_email_domain = true
+enable_email_domain = false
 
 [tenant_mgt.tenant_manager]
 type  = "jdbc" # jdbc , ldap , custom
@@ -74,7 +74,7 @@ type = "jdbc"                                  # read_only_ldap, active_director
 
 
 [clustering] # optional
-membershipScheme = "wka"
+membership_scheme = "wka"
 domain = "wso2.carbon.domain"
 local_member_host = "${deployement::local_host_name}"
 local_member_port = 4000
