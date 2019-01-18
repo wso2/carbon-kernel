@@ -7,11 +7,8 @@
 hostname = "config.wso2.com"        # Public host name, If an LB is present this will be the LB's public hostname
 local_host_name = "127.0.0.1"     # Internal Hostname/IP of the node itself.
 proxy_context_path = ""             # Relative Context to URl Generation
-create_super_admin = true               # Whether to attempt creating super admin user.
-super_admin.username = "admin"      # Super admin's credentials
-super_admin.password = "admin"
 
-# Shared database of the server. 
+# Shared database of the server.
 [database]
 type = "mysql"
 hostname = "localhost"
@@ -22,6 +19,47 @@ password = "<password>"
 pool_options = [
     ["maxActive","5"]
 ]
+
+[user_store]
+type = "database"
+# If the user_store type is 'database', following connection parameters will be used
+connection.database_type = ""
+connection.hostname = ""
+connection.port = ""
+connection.database_name = ""
+connection.username = ""
+connection.password = ""
+connection.pool_options = [
+    ["maxActive","5"]
+]
+# If the user_store type is 'ldap', following connection parameters will be used
+# type = "read_write_ldap"
+# connection.url = ""
+# connection.base_dn = ""
+# connection.name = ""
+# connection.password = ""
+
+properties = [                          # Custom datasource properties if required
+    ["property1","value1"],
+    ["property2","value2"]
+]
+
+# Advanced properties related to realm configuration, will not be having by default
+realm.properties = [
+    ["property1","value1"],
+    ["property2","value2"]
+]
+
+# Advanced properties related to authorization configuration, will not be having by default
+authorization_mgt.properties = [
+    ["AuthorizationCacheEnabled", "true"],
+    ["GetAllRolesOfUserEnabled", "false"]
+]
+
+[super_admin]
+create_super_admin = true               # Whether to attempt creating super admin user.
+super_admin.username = "admin"      # Super admin's credentials
+super_admin.password = "admin"
 
 [tenant_mgt]
 tenant_idle_timeout = 30  # Idle Timeout for tenants
@@ -37,40 +75,6 @@ organizational_object_class = "organizationalUnit"
 organizational_attribute = "ou"
 organizational_subcontext_object_class = "organizationalUnit"
 organizational_subcontext_attribute = "ou"
-
-
-[user_mgt]
-role_to_assign_by_default = "everyone"  # Role name that will get assigned for all the users created
-properties = [                          # Custom datasource properties if required
-    ["property1","value1"],
-    ["property2","value2"]
-]
-
-database.type = "mysql"
-database.hostname = "localhost"
-database.port = 3306
-database.name = "UserDB"
-database.username = "<user>"
-database.password = "<password>"
-database.pool_options = [
-    ["maxActive","5"]
-]
-authorization_mgt.properties = [
-    ["AuthorizationCacheEnabled", "true"],
-    ["GetAllRolesOfUserEnabled", "false"]
-]
-
-
-[user_mgt.userstore]
-user_identifier_attribute = "username"         # username, email
-type = "jdbc"                                  # read_only_ldap, active_directory, jdbc
-# For IS, the default configuration will be as follows
-# type = "read_write_ldap"
-# read_write_ldap.connection_url = ""
-# read_write_ldap.connection_name = ""
-# read_write_ldap.connection_password = ""
-# read_write_ldap.user_search_base = ""
-# read_write_ldap.group_search_base = ""
 
 
 [clustering] # optional
