@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_ERROR_WHILE_ADDING_CLAIM_MAPPINGS;
+
 public class DefaultRealm implements UserRealm {
 
     private static Log log = LogFactory.getLog(DefaultRealm.class);
@@ -448,8 +450,17 @@ public class DefaultRealm implements UserRealm {
                 log.error(msg);
                 throw new UserStoreException(msg, e);
             }
-            claimDAO.addCliamMappings(claimMappings.values().toArray(
-                    new ClaimMapping[claimMappings.size()]));
+
+            try {
+                claimDAO.addCliamMappings(claimMappings.values().toArray(new ClaimMapping[claimMappings.size()]));
+            } catch (UserStoreException e) {
+                if (ERROR_CODE_DUPLICATE_ERROR_WHILE_ADDING_CLAIM_MAPPINGS.getCode().equals(e.getErrorCode())) {
+                    log.warn("Claim mappings are already added to the system. Hence, continue without adding claim" +
+                            " mappings");
+                } else {
+                    throw e;
+                }
+            }
 
         } else {
             try {
