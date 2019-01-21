@@ -826,8 +826,8 @@ public final class UserCoreUtil {
                 dbConnection = DatabaseUtil.getDBConnection(dataSource);
                 dbConnection.setAutoCommit(false);
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
-                dbConnection.commit();
             }
+            dbConnection.commit();
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while checking is existing domain : " + domain + " for tenant : " + tenantId;
@@ -862,8 +862,8 @@ public final class UserCoreUtil {
                 dbConnection = DatabaseUtil.getDBConnection(dataSource);
                 dbConnection.setAutoCommit(false);
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
-                dbConnection.commit();
             }
+            dbConnection.commit();
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while deleting domain : " + domain + " for tenant : " + tenantId;
