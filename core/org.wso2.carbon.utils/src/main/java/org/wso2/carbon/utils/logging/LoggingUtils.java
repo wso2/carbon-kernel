@@ -122,10 +122,10 @@ public class LoggingUtils {
             throwable = throwableInformation.getThrowable();
         }
 
-        String logMessage = loggingEvent.getMessage().toString();
+        String logMessage = getLogMessage(loggingEvent);
 
         // Check whether there are any masking patterns defined.
-        if (maskingPatterns != null && maskingPatterns.size() > 0) {
+        if (logMessage != null && maskingPatterns != null && maskingPatterns.size() > 0) {
 
             for (Pattern pattern : maskingPatterns) {
                 Matcher matcher = pattern.matcher(logMessage);
@@ -147,6 +147,15 @@ public class LoggingUtils {
         tenantAwareLoggingEvent.setTenantId(Integer.toString(tenantId));
         tenantAwareLoggingEvent.setServiceName(serviceName);
         return tenantAwareLoggingEvent;
+    }
+
+    private static String getLogMessage(LoggingEvent loggingEvent) {
+
+        if (loggingEvent.getMessage() == null) {
+            return null;
+        } else {
+            return loggingEvent.getMessage().toString();
+        }
     }
 
     /**
