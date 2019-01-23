@@ -560,7 +560,6 @@
         <version.commons.cli>1.0</version.commons.cli>
         <version.wrapper>3.2.3</version.wrapper>
         <version.activation>1.1</version.activation>
-        <version.jaxb>2.2.5.wso2v1</version.jaxb>
         <version.commons.modeler>2.0</version.commons.modeler>
         <version.aopalliance>1.0</version.aopalliance>
         <version.xml.resolver>1.2</version.xml.resolver>
@@ -1283,9 +1282,9 @@
                 <version>${version.activation}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind.wso2</groupId>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
                 <artifactId>jaxb</artifactId>
-                <version>${version.jaxb}</version>
+                <version>${version.org.wso2.orbit.javax.xml.bind}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
