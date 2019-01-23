@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+
 public class JDBCAuthorizationManager implements AuthorizationManager {
 
     /**
@@ -1086,9 +1088,17 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                             + " of domain: " + domain + " to resource: " + resourceId);
                 }
 
-                DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
-                        UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
-                        domain);
+                try {
+                    DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
+                            UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
+                            domain);
+                } catch (UserStoreException e) {
+                    if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                        log.warn("Permission Id: " + permissionId + "is already added to the role: " + roleName);
+                    } else {
+                        throw e;
+                    }
+                }
             }
 
             if (updateCache) {

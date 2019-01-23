@@ -51,6 +51,8 @@ public class UserCoreErrorConstants {
                 + "roles functionality"),
         ERROR_CODE_WRITE_GROUPS_NOT_ENABLED("30014", NO_READ_WRITE_PERMISSIONS + " Write groups is not enabled in "
                 + "user store"),
+        ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE("30015", "Constrain violation while writing to database."),
+
 
         // Error code related with authentication
         ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating"),
@@ -155,6 +157,8 @@ public class UserCoreErrorConstants {
         ERROR_CODE_UNABLE_TO_FETCH_CLAIM_MAPPING("31305", "Error while obtaining claim mapping for %s"),
         ERROR_CODE_ERROR_WHILE_ADDING_USER("31306", "Un-expected error while adding user, %s"),
         ERROR_CODE_ERROR_DURING_POST_ADD_USER("31307", "Un-expected error during post-step of adding user, %s"),
+        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER("31308", "Constrain violation while adding a system user."),
+        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER("31309", "Constrain violation while adding a user."),
 
         // Error code related with updating role list of user
         ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER("31401", "Un-expected error during pre-step of updating role of "
@@ -181,6 +185,9 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_DURING_POST_ADD_ROLE("31703", "Un-expected error during post-step of adding role, "
                 + "%s"),
         ERROR_CODE_CANNOT_ADD_EMPTY_ROLE("31704", "Cannot add role with empty role name"),
+        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE("31705", "Constrain violation while adding a system role."),
+        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE("31706", "Constrain violation while adding a hybrid role."),
+        ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE("31707", "Constrain violation while adding a role."),
 
         // Error code while deleting role
         ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE("31801", "Un-expected error during pre-step of delete "

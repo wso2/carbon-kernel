@@ -45,6 +45,10 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+
 public class HybridRoleManager {
 
     private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
@@ -126,7 +130,14 @@ public class HybridRoleManager {
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            throw new UserStoreException(errorMessage, e);
+            if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(((UserStoreException) e)
+                    .getErrorCode())) {
+                // Duplicate entry
+                throw new UserStoreException(e.getMessage(), ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), e);
+            } else {
+                // Other SQL Exception
+                throw new UserStoreException(e.getMessage(), e);
+            }
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting database type from DB connection";
             if (log.isDebugEnabled()) {
