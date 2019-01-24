@@ -81,22 +81,21 @@ public class JinjaParser {
 
     private static void handleDottedKey(Map<String, Object> context, TomlParseResult result, String dottedKey,
                                         String[] dottedKeyArray) {
-        Map map = null;
+        Map<String, Object> parentMap = context;
         for (int i = 0; i < dottedKeyArray.length - 1; i++) {
-            Object o = context.get(dottedKeyArray[i]);
-            if (o instanceof Map) {
-                map = (Map) o;
+            Map map;
+            Object value = parentMap.get(dottedKeyArray[i]);
+            if (value instanceof Map) {
+                map = (Map) value;
             } else {
                 map = new HashMap<>();
-                context.put(dottedKeyArray[i], map);
+                parentMap.put(dottedKeyArray[i], map);
+
             }
+            parentMap = map;
         }
         String finalSubKey = dottedKeyArray[dottedKeyArray.length - 1];
-        if (Objects.nonNull(map)) {
-            map.put(finalSubKey, result.get(dottedKey));
-        } else {
-            context.put(finalSubKey, result.get(dottedKey));
-        }
+        parentMap.put(finalSubKey, result.get(dottedKey));
     }
 
 
