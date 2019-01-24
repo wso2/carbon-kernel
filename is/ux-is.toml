@@ -1,4 +1,7 @@
-# Start of identity configuration
+# Common Configuration
+# {Common Configuration}
+
+# IS related configuration
 
 [identity]
 datasource = "jdbc/SharedDB"
