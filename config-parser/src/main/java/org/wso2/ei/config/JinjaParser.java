@@ -28,10 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class JinjaParser {
@@ -41,8 +40,12 @@ public class JinjaParser {
     private static final String UX_FILE_PATH = "deployment.toml";
     private static final String TEMPLATE_FILE_PATH = "user-mgt.xml";
 
-    public static void main(String[] args) throws IOException {
-        execute();
+    public static void main(String[] args) {
+        try {
+            execute();
+        } catch (IOException e) {
+            LOGGER.error("Error creating rendered template file for {}", TEMPLATE_FILE_PATH, e);
+        }
     }
 
     private static void execute() throws IOException {
@@ -66,11 +69,7 @@ public class JinjaParser {
             Set<String> dottedKeySet = result.dottedKeySet();
             for (String dottedKey : dottedKeySet) {
                 String[] dottedKeyArray = dottedKey.split("\\.");
-                if (dottedKeyArray.length == 1) {
-                    context.put(dottedKey, result.get(dottedKey));
-                } else {
-                    handleDottedKey(context, result, dottedKey, dottedKeyArray);
-                }
+                handleDottedKey(context, result, dottedKey, dottedKeyArray);
             }
 
         } catch (IOException e) {
@@ -82,16 +81,22 @@ public class JinjaParser {
 
     private static void handleDottedKey(Map<String, Object> context, TomlParseResult result, String dottedKey,
                                         String[] dottedKeyArray) {
-        String lastKey = dottedKeyArray[dottedKeyArray.length - 1];
-        Map<String, Object> m2 = new HashMap<>();
-        m2.put(lastKey, result.get(dottedKey));
-
-        for (int i = dottedKeyArray.length - 2; i > 0; i--) {
-            Map<String, Object> m3 = new HashMap<>();
-            m3.put(dottedKeyArray[i], m2);
-            m2 = m3;
+        Map map = null;
+        for (int i = 0; i < dottedKeyArray.length - 1; i++) {
+            Object o = context.get(dottedKeyArray[i]);
+            if (o instanceof Map) {
+                map = (Map) o;
+            } else {
+                map = new HashMap<>();
+                context.put(dottedKeyArray[i], map);
+            }
         }
-        context.put(dottedKeyArray[0], m2);
+        String finalSubKey = dottedKeyArray[dottedKeyArray.length - 1];
+        if (Objects.nonNull(map)) {
+            map.put(finalSubKey, result.get(dottedKey));
+        } else {
+            context.put(finalSubKey, result.get(dottedKey));
+        }
     }
 
 
