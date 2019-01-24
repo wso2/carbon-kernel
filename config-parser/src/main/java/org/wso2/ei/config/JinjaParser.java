@@ -38,8 +38,8 @@ public class JinjaParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JinjaParser.class);
 
-    private static final String UX_FILE_PATH = "/home/asitha/wso2/rnd/wso2-confgs/ei/test.toml";
-    private static final String AXIS2_FILE_PATH = "test.template";
+    private static final String UX_FILE_PATH = "deployment.toml";
+    private static final String TEMPLATE_FILE_PATH = "user-mgt.xml";
 
     public static void main(String[] args) throws IOException {
         execute();
@@ -49,21 +49,22 @@ public class JinjaParser {
         Jinjava jinjava = new Jinjava();
         Map<String, Object> context = parseToml();
 
-        String template = Resources.toString(Resources.getResource(AXIS2_FILE_PATH), Charsets.UTF_8);
+        String template = Resources.toString(Resources.getResource(TEMPLATE_FILE_PATH), Charsets.UTF_8);
         String renderedTemplate = jinjava.render(template, context);
         LOGGER.info("Output :\n{}", renderedTemplate);
     }
 
     private static Map<String, Object> parseToml() {
         Map<String, Object> context = new HashMap<>();
-        Path source = Paths.get(UX_FILE_PATH);
-        TomlParseResult result;
         try {
+            String source = Resources.toString(Resources.getResource(UX_FILE_PATH), Charsets.UTF_8);
+            TomlParseResult result;
+
             result = Toml.parse(source);
             result.errors().forEach(error -> LOGGER.error(error.toString()));
 
             Set<String> dottedKeySet = result.dottedKeySet();
-            for (String dottedKey: dottedKeySet) {
+            for (String dottedKey : dottedKeySet) {
                 String[] dottedKeyArray = dottedKey.split("\\.");
                 if (dottedKeyArray.length == 1) {
                     context.put(dottedKey, result.get(dottedKey));
@@ -81,7 +82,7 @@ public class JinjaParser {
 
     private static void handleDottedKey(Map<String, Object> context, TomlParseResult result, String dottedKey,
                                         String[] dottedKeyArray) {
-        String lastKey = dottedKeyArray[dottedKeyArray.length - 1 ];
+        String lastKey = dottedKeyArray[dottedKeyArray.length - 1];
         Map<String, Object> m2 = new HashMap<>();
         m2.put(lastKey, result.get(dottedKey));
 
