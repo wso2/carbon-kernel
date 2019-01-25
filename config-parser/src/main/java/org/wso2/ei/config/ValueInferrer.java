@@ -7,38 +7,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ValueInferrer {
+class ValueInferrer {
 
-    private static final String INFER_CONFIG_FILE_PATH = "infer.json";
+    private ValueInferrer() {}
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueInferrer.class);
 
-
-    private Map inferringData = new HashMap();
-
-    public static void main(String[] args) throws IOException {
-
-        ValueInferrer inferrer = new ValueInferrer();
-        inferrer.readConfiguration();
-        Map<String, Object> configValues = new HashMap<>();
-        configValues.put("user_store.type", "jdbc");
-        configValues.put("database.type", "mysql");
-        Map<String, Object> inferredValues = inferrer.getInferredValues(configValues);
-        inferredValues.forEach((s, o) -> LOGGER.info(s + " = " + o.toString()));
+    static Map<String, Object> execute(Map<String, Object> context, String inferConfigFilePath) {
+        Map<String, Object> enrichedContext = Collections.emptyMap();
+        try {
+            enrichedContext = readConfiguration(inferConfigFilePath);
+            return getInferredValues(context, enrichedContext);
+        } catch (IOException e) {
+            LOGGER.error("Error while inferring values with file {}", inferConfigFilePath, e);
+        }
+        return enrichedContext;
     }
 
-    public void readConfiguration() throws IOException {
+    private static Map<String, Object> readConfiguration(String inferConfigFilePath) throws IOException {
 
         Gson gson = new Gson();
-        String configJson = Resources.toString(Resources.getResource(INFER_CONFIG_FILE_PATH), Charsets.UTF_8);
-
-        inferringData = gson.fromJson(configJson, Map.class);
-
+        String configJson = Resources.toString(Resources.getResource(inferConfigFilePath), Charsets.UTF_8);
+        return gson.fromJson(configJson, Map.class);
     }
 
-    public Map<String, Object> getInferredValues(Map<String, Object> configurationValues) {
+    private static Map<String, Object> getInferredValues(Map<String, Object> configurationValues, Map inferringData) {
 
         Map<String, Object> inferredValues = new HashMap<>();
         if (configurationValues != null) {

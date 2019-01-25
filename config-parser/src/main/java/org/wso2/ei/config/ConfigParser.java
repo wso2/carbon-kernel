@@ -30,15 +30,13 @@ public class ConfigParser {
 
     private static final String UX_FILE_PATH = "deployment.toml";
     private static final String TEMPLATE_FILE_PATH = "user-mgt.xml";
+    private static final String INFER_CONFIG_FILE_PATH = "infer.json";
 
     public static void main(String[] args) {
 
         Map<String, Object> context = TomlParser.execute(UX_FILE_PATH);
-
-        String output = JinjaParser.execute(context, TEMPLATE_FILE_PATH);
+        Map<String, Object> enrichedContext = ValueInferrer.execute(context, INFER_CONFIG_FILE_PATH);
+        String output = JinjaParser.execute(enrichedContext, TEMPLATE_FILE_PATH);
         LOGGER.info("Output :\n{}", output);
     }
-
-
-
 }

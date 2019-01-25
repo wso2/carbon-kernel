@@ -13,6 +13,8 @@ class JinjaParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JinjaParser.class);
 
+    private JinjaParser() {}
+
     static String execute(Map<String, Object> context, String templateFilePath) {
         Jinjava jinjava = new Jinjava();
         String renderedTemplate = "";

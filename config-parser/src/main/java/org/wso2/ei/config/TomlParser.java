@@ -16,6 +16,8 @@ class TomlParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlParser.class);
 
+    private TomlParser() {}
+
     static Map<String, Object> execute(String filePath) {
         return parseToml(filePath);
     }
