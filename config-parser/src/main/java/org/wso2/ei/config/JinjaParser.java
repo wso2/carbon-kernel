@@ -10,13 +10,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Parser based on Jinja templating engine. When the configuration and the relevant Jinja template is provided this
+ * parser outputs the relevant configuration file.
+ */
 class JinjaParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JinjaParser.class);
 
     private JinjaParser() {}
 
-    static String execute(Map<String, Object> dottedKeyMap, String templateFilePath) {
+    static String parse(Map<String, Object> dottedKeyMap, String templateFilePath) {
         Jinjava jinjava = new Jinjava();
         String renderedTemplate = "";
         Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);

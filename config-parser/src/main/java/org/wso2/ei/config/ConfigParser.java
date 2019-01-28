@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+/**
+ * Configuration parser class. Entry point to the config parsing logic.
+ */
 public class ConfigParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigParser.class);
@@ -34,9 +37,9 @@ public class ConfigParser {
 
     public static void main(String[] args) {
 
-        Map<String, Object> context = TomlParser.execute(UX_FILE_PATH);
-        Map<String, Object> enrichedContext = ValueInferrer.execute(context, INFER_CONFIG_FILE_PATH);
-        String output = JinjaParser.execute(enrichedContext, TEMPLATE_FILE_PATH);
+        Map<String, Object> context = TomlParser.parse(UX_FILE_PATH);
+        Map<String, Object> enrichedContext = ValueInferrer.infer(context, INFER_CONFIG_FILE_PATH);
+        String output = JinjaParser.parse(enrichedContext, TEMPLATE_FILE_PATH);
         LOGGER.info("Output :\n{}", output);
     }
 }

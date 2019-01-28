@@ -11,13 +11,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Infer configuration values depending on the configurations provided by the user. This step minimises the
+ * configurations user has to do.
+ */
 class ValueInferrer {
 
     private ValueInferrer() {}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueInferrer.class);
 
-    static Map<String, Object> execute(Map<String, Object> context, String inferConfigFilePath) {
+    static Map<String, Object> infer(Map<String, Object> context, String inferConfigFilePath) {
         Map<String, Object> enrichedContext = Collections.emptyMap();
         try {
             enrichedContext = readConfiguration(inferConfigFilePath);

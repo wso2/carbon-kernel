@@ -12,13 +12,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Parses the toml file and builds object model.
+ */
 class TomlParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlParser.class);
 
     private TomlParser() {}
 
-    static Map<String, Object> execute(String filePath) {
+    static Map<String, Object> parse(String filePath) {
         return parseToml(filePath);
     }
 
