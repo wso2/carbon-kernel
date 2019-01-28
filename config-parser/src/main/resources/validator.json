@@ -4,15 +4,50 @@
       "if": {
         "user_store.type": "read_only_ldap"
       },
-      "match_regex": ".?",
-      "error_message": "Error 1"
+      "match_regex": ".+",
+      "error_message": "Connection URL is required for read only ldap userstore"
     },
     {
       "if": {
-        "user_store.type": "read_write_ldap"
+        "user_store.type": "read_only_ldap"
       },
-      "regex": ".?",
-      "error": "Error 1"
+      "match_regex": ".+",
+      "error_message": "Connection URL is required for read write ldap userstore"
+    },
+    {
+      "if": {
+        "user_store.type": "active_directory"
+      },
+      "match_regex": ".+",
+      "error_message": "Connection URL is required for active directory userstore"
+    }
+  ],
+  "user_store.properties.ConnectionName": [
+    {
+      "if": {
+        "user_store.type": "read_only_ldap"
+      },
+      "match_regex": ".+",
+      "error_message": "Connection name is required for read only ldap userstore"
+    },
+    {
+      "if": {
+        "user_store.type": "read_only_ldap"
+      },
+      "match_regex": ".+",
+      "error_message": "Connection name is required for read write ldap userstore"
+    },
+    {
+      "if": {
+        "user_store.type": "active_directory"
+      },
+      "match_regex": ".+",
+      "error_message": "Connection name is required for active directory userstore"
+    }
+  ],
+  "super_admin.username": [
+    {
+      "default_value": "admin"
     }
   ]
 }
