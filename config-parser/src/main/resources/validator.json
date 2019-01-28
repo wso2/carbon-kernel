@@ -1,0 +1,18 @@
+{
+  "user_store.properties.ConnectionURL": [
+    {
+      "if": {
+        "user_store.type": "read_only_ldap"
+      },
+      "match_regex": ".?",
+      "error_message": "Error 1"
+    },
+    {
+      "if": {
+        "user_store.type": "read_write_ldap"
+      },
+      "regex": ".?",
+      "error": "Error 1"
+    }
+  ]
+}
