@@ -570,6 +570,9 @@
         <wagon.ssh.version>2.1</wagon.ssh.version>
         <version.org.wso2.orbit.javax.xml.bind>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind>
         <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
+        <version.org.wso2.orbit.com.sun.xml.ws.jaxws>2.3.1.wso2v1</version.org.wso2.orbit.com.sun.xml.ws.jaxws>
+        <version.org.wso2.orbit.javax.jta>1.1.0.wso2v1</version.org.wso2.orbit.javax.jta>
+        <verion.javax.annotation.annotation-api>1.3.2</verion.javax.annotation.annotation-api>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.incremental.plugin.version>1.3</maven.incremental.plugin.version>
         <maven.scr.plugin.version>1.7.4</maven.scr.plugin.version>
@@ -994,9 +997,19 @@
                 <version>${version.sourceforge.ajaxtags}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-saaj_1.3_spec</artifactId>
-                <version>${version.geronimo.saaj.spec}</version>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jaxws-ri</artifactId>
+                <version>${version.org.wso2.orbit.com.sun.xml.ws.jaxws}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jta</artifactId>
+                <version>${version.org.wso2.orbit.javax.jta}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${verion.javax.annotation.annotation-api}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.geronimo.specs</groupId>
