@@ -36,7 +36,8 @@ import java.util.Map;
  */
 class ValueInferrer {
 
-    private ValueInferrer() {}
+    private ValueInferrer() {
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueInferrer.class);
 
@@ -44,7 +45,9 @@ class ValueInferrer {
         Map<String, Object> enrichedContext = Collections.emptyMap();
         try {
             enrichedContext = readConfiguration(inferConfigFilePath);
-            return getInferredValues(context, enrichedContext);
+            enrichedContext = getInferredValues(context, enrichedContext);
+            enrichedContext.putAll(context);
+            return enrichedContext;
         } catch (IOException e) {
             LOGGER.error("Error while inferring values with file {}", inferConfigFilePath, e);
         }
