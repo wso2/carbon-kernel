@@ -37,7 +37,7 @@ class JinjaParser {
         return renderedTemplate;
     }
 
-    private static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {
+    static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {
         Map<String, Object> newContext = new HashMap<>();
         for (Map.Entry<String, Object> entry: dottedKeyMap.entrySet()) {
             processFlatDottedKey(entry, newContext);

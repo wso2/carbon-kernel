@@ -22,7 +22,6 @@ package org.wso2.ei.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -36,8 +35,11 @@ public class ConfigParser {
     private static final String TEMPLATE_FILE_PATH = "user-mgt.xml";
     private static final String INFER_CONFIG_FILE_PATH = "infer.json";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        parse();
+    }
 
+    public static void parse() {
         Map<String, Object> context = TomlParser.parse(UX_FILE_PATH);
         Map<String, Object> enrichedContext = ValueInferrer.infer(context, INFER_CONFIG_FILE_PATH);
         String output = JinjaParser.parse(enrichedContext, TEMPLATE_FILE_PATH);

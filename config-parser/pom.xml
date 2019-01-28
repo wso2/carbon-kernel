@@ -27,7 +27,6 @@
     <artifactId>config-parser</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-
     <dependencies>
         <dependency>
             <groupId>com.hubspot.jinjava</groupId>
@@ -53,6 +52,12 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${maven.testng.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -127,5 +132,6 @@
         <maven.spotbugsplugin.version>3.1.10</maven.spotbugsplugin.version>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.spotbugs.dependency.version>3.1.11</maven.spotbugs.dependency.version>
+        <maven.testng.version>6.11</maven.testng.version>
     </properties>
 </project>
