@@ -108,7 +108,13 @@
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
                                 <bundleDef>commons-lang.wso2:commons-lang:${orbit.version.commons.lang}</bundleDef>
                                 <bundleDef>
-                                    org.wso2.orbit.org.apache.geronimo.specs:geronimo-saaj_1.3_spec:${version.geronimo.saaj.spec}
+                                    org.wso2.orbit.javax.xml.bind:jaxws-ri:${version.org.wso2.orbit.com.sun.xml.ws.jaxws}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.orbit.javax.transaction:jta:${version.org.wso2.orbit.javax.jta}
+                                </bundleDef>
+                                <bundleDef>
+                                    javax.annotation:javax.annotation-api:${verion.javax.annotation.annotation-api}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-scratchpad:${orbit.version.poi.scratchpad}
