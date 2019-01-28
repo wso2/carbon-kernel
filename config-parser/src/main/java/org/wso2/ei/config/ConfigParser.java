@@ -19,10 +19,6 @@
 
 package org.wso2.ei.config;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +40,7 @@ public class ConfigParser {
 
         Map<String, Object> context = TomlParser.parse(UX_FILE_PATH);
         Map<String, Object> enrichedContext = ValueInferrer.infer(context, INFER_CONFIG_FILE_PATH);
-        JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
-        Jinjava parser = new Jinjava(configurator);
-        String template = Resources.toString(Resources.getResource(TEMPLATE_FILE_PATH), Charsets.UTF_8);
-
-        String output = parser.render(template, enrichedContext);
+        String output = JinjaParser.parse(enrichedContext, TEMPLATE_FILE_PATH);
         LOGGER.info("Output :\n{}", output);
     }
 }

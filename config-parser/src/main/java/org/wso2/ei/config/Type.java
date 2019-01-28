@@ -22,6 +22,9 @@ package org.wso2.ei.config;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Model object for Complex Type (KeyStore,TrustStore).
+ */
 public class Type {
     private String type;
     private Map<String, String> values = new HashMap<>();

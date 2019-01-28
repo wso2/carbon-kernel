@@ -22,8 +22,12 @@ package org.wso2.ei.config;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * Transport model for parsing objects into axis2 Transport Receiver and Senders.
+ */
 public class Transport {
-    private Map<String,Object> parameters = new HashMap<>();
+    private Map<String, Object> parameters = new HashMap<>();
 
     private String className;
 

@@ -3,6 +3,7 @@ package org.wso2.ei.config;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,8 @@ class JinjaParser {
     private JinjaParser() {}
 
     static String parse(Map<String, Object> dottedKeyMap, String templateFilePath) {
-        Jinjava jinjava = new Jinjava();
+        JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
+        Jinjava jinjava = new Jinjava(configurator);
         String renderedTemplate = "";
         Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
         try {
