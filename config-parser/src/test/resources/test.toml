@@ -1,0 +1,8 @@
+e = "value3"
+
+[a]
+b.c = "value1"
+b.d = "value2"
+
+[f]
+g = 1234

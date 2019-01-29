@@ -1,6 +1,0 @@
-<root>
-    <myMessage>{{a.b.c}}</myMessage>
-    <secondPart>{{k}}</secondPart>
-    <thirdElement>{{c.d.e.f}}</thirdElement>
-</root>
-
