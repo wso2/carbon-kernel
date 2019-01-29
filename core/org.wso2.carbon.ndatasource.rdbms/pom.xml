@@ -53,7 +53,7 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <groupId>org.wso2.orbit.sun.xml.bind</groupId>
             <artifactId>jaxb</artifactId>
         </dependency>
     </dependencies>
