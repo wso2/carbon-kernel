@@ -1,4 +1,10 @@
 {
+  "user_store.type": [
+    {
+      "default_value": "jdbc",
+      "regex": "\\Ajdbc\\Z|\\Aread_only_ldap\\Z|\\Aread_write_ldap\\Z|\\Aactive_directory\\Z"
+    }
+  ],
   "user_store.properties.ConnectionURL": [
     {
       "if": {
@@ -9,7 +15,7 @@
     },
     {
       "if": {
-        "user_store.type": "read_only_ldap"
+        "user_store.type": "read_write_ldap"
       },
       "match_regex": ".+",
       "error_message": "Connection URL is required for read write ldap userstore"
@@ -47,7 +53,8 @@
   ],
   "super_admin.username": [
     {
-      "default_value": "admin"
+      "default_value": "admin",
+      "match_regex": ""
     }
   ]
 }

@@ -5,4 +5,4 @@ password = "wso2321"
 admin_role = "admin"
 
 [user_store]
-type = "jdbc"
+type = "active_directary"

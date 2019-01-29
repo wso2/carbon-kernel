@@ -38,19 +38,19 @@ public class Validator {
 
     private static final Logger LOG = LoggerFactory.getLogger(Validator.class);
 
-    public static final String IF = "if";
-    public static final String REGEX = "regex";
-    public static final String EMPTY_STRING = "";
-    public static final String DEFAULT_VALUE = "default_value";
+    private static final String IF = "if";
+    private static final String REGEX = "regex";
+    private static final String EMPTY_STRING = "";
+    private static final String DEFAULT_VALUE = "default_value";
 
-    private Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
+    private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 
         Gson gson = new Gson();
         String configJson = Resources.toString(Resources.getResource(validationConfigFilePath), Charsets.UTF_8);
         return gson.fromJson(configJson, Map.class);
     }
 
-    public void validate(Map<String, Object> configurationValues, String fileName)
+    public static void validate(Map<String, Object> configurationValues, String fileName)
             throws ValidationException, IOException {
 
         Map<String, Object> ruleConfiguration = readConfiguration(fileName);
@@ -62,7 +62,7 @@ public class Validator {
         }
     }
 
-    private void doValidation(String keyToValidate, Map<String, Object> validationRule,
+    private static void doValidation(String keyToValidate, Map<String, Object> validationRule,
                               Map<String, Object> configurationValues) throws ValidationException {
 
         if (validationRule.get(IF) instanceof Map) {

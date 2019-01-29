@@ -22,6 +22,7 @@ package org.wso2.ei.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -34,6 +35,7 @@ public class ConfigParser {
     private static final String UX_FILE_PATH = "deployment.toml";
     private static final String TEMPLATE_FILE_PATH = "user-mgt.xml";
     private static final String INFER_CONFIG_FILE_PATH = "infer.json";
+    private static final String VALIDATOR_FILE_PATH = "validator.json";
 
     public static void main(String[] args) {
         parse();
@@ -42,7 +44,13 @@ public class ConfigParser {
     public static void parse() {
         Map<String, Object> context = TomlParser.parse(UX_FILE_PATH);
         Map<String, Object> enrichedContext = ValueInferrer.infer(context, INFER_CONFIG_FILE_PATH);
-        String output = JinjaParser.parse(enrichedContext, TEMPLATE_FILE_PATH);
-        LOGGER.info("Output :\n{}", output);
+        try {
+            Validator.validate(enrichedContext, VALIDATOR_FILE_PATH);
+            String output = JinjaParser.parse(enrichedContext, TEMPLATE_FILE_PATH);
+            LOGGER.info("Output :\n{}", output);
+        } catch (ValidationException | IOException e) {
+            LOGGER.error("Error validating file.", e);
+        }
+
     }
 }
