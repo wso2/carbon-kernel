@@ -5247,8 +5247,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
                 value = uerProperties.get(property);
 
-                if (USERNAME_CLAIM_URI.equals(mapping.getClaim().getClaimUri()) && isOverrideUsernameClaimEnabled != null
-                        && Boolean.parseBoolean(isOverrideUsernameClaimEnabled)) {
+                if (USERNAME_CLAIM_URI.equals(mapping.getClaim().getClaimUri()) &&
+                        Boolean.parseBoolean(isOverrideUsernameClaimEnabled)) {
                     if (log.isDebugEnabled()) {
                         log.debug("The username claim value is overridden by the username :" + userName);
                     }
