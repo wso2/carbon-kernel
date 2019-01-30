@@ -7,9 +7,11 @@
       "user_store.properties.CaseInsensitiveUsername" : true,
       "user_store.properties.PasswordDigest" : "SHA-256",
       "user_store.properties.StoreSaltedPassword" : true,
-      "user_store.properties.UserNameUniqueAcrossTenants" : false
+      "user_store.properties.UserNameUniqueAcrossTenants" : false,
+      "user_store.properties.dummyArray" : ["foo","bar"]
     },
     "read_only_ldap" : {
+      "user_store.class" : "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager",
       "user_store.properties.AnonymousBind" : false,
       "user_store.properties.UserNameAttribute" : "uid",
       "user_store.properties.UserNameSearchFilter" : "(&(objectClass=person)(uid=?))",

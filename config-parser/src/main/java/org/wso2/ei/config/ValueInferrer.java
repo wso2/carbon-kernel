@@ -75,6 +75,16 @@ class ValueInferrer {
                 }
             });
         }
+
+        for (Map.Entry<String, Object> entry : inferredValues.entrySet()) {
+            if (entry.getValue() instanceof Double) {
+                Double value = (Double) entry.getValue();
+                if (value == Math.rint(value)) {
+                    entry.setValue(value.intValue());
+                }
+            }
+        }
+
         return inferredValues;
     }
 }
