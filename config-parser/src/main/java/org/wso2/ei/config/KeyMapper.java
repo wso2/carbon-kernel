@@ -1,0 +1,57 @@
+package org.wso2.ei.config;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import net.consensys.cava.toml.Toml;
+import net.consensys.cava.toml.TomlParseResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Map user provided config values to different keys.
+ */
+class KeyMapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyMapper.class);
+
+    static Map<String, Object> mapWithTomlConfig(Map<String, Object> inputContext, String tomlMappingFile) {
+        try {
+            Map<String, String> keyMappings = parseTomlMappingFile(tomlMappingFile);
+            return map(inputContext, keyMappings);
+        } catch (IOException e) {
+            LOGGER.error("Error while parsing toml file {}", tomlMappingFile, e);
+        }
+
+        return Collections.emptyMap();
+    }
+
+    private static Map<String, String> parseTomlMappingFile(String tomlMappingFile) throws IOException {
+        String source;
+        source = Resources.toString(Resources.getResource(tomlMappingFile), Charsets.UTF_8);
+        TomlParseResult result;
+        result = Toml.parse(source);
+        result.errors().forEach(error -> LOGGER.error(error.toString()));
+        Set<String> dottedKeySet = result.dottedKeySet();
+        Map<String, String> keyMappings = new HashMap<>();
+        for (String key : dottedKeySet) {
+            keyMappings.put(key, (String) result.get(key));
+        }
+        return keyMappings;
+    }
+
+    static Map<String, Object> map(Map<String, Object> context, Map<String, String> keyMappings) {
+        Map<String, Object> mappedConfigs = new HashMap<>();
+
+        for (Map.Entry<String, Object> entry : context.entrySet()) {
+            String mappedKey = keyMappings.getOrDefault(entry.getKey(), entry.getKey());
+            mappedConfigs.put(mappedKey, entry.getValue());
+        }
+        return mappedConfigs;
+    }
+}

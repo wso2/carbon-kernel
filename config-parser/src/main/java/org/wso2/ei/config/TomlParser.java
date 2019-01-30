@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Parses the toml file and builds object model.
+ * Parses the TOML file and builds object model.
  */
 class TomlParser {
 
@@ -63,4 +63,6 @@ class TomlParser {
 
         return context;
     }
+
+
 }

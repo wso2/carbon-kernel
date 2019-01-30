@@ -36,6 +36,7 @@ public class ConfigParser {
     private static final String TEMPLATE_FILE_PATH = "user-mgt.xml";
     private static final String INFER_CONFIG_FILE_PATH = "infer.json";
     private static final String VALIDATOR_FILE_PATH = "validator.json";
+    private static final String MAPPING_FILE_PATH = "key-mappings.toml";
 
     public static void main(String[] args) {
         parse();
@@ -45,8 +46,9 @@ public class ConfigParser {
         Map<String, Object> context = TomlParser.parse(UX_FILE_PATH);
         Map<String, Object> enrichedContext = ValueInferrer.infer(context, INFER_CONFIG_FILE_PATH);
         try {
-            Validator.validate(enrichedContext, VALIDATOR_FILE_PATH);
-            String output = JinjaParser.parse(enrichedContext, TEMPLATE_FILE_PATH);
+            Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(enrichedContext, MAPPING_FILE_PATH);
+            Validator.validate(mappedConfigs, VALIDATOR_FILE_PATH);
+            String output = JinjaParser.parse(mappedConfigs, TEMPLATE_FILE_PATH);
             LOGGER.info("Output :\n{}", output);
         } catch (ValidationException | IOException e) {
             LOGGER.error("Error validating file.", e);
