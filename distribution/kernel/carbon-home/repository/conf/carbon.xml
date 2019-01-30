@@ -738,4 +738,7 @@
 	
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
+
+    <!--Override the username claim from the local username-->
+    <OverrideUsernameClaimFromInternalUsername>false</OverrideUsernameClaimFromInternalUsername>
 </Server>
