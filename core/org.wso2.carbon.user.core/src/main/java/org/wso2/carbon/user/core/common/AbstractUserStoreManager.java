@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
@@ -103,6 +104,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
+    private String isOverrideUsernameClaimEnabled = ServerConfiguration.getInstance()
+            .getFirstProperty("OverrideUsernameClaimFromInternalUsername");
     protected int tenantId;
     protected DataSource dataSource = null;
     protected RealmConfiguration realmConfig = null;
@@ -5244,16 +5247,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
                 value = uerProperties.get(property);
 
-                if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
-                    // Check whether we have a value for the requested attribute
-                    if (value != null && value.trim().length() > 0) {
-                        finalValues.put(claim, value);
+                if (USERNAME_CLAIM_URI.equals(mapping.getClaim().getClaimUri()) &&
+                        Boolean.parseBoolean(isOverrideUsernameClaimEnabled)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("The username claim value is overridden by the username :" + userName);
                     }
-                } else {
-                    if (value != null && value.trim().length() > 0) {
-                        finalValues.put(claim, value);
-                    }
+                    value = userName;
                 }
+                if (value != null && value.trim().length() > 0) {
+                    finalValues.put(claim, value);
+                }
+
             } else {
                 if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
