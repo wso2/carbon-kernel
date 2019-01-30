@@ -22,7 +22,10 @@ package org.wso2.ei.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -37,22 +40,110 @@ public class ConfigParser {
     private static final String INFER_CONFIG_FILE_PATH = "infer.json";
     private static final String VALIDATOR_FILE_PATH = "validator.json";
     private static final String MAPPING_FILE_PATH = "key-mappings.toml";
+    private String deploymentConfigurationPath;
+    private String templateFilePath;
+    private String inferConfigurationFilePath;
+    private String validatorFilePath;
+    private String mappingFilePath;
 
-    public static void main(String[] args) {
-        parse();
+    public static void main(String[] args) throws IOException, ValidationException {
+
+        ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
+                .withDeploymentConfigurationPath(UX_FILE_PATH)
+                .withTemplateFilePath(TEMPLATE_FILE_PATH)
+                .withInferConfigurationFilePath(INFER_CONFIG_FILE_PATH)
+                .withValidatorFilePath(VALIDATOR_FILE_PATH)
+                .withMappingFilePath(MAPPING_FILE_PATH).build();
+        LOGGER.info(configParser.parse());
     }
 
-    public static void parse() {
-        Map<String, Object> context = TomlParser.parse(UX_FILE_PATH);
-        Map<String, Object> enrichedContext = ValueInferrer.infer(context, INFER_CONFIG_FILE_PATH);
+    public void parse(String outputFilePath) {
+
         try {
-            Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(enrichedContext, MAPPING_FILE_PATH);
-            Validator.validate(mappedConfigs, VALIDATOR_FILE_PATH);
-            String output = JinjaParser.parse(mappedConfigs, TEMPLATE_FILE_PATH);
-            LOGGER.info("Output :\n{}", output);
+            try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(outputFilePath),
+                    Charset.forName("UTF-8"))) {
+                outputStreamWriter.write(parse());
+            }
         } catch (ValidationException | IOException e) {
             LOGGER.error("Error validating file.", e);
         }
 
+    }
+
+    public String parse() throws IOException, ValidationException {
+
+        Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
+        Map<String, Object> enrichedContext = ValueInferrer.infer(context, inferConfigurationFilePath);
+        try {
+            Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(enrichedContext, mappingFilePath);
+            Validator.validate(mappedConfigs, validatorFilePath);
+            return JinjaParser.parse(mappedConfigs, templateFilePath);
+        } catch (ValidationException | IOException e) {
+            LOGGER.error("Error validating file.", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Builder Class for ConfigParser.
+     */
+    public static final class ConfigParserBuilder {
+
+        private String deploymentConfigurationPath;
+        private String templateFilePath;
+        private String inferConfigurationFilePath;
+        private String validatorFilePath;
+        private String mappingFilePath;
+
+        private ConfigParserBuilder() {
+
+            deploymentConfigurationPath = UX_FILE_PATH;
+            templateFilePath = TEMPLATE_FILE_PATH;
+            inferConfigurationFilePath = INFER_CONFIG_FILE_PATH;
+            validatorFilePath = VALIDATOR_FILE_PATH;
+            mappingFilePath = MAPPING_FILE_PATH;
+
+        }
+
+        public ConfigParserBuilder withDeploymentConfigurationPath(String deploymentConfigurationPath) {
+
+            this.deploymentConfigurationPath = deploymentConfigurationPath;
+            return this;
+        }
+
+        public ConfigParserBuilder withTemplateFilePath(String templateFilePath) {
+
+            this.templateFilePath = templateFilePath;
+            return this;
+        }
+
+        public ConfigParserBuilder withInferConfigurationFilePath(String inferConfigurationFilePath) {
+
+            this.inferConfigurationFilePath = inferConfigurationFilePath;
+            return this;
+        }
+
+        public ConfigParserBuilder withValidatorFilePath(String validatorFilePath) {
+
+            this.validatorFilePath = validatorFilePath;
+            return this;
+        }
+
+        public ConfigParserBuilder withMappingFilePath(String mappingFilePath) {
+
+            this.mappingFilePath = mappingFilePath;
+            return this;
+        }
+
+        public ConfigParser build() {
+
+            ConfigParser configParser = new ConfigParser();
+            configParser.templateFilePath = this.templateFilePath;
+            configParser.inferConfigurationFilePath = this.inferConfigurationFilePath;
+            configParser.validatorFilePath = this.validatorFilePath;
+            configParser.deploymentConfigurationPath = this.deploymentConfigurationPath;
+            configParser.mappingFilePath = this.mappingFilePath;
+            return configParser;
+        }
     }
 }
