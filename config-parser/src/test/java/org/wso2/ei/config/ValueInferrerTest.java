@@ -1,5 +1,6 @@
 package org.wso2.ei.config;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -14,8 +15,10 @@ public class ValueInferrerTest {
 
     @Test(dataProvider = "contextProvider")
     public void testParse(Map<String, Object> context, String key, Object expectedValue) {
+        String inferConfiguration =
+                FileUtils.getFile("src", "test", "resources", INFER_TOML).getAbsolutePath();
 
-        Map<String, Object> inferredValues = ValueInferrer.infer(context, INFER_TOML);
+        Map<String, Object> inferredValues = ValueInferrer.infer(context, inferConfiguration);
         Object actualValue = inferredValues.get(key);
         Assert.assertEquals(actualValue, expectedValue, "Incorrect inferred value for " + key);
     }
@@ -32,8 +35,9 @@ public class ValueInferrerTest {
         return new Object[][]{
                 {jdbcContext, "user_store.class", "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager"},
                 {jdbcContext, "user_store.properties.ReadOnly", false},
-                {jdbcContext, "user_store.properties.dummyArray", Arrays.asList("foo","bar")},
-                {readOnlyLdapContext, "user_store.class", "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager"},
+                {jdbcContext, "user_store.properties.dummyArray", Arrays.asList("foo", "bar")},
+                {readOnlyLdapContext, "user_store.class", "org.wso2.carbon.user.core.ldap" +
+                        ".ReadOnlyLDAPUserStoreManager"},
                 {readOnlyLdapContext, "user_store.properties.LDAPConnectionTimeout", 5000},
                 {invalidContext, "user_store.class", null},
         };

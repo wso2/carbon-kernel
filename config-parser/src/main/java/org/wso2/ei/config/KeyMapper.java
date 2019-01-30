@@ -1,13 +1,12 @@
 package org.wso2.ei.config;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlParseResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +32,9 @@ class KeyMapper {
 
     private static Map<String, String> parseTomlMappingFile(String tomlMappingFile) throws IOException {
         String source;
-        source = Resources.toString(Resources.getResource(tomlMappingFile), Charsets.UTF_8);
+
         TomlParseResult result;
-        result = Toml.parse(source);
+        result = Toml.parse(Paths.get(tomlMappingFile));
         result.errors().forEach(error -> LOGGER.error(error.toString()));
         Set<String> dottedKeySet = result.dottedKeySet();
         Map<String, String> keyMappings = new HashMap<>();

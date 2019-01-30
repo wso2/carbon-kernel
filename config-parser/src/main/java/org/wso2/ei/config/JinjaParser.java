@@ -1,13 +1,14 @@
 package org.wso2.ei.config;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import com.google.common.io.Files;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ class JinjaParser {
         String renderedTemplate = "";
         Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
         try {
-            String template = Resources.toString(Resources.getResource(templateFilePath), Charsets.UTF_8);
+            String template = Files.toString(Paths.get(templateFilePath).toFile(), Charsets.UTF_8);
             renderedTemplate = jinjava.render(template, context);
 
         } catch (IOException e) {

@@ -46,16 +46,6 @@ public class ConfigParser {
     private String validatorFilePath;
     private String mappingFilePath;
 
-    public static void main(String[] args) throws IOException, ValidationException {
-
-        ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
-                .withDeploymentConfigurationPath(UX_FILE_PATH)
-                .withTemplateFilePath(TEMPLATE_FILE_PATH)
-                .withInferConfigurationFilePath(INFER_CONFIG_FILE_PATH)
-                .withValidatorFilePath(VALIDATOR_FILE_PATH)
-                .withMappingFilePath(MAPPING_FILE_PATH).build();
-        LOGGER.info(configParser.parse());
-    }
 
     public void parse(String outputFilePath) {
 
@@ -95,7 +85,7 @@ public class ConfigParser {
         private String validatorFilePath;
         private String mappingFilePath;
 
-        private ConfigParserBuilder() {
+        public ConfigParserBuilder() {
 
             deploymentConfigurationPath = UX_FILE_PATH;
             templateFilePath = TEMPLATE_FILE_PATH;

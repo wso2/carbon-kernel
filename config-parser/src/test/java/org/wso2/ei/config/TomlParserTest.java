@@ -1,5 +1,6 @@
 package org.wso2.ei.config;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -19,7 +20,11 @@ public class TomlParserTest {
 
     @BeforeMethod
     public void setUp() {
-        parsedValueMap = TomlParser.parse(TOML_FILE_NAME);
+
+        String deploymentConfiguration =
+                FileUtils.getFile("src", "test", "resources", TOML_FILE_NAME).getAbsolutePath();
+
+        parsedValueMap = TomlParser.parse(deploymentConfiguration);
     }
 
     @Test(dataProvider = "flatKeySetProvider")
@@ -32,11 +37,12 @@ public class TomlParserTest {
 
     @DataProvider(name = "flatKeySetProvider")
     public Object[][] flatKeyDataSet() {
+
         return new Object[][]{
                 {"a.b.c", "value1"},
                 {"a.b.d", "value2"},
                 {"e", "value3"},
-                };
+        };
     }
 
 }
