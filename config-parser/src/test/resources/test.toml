@@ -1,8 +1,11 @@
-e = "value3"
+key = "value3"
 
-[a]
+[header_test]
 b.c = "value1"
 b.d = "value2"
 
-[f]
+[numbers]
 g = 1234
+
+[array_test]
+colors=["blue", "green", "red"]

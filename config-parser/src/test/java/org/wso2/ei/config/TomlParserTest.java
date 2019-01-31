@@ -2,7 +2,7 @@ package org.wso2.ei.config;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -18,7 +18,7 @@ public class TomlParserTest {
 
     private Map<String, Object> parsedValueMap = new HashMap<>();
 
-    @BeforeMethod
+    @BeforeClass
     public void setUp() {
 
         String deploymentConfiguration =
@@ -29,20 +29,19 @@ public class TomlParserTest {
 
     @Test(dataProvider = "flatKeySetProvider")
     public void testParse(String key, Object value) {
-
         Object objValue = parsedValueMap.get(key);
+        Assert.assertNotNull(objValue, "Invalid value for key " + key);
         Assert.assertEquals(objValue.getClass(), value.getClass(), "Value type mismatch");
         Assert.assertEquals(parsedValueMap.get(key), value, "Value didn't match. Toml parsing error");
     }
 
     @DataProvider(name = "flatKeySetProvider")
     public Object[][] flatKeyDataSet() {
-
         return new Object[][]{
-                {"a.b.c", "value1"},
-                {"a.b.d", "value2"},
-                {"e", "value3"},
-        };
+                {"header_test.b.c", "value1"},
+                {"header_test.b.d", "value2"},
+                {"key", "value3"},
+                };
     }
 
 }
