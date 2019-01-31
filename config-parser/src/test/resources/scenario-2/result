@@ -1,0 +1,30 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+
+    <datasources>
+        <datasource>
+            <name>a</name>
+            <description>a</description>
+            <jndiConfig>
+                <name>a</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <max_active>13</max_active>
+            </configuration>
+        </definition>
+    </datasource>
+        <datasource>
+            <name>b</name>
+            <description>b</description>
+            <jndiConfig>
+                <name>b</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <max_active>12</max_active>
+            </configuration>
+        </definition>
+    </datasource>
+
+</datasources>
+</datasources-configuration>
