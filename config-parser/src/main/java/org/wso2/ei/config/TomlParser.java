@@ -20,13 +20,17 @@
 package org.wso2.ei.config;
 
 import net.consensys.cava.toml.Toml;
+import net.consensys.cava.toml.TomlArray;
 import net.consensys.cava.toml.TomlParseResult;
+import net.consensys.cava.toml.TomlTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,7 +57,7 @@ class TomlParser {
 
             Set<String> dottedKeySet = result.dottedKeySet();
             for (String dottedKey: dottedKeySet) {
-                context.put(dottedKey, result.get(dottedKey));
+                context.put(dottedKey, getValue(result.get(dottedKey)));
             }
         } catch (IOException e) {
             LOGGER.error("Error parsing file {}", filePath, e);
@@ -62,5 +66,59 @@ class TomlParser {
         return context;
     }
 
+    /**
+     * Return the relevant object representation.
+     * @param value value returned by the TOML parser.
+     * @return This can be  a simple value, an array ({@link ArrayList}, or a key value map {@link Map}
+     */
+    private static Object getValue(Object value) {
+        Object returnValue;
+        if (value instanceof TomlArray) {
+            returnValue = processTomlArray((TomlArray) value);
+        } else if (value instanceof TomlTable) {
+            returnValue = processTomlMap((TomlTable) value);
+        } else {
+            returnValue = value;
+        }
+        return returnValue;
+    }
 
+    /**
+     * Process the TomlTable and output the relevant Map representation.
+     * @param tomlTable {@link TomlTable}
+     * @return Map representation of the {@link TomlTable}
+     */
+    private static Object processTomlMap(TomlTable tomlTable) {
+        HashMap<String, Object> finalMap = new HashMap<>();
+        Set<String> dottedKeySet = tomlTable.dottedKeySet();
+        for (String key: dottedKeySet) {
+            Object value = tomlTable.get(key);
+            if (value instanceof TomlArray) {
+                finalMap.put(key, processTomlArray((TomlArray) value));
+            }
+            finalMap.put(key, tomlTable.get(key));
+        }
+
+        return finalMap;
+    }
+
+    /**
+     * Process the {@link TomlArray} and output the relevant {@link List} representation.
+     * @param value {@link TomlArray}
+     * @return List representation of the {@link TomlArray}
+     */
+    private static Object processTomlArray(TomlArray value) {
+        ArrayList<Object> finalList = new ArrayList<>();
+        List<Object> tomlList = value.toList();
+        for (Object obj : tomlList) {
+            if (obj instanceof TomlArray) {
+                finalList.add(processTomlArray((TomlArray)obj));
+            } else if (obj instanceof TomlTable) {
+                finalList.add(processTomlMap((TomlTable) obj));
+            } else {
+                finalList.add(obj);
+            }
+        }
+        return finalList;
+    }
 }

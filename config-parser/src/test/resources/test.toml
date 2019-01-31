@@ -9,3 +9,11 @@ g = 1234
 
 [array_test]
 colors=["blue", "green", "red"]
+
+[[datasource]]
+a.b.c = "datasource value"
+a.b.d = "datasources value 3"
+
+[[datasource]]
+a.b.c = "datasource value 2"
+a.b.d = "data 4"
