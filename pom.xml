@@ -5,6 +5,9 @@
     <artifactId>carbon</artifactId>
     <packaging>pom</packaging>
     <version>4.4.19-SNAPSHOT</version>
+    <modules>
+        <module>archetype</module>
+    </modules>
     <name>WSO2 Carbon - Aggregate Pom</name>
     <description>WSO2 Carbon Platform with all its components, features and products
     </description>
@@ -94,6 +97,7 @@
                 <module>features</module>
                 <module>samples</module>
                 <module>distribution</module>
+                <module>archetype</module>
             </modules>
         </profile>
         <profile>
