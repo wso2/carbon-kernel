@@ -234,4 +234,11 @@ public interface AuthorizationManager {
     void resetPermissionOnUpdateRole(String roleName, String newRoleName)
             throws UserStoreException;
 
+    /**
+     * This method used to refresh the existing resource permissions which cached in the memory
+     *
+     * @param resourceId resource id path
+     * @throws UserStoreException if something went wrong
+     */
+    void refreshAllowedRolesForResource(String resourceId) throws UserStoreException;
 }

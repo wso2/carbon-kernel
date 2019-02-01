@@ -62,6 +62,10 @@ public class Activator extends BundleCheckActivator {
             secMan.checkPermission(new ManagementPermission("control"));
         }
         try {
+            if (Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
+                log.debug("UserCore component activated in NonUserCoreMode Mode");
+                return;
+            }
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);

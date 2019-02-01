@@ -52,7 +52,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "", UserStoreConfigConstants.userNameAttributeDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
-                "(&amp;(objectClass=person)(uid=?))", UserStoreConfigConstants
+                "(&(objectClass=person)(uid=?))", UserStoreConfigConstants
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
@@ -67,7 +67,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 UserStoreConfigConstants.groupSearchBaseDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter",
-                "(&amp;(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
+                "(&(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
 

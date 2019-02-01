@@ -19,6 +19,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -32,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class MultitenantServerManager {
 
     private static final Log log = LogFactory.getLog(MultitenantServerManager.class);
-    private static final ScheduledExecutorService tenantCleanupExec = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService tenantCleanupExec = Executors
+            .newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("tenantCleanupThread")));
     private static final int TENANT_CLEANUP_PERIOD_SECS = 60;
     private static final int DEFAULT_TENANT_IDLE_MINS = 30;
     private static long tenantIdleTimeMillis;

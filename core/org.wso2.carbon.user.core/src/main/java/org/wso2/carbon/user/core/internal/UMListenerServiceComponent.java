@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.internal;
 
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
 import org.wso2.carbon.user.core.listener.ClaimManagerListener;
+import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.tenant.LDAPTenantManager;
@@ -56,6 +57,11 @@ import java.util.TreeMap;
  * cardinality="0..n" policy="dynamic"
  * bind="addLDAPTenantManager"
  * unbind="removeLDAPTenantManager"
+ * @scr.reference name="user.management.error.event.listener.service"
+ * interface="org.wso2.carbon.user.core.listener.UserManagementErrorEventListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setUserManagementErrorEventListenerService"
+ * unbind="unsetUserManagementErrorEventListenerService"
  */
 public class UMListenerServiceComponent {
 
@@ -63,11 +69,13 @@ public class UMListenerServiceComponent {
     private static Map<Integer, UserStoreManagerListener> userStoreManagerListeners;
     private static Map<Integer, UserOperationEventListener> userOperationEventListeners;
     private static Map<Integer, ClaimManagerListener> claimManagerListeners;
+    private static Map<Integer, UserManagementErrorEventListener> userManagementErrorEventListeners;
     private static Collection<AuthorizationManagerListener> authorizationManagerListenerCollection;
     private static Collection<UserStoreManagerListener> userStoreManagerListenerCollection;
     private static Collection<UserOperationEventListener> userOperationEventListenerCollection;
     private static Collection<ClaimManagerListener> claimManagerListenerCollection;
     private static Map<Integer, LDAPTenantManager> tenantManagers;
+    private static Collection<UserManagementErrorEventListener> userManagementErrorEventListenerCollection;
 
     protected static synchronized void setAuthorizationManagerListenerService(
             AuthorizationManagerListener authorizationManagerListenerService) {
@@ -107,6 +115,38 @@ public class UMListenerServiceComponent {
                 userStoreManagerListeners != null) {
             userStoreManagerListeners.remove(userStoreManagerListenerService.getExecutionOrderId());
             userStoreManagerListenerCollection = null;
+        }
+    }
+
+    /**
+     * Register UserManagementErrorEventListeners.
+     *
+     * @param userManagementErrorEventListenerService Relevant UserManagementErrorEventListenerService that need to
+     *                                                be registered.
+     */
+    protected static synchronized void setUserManagementErrorEventListenerService(
+            UserManagementErrorEventListener userManagementErrorEventListenerService) {
+
+        userManagementErrorEventListenerCollection = null;
+        if (userManagementErrorEventListeners == null) {
+            userManagementErrorEventListeners = new TreeMap<>();
+        }
+        userManagementErrorEventListeners.put(userManagementErrorEventListenerService.getExecutionOrderId(),
+                userManagementErrorEventListenerService);
+    }
+
+    /**
+     * Un-register UserManagementErrorEventListeners.
+     *
+     * @param userManagementErrorEventListener Relevant UserManagementErrorEventListenerService that need to be
+     *                                         un-registered.
+     */
+    protected static synchronized void unsetUserManagementErrorEventListenerService(
+            UserManagementErrorEventListener userManagementErrorEventListener) {
+
+        if (userManagementErrorEventListener != null && userManagementErrorEventListeners != null) {
+            userManagementErrorEventListeners.remove(userManagementErrorEventListener.getExecutionOrderId());
+            userManagementErrorEventListenerCollection = null;
         }
     }
 
@@ -169,6 +209,22 @@ public class UMListenerServiceComponent {
                     userStoreManagerListeners.values();
         }
         return userStoreManagerListenerCollection;
+    }
+
+    /**
+     * To get the UserManagementErrorEventListeners that are registered for handling error.
+     *
+     * @return relevant UserManagementErrorEventListeners that are registered in the current environment.
+     */
+    public static synchronized Collection<UserManagementErrorEventListener> getUserManagementErrorEventListeners() {
+
+        if (userManagementErrorEventListeners == null) {
+            userManagementErrorEventListeners = new TreeMap<>();
+        }
+        if (userManagementErrorEventListenerCollection == null) {
+            userManagementErrorEventListenerCollection = userManagementErrorEventListeners.values();
+        }
+        return userManagementErrorEventListenerCollection;
     }
     
     /*protected void setCacheInvalidator(CacheInvalidator invalidator) {

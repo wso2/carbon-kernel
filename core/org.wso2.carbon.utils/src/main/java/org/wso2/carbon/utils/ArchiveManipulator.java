@@ -80,6 +80,7 @@ public class ArchiveManipulator {
         FileInputStream in = new FileInputStream(from);
         try {
             out = new ZipOutputStream(new FileOutputStream(to));
+            out.putNextEntry(new ZipEntry(from));
             byte[] buffer = new byte[BUFFER_SIZE];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
@@ -164,6 +165,13 @@ public class ArchiveManipulator {
             while ((entry = zin.getNextEntry()) != null) {
                 String entryName = entry.getName();
                 File f = new File(extractDir + File.separator + entryName);
+
+                String canonicaltargetDirectoryPath = new File(extractDir).getCanonicalPath();
+                String canonicalFilePath = f.getCanonicalPath();
+                if (!canonicalFilePath.startsWith(canonicaltargetDirectoryPath)) {
+                    throw new IOException("Attempt to upload invalid zip archive with file at " + f + ". File path is " +
+                            "outside target directory");
+                }
 
                 if (entryName.endsWith("/") && !f.exists()) { // this is a
                     // directory

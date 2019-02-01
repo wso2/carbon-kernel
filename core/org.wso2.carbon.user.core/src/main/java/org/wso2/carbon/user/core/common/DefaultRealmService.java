@@ -180,8 +180,8 @@ public class DefaultRealmService implements RealmService {
                     tenantRealmConfig = realmConfigBuilder.getRealmConfigForTenantToCreateRealm(
                             bootstrapRealmConfig, tenantRealmConfig, tenantId);
                 }
-
-                synchronized (tenant.getDomain().intern()) {
+                String lockedString = tenant.getDomain() + "@DefaultRealmService_getTenantUserRealmInternal";
+                synchronized (lockedString.intern()) {
                     userRealm = initializeRealm(tenantRealmConfig, tenantId);
                     realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
                 }

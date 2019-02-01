@@ -25,84 +25,88 @@ import java.util.List;
 public class RDBMSConfiguration {
 
 	private String url;
-	
+
 	private Boolean defaultAutoCommit;
-	
+
 	private Boolean defaultReadOnly;
-	
+
 	private String defaultTransactionIsolation;
-	
+
 	private String defaultCatalog;
-	
+
 	private String driverClassName;
-	
+
 	private String username;
-	
+
 	private Password passwordPersist;
-	
+
 	private Integer maxActive;
-	
+
 	private Integer maxIdle = Integer.valueOf(RDBMSDataSourceConstants.MAX_IDLE);
-	
+
 	private Integer minIdle = Integer.valueOf(RDBMSDataSourceConstants.MIN_IDLE);
-	
+
 	private Integer initialSize = Integer.valueOf(RDBMSDataSourceConstants.INITIAL_SIZE);
-	
+
 	private Integer maxWait;
-	
+
 	private Boolean testOnBorrow;
-	
+
 	private Boolean testOnReturn;
-	
+
 	private Boolean testWhileIdle;
-	
+
 	private String validationQuery;
-	
+
 	private String validatorClassName;
-	
+
 	private Integer timeBetweenEvictionRunsMillis;
-	
+
 	private Integer numTestsPerEvictionRun;
-	
+
 	private Integer minEvictableIdleTimeMillis;
-	
+
 	private Boolean accessToUnderlyingConnectionAllowed;
-	
+
 	private Boolean removeAbandoned;
-	
+
 	private Integer removeAbandonedTimeout;
-	
+
 	private Boolean logAbandoned;
-	
+
 	private String connectionProperties;
-	
+
 	private String initSQL;
-	
+
 	private String jdbcInterceptors;
-	
+
 	private Long validationInterval;
-	
+
 	private Boolean jmxEnabled;
-	
+
 	private Boolean fairQueue;
-	
+
 	private Integer abandonWhenPercentageFull;
-	
+
 	private Long maxAge;
-	
+
 	private Boolean useEquals;
-	
+
 	private Integer suspectTimeout;
 
         private Integer validationQueryTimeout;
-	
+
 	private Boolean alternateUsernameAllowed;
-	
+
 	private String dataSourceClassName;
-	
+
 	private List<DataSourceProperty> dataSourceProps;
 
 	private List<DataSourceProperty> databaseProps;
+
+	private Boolean commitOnReturn;
+
+	private Boolean rollbackOnReturn;
 
 	public String getUrl() {
 		return url;
@@ -159,14 +163,14 @@ public class RDBMSConfiguration {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	
+
 	public void setPassword(String password) {
 		if (this.getPasswordPersist() == null) {
 			this.passwordPersist = new Password();
 		}
 		this.passwordPersist.setValue(password);
 	}
-	
+
 	@XmlTransient
 	public String getPassword() {
 		if (this.getPasswordPersist() != null) {
@@ -201,7 +205,7 @@ public class RDBMSConfiguration {
 	public void setMaxIdle(Integer maxIdle) {
 		this.maxIdle = maxIdle;
 	}
-	
+
 	@XmlElement(defaultValue = RDBMSDataSourceConstants.MIN_IDLE)
 	public Integer getMinIdle() {
 		return minIdle;
@@ -210,7 +214,7 @@ public class RDBMSConfiguration {
 	public void setMinIdle(Integer minIdle) {
 		this.minIdle = minIdle;
 	}
-	
+
 	@XmlElement(defaultValue = RDBMSDataSourceConstants.INITIAL_SIZE)
 	public Integer getInitialSize() {
 		return initialSize;
@@ -430,7 +434,7 @@ public class RDBMSConfiguration {
 	public void setDatabaseProps(List<DataSourceProperty> databaseProps) {
 		this.databaseProps = databaseProps;
 	}
-	
+
 	@XmlElementWrapper (name = RDBMSDataSourceConstants.DATASOURCE_PROPS_NAME)
 	@XmlElement (name = "property")
 	public List<DataSourceProperty> getDataSourceProps() {
@@ -441,19 +445,34 @@ public class RDBMSConfiguration {
 		this.dataSourceProps = dataSourceProps;
 	}
 
-        public Integer getValidationQueryTimeout() {
-                return validationQueryTimeout;
-        }
+	public Integer getValidationQueryTimeout() {
+		return validationQueryTimeout;
+	}
 
-        public void setValidationQueryTimeout(Integer validationQueryTimeout) {
-                this.validationQueryTimeout = validationQueryTimeout;
-        }
+	public void setValidationQueryTimeout(Integer validationQueryTimeout) {
+		this.validationQueryTimeout = validationQueryTimeout;
+	}
 
-        @XmlRootElement (name = "password")
+	public void setCommitOnReturn(Boolean commitOnReturn) {
+		this.commitOnReturn = commitOnReturn;
+	}
+	public Boolean getCommitOnReturn() {
+		return commitOnReturn;
+	}
+
+	public void setRollbackOnReturn(Boolean rollbackOnReturn) {
+		this.rollbackOnReturn = rollbackOnReturn;
+	}
+
+	public Boolean getRollbackOnReturn() {
+		return rollbackOnReturn;
+	}
+
+	@XmlRootElement (name = "password")
 	public static class Password {
-		
+
 		private boolean encrypted = true;
-		
+
 		private String value;
 
 		@XmlAttribute (name = "encrypted")
@@ -473,16 +492,16 @@ public class RDBMSConfiguration {
 		public void setValue(String value) {
 			this.value = value;
 		}
-		
+
 	}
-	
+
 	@XmlRootElement (name = "property")
 	public static class DataSourceProperty {
-		
+
 		private boolean encrypted = true;
-		
+
 		private String name;
-		
+
 		private String value;
 
 		@XmlAttribute (name = "encrypted")
@@ -493,7 +512,7 @@ public class RDBMSConfiguration {
 		public void setEncrypted(boolean encrypted) {
 			this.encrypted = encrypted;
 		}
-		
+
 		@XmlAttribute (name = "name")
 		public String getName() {
 			return name;
@@ -511,6 +530,6 @@ public class RDBMSConfiguration {
 		public void setValue(String value) {
 			this.value = value;
 		}
-		
+
 	}
 }

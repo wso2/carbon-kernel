@@ -17,6 +17,7 @@ package org.wso2.carbon.core.deployment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 
 import java.util.Map;
@@ -32,8 +33,9 @@ import java.util.concurrent.TimeUnit;
 public class RegistryBasedRepositoryUpdater {
     private static final Log log = LogFactory.getLog(RegistryBasedRepositoryUpdater.class);
 
-    private static final ScheduledThreadPoolExecutor exec =
-            (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(20);
+    private static final ScheduledThreadPoolExecutor exec = (ScheduledThreadPoolExecutor) Executors
+            .newScheduledThreadPool(20,
+                                    new CarbonThreadFactory(new ThreadGroup("RegistryBasedRepositoryUpdaterThread")));
     private static final Map<String, ScheduledFuture> futures =
             new ConcurrentHashMap<String, ScheduledFuture>();
 

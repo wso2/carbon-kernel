@@ -17,23 +17,30 @@
  */
 package org.wso2.carbon.context;
 
+import org.eclipse.osgi.framework.internal.core.FilterImpl;
+import org.mockito.Mockito;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.BaseTest;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
-import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.context.internal.OSGiDataHolder;
+import org.wso2.carbon.registry.api.Registry;
+import org.wso2.carbon.registry.api.RegistryService;
+import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserRealmService;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class for CarbonContext API usage.
  */
-public class CarbonContextTest {
-    private static final Path testDir = Paths.get("src", "test");
+@Test(dependsOnGroups = {"org.wso2.carbon.utils.logging", "org.wso2.carbon.utils.base"})
+public class CarbonContextTest extends BaseTest {
 
     @Test(groups = {"org.wso2.carbon.context"})
     public void testCarbonContext() throws Exception {
-        System.setProperty(ServerConstants.CARBON_HOME, testDir.toString());
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
         Assert.assertEquals(carbonContext.getUsername(), null);
         Assert.assertEquals(carbonContext.getApplicationName(), null);
@@ -161,7 +168,7 @@ public class CarbonContextTest {
         }
     }
 
-    private class CarbonContextInvoker extends Thread {
+    private static class CarbonContextInvoker extends Thread {
         int tenantID;
         String tenantDomain;
 
@@ -188,4 +195,143 @@ public class CarbonContextTest {
         }
     }
 
+    @Test(groups = {"org.wso2.carbon.context"}, dependsOnMethods = "testMultiThreadedCarbonContextInvocation")
+    public void testPrivilegedCarbonContext2() throws Exception {
+        try {
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            String tenantDomain = "test222";
+            int tenantID = 222;
+            String applicationName = "testApp222";
+            String username = "testUser222";
+
+            UserRealm userRealm = Mockito.mock(UserRealm.class);
+            Registry registry = Mockito.mock(Registry.class);
+
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+            privilegedCarbonContext.setTenantId(tenantID);
+            privilegedCarbonContext.setApplicationName(applicationName);
+            privilegedCarbonContext.setUsername(username);
+            privilegedCarbonContext.setUserRealm(userRealm);
+            privilegedCarbonContext.setRegistry(RegistryType.SYSTEM_CONFIGURATION, registry);
+            privilegedCarbonContext.setRegistry(RegistryType.SYSTEM_GOVERNANCE, registry);
+            privilegedCarbonContext.setRegistry(RegistryType.USER_CONFIGURATION, registry);
+            privilegedCarbonContext.setRegistry(RegistryType.USER_GOVERNANCE, registry);
+            privilegedCarbonContext.setRegistry(RegistryType.LOCAL_REPOSITORY, registry);
+
+            OSGiDataHolder dataHolder = OSGiDataHolder.getInstance();
+
+            RegistryService registryService = Mockito.mock(RegistryService.class);
+            dataHolder.setRegistryService(registryService);
+
+            when(registryService.getConfigSystemRegistry(tenantID)).thenReturn(registry);
+            when(registryService.getConfigUserRegistry(username, tenantID)).thenReturn(registry);
+            when(registryService.getGovernanceSystemRegistry(tenantID)).thenReturn(registry);
+            when(registryService.getGovernanceUserRegistry(username, tenantID)).thenReturn(registry);
+            when(registryService.getLocalRepository(tenantID)).thenReturn(registry);
+
+            Assert.assertEquals(privilegedCarbonContext.getRegistry(RegistryType.SYSTEM_CONFIGURATION), registry);
+            Assert.assertEquals(privilegedCarbonContext.getRegistry(RegistryType.SYSTEM_GOVERNANCE), registry);
+            Assert.assertEquals(privilegedCarbonContext.getRegistry(RegistryType.USER_CONFIGURATION), registry);
+            Assert.assertEquals(privilegedCarbonContext.getRegistry(RegistryType.USER_GOVERNANCE), registry);
+            Assert.assertEquals(privilegedCarbonContext.getRegistry(RegistryType.LOCAL_REPOSITORY), registry);
+
+            Assert.assertEquals(privilegedCarbonContext.getUserRealm(), userRealm);
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
+        }
+    }
+
+    @Test(groups = {"org.wso2.carbon.context"}, dependsOnMethods = "testPrivilegedCarbonContext2")
+    public void testPrivilegedCarbonContext3() throws Exception {
+        try {
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            String tenantDomain = "test333";
+            int tenantID = 333;
+            String applicationName = "testApp333";
+            String username = "testUser333";
+
+            UserRealmService userRealmService = Mockito.mock(UserRealmService.class);
+
+            OSGiDataHolder dataHolder = OSGiDataHolder.getInstance();
+            dataHolder.setUserRealmService(userRealmService);
+
+            privilegedCarbonContext.setTenantDomain(tenantDomain, true);
+            privilegedCarbonContext.setTenantId(tenantID, true);
+            privilegedCarbonContext.setApplicationName(applicationName);
+            privilegedCarbonContext.setUsername(username);
+
+            Assert.assertEquals(privilegedCarbonContext.getTenantDomain(true), tenantDomain);
+            Assert.assertEquals(privilegedCarbonContext.getTenantId(true), tenantID);
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
+        }
+    }
+
+    @Test(groups = {"org.wso2.carbon.context"}, expectedExceptions = NullPointerException.class,
+            dependsOnMethods = "testPrivilegedCarbonContext3")
+    public void testPrivilegedCarbonContext4() throws Exception {
+        try {
+            mockBundleContext();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            String tenantDomain = "test444";
+            int tenantID = 444;
+            String applicationName = "testApp444";
+            String username = "testUser444";
+
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+            privilegedCarbonContext.setTenantId(tenantID);
+            privilegedCarbonContext.setApplicationName(applicationName);
+            privilegedCarbonContext.setUsername(username);
+            privilegedCarbonContext.getOSGiService(CarbonContext.class, null);
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
+        }
+    }
+
+    @Test(groups = {"org.wso2.carbon.context"}, expectedExceptions = NullPointerException.class,
+            dependsOnMethods = "testPrivilegedCarbonContext4")
+    public void testPrivilegedCarbonContext5() throws Exception {
+        try {
+            mockBundleContext();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            String tenantDomain = "test555";
+            int tenantID = 555;
+            String applicationName = "testApp555";
+            String username = "testUser555";
+
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+            privilegedCarbonContext.setTenantId(tenantID);
+            privilegedCarbonContext.setApplicationName(applicationName);
+            privilegedCarbonContext.setUsername(username);
+            privilegedCarbonContext.getOSGiServices(CarbonContext.class, null);
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
+        }
+    }
+
+    @Test(groups = {"org.wso2.carbon.context"}, expectedExceptions = NullPointerException.class,
+            dependsOnMethods = "testPrivilegedCarbonContext5")
+    public void testCarbonContext2() throws Exception {
+        mockBundleContext();
+        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
+        carbonContext.getOSGiService(CarbonContext.class, null);
+    }
+
+    @Test(groups = {"org.wso2.carbon.context"}, expectedExceptions = NullPointerException.class,
+            dependsOnMethods = "testCarbonContext2")
+    public void testCarbonContext3() throws Exception {
+        mockBundleContext();
+        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
+        carbonContext.getOSGiServices(CarbonContext.class, null);
+    }
+
+    private void mockBundleContext() throws InvalidSyntaxException {
+        String filter = "(objectClass=" + CarbonContext.class.getName() + ")";
+        BundleContext bundleContext = Mockito.mock(BundleContext.class);
+
+        when(bundleContext.createFilter(filter)).thenReturn(FilterImpl.newInstance(filter));
+
+        OSGiDataHolder dataHolder = OSGiDataHolder.getInstance();
+        dataHolder.setBundleContext(bundleContext);
+    }
 }

@@ -77,7 +77,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         inStream.close();
         realm = new DefaultRealm();
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
-                .getProfileTestData(), 0);
+                .getProfileTestData(), -1234);
         assertTrue(realm.getUserStoreManager().isExistingRole("adminx"));    
     }
     
@@ -266,33 +266,40 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     private void addIntialData(DataSource ds) throws Exception {
-        String sql = "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_CHANGED_TIME) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
+                "?, ?, ?)";
         Connection dbCon = ds.getConnection();
         dbCon.setAutoCommit(false);
         PreparedStatement stmt = dbCon.prepareStatement(sql);
         stmt.setString(1, "system");
         stmt.setString(2, "topsecret");
         stmt.setTimestamp(3, new Timestamp((new Date().getTime())));
+        stmt.setInt(4, -1234);
         stmt.addBatch();
         stmt.setString(1, "adminx");
         stmt.setString(2, "adminy");
         stmt.setTimestamp(3, new Timestamp((new Date().getTime())));
+        stmt.setInt(4, -1234);
         stmt.addBatch();
         stmt.setString(1, "anonx");
         stmt.setString(2, "nopassx");
         stmt.setTimestamp(3, new Timestamp((new Date().getTime())));
+        stmt.setInt(4, -1234);
         stmt.addBatch();
         stmt.setString(1, "saman");
         stmt.setString(2, "pass1");
         stmt.setTimestamp(3, new Timestamp((new Date().getTime())));
+        stmt.setInt(4, -1234);
         stmt.addBatch();
         stmt.setString(1, "amara");
         stmt.setString(2, "pass2");
         stmt.setTimestamp(3, new Timestamp((new Date().getTime())));
+        stmt.setInt(4, -1234);
         stmt.addBatch();
         stmt.setString(1, "sunil");
         stmt.setString(2, "pass3");
         stmt.setTimestamp(3, new Timestamp((new Date().getTime())));
+        stmt.setInt(4, -1234);
         stmt.addBatch();
         int[] count = stmt.executeBatch();
         assertEquals(6, count.length);

@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -69,6 +70,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private String isCascadeDeleteEnabled;
     private static final String DELETE_ROLE_PERMISSIONS = "DeleteRolePermissions";
     private static final String DELETE_USER_PERMISSIONS = "DeleteUserPermissions";
+    private static final String DELETE_ROLE_PERMISSIONS_MYSQL = "DeleteRolePermissions-mysql";
+    private static final String DELETE_USER_PERMISSIONS_MYSQL = "DeleteUserPermissions-mysql";
+
     private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
@@ -108,6 +112,16 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if ("false".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_PRESERVE_CASE_FOR_RESOURCES))) {
             preserveCaseForResources = false;
+        }
+
+        if (!realmConfig.getAuthzProperties().containsKey(DELETE_ROLE_PERMISSIONS_MYSQL)) {
+            realmConfig.getAuthzProperties().put(DELETE_ROLE_PERMISSIONS_MYSQL, DBConstants
+                    .ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL_MYSQL);
+        }
+
+        if (!realmConfig.getAuthzProperties().containsKey(DELETE_USER_PERMISSIONS_MYSQL)) {
+            realmConfig.getAuthzProperties().put(DELETE_USER_PERMISSIONS_MYSQL, DBConstants
+                    .ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL_MYSQL);
         }
 
         String userCoreCacheIdentifier = realmConfig.getUserStoreProperty(UserCoreConstants.
@@ -347,6 +361,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
 
         return sr.getAllowedEntities().toArray(new String[sr.getAllowedEntities().size()]);
+    }
+
+    public void refreshAllowedRolesForResource(String resourceId)
+            throws UserStoreException {
+        permissionTree.updatePermissionTree(resourceId);
     }
 
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
@@ -625,6 +644,19 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                         DELETE_ROLE_PERMISSIONS), resourceId, tenantId);
                 DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get(
                         DELETE_USER_PERMISSIONS), resourceId, tenantId);
+                String type = DatabaseCreator.getDatabaseType(dbConnection);
+                if (UserCoreConstants.MYSQL_TYPE.equals(type)
+                        || UserCoreConstants.MSSQL_TYPE.equals(type)) {
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_ROLE_PERMISSIONS_MYSQL), resourceId, tenantId);
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_USER_PERMISSIONS_MYSQL), resourceId, tenantId);
+                } else {
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_ROLE_PERMISSIONS), resourceId, tenantId);
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_USER_PERMISSIONS), resourceId, tenantId);
+                }
             }
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_PERMISSION_SQL,
                     resourceId, tenantId);
@@ -633,6 +665,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while clearing resource authorizations for resource id : " + resourceId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage =
+                    "Error occurred while clearing resource authorization for resource id : " + resourceId;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }

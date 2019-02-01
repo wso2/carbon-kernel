@@ -31,6 +31,7 @@ import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.transports.metering.MeteredServletRequest;
 import org.wso2.carbon.core.transports.metering.MeteredServletResponse;
@@ -63,8 +64,8 @@ public class CarbonServlet extends AxisServlet {
 
     private static final Log log = LogFactory.getLog(CarbonServlet.class);
 
-    private ScheduledExecutorService requestDataPersisterScheduler =
-            Executors.newScheduledThreadPool(25);
+    private ScheduledExecutorService requestDataPersisterScheduler = Executors
+            .newScheduledThreadPool(25, new CarbonThreadFactory(new ThreadGroup("RequestDataPersisterThread")));
 
     private RequestDataPersisterTask requestDataPersister;
     

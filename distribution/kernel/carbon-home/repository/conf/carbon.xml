@@ -268,6 +268,8 @@
     <Cache>
         <!-- Default cache timeout in minutes -->
         <DefaultCacheTimeout>15</DefaultCacheTimeout>
+        <!-- Force all caches to act as local -->
+        <ForceLocalCache>false</ForceLocalCache>
     </Cache>
 
     <!--
@@ -345,7 +347,62 @@
             <Description>Default User Role</Description>
         </Role>
     </ServiceUserRoles>
-    
+
+    <!--
+       Configurations related to Carbon Crypto Service which is a crypto framework used inside Carbon products.
+    -->
+    <CryptoService>
+
+        <Enabled>true</Enabled>
+
+        <!-- The crypto provider which is used for internal data encryption and decryption -->
+        <InternalCryptoProviderClassName>org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider</InternalCryptoProviderClassName>
+
+        <!--
+            The crypto provider which is used for the crypto needs which come when communicating with external parties.
+            e.g. Signing, Decrypting.
+        -->
+        <ExternalCryptoProviderClassName>org.wso2.carbon.core.encryption.KeyStoreBasedExternalCryptoProvider</ExternalCryptoProviderClassName>
+
+        <!--
+            The list of key resolvers which will be used based on the context when handling crypto with external parties.
+
+            e.g. Resolving the public key of an external entity.
+        -->
+        <KeyResolvers>
+            <KeyResolver className="org.wso2.carbon.crypto.defaultProvider.resolver.ContextIndependentKeyResolver" priority="-1"/>
+        </KeyResolvers>
+
+        <!--
+            Uncomment the following configuration to use hardware security module for cryptographic operations.
+            Provide configurations as detailed in each tag.
+        -->
+
+        <!--
+            <HSMBasedCryptoProviderConfig>
+                <HSMConfiguration>
+                    <PKCS11Module>#AbsolutePathToHSMModule</PKCS11Module>
+                    <SlotConfiguration>
+                        <Slot id="#SlotID" pin="#UserPIN"/>
+                    </SlotConfiguration>
+                </HSMConfiguration>
+
+                <InternalProvider>
+                    <InternalProviderSlotID>#SlotIDOfInternalProvider</InternalProviderSlotID>
+                    <KeyAlias>#KeyAlias</KeyAlias>
+                </InternalProvider>
+
+                <ExternalProvider>
+                    <ExternalProviderSlotID>#SlotIDOfExternalProvider</ExternalProviderSlotID>
+                </ExternalProvider>
+
+                <HSMStore>
+                    <Enabled>false</Enabled>
+                </HSMStore>
+            </HSMBasedCryptoProviderConfig>
+        -->
+    </CryptoService>
+
     <!-- 
       Enable following config to allow Emails as usernames. 	
     -->	    	
@@ -371,6 +428,23 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
+
+        <!--
+            The KeyStore which is used for encrypting/decrypting internal data.
+            This block is read by Carbon Crypto Service.
+        -->
+        <InternalKeyStore>
+            <!-- Keystore file location-->
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>JKS</Type>
+            <!-- Keystore password-->
+            <Password>wso2carbon</Password>
+            <!-- Private Key alias-->
+            <KeyAlias>wso2carbon</KeyAlias>
+            <!-- Private Key password-->
+            <KeyPassword>wso2carbon</KeyPassword>
+        </InternalKeyStore>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all
@@ -664,4 +738,7 @@
 	
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
+
+    <!--Override the username claim from the local username-->
+    <OverrideUsernameClaimFromInternalUsername>false</OverrideUsernameClaimFromInternalUsername>
 </Server>

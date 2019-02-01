@@ -1,0 +1,7 @@
+/* AUTOMATICALLY GENERATED ON Tue Oct 03 16:05:31 IST 2017*/
+/* DO NOT EDIT */
+
+grant codeBase "file:${carbon.home}/core/org.wso2.carbon.base/src/main/java/org/wso2/carbon/base" {
+  permission java.util.PropertyPermission "user.home", "read";
+};
+

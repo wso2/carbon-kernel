@@ -27,10 +27,15 @@ import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.List;
 import java.util.logging.LogRecord;
-
+import java.util.regex.Pattern;
 
 public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBridge {
+
+    private String maskingPatternFile;
+    private List<Pattern> maskingPatterns;
+
     @Override
     public void push(LogRecord record) {
         LoggingEvent loggingEvent = LoggingUtils.getLogEvent(record);
@@ -61,7 +66,23 @@ public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBri
 
         // acquire the tenant aware logging event from the logging event
         TenantAwareLoggingEvent tenantAwareLoggingEvent = LoggingUtils
-                .getTenantAwareLogEvent(loggingEvent, tenantId, serviceName);
+                .getTenantAwareLogEvent(this.maskingPatterns, loggingEvent, tenantId, serviceName);
         super.subAppend(tenantAwareLoggingEvent);
+    }
+
+    public String getMaskingPatternFile() {
+
+        return this.maskingPatternFile;
+    }
+
+    /**
+     * Set the maskingPatternFile parameter.
+     * In this method, masking patterns will be loaded from the configured file.
+     *
+     * @param maskingPatternFile : The absolute path of the masking pattern file.
+     */
+    public void setMaskingPatternFile(String maskingPatternFile) {
+
+       this.maskingPatterns = LoggingUtils.loadMaskingPatterns(maskingPatternFile);
     }
 }

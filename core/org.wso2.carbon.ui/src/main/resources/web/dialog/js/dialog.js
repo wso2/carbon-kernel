@@ -227,7 +227,7 @@ CARBON.showConfirmationDialog = function(message, handleYes, handleNo, closeCall
  * @param {String} message to display
  * @return {Boolean}
  */
-CARBON.showPopupDialog = function(message, title, windowHight, okButton, callback, windowWidth) {
+CARBON.showPopupDialog = function(message, title, windowHeight, okButton, callback, windowWidth) {
     var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlEncode(message) + "</div>";
     var requiredWidth = 750;
     if (windowWidth) {
@@ -251,9 +251,9 @@ CARBON.showPopupDialog = function(message, title, windowHight, okButton, callbac
                     return false;
                 }
             },
-            height:windowHight,
+            height:windowHeight,
             width:requiredWidth,
-            minHeight:windowHight,
+            minHeight:windowHeight,
             minWidth:requiredWidth,
             modal:true
         });
@@ -264,9 +264,9 @@ CARBON.showPopupDialog = function(message, title, windowHight, okButton, callbac
                 jQuery("#dcontainer").empty();
                 return false;
             },
-            height:windowHight,
+            height:windowHeight,
             width:requiredWidth,
-            minHeight:windowHight,
+            minHeight:windowHeight,
             minWidth:requiredWidth,
             modal:true
         });
@@ -287,6 +287,97 @@ CARBON.showPopupDialog = function(message, title, windowHight, okButton, callbac
 };
 
 /**
+ * Display any info inside a jQuery UI's confirmation widget.
+ * @method showPopupConfirm
+ * @param {String} message to display html/text
+ * @param {String} okButton to change ok button text
+ * @param {String} cancelButton to change cancel button text
+ * @return {Boolean}
+ */
+CARBON.showPopupConfirm = function (htmlMessage, title, windowHeight, okButton, cancelButton, callback, windowWidth) {
+    if (!isHTML(htmlMessage)) {
+        htmlMessage = htmlEncode(htmlMessage);
+    }
+    var strDialog = "<div id='dialog' title='" + title + "'><div id='popupDialog'></div>" + htmlMessage + "</div>";
+    var requiredWidth = 750;
+    if (windowWidth) {
+        requiredWidth = windowWidth;
+    }
+    var dContainer = jQuery("#dcontainer");
+    var popUpDialog = jQuery("#dialog");
+    var func = function () {
+        dContainer.html(strDialog);
+        if (okButton) {
+            popUpDialog.dialog({
+                close: function () {
+                    jQuery(this).dialog('destroy').remove();
+                    dContainer.empty();
+                    return false;
+                },
+                buttons: {
+                    "OK": function () {
+                        if (callback && typeof callback == "function")
+                            callback();
+                        jQuery(this).dialog("destroy").remove();
+                        dContainer.empty();
+                        return false;
+                    },
+                    "Cancel": function () {
+                        jQuery(this).dialog('destroy').remove();
+                        dContainer.empty();
+                        return false;
+                    },
+                },
+                height: windowHeight,
+                width: requiredWidth,
+                minHeight: windowHeight,
+                minWidth: requiredWidth,
+                modal: true
+            });
+        } else {
+            popUpDialog.dialog({
+                close: function () {
+                    jQuery(this).dialog('destroy').remove();
+                    dContainer.empty();
+                    return false;
+                },
+                height: windowHeight,
+                width: requiredWidth,
+                minHeight: windowHeight,
+                minWidth: requiredWidth,
+                modal: true
+            });
+        }
+
+        if (okButton) {
+            $('.ui-dialog-buttonpane button:contains(OK)').attr("id", "dialog-confirm_ok-button");
+            $('#dialog-confirm_ok-button').html(okButton);
+        }
+        if (cancelButton) {
+            $('.ui-dialog-buttonpane button:contains(Cancel)').attr("id", "dialog-confirm_cancel-button");
+            $('#dialog-confirm_cancel-button').html(cancelButton);
+        }
+
+
+        jQuery('.ui-dialog-titlebar-close').click(function () {
+            jQuery('#dialog').dialog("destroy").remove();
+            dContainer.empty();
+        });
+
+    };
+    if (!pageLoaded) {
+        jQuery(document).ready(func);
+    } else {
+        func();
+    }
+
+    function isHTML(str) {
+        var regex = RegExp(/<[a-z][\s\S]*>/i);
+        return regex.test(str);
+    }
+}
+
+/**
  * Display the Input dialog.
  * @method showInputDialog
  * @param {String} message to display
@@ -305,7 +396,7 @@ CARBON.showInputDialog = function(message, handleOk, handleCancel, closeCallback
     var strInput = "<div style='margin:20px;'><p>"+message+ "</p><br/>"+
                    "<input type='text' id='carbon-ui-dialog-input' size='40' name='carbon-dialog-inputval'></div>";
     var strDialog = "<div id='dialog' title='WSO2 Carbon'>" + strInput + "</div>";
-    var func = function() {   
+    var func = function() {
 	    jQuery("#dcontainer").html(strDialog);
 	    jQuery("#dialog").dialog({
 	        close:function() {

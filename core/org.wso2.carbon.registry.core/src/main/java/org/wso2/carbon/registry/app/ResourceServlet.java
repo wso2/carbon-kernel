@@ -143,7 +143,6 @@ public class ResourceServlet extends HttpServlet {
                 }
             }
             response.setHeader("ETag", currentETag);
-
             if (resource.getMediaType() != null && resource.getMediaType().length() > 0) {
                 response.setContentType(resource.getMediaType());
             } else {
@@ -166,9 +165,6 @@ public class ResourceServlet extends HttpServlet {
                     while ((byteCount = contentStream.read(contentChunk)) != -1) {
                         servletOutputStream.write(contentChunk, 0, byteCount);
                     }
-
-                    response.flushBuffer();
-                    servletOutputStream.flush();
 
                 } finally {
                     contentStream.close();

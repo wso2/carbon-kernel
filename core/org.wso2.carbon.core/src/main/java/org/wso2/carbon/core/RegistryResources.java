@@ -153,6 +153,13 @@ public final class RegistryResources {
         public static final String SERVER_REGISTRY_KEY_PASSWORD = "Security.RegistryKeyStore.KeyPassword";
         public static final String SERVER_REGISTRY_KEYSTORE_TYPE = "Security.RegistryKeyStore.Type";
 
+        //Internal key store which is used for encryption and decryption purpose
+        public static final String SERVER_INTERNAL_KEYSTORE_FILE = "Security.InternalKeyStore.Location";
+        public static final String SERVER_INTERNAL_KEYSTORE_PASSWORD = "Security.InternalKeyStore.Password";
+        public static final String SERVER_INTERNAL_KEYSTORE_KEY_ALIAS = "Security.InternalKeyStore.KeyAlias";
+        public static final String SERVER_INTERNAL_PRIVATE_KEY_PASSWORD = "Security.InternalKeyStore.KeyPassword";
+        public static final String SERVER_INTERNAL_KEYSTORE_TYPE = "Security.InternalKeyStore.Type";
+
         //generated pub. key - multitenancy scenario
         public static final String TENANT_PUBKEY_RESOURCE = RegistryResources.ROOT +
                                                             "security/pub-key";

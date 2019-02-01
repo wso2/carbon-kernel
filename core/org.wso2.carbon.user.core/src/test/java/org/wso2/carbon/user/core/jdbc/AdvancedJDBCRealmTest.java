@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.BaseTestCase;
@@ -32,14 +33,19 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
+import org.wso2.carbon.user.core.common.SampleAbstractUserManagementErrorListener;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
+import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
+import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +55,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
     private static Log log = LogFactory.getLog(AdvancedJDBCRealmTest.class);
     private UserRealm realm = null;
     private String TEST_URL = "jdbc:h2:./target/advjdbctest/CARBON_TEST";
+    private SampleAbstractUserManagementErrorListener sampleAbstractUserManagementErrorListener;
 
     public void testStuff() throws Exception {
         DatabaseUtil.closeDatabasePoolConnection();
@@ -79,6 +86,12 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), MultitenantConstants.SUPER_TENANT_ID);
+        sampleAbstractUserManagementErrorListener = new SampleAbstractUserManagementErrorListener();
+        Method method = UMListenerServiceComponent.class.getDeclaredMethod("setUserManagementErrorEventListenerService",
+                UserManagementErrorEventListener.class);
+        method.setAccessible(true);
+        method.invoke(null, sampleAbstractUserManagementErrorListener);
+        method.setAccessible(false);
     }
 
     public void doUserStuff() throws Exception {
@@ -100,6 +113,10 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             admin.addUser(null, null, null, null, null, false);
             TestCase.assertTrue(false);
         } catch (Exception ex) {
+            Assert.assertEquals("Relevant listener related with error handling is not called during addUser Failure", 1,
+                    sampleAbstractUserManagementErrorListener.getAddUserFailureCount());
+            Assert.assertTrue("Error code does not match with the exact errorneous scenario", ex.getMessage()
+                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getCode()));
             //expected error
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", ex);
@@ -109,6 +126,13 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             admin.addUser("dimuthu", null, null, null, null, false);
             TestCase.assertTrue(false);
         } catch (Exception ex) {
+            Assert.assertEquals(
+                    "Relevant listener related with error handling is not called during addUser " + "Failure", 2,
+                    sampleAbstractUserManagementErrorListener.getAddUserFailureCount());
+            Assert.assertTrue(
+                    "Error code does not match with the exact errorneous scenario, actual message " + ex.getMessage(),
+                    ex.getMessage()
+                            .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode()));
             //expected error
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", ex);
@@ -149,6 +173,11 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             admin.addRole(null, null, null);
             fail("Exception at defining a roll with No information");
         } catch (Exception ex) {
+            Assert.assertEquals("Relevant method in event listener is not called when there is a failure while "
+                    + "adding the role", 1, sampleAbstractUserManagementErrorListener.getAddRoleFailureCount());
+            Assert.assertTrue("Error code does not match with the exact errorneous scenario, actual message is " + ex
+                    .getMessage(), ex.getMessage()
+                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode()));
             //expected error
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", ex);
@@ -208,11 +237,23 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         //Authenticate USER
         assertTrue(admin.authenticate("dimuthu", "credential"));
         assertFalse(admin.authenticate(null, "credential"));
+        Assert.assertEquals("Relevant event listener is not called, when there is an authentication failure", 1,
+                sampleAbstractUserManagementErrorListener.getAuthenticationFailureCount());
         assertFalse(admin.authenticate("dimuthu", null));
 
         //update by ADMIN
         admin.updateCredentialByAdmin("dimuthu", "topsecret");
         assertTrue(admin.authenticate("dimuthu", "topsecret"));
+
+        // Test whether relevant event listeners related with faulty scenario is called, in the event of failure.
+        try {
+            admin.updateCredentialByAdmin("dimuthu", new SampleAbstractUserManagementErrorListener());
+            fail("Update Credential By Admin succeeded even for an invalid format of credentials");
+        } catch (UserStoreException ex) {
+            Assert.assertEquals("Relevant event listener related with ,update credential by admin was not called for"
+                            + " a failure scenario", 1,
+                    sampleAbstractUserManagementErrorListener.getUpdateCredentialByAdminFailureCount());
+        }
 
         //isExistingUser
         assertTrue(admin.isExistingUser("dimuthu"));
@@ -227,6 +268,13 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             admin.updateCredential("dimuthu", "password", "xxx");
             TestCase.assertTrue(false);
         } catch (Exception ex) {
+            Assert.assertEquals("Relevant event listener related with ,update credential by admin was not called for"
+                            + " a failure scenario", 1,
+                    sampleAbstractUserManagementErrorListener.getUpdateCredentialFailureCount());
+            Assert.assertTrue(
+                    "Error message does not match with the exact cause for the error. Actual " + ex.getMessage(),
+                    ex.getMessage().startsWith(
+                            UserCoreErrorConstants.ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getCode()));
             //expected exception
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", ex);
@@ -248,6 +296,15 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         String[] names4 = admin.listUsers("is?ru", 100);
         assertEquals(0, names4.length);
 
+        // Test getUserList errorneous testing.
+        try {
+            admin.getUserList(null, null, null);
+        } catch (UserStoreException ex) {
+            Assert.assertEquals(
+                    "Relevant error listeners were not called during a failre while trying get user " + "list ", 1,
+                    sampleAbstractUserManagementErrorListener.getGetUserListFailureCount());
+        }
+
         String[] roleNames = admin.getRoleNames();
         assertEquals(3, roleNames.length);
 
@@ -257,6 +314,18 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         assertFalse(admin.isExistingUser("vajira"));
         assertFalse(admin.authenticate("vajira", "credential"));
 
+        // Try to delete the non-existing user, to check the errorneous scenario.
+        try {
+            admin.deleteUser("non-existing user");
+            Assert.fail("When trying to delete a non-existing user, exception is not thrown");
+        } catch (UserStoreException e) {
+            Assert.assertEquals("Relevant error listener is not called during a errorneous scenario ", 1,
+                    sampleAbstractUserManagementErrorListener.getDeleteUserFailureCount());
+            Assert.assertTrue(
+                    "Error message does not match with exact errorneous scenario, actual error, " + e.getMessage(),
+                    e.getMessage()
+                            .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode()));
+        }
 
         //delete ROLE
         admin.addUser("vajira", "credential", new String[]{"role1"}, userProps, null, false);
@@ -291,6 +360,14 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         admin.addRole("role4", null, null);
         admin.addRole("roleShared", null, null);
 
+        // Test errorneous scenario when deleting a role.
+        try {
+            admin.deleteRole("Internal/everyone");
+        } catch (UserStoreException ex) {
+            Assert.assertEquals("Relevant event listener is not called during a failure scenario while trying to "
+                            + "delete Internal/Everyone role", 1,
+                    sampleAbstractUserManagementErrorListener.getDeleteRoleFailureCount());
+        }
 
         //add users
         admin.addUser("saman", "pass1", null, null, null, false);
@@ -301,6 +378,13 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         admin.updateRoleListOfUser("saman", null, new String[]{"role2"});
         admin.updateRoleListOfUser("saman", new String[]{"role2"}, new String[]{"role4",
                 "role3"});
+        try {
+            admin.updateRoleListOfUser("saman", new String[]{"role2"}, new String[]{"role4",
+                    "role3"});
+        } catch (UserStoreException e) {
+            fail("Cannot assign same role to user again.");
+        }
+
         try {
             admin.updateRoleListOfUser(null, null, new String[]{"role2"});
             fail("Exceptions at missing user name");
@@ -321,6 +405,13 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
                 fail("Able to rename role with invalid characters");
             }
         } catch (UserStoreException e) {
+            Assert.assertEquals(
+                    "Relevant event listener was not called when there is a failure while updating " + "role name ", 1,
+                    sampleAbstractUserManagementErrorListener.getUpdateRoleNameFailureCount());
+            Assert.assertTrue(
+                    "Error message does not match with actual error scenario, actual message : " + e.getMessage(),
+                    e.getMessage()
+                            .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode()));
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", e);
             }
@@ -388,22 +479,30 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             }
         }
 
+        int count = sampleAbstractUserManagementErrorListener.getUpdateRoleListOfUserFailureCount();
         try {
             admin.updateRoleListOfUser(realmConfig.getAdminUserName(), new String[]{realmConfig.
                     getAdminRoleName()}, null);
             TestCase.assertTrue(false);
         } catch (Exception e) {
+            Assert.assertEquals(
+                    "Relevant error listeners are not called during a failure while updating role list of a user",
+                    count + 1, sampleAbstractUserManagementErrorListener.getUpdateRoleListOfUserFailureCount());
             // exptected error in negative testing
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", e);
             }
         }
 
+        count = sampleAbstractUserManagementErrorListener.getUpdateUserRoleListFailureCount();
         try {
             admin.updateUserListOfRole(realmConfig.getEveryOneRoleName(), new String[]{"saman"},
                     null);
             TestCase.assertTrue(false);
         } catch (Exception e) {
+            Assert.assertEquals(
+                    "Relevant error listeners are not called during a failure while updating user list of role",
+                    count + 1, sampleAbstractUserManagementErrorListener.getUpdateUserRoleListFailureCount());
             // exptected error in negative testing
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", e);
@@ -415,7 +514,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
                     null);
             TestCase.assertTrue(false);
         } catch (Exception e) {
-            // exptected error in negative testing
+            // expected error in negative testing
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", e);
             }
@@ -640,6 +739,10 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             usWriter.setUserClaimValue("isuru", null, "claim1default", null);
             fail("Exception at set claim values to null claimURI");
         } catch (Exception e) {
+            Assert.assertEquals("Relevant event listeners are not called during a failure of setUserClaim Value", 1,
+                    sampleAbstractUserManagementErrorListener.getSetUserClaimValueFailureCount());
+            Assert.assertTrue("Relevant exception is not thrown, actual message, " + e.getMessage(), e.getMessage()
+                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode()));
             //expected exception
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", e);
@@ -661,9 +764,22 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         try {
             usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
         } catch (UserStoreException e) {
+            Assert.assertEquals("Relevant event listener was not called when there is a failure while getting the "
+                            + "user claim value", 1,
+                    sampleAbstractUserManagementErrorListener.getGetUserClaimValueFailureCount());
             // contains the 'UserNotFound' error code in the error.
             assertTrue(e.getMessage().contains("UserNotFound"));
         }
+
+        // Test for a non-existing user.
+        try {
+            usWriter.getUserClaimValues("isuru", null);
+        } catch (UserStoreException e) {
+            Assert.assertEquals("Relevant event listener was not called when there is a failure while getting the "
+                            + "user claim values", 1,
+                    sampleAbstractUserManagementErrorListener.getGetUserClaimValuesFailureCount());
+        }
+
         // update default
         usWriter.setUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, "dimzi lee", null);
         value = usWriter.getUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);
@@ -699,6 +815,18 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
                 ClaimTestUtil.HOME_PROFILE_NAME);
         assertEquals("muthulee", value);
 
+        // Try failure scenario to make sure relevant event listener method is called during a failure.
+        try {
+            usWriter.setUserClaimValues("non-existing-user", map, ClaimTestUtil.HOME_PROFILE_NAME);
+        } catch (UserStoreException ex) {
+            Assert.assertEquals(
+                    "Relevant event listener is not called during a failure while setting user claim values", 1,
+                    sampleAbstractUserManagementErrorListener.getSetUserClaimValuesFailureCount());
+            Assert.assertTrue("Relevant error code does not match with the current errorneous scenario. Actual "
+                    + "error message " + ex.getMessage(), ex.getMessage()
+                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode()));
+        }
+
         //DELETE
         usWriter.deleteUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);
         value = usWriter.getUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);
@@ -707,6 +835,9 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
             usWriter.deleteUserClaimValue("dimuthu", null, null);
             fail("Exception at null Claim URI");
         } catch (Exception e) {
+            Assert.assertEquals("Relevant listener method is not called when there is a failure while deleting "
+                            + "User Claim value", 1,
+                    sampleAbstractUserManagementErrorListener.getDeleteUserClaimValueFailureCount());
             //expected exception
             if (log.isDebugEnabled()) {
                 log.debug("Expected error, hence ignored", e);
@@ -723,6 +854,19 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         }
 
         usWriter.deleteUserClaimValues("dimuthu", allClaims, ClaimTestUtil.HOME_PROFILE_NAME);
+
+        // Try to delete a claim values of a non-existing user.
+        try {
+            usWriter.deleteUserClaimValues("non-existing-user", allClaims, ClaimTestUtil.HOME_PROFILE_NAME);
+            fail("Exception is not thrown for a invalid delete user claim values request");
+        } catch (UserStoreException ex) {
+            Assert.assertEquals("Relevant error listeners are not called during a failure scenario while trying to "
+                            + "delete user claim values", 1,
+                    sampleAbstractUserManagementErrorListener.getDeleteUserClaimValuesFailureCount());
+            Assert.assertTrue("Relevant exception is not thrown with the correct error message, actual message, " + ex
+                    .getMessage(), ex.getMessage()
+                    .startsWith(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode()));
+        }
         obtained = usWriter.getUserClaimValues("dimuthu", allClaims,
                 ClaimTestUtil.HOME_PROFILE_NAME);
         assertNull(obtained.get(ClaimTestUtil.CLAIM_URI2)); // overridden
@@ -734,4 +878,4 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
 
 
 }
-   
+

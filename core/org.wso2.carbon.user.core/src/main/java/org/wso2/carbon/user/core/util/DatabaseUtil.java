@@ -812,9 +812,7 @@ public class DatabaseUtil {
                 log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is"
                         + Arrays.toString(count));
             }
-            if (localConnection) {
-                dbConnection.commit();
-            }
+            dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {

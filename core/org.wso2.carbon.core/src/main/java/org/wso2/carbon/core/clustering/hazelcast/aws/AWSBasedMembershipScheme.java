@@ -99,6 +99,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
 
         Parameter accessKey = getParameter(AWSConstants.ACCESS_KEY);
         Parameter secretKey = getParameter(AWSConstants.SECRET_KEY);
+        Parameter iamRole = getParameter(AWSConstants.IAM_ROLE);
         Parameter securityGroup = getParameter(AWSConstants.SECURITY_GROUP);
         Parameter connTimeout = getParameter(AWSConstants.CONNECTION_TIMEOUT);
         Parameter hostHeader = getParameter(AWSConstants.HOST_HEADER);
@@ -123,6 +124,9 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
             } else {
                 awsConfig.setSecretKey(((String)secretKey.getValue()).trim());
             }
+        }
+        if (iamRole != null) {
+            awsConfig.setIamRole(((String) iamRole.getValue()).trim());
         }
         if (securityGroup != null) {
             awsConfig.setSecurityGroupName(((String)securityGroup.getValue()).trim());

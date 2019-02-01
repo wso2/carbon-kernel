@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.dto.CorrelationLogDTO;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -32,16 +33,20 @@ import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.TimeLimitExceededException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Map;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -62,6 +67,24 @@ public class LDAPConnectionContext {
 
     private static final String READ_TIME_OUT = "ReadTimeout";
 
+    private static final Log correlationLog = LogFactory.getLog("correlation");
+
+    private static String initialContextFactoryClass = "com.sun.jndi.dns.DnsContextFactory";
+
+    private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "ldap";
+    private static final String CORRELATION_LOG_INITIALIZATION_METHOD_NAME = "initialization";
+    private static final String CORRELATION_LOG_INITIALIZATION_ARGS = "empty";
+    private static final int CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH = 0;
+    private static final String CORRELATION_LOG_SEPARATOR = "|";
+    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+
+    static {
+        String initialContextFactoryClassSystemProperty = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
+        if (initialContextFactoryClassSystemProperty != null && initialContextFactoryClassSystemProperty.length() > 0) {
+            initialContextFactoryClass = initialContextFactoryClassSystemProperty;
+        }
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     public LDAPConnectionContext(RealmConfiguration realmConfig) throws UserStoreException {
 
@@ -73,7 +96,7 @@ public class LDAPConnectionContext {
                 throw new UserStoreException("DNS is enabled, but DNS domain name not provided.");
             } else {
                 environmentForDNS = new Hashtable();
-                environmentForDNS.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+                environmentForDNS.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactoryClass);
                 environmentForDNS.put("java.naming.provider.url", DNSUrl);
                 populateDCMap();
             }
@@ -167,24 +190,25 @@ public class LDAPConnectionContext {
             environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
         }
 
-        if(StringUtils.isNotEmpty(readTimeout)){
-            environment.put("com.sun.jndi.ldap.read.timeout",readTimeout);
+        if (StringUtils.isNotEmpty(readTimeout)) {
+            environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
         }
     }
 
     public DirContext getContext() throws UserStoreException {
+
         DirContext context = null;
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
             try {
-                context = new InitialDirContext(environment);
+                context = getLdapContext(environment,null);
 
             } catch (NamingException e) {
                 log.error("Error obtaining connection. " + e.getMessage(), e);
                 log.error("Trying again to get connection.");
 
                 try {
-                    context = new InitialDirContext(environment);
+                    context = getLdapContext(environment,null);
                 } catch (Exception e1) {
                     log.error("Error obtaining connection for the second time" + e.getMessage(), e);
                     throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
@@ -198,7 +222,8 @@ public class LDAPConnectionContext {
                 SRVRecord firstRecord = dcMap.get(firstKey);
                 //compose the connection URL
                 environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
-                context = new InitialDirContext(environment);
+
+                context = getLdapContext(environment,null);
 
             } catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
@@ -208,7 +233,7 @@ public class LDAPConnectionContext {
                     try {
                         SRVRecord srv = dcMap.get(integer);
                         environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(srv));
-                        context = new InitialDirContext(environment);
+                        context = getLdapContext(environment,null);
                         break;
                     } catch (NamingException e1) {
                         if (integer == (dcMap.lastKey())) {
@@ -220,8 +245,7 @@ public class LDAPConnectionContext {
                 }
             }
         }
-        return (context);
-
+        return context;
     }
 
     @SuppressWarnings("unchecked")
@@ -259,6 +283,7 @@ public class LDAPConnectionContext {
     }
 
     private void populateDCMap() throws UserStoreException {
+
         try {
             //get the directory context for DNS
             DirContext dnsContext = new InitialDirContext(environmentForDNS);
@@ -320,6 +345,7 @@ public class LDAPConnectionContext {
     }
 
     private String getLDAPURLFromSRVRecord(SRVRecord srvRecord) {
+
         String ldapURL = null;
         if (readOnly) {
             ldapURL = "ldap://" + srvRecord.getHostIP() + ":" + srvRecord.getPort();
@@ -353,9 +379,9 @@ public class LDAPConnectionContext {
     /**
      * Returns the LDAPContext for the given credentials
      *
-     * @param userDN user DN
+     * @param userDN   user DN
      * @param password user password
-     * @return returns the LdapContext instance if credentials are valid
+     * @return returns The LdapContext instance if credentials are valid
      * @throws UserStoreException
      * @throws NamingException
      */
@@ -395,7 +421,7 @@ public class LDAPConnectionContext {
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
             //replace environment properties with these credentials
-            context = new InitialLdapContext(tempEnv, null);
+            context = getLdapContext(tempEnv, null);
         } else if (dcMap != null && dcMap.size() != 0) {
             try {
                 //first try the first entry in dcMap, if it fails, try iteratively
@@ -403,7 +429,7 @@ public class LDAPConnectionContext {
                 SRVRecord firstRecord = dcMap.get(firstKey);
                 //compose the connection URL
                 tempEnv.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
-                context = new InitialLdapContext(tempEnv, null);
+                context = getLdapContext(tempEnv, null);
 
             } catch (AuthenticationException e) {
                 throw e;
@@ -415,7 +441,7 @@ public class LDAPConnectionContext {
                     try {
                         SRVRecord srv = dcMap.get(integer);
                         tempEnv.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(srv));
-                        context = new InitialLdapContext(environment, null);
+                        context = getLdapContext(environment, null);
                         break;
                     } catch (AuthenticationException e1) {
                         throw e1;
@@ -429,5 +455,195 @@ public class LDAPConnectionContext {
             }
         }
         return context;
+    }
+
+    /**
+     * Creates the proxy for directory context and wrap the context.
+     * Calculate the time taken for creation
+     *
+     * @param environment Used to get provider url and principal
+     * @return The wrapped context
+     * @throws NamingException
+     */
+    private DirContext getDirContext(Hashtable<?, ?> environment) throws NamingException {
+
+        if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+            final Class[] proxyInterfaces = new Class[]{DirContext.class};
+            long start = System.currentTimeMillis();
+
+            DirContext context = new InitialDirContext(environment);
+
+            Object proxy = Proxy.newProxyInstance(LDAPConnectionContext.class.getClassLoader(), proxyInterfaces,
+                    new LdapContextInvocationHandler(context));
+
+            long delta = System.currentTimeMillis() - start;
+
+            CorrelationLogDTO correlationLogDTO = new CorrelationLogDTO();
+            correlationLogDTO.setStartTime(start);
+            correlationLogDTO.setDelta(delta);
+            correlationLogDTO.setEnvironment(environment);
+            correlationLogDTO.setMethodName(CORRELATION_LOG_INITIALIZATION_METHOD_NAME);
+            correlationLogDTO.setArgsLength(CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH);
+            correlationLogDTO.setArgs(CORRELATION_LOG_INITIALIZATION_ARGS);
+            logDetails(correlationLogDTO);
+            return (DirContext) proxy;
+        } else {
+            return new InitialDirContext(environment);
+        }
+    }
+
+    /**
+     * Creates the proxy for LDAP context and wrap the context.
+     * Calculate the time taken for creation
+     *
+     * @param environment        Used to get provider url and principal
+     * @param connectionControls The wrapped context
+     * @return ldap connection context
+     * @throws NamingException
+     */
+    private LdapContext getLdapContext(Hashtable<?, ?> environment, Control[] connectionControls)
+            throws NamingException {
+
+        if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+            final Class[] proxyInterfaces = new Class[]{LdapContext.class};
+            long start = System.currentTimeMillis();
+
+            LdapContext context = new InitialLdapContext(environment, connectionControls);
+
+            Object proxy = Proxy.newProxyInstance(LDAPConnectionContext.class.getClassLoader(), proxyInterfaces,
+                    new LdapContextInvocationHandler(context));
+
+            long delta = System.currentTimeMillis() - start;
+
+            CorrelationLogDTO correlationLogDTO = new CorrelationLogDTO();
+            correlationLogDTO.setStartTime(start);
+            correlationLogDTO.setDelta(delta);
+            correlationLogDTO.setEnvironment(environment);
+            correlationLogDTO.setMethodName(CORRELATION_LOG_INITIALIZATION_METHOD_NAME);
+            correlationLogDTO.setArgsLength(CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH);
+            correlationLogDTO.setArgs(CORRELATION_LOG_INITIALIZATION_ARGS);
+            logDetails(correlationLogDTO);
+            return (LdapContext) proxy;
+        } else {
+            return new InitialLdapContext(environment, connectionControls);
+        }
+    }
+
+    /**
+     * Proxy Class that is used to calculate and log the time taken for queries
+     */
+    private class LdapContextInvocationHandler implements InvocationHandler {
+
+        private Object previousContext;
+
+        public LdapContextInvocationHandler(Object previousContext) {
+
+            this.previousContext = previousContext;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+            long start = System.currentTimeMillis();
+            Object result = method.invoke(this.previousContext, args);
+            long delta = System.currentTimeMillis() - start;
+            String methodName = method.getName();
+            int argsLength = 0;
+
+            if (args != null) {
+                argsLength = args.length;
+            }
+
+            if (!StringUtils.equalsIgnoreCase("close", methodName)) {
+                CorrelationLogDTO correlationLogDTO = new CorrelationLogDTO();
+                correlationLogDTO.setStartTime(start);
+                correlationLogDTO.setDelta(delta);
+                correlationLogDTO.setEnvironment(((DirContext) this.previousContext).getEnvironment());
+                correlationLogDTO.setMethodName(methodName);
+                correlationLogDTO.setArgsLength(argsLength);
+                correlationLogDTO.setArgs(stringify(args));
+                logDetails(correlationLogDTO);
+            }
+            return result;
+        }
+
+        /**
+         * Creates a argument string by appending the values in the array
+         *
+         * @param arr Arguments
+         * @return Argument string
+         */
+        private String stringify(Object[] arr) {
+
+            StringBuilder sb = new StringBuilder();
+            if (arr == null) {
+                sb.append("null");
+            } else {
+                sb.append(" ");
+                for (int i = 0; i < arr.length; i++) {
+                    Object o = arr[i];
+                    if (o == null){
+                        continue;
+                    }
+                    sb.append(o.toString());
+                    if (i < arr.length - 1) {
+                        sb.append(",");
+                    }
+                }
+            }
+            return sb.toString();
+        }
+    }
+
+    /**
+     * Logs the details from the LDAP query
+     *
+     * @param correlationLogDTO Contains all details that should be to logged
+     */
+    private void logDetails(CorrelationLogDTO correlationLogDTO) {
+
+        String providerUrl = "No provider url found";
+        String principal = "No principal found";
+
+        if (correlationLogDTO.getEnvironment().containsKey("java.naming.provider.url")) {
+            providerUrl = (String) environment.get("java.naming.provider.url");
+        }
+
+        if (environment.containsKey("java.naming.security.principal")) {
+            principal = (String) environment.get("java.naming.security.principal");
+        }
+
+        if (correlationLog.isInfoEnabled()) {
+            List<String> logPropertiesList = new ArrayList<>();
+            logPropertiesList.add(Long.toString(correlationLogDTO.getDelta()));
+            logPropertiesList.add(CORRELATION_LOG_CALL_TYPE_VALUE);
+            logPropertiesList.add(Long.toString(correlationLogDTO.getStartTime()));
+            logPropertiesList.add(correlationLogDTO.getMethodName());
+            logPropertiesList.add(providerUrl);
+            logPropertiesList.add(principal);
+            logPropertiesList.add(Integer.toString(correlationLogDTO.getArgsLength()));
+            logPropertiesList.add(correlationLogDTO.getArgs());
+            correlationLog.info(createFormattedLog(logPropertiesList));
+        }
+    }
+
+    /**
+     * Creates the log line that should be printed
+     *
+     * @param logPropertiesList Contains the log values that should be printed in the log
+     * @return The log line
+     */
+    private String createFormattedLog(List<String> logPropertiesList) {
+
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (String property : logPropertiesList) {
+            sb.append(property);
+            if (count < logPropertiesList.size() - 1) {
+                sb.append(CORRELATION_LOG_SEPARATOR);
+            }
+            count++;
+        }
+        return sb.toString();
     }
 }

@@ -48,6 +48,7 @@ public class UserCoreConstants {
 
     public static final String SYSTEM_RESOURCE = "System";
     public static final String MSSQL_TYPE = "mssql";
+    public static final String MYSQL_TYPE = "mysql";
     public static final String OPENEDGE_TYPE = "openedge";
 
     /*To hold a boolean property to track the first startup of the server.*/
@@ -165,7 +166,9 @@ public class UserCoreConstants {
         public static final String PROPERTY_JS_REG_EX = "PasswordJavaScriptRegEx";
 
         public static final String PROPERTY_USER_NAME_JAVA_REG_EX = "UsernameJavaRegEx";
+        public static final String PROPERTY_USER_NAME_JAVA_REG = "UserNameJavaRegEx";
         public static final String PROPERTY_USER_NAME_JS_REG_EX = "UsernameJavaScriptRegEx";
+        public static final String PROPERTY_USER_NAME_JS_REG = "UserNameJavaScriptRegEx";
         public static final String PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX = "UsernameWithEmailJavaScriptRegEx";
 
         public static final String PROPERTY_ROLE_NAME_JAVA_REG_EX = "RolenameJavaRegEx";

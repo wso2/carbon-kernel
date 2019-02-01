@@ -39,6 +39,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.commons.httpclient.HttpMethod;
+import org.wso2.carbon.core.internal.MultitenantMsgContextDataHolder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.Map;
@@ -54,6 +55,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String EXCESS_TRANSPORT_HEADERS = "EXCESS_TRANSPORT_HEADERS";
     private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
     private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
+    private static final String DELETE_REQUEST_WITH_PAYLOAD = "DELETE_REQUEST_WITH_PAYLOAD";
+
+    private MultitenantMsgContextDataHolder dataHolder = MultitenantMsgContextDataHolder.getInstance();
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -88,6 +92,8 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         OperationContext operationContext = serviceContext.createOperationContext(axisOperation);
         operationContext.addMessageContext(superTenantOutMessageContext);
 
+        operationContext.getAxisOperation().setMessageExchangePattern(msgContext.getAxisOperation().
+                getMessageExchangePattern());
         superTenantOutMessageContext.setOperationContext(operationContext);
 
         String transportOutName = msgContext.getTransportOut().getName();
@@ -234,6 +240,15 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
             superTenantOutMessageContext.setProperty(NO_ENTITY_BODY, msgContext.getProperty(NO_ENTITY_BODY));
         }
 
+        // set additional multitenant message context properties read from multitenant-msg-context.properties file
+        for (String property : dataHolder.getTenantMsgContextProperties()) {
+            if (msgContext.getProperty(property) != null) {
+                superTenantOutMessageContext.setProperty(property, msgContext.getProperty(property));
+            }
+        }
+
+        setDeleteRequestWithPayloadProperty(superTenantOutMessageContext, msgContext);
+
         EndpointReference epr = getDestinationEPR(msgContext);
         // this is a request message so we need to set the response message context
         if (epr != null) {
@@ -307,5 +322,19 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
             return msgContext.getTo();
         }
         return null;
+    }
+
+    /**
+     * Set property DELETE_REQUEST_WITH_PAYLOAD to superTenantOutMessageContext.
+     *
+     * @param superTenantOutMessageContext message context to be send out
+     * @param msgContext                   message context coming in
+     */
+    protected void setDeleteRequestWithPayloadProperty(MessageContext superTenantOutMessageContext,
+            MessageContext msgContext) {
+        if (msgContext.getProperty(DELETE_REQUEST_WITH_PAYLOAD) != null) {
+            superTenantOutMessageContext
+                    .setProperty(DELETE_REQUEST_WITH_PAYLOAD, msgContext.getProperty(DELETE_REQUEST_WITH_PAYLOAD));
+        }
     }
 }

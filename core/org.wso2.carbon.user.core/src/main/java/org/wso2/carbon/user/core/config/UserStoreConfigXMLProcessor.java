@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.user.core.config;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
@@ -45,15 +47,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -61,9 +70,11 @@ public class UserStoreConfigXMLProcessor {
 
     private static final Log log = LogFactory.getLog(UserStoreConfigXMLProcessor.class);
     private static BundleContext bundleContext;
+    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
     private static PrivateKey privateKey = getPrivateKey();
     private SecretResolver secretResolver;
     private String filePath = null;
+    private Gson gson = new Gson();
 
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
@@ -314,16 +325,7 @@ public class UserStoreConfigXMLProcessor {
                             UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME)));
                 }
                 try {
-                    Cipher keyStoreCipher = Cipher.getInstance("RSA", "BC");
-                    privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
-                    if (privateKey == null) {
-                        throw new org.wso2.carbon.user.api.UserStoreException(
-                                "Private key initialization failed. Cannot decrypt the userstore password.");
-                    }
-
-                    keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
-                    propValue = new String(keyStoreCipher.doFinal(Base64.
-                            decode(propValue.trim())));
+                    propValue = decryptProperty(propValue);
                 } catch (GeneralSecurityException e) {
                     String errMsg = "encryption of Property=" + propElem.getAttributeValue(
                             new QName(UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME))
@@ -388,5 +390,158 @@ public class UserStoreConfigXMLProcessor {
             }
         }
         return null;
+    }
+
+    /**
+     * Function to decrypt given cipher text
+     *
+     * @param propValue base64encoded ciphertext
+     * @return plaintext
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException
+     * @throws org.wso2.carbon.user.api.UserStoreException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
+    private String decryptProperty(String propValue)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException,
+            org.wso2.carbon.user.api.UserStoreException, InvalidKeyException, BadPaddingException,
+            IllegalBlockSizeException {
+
+        Cipher keyStoreCipher;
+        String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+        byte[] cipherTextBytes = Base64.decode(propValue.trim());
+
+        privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
+        if (privateKey == null) {
+            throw new org.wso2.carbon.user.api.UserStoreException(
+                    "Private key initialization failed. Cannot decrypt the userstore password.");
+        }
+
+        if(cipherTransformation != null) {
+            // extract the original cipher if custom transformation is used configured in carbon.properties.
+            CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+            if (cipherHolder != null) {
+                // cipher with meta data.
+                if (log.isDebugEnabled()) {
+                    log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                }
+                keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), "BC");
+                cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+            } else {
+                // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
+                // carbon.properties file
+                keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+            }
+        } else {
+            // If reach here, user have removed org.wso2.CipherTransformation property or carbon.properties file
+            // hence RSA is considered as default transformation
+            keyStoreCipher = Cipher.getInstance("RSA", "BC");
+        }
+        keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(keyStoreCipher.doFinal(cipherTextBytes), Charset.defaultCharset());
+    }
+
+    /**
+     * Function to convert cipher byte array to {@link CipherHolder}.
+     *
+     * @param cipherText cipher text as a byte array
+     * @return if cipher text is not a cipher with meta data
+     */
+    private CipherHolder cipherTextToCipherHolder(byte[] cipherText) {
+
+        String cipherStr = new String(cipherText, Charset.defaultCharset());
+        try {
+            return gson.fromJson(cipherStr, CipherHolder.class);
+        } catch (JsonSyntaxException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Holds encrypted cipher with related metadata.
+     *
+     * IMPORTANT: this is copy of org.wso2.carbon.core.util.CipherHolder, what ever changes applied here need to update
+     *              on above
+     */
+    private class CipherHolder {
+
+        // Base64 encoded ciphertext.
+        private String c;
+
+        // Transformation used for encryption, default is "RSA".
+        private String t = "RSA";
+
+        // Thumbprint of the certificate.
+        private String tp;
+
+        // Digest used to generate certificate thumbprint.
+        private String tpd;
+
+
+        public String getTransformation() {
+            return t;
+        }
+
+        public void setTransformation(String transformation) {
+            this.t = transformation;
+        }
+
+        public String getCipherText() {
+            return c;
+        }
+
+        public byte[] getCipherBase64Decoded() {
+            return Base64.decode(c);
+        }
+
+        public void setCipherText(String cipher) {
+            this.c = cipher;
+        }
+
+        public String getThumbPrint() {
+            return tp;
+        }
+
+        public void setThumbPrint(String tp) {
+            this.tp = tp;
+        }
+
+        public String getThumbprintDigest() {
+            return tpd;
+        }
+
+        public void setThumbprintDigest(String digest) {
+            this.tpd = digest;
+        }
+
+        /**
+         * Function to base64 encode ciphertext and set ciphertext
+         * @param cipher
+         */
+        public void setCipherBase64Encoded(byte[] cipher) {
+            this.c = Base64.encode(cipher);
+        }
+
+        /**
+         * Function to set thumbprint
+         * @param tp thumb print
+         * @param digest digest (hash algorithm) used for to create thumb print
+         */
+        public void setThumbPrint(String tp, String digest) {
+            this.tp = tp;
+            this.tpd = digest;
+        }
+
+        @Override
+        public String toString() {
+            Gson gson = new Gson();
+            return gson.toJson(this);
+        }
     }
 }

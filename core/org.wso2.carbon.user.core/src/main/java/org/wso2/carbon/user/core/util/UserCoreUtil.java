@@ -424,14 +424,13 @@ public final class UserCoreUtil {
      * @param domain
      */
     public static void setDomainInThreadLocal(String domain) {
-        if (domain != null && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domain)) {
-            threadLocalToSetDomain.set(domain.toUpperCase());
-        }
 
-        if (domain == null || (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase
-                (domain) && threadLocalToSetDomain.get() != null)) {
+        if (domain == null || domain.trim().isEmpty() || UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME
+                .equalsIgnoreCase(domain)) {
             // clear the thread local variable.
             threadLocalToSetDomain.remove();
+        } else {
+            threadLocalToSetDomain.set(domain.toUpperCase());
         }
     }
 
@@ -658,13 +657,13 @@ public final class UserCoreUtil {
             if ((!userName.equals(displayName)) && (displayName != null)) {
                 userName = domainName + userName;
                 displayName = domainName + displayName;
-                combinedName = userName + CarbonConstants.NAME_COMBINER + displayName;
+                combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = domainName + userName;
             }
         } else {
             if (!userName.equals(displayName) && displayName != null) {
-                combinedName = userName + CarbonConstants.NAME_COMBINER + displayName;
+                combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = userName;
             }

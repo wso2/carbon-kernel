@@ -136,17 +136,10 @@ public class TenantCache {
 
             Cache<TenantIdKey, Object> cache = getTenantCache();
             if (cache != null) {
-                if (cache.containsKey(key)) {
-                    cache.remove(key);
-                    if (log.isDebugEnabled()) {
-                        log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", is removed entry for " +
-                                "the key : " + key + " successfully");
-                    }
-                }
-
+                cache.remove(key);
                 if (log.isDebugEnabled()) {
-                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", doen't contain the key : " +
-                            "" + key);
+                    log.debug(TENANT_CACHE + " which is under " + TENANT_CACHE_MANAGER + ", is removed entry for " +
+                            "the key : " + key + " successfully");
                 }
             } else {
                 if (log.isDebugEnabled()) {

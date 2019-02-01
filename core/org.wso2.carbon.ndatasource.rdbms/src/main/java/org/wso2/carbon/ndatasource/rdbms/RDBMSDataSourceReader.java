@@ -21,7 +21,9 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
-import java.io.ByteArrayInputStream;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -42,8 +44,12 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 		try {
             xmlConfiguration = CarbonUtils.replaceSystemVariablesInXml(xmlConfiguration);
 		    JAXBContext ctx = JAXBContext.newInstance(RDBMSConfiguration.class);
-		    return (RDBMSConfiguration) ctx.createUnmarshaller().unmarshal(
-		    		new ByteArrayInputStream(xmlConfiguration.getBytes()));
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+			inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+			XMLStreamReader xmlReader = inputFactory.createXMLStreamReader(new StringReader(xmlConfiguration));
+
+		    return (RDBMSConfiguration) ctx.createUnmarshaller().unmarshal(xmlReader);
 		} catch (Exception e) {
 			throw new DataSourceException("Error in loading RDBMS configuration: " +
 		            e.getMessage(), e);
@@ -66,13 +72,15 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 		DataSource dataSource = new RDBMSDataSource(rdbmsConfiguration).getDataSource();
 
 		Connection connection = null;
+		Connection testConnection = null;
 		try {
 			Class.forName(rdbmsConfiguration.getDriverClassName());
 			if (rdbmsConfiguration.getUsername() != null) {
-				DriverManager.getConnection(rdbmsConfiguration.getUrl(), rdbmsConfiguration.getUsername(),
-				                            rdbmsConfiguration.getPassword());
+				testConnection = DriverManager
+						.getConnection(rdbmsConfiguration.getUrl(), rdbmsConfiguration.getUsername(),
+								rdbmsConfiguration.getPassword());
 			} else {
-				DriverManager.getConnection(rdbmsConfiguration.getUrl());
+				testConnection = DriverManager.getConnection(rdbmsConfiguration.getUrl());
 			}
 		} catch (ClassNotFoundException e) {
 			throw new DataSourceException("Error loading Driver class:" + e.getMessage(), e);
@@ -85,6 +93,14 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 				                              + e.getMessage(), e);
 			} else {
 				throw new DataSourceException("Error establishing data source connection: " + e.getMessage(), e);
+			}
+		} finally {
+			if (testConnection != null) {
+				try {
+					testConnection.close();
+				} catch (SQLException ignored) {
+
+				}
 			}
 		}
 		try {

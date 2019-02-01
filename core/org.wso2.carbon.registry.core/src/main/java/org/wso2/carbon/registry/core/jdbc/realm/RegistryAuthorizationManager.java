@@ -457,4 +457,9 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 	    return roles;
     }
 
+    @Override
+    public void refreshAllowedRolesForResource(String resourceId) throws org.wso2.carbon.user.api.UserStoreException {
+        getAuthorizationManager().refreshAllowedRolesForResource(resourceId);
+    }
+
 }

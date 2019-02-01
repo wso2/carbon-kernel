@@ -18,6 +18,7 @@ package org.wso2.carbon.core.internal.permission.update;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -46,7 +47,8 @@ public class PermissionUpdateServiceComponent {
     private static Log log = LogFactory.getLog(PermissionUpdateServiceComponent.class);
     private static final long JOB_INTERVAL_SECS = 1 * 60;
 
-    private static final ScheduledExecutorService permUpdater = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService permUpdater =
+            Executors.newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("PermissionUpdaterThread")));
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
 
     static {

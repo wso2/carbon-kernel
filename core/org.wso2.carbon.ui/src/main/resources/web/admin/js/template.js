@@ -31,7 +31,13 @@ function mainMenuCollapse(img) {
     var attributes = "";
     if (nextLi.style.display == "none") {
         //remember the state
-        document.cookie = img.id + "=visible;path=/;expires=" + cookie_date.toGMTString();
+		var cookieValue = img.id + "=visible;path=/;expires=" + cookie_date.toGMTString();
+
+		if (window.location.protocol === "https:") {
+			cookieValue += "; secure";
+		}
+		document.cookie = cookieValue;
+
         var ver = getInternetExplorerVersion();
 
         if (ver > -1)
@@ -60,8 +66,14 @@ function mainMenuCollapse(img) {
         img.src = "../admin/images/up-arrow.gif";
 
     } else {
+		var cookieValue = img.id + "=none;path=/;expires=" + cookie_date.toGMTString();
+
+		if (window.location.protocol === "https:") {
+			cookieValue += "; secure";
+		}
         //remember the state
-        document.cookie = img.id + "=none;path=/;expires=" + cookie_date.toGMTString();
+		document.cookie = cookieValue;
+
         var ver = getInternetExplorerVersion();
 
         if (ver > -1)
@@ -338,7 +350,11 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                 YAHOO.util.Dom.removeClass(menuSlider0, 'hiddenToShow');
                 YAHOO.util.Dom.addClass(menuSlider0, 'showToHidden');
                 document.cookie = "menuPanel=visible;path=/;expires=" + cookie_date.toGMTString();
-                document.cookie = "menuPanelType=main;path=/;expires=" + cookie_date.toGMTString();
+                var cookieValue = "menuPanelType=main;path=/;expires=" + cookie_date.toGMTString();
+                if (window.location.protocol === "https:") {
+                    cookieValue += "; secure";
+                }
+                document.cookie = cookieValue;
                 onMenuSlide.fire('visible');
 
                 //show the main section
@@ -360,7 +376,11 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                 YAHOO.util.Dom.removeClass(menuSlider0, 'hiddenToShow');
                 YAHOO.util.Dom.addClass(menuSlider0, 'showToHidden');
                 document.cookie = "menuPanel=visible;path=/;expires=" + cookie_date.toGMTString();
-                document.cookie = "menuPanelType=monitor;path=/;expires=" + cookie_date.toGMTString();
+                var cookieValue = "menuPanelType=monitor;path=/;expires=" + cookie_date.toGMTString();
+                if (window.location.protocol === "https:") {
+                    cookieValue += "; secure";
+                }
+                document.cookie = cookieValue;
                 onMenuSlide.fire('visible');
 
                 //hide the config section
@@ -379,7 +399,11 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                 YAHOO.util.Dom.removeClass(menuSlider0, 'hiddenToShow');
                 YAHOO.util.Dom.addClass(menuSlider0, 'showToHidden');
                 document.cookie = "menuPanel=visible;path=/;expires=" + cookie_date.toGMTString();
-                document.cookie = "menuPanelType=config;path=/;expires=" + cookie_date.toGMTString();
+                var cookieValue = "menuPanelType=config;path=/;expires=" + cookie_date.toGMTString();
+                if (window.location.protocol === "https:") {
+                    cookieValue += "; secure";
+                }
+                document.cookie = cookieValue;
                 onMenuSlide.fire('visible');
 
                 //hide the config section
@@ -396,7 +420,11 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                 YAHOO.util.Dom.removeClass(menuSlider0, 'hiddenToShow');
                 YAHOO.util.Dom.addClass(menuSlider0, 'showToHidden');
                 document.cookie = "menuPanel=visible;path=/;expires=" + cookie_date.toGMTString();
-                document.cookie = "menuPanelType=tools;path=/;expires=" + cookie_date.toGMTString();
+                var cookieValue = "menuPanelType=tools;path=/;expires=" + cookie_date.toGMTString();
+                if (window.location.protocol === "https:") {
+                    cookieValue += "; secure";
+                }
+                document.cookie = cookieValue;
                 onMenuSlide.fire('visible');
 
                 //hide the config section
@@ -415,7 +443,11 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                 YAHOO.util.Dom.removeClass(menuSlider0, 'hiddenToShow');
                 YAHOO.util.Dom.addClass(menuSlider0, 'showToHidden');
                 document.cookie = "menuPanel=visible;path=/;expires=" + cookie_date.toGMTString();
-                document.cookie = "menuPanelType=extensions;path=/;expires=" + cookie_date.toGMTString();
+                var cookieValue = "menuPanelType=extensions;path=/;expires=" + cookie_date.toGMTString();
+                if (window.location.protocol === "https:") {
+                    cookieValue += "; secure";
+                }
+                document.cookie = cookieValue;
                 onMenuSlide.fire('visible');
 
                 //hide the config section
