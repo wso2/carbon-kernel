@@ -45,7 +45,7 @@ public class ConfigParser {
     private String inferConfigurationFilePath;
     private String validatorFilePath;
     private String mappingFilePath;
-
+    private String defaultValueFilePath;
 
     public void parse(String outputFilePath) {
 
@@ -64,8 +64,9 @@ public class ConfigParser {
 
         Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
         Map<String, Object> enrichedContext = ValueInferrer.infer(context, inferConfigurationFilePath);
+        Map<String, Object> defaultContext = DefaultParser.addDefaultValues(enrichedContext, defaultValueFilePath);
         try {
-            Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(enrichedContext, mappingFilePath);
+            Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(defaultContext, mappingFilePath);
             Validator.validate(mappedConfigs, validatorFilePath);
             return JinjaParser.parse(mappedConfigs, templateFilePath);
         } catch (ValidationException | IOException e) {
@@ -84,6 +85,7 @@ public class ConfigParser {
         private String inferConfigurationFilePath;
         private String validatorFilePath;
         private String mappingFilePath;
+        private String defaultValueFilePath;
 
         public ConfigParserBuilder() {
 
@@ -125,6 +127,12 @@ public class ConfigParser {
             return this;
         }
 
+        public ConfigParserBuilder withDefaultValueFilePath(String defaultValueFilePath) {
+
+            this.defaultValueFilePath = defaultValueFilePath;
+            return this;
+        }
+
         public ConfigParser build() {
 
             ConfigParser configParser = new ConfigParser();
@@ -133,6 +141,7 @@ public class ConfigParser {
             configParser.validatorFilePath = this.validatorFilePath;
             configParser.deploymentConfigurationPath = this.deploymentConfigurationPath;
             configParser.mappingFilePath = this.mappingFilePath;
+            configParser.defaultValueFilePath = this.defaultValueFilePath;
             return configParser;
         }
     }

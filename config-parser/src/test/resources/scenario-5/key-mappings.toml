@@ -1,0 +1,1 @@
+tenant_mgt.tenant_manager.config_builder = "tenant_mgt.tenant_manager.properties.MultiTenantRealmConfigBuilder"

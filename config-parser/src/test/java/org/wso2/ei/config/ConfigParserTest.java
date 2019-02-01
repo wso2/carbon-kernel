@@ -25,6 +25,8 @@ public class ConfigParserTest {
                 FileUtils.getFile("src", "test", "resources", scenario, "template").getAbsolutePath();
         String validatorConfiguration =
                 FileUtils.getFile("src", "test", "resources", scenario, "validator.json").getAbsolutePath();
+        String defaultConfiguration =
+                FileUtils.getFile("src", "test", "resources", scenario, "default.json").getAbsolutePath();
         String result =
                 FileUtils.getFile("src", "test", "resources", scenario, "result").getAbsolutePath();
 
@@ -34,6 +36,7 @@ public class ConfigParserTest {
                 .withMappingFilePath(mappingConfiguration)
                 .withValidatorFilePath(validatorConfiguration)
                 .withTemplateFilePath(templateConfiguration)
+                .withDefaultValueFilePath(defaultConfiguration)
                 .build();
         String output = configParser.parse();
         String actual = Files.asCharSource(Paths.get(result).toFile(), Charsets.UTF_8).read();
@@ -43,6 +46,6 @@ public class ConfigParserTest {
     @DataProvider(name = "scenarios")
     public Object[] scenarios() {
 
-        return new Object[]{"scenario-1", "scenario-3", "scenario-4"};
+        return new Object[]{"scenario-1", "scenario-3", "scenario-4", "scenario-5"};
     }
 }
