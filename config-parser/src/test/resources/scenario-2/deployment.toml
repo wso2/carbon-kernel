@@ -21,9 +21,8 @@ max_active = 5
 name = "a"
 description = "a"
 id = "a"
-[datasources.pool_options]
-max_active = 13
-
+pool_options.max_active = 13
+pool_options.max_wait = 13
 
 [[datasources]]
 name = "b"

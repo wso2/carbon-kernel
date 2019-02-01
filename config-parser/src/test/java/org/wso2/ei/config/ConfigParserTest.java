@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -11,24 +12,27 @@ import java.nio.file.Paths;
 
 public class ConfigParserTest {
 
-    @Test
-    public void getTestParseConfig() throws IOException, ValidationException {
+    @Test(dataProvider = "scenarios")
+    public void getTestParseConfig(String scenario) throws IOException, ValidationException {
 
-        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", "scenario-1", "deployment" +
+        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", scenario, "deployment" +
                 ".toml").getAbsolutePath();
         String inferConfiguration =
-                FileUtils.getFile("src", "test", "resources", "scenario-1", "infer.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario, "infer.json").getAbsolutePath();
         String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", "scenario-1", "key-mappings.toml").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario, "key-mappings.toml").getAbsolutePath();
         String templateConfiguration =
-                FileUtils.getFile("src", "test", "resources", "scenario-1", "user-mgt.xml").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario, "template").getAbsolutePath();
+        String validatorConfiguration =
+                FileUtils.getFile("src", "test", "resources", scenario, "validator.json").getAbsolutePath();
         String result =
-                FileUtils.getFile("src", "test", "resources", "scenario-1", "result").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario, "result").getAbsolutePath();
 
         ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
                 .withDeploymentConfigurationPath(deploymentConfiguration)
                 .withInferConfigurationFilePath(inferConfiguration)
                 .withMappingFilePath(mappingConfiguration)
+                .withValidatorFilePath(validatorConfiguration)
                 .withTemplateFilePath(templateConfiguration)
                 .build();
         String output = configParser.parse();
@@ -36,29 +40,9 @@ public class ConfigParserTest {
         Assert.assertEquals(output, actual);
     }
 
-//    @Test(description = "")
-    public void getTestParseConfig2() throws IOException, ValidationException {
+    @DataProvider(name = "scenarios")
+    public Object[] scenarios() {
 
-        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", "scenario-2", "deployment" +
-                ".toml").getAbsolutePath();
-        String inferConfiguration =
-                FileUtils.getFile("src", "test", "resources", "scenario-2", "infer.json").getAbsolutePath();
-        String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", "scenario-2", "key-mappings.toml").getAbsolutePath();
-        String templateConfiguration =
-                FileUtils.getFile("src", "test", "resources", "scenario-2", "master-datasources.xml").getAbsolutePath();
-        String result =
-                FileUtils.getFile("src", "test", "resources", "scenario-2", "result").getAbsolutePath();
-
-        ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
-                .withDeploymentConfigurationPath(deploymentConfiguration)
-                .withInferConfigurationFilePath(inferConfiguration)
-                .withMappingFilePath(mappingConfiguration)
-                .withTemplateFilePath(templateConfiguration)
-                .build();
-        String output = configParser.parse();
-        String actual = Files.toString(Paths.get(result).toFile(), Charsets.UTF_8);
-        Assert.assertEquals(output, actual);
+        return new Object[]{"scenario-1", "scenario-3"};
     }
-
 }

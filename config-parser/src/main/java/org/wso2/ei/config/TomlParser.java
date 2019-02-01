@@ -112,7 +112,7 @@ class TomlParser {
         List<Object> tomlList = value.toList();
         for (Object obj : tomlList) {
             if (obj instanceof TomlArray) {
-                finalList.add(processTomlArray((TomlArray)obj));
+                finalList.add(processTomlArray((TomlArray) obj));
             } else if (obj instanceof TomlTable) {
                 finalList.add(processTomlMap((TomlTable) obj));
             } else {

@@ -74,6 +74,7 @@ class ValueInferrer {
                     Map inferringValues = (Map) inferringData.get(s);
                     if (inferringValues.containsKey(String.valueOf(o))) {
                         Map valuesInferredByKey = (Map) inferringValues.get(String.valueOf(o));
+                        getRecursiveInferredValues(inferredValues, valuesInferredByKey, inferringData);
                         inferredValues.putAll(valuesInferredByKey);
                     }
                 }
@@ -90,5 +91,19 @@ class ValueInferrer {
         }
 
         return inferredValues;
+    }
+
+    private static void getRecursiveInferredValues(Map context, Map<Object, Object> valuesInferredByKey,
+                                                   Map inferringData) {
+        valuesInferredByKey.forEach((key, value) -> {
+            if (inferringData.containsKey(key)) {
+                Map dataMap = (Map) inferringData.get(key);
+                if (dataMap.containsKey(value)) {
+                    Map inferredValues = (Map) dataMap.get(value);
+                    context.putAll(inferredValues);
+                    getRecursiveInferredValues(context, inferredValues, inferringData);
+                }
+            }
+        });
     }
 }

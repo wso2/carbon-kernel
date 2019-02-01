@@ -1,12 +1,14 @@
 package org.wso2.ei.config;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -46,8 +48,8 @@ public class Validator {
     private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 
         Gson gson = new Gson();
-        String configJson = Resources.toString(Resources.getResource(validationConfigFilePath), Charsets.UTF_8);
-        return gson.fromJson(configJson, Map.class);
+        Reader validatorJson = new InputStreamReader(new FileInputStream(validationConfigFilePath), Charsets.UTF_8);
+        return gson.fromJson(validatorJson, Map.class);
     }
 
     public static void validate(Map<String, Object> configurationValues, String fileName)
