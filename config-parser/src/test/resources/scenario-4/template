@@ -353,9 +353,10 @@
         -->
         <members>
             {% for member in clustering.members %}
+            {% set splittedMember = member.split(':') %}
             <member>
-                <hostName>{{clustering.members[member].host_name}}</hostName>
-                <port>{{clustering.members[member].port}}</port>
+                <hostName>{{splittedMember[0]}}</hostName>
+                <port>{{splittedMember[1]}}</port>
             </member>
             {% endfor %}
         </members>

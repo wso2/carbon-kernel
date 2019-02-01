@@ -152,10 +152,6 @@
     <!-- for different message format serializations in Axis2. These message formats are -->
     <!-- expected to be resolved based on the content type. -->
     <messageFormatters>
-        {% for content_type,class in message_formatters.properties.items() %}
-        <messageFormatter contentType="{{content_type}}"
-                          class="{{class}}"/>
-        {% endfor %}
 
     </messageFormatters>
 
@@ -167,67 +163,17 @@
     <!-- different message formats in Axis2. These message formats are expected to be -->
     <!-- resolved based on the content type. -->
     <messageBuilders>
-        {% for content_type,class in message_builders.properties.items() %}
-        <messageBuilder contentType="{{content_type}}"
-                          class="{{class}}"/>
-        {% endfor %}
     </messageBuilders>
 
     <!-- ================================================= -->
     <!--             Transport Ins (Listeners)             -->
     <!-- ================================================= -->
 
-    {% for name,transport in transport_receivers.items() %}
-    <transportReceiver name="{{name}}" class="{{transport.className}}">
-    {% for name,parameter in transport.parameters.items() %}
-        {% if parameter is string %}
-        <parameter name="{{name}}" locked="false">{{parameter}}</parameter>
-        {% elif parameter is mapping %}
-        <parameter name="{{name}}" locked="false">
-        {% for key,value in parameter.items() %}
-         <{{key}}>{{value}}</{{key}}>
-        {% endfor %}
-        </parameter>
-        {% elif parameter.type is defined %}
-        <parameter name="{{name}}" locked="false">
-          <{{parameter.type}}>
-          {% for key,value in parameter.values.items() %}
-          <{{key}}>{{value}}</{{key}}>
-          {% endfor %}
-          </{{parameter.type}}>
-        </parameter>
-        {% endif %}
-        {% endfor %}
-    </transportReceiver>
-    {% endfor %}
 
     <!-- ================================================= -->
     <!--             Transport Outs (Senders)              -->
     <!-- ================================================= -->
 
-    {% for name,transport in transport_senders.items() %}
-    <transportSender name="{{name}}" class="{{transport.className}}">
-    {% for name,parameter in transport.parameters.items() %}
-    {% if parameter is string %}
-       <parameter name="{{name}}" locked="false">{{parameter}}</parameter>
-       {% elif parameter is mapping %}
-       <parameter name="{{name}}" locked="false">
-       {% for key,value in parameter.items() %}
-       <{{key}}>{{value}}</{{key}}>
-       {% endfor %}
-       </parameter>
-       {% elif parameter.type is defined %}
-       <parameter name="{{name}}" locked="false">
-        <{{parameter.type}}>
-        {% for key,value in parameter.values.items() %}
-        <{{key}}>{{value}}</{{key}}>
-        {% endfor %}
-        </{{parameter.type}}>
-       </parameter>
-       {% endif %}
-    {% endfor %}
-    </transportSender>
-    {% endfor %}
 
 
 
@@ -256,7 +202,7 @@
      getting this node to join the cluster.
      -->
     <clustering class="org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent"
-                enable="{{clustering.membership_scheme is defined}}">
+                enable="true">
 
         <!--
            This parameter indicates whether the cluster has to be automatically initalized
@@ -278,7 +224,7 @@
                     is deemed to have left the cluster, it will be detected by the Group Membership
                     Service (GMS) using a TCP ping mechanism.
         -->
-        <parameter name="membershipScheme">{{clustering.membership_scheme}}</parameter>
+        <parameter name="membershipScheme">wka</parameter>
         <!--<parameter name="licenseKey">xxx</parameter>-->
         <!--<parameter name="mgtCenterURL">http://localhost:8081/mancenter/</parameter>-->
 
@@ -286,7 +232,7 @@
          The clustering domain/group. Nodes in the same group will belong to the same multicast
          domain. There will not be interference between nodes in different groups.
         -->
-        <parameter name="domain">{{clustering.domain}}</parameter>
+        <parameter name="domain">wso2.carbon.domain</parameter>
 
         <!-- The multicast address to be used -->
         <!--<parameter name="mcastAddress">228.0.0.4</parameter>-->
@@ -307,7 +253,7 @@
         -->
         <!-- The host name or IP address of this member -->
 
-        <parameter name="localMemberHost">{{clustering.local_member_host}}</parameter>
+        <parameter name="localMemberHost">${deployement::local_host_name}</parameter>
 
         <!--
             The bind adress of this member. The difference between localMemberHost & localMemberBindAddress
@@ -323,11 +269,8 @@
         contact this member
          -->
         <!--AWS,Kubernetese base clustering values goes here-->
-        {% for property_name,property_value in clustering.properties.items() %}
-        <parameter name="{{property_name}}">{{property_value}}</parameter>
-        {% endfor %}
 
-        <parameter name="localMemberPort">{{clustering.local_member_port}}</parameter>
+        <parameter name="localMemberPort">4000</parameter>
 
         <!--
             The bind port of this member. The difference between localMemberPort & localMemberBindPort
@@ -352,12 +295,14 @@
            "membershipScheme" above is set to "wka"
         -->
         <members>
-            {% for member in clustering.members %}
             <member>
-                <hostName>{{clustering.members[member].host_name}}</hostName>
-                <port>{{clustering.members[member].port}}</port>
+                <hostName>192.168.1.2</hostName>
+                <port>4000</port>
             </member>
-            {% endfor %}
+            <member>
+                <hostName>192.168.1.2</hostName>
+                <port>4001</port>
+            </member>
         </members>
 
         <!--

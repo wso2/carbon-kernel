@@ -36,13 +36,13 @@ public class ConfigParserTest {
                 .withTemplateFilePath(templateConfiguration)
                 .build();
         String output = configParser.parse();
-        String actual = Files.toString(Paths.get(result).toFile(), Charsets.UTF_8);
+        String actual = Files.asCharSource(Paths.get(result).toFile(), Charsets.UTF_8).read();
         Assert.assertEquals(output, actual);
     }
 
     @DataProvider(name = "scenarios")
     public Object[] scenarios() {
 
-        return new Object[]{"scenario-1", "scenario-3"};
+        return new Object[]{"scenario-1", "scenario-3", "scenario-4"};
     }
 }
