@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,7 +22,8 @@ class JinjaParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JinjaParser.class);
 
-    private JinjaParser() {}
+    private JinjaParser() {
+    }
 
     static String parse(Map<String, Object> dottedKeyMap, String templateFilePath) {
         JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
@@ -40,30 +43,50 @@ class JinjaParser {
 
     static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {
         Map<String, Object> newContext = new HashMap<>();
-        for (Map.Entry<String, Object> entry: dottedKeyMap.entrySet()) {
-            processFlatDottedKey(entry, newContext);
+        for (Map.Entry<String, Object> entry : dottedKeyMap.entrySet()) {
+            changeToHierarchicalMap(entry, newContext);
         }
         return newContext;
     }
 
-    private static void processFlatDottedKey(Map.Entry<String, Object> entry, Map<String, Object> newContext) {
+    private static void changeToHierarchicalMap(Map.Entry<String, Object> entry, Map<String, Object> context) {
+        String flatKey = entry.getKey();
+        String[] dottedKeyArray = flatKey.split("\\.");
 
-        String dottedKey = entry.getKey();
-        String[] dottedKeyArray = dottedKey.split("\\.");
-        Map<String, Object> parentMap = newContext;
+        Map<String, Object> parentMap = context;
         for (int i = 0; i < dottedKeyArray.length - 1; i++) {
-            Map map;
-            Object value = parentMap.get(dottedKeyArray[i]);
-            if (value instanceof Map) {
-                map = (Map) value;
+            String keyElement = dottedKeyArray[i];
+            Object object = parentMap.get(keyElement);
+            Map<String, Object> map;
+            if (object instanceof Map) {
+                map = (Map) object;
             } else {
                 map = new HashMap<>();
-                parentMap.put(dottedKeyArray[i], map);
-
+                parentMap.put(keyElement, map);
             }
             parentMap = map;
         }
-        String finalSubKey = dottedKeyArray[dottedKeyArray.length - 1];
-        parentMap.put(finalSubKey, entry.getValue());
+
+        Object value = entry.getValue();
+        if (value instanceof List) {
+            value = processArray((List) value);
+        }
+        parentMap.put(dottedKeyArray[dottedKeyArray.length - 1], value);
+
+    }
+
+    private static List<Object> processArray(List<Object> list) {
+        List<Object> newList = new ArrayList<>(list.size());
+
+        for (Object obj : list) {
+            Object processedObject = obj;
+            if (obj instanceof Map) {
+                processedObject = getHierarchicalDottedKeyMap((Map) obj);
+            } else if (obj instanceof List) {
+                processedObject = processArray((List) obj);
+            }
+            newList.add(processedObject);
+        }
+        return newList;
     }
 }
