@@ -104,8 +104,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
-    private String isOverrideUsernameClaimEnabled = ServerConfiguration.getInstance()
-            .getFirstProperty("OverrideUsernameClaimFromInternalUsername");
     protected int tenantId;
     protected DataSource dataSource = null;
     protected RealmConfiguration realmConfig = null;
@@ -5248,7 +5246,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 value = uerProperties.get(property);
 
                 if (USERNAME_CLAIM_URI.equals(mapping.getClaim().getClaimUri()) &&
-                        Boolean.parseBoolean(isOverrideUsernameClaimEnabled)) {
+                        Boolean.parseBoolean(realmConfig.getIsOverrideUsernameClaimFromInternalUsername())) {
                     if (log.isDebugEnabled()) {
                         log.debug("The username claim value is overridden by the username :" + userName);
                     }

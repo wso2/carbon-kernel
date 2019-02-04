@@ -123,6 +123,13 @@ public class RealmConfigXMLProcessor {
         everyoneRoleNameElem.setText(UserCoreUtil.removeDomainFromName(realmConfig.getEveryOneRoleName()));
         mainConfig.addChild(everyoneRoleNameElem);
 
+        // adding the OverrideUsernameClaimFromInternalUsername
+        OMElement isOverrideUsernameClaimFromInternalUsernameElem = factory.createOMElement(new QName(
+                UserCoreConstants.RealmConfig.OVERIDE_PASSWORD_CLAIM_BY_LOCAL_PASSWORD));
+        isOverrideUsernameClaimFromInternalUsernameElem.setText(UserCoreUtil.removeDomainFromName(
+                realmConfig.getIsOverrideUsernameClaimFromInternalUsername()));
+        mainConfig.addChild(isOverrideUsernameClaimFromInternalUsernameElem);
+
         // add the main config properties
         addPropertyElements(factory, mainConfig, null, realmConfig.getDescription(),
                 realmConfig.getRealmProperties());
@@ -293,6 +300,7 @@ public class RealmConfigXMLProcessor {
         String everyOneRoleName = null;
         String realmClass = null;
         String description = null;
+        String isOverrideUsernameClaimFromInternalUsername = null;
         Map<String, String> userStoreProperties = null;
         Map<String, String> authzProperties = null;
         Map<String, String> realmProperties = null;
@@ -380,6 +388,14 @@ public class RealmConfigXMLProcessor {
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_EVERYONE_ROLE))
                 .getText().trim();
 
+        OMElement overrideUsernameClaimEle = mainConfig.getFirstChildWithName(
+                new QName(UserCoreConstants.RealmConfig.OVERIDE_PASSWORD_CLAIM_BY_LOCAL_PASSWORD));
+        if (overrideUsernameClaimEle != null) {
+            isOverrideUsernameClaimFromInternalUsername = overrideUsernameClaimEle.getText().trim();
+        } else {
+            isOverrideUsernameClaimFromInternalUsername = "false";
+        }
+
         OMElement authzConfig = realmElem.getFirstChildWithName(new QName(
                 UserCoreConstants.RealmConfig.LOCAL_NAME_ATHZ_MANAGER));
         authorizationManagerClass = authzConfig.getAttributeValue(
@@ -462,6 +478,7 @@ public class RealmConfigXMLProcessor {
                     + everyOneRoleName);
             realmConfig.setAdminRoleName(adminRoleName);
             realmConfig.setAdminUserName(adminUserName);
+            realmConfig.setIsOverrideUsernameClaimFromInternalUsername(isOverrideUsernameClaimFromInternalUsername);
             realmConfig.setUserStoreProperties(userStoreProperties);
             realmConfig.setAuthzProperties(authzProperties);
             realmConfig.setRealmProperties(realmProperties);
