@@ -125,7 +125,7 @@ public class RealmConfigXMLProcessor {
 
         // adding the OverrideUsernameClaimFromInternalUsername
         OMElement isOverrideUsernameClaimFromInternalUsernameElem = factory.createOMElement(new QName(
-                UserCoreConstants.RealmConfig.OVERIDE_PASSWORD_CLAIM_BY_LOCAL_PASSWORD));
+                UserCoreConstants.RealmConfig.OVERRIDE_USERNAME_CLAIM_FROM_INTERNAL_USERNAME));
         isOverrideUsernameClaimFromInternalUsernameElem.setText(UserCoreUtil.removeDomainFromName(
                 realmConfig.getIsOverrideUsernameClaimFromInternalUsername()));
         mainConfig.addChild(isOverrideUsernameClaimFromInternalUsernameElem);
@@ -389,7 +389,7 @@ public class RealmConfigXMLProcessor {
                 .getText().trim();
 
         OMElement overrideUsernameClaimEle = mainConfig.getFirstChildWithName(
-                new QName(UserCoreConstants.RealmConfig.OVERIDE_PASSWORD_CLAIM_BY_LOCAL_PASSWORD));
+                new QName(UserCoreConstants.RealmConfig.OVERRIDE_USERNAME_CLAIM_FROM_INTERNAL_USERNAME));
         if (overrideUsernameClaimEle != null) {
             isOverrideUsernameClaimFromInternalUsername = overrideUsernameClaimEle.getText().trim();
         } else {
