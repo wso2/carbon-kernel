@@ -46,6 +46,6 @@ public class ConfigParserTest {
     @DataProvider(name = "scenarios")
     public Object[] scenarios() {
 
-        return new Object[]{"scenario-1", "scenario-3", "scenario-4", "scenario-5"};
+        return new Object[]{"scenario-1", "scenario-2", "scenario-3", "scenario-4", "scenario-5"};
     }
 }
