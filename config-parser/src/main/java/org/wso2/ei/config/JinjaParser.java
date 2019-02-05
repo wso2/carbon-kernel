@@ -7,12 +7,13 @@ import com.hubspot.jinjava.JinjavaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Parser based on Jinja templating engine. When the configuration and the relevant Jinja template is provided this
@@ -25,20 +26,25 @@ class JinjaParser {
     private JinjaParser() {
     }
 
-    static String parse(Map<String, Object> dottedKeyMap, String templateFilePath) {
-        JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
-        Jinjava jinjava = new Jinjava(configurator);
-        String renderedTemplate = "";
-        Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
-        try {
-            String template = Files.toString(Paths.get(templateFilePath).toFile(), Charsets.UTF_8);
-            renderedTemplate = jinjava.render(template, context);
+    static Map<String, String> parse(Map<String, Object> dottedKeyMap, Set<File> templateFiles) {
 
-        } catch (IOException e) {
-            LOGGER.error("Error while parsing Jinja template", e);
+        Map<String, String> outputs = new HashMap<>();
+        for (File templateFile : templateFiles) {
+            JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
+            Jinjava jinjava = new Jinjava(configurator);
+            String renderedTemplate = "";
+            Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
+            try {
+                String template = Files.toString(templateFile, Charsets.UTF_8);
+                renderedTemplate = jinjava.render(template, context);
+
+            } catch (IOException e) {
+                LOGGER.error("Error while parsing Jinja template", e);
+            }
+            outputs.put(templateFile.getName(), renderedTemplate);
         }
+        return outputs;
 
-        return renderedTemplate;
     }
 
     static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {

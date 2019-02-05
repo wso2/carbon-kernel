@@ -7,13 +7,14 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.util.Map;
 
 public class ConfigParserTest {
 
     @Test(dataProvider = "scenarios")
-    public void getTestParseConfig(String scenario) throws IOException, ValidationException {
+    public void getTestParseConfig(String scenario) throws IOException, ConfigParserException {
 
         String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", scenario, "deployment" +
                 ".toml").getAbsolutePath();
@@ -22,13 +23,13 @@ public class ConfigParserTest {
         String mappingConfiguration =
                 FileUtils.getFile("src", "test", "resources", scenario, "key-mappings.toml").getAbsolutePath();
         String templateConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "template").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario, "templates").getAbsolutePath();
         String validatorConfiguration =
                 FileUtils.getFile("src", "test", "resources", scenario, "validator.json").getAbsolutePath();
         String defaultConfiguration =
                 FileUtils.getFile("src", "test", "resources", scenario, "default.json").getAbsolutePath();
-        String result =
-                FileUtils.getFile("src", "test", "resources", scenario, "result").getAbsolutePath();
+        String expectedOutputDirPath =
+                FileUtils.getFile("src", "test", "resources", scenario, "expected").getAbsolutePath();
 
         ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
                 .withDeploymentConfigurationPath(deploymentConfiguration)
@@ -38,15 +39,31 @@ public class ConfigParserTest {
                 .withTemplateFilePath(templateConfiguration)
                 .withDefaultValueFilePath(defaultConfiguration)
                 .build();
-        String output = configParser.parse();
-        String actual = Files.asCharSource(Paths.get(result).toFile(), Charsets.UTF_8).read();
-        Assert.assertEquals(output, actual);
+        Map<String, String> outputFileContentMap = configParser.parse();
+        File resultDir = new File(expectedOutputDirPath);
+        for (Map.Entry<String, String> entry : outputFileContentMap.entrySet()) {
+            File expectedOutput = new File(resultDir, entry.getKey());
+            if (!expectedOutput.exists() || !expectedOutput.isFile()) {
+                Assert.fail("Expected result file doesn't exist for " + entry.getKey());
+            }
+            String actual = Files.asCharSource(expectedOutput, Charsets.UTF_8).read();
+            Assert.assertEquals(actual, entry.getValue());
+        }
+
     }
 
     @DataProvider(name = "scenarios")
     public Object[] scenarios() {
 
-        return new Object[]{"scenario-1", "scenario-2", "scenario-3", "scenario-4", "scenario-5", "scenario-6",
-                "scenario-7", "scenario-8"};
+        return new Object[]{
+                "scenario-1",
+                "scenario-2",
+                "scenario-3",
+                "scenario-4",
+                "scenario-5",
+                "scenario-6",
+                "scenario-7",
+                "scenario-8"
+        };
     }
 }

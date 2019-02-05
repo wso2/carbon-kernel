@@ -26,15 +26,15 @@ public class ReferenceResolverTest {
     }
 
     @Test(dataProvider = "contextProvider")
-    public void testResolve(Map<String, Object> context, String key, Object expected) throws ValidationException {
+    public void testResolve(Map<String, Object> context, String key, Object expected) throws ConfigParserException {
 
         ReferenceResolver.resolve(context);
         Object actual = context.get(key);
         Assert.assertEquals(actual, expected, "Incorrect resolved value for " + key);
     }
 
-    @Test(dataProvider = "invalidReferencesProvider", expectedExceptions = ValidationException.class)
-    public void testResolve(Map<String, Object> context, String key) throws ValidationException {
+    @Test(dataProvider = "invalidReferencesProvider", expectedExceptions = ConfigParserException.class)
+    public void testResolve(Map<String, Object> context, String key) throws ConfigParserException {
 
         ReferenceResolver.resolve(context);
         Assert.fail("Placeholder reference resolution should have been failed.");

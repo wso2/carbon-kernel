@@ -38,9 +38,9 @@ public class ReferenceResolver {
      * Resolves the placeholder strings.
      *
      * @param context Configuration context
-     * @throws ValidationException
+     * @throws ConfigParserException
      */
-    public static void resolve(Map<String, Object> context) throws ValidationException {
+    public static void resolve(Map<String, Object> context) throws ConfigParserException {
 
         resolveSystemProperties(context);
         resolveEnvVariables(context);
@@ -50,9 +50,9 @@ public class ReferenceResolver {
     /**
      * Resolves the reference with ${ref} which refers to an existing configuration in the context.
      * @param context Configuration context
-     * @throws ValidationException
+     * @throws ConfigParserException
      */
-    private static void resolveConfigReferences(Map<String, Object> context) throws ValidationException {
+    private static void resolveConfigReferences(Map<String, Object> context) throws ConfigParserException {
 
         Map<String, Set<String>> unresolvedKeys = new HashMap<>();
         Map<String, Set<String>> valuesToResolve = new HashMap<>();
@@ -82,7 +82,7 @@ public class ReferenceResolver {
         }
 
         if (!valuesToResolve.isEmpty()) {
-            throw new ValidationException("References can't be resolved for " +
+            throw new ConfigParserException("References can't be resolved for " +
                     StringUtils.join(unresolvedKeys.keySet(), ","));
         }
     }
@@ -163,14 +163,14 @@ public class ReferenceResolver {
      * @param context The configuration context
      * @param key The resolved key on which other keys depend on
      * @param dependentKeys The keys that depends on <code>key</code>
-     * @throws ValidationException
+     * @throws ConfigParserException
      */
     private static void resolvePropertyPlaceholders(Map<String, Object> context, String key,
-                                                    Set<String> dependentKeys) throws ValidationException {
+                                                    Set<String> dependentKeys) throws ConfigParserException {
 
         Object value = context.get(key);
         if (Objects.isNull(value)) {
-            throw new ValidationException("Configuration with key " + key + " doesn't exist");
+            throw new ConfigParserException("Configuration with key " + key + " doesn't exist");
         }
         for (String k : dependentKeys) {
             Object existingValue = context.get(k);

@@ -53,7 +53,7 @@ public class Validator {
     }
 
     public static void validate(Map<String, Object> configurationValues, String fileName)
-            throws ValidationException, IOException {
+            throws ConfigParserException, IOException {
 
         Map<String, Object> ruleConfiguration = readConfiguration(fileName);
         for (Map.Entry<String, Object> entry : ruleConfiguration.entrySet()) {
@@ -65,7 +65,7 @@ public class Validator {
     }
 
     private static void doValidation(String keyToValidate, Map<String, Object> validationRule,
-                              Map<String, Object> configurationValues) throws ValidationException {
+                              Map<String, Object> configurationValues) throws ConfigParserException {
 
         if (validationRule.get(IF) instanceof Map) {
             Map<String, Object> valuesToMatch = (Map<String, Object>) validationRule.get(IF);
@@ -102,7 +102,7 @@ public class Validator {
                     errorMessage = String.format("Validation failed for %s. Expected value to match \"%s\", but was " +
                             "%s", keyToValidate, regex, confValueString);
                 }
-                throw new ValidationException(errorMessage);
+                throw new ConfigParserException(errorMessage);
             }
         }
     }
