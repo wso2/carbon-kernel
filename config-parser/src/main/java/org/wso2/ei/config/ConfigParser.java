@@ -67,6 +67,7 @@ public class ConfigParser {
         Map<String, Object> defaultContext = DefaultParser.addDefaultValues(enrichedContext, defaultValueFilePath);
         try {
             Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(defaultContext, mappingFilePath);
+            ReferenceResolver.resolve(mappedConfigs);
             Validator.validate(mappedConfigs, validatorFilePath);
             return JinjaParser.parse(mappedConfigs, templateFilePath);
         } catch (ValidationException | IOException e) {

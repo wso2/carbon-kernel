@@ -263,7 +263,7 @@
         -->
         <!-- The host name or IP address of this member -->
 
-        <parameter name="localMemberHost">${deployement::local_host_name}</parameter>
+        <parameter name="localMemberHost">example.com</parameter>
 
         <!--
             The bind adress of this member. The difference between localMemberHost & localMemberBindAddress
