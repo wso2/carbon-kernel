@@ -1,0 +1,23 @@
+{
+  "super_admin.admin_role": "admin",
+  "authorization_manager": {
+    "class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
+    "properties": {
+      "AdminRoleManagementPermissions": "/permission",
+      "AuthorizationCacheEnabled": "true",
+      "GetAllRolesOfUserEnabled": "false"
+    }
+  },
+  "realm_manager": {
+    "data_source": "jdbc/SharedDb",
+    "properties": {
+      "isCascadeDeleteEnabled": true,
+      "initializeNewClaimManager": true
+    }
+  },
+  "governance": {
+    "data_source": "jdbc/SharedDb",
+    "cache_id": "${database.username}@${database.url}",
+    "enable_cache": true
+  }
+}
