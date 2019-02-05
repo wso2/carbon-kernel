@@ -5218,6 +5218,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         List<String> getAgain = new ArrayList<String>();
         Map<String, String> finalValues = new HashMap<String, String>();
+        boolean isOverrideUsernameClaimEnabled = Boolean.parseBoolean(realmConfig
+                .getIsOverrideUsernameClaimFromInternalUsername());
 
         for (String claim : claims) {
             ClaimMapping mapping;
@@ -5245,8 +5247,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
                 value = uerProperties.get(property);
 
-                if (USERNAME_CLAIM_URI.equals(mapping.getClaim().getClaimUri()) &&
-                        Boolean.parseBoolean(realmConfig.getIsOverrideUsernameClaimFromInternalUsername())) {
+                if (isOverrideUsernameClaimEnabled && USERNAME_CLAIM_URI.equals(mapping.getClaim()
+                        .getClaimUri())) {
                     if (log.isDebugEnabled()) {
                         log.debug("The username claim value is overridden by the username :" + userName);
                     }
