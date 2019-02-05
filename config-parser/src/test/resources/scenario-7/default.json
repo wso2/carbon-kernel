@@ -9,6 +9,7 @@
     }
   },
   "realm_manager": {
+    "data_source": "jdbc/SharedDb",
     "properties": {
       "isCascadeDeleteEnabled": true,
       "initializeNewClaimManager": true

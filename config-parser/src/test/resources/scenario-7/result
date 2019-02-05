@@ -25,18 +25,23 @@
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName>
             <!-- By default users in this role sees the registry root -->
-            <Property name="dataSource"></Property>
+            <Property name="isCascadeDeleteEnabled">true</Property>
+            <Property name="initializeNewClaimManager">true</Property>
+            <Property name="dataSource">jdbc/SharedDb</Property>
         </Configuration>
         <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
-            <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="ReadOnly">false</Property>
+            <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="PasswordDigest">SHA-256</Property>
             <Property name="tenant_manager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
             <Property name="StoreSaltedPassword">true</Property>
         </UserStoreManager>
 
-        <AuthorizationManager class="">
+        <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
+            <Property name="AdminRoleManagementPermissions">/permission</Property>
+            <Property name="AuthorizationCacheEnabled">true</Property>
+            <Property name="GetAllRolesOfUserEnabled">false</Property>
         </AuthorizationManager>
     </Realm>
 </UserManager>
