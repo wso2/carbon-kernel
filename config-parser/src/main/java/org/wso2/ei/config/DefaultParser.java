@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ei.config.handlers.Builders;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,17 +27,25 @@ public class DefaultParser {
 
         try {
             Map<String, Object> defaultValueMap = readConfiguration(defaultValueFilePath);
-            defaultValueMap.forEach((key, value) -> {
+            for (Map.Entry<String, Object> entry : defaultValueMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
                 if (!enrichedContext.containsKey(key)) {
                     enrichedContext.put(key, value);
                 } else {
-                    Map retrievedEnrichedContext = (Map) enrichedContext.get(key);
+                    Object retrievedEnrichedContext = enrichedContext.get(key);
+                    Builders messageBuilder = readHandles(key);
+                    enrichedContext.put(key, messageBuilder.handle(retrievedEnrichedContext, value));
 
                 }
-            });
+            }
         } catch (IOException e) {
-            LOGGER.error("Error while inferring values with file {}", defaultValueFilePath, e);
+            LOGGER.error("Error while default values with file {}", defaultValueFilePath, e);
 
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Error while accessing Builder", e);
+        } catch (InstantiationException | ClassNotFoundException e) {
+            LOGGER.error("Error while creating Builder", e);
         }
         return enrichedContext;
     }
@@ -46,5 +55,19 @@ public class DefaultParser {
         Gson gson = new Gson();
         Reader input = new InputStreamReader(new FileInputStream(defaultValueFilePath), Charsets.UTF_8);
         return gson.fromJson(input, Map.class);
+    }
+
+    private static Builders readHandles(String key) throws ClassNotFoundException,
+            IllegalAccessException, InstantiationException {
+
+        Gson gson = new Gson();
+        Reader input = new InputStreamReader(DefaultParser.class.getClassLoader().getResourceAsStream("handle.json"),
+                Charsets.UTF_8);
+        Map<String, String> handlers = gson.fromJson(input, Map.class);
+        String className = handlers.get(key);
+        if (className != null) {
+            return (Builders) Class.forName(className).newInstance();
+        }
+        return new Builders();
     }
 }
