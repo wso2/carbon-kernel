@@ -1,4 +1,4 @@
-# Refer values within the file - ${section::key}
+# Refer values within the file - ${section.key}
 # Refer environment variables - $env{key}
 # Refer system variables - $sys{key}
 # Refer securevault variables - $sec{key}
