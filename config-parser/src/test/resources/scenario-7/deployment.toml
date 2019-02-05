@@ -1,0 +1,18 @@
+[user_store]
+type = "jdbc"
+
+[super_admin]
+username = "admin"
+password = "admin"
+create_admin_account = true
+
+[database]
+type =	"mysql"
+hostname = "localhost"
+port = 3306
+name = "sharedDb"
+username = "root"
+password = "root"
+pool_options = [
+    ["maxActive","5"]
+]
