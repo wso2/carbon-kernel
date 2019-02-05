@@ -118,9 +118,9 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                     throw new UnsupportedCallbackException(callbacks[i], "check failed");
                                 }
                             } catch (Exception e) {
-                                if(log.isDebugEnabled()) {
+                                if (log.isDebugEnabled()) {
                                     log.debug("Error when authenticating user : " + username + ", password provided : "
-                                            + (StringUtils.isEmpty(receivedPasswd)), e);
+                                            + StringUtils.isNotEmpty(receivedPasswd), e);
                                 }
                                 throw new UnsupportedCallbackException(callbacks[i],
                                         "Check failed : System error");
@@ -168,9 +168,9 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                         throw new UnsupportedCallbackException(callbacks[i], "check failed");
                                     }
                                 } catch (Exception e) {
-                                    if(log.isDebugEnabled()) {
+                                    if (log.isDebugEnabled()) {
                                         log.debug("Error when authenticating user : " + username + ", password provided : "
-                                                + (StringUtils.isEmpty(receivedPasswd)), e);
+                                                + StringUtils.isNotEmpty(receivedPasswd), e);
                                     }
                                     throw new UnsupportedCallbackException(callbacks[i], "Check failed : System error");
                                 }
@@ -245,7 +245,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         boolean isAuthorized = false;
 
         try {
-            // verify whether user is in same tenant that service has been deployed.
+            // Verify whether user is in same tenant that service has been deployed.
             if (realm.getUserStoreManager().getTenantId() !=
                     SecurityServiceHolder.getRealmService().getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(user))) {
                 if (log.isDebugEnabled()) {
