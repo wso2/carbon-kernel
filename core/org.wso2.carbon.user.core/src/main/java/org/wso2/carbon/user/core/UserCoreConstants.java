@@ -130,7 +130,7 @@ public class UserCoreConstants {
         public static final String LOCAL_NAME_ANONYMOUS_USER = "AnonymousUser";
         public static final String LOCAL_PASSWORDS_EXTERNALLY_MANAGED = "PasswordsExternallyManaged";
         public static final String OVERRIDE_USERNAME_CLAIM_FROM_INTERNAL_USERNAME =
-                "overrideUsernameClaimFromInternalUsernameElem";
+                "OverrideUsernameClaimFromInternalUsername";
         public static final String ATTR_NAME_CLASS = "class";
         public static final String ATTR_NAME_PROP_NAME = "name";
         public static final String PROPERTY_EVERYONEROLE_AUTHORIZATION = "EveryoneRoleManagementPermissions";
