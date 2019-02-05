@@ -30,14 +30,28 @@ public class ReferenceResolver {
     private static final String ENV_VAR_PLACEHOLDER_PREFIX = "$env{";
     private static final String PLACEHOLDER_SUFFIX = "}";
 
+    private ReferenceResolver() {
+
+    }
+
+    /**
+     * Resolves the placeholder strings.
+     *
+     * @param context Configuration context
+     * @throws ValidationException
+     */
     public static void resolve(Map<String, Object> context) throws ValidationException {
 
         resolveSystemProperties(context);
         resolveEnvVariables(context);
         resolveConfigReferences(context);
-
     }
 
+    /**
+     * Resolves the reference with ${ref} which refers to an existing configuration in the context.
+     * @param context Configuration context
+     * @throws ValidationException
+     */
     private static void resolveConfigReferences(Map<String, Object> context) throws ValidationException {
 
         Map<String, Set<String>> unresolvedKeys = new HashMap<>();
@@ -45,19 +59,7 @@ public class ReferenceResolver {
 
         context.forEach((k, v) -> {
             if (v instanceof String) {
-                String[] fileRefs = StringUtils.substringsBetween((String) v, CONF_PLACEHOLDER_PREFIX,
-                        PLACEHOLDER_SUFFIX);
-                if (fileRefs != null && fileRefs.length > 0) {
-                    for (String ref : fileRefs) {
-                        Set<String> dependentKeys = valuesToResolve.getOrDefault(ref, new HashSet<>());
-                        Set<String> keysUsed = unresolvedKeys.getOrDefault(k, new HashSet<>());
-                        dependentKeys.add(k);
-                        keysUsed.add(ref);
-                        valuesToResolve.put(ref, dependentKeys);
-                        unresolvedKeys.put(k, keysUsed);
-                    }
-
-                }
+                extractPlaceholdersFromString(k, (String) v, unresolvedKeys, valuesToResolve);
             }
             //todo handle list types
         });
@@ -85,6 +87,35 @@ public class ReferenceResolver {
         }
     }
 
+    /**
+     * Extract the placeholder references in the context.
+     *
+     * @param key             The key of the configuration
+     * @param value           The value of the configuration
+     * @param unresolvedKeys  The map which maintains keys with placeholders and on which config they depend on
+     * @param valuesToResolve The map which maintains the placeholder references and the keys that depend on those
+     */
+    private static void extractPlaceholdersFromString(String key, String value, Map<String, Set<String>> unresolvedKeys,
+                                                      Map<String, Set<String>> valuesToResolve) {
+
+        String[] fileRefs = StringUtils.substringsBetween(value, CONF_PLACEHOLDER_PREFIX,
+                PLACEHOLDER_SUFFIX);
+        if (fileRefs != null && fileRefs.length > 0) {
+            for (String ref : fileRefs) {
+                Set<String> dependentKeys = valuesToResolve.getOrDefault(ref, new HashSet<>());
+                Set<String> keysUsed = unresolvedKeys.getOrDefault(key, new HashSet<>());
+                dependentKeys.add(key);
+                keysUsed.add(ref);
+                valuesToResolve.put(ref, dependentKeys);
+                unresolvedKeys.put(key, keysUsed);
+            }
+        }
+    }
+
+    /**
+     * Resolves system property references ($sys{ref}).
+     * @param context The configuration context
+     */
     private static void resolveSystemProperties(Map<String, Object> context) {
 
         context.replaceAll((s, o) -> {
@@ -104,6 +135,10 @@ public class ReferenceResolver {
         });
     }
 
+    /**
+     * Resolves environment variable references ($env{ref}).
+     * @param context The configuration context
+     */
     private static void resolveEnvVariables(Map<String, Object> context) {
 
         context.replaceAll((s, o) -> {
@@ -123,6 +158,13 @@ public class ReferenceResolver {
         });
     }
 
+    /**
+     * Resolves the configuration values that depends on already resolved placeholders.
+     * @param context The configuration context
+     * @param key The resolved key on which other keys depend on
+     * @param dependentKeys The keys that depends on <code>key</code>
+     * @throws ValidationException
+     */
     private static void resolvePropertyPlaceholders(Map<String, Object> context, String key,
                                                     Set<String> dependentKeys) throws ValidationException {
 
@@ -143,6 +185,11 @@ public class ReferenceResolver {
         }
     }
 
+    /**
+     * Resolves system property references ($sys{ref}) in an individual string.
+     * @param value string with system property reference
+     * @return the value with system properties references resolved
+     */
     private static String resolveStringWithSysVarPlaceholders(String value) {
 
         String[] sysRefs = StringUtils.substringsBetween(value, SYS_PROPERTY_PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX);
@@ -155,6 +202,11 @@ public class ReferenceResolver {
         return value;
     }
 
+    /**
+     * Resolves environment variable references ($env{ref}) in an individual string.
+     * @param value string with environment variable reference
+     * @return the value with environment variables references resolved
+     */
     private static String resolveStringWithEnvVarPlaceholders(String value) {
 
         String[] envRefs = StringUtils.substringsBetween(value, ENV_VAR_PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX);
