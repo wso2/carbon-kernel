@@ -41,7 +41,7 @@ public class RealmConfiguration {
     protected String description = null;
     protected List<String> restrictedDomainsForSelfSignUp = new ArrayList<String>();
     protected List<String> reservedRoleNames = new ArrayList<String>();
-    protected String isOverrideUsernameClaimFromInternalUsername = null;
+    protected String isOverrideUsernameClaimFromInternalUsername = "false";
     protected Map<String, String> userStoreProperties = new HashMap<String, String>();
     protected Map<String, String> authzProperties = new HashMap<String, String>();
     protected Map<String, String> realmProperties = new HashMap<String, String>();
