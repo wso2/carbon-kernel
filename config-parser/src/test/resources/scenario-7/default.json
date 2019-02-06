@@ -14,5 +14,10 @@
       "isCascadeDeleteEnabled": true,
       "initializeNewClaimManager": true
     }
+  },
+  "governance": {
+    "data_source": "jdbc/SharedDb",
+    "cache_id": "${database.username}@${database.url}",
+    "enable_cache": true
   }
 }

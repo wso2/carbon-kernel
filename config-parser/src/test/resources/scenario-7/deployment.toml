@@ -1,3 +1,6 @@
+[deployment]
+hostname = "am.wso2.com"
+
 [user_store]
 type = "jdbc"
 
@@ -13,6 +16,14 @@ port = 3306
 name = "sharedDb"
 username = "root"
 password = "root"
-pool_options = [
-    ["maxActive","5"]
-]
+pool_options.max_active = 5
+
+[[datasource]]
+id = "WSO2AM_DB"
+type =	"mysql"
+hostname = "localhost"
+port = 3306
+name = "sharedDb"
+username = "root"
+password = "root"
+pool_options.max_active = 5

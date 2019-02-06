@@ -62,8 +62,7 @@ public class ConfigParserTest {
                 "scenario-4",
                 "scenario-5",
                 "scenario-6",
-                "scenario-7",
-                "scenario-8"
+                "scenario-7"
         };
     }
 }
