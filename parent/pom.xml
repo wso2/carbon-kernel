@@ -1850,11 +1850,6 @@
                 <version>${version.org.osgi.compendium}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>${version.org.wso2.orbit.javax.activation}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
