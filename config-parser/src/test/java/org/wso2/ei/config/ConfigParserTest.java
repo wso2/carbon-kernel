@@ -47,7 +47,7 @@ public class ConfigParserTest {
                 Assert.fail("Expected result file doesn't exist for " + entry.getKey());
             }
             String actual = Files.asCharSource(expectedOutput, Charsets.UTF_8).read();
-            Assert.assertEquals(actual, entry.getValue());
+            handleAssertion(actual, entry.getValue());
         }
 
     }
@@ -65,4 +65,18 @@ public class ConfigParserTest {
                 "scenario-7"
         };
     }
+
+    private void handleAssertion(String actual, String expected) {
+
+        StringBuilder actualFileContent = new StringBuilder();
+        StringBuilder expectedFileContent = new StringBuilder();
+        for (String s : actual.split("\n")) {
+            actualFileContent.append(s.trim());
+        }
+        for (String s : expected.split("\n")) {
+            expectedFileContent.append(s.trim());
+        }
+        Assert.assertEquals(actualFileContent.toString(), expectedFileContent.toString());
+    }
+
 }

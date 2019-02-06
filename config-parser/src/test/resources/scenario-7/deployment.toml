@@ -39,3 +39,34 @@ key_password = "wso2carbon"
 file = "client-truststore.jks"
 type = "JKS"
 password = "wso2carbon"
+
+[apim.gateway]
+gateway_environments=["dev"]
+
+environment.dev.name = "Sandbox"
+environment.dev.type = "production"
+environment.dev.display_in_api_console = true
+environment.dev.description = "Sandbox"
+environment.dev.isDefault = true
+environment.dev.management_endpoint = "mgt.gateway:443"
+environment.dev.http_loadbalance_endpoint = "api.gateway:80"
+environment.dev.https_loadbalance_endpoint = "api.gateway:443"
+environment.dev.ws_loadbalance_endpoint = "api.gateway:9091"
+
+[apim.analytics]
+# TODO handle differently
+nodes = "{tcp://localhost:7611}"
+management_endpoint = "localhost:7444"
+
+[apim.key_mgr_node]
+endpoint = "km.wso2.com:443"
+
+[apim.store]
+endpoint = "https://store.wso2.com:443/store"
+revoke_api_endpoint = "$conf{apim.gateway.environment.dev.https_loadbalance_endpoint}"
+
+[apim.traffic_manager]
+publisher_nodes = "{tcp://tm1.node:9611}"
+authentication_nodes = "{ssl://tm1.node:9711}"
+throttle_decision_endpoints = "amqp://${admin.username}:${admin.password}@clientid/carbon?brokerlist='tcp://${carbon.local.ip}:${jms.port}'"
+mgt_endpoint = "tm.wso2.com:9443"
