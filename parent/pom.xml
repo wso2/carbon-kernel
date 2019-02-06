@@ -633,6 +633,7 @@
         <version.guava>27.0.1-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
+        <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
     </properties>
 
     <dependencyManagement>
@@ -1848,6 +1849,11 @@
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${version.org.osgi.compendium}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${version.org.wso2.orbit.javax.activation}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
