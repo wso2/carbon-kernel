@@ -74,9 +74,12 @@ public class ConfigParser {
         File templateDir = new File(templateFileDir);
         Set<File> fileNames = new HashSet<>();
         if (templateDir.exists() && templateDir.isDirectory()) {
-            for (File file : templateDir.listFiles()) {
-                if (file.isFile()) {
-                    fileNames.add(file);
+            File[] files = templateDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        fileNames.add(file);
+                    }
                 }
             }
 
