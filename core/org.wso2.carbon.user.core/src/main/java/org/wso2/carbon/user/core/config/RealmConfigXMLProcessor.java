@@ -126,8 +126,8 @@ public class RealmConfigXMLProcessor {
         // adding the OverrideUsernameClaimFromInternalUsername
         OMElement isOverrideUsernameClaimFromInternalUsernameElem = factory.createOMElement(new QName(
                 UserCoreConstants.RealmConfig.OVERRIDE_USERNAME_CLAIM_FROM_INTERNAL_USERNAME));
-        isOverrideUsernameClaimFromInternalUsernameElem.setText(UserCoreUtil.removeDomainFromName(
-                realmConfig.getIsOverrideUsernameClaimFromInternalUsername()));
+        isOverrideUsernameClaimFromInternalUsernameElem.setText(
+                realmConfig.getIsOverrideUsernameClaimFromInternalUsername());
         mainConfig.addChild(isOverrideUsernameClaimFromInternalUsernameElem);
 
         // add the main config properties
