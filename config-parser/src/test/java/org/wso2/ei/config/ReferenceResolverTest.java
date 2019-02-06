@@ -48,11 +48,11 @@ public class ReferenceResolverTest {
         Map<String, Object> environmentContextPlaceholders = new HashMap<>();
         Map<String, Object> complexPlaceholders = new HashMap<>();
         fileContextPlaceholders.put("fa", "AAA");
-        fileContextPlaceholders.put("fa1", "${fa}");
-        fileContextPlaceholders.put("fa2", "${fa1}");
+        fileContextPlaceholders.put("fa1", "$conf{fa}");
+        fileContextPlaceholders.put("fa2", "$conf{fa1}");
         fileContextPlaceholders.put("fb", "BBB");
-        fileContextPlaceholders.put("fb1", "${fa}-${fb}");
-        fileContextPlaceholders.put("fb2", "${fa1}-${fb}");
+        fileContextPlaceholders.put("fb1", "$conf{fa}-$conf{fb}");
+        fileContextPlaceholders.put("fb2", "$conf{fa1}-$conf{fb}");
         systemContextPlaceholders.put("sa", "$sys{syskey1}");
         systemContextPlaceholders.put("sb", "$sys{syskey1}-AAA");
         systemContextPlaceholders.put("sc", "$sys{syskey1}-$sys{syskey2}");
@@ -73,9 +73,9 @@ public class ReferenceResolverTest {
 
         Map<String, Object> invalidReferenceContext1 = new HashMap<>();
         Map<String, Object> invalidReferenceContext2 = new HashMap<>();
-        invalidReferenceContext1.put("fc", "${fd}");
-        invalidReferenceContext1.put("fd", "${fc}");
-        invalidReferenceContext2.put("fe", "${fz}");
+        invalidReferenceContext1.put("fc", "$conf{fd}");
+        invalidReferenceContext1.put("fd", "$conf{fc}");
+        invalidReferenceContext2.put("fe", "$conf{fz}");
         return new Object[][]{
                 {invalidReferenceContext1, "fc"},
                 {invalidReferenceContext2, "fe"},

@@ -34,7 +34,7 @@
      </dbConfig>
     <remoteInstance url="https://am.wso2.com">
         <id>gov</id>
-        <cacheId>${database.username}@${database.url}</cacheId>
+        <cacheId>root@jdbc:mysql://localhost:3306/sharedDb</cacheId>
         <dbConfig>govregistry</dbConfig>
         <readOnly>false</readOnly>
         <enableCache>true</enableCache>

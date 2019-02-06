@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 public class ReferenceResolver {
 
-    private static final String CONF_PLACEHOLDER_PREFIX = "${";
+    private static final String CONF_PLACEHOLDER_PREFIX = "$conf{";
     private static final String SYS_PROPERTY_PLACEHOLDER_PREFIX = "$sys{";
     private static final String ENV_VAR_PLACEHOLDER_PREFIX = "$env{";
     private static final String PLACEHOLDER_SUFFIX = "}";

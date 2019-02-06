@@ -78,7 +78,7 @@
   "database.type": {
     "mysql": {
       "database.driver":"com.mysql.jdbc.Driver",
-      "database.url" : "jdbc:mysql://${database.hostname}:${database.port}/${database.name}",
+      "database.url" : "jdbc:mysql://$conf{database.hostname}:$conf{database.port}/$conf{database.name}",
       "database.validationQuery" : "SELECT 1"
     },
     "h2": {
