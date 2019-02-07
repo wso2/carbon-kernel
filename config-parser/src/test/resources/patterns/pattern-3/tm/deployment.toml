@@ -19,15 +19,15 @@ username = "root"
 password = "root"
 pool_options.max_active = 5
 
-[keystore]
-file = "wso2carbon.jks"
+[keystore.tls]
+file_name = "wso2carbon.jks"
 type = "JKS"
 password = "wso2carbon"
 alias = "wso2carbon"
 key_password = "wso2carbon"
 
 [truststore]
-file = "client-truststore.jks"
+file_name = "client-truststore.jks"
 type = "JKS"
 password = "wso2carbon"
 
