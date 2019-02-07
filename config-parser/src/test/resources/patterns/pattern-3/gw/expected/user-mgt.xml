@@ -30,7 +30,7 @@
             <Property name="dataSource">jdbc/SharedDb</Property>
         </Configuration>
         <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
-            <Property name="tenant_manager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
+            <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
             <Property name="ReadOnly">false</Property>
             <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="PasswordDigest">SHA-256</Property>
