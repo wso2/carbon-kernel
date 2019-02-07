@@ -223,6 +223,8 @@ public final class JDBCRealmConstants {
     public static final String SUSPECT_TIMEOUT = "suspectTimeout";
     public static final String VALIDATION_QUERY_TIMEOUT = "validationQueryTimeout";
     public static final String ALTERNATE_USERNAME_ALLOWED = "alternateUsernameAllowed";
+    public static final String COMMIT_ON_RETURN = "commitOnReturn";
+    public static final String ROLLBACK_ON_RETURN = "rollbackOnReturn";
 
     public static final class TX_ISOLATION_LEVELS {
         public static final String NONE = "NONE";
