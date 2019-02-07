@@ -99,6 +99,95 @@ public class JDBCUserStoreConstants {
                         "SQL SELECT statement that returns at least one row");
         setAdvancedProperty(VALIDATION_INTERVAL, "Validation Interval(time in milliseconds)", "", "Used to avoid " +
                 "excess validation, only run validation at most at this frequency");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_AUTO_COMMIT, "Default Auto commit", "",
+                "The default auto-commit state of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_READ_ONLY, "Default Read Only", "",
+                "The default read-only state of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_TRANSACTION_ISOLATION, "Default Transaction Isolation",
+                "", "The default TransactionIsolation state of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_CATALOG, "Default Catalog",
+                "", "The default catalog of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.INITIAL_SIZE, "Initial Size",
+                "", "The initial number of connections that are created when the pool is started");
+
+        setAdvancedProperty(JDBCRealmConstants.TEST_ON_RETURN, "Test On Return", "false", "The indication of " +
+                "whether objects will be validated before being returned to the pool");
+
+        setAdvancedProperty(JDBCRealmConstants.TEST_ON_BORROW, "Test On Borrow", "false", "The indication of " +
+                "whether objects will be validated before being borrowed from the pool");
+
+        setAdvancedProperty(JDBCRealmConstants.VALIDATOR_CLASS_NAME, "Validator Class Name",
+                "", "The name of a class which implements the org.apache.tomcat.jdbc.pool.Validator interface and " +
+                        "provides a no-arg constructor (may be implicit)");
+
+        setAdvancedProperty(JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN, "Num Tests Per Eviction Run", "",
+                " Property not used in tomcat-jdbc-pool");
+
+        setAdvancedProperty(JDBCRealmConstants.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED, "Access To Underlying " +
+                "Connection Allowed", "", "Property not used. Access can be achieved by calling unwrap on " +
+                "the pooled connection");
+
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_ABANDONED, "Remove Abandoned", "false",
+                "Flag to remove abandoned connections if they exceed the removeAbandonedTimeout");
+
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT, "Remove Abandoned Timeout", "",
+                "Timeout in seconds before an abandoned(in use) connection can be removed");
+
+        setAdvancedProperty(JDBCRealmConstants.LOG_ABANDONED, "Log Abandoned", "false",
+                "Flag to log stack traces for application code which abandoned a Connection");
+
+        setAdvancedProperty(JDBCRealmConstants.CONNECTION_PROPERTIES, "Connection Properties", "",
+                "The connection properties that will be sent to our JDBC driver when establishing new connections");
+
+        setAdvancedProperty(JDBCRealmConstants.INIT_SQL, "Init SQL", "",
+                "A custom query to be run when a connection is first created");
+
+        setAdvancedProperty(JDBCRealmConstants.JDBC_INTERCEPTORS, "JDBC Interceptors", "",
+                "JDBC Interceptors");
+
+        setAdvancedProperty(JDBCRealmConstants.JMX_ENABLED, "JMX Enabled", "true",
+                "Register the pool with JMX or not");
+
+        setAdvancedProperty(JDBCRealmConstants.FAIR_QUEUE, "Fiar Queue", "true",
+                "Set to true if you wish that calls to getConnection should be treated fairly in a true FIFO fashion");
+
+        setAdvancedProperty(JDBCRealmConstants.ABANDON_WHEN_PERCENTAGE_FULL, "Abandon when percentage full", "",
+                "Connections that have been abandoned (timed out) wont get closed and reported up unless the number" +
+                        " of connections in use are above the percentage defined by abandonWhenPercentageFull");
+
+        setAdvancedProperty(JDBCRealmConstants.MAX_AGE, "Max Age", "",
+                "Time in milliseconds to keep the connection");
+
+        setAdvancedProperty(JDBCRealmConstants.USE_EQUALS, "Use Equals", "true",
+                "Set to true if you wish the ProxyConnection class to use String.equals and set to false when you " +
+                        "wish to use == when comparing method names");
+
+        setAdvancedProperty(JDBCRealmConstants.SUSPECT_TIMEOUT, "Suspect Timeout", "",
+                "Similar to to the removeAbandonedTimeout value but instead of treating the connection as " +
+                        "abandoned, and potentially closing the connection, this simply logs the warning if " +
+                        "logAbandoned is set to true");
+
+        setAdvancedProperty(JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT, "Validation Query Timeout", "",
+                "The timeout in seconds before a connection validation queries fail");
+
+        setAdvancedProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED, "Alternate Username Allowed", "false",
+                "If enabled, the pool size is still managed on a global level, and not on a per schema level");
+
+        setAdvancedProperty(JDBCRealmConstants.COMMIT_ON_RETURN, "Commit On Return", "false",
+                "If autoCommit==false then the pool can complete the transaction by calling commit on the " +
+                        "connection as it is returned to the pool If rollbackOnReturn==true then this attribute is " +
+                        "ignored");
+
+        setAdvancedProperty(JDBCRealmConstants.ROLLBACK_ON_RETURN, "Rollback On Return", "false",
+                "If autoCommit==false then the pool can terminate the transaction by calling rollback on the " +
+                        "connection as it is returned to the pool");
+
+
         setAdvancedProperty("CountRetrieverClass", "Count Implementation",
                 "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
                 "Name of the class that implements the count functionality");
