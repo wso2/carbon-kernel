@@ -31,12 +31,10 @@ file = "client-truststore.jks"
 type = "JKS"
 password = "wso2carbon"
 
-
-
 [apim.analytics]
 # TODO handle differently
-nodes = "{tcp://localhost:7611}"
-management_endpoint = "localhost:7444"
+nodes = "{tcp://analytics.wso2.com:7612}"
+management_endpoint = "analytics.wso2.com:7444"
 
 [apim.key_mgr_node]
 endpoint = "km.wso2.com:443"

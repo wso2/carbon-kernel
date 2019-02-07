@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -67,7 +68,7 @@ class ValueInferrer {
 
     private static Map<String, Object> getInferredValues(Map<String, Object> configurationValues, Map inferringData) {
 
-        Map<String, Object> inferredValues = new HashMap<>();
+        Map<String, Object> inferredValues = new LinkedHashMap<>();
         if (configurationValues != null) {
             configurationValues.forEach((s, o) -> {
                 if (inferringData.containsKey(s)) {

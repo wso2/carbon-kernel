@@ -151,7 +151,7 @@
 
              Ex - Multiple Receiver Groups with two receivers each
              {tcp://localhost:7612/,tcp://localhost:7613},{tcp://localhost:7712/,tcp://localhost:7713/} -->
-        <StreamProcessorServerURL>{tcp://analytics.wso2.com:7612}</StreamProcessorServerURL>
+        <StreamProcessorServerURL>{tcp://localhost:7611}</StreamProcessorServerURL>
         <!--StreamProcessorAuthServerURL>{ssl://localhost:7712}</StreamProcessorAuthServerURL-->
         <!-- Administrator username to login to the remote StreamProcessor server. -->
         <StreamProcessorUsername>${admin.username}</StreamProcessorUsername>
@@ -162,7 +162,7 @@
         <StatsProviderImpl>org.wso2.carbon.apimgt.usage.client.impl.APIUsageStatisticsRestClientImpl</StatsProviderImpl>
 
         <!-- StreamProcessor REST API configuration -->
-        <StreamProcessorRestApiURL>https://analytics.wso2.com:7444</StreamProcessorRestApiURL>
+        <StreamProcessorRestApiURL>https://localhost:7444</StreamProcessorRestApiURL>
         <StreamProcessorRestApiUsername>${admin.username}</StreamProcessorRestApiUsername>
         <StreamProcessorRestApiPassword>${admin.password}</StreamProcessorRestApiPassword>
 
@@ -212,7 +212,7 @@
     -->
     <APIKeyValidator>
         <!-- Server URL of the API key manager -->
-        <ServerURL>https://km.wso2.com:443/services/</ServerURL>
+        <ServerURL>https://localhost:9443/services/</ServerURL>
 
         <!-- Admin username for API key manager. -->
         <Username>${admin.username}</Username>
@@ -558,13 +558,13 @@
         <EnableAdvanceThrottling>true</EnableAdvanceThrottling>
         <TrafficManager>
             <Type>Binary</Type>
-            <ReceiverUrlGroup>{tcp://tm1.node:9611}</ReceiverUrlGroup>
-            <AuthUrlGroup>{ssl://tm1.node:9711}</AuthUrlGroup>
+            <ReceiverUrlGroup>{tcp://localhost:9611}</ReceiverUrlGroup>
+            <AuthUrlGroup>{ssl://localhost:9711}</AuthUrlGroup>
             <Username>${admin.username}</Username>
             <Password>${admin.password}</Password>
         </TrafficManager>
         <DataPublisher>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <DataPublisherPool>
                 <MaxIdle>1000</MaxIdle>
                 <InitIdleCapacity>200</InitIdleCapacity>
@@ -582,12 +582,12 @@
             <Password>${admin.password}</Password>
         </PolicyDeployer>
         <BlockCondition>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <!--InitDelay>300000</InitDelay>
             <Period>3600000</Period-->
         </BlockCondition>
         <JMSConnectionDetails>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <Destination>throttleData</Destination>
             <!--InitDelay>300000</InitDelay-->
             <JMSConnectionParameters>

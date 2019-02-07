@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +55,7 @@ public class DefaultParser {
 
         Gson gson = new Gson();
         Reader input = new InputStreamReader(new FileInputStream(defaultValueFilePath), Charsets.UTF_8);
-        return gson.fromJson(input, Map.class);
+        return gson.fromJson(input, LinkedHashMap.class);
     }
 
     private static Builders readHandles(String key) throws ClassNotFoundException,

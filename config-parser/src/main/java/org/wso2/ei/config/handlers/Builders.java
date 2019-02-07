@@ -7,6 +7,6 @@ public class Builders {
 
     public Object handle(Object parsedValues, Object deploymentValues) {
 
-        return null;
+        return parsedValues;
     }
 }
