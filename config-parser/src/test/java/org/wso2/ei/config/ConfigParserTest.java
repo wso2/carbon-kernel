@@ -62,7 +62,8 @@ public class ConfigParserTest {
                 "scenario-4",
                 "scenario-5",
                 "scenario-6",
-                "scenario-7"
+                "scenario-7",
+                "pattern-3/gw"
         };
     }
 
@@ -76,7 +77,11 @@ public class ConfigParserTest {
         for (String s : expected.split("\n")) {
             expectedFileContent.append(s.trim());
         }
-        Assert.assertEquals(actualFileContent.toString(), expectedFileContent.toString());
+        if (actualFileContent.toString().equals(expectedFileContent.toString())) {
+            Assert.assertTrue(true);
+        } else {
+            Assert.assertEquals(actual, expected);
+        }
     }
 
 }

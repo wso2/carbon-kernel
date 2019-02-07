@@ -89,12 +89,12 @@
   "database.apim.type": {
     "mysql": {
       "database.apim.driver": "com.mysql.jdbc.Driver",
-      "database.apim.url": "jdbc:mysql://$conf{database.shared_db.hostname}:$conf{database.shared_db.port}/$conf{database.shared_db.name}",
+      "database.apim.url": "jdbc:mysql://$conf{database.apim.hostname}:$conf{database.apim.port}/$conf{database.apim.name}",
       "database.apim.validationQuery": "SELECT 1"
     },
     "h2": {
       "database.apim.driver": "org.h2.Driver",
-      "database.apim.url": "jdbc:h2:./repository/database/WSO2AM_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
+      "database.apim.url": "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
       "database.apim.validationQuery": "SELECT 1"
     }
   },
@@ -102,6 +102,14 @@
     "jdbc": {
       "tenant_mgt.tenant_manager.config_builder": "org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder",
       "tenant_mgt.tenant_manager.class": "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
+    }
+  },
+  "deployment.server_role": {
+    "gw": {
+      "apim.traffic_manager.enable_publishing": true,
+      "apim.traffic_manager.enable_deployer": false,
+      "apim.traffic_manager.enable_blocking_conditions": true,
+      "apim.traffic_manager.enable_decision_receiver": true
     }
   }
 }

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +49,7 @@ class TomlParser {
     }
 
     private static Map<String, Object> parseToml(String filePath) {
-        Map<String, Object> context = new HashMap<>();
+        Map<String, Object> context = new LinkedHashMap<>();
         try {
             TomlParseResult result;
 
@@ -89,7 +90,7 @@ class TomlParser {
      * @return Map representation of the {@link TomlTable}
      */
     private static Object processTomlMap(TomlTable tomlTable) {
-        HashMap<String, Object> finalMap = new HashMap<>();
+        HashMap<String, Object> finalMap = new LinkedHashMap<>();
         Set<String> dottedKeySet = tomlTable.dottedKeySet();
         for (String key: dottedKeySet) {
             Object value = tomlTable.get(key);

@@ -74,10 +74,10 @@
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/sharedDb</url>
-                    <username>root</username>
-                    <password>root</password>
-                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <url>jdbc:h2:./repository/database/WSO2AM_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
+                    <username>wso2carbon</username>
+                    <password>wso2carbon</password>
+                    <driverClassName>org.h2.Driver</driverClassName>
                     <max_active>5</max_active>
                 </configuration>
             </definition>
