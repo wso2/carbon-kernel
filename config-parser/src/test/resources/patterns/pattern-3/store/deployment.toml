@@ -1,6 +1,6 @@
 [deployment]
-hostname = "publisher.wso2.com"
-server_role = "publisher"
+hostname = "store.wso2.com"
+server_role = "store"
 
 [user_store]
 type = "jdbc"

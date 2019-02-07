@@ -1,6 +1,6 @@
 package org.wso2.ei.config.handlers;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public class MessageBuilders extends Builders {
     @Override
     public Object handle(Object deploymentValues, Object defaultValues) {
 
-        Map<String, Object> mergedlist = new HashMap<>();
+        Map<String, Object> mergedlist = new LinkedHashMap<>();
         ((List<Map>) defaultValues).forEach(map -> {
             String contentType = (String) map.get("content_type");
             mergedlist.put(contentType, map);

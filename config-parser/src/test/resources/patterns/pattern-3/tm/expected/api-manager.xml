@@ -81,17 +81,17 @@
                  An API deployed on a 'sandbox' type gateway will only support sandbox keys
                  An API deployed on a 'hybrid' type gateway will support both production and sandbox keys. -->
             <!-- api-console element specifies whether the environment should be listed in API Console or not -->
-            <Environment type="production" api-console="true">
+            <Environment type="hybrid" api-console="true">
                 <Name>Sandbox</Name>
                 <Description>Sandbox</Description>
                 <!-- Server URL of the API gateway -->
-                <ServerURL>https://mgt.gateway:443/services/</ServerURL>
+                <ServerURL>https://localhost.9443/services/</ServerURL>
                 <!-- Admin username for the API gateway. -->
                 <Username>${admin.username}</Username>
                 <!-- Admin password for the API gateway.-->
                 <Password>${admin.password}</Password>
                 <!-- Endpoint URLs for the APIs hosted in this API gateway.-->
-                <GatewayEndpoint>http://api.gateway:80,https://api.gateway:443</GatewayEndpoint>
+                <GatewayEndpoint>http://localhost:8280,https://localhost:8243</GatewayEndpoint>
                 <!-- Endpoint of the Websocket APIs hosted in this API Gateway -->
                 <GatewayWSEndpoint>ws://api.gateway:9091</GatewayWSEndpoint>
             </Environment>
@@ -139,7 +139,7 @@
     -->
     <Analytics>
         <!-- Enable Analytics for API Manager -->
-        <Enabled>true</Enabled>
+        <Enabled>false</Enabled>
 
         <!-- Server URL of the remote StreamProcessor server used to collect statistics. Must
              be specified in protocol://hostname:port/ format.
@@ -151,7 +151,7 @@
 
              Ex - Multiple Receiver Groups with two receivers each
              {tcp://localhost:7612/,tcp://localhost:7613},{tcp://localhost:7712/,tcp://localhost:7713/} -->
-        <StreamProcessorServerURL>{tcp://analytics.wso2.com:7612}</StreamProcessorServerURL>
+        <StreamProcessorServerURL>{tcp://localhost:7611}</StreamProcessorServerURL>
         <!--StreamProcessorAuthServerURL>{ssl://localhost:7712}</StreamProcessorAuthServerURL-->
         <!-- Administrator username to login to the remote StreamProcessor server. -->
         <StreamProcessorUsername>${admin.username}</StreamProcessorUsername>
@@ -162,7 +162,7 @@
         <StatsProviderImpl>org.wso2.carbon.apimgt.usage.client.impl.APIUsageStatisticsRestClientImpl</StatsProviderImpl>
 
         <!-- StreamProcessor REST API configuration -->
-        <StreamProcessorRestApiURL>https://analytics.wso2.com:7444</StreamProcessorRestApiURL>
+        <StreamProcessorRestApiURL>https://localhost:7444</StreamProcessorRestApiURL>
         <StreamProcessorRestApiUsername>${admin.username}</StreamProcessorRestApiUsername>
         <StreamProcessorRestApiPassword>${admin.password}</StreamProcessorRestApiPassword>
 
@@ -212,7 +212,7 @@
     -->
     <APIKeyValidator>
         <!-- Server URL of the API key manager -->
-        <ServerURL>https://km.wso2.com:443/services/</ServerURL>
+        <ServerURL>https://localhost:9443/services/</ServerURL>
 
         <!-- Admin username for API key manager. -->
         <Username>${admin.username}</Username>
@@ -558,13 +558,13 @@
         <EnableAdvanceThrottling>true</EnableAdvanceThrottling>
         <TrafficManager>
             <Type>Binary</Type>
-            <ReceiverUrlGroup>{tcp://tm.wso2.com:9611}</ReceiverUrlGroup>
-            <AuthUrlGroup>{ssl://tm.wso2.com:9711}</AuthUrlGroup>
+            <ReceiverUrlGroup>{tcp://localhost:9611}</ReceiverUrlGroup>
+            <AuthUrlGroup>{ssl://localhost:9711}</AuthUrlGroup>
             <Username>${admin.username}</Username>
             <Password>${admin.password}</Password>
         </TrafficManager>
         <DataPublisher>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <DataPublisherPool>
                 <MaxIdle>1000</MaxIdle>
                 <InitIdleCapacity>200</InitIdleCapacity>
@@ -576,7 +576,7 @@
             </DataPublisherThreadPool>
         </DataPublisher>
         <PolicyDeployer>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <ServiceURL>https:///services/</ServiceURL>
             <Username>${admin.username}</Username>
             <Password>${admin.password}</Password>
@@ -594,7 +594,7 @@
                 <transport.jms.ConnectionFactoryJNDIName>TopicConnectionFactory</transport.jms.ConnectionFactoryJNDIName>
                 <transport.jms.DestinationType>topic</transport.jms.DestinationType>
                 <java.naming.factory.initial>org.wso2.andes.jndi.PropertiesFileInitialContextFactory</java.naming.factory.initial>
-                <connectionfactory.TopicConnectionFactory>amqp://${admin.username}:${admin.password}@clientid/carbon?brokerlist='tcp://tm.wso2.com:5672'</connectionfactory.TopicConnectionFactory>
+                <connectionfactory.TopicConnectionFactory>amqp://${admin.username}:${admin.password}@clientid/carbon?brokerlist='tcp://${carbon.local.ip}:${jms.port}'</connectionfactory.TopicConnectionFactory>
             </JMSConnectionParameters>
         </JMSConnectionDetails>
 

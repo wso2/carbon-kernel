@@ -2,8 +2,8 @@ package org.wso2.ei.config;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,8 +54,8 @@ public class ReferenceResolver {
      */
     private static void resolveConfigReferences(Map<String, Object> context) throws ConfigParserException {
 
-        Map<String, Set<String>> unresolvedKeys = new HashMap<>();
-        Map<String, Set<String>> valuesToResolve = new HashMap<>();
+        Map<String, Set<String>> unresolvedKeys = new LinkedHashMap<>();
+        Map<String, Set<String>> valuesToResolve = new LinkedHashMap<>();
 
         context.forEach((k, v) -> {
             if (v instanceof String) {

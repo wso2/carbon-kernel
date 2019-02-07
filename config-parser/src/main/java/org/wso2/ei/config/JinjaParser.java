@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +28,7 @@ class JinjaParser {
 
     static Map<String, String> parse(Map<String, Object> dottedKeyMap, Set<File> templateFiles) {
 
-        Map<String, String> outputs = new HashMap<>();
+        Map<String, String> outputs = new LinkedHashMap<>();
         for (File templateFile : templateFiles) {
             JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
             Jinjava jinjava = new Jinjava(configurator);
@@ -48,7 +48,7 @@ class JinjaParser {
     }
 
     static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {
-        Map<String, Object> newContext = new HashMap<>();
+        Map<String, Object> newContext = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : dottedKeyMap.entrySet()) {
             changeToHierarchicalMap(entry, newContext);
         }
@@ -67,7 +67,7 @@ class JinjaParser {
             if (object instanceof Map) {
                 map = (Map) object;
             } else {
-                map = new HashMap<>();
+                map = new LinkedHashMap<>();
                 parentMap.put(keyElement, map);
             }
             parentMap = map;

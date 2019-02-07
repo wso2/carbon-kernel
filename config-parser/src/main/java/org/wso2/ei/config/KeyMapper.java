@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +45,7 @@ class KeyMapper {
     }
 
     static Map<String, Object> map(Map<String, Object> context, Map<String, String> keyMappings) {
-        Map<String, Object> mappedConfigs = new HashMap<>();
+        Map<String, Object> mappedConfigs = new LinkedHashMap<>();
 
         for (Map.Entry<String, Object> entry : context.entrySet()) {
             String mappedKey = keyMappings.getOrDefault(entry.getKey(), entry.getKey());

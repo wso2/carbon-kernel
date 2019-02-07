@@ -16,7 +16,8 @@ public class PatternTest {
     @Test(dataProvider = "scenarios")
     public void getTestParseConfig(String scenario) throws IOException, ConfigParserException {
 
-        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", "patterns",scenario, "deployment" +
+        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", "patterns", scenario,
+                "deployment" +
                 ".toml").getAbsolutePath();
         String inferConfiguration =
                 FileUtils.getFile("src", "test", "resources", "patterns", "infer.json").getAbsolutePath();
@@ -57,7 +58,10 @@ public class PatternTest {
 
         return new Object[]{
                 "pattern-3/gw",
-                "pattern-3/km"
+                "pattern-3/km",
+                "pattern-3/publisher",
+                "pattern-3/store",
+                "pattern-3/tm"
         };
     }
 

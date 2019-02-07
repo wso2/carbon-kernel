@@ -564,7 +564,7 @@
             <Password>${admin.password}</Password>
         </TrafficManager>
         <DataPublisher>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <DataPublisherPool>
                 <MaxIdle>1000</MaxIdle>
                 <InitIdleCapacity>200</InitIdleCapacity>
@@ -576,7 +576,7 @@
             </DataPublisherThreadPool>
         </DataPublisher>
         <PolicyDeployer>
-            <Enabled>true</Enabled>
+            <Enabled>false</Enabled>
             <ServiceURL>https:///services/</ServiceURL>
             <Username>${admin.username}</Username>
             <Password>${admin.password}</Password>

@@ -164,17 +164,17 @@
     <!-- resolved based on the content type. -->
     <messageBuilders>
         <messageBuilder contentType="application/xml"
-                          class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
+                        class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
         <messageBuilder contentType="text/html"
-                          class="org.wso2.carbon.relay.BinaryRelayBuilder"/>
-        <messageBuilder contentType="application/json"
-                          class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
-        <messageBuilder contentType="multipart/form-data"
-                          class="org.apache.axis2.builder.MultipartFormDataBuilder"/>
+                        class="org.wso2.carbon.relay.BinaryRelayBuilder"/>
         <messageBuilder contentType="application/x-www-form-urlencoded"
-                          class="org.apache.synapse.commons.builders.XFormURLEncodedBuilder"/>
+                        class="org.apache.synapse.commons.builders.XFormURLEncodedBuilder"/>
+        <messageBuilder contentType="multipart/form-data"
+                        class="org.apache.axis2.builder.MultipartFormDataBuilder"/>
         <messageBuilder contentType="text/plain"
-                          class="org.apache.axis2.format.PlainTextBuilder"/>
+                        class="org.apache.axis2.format.PlainTextBuilder"/>
+        <messageBuilder contentType="application/json"
+                        class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
     </messageBuilders>
 
     <!-- ================================================= -->
@@ -350,11 +350,11 @@
 
            NOTE: This should be the very first phase in this flow
         -->
-	<phase name="MsgInObservation">
-		<handler name="TraceMessageBuilderDispatchHandler"
-                 	 class="org.apache.synapse.transport.passthru.util.TraceMessageBuilderDispatchHandler"/>
-	</phase>
-	<phase name="Validation"/>
+        <phase name="MsgInObservation">
+            <handler name="TraceMessageBuilderDispatchHandler"
+                     class="org.apache.synapse.transport.passthru.util.TraceMessageBuilderDispatchHandler"/>
+        </phase>
+        <phase name="Validation"/>
         <phase name="Transport">
             <!--TEMPORALY-->
             <!--handler name="TenantActiveCheckDispatcher"
@@ -365,8 +365,8 @@
                      class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher">
                 <order phase="Transport"/>
             </handler>
-	    <handler name="CarbonContextConfigurator"
-		class="org.wso2.carbon.mediation.initializer.handler.CarbonContextConfigurator"/>
+            <handler name="CarbonContextConfigurator"
+                     class="org.wso2.carbon.mediation.initializer.handler.CarbonContextConfigurator"/>
             <handler name="SOAPActionBasedDispatcher"
                      class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher">
                 <order phase="Transport"/>
@@ -400,7 +400,7 @@
             <handler name="SOAPMessageBodyBasedDispatcher"
                      class="org.apache.axis2.dispatchers.SOAPMessageBodyBasedDispatcher"/>
 
-	    <handler name="HTTPLocationBasedDispatcher"
+            <handler name="HTTPLocationBasedDispatcher"
                      class="org.apache.axis2.dispatchers.HTTPLocationBasedDispatcher"/>
             <handler name="MultitenantDispatcher"
                      class="org.wso2.carbon.tenant.dispatcher.MultitenantDispatcher"/>
@@ -429,9 +429,9 @@
         <!--system predefined phase-->
         <!--these phase will run irrespective of the service-->
         <phase name="PolicyDetermination"/>
-		<!--security handler for pass through -->
-		<phase name="PTSecurityOutPhase">
-			<handler name="RelaySecuirtyMessageBuilderDispatchandler"
+        <!--security handler for pass through -->
+        <phase name="PTSecurityOutPhase">
+            <handler name="RelaySecuirtyMessageBuilderDispatchandler"
                      class="org.apache.synapse.transport.passthru.util.RelaySecuirtyMessageBuilderDispatchandler"/>
         </phase>
         <phase name="MessageOut"/>
@@ -456,7 +456,7 @@
            NOTE: This should be the very first phase in this flow
         -->
         <phase name="MsgInObservation"/>
-	<phase name="Validation"/>
+        <phase name="Validation"/>
 
         <phase name="Transport">
             <handler name="RequestURIBasedDispatcher"
@@ -467,16 +467,16 @@
                      class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher">
                 <order phase="Transport"/>
             </handler>
-	    <handler name="CarbonContentConfigurator"
-            class="org.wso2.carbon.mediation.initializer.handler.CarbonContextConfigurator"/>
-           </phase>
+            <handler name="CarbonContentConfigurator"
+                     class="org.wso2.carbon.mediation.initializer.handler.CarbonContextConfigurator"/>
+        </phase>
 
-           <phase name="Addressing">
+        <phase name="Addressing">
             <handler name="AddressingBasedDispatcher"
                      class="org.apache.axis2.dispatchers.AddressingBasedDispatcher">
                 <order phase="Addressing"/>
             </handler>
-           </phase>
+        </phase>
 
         <phase name="Security"/>
         <phase name="PreDispatch"/>
@@ -511,7 +511,7 @@
         <phase name="PolicyDetermination"/>
         <phase name="MessageOut"/>
         <phase name="Security"/>
-	<phase name="Transport"/>
+        <phase name="Transport"/>
         <!--
            The MsgOutObservation phase is used to observe messages just before the
            responses are sent out. In this phase, we could do some things such as SOAP message

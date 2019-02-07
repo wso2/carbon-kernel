@@ -28,12 +28,12 @@
             <Property name="dataSource"></Property>
         </Configuration>
         <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
-            <Property name="CaseInsensitiveUsername">true</Property>
-            <Property name="ReadOnly">false</Property>
-            <Property name="UserNameUniqueAcrossTenants">false</Property>
-            <Property name="PasswordDigest">SHA-256</Property>
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
+            <Property name="ReadOnly">false</Property>
+            <Property name="CaseInsensitiveUsername">true</Property>
+            <Property name="PasswordDigest">SHA-256</Property>
             <Property name="StoreSaltedPassword">true</Property>
+            <Property name="UserNameUniqueAcrossTenants">false</Property>
         </UserStoreManager>
 
         <AuthorizationManager class="">
