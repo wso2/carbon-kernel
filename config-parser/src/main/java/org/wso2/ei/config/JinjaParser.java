@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Parser based on Jinja templating engine. When the configuration and the relevant Jinja template is provided this
@@ -24,30 +23,32 @@ class JinjaParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(JinjaParser.class);
 
     private JinjaParser() {
+
     }
 
-    static Map<String, String> parse(Map<String, Object> dottedKeyMap, Set<File> templateFiles) {
+    static Map<String, String> parse(Map<String, Object> dottedKeyMap, Map<String, File> templateFiles) {
 
         Map<String, String> outputs = new LinkedHashMap<>();
-        for (File templateFile : templateFiles) {
+        for (Map.Entry<String, File> templateFile : templateFiles.entrySet()) {
             JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
             Jinjava jinjava = new Jinjava(configurator);
             String renderedTemplate = "";
             Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
             try {
-                String template = Files.asCharSource(templateFile, Charsets.UTF_8).read();
+                String template = Files.asCharSource(templateFile.getValue(), Charsets.UTF_8).read();
                 renderedTemplate = jinjava.render(template, context);
 
             } catch (IOException e) {
                 LOGGER.error("Error while parsing Jinja template", e);
             }
-            outputs.put(templateFile.getName(), renderedTemplate);
+            outputs.put(templateFile.getKey(), renderedTemplate);
         }
         return outputs;
 
     }
 
     static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {
+
         Map<String, Object> newContext = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : dottedKeyMap.entrySet()) {
             changeToHierarchicalMap(entry, newContext);
@@ -56,6 +57,7 @@ class JinjaParser {
     }
 
     private static void changeToHierarchicalMap(Map.Entry<String, Object> entry, Map<String, Object> context) {
+
         String flatKey = entry.getKey();
         String[] dottedKeyArray = flatKey.split("\\.");
 
@@ -82,6 +84,7 @@ class JinjaParser {
     }
 
     private static List<Object> processArray(List<Object> list) {
+
         List<Object> newList = new ArrayList<>(list.size());
 
         for (Object obj : list) {

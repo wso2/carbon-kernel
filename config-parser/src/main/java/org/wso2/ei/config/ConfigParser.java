@@ -27,9 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Configuration parser class. Entry point to the config parsing logic.
@@ -72,13 +71,15 @@ public class ConfigParser {
     public Map<String, String> parse() throws IOException, ConfigParserException {
 
         File templateDir = new File(templateFileDir);
-        Set<File> fileNames = new HashSet<>();
+        Map<String, File> fileNames = new LinkedHashMap<>();
         if (templateDir.exists() && templateDir.isDirectory()) {
             File[] files = templateDir.listFiles();
             if (files != null) {
                 for (File file : files) {
                     if (file.isFile()) {
-                        fileNames.add(file);
+                        fileNames.put(file.getParentFile().toPath().relativize(file.toPath()).toString(), file);
+                    } else {
+                        handleDirectories(file, fileNames, file);
                     }
                 }
             }
@@ -170,6 +171,20 @@ public class ConfigParser {
             configParser.mappingFilePath = this.mappingFilePath;
             configParser.defaultValueFilePath = this.defaultValueFilePath;
             return configParser;
+        }
+    }
+
+    private void handleDirectories(File basePath, Map<String, File> files, File file) {
+
+        File[] fileList = file.listFiles();
+        if (fileList != null) {
+            for (File file1 : fileList) {
+                if (file1.isDirectory()) {
+                    handleDirectories(basePath, files, file1);
+                } else {
+                    files.put(file.getParentFile().toPath().relativize(file1.toPath()).toString(), file1);
+                }
+            }
         }
     }
 }
