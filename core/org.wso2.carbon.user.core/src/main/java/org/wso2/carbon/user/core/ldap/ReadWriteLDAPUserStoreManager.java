@@ -51,8 +51,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-import javax.naming.CompositeName;
-import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -2050,6 +2048,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
+                UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
+                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
     }
 
 //

@@ -22,13 +22,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.dto.CorrelationLogDTO;
-import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.dto.CorrelationLogDTO;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -77,6 +87,7 @@ public class LDAPConnectionContext {
     private static final int CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH = 0;
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    private boolean startTLSEnabled;
 
     static {
         String initialContextFactoryClassSystemProperty = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
@@ -193,6 +204,10 @@ public class LDAPConnectionContext {
         if (StringUtils.isNotEmpty(readTimeout)) {
             environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
         }
+
+        // Set StartTLS option if provided in the configuration. Otherwise normal connection.
+        startTLSEnabled = Boolean.parseBoolean(realmConfig.getUserStoreProperty(
+                UserStoreConfigConstants.STARTTLS_ENABLED));
     }
 
     public DirContext getContext() throws UserStoreException {
@@ -502,13 +517,13 @@ public class LDAPConnectionContext {
      * @throws NamingException
      */
     private LdapContext getLdapContext(Hashtable<?, ?> environment, Control[] connectionControls)
-            throws NamingException {
+            throws NamingException, UserStoreException {
 
         if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
             final Class[] proxyInterfaces = new Class[]{LdapContext.class};
             long start = System.currentTimeMillis();
 
-            LdapContext context = new InitialLdapContext(environment, connectionControls);
+            LdapContext context = initializeLdapContext(environment, connectionControls);
 
             Object proxy = Proxy.newProxyInstance(LDAPConnectionContext.class.getClassLoader(), proxyInterfaces,
                     new LdapContextInvocationHandler(context));
@@ -524,6 +539,25 @@ public class LDAPConnectionContext {
             correlationLogDTO.setArgs(CORRELATION_LOG_INITIALIZATION_ARGS);
             logDetails(correlationLogDTO);
             return (LdapContext) proxy;
+        } else {
+            return initializeLdapContext(environment, connectionControls);
+        }
+    }
+
+    /**
+     * Initialize the LDAP context.
+     *
+     * @param environment        environment used to create the initial Context.
+     * @param connectionControls connection request controls for the initial context.
+     * @return ldap connection context.
+     * @throws NamingException    if a naming exception is encountered.
+     * @throws UserStoreException if a user store related exception is encountered.
+     */
+    private LdapContext initializeLdapContext(Hashtable<?, ?> environment, Control[] connectionControls)
+            throws NamingException, UserStoreException {
+
+        if (startTLSEnabled) {
+            return LdapContextWrapper.startTLS(environment, connectionControls);
         } else {
             return new InitialLdapContext(environment, connectionControls);
         }

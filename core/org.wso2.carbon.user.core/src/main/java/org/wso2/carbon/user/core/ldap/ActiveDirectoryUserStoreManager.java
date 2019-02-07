@@ -437,10 +437,13 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         String connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
         String[] array = connectionURL.split(":");
-        if (array[0].equals("ldaps")) {
+        boolean startTLSEnabled = Boolean.parseBoolean(
+                realmConfig.getUserStoreProperty(UserStoreConfigConstants.STARTTLS_ENABLED));
+        if (array[0].equals("ldaps") || startTLSEnabled) {
             this.isSSLConnection = true;
         } else {
-            logger.warn("Connection to the Active Directory is not secure. Passowrd involved operations such as update credentials and adduser operations will fail");
+            logger.warn("Connection to the Active Directory is not secure. Password involved operations " +
+                    "such as update credentials and adduser operations will fail");
         }
     }
 
@@ -910,6 +913,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
+                UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
+                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
     }
 
 
