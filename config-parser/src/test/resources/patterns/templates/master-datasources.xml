@@ -76,11 +76,11 @@
                     </jndiConfig>
                     <definition type="RDBMS">
                         <configuration>
-                            <url>{{database.apim.url}}</url>
-                            <username>{{database.apim.username}}</username>
-                            <password>{{database.apim.password}}</password>
-                            <driverClassName>{{database.apim.driver}}</driverClassName>
-                            {% for property_name,property_value in database.apim.pool_options.items() %}
+                            <url>{{database.apim_db.url}}</url>
+                            <username>{{database.apim_db.username}}</username>
+                            <password>{{database.apim_db.password}}</password>
+                            <driverClassName>{{database.apim_db.driver}}</driverClassName>
+                            {% for property_name,property_value in database.apim_db.pool_options.items() %}
                             <{{property_name}}>{{property_value}}</{{property_name}}>
                                 {% endfor %}
                     </configuration>

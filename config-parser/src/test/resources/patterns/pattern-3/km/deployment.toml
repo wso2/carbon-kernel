@@ -19,7 +19,7 @@ username = "root"
 password = "root"
 pool_options.max_active = 5
 
-[database.apim]
+[database.apim_db]
 type =	"mysql"
 hostname = "localhost"
 port = 3306

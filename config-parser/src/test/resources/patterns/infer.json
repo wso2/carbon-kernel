@@ -86,16 +86,16 @@
       "database.shared_db.validationQuery": "SELECT 1"
     }
   },
-  "database.apim.type": {
+  "database.apim_db.type": {
     "mysql": {
-      "database.apim.driver": "com.mysql.jdbc.Driver",
-      "database.apim.url": "jdbc:mysql://$conf{database.apim.hostname}:$conf{database.apim.port}/$conf{database.apim.name}",
-      "database.apim.validationQuery": "SELECT 1"
+      "database.apim_db.driver": "com.mysql.jdbc.Driver",
+      "database.apim_db.url": "jdbc:mysql://$conf{database.apim_db.hostname}:$conf{database.apim_db.port}/$conf{database.apim_db.name}",
+      "database.apim_db.validationQuery": "SELECT 1"
     },
     "h2": {
-      "database.apim.driver": "org.h2.Driver",
-      "database.apim.url": "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
-      "database.apim.validationQuery": "SELECT 1"
+      "database.apim_db.driver": "org.h2.Driver",
+      "database.apim_db.url": "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
+      "database.apim_db.validationQuery": "SELECT 1"
     }
   },
   "tenant_mgt.tenant_manager.type": {

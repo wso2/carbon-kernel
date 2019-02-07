@@ -84,8 +84,7 @@ local_member_host = "${deployement::local_host_name}"
 local_member_port = 4000
 members = [ "192.168.1.2:4000", "192.168.1.2:4000" ]
 
-[[keystore]]
-id = ""
+[keystore.tls]
 path = ""
 password = ""
 alias = ""

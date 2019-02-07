@@ -62,12 +62,12 @@
   "transport.https.keystoreFile": "${carbon.home}/repository/resources/security/$conf{keystore.file}",
   "transport.https.keystorePass": "$conf{keystore.password}",
   "transport.https.URIEncoding": "UTF-8",
-  "database.apim.driver": "org.h2.Driver",
-  "database.apim.url": "jdbc:h2:./repository/database/WSO2AM_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
-  "database.apim.validationQuery": "SELECT 1",
-  "database.apim.username": "wso2carbon",
-  "database.apim.password": "wso2carbon",
-  "database.apim.pool_options.max_active": "5",
+  "database.apim_db.driver": "org.h2.Driver",
+  "database.apim_db.url": "jdbc:h2:./repository/database/WSO2AM_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
+  "database.apim_db.validationQuery": "SELECT 1",
+  "database.apim_db.username": "wso2carbon",
+  "database.apim_db.password": "wso2carbon",
+  "database.apim_db.pool_options.max_active": "5",
   "apim.gateway.gateway_environments": [
     "dev"
   ],
