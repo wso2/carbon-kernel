@@ -1,5 +1,5 @@
 [deployment]
-hostname = "publisher.wso2.com"
+hostname = "publisher.abc.com"
 server_role = "publisher"
 
 [user_store]
@@ -48,9 +48,9 @@ environment.dev.type = "production"
 environment.dev.display_in_api_console = true
 environment.dev.description = "Sandbox"
 environment.dev.isDefault = true
-environment.dev.management_endpoint = "mgt.gateway:443"
-environment.dev.http_loadbalance_endpoint = "api.gateway:80"
-environment.dev.https_loadbalance_endpoint = "api.gateway:443"
+environment.dev.management_endpoint = "gw.abc.com:9443"
+environment.dev.http_loadbalance_endpoint = "gw.abc.com:8280"
+environment.dev.https_loadbalance_endpoint = "gw.abc.com:8243"
 environment.dev.ws_loadbalance_endpoint = "api.gateway:9091"
 
 [apim.analytics]
@@ -59,10 +59,10 @@ nodes = "{tcp://analytics.wso2.com:7612}"
 management_endpoint = "analytics.wso2.com:7444"
 
 [apim.key_mgr_node]
-endpoint = "km.wso2.com:443"
+endpoint = "km.abc.com:443"
 
 [apim.store]
-endpoint = "https://store.wso2.com:443/store"
+endpoint = "https://store.abc.com:443/store"
 
 [apim.traffic_manager]
 publisher_nodes = "{tcp://tm.wso2.com:9611}"

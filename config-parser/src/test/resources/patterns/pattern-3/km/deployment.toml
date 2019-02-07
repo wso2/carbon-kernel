@@ -1,5 +1,5 @@
 [deployment]
-hostname = "km.wso2.com"
+hostname = "km.abc.com"
 server_role = "km"
 
 [user_store]

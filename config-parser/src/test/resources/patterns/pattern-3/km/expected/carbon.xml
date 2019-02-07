@@ -44,12 +44,12 @@
        This is will become part of the End Point Reference of the
        services deployed on this server instance.
     -->
-    <HostName>km.wso2.com</HostName>
+    <HostName>km.abc.com</HostName>
 
     <!--
     Host name to be used for the Carbon management console
     -->
-    <MgtHostName>km.wso2.com</MgtHostName>
+    <MgtHostName>km.abc.com</MgtHostName>
 
     <!--
         The URL of the back end server. This is where the admin services are hosted and

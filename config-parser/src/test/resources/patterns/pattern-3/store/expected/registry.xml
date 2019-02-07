@@ -32,7 +32,7 @@
     <dbConfig name="govregistry">
         <dataSource>jdbc/SharedDb</dataSource>
     </dbConfig>
-    <remoteInstance url="https://store.wso2.com">
+    <remoteInstance url="https://store.abc.com">
         <id>gov</id>
         <cacheId>root@jdbc:mysql://localhost:3306/sharedDb</cacheId>
         <dbConfig>govregistry</dbConfig>

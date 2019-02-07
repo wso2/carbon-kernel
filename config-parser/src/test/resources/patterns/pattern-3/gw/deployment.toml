@@ -1,5 +1,5 @@
 [deployment]
-hostname = "gw.wso2.com"
+hostname = "gw.abc.com"
 server_role = "gw"
 
 [user_store]
@@ -37,7 +37,7 @@ nodes = "{tcp://analytics.wso2.com:7612}"
 management_endpoint = "analytics.wso2.com:7444"
 
 [apim.key_mgr_node]
-endpoint = "km.wso2.com:443"
+endpoint = "km.abc.com:443"
 
 
 [apim.traffic_manager]

@@ -85,13 +85,13 @@
                 <Name>Sandbox</Name>
                 <Description>Sandbox</Description>
                 <!-- Server URL of the API gateway -->
-                <ServerURL>https://mgt.gateway:443/services/</ServerURL>
+                <ServerURL>https://gw.abc.com:9443/services/</ServerURL>
                 <!-- Admin username for the API gateway. -->
                 <Username>${admin.username}</Username>
                 <!-- Admin password for the API gateway.-->
                 <Password>${admin.password}</Password>
                 <!-- Endpoint URLs for the APIs hosted in this API gateway.-->
-                <GatewayEndpoint>http://api.gateway:80,https://api.gateway:443</GatewayEndpoint>
+                <GatewayEndpoint>http://gw.abc.com:8280,https://gw.abc.com:8243</GatewayEndpoint>
                 <!-- Endpoint of the Websocket APIs hosted in this API Gateway -->
                 <GatewayWSEndpoint>ws://api.gateway:9091</GatewayWSEndpoint>
             </Environment>
@@ -212,7 +212,7 @@
     -->
     <APIKeyValidator>
         <!-- Server URL of the API key manager -->
-        <ServerURL>https://km.wso2.com:443/services/</ServerURL>
+        <ServerURL>https://km.abc.com:443/services/</ServerURL>
 
         <!-- Admin username for API key manager. -->
         <Username>${admin.username}</Username>
@@ -301,7 +301,7 @@
         <!--This property is used to indicate how we do user name comparision for token generation https://wso2.org/jira/browse/APIMANAGER-2225-->
         <CompareCaseInsensitively>true</CompareCaseInsensitively>
         <DisplayURL>true</DisplayURL>
-        <URL>https://store.wso2.com:443/store</URL>
+        <URL>https://store.abc.com:443/store</URL>
 
         <!-- Server URL of the API Store. -->
         <ServerURL>https://localhost:${mgt.transport.https.port}${carbon.context}services/</ServerURL>
