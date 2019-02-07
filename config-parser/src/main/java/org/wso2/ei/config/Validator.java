@@ -2,8 +2,8 @@ package org.wso2.ei.config;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class Validator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Validator.class);
+    private static final Log LOG = LogFactory.getLog(Validator.class);
 
     private static final String IF = "if";
     private static final String REGEX = "regex";

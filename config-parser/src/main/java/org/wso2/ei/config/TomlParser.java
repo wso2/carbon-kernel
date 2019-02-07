@@ -23,8 +23,8 @@ import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlArray;
 import net.consensys.cava.toml.TomlParseResult;
 import net.consensys.cava.toml.TomlTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -39,7 +39,7 @@ import java.util.Set;
  */
 class TomlParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TomlParser.class);
+    private static final Log LOGGER = LogFactory.getLog(TomlParser.class);
 
     private TomlParser() {}
 
@@ -60,7 +60,7 @@ class TomlParser {
                 context.put(dottedKey, getValue(result.get(dottedKey)));
             }
         } catch (IOException e) {
-            LOGGER.error("Error parsing file {}", filePath, e);
+            LOGGER.error("Error parsing file " + filePath, e);
         }
 
         return context;

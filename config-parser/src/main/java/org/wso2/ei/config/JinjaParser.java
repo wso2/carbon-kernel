@@ -4,8 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 class JinjaParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JinjaParser.class);
+    private static final Log LOGGER = LogFactory.getLog(JinjaParser.class);
 
     private JinjaParser() {
 

@@ -2,8 +2,8 @@ package org.wso2.ei.config;
 
 import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlParseResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -17,14 +17,14 @@ import java.util.Set;
  */
 class KeyMapper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyMapper.class);
+    private static final Log LOGGER = LogFactory.getLog(KeyMapper.class);
 
     static Map<String, Object> mapWithTomlConfig(Map<String, Object> inputContext, String tomlMappingFile) {
         try {
             Map<String, String> keyMappings = parseTomlMappingFile(tomlMappingFile);
             return map(inputContext, keyMappings);
         } catch (IOException e) {
-            LOGGER.error("Error while parsing toml file {}", tomlMappingFile, e);
+            LOGGER.error("Error while parsing toml file " + tomlMappingFile, e);
         }
 
         return Collections.emptyMap();

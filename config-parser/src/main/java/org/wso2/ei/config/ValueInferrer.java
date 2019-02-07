@@ -21,8 +21,9 @@ package org.wso2.ei.config;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -42,7 +43,7 @@ class ValueInferrer {
 
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ValueInferrer.class);
+    private static final Log LOGGER = LogFactory.getLog(ValueInferrer.class);
 
     static Map<String, Object> infer(Map<String, Object> context, String inferConfigFilePath) {
 
@@ -53,7 +54,7 @@ class ValueInferrer {
             enrichedContext.putAll(context);
             return enrichedContext;
         } catch (IOException e) {
-            LOGGER.error("Error while inferring values with file {}", inferConfigFilePath, e);
+            LOGGER.error("Error while inferring values with file " + inferConfigFilePath, e);
         }
         return enrichedContext;
     }

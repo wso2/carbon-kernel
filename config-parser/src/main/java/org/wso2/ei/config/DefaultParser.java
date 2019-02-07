@@ -2,8 +2,8 @@ package org.wso2.ei.config;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.ei.config.handlers.Builders;
 
 import java.io.FileInputStream;
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class DefaultParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultParser.class);
+    private static final Log LOGGER = LogFactory.getLog(DefaultParser.class);
 
     private DefaultParser() {
 
@@ -41,7 +41,7 @@ public class DefaultParser {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Error while default values with file {}", defaultValueFilePath, e);
+            LOGGER.error("Error while default values with file" + defaultValueFilePath, e);
 
         } catch (IllegalAccessException e) {
             LOGGER.error("Error while accessing Builder", e);

@@ -19,8 +19,8 @@
 
 package org.wso2.ei.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class ConfigParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigParser.class);
+    private static final Log LOGGER = LogFactory.getLog(ConfigParser.class);
 
     private static final String UX_FILE_PATH = "deployment.toml";
     private static final String TEMPLATE_FILE_DIR = "templates";
