@@ -70,13 +70,9 @@ public class SecurityMgtServiceComponent {
             }
 
             bundleCtx.registerService(SecurityConfigAdmin.class.getName(),
-                    new SecurityConfigAdmin(mainAxisConfig,
-                            registryService.getConfigSystemRegistry(),
-                            null),
-                    null);
+                    new SecurityConfigAdmin(mainAxisConfig, registryService.getConfigSystemRegistry(), null), null);
             bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                    new SecurityAxis2ConfigurationContextObserver(),
-                    null);
+                    new SecurityAxis2ConfigurationContextObserver(), null);
             log.debug("Security Mgt bundle is activated");
         } catch (Throwable e) {
             log.error("Failed to activate SecurityMgtServiceComponent", e);

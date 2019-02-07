@@ -34,13 +34,16 @@
 
     String forwardTo = null;
     String BUNDLE = "org.wso2.carbon.security.ui.i18n.Resources";
+    Boolean isTrustStore = (Boolean) session.getAttribute("org.wso2.carbon.security.isTrustStore");
+
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    if (request.getParameter("addKeystore") != null) {
+    if (request.getParameter("addKeystore") != null || (isTrustStore)) {
         String keyStoreName = request.getParameter("keyStoreName");
         try {
             String password = request.getParameter("keyPass");
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+            String message = "";
             ConfigurationContext configContext =
                     (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
@@ -51,12 +54,17 @@
             String provider = (String) session.getAttribute("org.wso2.carbon.security.provider");
             String keystoreType = (String) session.getAttribute("org.wso2.carbon.security.keystoreType");
 
-            client.addKeyStore(content, fileName, ksPassword, provider, keystoreType, password);
+            if (isTrustStore) {
+                message = resourceBundle.getString("truststore.add");
+                client.addTrustStore(content, fileName, ksPassword, provider, keystoreType);
+            } else {
+                message = resourceBundle.getString("keystore.add");
+                client.addKeyStore(content, fileName, ksPassword, provider, keystoreType, password);
+            }
 
-            String message = resourceBundle.getString("keystore.add");
             forwardTo = "keystore-mgt.jsp?region=region1&item=keystores_menu";
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-            
+
             session.setAttribute(SecurityUIConstants.RE_FETCH_KEYSTORES, Boolean.TRUE);
 
         } catch (Exception e) {

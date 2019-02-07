@@ -84,9 +84,6 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.ServerException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -96,6 +93,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  * This is a deployment interceptor which handles service specific security configurations on
@@ -442,6 +442,19 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             String resourceName = serviceGroupId + "/" + serviceName;
             removeAuthorization(userRealm, serviceGroupId, serviceName);
             String allowRolesParameter = configParams.getAllowedRoles();
+
+            Parameter allowRolesProxyParam = service.getParameter(SecurityConstants.ALLOW_ROLES_PROXY_PARAM_NAME);
+            String allowRolesProxyParamValue = (allowRolesProxyParam == null ? null : allowRolesProxyParam.getValue()
+                    .toString());
+
+            if (!StringUtils.isEmpty(allowRolesProxyParamValue)) {
+                if (StringUtils.isEmpty(allowRolesParameter)) {
+                    allowRolesParameter = allowRolesProxyParamValue;
+                } else {
+                    allowRolesParameter += ',' + allowRolesProxyParamValue;
+                }
+            }
+
             if (allowRolesParameter != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Authorizing roles " + allowRolesParameter);

@@ -231,6 +231,13 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
+        /**
+         * Return if incoming message is rest and not using basic auth
+         */
+        if (msgCtx.isDoingREST() && !isBasicAuth) {
+            return InvocationResponse.CONTINUE;
+        }
+
         //return if incoming message is soap and has soap security headers
         if (!soapWithoutSecHeader) {
             return InvocationResponse.CONTINUE;
@@ -352,6 +359,9 @@ public class POXSecurityHandler implements Handler {
             response.flushBuffer();
         } else {
             // if not servlet transport assume it to be nhttp transport
+            // If the message is larger then 16k, there will be left over data to be read in the buffer and hence we need
+            // to consume the request data before writing the error response. Hence msgCtx.getEnvelope().buildWithAttachments();
+            msgCtx.getEnvelope().buildWithAttachments();
             msgCtx.setProperty("NIO-ACK-Requested", "true");
             msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
             Map<String, String> responseHeaders = new HashMap<>();
