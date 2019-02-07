@@ -50,15 +50,6 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class LDAPConnectionContext {
 
