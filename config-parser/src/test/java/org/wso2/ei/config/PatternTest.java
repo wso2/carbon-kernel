@@ -16,20 +16,20 @@ public class PatternTest {
     @Test(dataProvider = "scenarios")
     public void getTestParseConfig(String scenario) throws IOException, ConfigParserException {
 
-        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", scenario, "deployment" +
+        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", "patterns",scenario, "deployment" +
                 ".toml").getAbsolutePath();
         String inferConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "infer.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", "patterns", "infer.json").getAbsolutePath();
         String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "key-mappings.toml").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", "patterns", "key-mappings.toml").getAbsolutePath();
         String templateConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "templates").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", "patterns", "templates").getAbsolutePath();
         String validatorConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "validator.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", "patterns", "validator.json").getAbsolutePath();
         String defaultConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "default.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", "patterns", "default.json").getAbsolutePath();
         String expectedOutputDirPath =
-                FileUtils.getFile("src", "test", "resources", scenario, "expected").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", "patterns", scenario, "expected").getAbsolutePath();
 
         ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
                 .withDeploymentConfigurationPath(deploymentConfiguration)
