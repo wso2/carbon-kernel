@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class ConfigParserTest {
+public class PatternTest {
 
     @Test(dataProvider = "scenarios")
     public void getTestParseConfig(String scenario) throws IOException, ConfigParserException {
@@ -56,13 +56,8 @@ public class ConfigParserTest {
     public Object[] scenarios() {
 
         return new Object[]{
-                "scenario-1",
-                "scenario-2",
-                "scenario-3",
-                "scenario-4",
-                "scenario-5",
-                "scenario-6",
-                "scenario-7"
+                "pattern-3/gw",
+                "pattern-3/km"
         };
     }
 

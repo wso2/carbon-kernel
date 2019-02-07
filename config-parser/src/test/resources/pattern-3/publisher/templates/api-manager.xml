@@ -81,27 +81,35 @@
                  An API deployed on a 'sandbox' type gateway will only support sandbox keys
                  An API deployed on a 'hybrid' type gateway will support both production and sandbox keys. -->
             <!-- api-console element specifies whether the environment should be listed in API Console or not -->
-            <Environment type="hybrid" api-console="true">
-                <Name>Sandbox</Name>
-                <Description>Sandbox</Description>
+            {% for environment_name in apim.gateway.gateway_environments%}
+            <Environment type="{{apim.gateway.environment[environment_name].type}}" api-console="{{apim.gateway.environment[environment_name].display_in_api_console}}">
+                <Name>{{apim.gateway.environment[environment_name].name}}</Name>
+                <Description>{{apim.gateway.environment[environment_name].description}}</Description>
                 <!-- Server URL of the API gateway -->
-                <ServerURL>https://localhost.9443/services/</ServerURL>
-                <!-- Admin username for the API gateway. -->
+                <ServerURL>https://{{apim.gateway.environment[environment_name].management_endpoint}}/services/</ServerURL>
+		        <!-- Admin username for the API gateway. -->
                 <Username>${admin.username}</Username>
                 <!-- Admin password for the API gateway.-->
                 <Password>${admin.password}</Password>
                 <!-- Endpoint URLs for the APIs hosted in this API gateway.-->
-                <GatewayEndpoint>http://localhost:8280,https://localhost:8243</GatewayEndpoint>
+                {% if apim.gateway.environment[environment_name].http_loadbalance_endpoint is defined and apim.gateway.environment[environment_name].https_loadbalance_endpoint is defined %}
+                <GatewayEndpoint>http://{{apim.gateway.environment[environment_name].http_loadbalance_endpoint}},https://{{apim.gateway.environment[environment_name].https_loadbalance_endpoint}}</GatewayEndpoint>
+                {% elif apim.gateway.environment[environment_name].http_loadbalance_endpoint is not defined and apim.gateway.environment[environment_name].https_loadbalance_endpoint is defined %}
+                <GatewayEndpoint>https://{{apim.gateway.environment[environment_name].https_loadbalance_endpoint}}</GatewayEndpoint>
+                {% elif apim.gateway.environment[environment_name].http_loadbalance_endpoint is defined and apim.gateway.environment[environment_name].https_loadbalance_endpoint is not defined %}
+                <GatewayEndpoint>http://{{apim.gateway.environment[environment_name].http_loadbalance_endpoint}}</GatewayEndpoint>
+                {% endif %}
                 <!-- Endpoint of the Websocket APIs hosted in this API Gateway -->
-                <GatewayWSEndpoint>ws://api.gateway:9091</GatewayWSEndpoint>
+                <GatewayWSEndpoint>ws://{{apim.gateway.environment[environment_name].ws_loadbalance_endpoint}}</GatewayWSEndpoint>
             </Environment>
+            {% endfor %}
         </Environments>
     </APIGateway>
 
     <CacheConfigurations>
-        <!-- Enable/Disable token caching at the Gateway-->
+	    <!-- Enable/Disable token caching at the Gateway-->
         <EnableGatewayTokenCache>true</EnableGatewayTokenCache>
-        <!-- Enable/Disable API resource caching at the Gateway-->
+	    <!-- Enable/Disable API resource caching at the Gateway-->
         <EnableGatewayResourceCache>true</EnableGatewayResourceCache>
         <!-- Enable/Disable API key validation information caching at key-management server -->
         <EnableKeyManagerTokenCache>false</EnableKeyManagerTokenCache>
@@ -117,7 +125,7 @@
         cache. However, if the system is in a state, where the role addition and deletion happens seamlessly, the
         cache will be in in-valid state.-->
         <EnablePublisherRoleCache>true</EnablePublisherRoleCache>
-        <!-- JWT claims Cache expiry in seconds -->
+	    <!-- JWT claims Cache expiry in seconds -->
         <!--JWTClaimCacheExpiry>900</JWTClaimCacheExpiry-->
         <!-- Expiry time for the apim key mgt validation info cache -->
         <!--TokenCacheExpiry>900</TokenCacheExpiry-->
@@ -139,7 +147,7 @@
     -->
     <Analytics>
         <!-- Enable Analytics for API Manager -->
-        <Enabled>false</Enabled>
+        <Enabled>{{apim.analytics.nodes is defined}}</Enabled>
 
         <!-- Server URL of the remote StreamProcessor server used to collect statistics. Must
              be specified in protocol://hostname:port/ format.
@@ -151,7 +159,7 @@
 
              Ex - Multiple Receiver Groups with two receivers each
              {tcp://localhost:7612/,tcp://localhost:7613},{tcp://localhost:7712/,tcp://localhost:7713/} -->
-        <StreamProcessorServerURL>{tcp://localhost:7611}</StreamProcessorServerURL>
+        <StreamProcessorServerURL>{{apim.analytics.nodes}}</StreamProcessorServerURL>
         <!--StreamProcessorAuthServerURL>{ssl://localhost:7712}</StreamProcessorAuthServerURL-->
         <!-- Administrator username to login to the remote StreamProcessor server. -->
         <StreamProcessorUsername>${admin.username}</StreamProcessorUsername>
@@ -162,7 +170,7 @@
         <StatsProviderImpl>org.wso2.carbon.apimgt.usage.client.impl.APIUsageStatisticsRestClientImpl</StatsProviderImpl>
 
         <!-- StreamProcessor REST API configuration -->
-        <StreamProcessorRestApiURL>https://localhost:7444</StreamProcessorRestApiURL>
+        <StreamProcessorRestApiURL>https://{{apim.analytics.management_endpoint}}</StreamProcessorRestApiURL>
         <StreamProcessorRestApiUsername>${admin.username}</StreamProcessorRestApiUsername>
         <StreamProcessorRestApiPassword>${admin.password}</StreamProcessorRestApiPassword>
 
@@ -198,7 +206,7 @@
                 <Name>org.wso2.apimgt.statistics.workflow</Name>
                 <Version>1.0.0</Version>
             </Workflow>
-            <AlertTypes>
+	        <AlertTypes>
                 <Name>org.wso2.analytics.apim.alertStakeholderInfo</Name>
                 <Version>1.0.1</Version>
             </AlertTypes>
@@ -212,7 +220,7 @@
     -->
     <APIKeyValidator>
         <!-- Server URL of the API key manager -->
-        <ServerURL>https://localhost:9443/services/</ServerURL>
+        <ServerURL>https://{{apim.key_mgr_node.endpoint}}/services/</ServerURL>
 
         <!-- Admin username for API key manager. -->
         <Username>${admin.username}</Username>
@@ -238,7 +246,7 @@
             <MaxIdle>100</MaxIdle>
             <InitIdleCapacity>50</InitIdleCapacity>
         </ConnectionPool-->
-        <!-- Specifies the implementation to be used for KeyValidationHandler. Steps for validating a token can be controlled by plugging in a
+        <!-- Specifies the implementation to be used for KeyValidationHandler. Steps for validating a token can be controlled by plugging in a 
              custom KeyValidation Handler -->
         <KeyValidationHandlerClassName>org.wso2.carbon.apimgt.keymgt.handlers.DefaultKeyValidationHandler</KeyValidationHandlerClassName>
     </APIKeyValidator>
@@ -276,7 +284,7 @@
              In distributed deployment we should configure this property in key manager node by pointing
              gateway https( /http, we recommend users to use 'https' endpoints for security purpose) url.
              Also please note that we should point gateway revoke service to key manager -->
-        <RevokeAPIURL>https://https://localhost:8243/revoke/revoke</RevokeAPIURL>
+        <RevokeAPIURL>https://{{apim.store.revoke_api_endpoint}}/revoke</RevokeAPIURL>
         <!-- Whether to encrypt tokens when storing in the Database
         Note: If changing this value to true, change the value of <TokenPersistenceProcessor> to
         org.wso2.carbon.identity.oauth.tokenprocessor.EncryptionDecryptionPersistenceProcessor in the identity.xml -->
@@ -301,7 +309,7 @@
         <!--This property is used to indicate how we do user name comparision for token generation https://wso2.org/jira/browse/APIMANAGER-2225-->
         <CompareCaseInsensitively>true</CompareCaseInsensitively>
         <DisplayURL>true</DisplayURL>
-        <URL>https://store.wso2.com:443/store</URL>
+        <URL>{{apim.store.endpoint}}</URL>
 
         <!-- Server URL of the API Store. -->
         <ServerURL>https://localhost:${mgt.transport.https.port}${carbon.context}services/</ServerURL>
@@ -355,7 +363,7 @@
     <!-- Status observers can be registered against the API Publisher to listen for
          API status update events. Each observer must implement the APIStatusObserver
          interface. Multiple observers can be engaged if necessary and in such situations
-         they will be notified in the order they are defined here.
+         they will be notified in the order they are defined here. 
          This configuration is unused from API Manager version 1.10.0 -->
     <!--StatusObservers>
         <Observer>org.wso2.carbon.apimgt.impl.observers.SimpleLoggingObserver</Observer>
@@ -382,7 +390,7 @@
              It is false by default and if you set it to true then make sure that the Access-Control-Allow-Origin header does not contain the wildcard (*) -->
         <Access-Control-Allow-Credentials>false</Access-Control-Allow-Credentials>
     </CORSConfiguration>
-
+    
     <!-- This property is there to configure velocity log output into existing Log4j carbon Logger.
          You can enable this and set preferable Logger name. -->
     <!-- VelocityLogger>VELOCITY</VelocityLogger -->
@@ -558,13 +566,13 @@
         <EnableAdvanceThrottling>true</EnableAdvanceThrottling>
         <TrafficManager>
             <Type>Binary</Type>
-            <ReceiverUrlGroup>{tcp://localhost:9611}</ReceiverUrlGroup>
-            <AuthUrlGroup>{ssl://localhost:9711}</AuthUrlGroup>
+            <ReceiverUrlGroup>{{apim.traffic_manager.publisher_nodes}}</ReceiverUrlGroup>
+            <AuthUrlGroup>{{apim.traffic_manager.authentication_nodes}}</AuthUrlGroup>
             <Username>${admin.username}</Username>
             <Password>${admin.password}</Password>
         </TrafficManager>
         <DataPublisher>
-            <Enabled>false</Enabled>
+            <Enabled>{{apim.traffic_manager.enable_publishing}}</Enabled>
             <DataPublisherPool>
                 <MaxIdle>1000</MaxIdle>
                 <InitIdleCapacity>200</InitIdleCapacity>
@@ -576,25 +584,25 @@
             </DataPublisherThreadPool>
         </DataPublisher>
         <PolicyDeployer>
-            <Enabled>false</Enabled>
-            <ServiceURL>https:///services/</ServiceURL>
+            <Enabled>{{apim.traffic_manager.enable_deployer}}</Enabled>
+            <ServiceURL>https://{{apim.traffic_manager.management_endpoint}}/services/</ServiceURL>
             <Username>${admin.username}</Username>
             <Password>${admin.password}</Password>
         </PolicyDeployer>
         <BlockCondition>
-            <Enabled>false</Enabled>
+            <Enabled>{{apim.traffic_manager.enable_blocking_conditions}}</Enabled>
             <!--InitDelay>300000</InitDelay>
             <Period>3600000</Period-->
         </BlockCondition>
         <JMSConnectionDetails>
-            <Enabled>false</Enabled>
+            <Enabled>{{apim.traffic_manager.enable_decision_receiver}}</Enabled>
             <Destination>throttleData</Destination>
             <!--InitDelay>300000</InitDelay-->
             <JMSConnectionParameters>
                 <transport.jms.ConnectionFactoryJNDIName>TopicConnectionFactory</transport.jms.ConnectionFactoryJNDIName>
                 <transport.jms.DestinationType>topic</transport.jms.DestinationType>
                 <java.naming.factory.initial>org.wso2.andes.jndi.PropertiesFileInitialContextFactory</java.naming.factory.initial>
-                <connectionfactory.TopicConnectionFactory>amqp://${admin.username}:${admin.password}@clientid/carbon?brokerlist='tcp://${carbon.local.ip}:${jms.port}'</connectionfactory.TopicConnectionFactory>
+                <connectionfactory.TopicConnectionFactory>{{apim.traffic_manager.throttle_decision_endpoints}}</connectionfactory.TopicConnectionFactory>
             </JMSConnectionParameters>
         </JMSConnectionDetails>
 
@@ -624,10 +632,10 @@
 
     <WorkflowConfigurations>
         <Enabled>false</Enabled>
-        <ServerUrl>https://localhost:9445/bpmn</ServerUrl>
-        <ServerUser>${admin.username}</ServerUser>
-        <ServerPassword>${admin.password}</ServerPassword>
-        <WorkflowCallbackAPI>https://localhost:${mgt.transport.https.port}/api/am/publisher/v0.14/workflows/update-workflow-status</WorkflowCallbackAPI>
+    	<ServerUrl>https://localhost:9445/bpmn</ServerUrl>   		
+    	<ServerUser>${admin.username}</ServerUser>
+    	<ServerPassword>${admin.password}</ServerPassword>
+    	<WorkflowCallbackAPI>https://localhost:${mgt.transport.https.port}/api/am/publisher/v0.14/workflows/update-workflow-status</WorkflowCallbackAPI>
         <TokenEndPoint>https://localhost:${https.nio.port}/token</TokenEndPoint>
         <DCREndPoint>https://localhost:${mgt.transport.https.port}/client-registration/v0.14/register</DCREndPoint>
         <DCREndPointUser>${admin.username}</DCREndPointUser>
