@@ -9,13 +9,13 @@
     }
   },
   "realm_manager": {
-    "data_source": "jdbc/SharedDb",
+    "data_source": "jdbc/SHARED_DB",
     "properties": {
       "isCascadeDeleteEnabled": true,
       "initializeNewClaimManager": true
     }
   },
-  "governance.data_source": "jdbc/SharedDb",
+  "governance.data_source": "jdbc/SHARED_DB",
   "governance.cache_id": "$conf{database.shared_db.username}@$conf{database.shared_db.url}",
   "governance.enable_cache": true,
   "transport.http": {

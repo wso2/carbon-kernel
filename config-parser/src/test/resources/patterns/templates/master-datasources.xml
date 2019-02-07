@@ -53,7 +53,7 @@
                     <name>SharedDb</name>
                     <description>Shared Database for user and registry data</description>
                     <jndiConfig>
-                        <name>jdbc/Shared_DB</name>
+                        <name>jdbc/SHARED_DB</name>
                     </jndiConfig>
                     <definition type="RDBMS">
                         <configuration>

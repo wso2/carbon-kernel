@@ -30,7 +30,7 @@
         <dataSource>jdbc/WSO2CarbonDB</dataSource>
     </dbConfig>
     <dbConfig name="govregistry">
-        <dataSource>jdbc/SharedDb</dataSource>
+        <dataSource>jdbc/SHARED_DB</dataSource>
     </dbConfig>
     <remoteInstance url="https://tm.wso2.com">
         <id>gov</id>
