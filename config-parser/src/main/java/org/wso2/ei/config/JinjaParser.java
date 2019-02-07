@@ -35,7 +35,7 @@ class JinjaParser {
             String renderedTemplate = "";
             Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
             try {
-                String template = Files.toString(templateFile, Charsets.UTF_8);
+                String template = Files.asCharSource(templateFile, Charsets.UTF_8).read();
                 renderedTemplate = jinjava.render(template, context);
 
             } catch (IOException e) {
