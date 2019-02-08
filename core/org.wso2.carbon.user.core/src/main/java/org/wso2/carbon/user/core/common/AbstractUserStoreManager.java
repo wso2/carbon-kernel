@@ -1359,10 +1359,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         if(!isFilterExpression) {
             if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
                     SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
-            if (userManager.isExistingUser(claimValue)) {
-                return new String[] {claimValue};
-            } else {
-                return new String [0];
+                if (userManager.isExistingUser(claimValue)) {
+                    return new String[]{claimValue};
+                } else {
+                    return new String[0];
+                }
             }
         }
 
