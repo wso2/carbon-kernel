@@ -24,13 +24,15 @@ import java.io.IOException;
 import javax.naming.ldap.StartTlsResponse;
 
 /**
- * This is a wrapper class of StartTlsResponse class.
+ * This is a wrapper class of StartTlsResponse class. Wrapped the StartTlsResponse with a reference counter
+ * because, sub contexts can be initiated from main LdapContext. So need to use one TLS connection until
+ * all the contexts get close.
  */
 public class StartTlsResponseWrapper {
 
     private static Log log = LogFactory.getLog(StartTlsResponseWrapper.class);
-    // Keep a reference counter due to sub contexts can be created out of main ldapContext. Until we close the last
-    // context we need to keep TLS response.
+    /* Keep a reference counter due to sub contexts can be created out of main ldapContext. Until we close the last
+    context we need to keep TLS response. */
     private int referenceCounter = 0;
     private StartTlsResponse startTlsResponse;
 
