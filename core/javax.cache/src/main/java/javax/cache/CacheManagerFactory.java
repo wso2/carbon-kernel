@@ -73,4 +73,12 @@ public interface CacheManagerFactory {
      * @throws javax.cache.CachingShutdownException if there is a problem shutting down a CacheManager
      */
     boolean close(ClassLoader classLoader, String name) throws CachingShutdownException;
+
+    /**
+     * Remove cache manager stored for a tenant domain. This can be used for special requirements such as tenant
+     * deletion
+     *
+     * @param tenantDomain tenant domain. Value should not be null
+     */
+    void removeCacheManagerMap(String tenantDomain);
 }

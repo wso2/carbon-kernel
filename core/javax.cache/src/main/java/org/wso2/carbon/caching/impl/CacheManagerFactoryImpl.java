@@ -148,12 +148,8 @@ public class CacheManagerFactoryImpl implements CacheManagerFactory {
         }
     }
 
-    /**
-     * remove cache manager map from global cache manager map
-     *
-     * @param tenantDomain - Tenant Domain	
-     */
     public void removeCacheManagerMap(String tenantDomain) {
+
         globalCacheManagerMap.remove(tenantDomain);
     }
 
