@@ -553,6 +553,11 @@ public class RegistryUserStoreManager implements UserStoreManager {
     }
 
     @Override
+    public String[] getUserList(String claim, String claimValue, String profileName, boolean isFilterExpression) {
+        return new String[0];
+    }
+
+    @Override
     public UserStoreManager getSecondaryUserStoreManager() {
         try {
             return getUserStoreManager().getSecondaryUserStoreManager();

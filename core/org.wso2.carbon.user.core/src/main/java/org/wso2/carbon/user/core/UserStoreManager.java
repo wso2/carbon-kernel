@@ -318,6 +318,9 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     String[] getUserList(String claim, String claimValue, String profileName)
             throws UserStoreException;
 
+    String[] getUserList(String claim, String claimValue, String profileName, boolean isFilterExpression)
+            throws UserStoreException;
+
     /**
      * @return
      */

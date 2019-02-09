@@ -1293,9 +1293,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      */
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
 
+        return getUserList(claim, claimValue, profileName, false);
+    }
+
+
+    public final String[] getUserList(String claim, String claimValue, String profileName, boolean isFilterExpression) throws UserStoreException {
+
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, String.class};
-            Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName}, argTypes);
+            Class argTypes[] = new Class[]{String.class, String.class, String.class, Boolean.class};
+            Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName, isFilterExpression}, argTypes);
             return (String[]) object;
         }
 
@@ -1350,12 +1356,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
         }
 
-        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
-                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
-            if (userManager.isExistingUser(claimValue)) {
-                return new String[] {claimValue};
-            } else {
-                return new String [0];
+        if(!isFilterExpression) {
+            if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                    SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
+                if (userManager.isExistingUser(claimValue)) {
+                    return new String[]{claimValue};
+                } else {
+                    return new String[0];
+                }
             }
         }
 
