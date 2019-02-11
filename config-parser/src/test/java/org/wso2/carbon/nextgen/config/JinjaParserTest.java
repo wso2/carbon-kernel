@@ -1,4 +1,4 @@
-package org.wso2.ei.config;
+package org.wso2.carbon.nextgen.config;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;

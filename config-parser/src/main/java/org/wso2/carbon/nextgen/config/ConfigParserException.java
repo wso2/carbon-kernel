@@ -1,4 +1,4 @@
-package org.wso2.ei.config;
+package org.wso2.carbon.nextgen.config;
 
 /**
  * Exception to be thrown in case of a validation failure.

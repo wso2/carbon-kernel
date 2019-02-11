@@ -1,10 +1,10 @@
-package org.wso2.ei.config;
+package org.wso2.carbon.nextgen.config;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.ei.config.handlers.Builders;
+import org.wso2.carbon.nextgen.config.handlers.Builders;
 
 import java.io.FileInputStream;
 import java.io.IOException;

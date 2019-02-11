@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.ei.config;
+package org.wso2.carbon.nextgen.config;
 
 import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlArray;

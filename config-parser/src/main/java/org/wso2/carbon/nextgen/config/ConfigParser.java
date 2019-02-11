@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.ei.config;
+package org.wso2.carbon.nextgen.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

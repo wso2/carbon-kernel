@@ -1,4 +1,4 @@
-package org.wso2.ei.config.handlers;
+package org.wso2.carbon.nextgen.config.handlers;
 
 import java.util.LinkedHashMap;
 import java.util.List;

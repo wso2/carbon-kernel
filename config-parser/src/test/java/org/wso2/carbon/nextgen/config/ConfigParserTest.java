@@ -1,4 +1,4 @@
-package org.wso2.ei.config;
+package org.wso2.carbon.nextgen.config;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
