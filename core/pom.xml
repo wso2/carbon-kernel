@@ -111,6 +111,7 @@
     </build>
 
     <modules>
+        <module></module>
         <module>javax.cache</module>
         <module>org.wso2.carbon.tomcat</module>
         <module>org.wso2.carbon.tomcat.ext</module>
