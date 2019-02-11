@@ -1,0 +1,241 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.roles.carbon.wso2.org" xmlns:ax2222="http://mgt.roles.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.roles.carbon.wso2.org">
+    <wsdl:documentation>ServerRolesManager</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.roles.carbon.wso2.org/xsd">
+            <xs:complexType name="ServerRolesException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax2223="http://mgt.roles.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.roles.carbon.wso2.org">
+            <xs:import namespace="http://mgt.roles.carbon.wso2.org/xsd"/>
+            <xs:element name="removeServerRolesServerRolesException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="ServerRolesException" nillable="true" type="ax2222:ServerRolesException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeServerRoles">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="serverRolesArray" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serverRoleType" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeServerRolesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="readServerRolesServerRolesException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="ServerRolesException" nillable="true" type="ax2222:ServerRolesException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="readServerRoles">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="serverRoleType" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="readServerRolesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addServerRolesServerRolesException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="ServerRolesException" nillable="true" type="ax2222:ServerRolesException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addServerRoles">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="serverRolesArray" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serverRoleType" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addServerRolesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="addServerRolesRequest">
+        <wsdl:part name="parameters" element="ns:addServerRoles"/>
+    </wsdl:message>
+    <wsdl:message name="addServerRolesResponse">
+        <wsdl:part name="parameters" element="ns:addServerRolesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="addServerRolesServerRolesException">
+        <wsdl:part name="parameters" element="ns:addServerRolesServerRolesException"/>
+    </wsdl:message>
+    <wsdl:message name="readServerRolesRequest">
+        <wsdl:part name="parameters" element="ns:readServerRoles"/>
+    </wsdl:message>
+    <wsdl:message name="readServerRolesResponse">
+        <wsdl:part name="parameters" element="ns:readServerRolesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="readServerRolesServerRolesException">
+        <wsdl:part name="parameters" element="ns:readServerRolesServerRolesException"/>
+    </wsdl:message>
+    <wsdl:message name="removeServerRolesRequest">
+        <wsdl:part name="parameters" element="ns:removeServerRoles"/>
+    </wsdl:message>
+    <wsdl:message name="removeServerRolesResponse">
+        <wsdl:part name="parameters" element="ns:removeServerRolesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="removeServerRolesServerRolesException">
+        <wsdl:part name="parameters" element="ns:removeServerRolesServerRolesException"/>
+    </wsdl:message>
+    <wsdl:portType name="ServerRolesManagerPortType">
+        <wsdl:operation name="addServerRoles">
+            <wsdl:input message="ns:addServerRolesRequest" wsaw:Action="urn:addServerRoles"/>
+            <wsdl:output message="ns:addServerRolesResponse" wsaw:Action="urn:addServerRolesResponse"/>
+            <wsdl:fault message="ns:addServerRolesServerRolesException" name="addServerRolesServerRolesException" wsaw:Action="urn:addServerRolesaddServerRolesServerRolesException"/>
+        </wsdl:operation>
+        <wsdl:operation name="readServerRoles">
+            <wsdl:input message="ns:readServerRolesRequest" wsaw:Action="urn:readServerRoles"/>
+            <wsdl:output message="ns:readServerRolesResponse" wsaw:Action="urn:readServerRolesResponse"/>
+            <wsdl:fault message="ns:readServerRolesServerRolesException" name="readServerRolesServerRolesException" wsaw:Action="urn:readServerRolesreadServerRolesServerRolesException"/>
+        </wsdl:operation>
+        <wsdl:operation name="removeServerRoles">
+            <wsdl:input message="ns:removeServerRolesRequest" wsaw:Action="urn:removeServerRoles"/>
+            <wsdl:output message="ns:removeServerRolesResponse" wsaw:Action="urn:removeServerRolesResponse"/>
+            <wsdl:fault message="ns:removeServerRolesServerRolesException" name="removeServerRolesServerRolesException" wsaw:Action="urn:removeServerRolesremoveServerRolesServerRolesException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="ServerRolesManagerSoap11Binding" type="ns:ServerRolesManagerPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="addServerRoles">
+            <soap:operation soapAction="urn:addServerRoles" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="addServerRolesServerRolesException">
+                <soap:fault use="literal" name="addServerRolesServerRolesException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="readServerRoles">
+            <soap:operation soapAction="urn:readServerRoles" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="readServerRolesServerRolesException">
+                <soap:fault use="literal" name="readServerRolesServerRolesException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeServerRoles">
+            <soap:operation soapAction="urn:removeServerRoles" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="removeServerRolesServerRolesException">
+                <soap:fault use="literal" name="removeServerRolesServerRolesException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ServerRolesManagerSoap12Binding" type="ns:ServerRolesManagerPortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="addServerRoles">
+            <soap12:operation soapAction="urn:addServerRoles" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="addServerRolesServerRolesException">
+                <soap12:fault use="literal" name="addServerRolesServerRolesException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="readServerRoles">
+            <soap12:operation soapAction="urn:readServerRoles" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="readServerRolesServerRolesException">
+                <soap12:fault use="literal" name="readServerRolesServerRolesException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeServerRoles">
+            <soap12:operation soapAction="urn:removeServerRoles" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="removeServerRolesServerRolesException">
+                <soap12:fault use="literal" name="removeServerRolesServerRolesException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ServerRolesManagerHttpBinding" type="ns:ServerRolesManagerPortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="addServerRoles">
+            <http:operation location="addServerRoles"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="readServerRoles">
+            <http:operation location="readServerRoles"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeServerRoles">
+            <http:operation location="removeServerRoles"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ServerRolesManager">
+        <wsdl:port name="ServerRolesManagerHttpsSoap11Endpoint" binding="ns:ServerRolesManagerSoap11Binding">
+            <soap:address location="https://172.16.119.1:9443/services/ServerRolesManager.ServerRolesManagerHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="ServerRolesManagerHttpsSoap12Endpoint" binding="ns:ServerRolesManagerSoap12Binding">
+            <soap12:address location="https://172.16.119.1:9443/services/ServerRolesManager.ServerRolesManagerHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="ServerRolesManagerHttpsEndpoint" binding="ns:ServerRolesManagerHttpBinding">
+            <http:address location="https://172.16.119.1:9443/services/ServerRolesManager.ServerRolesManagerHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,99 @@
+CARBON_HOME/repository/conf directory contains all the Carbon configuration files. 
+Usage of the sub-directories of relevant configurations are as follows. 
+
+1. axis2 <directory>
+	-axis2.xml
+	 The Apache Axis2 configuration file. Apache Axis2 is used at the core
+   	 of WSO2 Carbon.
+
+	-axis2_client.xml
+	 The Axis2 client configuration file. 
+
+	-tenant-axis2.xml
+	 The Axis2 configuration file for a tenant.
+
+2. datasources <directory>
+	-master-datasources.xml
+	 The main configuration file for Carbon Datasources. 
+	 Registry and User Manager refer the datasource configuration defined in this file.
+
+3. email <directory>
+	-email-admin-config.xml
+	 Contains the body of the mail that is to be sent upon the tenant configuration request by the 
+         admin of the tenant. This includes the password reset link, for the forgotten passwords.
+
+4. security <directory>
+	-authenticators.xml
+       	 The configuration file for Carbon authenticators.
+
+5. tomcat <directory>
+	-carbon <directory>
+		|-WEB-INF
+		| |-web.xml
+		|   This is the web application deployment descriptor for the Carbon web application.	
+		|
+		|-META-INF
+		  |-context.xml
+		    This is the context configuration file for the Carbon web application.
+	-web.xml
+	 This file defines default values for all web applications loaded into this instance of Tomcat.	 
+
+	-catalina-server.xml
+	 This file is the main server configuration file for Tomcat (similar to server.xml in standard Tomcat). 
+	 You can also use this file to configure transport connectors, specify nio ports (http and https ports) 
+	 for WSO2 Carbon server.
+
+	-tomcat-users.xml
+	 This is the standard tomcat-users.xml file which can be used for definig users & roles. This
+	 is applicable to webapps only, and will be used only if the Security/TomcatRealm entry in the
+         carbon.xml is set to Memory.
+
+6. etc <directory>
+	-config-validation.xml
+	 This file contains recommended configuration settings to run WSO2 Carbon. System settings will be
+	 validated against these values by the bootup-validator carbon component at server startup.
+         You can disable the bootup validation process at Carbon startup by setting 
+         <Configuration enabled="false"> 
+
+	-coordination-client-config.xml
+	 This file is used to configure Coordination Service client.
+
+	-jmx.xml
+	 This file is used for configuring the JMX server. You can disable the JMX RMI server from starting
+         by setting the value of the StartRMIServer to false.
+
+	-launch.ini
+	 This file contains the WSO2 Carbon osgi runtime configuration overrides. The properties defined here are loaded 
+	 prior to starting the framework and can also be used to override System Properties.
+
+	-mime.types
+	 Defines MIME types to file extension mappings.
+
+	-mime.mappings
+	 This file is used to define the human readable media type for a mime type.
+
+	-osgi-debug.options
+    	 This file contains the debug options for WSO2 Carbon osgi runtime.
+
+	-logging-bridge.properties
+	 This is a logging configuration file used to bridge different logging API's calls which gets routed to log4j. Log4j is used as the logging backend in carbon.   
+
+7. carbon.xml
+   The Carbon server configuration file.
+
+8. registry.xml
+   The Carbon registry configuration file. This will be used when the WSO2
+   Embedded Registry is used.
+
+9. user-mgt.xml
+   The User Manager configuration file used for configuring user management
+   details.
+
+10. log4j.properties
+    The log4j configuration file used by WSO2 Carbon.
+
+11. README.txt
+    This file.
+
+
+

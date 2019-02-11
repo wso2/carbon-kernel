@@ -1,0 +1,429 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax29="http://authentication.services.core.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax27="http://common.core.carbon.wso2.org/xsd" xmlns:ns="http://authentication.services.core.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://authentication.services.core.carbon.wso2.org">
+    <wsdl:documentation>AuthenticationAdmin</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ax28="http://common.core.carbon.wso2.org/xsd" xmlns:ax210="http://authentication.services.core.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://authentication.services.core.carbon.wso2.org">
+            <xs:import namespace="http://common.core.carbon.wso2.org/xsd" />
+            <xs:import namespace="http://authentication.services.core.carbon.wso2.org/xsd" />
+            <xs:element name="logoutAuthenticationException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="AuthenticationException" nillable="true" type="ax27:AuthenticationException" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="logout">
+                <xs:complexType>
+                    <xs:sequence />
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginWithRememberMeOptionAuthenticationException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="AuthenticationException" nillable="true" type="ax27:AuthenticationException" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginWithRememberMeOption">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="remoteAddress" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginWithRememberMeOptionResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax29:RememberMeData" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginWithRememberMeCookie">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="cookie" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginWithRememberMeCookieResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginAuthenticationException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="AuthenticationException" nillable="true" type="ax27:AuthenticationException" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="login">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="remoteAddress" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="loginResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="isDisabled">
+                <xs:complexType>
+                    <xs:sequence />
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="isDisabledResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getPriority">
+                <xs:complexType>
+                    <xs:sequence />
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getPriorityResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:int" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAuthenticatorName">
+                <xs:complexType>
+                    <xs:sequence />
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAuthenticatorNameResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://authentication.services.core.carbon.wso2.org/xsd">
+            <xs:complexType name="RememberMeData">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="authenticated" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="maxAge" type="xs:int" />
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.core.carbon.wso2.org/xsd">
+            <xs:complexType name="AuthenticationException">
+                <xs:sequence />
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="logoutRequest">
+        <wsdl:part name="parameters" element="ns:logout" />
+    </wsdl:message>
+    <wsdl:message name="logoutAuthenticationException">
+        <wsdl:part name="parameters" element="ns:logoutAuthenticationException" />
+    </wsdl:message>
+    <wsdl:message name="loginWithRememberMeCookieRequest">
+        <wsdl:part name="parameters" element="ns:loginWithRememberMeCookie" />
+    </wsdl:message>
+    <wsdl:message name="loginWithRememberMeCookieResponse">
+        <wsdl:part name="parameters" element="ns:loginWithRememberMeCookieResponse" />
+    </wsdl:message>
+    <wsdl:message name="getAuthenticatorNameRequest">
+        <wsdl:part name="parameters" element="ns:getAuthenticatorName" />
+    </wsdl:message>
+    <wsdl:message name="getAuthenticatorNameResponse">
+        <wsdl:part name="parameters" element="ns:getAuthenticatorNameResponse" />
+    </wsdl:message>
+    <wsdl:message name="loginRequest">
+        <wsdl:part name="parameters" element="ns:login" />
+    </wsdl:message>
+    <wsdl:message name="loginResponse">
+        <wsdl:part name="parameters" element="ns:loginResponse" />
+    </wsdl:message>
+    <wsdl:message name="loginAuthenticationException">
+        <wsdl:part name="parameters" element="ns:loginAuthenticationException" />
+    </wsdl:message>
+    <wsdl:message name="loginWithRememberMeOptionRequest">
+        <wsdl:part name="parameters" element="ns:loginWithRememberMeOption" />
+    </wsdl:message>
+    <wsdl:message name="loginWithRememberMeOptionResponse">
+        <wsdl:part name="parameters" element="ns:loginWithRememberMeOptionResponse" />
+    </wsdl:message>
+    <wsdl:message name="loginWithRememberMeOptionAuthenticationException">
+        <wsdl:part name="parameters" element="ns:loginWithRememberMeOptionAuthenticationException" />
+    </wsdl:message>
+    <wsdl:message name="isDisabledRequest">
+        <wsdl:part name="parameters" element="ns:isDisabled" />
+    </wsdl:message>
+    <wsdl:message name="isDisabledResponse">
+        <wsdl:part name="parameters" element="ns:isDisabledResponse" />
+    </wsdl:message>
+    <wsdl:message name="getPriorityRequest">
+        <wsdl:part name="parameters" element="ns:getPriority" />
+    </wsdl:message>
+    <wsdl:message name="getPriorityResponse">
+        <wsdl:part name="parameters" element="ns:getPriorityResponse" />
+    </wsdl:message>
+    <wsdl:portType name="AuthenticationAdminPortType">
+        <wsdl:operation name="logout">
+            <wsdl:input message="ns:logoutRequest" wsaw:Action="urn:logout" />
+            <wsdl:fault message="ns:logoutAuthenticationException" name="logoutAuthenticationException" wsaw:Action="urn:logoutlogoutAuthenticationException" />
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeCookie">
+            <wsdl:input message="ns:loginWithRememberMeCookieRequest" wsaw:Action="urn:loginWithRememberMeCookie" />
+            <wsdl:output message="ns:loginWithRememberMeCookieResponse" wsaw:Action="urn:loginWithRememberMeCookieResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="getAuthenticatorName">
+            <wsdl:input message="ns:getAuthenticatorNameRequest" wsaw:Action="urn:getAuthenticatorName" />
+            <wsdl:output message="ns:getAuthenticatorNameResponse" wsaw:Action="urn:getAuthenticatorNameResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="login">
+            <wsdl:input message="ns:loginRequest" wsaw:Action="urn:login" />
+            <wsdl:output message="ns:loginResponse" wsaw:Action="urn:loginResponse" />
+            <wsdl:fault message="ns:loginAuthenticationException" name="loginAuthenticationException" wsaw:Action="urn:loginloginAuthenticationException" />
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeOption">
+            <wsdl:input message="ns:loginWithRememberMeOptionRequest" wsaw:Action="urn:loginWithRememberMeOption" />
+            <wsdl:output message="ns:loginWithRememberMeOptionResponse" wsaw:Action="urn:loginWithRememberMeOptionResponse" />
+            <wsdl:fault message="ns:loginWithRememberMeOptionAuthenticationException" name="loginWithRememberMeOptionAuthenticationException" wsaw:Action="urn:loginWithRememberMeOptionloginWithRememberMeOptionAuthenticationException" />
+        </wsdl:operation>
+        <wsdl:operation name="isDisabled">
+            <wsdl:input message="ns:isDisabledRequest" wsaw:Action="urn:isDisabled" />
+            <wsdl:output message="ns:isDisabledResponse" wsaw:Action="urn:isDisabledResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="getPriority">
+            <wsdl:input message="ns:getPriorityRequest" wsaw:Action="urn:getPriority" />
+            <wsdl:output message="ns:getPriorityResponse" wsaw:Action="urn:getPriorityResponse" />
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="AuthenticationAdminSoap11Binding" type="ns:AuthenticationAdminPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="logout">
+            <soap:operation soapAction="urn:logout" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="logoutAuthenticationException">
+                <soap:fault use="literal" name="logoutAuthenticationException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeCookie">
+            <soap:operation soapAction="urn:loginWithRememberMeCookie" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAuthenticatorName">
+            <soap:operation soapAction="urn:getAuthenticatorName" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeOption">
+            <soap:operation soapAction="urn:loginWithRememberMeOption" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="loginWithRememberMeOptionAuthenticationException">
+                <soap:fault use="literal" name="loginWithRememberMeOptionAuthenticationException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="login">
+            <soap:operation soapAction="urn:login" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="loginAuthenticationException">
+                <soap:fault use="literal" name="loginAuthenticationException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="isDisabled">
+            <soap:operation soapAction="urn:isDisabled" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPriority">
+            <soap:operation soapAction="urn:getPriority" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="AuthenticationAdminSoap12Binding" type="ns:AuthenticationAdminPortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="logout">
+            <soap12:operation soapAction="urn:logout" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="logoutAuthenticationException">
+                <soap12:fault use="literal" name="logoutAuthenticationException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeCookie">
+            <soap12:operation soapAction="urn:loginWithRememberMeCookie" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAuthenticatorName">
+            <soap12:operation soapAction="urn:getAuthenticatorName" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeOption">
+            <soap12:operation soapAction="urn:loginWithRememberMeOption" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="loginWithRememberMeOptionAuthenticationException">
+                <soap12:fault use="literal" name="loginWithRememberMeOptionAuthenticationException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="login">
+            <soap12:operation soapAction="urn:login" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="loginAuthenticationException">
+                <soap12:fault use="literal" name="loginAuthenticationException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="isDisabled">
+            <soap12:operation soapAction="urn:isDisabled" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPriority">
+            <soap12:operation soapAction="urn:getPriority" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="AuthenticationAdminHttpBinding" type="ns:AuthenticationAdminPortType">
+        <http:binding verb="POST" />
+        <wsdl:operation name="logout">
+            <http:operation location="logout" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeCookie">
+            <http:operation location="loginWithRememberMeCookie" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAuthenticatorName">
+            <http:operation location="getAuthenticatorName" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="loginWithRememberMeOption">
+            <http:operation location="loginWithRememberMeOption" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="login">
+            <http:operation location="login" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="isDisabled">
+            <http:operation location="isDisabled" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPriority">
+            <http:operation location="getPriority" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="AuthenticationAdmin">
+        <wsdl:port name="AuthenticationAdminHttpsSoap11Endpoint" binding="ns:AuthenticationAdminSoap11Binding">
+            <soap:address location="https://10.100.0.147:9443/services/AuthenticationAdmin.AuthenticationAdminHttpsSoap11Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="AuthenticationAdminHttpsSoap12Endpoint" binding="ns:AuthenticationAdminSoap12Binding">
+            <soap12:address location="https://10.100.0.147:9443/services/AuthenticationAdmin.AuthenticationAdminHttpsSoap12Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="AuthenticationAdminHttpsEndpoint" binding="ns:AuthenticationAdminHttpBinding">
+            <http:address location="https://10.100.0.147:9443/services/AuthenticationAdmin.AuthenticationAdminHttpsEndpoint/" />
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,7 @@
+<!-- coordination service client configuration -->
+<CoordinationClientConfiguration enabled="true">
+    <Servers>
+        <Server host="localhost" port="2181"/>
+    </Servers>
+    <SessionTimeout>5000</SessionTimeout>
+</CoordinationClientConfiguration>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+  ~ Vestibulum commodo. Ut rhoncus gravida arcu. sdfasuygfwshfdLF'WEFW
+  ~ EFD
+  ~ WEFWE
+  ~ F
+  ~ W	EF2
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>features</artifactId>
+        <groupId>org.wso2.carbon</groupId>
+        <version>4.4.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>feature3</artifactId>
+    <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature03</name>
+
+
+    <modules>
+        <module>1.0.0</module>
+        <module>1.0.1</module>
+    </modules>
+</project>

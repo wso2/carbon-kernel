@@ -1,0 +1,12 @@
+<serviceGroup>
+    <service name="ServerRolesManager" scope="transportsession">
+        <transports>
+            <transport>https</transport>
+        </transports>
+        <parameter name="ServiceClass">org.wso2.carbon.roles.mgt.ServerRolesManager</parameter>
+    </service>
+
+    <parameter name="adminService" locked="true">true</parameter>
+    <parameter name="hiddenService" locked="true">true</parameter>
+    <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/roles</parameter>
+</serviceGroup>

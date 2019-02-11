@@ -1,0 +1,238 @@
+CREATE TABLE UM_USERS (
+                    ID INTEGER,
+                    USER_NAME VARCHAR2(255) NOT NULL,
+                    USER_PASSWORD VARCHAR2(255) NOT NULL,
+                    PRIMARY KEY (ID),
+                    UNIQUE(USER_NAME))
+/
+CREATE SEQUENCE UM_USERS_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_USERS_TRIGGER
+		            BEFORE INSERT
+                    ON UM_USERS
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_USERS_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_USER_ATTRIBUTES (
+                    ID INTEGER,
+                    ATTR_NAME VARCHAR2(255) NOT NULL,
+                    ATTR_VALUE VARCHAR2(255),
+                    USER_ID INTEGER,
+                    FOREIGN KEY (USER_ID) REFERENCES UM_USERS(ID) ON DELETE CASCADE,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE UM_USER_ATTRIBUTES_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_USER_ATTRIBUTES_TRIGGER
+                    BEFORE INSERT
+                    ON UM_USER_ATTRIBUTES
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_USER_ATTRIBUTES_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_ROLES (
+                    ID INTEGER,
+                    ROLE_NAME VARCHAR2(255) NOT NULL,
+                    PRIMARY KEY (ID),
+                    UNIQUE(ROLE_NAME))
+/
+CREATE SEQUENCE UM_ROLES_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_ROLES_TRIGGER
+                    BEFORE INSERT
+                    ON UM_ROLES
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_ROLES_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_ROLE_ATTRIBUTES (
+                    ID INTEGER,
+                    ATTR_NAME VARCHAR2(255) NOT NULL,
+                    ATTR_VALUE VARCHAR2(255),
+                    ROLE_ID INTEGER,
+                    FOREIGN KEY (ROLE_ID) REFERENCES UM_ROLES(ID) ON DELETE CASCADE,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE UM_ROLE_ATTRIBUTES_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_ROLE_ATTRIBUTES_TRIGGER
+		            BEFORE INSERT
+                    ON UM_ROLE_ATTRIBUTES
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_ROLE_ATTRIBUTES_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_PERMISSIONS (
+                    ID INTEGER,
+                    RESOURCE_ID VARCHAR2(255) NOT NULL,
+                    ACTION VARCHAR2(255) NOT NULL,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE UM_PERMISSIONS_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_PERMISSIONS_TRIGGER
+                    BEFORE INSERT
+                    ON UM_PERMISSIONS
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_PERMISSIONS_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_ROLE_PERMISSIONS (
+		            ID INTEGER,
+                    PERMISSION_ID INTEGER NOT NULL,
+                    ROLE_ID INTEGER NOT NULL,
+                    IS_ALLOWED SMALLINT NOT NULL,
+                    UNIQUE (PERMISSION_ID, ROLE_ID),
+                    FOREIGN KEY (PERMISSION_ID) REFERENCES UM_PERMISSIONS(ID) ON DELETE  CASCADE,
+                    FOREIGN KEY (ROLE_ID) REFERENCES UM_ROLES(ID) ON DELETE CASCADE,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE UM_ROLE_PERMISSIONS_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_ROLE_PERMISSIONS_TRIGGER
+		            BEFORE INSERT
+                    ON UM_ROLE_PERMISSIONS
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_ROLE_PERMISSIONS_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_USER_PERMISSIONS (
+		            ID INTEGER,
+		            PERMISSION_ID INTEGER NOT NULL,
+                    USER_ID INTEGER NOT NULL,
+                    IS_ALLOWED SMALLINT NOT NULL,
+                    UNIQUE (PERMISSION_ID, USER_ID),
+                    FOREIGN KEY (PERMISSION_ID) REFERENCES UM_PERMISSIONS(ID) ON DELETE CASCADE,
+                    FOREIGN KEY (USER_ID) REFERENCES UM_USERS(ID) ON DELETE CASCADE,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE UM_USER_PERMISSIONS_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_USER_PERMISSIONS_TRIGGER
+		            BEFORE INSERT
+		            ON UM_USER_PERMISSIONS
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_USER_PERMISSIONS_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE UM_USER_ROLES (
+		            ID INTEGER,
+                    ROLE_ID INTEGER NOT NULL,
+                    USER_ID INTEGER NOT NULL,
+                    UNIQUE (USER_ID, ROLE_ID),
+                    FOREIGN KEY (ROLE_ID) REFERENCES UM_ROLES(ID) ON DELETE CASCADE,
+                    FOREIGN KEY (USER_ID) REFERENCES UM_USERS(ID) ON DELETE CASCADE,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE UM_USER_ROLES_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER UM_USER_ROLES_TRIGGER
+                    BEFORE INSERT
+                    ON UM_USER_ROLES
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT UM_USER_ROLES_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE HYBRID_ROLES (
+                    ID INTEGER,
+                    ROLE_ID VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (ID),
+                    UNIQUE(ROLE_ID))
+/
+CREATE SEQUENCE HYBRID_ROLE_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER HYBRID_ROLE_TRIGGER
+                    BEFORE INSERT
+                    ON HYBRID_ROLES
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT HYBRID_ROLE_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE HYBRID_USER_ROLES (
+                    ID INTEGER,
+                    USER_ID VARCHAR(255),
+                    ROLE_ID VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (ID))
+/
+CREATE SEQUENCE HYBRID_USER_ROLE_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER HYBRID_USER_ROLE_TRIGGER
+                    BEFORE INSERT
+                    ON HYBRID_USER_ROLES
+                    REFERENCING NEW AS NEW
+                    FOR EACH ROW
+                    BEGIN
+                    SELECT HYBRID_USER_ROLE_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                    END;
+/
+CREATE TABLE HYBRID_PERMISSIONS (
+                    ID INTEGER,RESOURCE_ID VARCHAR(255),
+                    ACTION VARCHAR(255) NOT NULL,  PRIMARY KEY (ID))
+/
+CREATE SEQUENCE HYBRID_PERMISSION_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER HYBRID_PERMISSION_TRIGGER
+                     BEFORE INSERT
+                     ON HYBRID_PERMISSIONS
+                     REFERENCING NEW AS NEW   FOR EACH ROW
+                     BEGIN
+                     SELECT HYBRID_PERMISSION_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                     END;
+/
+CREATE TABLE HYBRID_ROLE_PERMISSIONS (
+                     ID INTEGER,
+                     PERMISSION_ID INTEGER NOT NULL,
+                     ROLE_ID VARCHAR(255) NOT NULL,
+                     IS_ALLOWED SMALLINT NOT NULL,
+                     UNIQUE (PERMISSION_ID, ROLE_ID),
+                     FOREIGN KEY (PERMISSION_ID) REFERENCES HYBRID_PERMISSIONS(ID) ON DELETE  CASCADE,
+                     PRIMARY KEY (ID))
+/
+CREATE SEQUENCE HYBRID_ROLE_P_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER HYBRID_ROLE_P_TRIGGER
+                     BEFORE INSERT
+                     ON HYBRID_ROLE_PERMISSIONS
+                     REFERENCING NEW AS NEW   FOR EACH ROW
+                     BEGIN
+                     SELECT HYBRID_ROLE_P_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                     END;
+/
+CREATE TABLE HYBRID_USER_PERMISSIONS (
+                     ID INTEGER,
+                     PERMISSION_ID INTEGER NOT NULL,
+                     USER_ID VARCHAR(255) NOT NULL,
+                     IS_ALLOWED SMALLINT NOT NULL,
+                     UNIQUE (PERMISSION_ID, USER_ID),
+                     FOREIGN KEY (PERMISSION_ID) REFERENCES HYBRID_PERMISSIONS(ID) ON DELETE CASCADE,
+                     PRIMARY KEY (ID))
+/
+CREATE SEQUENCE HYBRID_USER_P_SEQUENCE START WITH 1 INCREMENT BY 1
+/
+CREATE OR REPLACE TRIGGER HYBRID_USER_P_TRIGGER
+                     BEFORE INSERT
+                     ON HYBRID_USER_PERMISSIONS
+                     REFERENCING NEW AS NEW FOR EACH ROW
+                     BEGIN   SELECT HYBRID_USER_P_SEQUENCE.nextval INTO :NEW.ID FROM dual;
+                     END;
+/
+commit;
