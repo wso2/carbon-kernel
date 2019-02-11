@@ -1,6 +1,6 @@
 package org.wso2.carbon.nextgen.config;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;

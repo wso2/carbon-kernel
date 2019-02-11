@@ -64,6 +64,7 @@ public class ConfigParser {
                 }
             } catch (ConfigParserException | IOException e) {
                 LOGGER.error("Error validating file.", e);
+                throw new RuntimeException(e);
             }
         }
     }
