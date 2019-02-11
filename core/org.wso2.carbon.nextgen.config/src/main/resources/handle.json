@@ -1,0 +1,3 @@
+{
+  "message_builders": "org.wso2.carbon.nextgen.config.handlers.MessageBuilders"
+}

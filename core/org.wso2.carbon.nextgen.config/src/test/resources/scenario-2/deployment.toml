@@ -1,0 +1,33 @@
+[super_admin]
+create_super_admin = true               # Whether to attempt creating super admin user.
+username = "admin1"      # Super admin's credentials
+password = "wso2321"
+admin_role = "admin"
+
+[user_store]
+type = "jdbc"
+
+[database]
+type = "mysql"
+hostname = "localhost"
+port = 3306
+name = "UserDB"
+username = "<user>"
+password = "<password>"
+[database.pool_options]
+max_active = 5
+
+[[datasources]]
+name = "a"
+description = "a"
+id = "a"
+[datasources.pool_options]
+max_active = 13
+
+[[datasources]]
+name = "b"
+description = "b"
+id = "b"
+[datasources.pool_options]
+max_active = 12
+

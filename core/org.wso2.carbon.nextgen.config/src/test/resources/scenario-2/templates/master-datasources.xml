@@ -1,0 +1,22 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+
+    <datasources>
+        {% for datasource in datasources%}
+        <datasource>
+            <name>{{datasource.name}}</name>
+            <description>{{datasource.description}}</description>
+            <jndiConfig>
+                <name>{{datasource.id}}</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    {% for property_name,property_value in datasource.pool_options.items() %}
+                    <{{property_name}}>{{property_value}}</{{property_name}}>
+                        {% endfor %}
+            </configuration>
+        </definition>
+    </datasource>
+    {% endfor %}
+
+</datasources>
+</datasources-configuration>
