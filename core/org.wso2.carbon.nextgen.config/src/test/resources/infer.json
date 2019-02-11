@@ -8,7 +8,8 @@
       "user_store.properties.PasswordDigest" : "SHA-256",
       "user_store.properties.StoreSaltedPassword" : true,
       "user_store.properties.UserNameUniqueAcrossTenants" : false,
-      "user_store.properties.dummyArray" : ["foo","bar"]
+      "user_store.properties.dummyArray" : ["foo","bar"],
+      "tenant_mgt.tenant_manager.type": "jdbc"
     },
     "read_only_ldap" : {
       "user_store.class" : "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager",
@@ -91,6 +92,17 @@
   "datasource.$1.type": {
     "mysql": {
       "datasource.$1.driver": "com.mysql.jdbc.Driver"
+    }
+  },
+  "datasource.carbon.type": {
+    "mysql": {
+      "datasource.carbon.driver": "com.oracle.Driver"
+    }
+  },
+  "tenant_mgt.tenant_manager.type": {
+    "jdbc": {
+      "tenant_mgt.tenant_manager.config_builder": "org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder",
+      "tenant_mgt.tenant_manager.class": "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
     }
   }
 }

@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.server;
 
 import org.apache.commons.logging.Log;
@@ -22,6 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
 import org.apache.log4j.Logger;
+import org.wso2.carbon.nextgen.config.ConfigParser;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +33,7 @@ import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class Main {
+
     private static Log log = LogFactory.getLog(Main.class);
 
     /**
@@ -50,35 +53,36 @@ public class Main {
 
         //To keep track of the time taken to start the Carbon server.
         System.setProperty("wso2carbon.start.time", System.currentTimeMillis() + "");
-		if (System.getProperty("carbon.instance.name") == null) {
-			InetAddress addr;
-			String ipAddr;
-			String hostName;
-			try {
-				addr = InetAddress.getLocalHost();
-				ipAddr = addr.getHostAddress();
-				hostName = addr.getHostName();
-			} catch (UnknownHostException e) {
-				ipAddr = "localhost";
-				hostName = "127.0.0.1";
-			}
-			String uuId = UUID.randomUUID().toString();
-			String timeStamp = System.currentTimeMillis() + "";
-			String carbon_instance_name = timeStamp + "_" + hostName + "_" + ipAddr + "_" + uuId;
-			System.setProperty("carbon.instance.name", carbon_instance_name);
+        if (System.getProperty("carbon.instance.name") == null) {
+            InetAddress addr;
+            String ipAddr;
+            String hostName;
+            try {
+                addr = InetAddress.getLocalHost();
+                ipAddr = addr.getHostAddress();
+                hostName = addr.getHostName();
+            } catch (UnknownHostException e) {
+                ipAddr = "localhost";
+                hostName = "127.0.0.1";
+            }
+            String uuId = UUID.randomUUID().toString();
+            String timeStamp = System.currentTimeMillis() + "";
+            String carbon_instance_name = timeStamp + "_" + hostName + "_" + ipAddr + "_" + uuId;
+            System.setProperty("carbon.instance.name", carbon_instance_name);
 
-		}
+        }
         writePID(System.getProperty(LauncherConstants.CARBON_HOME));
         processCmdLineArgs(args);
 
         // set WSO2CarbonProfile as worker if workerNode=true present
-        if ((System.getProperty(LauncherConstants.WORKER_NODE) != null) && 
-            ("true".equals(System.getProperty(LauncherConstants.WORKER_NODE))) &&
-            System.getProperty(LauncherConstants.PROFILE) == null) {
-            File profileDir = new File( Utils.getCarbonComponentRepo() + File.separator + LauncherConstants.WORKER_PROFILE);
-               /*
-                *   Better check profile directory is present or not otherwise osgi will hang
-                * */
+        if ((System.getProperty(LauncherConstants.WORKER_NODE) != null) &&
+                ("true".equals(System.getProperty(LauncherConstants.WORKER_NODE))) &&
+                System.getProperty(LauncherConstants.PROFILE) == null) {
+            File profileDir =
+                    new File(Utils.getCarbonComponentRepo() + File.separator + LauncherConstants.WORKER_PROFILE);
+            /*
+             *   Better check profile directory is present or not otherwise osgi will hang
+             * */
             if (!profileDir.exists()) {
                 log.fatal("OSGi runtime " + LauncherConstants.WORKER_PROFILE + " profile not found");
                 throw new RuntimeException(LauncherConstants.WORKER_PROFILE + " profile not found");
@@ -86,9 +90,10 @@ public class Main {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.WORKER_PROFILE);
         }
         //setting default WSO2CarbonProfile as the running Profile if no other Profile is given as an argument
-        if (System.getProperty(LauncherConstants.PROFILE) == null){
+        if (System.getProperty(LauncherConstants.PROFILE) == null) {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
+        handleConfiguration();
         invokeExtensions();
         removeAllAppendersFromCarbon();
         launchCarbon();
@@ -100,6 +105,7 @@ public class Main {
      * @param args cmd line args
      */
     public static void processCmdLineArgs(String[] args) {
+
         String cmd = null;
         int index = 0;
 
@@ -156,6 +162,7 @@ public class Main {
      * Launch the Carbon Server.
      */
     public static void launchCarbon() {
+
         CarbonLauncher carbonLauncher = new CarbonLauncher();
         carbonLauncher.launch();
     }
@@ -166,6 +173,7 @@ public class Main {
      * @param carbonHome carbon.home sys property value.
      */
     private static void writePID(String carbonHome) {
+
         byte[] bo = new byte[100];
         String[] cmd = {"sh", "-c", "echo $PPID"};
         Process p;
@@ -203,7 +211,7 @@ public class Main {
         }
     }
 
-   /**
+    /**
      * Removing all the appenders which were added in the non osigi environment, after the carbon starts up.
      * Since another appender thread is there from osgi environment, it will be a conflict to access the log file by
      * non osgi and osgi appenders which resulted log rotation fails in windows.
@@ -211,13 +219,35 @@ public class Main {
      */
 
     private static void removeAllAppendersFromCarbon() {
-        try {
-           Logger.getRootLogger().removeAllAppenders();
-       }catch (Throwable e){
-           System.err.println("couldn't remove appnders from Carbon non osgi environment");
-       }
-   }
 
+        try {
+            Logger.getRootLogger().removeAllAppenders();
+        } catch (Throwable e) {
+            System.err.println("couldn't remove appnders from Carbon non osgi environment");
+        }
+    }
+
+    private static void handleConfiguration() {
+
+        String newConfigDirectoryPath = System.getProperty("carbon.new.config.dir.path");
+        String configDirectoryPath = System.getProperty("carbon.config.dir.path");
+        String templateDirectoryPath = newConfigDirectoryPath + File.separator + "templates";
+        String inferConfiguration = newConfigDirectoryPath + File.separator + "infer.json";
+        String mappingConfiguration = newConfigDirectoryPath + File.separator + "key-mappings.toml";
+        String validatorConfiguration = newConfigDirectoryPath + File.separator + "validator.json";
+        String defaultConfiguration = newConfigDirectoryPath + File.separator + "default.json";
+        String deploymentConfigurationPath = configDirectoryPath + File.separator + "deployment.toml";
+
+        ConfigParser.ConfigParserBuilder configParserBuilder =
+                new ConfigParser.ConfigParserBuilder()
+                        .withDeploymentConfigurationPath(deploymentConfigurationPath)
+                        .withInferConfigurationFilePath(inferConfiguration)
+                        .withMappingFilePath(mappingConfiguration)
+                        .withValidatorFilePath(validatorConfiguration)
+                        .withTemplateFilePath(templateDirectoryPath)
+                        .withDefaultValueFilePath(defaultConfiguration);
+        configParserBuilder.build().parse(configDirectoryPath);
+    }
 
 }
 

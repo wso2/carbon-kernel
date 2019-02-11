@@ -21,7 +21,7 @@ package org.wso2.carbon.nextgen.config;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -77,7 +77,7 @@ class ValueInferrer {
                 if (StringUtils.isNotEmpty(matchedKey)) {
                     Map inferringValues = (Map) inferringData.get(matchedKey);
                     if (inferringValues.containsKey(String.valueOf(o))) {
-                        Map valuesInferredByKey = (Map) inferringValues.get(String.valueOf(o));
+                        Map valuesInferredByKey = new LinkedHashMap((Map) inferringValues.get(String.valueOf(o)));
                         replaceReferences(matchedKey, s, valuesInferredByKey);
                         getRecursiveInferredValues(inferredValues, valuesInferredByKey, inferringData);
                         inferredValues.putAll(valuesInferredByKey);

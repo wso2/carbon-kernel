@@ -15,6 +15,7 @@ public class ValueInferrerTest {
 
     @Test(dataProvider = "contextProvider")
     public void testParse(Map<String, Object> context, String key, Object expectedValue) {
+
         String inferConfiguration =
                 FileUtils.getFile("src", "test", "resources", INFER_TOML).getAbsolutePath();
 
@@ -34,6 +35,9 @@ public class ValueInferrerTest {
         invalidContext.put("user_store.type", "invalid_value");
         Map<String, Object> variableContext = new HashMap<>();
         variableContext.put("datasource.apim.type", "mysql");
+        variableContext.put("datasource.abc.type", "mysql");
+        variableContext.put("datasource.cde.type", "oracle");
+        variableContext.put("datasource.carbon.type", "mysql");
         return new Object[][]{
                 {jdbcContext, "user_store.class", "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager"},
                 {jdbcContext, "user_store.properties.ReadOnly", false},
@@ -42,7 +46,12 @@ public class ValueInferrerTest {
                         ".ReadOnlyLDAPUserStoreManager"},
                 {readOnlyLdapContext, "user_store.properties.LDAPConnectionTimeout", 5000},
                 {invalidContext, "user_store.class", null},
-                {variableContext, "datasource.apim.driver", "com.mysql.jdbc.Driver"}
+                {variableContext, "datasource.apim.driver", "com.mysql.jdbc.Driver"},
+                {variableContext, "datasource.abc.driver", "com.mysql.jdbc.Driver"},
+                {variableContext, "datasource.cde.driver", null},
+                {variableContext, "datasource.carbon.driver", "com.oracle.Driver"},
+                {jdbcContext, "tenant_mgt.tenant_manager.config_builder", "org.wso2.carbon.user.core.config" +
+                        ".multitenancy.SimpleRealmConfigBuilder"}
         };
     }
 
