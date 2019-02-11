@@ -37,28 +37,28 @@
         <dependency>
             <groupId>com.hubspot.jinjava</groupId>
             <artifactId>jinjava</artifactId>
-            <version>2.4.14</version>
+            <version>${version.jinjava}</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.cava</groupId>
             <artifactId>cava-toml</artifactId>
-            <version>0.5.0</version>
+            <version>${version.cava-toml}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.2</version>
+            <version>${version.com.google.code.gson}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${maven.testng.version}</version>
+            <version>${testng.verson}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
+            <groupId>commons-io.wso2</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>${orbit.version.commons.io}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -87,7 +87,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>7.8.2</version>
+                        <version>${version.checkstyle}</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -132,14 +132,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
-        <maven.spotbugsplugin.version>3.1.10</maven.spotbugsplugin.version>
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <maven.spotbugs.dependency.version>3.1.11</maven.spotbugs.dependency.version>
-        <maven.testng.version>6.11</maven.testng.version>
-        <carbon.kernel.version>4.4.35</carbon.kernel.version>
-    </properties>
 </project>
