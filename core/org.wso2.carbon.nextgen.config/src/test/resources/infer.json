@@ -87,5 +87,10 @@
       "database.url" : "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
       "database.validationQuery" : "SELECT 1"
     }
+  },
+  "datasource.$1.type": {
+    "mysql": {
+      "datasource.$1.driver": "com.mysql.jdbc.Driver"
+    }
   }
 }

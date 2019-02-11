@@ -21,9 +21,9 @@ package org.wso2.carbon.nextgen.config;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +32,8 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Infer configuration values depending on the configurations provided by the user. This step minimises the
@@ -71,10 +73,12 @@ class ValueInferrer {
         Map<String, Object> inferredValues = new LinkedHashMap<>();
         if (configurationValues != null) {
             configurationValues.forEach((s, o) -> {
-                if (inferringData.containsKey(s)) {
-                    Map inferringValues = (Map) inferringData.get(s);
+                String matchedKey = getMatchedKey(s, inferringData.keySet());
+                if (StringUtils.isNotEmpty(matchedKey)) {
+                    Map inferringValues = (Map) inferringData.get(matchedKey);
                     if (inferringValues.containsKey(String.valueOf(o))) {
                         Map valuesInferredByKey = (Map) inferringValues.get(String.valueOf(o));
+                        replaceReferences(matchedKey, s, valuesInferredByKey);
                         getRecursiveInferredValues(inferredValues, valuesInferredByKey, inferringData);
                         inferredValues.putAll(valuesInferredByKey);
                     }
@@ -94,11 +98,31 @@ class ValueInferrer {
         return inferredValues;
     }
 
+    private static void replaceReferences(String matchedKey, String s, Map<String, Object> valuesInferredByKey) {
+
+        Map<String, String> resolvedValues = getResolvedValues(s, matchedKey);
+        new LinkedHashMap<String, Object>(valuesInferredByKey).forEach((key, value) -> {
+            String resolvedKey = key;
+            for (Map.Entry<String, String> entry : resolvedValues.entrySet()) {
+                String s1 = entry.getKey();
+                String s2 = entry.getValue();
+                resolvedKey = resolvedKey.replaceAll(Pattern.quote(s1), s2);
+            }
+            valuesInferredByKey.remove(key);
+            valuesInferredByKey.put(resolvedKey, value);
+
+        });
+
+    }
+
     private static void getRecursiveInferredValues(Map context, Map<Object, Object> valuesInferredByKey,
                                                    Map inferringData) {
+
         valuesInferredByKey.forEach((key, value) -> {
-            if (inferringData.containsKey(key)) {
-                Map dataMap = (Map) inferringData.get(key);
+            String matchedKey = getMatchedKey((String) key, inferringData.keySet());
+
+            if (StringUtils.isNotEmpty(matchedKey)) {
+                Map dataMap = (Map) inferringData.get(matchedKey);
                 if (dataMap.containsKey(value)) {
                     Map inferredValues = (Map) dataMap.get(value);
                     context.putAll(inferredValues);
@@ -106,5 +130,32 @@ class ValueInferrer {
                 }
             }
         });
+    }
+
+    private static String getMatchedKey(String key, Set<String> inferredKeys) {
+
+        if (inferredKeys.contains(key)) {
+            return key;
+        }
+        for (String s : inferredKeys) {
+            String matchedRegex = s.replaceAll("\\$[0-9]+", "\\\\\\w+");
+            if (key.matches(matchedRegex)) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    private static Map<String, String> getResolvedValues(String key, String matchedKey) {
+
+        Map map = new LinkedHashMap();
+        int l = 0;
+        for (String s : matchedKey.split("\\.")) {
+            if (s.matches("\\$[0-9]+")) {
+                map.put(s, key.split("\\.")[l]);
+            }
+            l++;
+        }
+        return map;
     }
 }

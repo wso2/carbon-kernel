@@ -32,6 +32,8 @@ public class ValueInferrerTest {
         jdbcContext.put("user_store.type", "jdbc");
         readOnlyLdapContext.put("user_store.type", "read_only_ldap");
         invalidContext.put("user_store.type", "invalid_value");
+        Map<String, Object> variableContext = new HashMap<>();
+        variableContext.put("datasource.apim.type", "mysql");
         return new Object[][]{
                 {jdbcContext, "user_store.class", "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager"},
                 {jdbcContext, "user_store.properties.ReadOnly", false},
@@ -40,6 +42,7 @@ public class ValueInferrerTest {
                         ".ReadOnlyLDAPUserStoreManager"},
                 {readOnlyLdapContext, "user_store.properties.LDAPConnectionTimeout", 5000},
                 {invalidContext, "user_store.class", null},
+                {variableContext, "datasource.apim.driver", "com.mysql.jdbc.Driver"}
         };
     }
 
