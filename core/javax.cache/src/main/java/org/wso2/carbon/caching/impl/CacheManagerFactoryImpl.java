@@ -31,7 +31,7 @@ import javax.cache.CachingShutdownException;
  * Carbon implementation of java cache.
  *
  */
-public class CacheManagerFactoryImpl implements CacheManagerFactory {
+public class CacheManagerFactoryImpl implements CacheManagerFactory, TenantCacheManager {
 
     private static CacheCleanupTask cacheCleanupTask = new CacheCleanupTask();
     private ScheduledExecutorService cacheEvictionScheduler;

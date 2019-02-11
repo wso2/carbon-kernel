@@ -20,11 +20,13 @@ package org.wso2.carbon.user.core.tenant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.caching.impl.TenantCacheManager;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
+import javax.cache.CacheManagerFactory;
 import javax.cache.Caching;
 
 public class TenantCache {
@@ -205,7 +207,13 @@ public class TenantCache {
      */
     public void removeGlobalCacheEntry(String tenantDomain) {
 
-        Caching.getCacheManagerFactory().removeCacheManagerMap(tenantDomain);
+        CacheManagerFactory cacheManagerFactory = Caching.getCacheManagerFactory();
+
+        if(cacheManagerFactory instanceof TenantCacheManager){
+            TenantCacheManager tenantCacheManager = (TenantCacheManager) cacheManagerFactory;
+            tenantCacheManager.removeCacheManagerMap(tenantDomain);
+        }
+
     }
 
 }
