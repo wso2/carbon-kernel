@@ -42,36 +42,67 @@ public class ConfigParser {
     private static final String INFER_CONFIG_FILE_PATH = "infer.json";
     private static final String VALIDATOR_FILE_PATH = "validator.json";
     private static final String MAPPING_FILE_PATH = "key-mappings.toml";
+    private static final String DEFAULT_VALUE_FILE_PATH = "default.json";
+    private static final String META_DATA_FILE = "metadata.properties";
+    private static final String META_DATA_DIRECTORY = ".metadata";
     private String deploymentConfigurationPath;
     private String templateFileDir;
     private String inferConfigurationFilePath;
     private String validatorFilePath;
     private String mappingFilePath;
     private String defaultValueFilePath;
+    private String metadataFilePath;
 
     public void parse(String outputFilePath) {
 
-        File file = new File(deploymentConfigurationPath);
-        if (file.exists()) {
-            File outputDir = new File(outputFilePath);
-            if (outputDir.exists() && outputDir.isDirectory()) {
-                try {
-                    Map<String, String> outputs = parse();
-                    for (Map.Entry<String, String> entry : outputs.entrySet()) {
-                        File outputFile = new File(outputDir, entry.getKey());
-                        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-                                new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
-                            outputStreamWriter.write(entry.getValue());
-                        }
+        File deploymentConfigurationFile = new File(deploymentConfigurationPath);
+        if (deploymentConfigurationFile.exists()) {
+            boolean metaDataExist = MetaDataParser.metaDataFileExist(metadataFilePath);
+            if (metaDataExist) {
+                boolean configurationChanged = MetaDataParser.isFilesChanged(outputFilePath, metadataFilePath);
+                if (configurationChanged) {
+                    LOGGER.warn("Configurations changed");
+                    throw new RuntimeException("Configurations changed in " + outputFilePath);
+                } else {
+                    boolean deploymentConfigurationChanged = MetaDataParser.isFilesChanged(deploymentConfigurationPath,
+                            metadataFilePath);
+                    if (deploymentConfigurationChanged) {
+                        deploy(outputFilePath);
+                        MetaDataParser.storeMetaDataEntries(metadataFilePath, new String[]{outputFilePath,
+                                deploymentConfigurationPath});
                     }
-                } catch (ConfigParserException | IOException e) {
-                    LOGGER.error("Error validating file.", e);
-                    throw new RuntimeException(e);
                 }
+            } else {
+                LOGGER.warn("Metadata File doesn't exist at " + metadataFilePath + "Consider as first startup");
+                deploy(outputFilePath);
+                MetaDataParser.storeMetaDataEntries(metadataFilePath, new String[]{outputFilePath,
+                        deploymentConfigurationPath});
             }
-        }else{
+
+        } else {
             LOGGER.warn("deployment.toml didn't exist in " + deploymentConfigurationPath + " configurations not " +
                     "overridden");
+        }
+
+    }
+
+    private void deploy(String outputFilePath) {
+
+        File outputDir = new File(outputFilePath);
+        if (outputDir.exists() && outputDir.isDirectory()) {
+            try {
+                Map<String, String> outputs = parse();
+                for (Map.Entry<String, String> entry : outputs.entrySet()) {
+                    File outputFile = new File(outputDir, entry.getKey());
+                    try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
+                            new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
+                        outputStreamWriter.write(entry.getValue());
+                    }
+                }
+            } catch (ConfigParserException | IOException e) {
+                LOGGER.error("Error validating file.", e);
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -121,6 +152,7 @@ public class ConfigParser {
         private String validatorFilePath;
         private String mappingFilePath;
         private String defaultValueFilePath;
+        private String metadataFilePath;
 
         public ConfigParserBuilder() {
 
@@ -134,37 +166,37 @@ public class ConfigParser {
 
         public ConfigParserBuilder withDeploymentConfigurationPath(String deploymentConfigurationPath) {
 
-            this.deploymentConfigurationPath = deploymentConfigurationPath;
+            this.deploymentConfigurationPath = deploymentConfigurationPath + File.separator + UX_FILE_PATH;
             return this;
         }
 
         public ConfigParserBuilder withTemplateFilePath(String templateFilePath) {
 
-            this.templateFileDir = templateFilePath;
+            this.templateFileDir = templateFilePath + File.separator + TEMPLATE_FILE_DIR;
             return this;
         }
 
         public ConfigParserBuilder withInferConfigurationFilePath(String inferConfigurationFilePath) {
 
-            this.inferConfigurationFilePath = inferConfigurationFilePath;
+            this.inferConfigurationFilePath = inferConfigurationFilePath + File.separator + INFER_CONFIG_FILE_PATH;
             return this;
         }
 
         public ConfigParserBuilder withValidatorFilePath(String validatorFilePath) {
 
-            this.validatorFilePath = validatorFilePath;
+            this.validatorFilePath = validatorFilePath + File.separator + VALIDATOR_FILE_PATH;
             return this;
         }
 
         public ConfigParserBuilder withMappingFilePath(String mappingFilePath) {
 
-            this.mappingFilePath = mappingFilePath;
+            this.mappingFilePath = mappingFilePath + File.separator + MAPPING_FILE_PATH;
             return this;
         }
 
         public ConfigParserBuilder withDefaultValueFilePath(String defaultValueFilePath) {
 
-            this.defaultValueFilePath = defaultValueFilePath;
+            this.defaultValueFilePath = defaultValueFilePath + File.separator + DEFAULT_VALUE_FILE_PATH;
             return this;
         }
 
@@ -177,7 +209,15 @@ public class ConfigParser {
             configParser.deploymentConfigurationPath = this.deploymentConfigurationPath;
             configParser.mappingFilePath = this.mappingFilePath;
             configParser.defaultValueFilePath = this.defaultValueFilePath;
+            configParser.metadataFilePath = this.metadataFilePath;
             return configParser;
+        }
+
+        public ConfigParserBuilder withMetaDataFilePath(String metadataFilePath) {
+
+            this.metadataFilePath =
+                    metadataFilePath + File.separator + META_DATA_DIRECTORY + File.separator + META_DATA_FILE;
+            return this;
         }
     }
 

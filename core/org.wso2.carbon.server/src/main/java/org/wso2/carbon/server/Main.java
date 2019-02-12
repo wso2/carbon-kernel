@@ -231,21 +231,16 @@ public class Main {
 
         String newConfigDirectoryPath = System.getProperty("carbon.new.config.dir.path");
         String configDirectoryPath = System.getProperty("carbon.config.dir.path");
-        String templateDirectoryPath = newConfigDirectoryPath + File.separator + "templates";
-        String inferConfiguration = newConfigDirectoryPath + File.separator + "infer.json";
-        String mappingConfiguration = newConfigDirectoryPath + File.separator + "key-mappings.toml";
-        String validatorConfiguration = newConfigDirectoryPath + File.separator + "validator.json";
-        String defaultConfiguration = newConfigDirectoryPath + File.separator + "default.json";
-        String deploymentConfigurationPath = configDirectoryPath + File.separator + "deployment.toml";
 
         ConfigParser.ConfigParserBuilder configParserBuilder =
                 new ConfigParser.ConfigParserBuilder()
-                        .withDeploymentConfigurationPath(deploymentConfigurationPath)
-                        .withInferConfigurationFilePath(inferConfiguration)
-                        .withMappingFilePath(mappingConfiguration)
-                        .withValidatorFilePath(validatorConfiguration)
-                        .withTemplateFilePath(templateDirectoryPath)
-                        .withDefaultValueFilePath(defaultConfiguration);
+                        .withDeploymentConfigurationPath(configDirectoryPath)
+                        .withInferConfigurationFilePath(newConfigDirectoryPath)
+                        .withMappingFilePath(newConfigDirectoryPath)
+                        .withValidatorFilePath(newConfigDirectoryPath)
+                        .withTemplateFilePath(newConfigDirectoryPath)
+                        .withDefaultValueFilePath(newConfigDirectoryPath)
+                        .withMetaDataFilePath(newConfigDirectoryPath);
         configParserBuilder.build().parse(configDirectoryPath);
     }
 
