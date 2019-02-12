@@ -314,8 +314,8 @@
              API or only showing the latest version of an API. -->
         <DisplayMultipleVersions>false</DisplayMultipleVersions>
         <!-- This parameter specifies whether to display all the APIs
-             [which are having DEPRECATED/PUBLISHED status] or only display the APIs
-             with having their status is as 'PUBLISHED' -->
+             [which are having DEPRECATED/PUBLISHED changed] or only display the APIs
+             with having their changed is as 'PUBLISHED' -->
         <DisplayAllAPIs>false</DisplayAllAPIs>
         <!-- Uncomment this to limit the number of APIs in api the API Store -->
         <!--APIsPerPage>5</APIsPerPage-->
@@ -353,7 +353,7 @@
     </APIPublisher>
 
     <!-- Status observers can be registered against the API Publisher to listen for
-         API status update events. Each observer must implement the APIStatusObserver
+         API changed update events. Each observer must implement the APIStatusObserver
          interface. Multiple observers can be engaged if necessary and in such situations
          they will be notified in the order they are defined here.
          This configuration is unused from API Manager version 1.10.0 -->
@@ -627,7 +627,7 @@
         <ServerUrl>https://localhost:9445/bpmn</ServerUrl>
         <ServerUser>${admin.username}</ServerUser>
         <ServerPassword>${admin.password}</ServerPassword>
-        <WorkflowCallbackAPI>https://localhost:${mgt.transport.https.port}/api/am/publisher/v0.14/workflows/update-workflow-status</WorkflowCallbackAPI>
+        <WorkflowCallbackAPI>https://localhost:${mgt.transport.https.port}/api/am/publisher/v0.14/workflows/update-workflow-changed</WorkflowCallbackAPI>
         <TokenEndPoint>https://localhost:${https.nio.port}/token</TokenEndPoint>
         <DCREndPoint>https://localhost:${mgt.transport.https.port}/client-registration/v0.14/register</DCREndPoint>
         <DCREndPointUser>${admin.username}</DCREndPointUser>

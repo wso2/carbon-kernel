@@ -24,7 +24,8 @@ public class DefaultParser {
 
     }
 
-    static Map<String, Object> addDefaultValues(Map<String, Object> enrichedContext, String defaultValueFilePath) {
+    static Map<String, Object> addDefaultValues(Map<String, Object> enrichedContext, String defaultValueFilePath)
+            throws ConfigParserException {
 
         try {
             Map<String, Object> defaultValueMap = readConfiguration(defaultValueFilePath);
@@ -44,9 +45,9 @@ public class DefaultParser {
             LOGGER.error("Error while default values with file" + defaultValueFilePath, e);
 
         } catch (IllegalAccessException e) {
-            LOGGER.error("Error while accessing Builder", e);
+            throw new ConfigParserException("Error while accessing Handler", e);
         } catch (InstantiationException | ClassNotFoundException e) {
-            LOGGER.error("Error while creating Builder", e);
+            throw new ConfigParserException("Error while initializing Handler", e);
         }
         return enrichedContext;
     }
@@ -54,8 +55,11 @@ public class DefaultParser {
     private static Map<String, Object> readConfiguration(String defaultValueFilePath) throws IOException {
 
         Gson gson = new Gson();
-        Reader input = new InputStreamReader(new FileInputStream(defaultValueFilePath), Charsets.UTF_8);
-        return gson.fromJson(input, LinkedHashMap.class);
+        try (FileInputStream fileInputStream = new FileInputStream(defaultValueFilePath)) {
+            Reader input = new InputStreamReader(fileInputStream, Charsets.UTF_8);
+            return gson.fromJson(input, LinkedHashMap.class);
+
+        }
     }
 
     private static Builders readHandles(String key) throws ClassNotFoundException,

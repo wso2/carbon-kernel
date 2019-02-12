@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.nextgen.config;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +27,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -37,28 +41,31 @@ public class MetaDataParser {
 
     private static Log logger = LogFactory.getLog(MetaDataParser.class);
 
-    public static Map<String, String> readLastModifiedValues(String path) {
+    public static Map<String, String> readLastModifiedValues(String path) throws ConfigParserException {
 
         Map<String, String> md5sumValues = new HashMap<>();
 
         File file = new File(path);
-
-        if (file.isDirectory()) {
-            handleDirectories(md5sumValues, file);
-        } else if (file.isFile()) {
-            md5sumValues.put(file.getAbsolutePath(), getLastModified(file));
+        try {
+            if (file.isDirectory()) {
+                handleDirectories(md5sumValues, file);
+            } else if (file.isFile()) {
+                md5sumValues.put(file.getAbsolutePath(), getMetadata(file));
+            }
+        } catch (IOException e) {
+            throw new ConfigParserException("Error while reading metadata", e);
         }
 
         return md5sumValues;
     }
 
-    private static void handleDirectories(Map<String, String> md5sumValues, File directory) {
+    private static void handleDirectories(Map<String, String> md5sumValues, File directory) throws IOException {
 
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file1 : files) {
                 if (file1.isFile()) {
-                    md5sumValues.put(file1.getAbsolutePath(), getLastModified(file1));
+                    md5sumValues.put(file1.getAbsolutePath(), getMetadata(file1));
                 } else if (file1.isDirectory()) {
                     handleDirectories(md5sumValues, file1);
                 }
@@ -66,16 +73,19 @@ public class MetaDataParser {
         }
     }
 
-    public static String getLastModified(File file) {
+    private static String getMetadata(File file) throws IOException {
 
-        return String.valueOf(file.lastModified());
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            return DigestUtils.md5Hex(fileInputStream);
+        }
     }
 
-    public static boolean isFilesChanged(String deploymentConfigurationPath, String metadataFilePath) {
+    public static ChangedFileSet isFilesChanged(String[] deploymentConfigurationPaths, String metadataFilePath)
+            throws ConfigParserException {
 
         File metaDataFile = new File(metadataFilePath);
         if (!metaDataFile.exists()) {
-            return true;
+            return new ChangedFileSet(true, Collections.emptyList(), Collections.emptyList());
         }
         Properties properties = new Properties();
 
@@ -83,23 +93,30 @@ public class MetaDataParser {
             properties.load(fileInputStream);
         } catch (IOException e) {
             logger.error("Metadata File couldn't Read", e);
-            return true;
+            return new ChangedFileSet(true, Collections.emptyList(), Collections.emptyList());
 
         }
-        Map<String, String> actualLastModifiedValues = readLastModifiedValues(deploymentConfigurationPath);
-        for (Map.Entry<String, String> entry : actualLastModifiedValues.entrySet()) {
-            String path = entry.getKey();
-            String lastModifiedTimeStamp = entry.getValue();
-            String lastModified = properties.getProperty(path);
-            if (StringUtils.isNotEmpty(lastModified)) {
-                if (!lastModifiedTimeStamp.equals(lastModified)) {
-                    return true;
+        List<String> changedFiles = new ArrayList<>();
+        List<String> newFiles = new ArrayList<>();
+        for (String deploymentConfigurationPath : deploymentConfigurationPaths) {
+            Map<String, String> actualLastModifiedValues = readLastModifiedValues(deploymentConfigurationPath);
+            for (Map.Entry<String, String> entry : actualLastModifiedValues.entrySet()) {
+                String path = entry.getKey();
+                String lastModifiedTimeStamp = entry.getValue();
+                String lastModified = properties.getProperty(path);
+                if (StringUtils.isNotEmpty(lastModified)) {
+                    if (!lastModifiedTimeStamp.equals(lastModified)) {
+                        changedFiles.add(path);
+                    }
+                } else {
+                    newFiles.add(path);
                 }
-            } else {
-                logger.warn("New configuration File Detected :" + path);
             }
         }
-        return false;
+        if (changedFiles.size() > 0 || newFiles.size() > 0) {
+            return new ChangedFileSet(true, changedFiles, newFiles);
+        }
+        return new ChangedFileSet(false, changedFiles, newFiles);
     }
 
     public static boolean metaDataFileExist(String metadataFilePath) {
@@ -110,10 +127,10 @@ public class MetaDataParser {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
             justification = "return not need in mkdirs()")
-    public static void storeMetaDataEntries(String outputFilePath, String[] entries) {
+    public static void storeMetaDataEntries(String outputFilePath, String[] entries) throws ConfigParserException {
 
         File outputFile = new File(outputFilePath);
-        outputFile.mkdirs();
+        outputFile.getParentFile().mkdirs();
         Properties properties = new Properties();
         for (String entry : entries) {
             properties.putAll(readLastModifiedValues(entry));

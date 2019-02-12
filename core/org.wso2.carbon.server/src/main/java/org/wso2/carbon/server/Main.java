@@ -19,6 +19,7 @@ package org.wso2.carbon.server;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.ConfigParserException;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
 import org.apache.log4j.Logger;
@@ -241,7 +242,12 @@ public class Main {
                         .withTemplateFilePath(newConfigDirectoryPath)
                         .withDefaultValueFilePath(newConfigDirectoryPath)
                         .withMetaDataFilePath(newConfigDirectoryPath);
-        configParserBuilder.build().parse(configDirectoryPath);
+        try {
+            configParserBuilder.build().parse(configDirectoryPath);
+        } catch (ConfigParserException e) {
+            log.error("Error while performing configuration changes", e);
+            System.exit(1);
+        }
     }
 
 }
