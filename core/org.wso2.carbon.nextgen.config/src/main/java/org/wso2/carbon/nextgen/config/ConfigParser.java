@@ -51,21 +51,27 @@ public class ConfigParser {
 
     public void parse(String outputFilePath) {
 
-        File outputDir = new File(outputFilePath);
-        if (outputDir.exists() && outputDir.isDirectory()) {
-            try {
-                Map<String, String> outputs = parse();
-                for (Map.Entry<String, String> entry : outputs.entrySet()) {
-                    File outputFile = new File(outputDir, entry.getKey());
-                    try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-                            new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
-                        outputStreamWriter.write(entry.getValue());
+        File file = new File(deploymentConfigurationPath);
+        if (file.exists()) {
+            File outputDir = new File(outputFilePath);
+            if (outputDir.exists() && outputDir.isDirectory()) {
+                try {
+                    Map<String, String> outputs = parse();
+                    for (Map.Entry<String, String> entry : outputs.entrySet()) {
+                        File outputFile = new File(outputDir, entry.getKey());
+                        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
+                                new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
+                            outputStreamWriter.write(entry.getValue());
+                        }
                     }
+                } catch (ConfigParserException | IOException e) {
+                    LOGGER.error("Error validating file.", e);
+                    throw new RuntimeException(e);
                 }
-            } catch (ConfigParserException | IOException e) {
-                LOGGER.error("Error validating file.", e);
-                throw new RuntimeException(e);
             }
+        }else{
+            LOGGER.warn("deployment.toml didn't exist in " + deploymentConfigurationPath + " configurations not " +
+                    "overridden");
         }
     }
 
