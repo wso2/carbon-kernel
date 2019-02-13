@@ -1,11 +1,10 @@
 package org.wso2.carbon.nextgen.config;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.nextgen.config.util.FileReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class ConfigParserTest {
             if (!expectedOutput.exists() || !expectedOutput.isFile()) {
                 Assert.fail("Expected result file doesn't exist for " + entry.getKey());
             }
-            String actual = Files.asCharSource(expectedOutput, Charsets.UTF_8).read();
+            String actual = FileReaderUtils.readFile(expectedOutput);
             handleAssertion(actual, entry.getValue());
         }
 

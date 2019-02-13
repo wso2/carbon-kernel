@@ -135,7 +135,15 @@
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
                 <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.nextgen.config:jar</include>
+                <include>net.consensys.cava:cava-toml:jar</include>
                 <include>commons-lang.wso2:commons-lang:jar</include>
+                <include>org.antlr:antlr4-runtime:jar</include>
+                <include>com.google.code.gson:gson:jar</include>
+                <include>com.hubspot.jinjava:jinjava:jar</include>
+                <include>com.google.guava:guava:jar</include>
+                <include>org.slf4j:slf4j-api:jar</include>
+                <include>org.jsoup:jsoup:jar</include>
                 <include>ant-contrib:ant-contrib:jar</include>
                 <include>xerces.wso2:xercesImpl:jar</include>
             </includes>
