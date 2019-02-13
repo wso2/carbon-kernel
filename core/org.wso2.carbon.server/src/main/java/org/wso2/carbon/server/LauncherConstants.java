@@ -52,6 +52,7 @@ public final class LauncherConstants {
 
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_CONFIG_DIR_PATH = "carbon.config.dir.path";
+    public static final String CARBON_NEW_CONFIG_DIR_PATH = "carbon.new.config.dir.path";
     public static final String AXIS2_HOME = "axis2.home";
 
     //Bundle manifest constants

@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,16 +42,17 @@ public class MetaDataParser {
 
     private static Log logger = LogFactory.getLog(MetaDataParser.class);
 
-    public static Map<String, String> readLastModifiedValues(String path) throws ConfigParserException {
+    public static Map<String, String> readLastModifiedValues(String basePath, String path)
+            throws ConfigParserException {
 
         Map<String, String> md5sumValues = new HashMap<>();
 
         File file = new File(path);
         try {
             if (file.isDirectory()) {
-                handleDirectories(md5sumValues, file);
+                handleDirectories(basePath, md5sumValues, file);
             } else if (file.isFile()) {
-                md5sumValues.put(file.getAbsolutePath(), getMetadata(file));
+                md5sumValues.put(Paths.get(basePath).relativize(file.toPath()).toString(), getMetadata(file));
             }
         } catch (IOException e) {
             throw new ConfigParserException("Error while reading metadata", e);
@@ -59,15 +61,16 @@ public class MetaDataParser {
         return md5sumValues;
     }
 
-    private static void handleDirectories(Map<String, String> md5sumValues, File directory) throws IOException {
+    private static void handleDirectories(String basePath, Map<String, String> md5sumValues, File directory)
+            throws IOException {
 
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file1 : files) {
                 if (file1.isFile()) {
-                    md5sumValues.put(file1.getAbsolutePath(), getMetadata(file1));
+                    md5sumValues.put(Paths.get(basePath).relativize(file1.toPath()).toString(), getMetadata(file1));
                 } else if (file1.isDirectory()) {
-                    handleDirectories(md5sumValues, file1);
+                    handleDirectories(basePath, md5sumValues, file1);
                 }
             }
         }
@@ -80,7 +83,8 @@ public class MetaDataParser {
         }
     }
 
-    public static ChangedFileSet isFilesChanged(String[] deploymentConfigurationPaths, String metadataFilePath)
+    public static ChangedFileSet getChangedFiles(String basePath, String[] deploymentConfigurationPaths,
+                                                 String metadataFilePath)
             throws ConfigParserException {
 
         File metaDataFile = new File(metadataFilePath);
@@ -93,13 +97,13 @@ public class MetaDataParser {
             properties.load(fileInputStream);
         } catch (IOException e) {
             logger.error("Metadata File couldn't Read", e);
-            return new ChangedFileSet(true, Collections.emptyList(), Collections.emptyList());
-
+            throw new ConfigParserException("Metadata File couldn't Read", e);
         }
         List<String> changedFiles = new ArrayList<>();
         List<String> newFiles = new ArrayList<>();
         for (String deploymentConfigurationPath : deploymentConfigurationPaths) {
-            Map<String, String> actualLastModifiedValues = readLastModifiedValues(deploymentConfigurationPath);
+            Map<String, String> actualLastModifiedValues = readLastModifiedValues(basePath,
+                    deploymentConfigurationPath);
             for (Map.Entry<String, String> entry : actualLastModifiedValues.entrySet()) {
                 String path = entry.getKey();
                 String lastModifiedTimeStamp = entry.getValue();
@@ -113,7 +117,7 @@ public class MetaDataParser {
                 }
             }
         }
-        if (changedFiles.size() > 0 || newFiles.size() > 0) {
+        if (!changedFiles.isEmpty() || !newFiles.isEmpty()) {
             return new ChangedFileSet(true, changedFiles, newFiles);
         }
         return new ChangedFileSet(false, changedFiles, newFiles);
@@ -127,13 +131,14 @@ public class MetaDataParser {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
             justification = "return not need in mkdirs()")
-    public static void storeMetaDataEntries(String outputFilePath, String[] entries) throws ConfigParserException {
+    public static void storeMetaDataEntries(String basePath, String outputFilePath, String[] entries)
+            throws ConfigParserException {
 
         File outputFile = new File(outputFilePath);
         outputFile.getParentFile().mkdirs();
         Properties properties = new Properties();
         for (String entry : entries) {
-            properties.putAll(readLastModifiedValues(entry));
+            properties.putAll(readLastModifiedValues(basePath, entry));
         }
         try (FileOutputStream fileOutputStream = new FileOutputStream(outputFilePath)) {
             properties.store(fileOutputStream, null);

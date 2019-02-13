@@ -230,11 +230,12 @@ public class Main {
 
     private static void handleConfiguration() {
 
-        String newConfigDirectoryPath = System.getProperty("carbon.new.config.dir.path");
-        String configDirectoryPath = System.getProperty("carbon.config.dir.path");
-
+        String newConfigDirectoryPath = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
+        String configDirectoryPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
+        String carbonHomePath = System.getProperty(LauncherConstants.CARBON_HOME);
         ConfigParser.ConfigParserBuilder configParserBuilder =
                 new ConfigParser.ConfigParserBuilder()
+                        .withBasePath(carbonHomePath)
                         .withDeploymentConfigurationPath(configDirectoryPath)
                         .withInferConfigurationFilePath(newConfigDirectoryPath)
                         .withMappingFilePath(newConfigDirectoryPath)

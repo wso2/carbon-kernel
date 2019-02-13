@@ -54,6 +54,7 @@ public class ConfigParser {
     private String defaultValueFilePath;
     private String metadataFilePath;
     private String metadataTemplateFilePath;
+    private String basePath;
 
     public void parse(String outputFilePath) throws ConfigParserException {
 
@@ -66,10 +67,10 @@ public class ConfigParser {
                 boolean metaDataTemplateExist = MetaDataParser.metaDataFileExist(metadataTemplateFilePath);
                 if (metaDataTemplateExist) {
                     // template metadata exist
-                    ChangedFileSet templateChanged = MetaDataParser.isFilesChanged(new String[]{templateFileDir,
+                    ChangedFileSet templateChanged = MetaDataParser.getChangedFiles(basePath,
+                            new String[]{templateFileDir,
                                     inferConfigurationFilePath, defaultValueFilePath, validatorFilePath,
-                                    mappingFilePath},
-                            metadataTemplateFilePath);
+                                    mappingFilePath}, metadataTemplateFilePath);
                     if (templateChanged.isChanged()) {
                         // template Metadata changed then deploy and write
                         LOGGER.warn("Template files changed under " + templateFileDir);
@@ -80,8 +81,8 @@ public class ConfigParser {
                         boolean metaDataExist = MetaDataParser.metaDataFileExist(metadataFilePath);
                         if (metaDataExist) {
                             // if exist check if its changed
-                            ChangedFileSet configurationChanged =
-                                    MetaDataParser.isFilesChanged(new String[]{outputFilePath}, metadataFilePath);
+                            ChangedFileSet configurationChanged = MetaDataParser.getChangedFiles(basePath,
+                                    new String[]{outputFilePath}, metadataFilePath);
                             if (configurationChanged.isChanged()) {
                                 // if changed override configs
                                 configurationChanged.getChangedFiles().forEach(path -> {
@@ -95,8 +96,8 @@ public class ConfigParser {
                             } else {
                                 // if configuration is not changed check deployment.toml is changed
                                 ChangedFileSet deploymentConfigurationChanged =
-                                        MetaDataParser.isFilesChanged(new String[]{deploymentConfigurationPath},
-                                                metadataFilePath);
+                                        MetaDataParser.getChangedFiles(basePath,
+                                                new String[]{deploymentConfigurationPath}, metadataFilePath);
                                 if (deploymentConfigurationChanged.isChanged()) {
                                     // if deployment.toml is changed then deploy
                                     deployAndStoreMetadata(outputFilePath);
@@ -107,14 +108,12 @@ public class ConfigParser {
                             }
                         } else {
                             deployAndStoreMetadata(outputFilePath);
-
                         }
 
                     }
                 } else {
                     LOGGER.warn("Metadata File doesn't exist at " + new File(metadataFilePath).getParent() +
                             " Consider as first startup");
-
                     // template Metadata not exist then deploy and write
                     deployAndStoreMetadata(outputFilePath);
                 }
@@ -133,10 +132,10 @@ public class ConfigParser {
 
         deploy(outputFilePath);
         LOGGER.info("Writing Metadata Entries...");
-        MetaDataParser.storeMetaDataEntries(metadataTemplateFilePath,
+        MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath,
                 new String[]{templateFileDir, inferConfigurationFilePath, defaultValueFilePath,
                         validatorFilePath, mappingFilePath});
-        MetaDataParser.storeMetaDataEntries(metadataFilePath, new String[]{outputFilePath,
+        MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, new String[]{outputFilePath,
                 deploymentConfigurationPath});
     }
 
@@ -198,6 +197,7 @@ public class ConfigParser {
         private String defaultValueFilePath;
         private String metadataFilePath;
         private String metadataTemplateFilePath;
+        private String basePath;
 
         public ConfigParserBuilder() {
 
@@ -255,6 +255,7 @@ public class ConfigParser {
             configParser.defaultValueFilePath = this.defaultValueFilePath;
             configParser.metadataFilePath = this.metadataFilePath;
             configParser.metadataTemplateFilePath = this.metadataTemplateFilePath;
+            configParser.basePath = this.basePath;
             return configParser;
         }
 
@@ -265,6 +266,12 @@ public class ConfigParser {
 
             this.metadataTemplateFilePath =
                     metadataFilePath + File.separator + META_DATA_DIRECTORY + File.separator + META_DATA_TEMPLATE_FILE;
+            return this;
+        }
+
+        public ConfigParserBuilder withBasePath(String basePath) {
+
+            this.basePath = basePath;
             return this;
         }
     }
