@@ -17,10 +17,10 @@ public class KeyMapperTest {
     private Map<String, Object> inputMap = new HashMap<>();
     private Map<String, String> keyMappings = new HashMap<>();
     private Map<String, Object> outputMap = new HashMap<>();
-    private Map<String, Object> outputFromToml = new HashMap<>();
+    private Map<String, Object> mappedKeysFromConfig = new HashMap<>();
 
     @BeforeClass
-    public void setUp() {
+    public void setUp() throws ConfigParserException {
 
         Object[][] flatKeyConfigs = keyMappingDataSet();
         for (Object[] flatKeyConfig : flatKeyConfigs) {
@@ -38,8 +38,8 @@ public class KeyMapperTest {
         }
         outputMap = KeyMapper.map(inputMap, keyMappings);
         String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", "test-mapping.toml").getAbsolutePath();
-        outputFromToml = KeyMapper.mapWithTomlConfig(inputMap, mappingConfiguration);
+                FileUtils.getFile("src", "test", "resources", "test-mapping.json").getAbsolutePath();
+        mappedKeysFromConfig = KeyMapper.mapWithConfig(inputMap, mappingConfiguration);
     }
 
     @Test(dataProvider = "mappedKeyValues")
@@ -47,7 +47,7 @@ public class KeyMapperTest {
 
         Assert.assertEquals(outputMap.get(newKey), value, "Value was not mapped to new key");
         Assert.assertNull(outputMap.get(oldKey), "Old key [ " + oldKey + " ] should not be present in the mapped "
-                + "values");
+                                                 + "values");
     }
 
     @Test(dataProvider = "unmappedKeyValues")
@@ -57,11 +57,12 @@ public class KeyMapperTest {
     }
 
     @Test(dataProvider = "mappedKeyValues")
-    public void testKeyMappingWithTomlFile(String oldKey, String newKey, String value) {
+    public void testKeyMappingWithConfigFile(String oldKey, String newKey, String value) {
 
-        Assert.assertEquals(outputFromToml.get(newKey), value, "Value was not mapped to new key");
-        Assert.assertNull(outputFromToml.get(oldKey), "Old key [ " + oldKey + " ] should not be present in the mapped "
-                + "values");
+        Assert.assertEquals(mappedKeysFromConfig.get(newKey), value, "Value was not mapped to new key");
+        Assert.assertNull(mappedKeysFromConfig.get(oldKey), "Old key [ " + oldKey + " ] should not be present in the "
+                                                            + "mapped "
+                                                            + "values");
     }
 
     @DataProvider(name = "mappedKeyValues")

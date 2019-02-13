@@ -41,7 +41,7 @@ public class ConfigParser {
     private static final String TEMPLATE_FILE_DIR = "templates";
     private static final String INFER_CONFIG_FILE_PATH = "infer.json";
     private static final String VALIDATOR_FILE_PATH = "validator.json";
-    private static final String MAPPING_FILE_PATH = "key-mappings.toml";
+    private static final String MAPPING_FILE_PATH = "key-mappings.json";
     private static final String DEFAULT_VALUE_FILE_PATH = "default.json";
     private static final String META_DATA_CONFIG_FILE = "metadata_config.properties";
     private static final String META_DATA_TEMPLATE_FILE = "metadata_template.properties";
@@ -178,7 +178,7 @@ public class ConfigParser {
         Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
         Map<String, Object> enrichedContext = ValueInferrer.infer(context, inferConfigurationFilePath);
         Map<String, Object> defaultContext = DefaultParser.addDefaultValues(enrichedContext, defaultValueFilePath);
-        Map<String, Object> mappedConfigs = KeyMapper.mapWithTomlConfig(defaultContext, mappingFilePath);
+        Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(defaultContext, mappingFilePath);
         ReferenceResolver.resolve(mappedConfigs);
         Validator.validate(mappedConfigs, validatorFilePath);
         return JinjaParser.parse(mappedConfigs, fileNames);

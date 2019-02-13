@@ -1,16 +1,16 @@
 package org.wso2.carbon.nextgen.config;
 
-import net.consensys.cava.toml.Toml;
-import net.consensys.cava.toml.TomlParseResult;
+import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Collections;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Map user provided config values to different keys.
@@ -19,29 +19,19 @@ class KeyMapper {
 
     private static final Log LOGGER = LogFactory.getLog(KeyMapper.class);
 
-    static Map<String, Object> mapWithTomlConfig(Map<String, Object> inputContext, String tomlMappingFile) {
-        try {
-            Map<String, String> keyMappings = parseTomlMappingFile(tomlMappingFile);
-            return map(inputContext, keyMappings);
-        } catch (IOException e) {
-            LOGGER.error("Error while parsing toml file " + tomlMappingFile, e);
-        }
-
-        return Collections.emptyMap();
+    private KeyMapper() {
     }
 
-    private static Map<String, String> parseTomlMappingFile(String tomlMappingFile) throws IOException {
-        String source;
-
-        TomlParseResult result;
-        result = Toml.parse(Paths.get(tomlMappingFile));
-        result.errors().forEach(error -> LOGGER.error(error.toString()));
-        Set<String> dottedKeySet = result.dottedKeySet();
-        Map<String, String> keyMappings = new LinkedHashMap<>();
-        for (String key : dottedKeySet) {
-            keyMappings.put(key, (String) result.get(key));
+    static Map<String, Object> mapWithConfig(Map<String, Object> inputContext, String mappingFile)
+            throws ConfigParserException {
+        try (Reader validatorJson = new InputStreamReader(new FileInputStream(mappingFile),
+                                                          Charset.defaultCharset())) {
+            Gson gson = new Gson();
+            Map<String, String> keyMappings = gson.fromJson(validatorJson, Map.class);
+            return map(inputContext, keyMappings);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error while parsing JSON file " + mappingFile, e);
         }
-        return keyMappings;
     }
 
     static Map<String, Object> map(Map<String, Object> context, Map<String, String> keyMappings) {
