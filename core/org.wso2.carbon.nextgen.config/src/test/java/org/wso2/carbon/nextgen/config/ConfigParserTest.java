@@ -16,18 +16,17 @@ public class ConfigParserTest {
     @Test(dataProvider = "scenarios")
     public void getTestParseConfig(String scenario) throws IOException, ConfigParserException {
 
-        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", scenario, "deployment" +
-                ".toml").getAbsolutePath();
+        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String inferConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "infer.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "key-mappings.toml").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String templateConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "templates").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String validatorConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "validator.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String defaultConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario, "default.json").getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String expectedOutputDirPath =
                 FileUtils.getFile("src", "test", "resources", scenario, "expected").getAbsolutePath();
 

@@ -48,24 +48,31 @@ public class Validator {
     private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 
         Gson gson = new Gson();
-        Reader validatorJson = new InputStreamReader(new FileInputStream(validationConfigFilePath), Charsets.UTF_8);
-        return gson.fromJson(validatorJson, Map.class);
+        try (FileInputStream fileInputStream = new FileInputStream(validationConfigFilePath)) {
+            Reader validatorJson = new InputStreamReader(fileInputStream, Charsets.UTF_8);
+            return gson.fromJson(validatorJson, Map.class);
+        }
     }
 
     public static void validate(Map<String, Object> configurationValues, String fileName)
-            throws ConfigParserException, IOException {
+            throws ConfigParserException {
 
-        Map<String, Object> ruleConfiguration = readConfiguration(fileName);
-        for (Map.Entry<String, Object> entry : ruleConfiguration.entrySet()) {
-            List<Map<String, Object>> value = (List<Map<String, Object>>) entry.getValue();
-            for (Object rule : value) {
-                doValidation(entry.getKey(), (Map<String, Object>) rule, configurationValues);
+        try {
+
+            Map<String, Object> ruleConfiguration = readConfiguration(fileName);
+            for (Map.Entry<String, Object> entry : ruleConfiguration.entrySet()) {
+                List<Map<String, Object>> value = (List<Map<String, Object>>) entry.getValue();
+                for (Object rule : value) {
+                    doValidation(entry.getKey(), (Map<String, Object>) rule, configurationValues);
+                }
             }
+        } catch (IOException e) {
+            throw new ConfigParserException("Error while reading validator file", e);
         }
     }
 
     private static void doValidation(String keyToValidate, Map<String, Object> validationRule,
-                              Map<String, Object> configurationValues) throws ConfigParserException {
+                                     Map<String, Object> configurationValues) throws ConfigParserException {
 
         if (validationRule.get(IF) instanceof Map) {
             Map<String, Object> valuesToMatch = (Map<String, Object>) validationRule.get(IF);

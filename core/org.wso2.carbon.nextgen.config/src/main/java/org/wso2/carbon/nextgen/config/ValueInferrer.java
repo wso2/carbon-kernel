@@ -55,17 +55,22 @@ class ValueInferrer {
             enrichedContext = getInferredValues(context, enrichedContext);
             enrichedContext.putAll(context);
             return enrichedContext;
-        } catch (IOException e) {
+        } catch (ConfigParserException e) {
             LOGGER.error("Error while inferring values with file " + inferConfigFilePath, e);
         }
         return enrichedContext;
     }
 
-    private static Map<String, Object> readConfiguration(String inferConfigFilePath) throws IOException {
+    private static Map<String, Object> readConfiguration(String inferConfigFilePath) throws ConfigParserException {
 
         Gson gson = new Gson();
-        Reader input = new InputStreamReader(new FileInputStream(inferConfigFilePath), Charsets.UTF_8);
-        return gson.fromJson(input, Map.class);
+
+        try (FileInputStream fileInputStream = new FileInputStream(inferConfigFilePath)) {
+            Reader input = new InputStreamReader(fileInputStream, Charsets.UTF_8);
+            return gson.fromJson(input, Map.class);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error while reading infering file", e);
+        }
     }
 
     private static Map<String, Object> getInferredValues(Map<String, Object> configurationValues, Map inferringData) {

@@ -19,6 +19,7 @@ package org.wso2.carbon.server;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.ConfigParserException;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
 import org.apache.log4j.Logger;
@@ -229,24 +230,25 @@ public class Main {
 
     private static void handleConfiguration() {
 
-        String newConfigDirectoryPath = System.getProperty("carbon.new.config.dir.path");
-        String configDirectoryPath = System.getProperty("carbon.config.dir.path");
-        String templateDirectoryPath = newConfigDirectoryPath + File.separator + "templates";
-        String inferConfiguration = newConfigDirectoryPath + File.separator + "infer.json";
-        String mappingConfiguration = newConfigDirectoryPath + File.separator + "key-mappings.toml";
-        String validatorConfiguration = newConfigDirectoryPath + File.separator + "validator.json";
-        String defaultConfiguration = newConfigDirectoryPath + File.separator + "default.json";
-        String deploymentConfigurationPath = configDirectoryPath + File.separator + "deployment.toml";
-
+        String newConfigDirectoryPath = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
+        String configDirectoryPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
+        String carbonHomePath = System.getProperty(LauncherConstants.CARBON_HOME);
         ConfigParser.ConfigParserBuilder configParserBuilder =
                 new ConfigParser.ConfigParserBuilder()
-                        .withDeploymentConfigurationPath(deploymentConfigurationPath)
-                        .withInferConfigurationFilePath(inferConfiguration)
-                        .withMappingFilePath(mappingConfiguration)
-                        .withValidatorFilePath(validatorConfiguration)
-                        .withTemplateFilePath(templateDirectoryPath)
-                        .withDefaultValueFilePath(defaultConfiguration);
-        configParserBuilder.build().parse(configDirectoryPath);
+                        .withBasePath(carbonHomePath)
+                        .withDeploymentConfigurationPath(configDirectoryPath)
+                        .withInferConfigurationFilePath(newConfigDirectoryPath)
+                        .withMappingFilePath(newConfigDirectoryPath)
+                        .withValidatorFilePath(newConfigDirectoryPath)
+                        .withTemplateFilePath(newConfigDirectoryPath)
+                        .withDefaultValueFilePath(newConfigDirectoryPath)
+                        .withMetaDataFilePath(newConfigDirectoryPath);
+        try {
+            configParserBuilder.build().parse(configDirectoryPath);
+        } catch (ConfigParserException e) {
+            log.error("Error while performing configuration changes", e);
+            System.exit(1);
+        }
     }
 
 }
