@@ -1,6 +1,6 @@
 {
   "user_store.type": {
-    "jdbc": {
+    "database": {
       "user_store.class": "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
       "user_store.properties.ReadOnly": false,

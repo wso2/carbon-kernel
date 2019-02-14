@@ -1,8 +1,8 @@
 {
   "user_store.type": [
     {
-      "default_value": "jdbc",
-      "regex": "\\Ajdbc\\Z|\\Aread_only_ldap\\Z|\\Aread_write_ldap\\Z|\\Aactive_directory\\Z"
+      "default_value": "database",
+      "regex": "\\Adatabase\\Z|\\Aread_only_ldap\\Z|\\Aread_write_ldap\\Z|\\Aactive_directory\\Z"
     }
   ],
   "user_store.properties.ConnectionURL": [
