@@ -97,7 +97,8 @@ public class ConfigParser {
                                 // if configuration is not changed check deployment.toml is changed
                                 ChangedFileSet deploymentConfigurationChanged =
                                         MetaDataParser.getChangedFiles(basePath,
-                                                new String[]{deploymentConfigurationPath}, metadataFilePath);
+                                                                       new String[]{deploymentConfigurationPath},
+                                                                       metadataFilePath);
                                 if (deploymentConfigurationChanged.isChanged()) {
                                     // if deployment.toml is changed then deploy
                                     deployAndStoreMetadata(outputFilePath);
@@ -113,14 +114,14 @@ public class ConfigParser {
                     }
                 } else {
                     LOGGER.warn("Metadata File doesn't exist at " + new File(metadataFilePath).getParent() +
-                            " Consider as first startup");
+                                " Consider as first startup");
                     // template Metadata not exist then deploy and write
                     deployAndStoreMetadata(outputFilePath);
                 }
 
             } else {
                 LOGGER.warn("deployment.toml didn't exist in " + deploymentConfigurationPath + " configurations not " +
-                        "overridden");
+                            "overridden");
             }
         } catch (IOException e) {
             throw new ConfigParserException("Error while store new configurations", e);
@@ -133,10 +134,11 @@ public class ConfigParser {
         deploy(outputFilePath);
         LOGGER.info("Writing Metadata Entries...");
         MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath,
-                new String[]{templateFileDir, inferConfigurationFilePath, defaultValueFilePath,
-                        validatorFilePath, mappingFilePath});
+                                            new String[]{templateFileDir, inferConfigurationFilePath,
+                                                         defaultValueFilePath,
+                                                         validatorFilePath, mappingFilePath});
         MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, new String[]{outputFilePath,
-                deploymentConfigurationPath});
+                                                                                     deploymentConfigurationPath});
     }
 
     private void deploy(String outputFilePath) throws IOException, ConfigParserException {
@@ -156,24 +158,7 @@ public class ConfigParser {
 
     protected Map<String, String> parse() throws ConfigParserException {
 
-        File templateDir = new File(templateFileDir);
-        Map<String, File> fileNames = new LinkedHashMap<>();
-        if (templateDir.exists() && templateDir.isDirectory()) {
-            File[] files = templateDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                        fileNames.put(file.getParentFile().toPath().relativize(file.toPath()).toString(), file);
-                    } else {
-                        handleDirectories(file, fileNames, file);
-                    }
-                }
-            }
-
-        } else {
-            throw new ConfigParserException(String.format("Template directory (%s) does not exist or is not a " +
-                    "directory", templateDir.getAbsolutePath()));
-        }
+        File templateDir = checkTemplateDirExistence(templateFileDir);
 
         Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
         Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(context, mappingFilePath);
@@ -181,7 +166,34 @@ public class ConfigParser {
         Map<String, Object> enrichedContext = ValueInferrer.infer(defaultContext, inferConfigurationFilePath);
         ReferenceResolver.resolve(enrichedContext);
         Validator.validate(enrichedContext, validatorFilePath);
+
+        Map<String, File> fileNames = getTemplatedFilesMap(templateDir);
         return JinjaParser.parse(enrichedContext, fileNames);
+    }
+
+    private File checkTemplateDirExistence(String templateFileDir) throws ConfigParserException {
+        File templateDir = new File(templateFileDir);
+        if (!templateDir.exists() || !templateDir.isDirectory()) {
+            throw new ConfigParserException(String.format("Template directory (%s) does not exist or is not a " +
+                                                          "directory", templateDir.getAbsolutePath()));
+        }
+        return templateDir;
+    }
+
+    private Map<String, File> getTemplatedFilesMap(File templateDir) {
+
+        Map<String, File> fileNames = new LinkedHashMap<>();
+        File[] files = templateDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    fileNames.put(file.getParentFile().toPath().relativize(file.toPath()).toString(), file);
+                } else {
+                    handleDirectories(file, fileNames, file);
+                }
+            }
+        }
+        return fileNames;
     }
 
     /**
