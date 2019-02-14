@@ -144,7 +144,7 @@ public class CryptoUtil {
                 }
             }
 
-            if (plainTextBytes.length == 0) {
+            if (StringUtils.isNotBlank(cipherTransformation) && plainTextBytes.length == 0) {
                 if (log.isDebugEnabled()) {
                     log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
                 }
@@ -153,7 +153,7 @@ public class CryptoUtil {
                 encryptedKey = cryptoService.encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
             }
 
-            if (returnSelfContainedCipherText) {
+            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText) {
 
                 Certificate certificate = cryptoService.getCertificate(CryptoContext.buildEmptyContext(
                         MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
@@ -255,7 +255,7 @@ public class CryptoUtil {
                 if (log.isDebugEnabled()) {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
-            }else {
+            } else {
                 decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
             }
 
