@@ -2,7 +2,7 @@
   "user_store.type": {
     "jdbc": {
       "user_store.class" : "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager",
-      "user_store.properties.tenant_manager" : "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
+      "user_store.properties.TenantManager" : "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
       "user_store.properties.ReadOnly" : false,
       "user_store.properties.CaseInsensitiveUsername" : true,
       "user_store.properties.PasswordDigest" : "SHA-256",
@@ -89,7 +89,7 @@
   },
   "tenant_mgt.tenant_manager.type": {
     "jdbc": {
-      "tenant_mgt.tenant_manager.config_builder": "org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder",
+      "tenant_mgt.tenant_manager.properties.MultiTenantRealmConfigBuilder": "org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder",
       "tenant_mgt.tenant_manager.class": "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
     }
   }

@@ -44,8 +44,8 @@ public class ConfigParserTest {
             if (!expectedOutput.exists() || !expectedOutput.isFile()) {
                 Assert.fail("Expected result file doesn't exist for " + entry.getKey());
             }
-            String actual = FileReaderUtils.readFile(expectedOutput);
-            handleAssertion(actual, entry.getValue());
+            String expected = FileReaderUtils.readFile(expectedOutput);
+            handleAssertion(entry.getValue(), expected);
         }
 
     }

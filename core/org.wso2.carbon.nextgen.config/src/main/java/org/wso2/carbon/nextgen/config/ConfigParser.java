@@ -176,12 +176,12 @@ public class ConfigParser {
         }
 
         Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
-        Map<String, Object> enrichedContext = ValueInferrer.infer(context, inferConfigurationFilePath);
-        Map<String, Object> defaultContext = DefaultParser.addDefaultValues(enrichedContext, defaultValueFilePath);
-        Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(defaultContext, mappingFilePath);
-        ReferenceResolver.resolve(mappedConfigs);
-        Validator.validate(mappedConfigs, validatorFilePath);
-        return JinjaParser.parse(mappedConfigs, fileNames);
+        Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(context, mappingFilePath);
+        Map<String, Object> defaultContext = DefaultParser.addDefaultValues(mappedConfigs, defaultValueFilePath);
+        Map<String, Object> enrichedContext = ValueInferrer.infer(defaultContext, inferConfigurationFilePath);
+        ReferenceResolver.resolve(enrichedContext);
+        Validator.validate(enrichedContext, validatorFilePath);
+        return JinjaParser.parse(enrichedContext, fileNames);
     }
 
     /**
