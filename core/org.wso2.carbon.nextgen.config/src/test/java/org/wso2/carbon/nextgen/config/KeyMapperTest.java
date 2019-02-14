@@ -1,6 +1,5 @@
 package org.wso2.carbon.nextgen.config;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -17,7 +16,6 @@ public class KeyMapperTest {
     private Map<String, Object> inputMap = new HashMap<>();
     private Map<String, String> keyMappings = new HashMap<>();
     private Map<String, Object> outputMap = new HashMap<>();
-    private Map<String, Object> mappedKeysFromConfig = new HashMap<>();
 
     @BeforeClass
     public void setUp() throws ConfigParserException {
@@ -37,9 +35,6 @@ public class KeyMapperTest {
             inputMap.put((String) config[0], config[1]);
         }
         outputMap = KeyMapper.map(inputMap, keyMappings);
-        String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", "test-mapping.json").getAbsolutePath();
-        mappedKeysFromConfig = KeyMapper.mapWithConfig(inputMap, mappingConfiguration);
     }
 
     @Test(dataProvider = "mappedKeyValues")
@@ -54,15 +49,6 @@ public class KeyMapperTest {
     public void testUnMappedKeyParsing(String key, String value) {
 
         Assert.assertEquals(outputMap.get(key), value, "Value was not mapped to key");
-    }
-
-    @Test(dataProvider = "mappedKeyValues")
-    public void testKeyMappingWithConfigFile(String oldKey, String newKey, String value) {
-
-        Assert.assertEquals(mappedKeysFromConfig.get(newKey), value, "Value was not mapped to new key");
-        Assert.assertNull(mappedKeysFromConfig.get(oldKey), "Old key [ " + oldKey + " ] should not be present in the "
-                                                            + "mapped "
-                                                            + "values");
     }
 
     @DataProvider(name = "mappedKeyValues")
