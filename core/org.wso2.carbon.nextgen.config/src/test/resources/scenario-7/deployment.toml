@@ -69,3 +69,14 @@ publisher_nodes = "{tcp://tm1.node:9611}"
 authentication_nodes = "{ssl://tm1.node:9711}"
 throttle_decision_endpoints = "amqp://${admin.username}:${admin.password}@clientid/carbon?brokerlist='tcp://${carbon.local.ip}:${jms.port}'"
 mgt_endpoint = "tm.wso2.com:9443"
+
+[[datasource]]
+type = "mysql"
+hostname = "localhost"
+id = "ds1"
+url = "jdbc:mysql://localhost:3306/ds1"
+username = "root"
+password = "root"
+driver = "com.mysql.jdbc.Driver"
+pool_options.max_Active = 50
+pool_options.max_wait = 60000
