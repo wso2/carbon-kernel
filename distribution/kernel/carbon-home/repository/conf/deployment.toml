@@ -1,34 +1,8 @@
 [deployment]
 hostname = "localhost"
-
-[user_store]
-type = "jdbc"
+local_member_ip = "127.0.0.1"
 
 [super_admin]
 username = "admin"
 password = "admin"
 create_admin_account = true
-
-[database.shared_db]
-type =	"h2"
-url = "jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
-username = "wso2carbon"
-password = "wso2carbon"
-[database.shared_db.pool_options]
-max_active = 50
-max_wait = 60000
-test_on_borrow = true
-validation_interval = 30000
-default_auto_commit = true
-
-[keystore.tls]
-file_name = "wso2carbon.jks"
-type = "JKS"
-password = "wso2carbon"
-alias = "wso2carbon"
-key_password = "wso2carbon"
-
-[truststore]
-file_name = "client-truststore.jks"
-type = "JKS"
-password = "wso2carbon"
