@@ -1,14 +1,12 @@
 package org.wso2.carbon.nextgen.config;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.util.FileReaderUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,10 +33,10 @@ class JinjaParser {
             String renderedTemplate = "";
             Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
             try {
-                String template = Files.asCharSource(templateFile.getValue(), Charsets.UTF_8).read();
+                String template = FileReaderUtils.readFile(templateFile.getValue());
                 renderedTemplate = jinjava.render(template, context);
 
-            } catch (IOException e) {
+            } catch (ConfigParserException e) {
                 LOGGER.error("Error while parsing Jinja template", e);
             }
             outputs.put(templateFile.getKey(), renderedTemplate);

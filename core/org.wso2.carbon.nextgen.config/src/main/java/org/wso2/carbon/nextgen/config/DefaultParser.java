@@ -1,6 +1,5 @@
 package org.wso2.carbon.nextgen.config;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -56,7 +56,7 @@ public class DefaultParser {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(defaultValueFilePath)) {
-            Reader input = new InputStreamReader(fileInputStream, Charsets.UTF_8);
+            Reader input = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
             return gson.fromJson(input, LinkedHashMap.class);
 
         }
@@ -67,7 +67,7 @@ public class DefaultParser {
 
         Gson gson = new Gson();
         Reader input = new InputStreamReader(DefaultParser.class.getClassLoader().getResourceAsStream("handle.json"),
-                Charsets.UTF_8);
+                StandardCharsets.UTF_8);
         Map<String, String> handlers = gson.fromJson(input, Map.class);
         String className = handlers.get(key);
         if (className != null) {

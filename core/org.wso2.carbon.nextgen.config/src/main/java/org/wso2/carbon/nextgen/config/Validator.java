@@ -1,6 +1,5 @@
 package org.wso2.carbon.nextgen.config;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public class Validator {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(validationConfigFilePath)) {
-            Reader validatorJson = new InputStreamReader(fileInputStream, Charsets.UTF_8);
+            Reader validatorJson = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
             return gson.fromJson(validatorJson, Map.class);
         }
     }

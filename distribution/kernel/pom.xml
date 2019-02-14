@@ -260,6 +260,17 @@
                                     <fileset file="${basedir}/carbon-home/dbscripts/h2.sql" />
                                 </sql>
                                 <echo message="##################### END ########################" />
+
+                                <echo message="########### Create Shared Database ##############" />
+                                <sql driver="org.h2.Driver"
+                                     url="jdbc:h2:${basedir}/target/repository/database/WSO2SHARED_DB"
+                                     userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
+                                    <classpath>
+                                        <path refid="h2.classpath" />
+                                    </classpath>
+                                    <fileset file="${basedir}/carbon-home/dbscripts/h2.sql" />
+                                </sql>
+                                <echo message="##################### END ########################" />
                             </tasks>
                         </configuration>
                     </execution>
