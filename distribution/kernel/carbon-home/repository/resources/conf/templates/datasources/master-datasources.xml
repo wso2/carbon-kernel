@@ -28,64 +28,23 @@
             </definition>
         </datasource>
         <datasource>
-            <name>WSO2_MB_STORE_DB</name>
-            <description>The datasource used for message broker database</description>
+            <name>SharedDb</name>
+            <description>Shared Database for user and registry data</description>
             <jndiConfig>
-                <name>WSO2MBStoreDB</name>
+                <name>jdbc/SHARED_DB</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:h2:repository/database/WSO2MB_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
-                    <username>wso2carbon</username>
-                    <password>wso2carbon</password>
-                    <driverClassName>org.h2.Driver</driverClassName>
-                    <maxActive>50</maxActive>
-                    <maxWait>60000</maxWait>
-                    <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
-                    <defaultAutoCommit>false</defaultAutoCommit>
-                </configuration>
+                    <url>{{database.shared_db.url}}</url>
+                    <username>{{database.shared_db.username}}</username>
+                    <password>{{database.shared_db.password}}</password>
+                    <driverClassName>{{database.shared_db.driver}}</driverClassName>
+                    {% for property_name,property_value in database.shared_db.pool_options.items() %}
+                    <{{property_name}}>{{property_value}}</{{property_name}}>
+                        {% endfor %}
+                 </configuration>
             </definition>
         </datasource>
-
-        <datasource>
-                    <name>SharedDb</name>
-                    <description>Shared Database for user and registry data</description>
-                    <jndiConfig>
-                        <name>jdbc/SHARED_DB</name>
-                    </jndiConfig>
-                    <definition type="RDBMS">
-                        <configuration>
-                            <url>{{database.shared_db.url}}</url>
-                            <username>{{database.shared_db.username}}</username>
-                            <password>{{database.shared_db.password}}</password>
-                            <driverClassName>{{database.shared_db.driver}}</driverClassName>
-                            {% for property_name,property_value in database.shared_db.pool_options.items() %}
-                            <{{property_name}}>{{property_value}}</{{property_name}}>
-                            {% endfor %}
-                        </configuration>
-                    </definition>
-                </datasource>
-
-                <datasource>
-                    <name>WSO2AM_DB</name>
-                    <description>The datasource used for API Manager database</description>
-                    <jndiConfig>
-                        <name>jdbc/WSO2AM_DB</name>
-                    </jndiConfig>
-                    <definition type="RDBMS">
-                        <configuration>
-                            <url>{{database.apim_db.url}}</url>
-                            <username>{{database.apim_db.username}}</username>
-                            <password>{{database.apim_db.password}}</password>
-                            <driverClassName>{{database.apim_db.driver}}</driverClassName>
-                            {% for property_name,property_value in database.apim_db.pool_options.items() %}
-                            <{{property_name}}>{{property_value}}</{{property_name}}>
-                                {% endfor %}
-                    </configuration>
-                </definition>
-            </datasource>
 
         {% for data in datasource %}
         <datasource>

@@ -35,7 +35,8 @@
                 <exclude>**/*.sh</exclude>
                 <exclude>**/native/*</exclude>
                 <exclude>**/wso2carbon-version.txt</exclude>
-                <exclude>**/carbon.xml</exclude>
+                <exclude>**/conf/carbon.xml</exclude>
+                <exclude>**/conf/templates/carbon.xml</exclude>
                 <exclude>INSTALL.txt</exclude>
                 <exclude>README.txt</exclude>
                 <exclude>LICENSE.txt</exclude>
@@ -101,7 +102,12 @@
             <fileMode>644</fileMode>
 	    <filtered>true</filtered>
         </file>
-
+        <file>
+            <source>carbon-home/repository/resources/conf/templates/carbon.xml</source>
+            <outputDirectory>repository/resources/conf/templates/</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
     </files>
 
     <dependencySets>

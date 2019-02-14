@@ -38,8 +38,9 @@
                 <exclude>**/LICENSE.txt</exclude>
                 <exclude>**/INSTALL.txt</exclude>
                 <exclude>**/release-notes.html</exclude>
-                <exclude>**/carbon.xml</exclude>
-                <exclude>**/axis2/axis2.xml</exclude>
+                <exclude>**/conf/carbon.xml</exclude>
+                <exclude>**/conf/axis2/axis2.xml</exclude>
+                <exclude>**/conf/templates/axis2/axis2.xml</exclude>
             </excludes>
         </fileSet>
         <fileSet>
@@ -109,6 +110,17 @@
         <file>
             <source>target/wso2carbon-core-${carbon.kernel.version}/repository/conf/axis2/axis2.xml</source>
             <outputDirectory>wso2carbon-${carbon.kernel.version}/repository/conf/axis2/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/repository/resources/conf/templates/carbon.xml</source>
+            <outputDirectory>wso2carbon-${carbon.kernel.version}/repository/resources/conf/templates/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/repository/resources/conf/templates/axis2/axis2.xml</source>
+            <outputDirectory>wso2carbon-${carbon.kernel.version}/repository/resources/conf/templates/axis2/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>

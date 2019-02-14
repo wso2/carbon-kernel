@@ -61,5 +61,65 @@
   "transport.https.compressableMimeType": "text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg",
   "transport.https.keystoreFile": "${carbon.home}/repository/resources/security/$conf{keystore.tls.file_name}",
   "transport.https.keystorePass": "$conf{keystore.tls.password}",
-  "transport.https.URIEncoding": "UTF-8"
+  "transport.https.URIEncoding": "UTF-8",
+  "message_formatters": [
+    {
+      "content_type": "application/x-www-form-urlencoded",
+      "class": "org.apache.axis2.transport.http.XFormURLEncodedFormatter"
+    },
+    {
+      "content_type": "multipart/form-data",
+      "class": "org.apache.axis2.transport.http.MultipartFormDataFormatter"
+    },
+    {
+      "content_type": "application/xml",
+      "class": "org.apache.axis2.transport.http.ApplicationXMLFormatter"
+    },
+    {
+      "content_type": "text/xml",
+      "class": "org.apache.axis2.transport.http.SOAPMessageFormatter"
+    },
+    {
+      "content_type": "application/soap+xml",
+      "class": "org.apache.axis2.transport.http.SOAPMessageFormatter"
+    },
+    {
+      "content_type": "application/json",
+      "class": "org.apache.axis2.json.gson.JsonFormatter"
+    },
+    {
+      "content_type": "application/json/badgerfish",
+      "class": "org.apache.axis2.json.JSONBadgerfishMessageFormatter"
+    },
+    {
+      "content_type": "text/javascript",
+      "class": "org.apache.axis2.json.gson.JsonFormatter"
+    }
+  ],
+  "message_builders": [
+    {
+      "content_type": "application/xml",
+      "class": "org.apache.axis2.builder.ApplicationXMLBuilder"
+    },
+    {
+      "content_type": "application/x-www-form-urlencoded",
+      "class": "org.apache.axis2.builder.XFormURLEncodedBuilder"
+    },
+    {
+      "content_type": "multipart/form-data",
+      "class": "org.apache.axis2.builder.MultipartFormDataBuilder"
+    },
+    {
+      "content_type": "application/json",
+      "class": "org.apache.axis2.json.gson.JsonBuilder"
+    },
+    {
+      "content_type": "application/json/badgerfish",
+      "class": "org.apache.axis2.json.JSONBadgerfishOMBuilder"
+    },
+    {
+      "content_type": "text/javascript",
+      "class": "org.apache.axis2.json.gson.JsonBuilder"
+    }
+  ]
 }
