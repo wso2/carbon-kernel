@@ -104,16 +104,14 @@ public class MetaDataParser {
         for (String deploymentConfigurationPath : deploymentConfigurationPaths) {
             Map<String, String> actualLastModifiedValues = readLastModifiedValues(basePath,
                     deploymentConfigurationPath);
-            for (Map.Entry<String, String> entry : actualLastModifiedValues.entrySet()) {
-                String path = entry.getKey();
-                String lastModifiedTimeStamp = entry.getValue();
-                String lastModified = properties.getProperty(path);
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                String path = (String) entry.getKey();
+                String lastModifiedTimeStamp = (String) entry.getValue();
+                String lastModified = actualLastModifiedValues.get(path);
                 if (StringUtils.isNotEmpty(lastModified)) {
                     if (!lastModifiedTimeStamp.equals(lastModified)) {
                         changedFiles.add(path);
                     }
-                } else {
-                    newFiles.add(path);
                 }
             }
         }

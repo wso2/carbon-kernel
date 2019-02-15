@@ -39,6 +39,7 @@
                 <exclude>**/INSTALL.txt</exclude>
                 <exclude>**/release-notes.html</exclude>
                 <exclude>**/conf/carbon.xml</exclude>
+                <exclude>**/conf/templates/carbon.xml</exclude>
                 <exclude>**/conf/axis2/axis2.xml</exclude>
                 <exclude>**/conf/templates/axis2/axis2.xml</exclude>
             </excludes>

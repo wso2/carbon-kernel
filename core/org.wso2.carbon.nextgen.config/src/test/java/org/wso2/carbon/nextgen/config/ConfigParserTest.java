@@ -1,10 +1,9 @@
 package org.wso2.carbon.nextgen.config;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.carbon.nextgen.config.util.FileReaderUtils;
+import org.wso2.carbon.nextgen.config.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,19 +14,21 @@ public class ConfigParserTest {
     @Test(dataProvider = "scenarios")
     public void getTestParseConfig(String scenario) throws IOException, ConfigParserException {
 
-        String deploymentConfiguration = FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+        String deploymentConfiguration = org.apache.commons.io.FileUtils.getFile("src", "test", "resources",
+                scenario).getAbsolutePath();
         String inferConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String mappingConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String templateConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String validatorConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String defaultConfiguration =
-                FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String expectedOutputDirPath =
-                FileUtils.getFile("src", "test", "resources", scenario, "expected").getAbsolutePath();
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario, "expected")
+                        .getAbsolutePath();
 
         ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
                 .withDeploymentConfigurationPath(deploymentConfiguration)
@@ -44,7 +45,7 @@ public class ConfigParserTest {
             if (!expectedOutput.exists() || !expectedOutput.isFile()) {
                 Assert.fail("Expected result file doesn't exist for " + entry.getKey());
             }
-            String expected = FileReaderUtils.readFile(expectedOutput);
+            String expected = FileUtils.readFile(expectedOutput);
             handleAssertion(entry.getValue(), expected);
         }
 

@@ -70,8 +70,6 @@ public class MetaDataParserTest {
                 metadataConfiguration);
         Assert.assertEquals(changedFiles.getChangedFiles().size(), 1);
         Assert.assertTrue(changedFiles.getChangedFiles().contains(Paths.get("NewFileTest", "a", "file1").toString()));
-        Assert.assertEquals(changedFiles.getNewFiles().size(), 1);
-        Assert.assertTrue(changedFiles.getNewFiles().contains(Paths.get("NewFileTest", "file2").toString()));
 
     }
 
