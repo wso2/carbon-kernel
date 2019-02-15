@@ -102,7 +102,7 @@ public class RegistryCoreServiceComponent {
      * @param context the OSGi component context.
      */
     @SuppressWarnings("unused")
-    @Activate
+
     protected void activate(ComponentContext context) {
         // for new cahing, every thread should has its own populated CC. During the deployment time we assume super tenant
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -199,7 +199,7 @@ public class RegistryCoreServiceComponent {
      * @param context the OSGi component context.
      */
     @SuppressWarnings("unused")
-    @Deactivate
+
     protected void deactivate(ComponentContext context) {
         while (!registrations.empty()) {
             registrations.pop().unregister();

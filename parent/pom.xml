@@ -634,6 +634,8 @@
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
         <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
+        <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
+        <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
     </properties>
 
     <dependencyManagement>
