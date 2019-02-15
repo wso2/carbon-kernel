@@ -137,7 +137,7 @@ public class ConfigParser {
 
         File configurations = new File(configFilePath);
         File backupFile = new File(backupPath);
-        FileUtils.deleteDirectroy(backupFile);
+        FileUtils.deleteDirectory(backupFile);
         FileUtils.writeDirectory(configurations, backupFile);
     }
 

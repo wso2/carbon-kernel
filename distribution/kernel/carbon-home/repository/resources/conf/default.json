@@ -12,8 +12,7 @@
   "realm_manager": {
     "data_source": "jdbc/SHARED_DB",
     "properties": {
-      "isCascadeDeleteEnabled": true,
-      "initializeNewClaimManager": true
+      "isCascadeDeleteEnabled": true
     }
   },
   "governance.data_source": "jdbc/SHARED_DB",

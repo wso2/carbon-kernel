@@ -17,13 +17,15 @@
 <UserManager>
     <Realm>
         <Configuration>
-            <AddAdmin>true</AddAdmin>
+            <AddAdmin>{{super_admin.create_admin_account}}</AddAdmin>
             <AdminRole>{{super_admin.admin_role}}</AdminRole>
             <AdminUser>
                 <UserName>{{super_admin.username}}</UserName>
                 <Password>{{super_admin.password}}</Password>
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName>
+
+            <OverrideUsernameClaimFromInternalUsername>true</OverrideUsernameClaimFromInternalUsername>
             <!-- By default users in this role sees the registry root -->
             {% for property_name,property_value in realm_manager.properties.items() %}
             <Property name="{{property_name}}">{{property_value}}</Property>

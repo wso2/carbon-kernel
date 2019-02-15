@@ -98,7 +98,7 @@ public class FileUtils {
         }
     }
 
-    public static void deleteDirectroy(File file) throws ConfigParserException {
+    public static void deleteDirectory(File file) throws ConfigParserException {
 
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -106,13 +106,12 @@ public class FileUtils {
                 if (files != null) {
                     if (files.length > 0) {
                         for (File file1 : files) {
-                            deleteDirectroy(file1);
+                            deleteDirectory(file1);
                         }
-                    } else {
-                        boolean status = file.delete();
-                        if (!status) {
-                            throw new ConfigParserException("Error while deleting " + file.getName());
-                        }
+                    }
+                    boolean status = file.delete();
+                    if (!status) {
+                        throw new ConfigParserException("Error while deleting " + file.getName());
                     }
                 }
             } else {
