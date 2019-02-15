@@ -21,14 +21,18 @@ package org.wso2.carbon.nextgen.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.util.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Configuration parser class. Entry point to the config parsing logic.
@@ -55,6 +59,7 @@ public class ConfigParser {
     private String metadataFilePath;
     private String metadataTemplateFilePath;
     private String basePath;
+    private String backupPath;
 
     public void parse(String outputFilePath) throws ConfigParserException {
 
@@ -87,9 +92,6 @@ public class ConfigParser {
                                 // if changed override configs
                                 configurationChanged.getChangedFiles().forEach(path -> {
                                     LOGGER.warn("Configurations Changed in :" + path);
-                                });
-                                configurationChanged.getNewFiles().forEach(path -> {
-                                    LOGGER.warn("New Configurations Added in :" + path);
                                 });
                                 LOGGER.warn("Overriding files in configuration directory " + outputFilePath);
                                 deployAndStoreMetadata(outputFilePath);
@@ -129,21 +131,37 @@ public class ConfigParser {
 
     }
 
-    private void deployAndStoreMetadata(String outputFilePath) throws IOException, ConfigParserException {
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
+            justification = "return not need in mkdirs()")
+    private void backupConfigurations(String configFilePath, String backupPath) throws ConfigParserException {
 
-        deploy(outputFilePath);
+        File configurations = new File(configFilePath);
+        File backupFile = new File(backupPath);
+        FileUtils.deleteDirectroy(backupFile);
+        FileUtils.writeDirectory(configurations, backupFile);
+    }
+
+    private void deployAndStoreMetadata(String outputFilePath) throws IOException, ConfigParserException {
+        LOGGER.info("Backed up the configurations into " + basePath + File.separator +
+                "backup");
+        backupConfigurations(outputFilePath, backupPath);
+
+        Set<String> deployedFileSet = deploy(outputFilePath);
         LOGGER.info("Writing Metadata Entries...");
         MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath,
                                             new String[]{templateFileDir, inferConfigurationFilePath,
                                                          defaultValueFilePath,
                                                          validatorFilePath, mappingFilePath});
-        MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, new String[]{outputFilePath,
-                                                                                     deploymentConfigurationPath});
+        deployedFileSet.add(deploymentConfigurationPath);
+        MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath,
+                deployedFileSet.toArray(new String[deployedFileSet.size()]));
+
     }
 
-    private void deploy(String outputFilePath) throws IOException, ConfigParserException {
+    private Set<String> deploy(String outputFilePath) throws IOException, ConfigParserException {
 
         File outputDir = new File(outputFilePath);
+        Set<String> changedFileSet = new HashSet<>();
         if (outputDir.exists() && outputDir.isDirectory()) {
             Map<String, String> outputs = parse();
             for (Map.Entry<String, String> entry : outputs.entrySet()) {
@@ -151,9 +169,11 @@ public class ConfigParser {
                 try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
                         new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
                     outputStreamWriter.write(entry.getValue());
+                    changedFileSet.add(outputFile.getAbsolutePath());
                 }
             }
         }
+        return changedFileSet;
     }
 
     protected Map<String, String> parse() throws ConfigParserException {
@@ -210,6 +230,7 @@ public class ConfigParser {
         private String metadataFilePath;
         private String metadataTemplateFilePath;
         private String basePath;
+        private String backupPath;
 
         public ConfigParserBuilder() {
 
@@ -268,6 +289,7 @@ public class ConfigParser {
             configParser.metadataFilePath = this.metadataFilePath;
             configParser.metadataTemplateFilePath = this.metadataTemplateFilePath;
             configParser.basePath = this.basePath;
+            configParser.backupPath = this.backupPath;
             return configParser;
         }
 
@@ -284,6 +306,7 @@ public class ConfigParser {
         public ConfigParserBuilder withBasePath(String basePath) {
 
             this.basePath = basePath;
+            this.backupPath = Paths.get(basePath, "backup").toString();
             return this;
         }
     }

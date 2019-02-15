@@ -4,7 +4,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.nextgen.config.util.FileReaderUtils;
+import org.wso2.carbon.nextgen.config.util.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ class JinjaParser {
             String renderedTemplate = "";
             Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
             try {
-                String template = FileReaderUtils.readFile(templateFile.getValue());
+                String template = FileUtils.readFile(templateFile.getValue());
                 renderedTemplate = jinjava.render(template, context);
 
             } catch (ConfigParserException e) {
