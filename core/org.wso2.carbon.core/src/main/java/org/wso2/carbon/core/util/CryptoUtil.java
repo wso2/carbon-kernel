@@ -227,7 +227,7 @@ public class CryptoUtil {
         try {
             CryptoService cryptoService = CarbonCoreDataHolder.getInstance().getCryptoService();
 
-            if(cryptoService == null){
+            if (cryptoService == null) {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
@@ -236,18 +236,20 @@ public class CryptoUtil {
 
             String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
-            if (cipherTransformation != null) {
-                CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
-                if (cipherHolder != null) {
-                    //cipher with meta data
-                    if (log.isDebugEnabled()) {
-                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
-                    }
-                    algorithm = cipherHolder.getTransformation();
-                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
-                } else {
-                    algorithm = cipherTransformation;
+            if (cipherTransformation == null) {
+                cipherTransformation = algorithm;
+            }
+
+            CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+            if (cipherHolder != null) {
+                //cipher with meta data
+                if (log.isDebugEnabled()) {
+                    log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
                 }
+                algorithm = cipherHolder.getTransformation();
+                cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+            } else {
+                algorithm = cipherTransformation;
             }
 
             if (cipherTextBytes.length == 0) {
@@ -255,7 +257,7 @@ public class CryptoUtil {
                 if (log.isDebugEnabled()) {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
-            }else {
+            } else {
                 decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
             }
 
