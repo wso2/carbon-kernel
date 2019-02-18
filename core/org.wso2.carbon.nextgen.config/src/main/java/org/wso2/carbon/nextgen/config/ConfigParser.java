@@ -135,10 +135,10 @@ public class ConfigParser {
             justification = "return not need in mkdirs()")
     private void backupConfigurations(String configFilePath, String backupPath) throws ConfigParserException {
 
-        File configurations = new File(configFilePath);
         File backupFile = new File(backupPath);
         FileUtils.deleteDirectory(backupFile);
-        FileUtils.writeDirectory(configurations, backupFile);
+        File templateDir = checkTemplateDirExistence(templateFileDir);
+        FileUtils.writeDirectory(configFilePath, backupPath, getTemplatedFilesMap(templateDir).keySet());
     }
 
     private void deployAndStoreMetadata(String outputFilePath) throws IOException, ConfigParserException {
@@ -319,7 +319,7 @@ public class ConfigParser {
                 if (file1.isDirectory()) {
                     handleDirectories(basePath, files, file1);
                 } else {
-                    files.put(file.getParentFile().toPath().relativize(file1.toPath()).toString(), file1);
+                    files.put(basePath.getParentFile().toPath().relativize(file1.toPath()).toString(), file1);
                 }
             }
         }

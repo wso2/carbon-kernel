@@ -142,5 +142,8 @@
   "keystore.tls.key_password": "wso2carbon",
   "truststore.file_name": "client-truststore.jks",
   "truststore.type": "JKS",
-  "truststore.password": "wso2carbon"
+  "truststore.password": "wso2carbon",
+  "encryption.type": "asymmetric",
+  "encryption.algorithm": "AES",
+  "encryption.alias": "symmetric.key.value"
 }

@@ -56,5 +56,19 @@
       "default_value": "admin",
       "match_regex": ""
     }
+  ],
+  "encryption.type": [
+    {
+      "regex": "\\Aasymmetric\\Z|\\Asymmetric\\Z"
+    }
+  ],
+  "encryption.key": [
+    {
+      "if": {
+        "encryption.type": "symmetric"
+      },
+      "match_regex": ".+",
+      "error_message": "Encryption key required for symmetric encryption"
+    }
   ]
 }

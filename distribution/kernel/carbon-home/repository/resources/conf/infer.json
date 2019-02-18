@@ -107,5 +107,13 @@
       "tenant_mgt.tenant_manager.config_builder": "org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder",
       "tenant_mgt.tenant_manager.class": "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
     }
+  },
+  "encryption.type": {
+    "asymmetric": {
+      "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider"
+    },
+    "symmetric": {
+      "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider"
+    }
   }
 }
