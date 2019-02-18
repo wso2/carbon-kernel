@@ -1,7 +1,6 @@
 {
   "user_store.type": [
     {
-      "default_value": "jdbc",
       "regex": "\\Ajdbc\\Z|\\Aread_only_ldap\\Z|\\Aread_write_ldap\\Z|\\Aactive_directory\\Z"
     }
   ],
@@ -53,7 +52,6 @@
   ],
   "super_admin.username": [
     {
-      "default_value": "admin",
       "match_regex": ""
     }
   ]
