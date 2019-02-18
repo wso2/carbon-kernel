@@ -43,7 +43,6 @@ public class Validator {
     private static final String IF = "if";
     private static final String REGEX = "regex";
     private static final String EMPTY_STRING = "";
-    private static final String DEFAULT_VALUE = "default_value";
 
     private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 
@@ -96,9 +95,6 @@ public class Validator {
             }
         }
         Object configValue = configurationValues.get(keyToValidate);
-        if (configValue == null && validationRule.containsKey(DEFAULT_VALUE)) {
-            configurationValues.put(keyToValidate, validationRule.get(DEFAULT_VALUE));
-        }
 
         if (validationRule.get(REGEX) instanceof String) {
             String confValueString = configValue == null ? EMPTY_STRING : configValue.toString();
