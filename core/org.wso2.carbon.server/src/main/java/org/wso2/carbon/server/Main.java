@@ -244,7 +244,7 @@ public class Main {
                         .withDefaultValueFilePath(newConfigDirectoryPath)
                         .withMetaDataFilePath(newConfigDirectoryPath);
         try {
-            configParserBuilder.build().parse(configDirectoryPath);
+            configParserBuilder.build().parse(carbonHomePath);
         } catch (ConfigParserException e) {
             log.error("Error while performing configuration changes", e);
             System.exit(1);

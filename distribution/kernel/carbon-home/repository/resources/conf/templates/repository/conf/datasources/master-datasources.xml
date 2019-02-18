@@ -28,7 +28,7 @@
             </definition>
         </datasource>
         <datasource>
-            <name>SharedDb</name>
+            <name>WSO2_SHARED_DB</name>
             <description>Shared Database for user and registry data</description>
             <jndiConfig>
                 <name>jdbc/SHARED_DB</name>

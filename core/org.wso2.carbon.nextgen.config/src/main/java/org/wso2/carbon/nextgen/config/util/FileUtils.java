@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Set;
 
 /**
  * Contains the util methods related to file.
@@ -67,8 +68,13 @@ public class FileUtils {
         }
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
+            justification = "return not need in mkdirs()")
     private static void writeFile(File file, String input) throws ConfigParserException {
 
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
         try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),
                 StandardCharsets.UTF_8))) {
             bufferedWriter.write(input);
@@ -78,9 +84,9 @@ public class FileUtils {
         }
     }
 
-    public static void writeDirectory(File configurations, File backupFile) throws ConfigParserException {
+    static void writeDirectory(File configurations, File backupFile) throws ConfigParserException {
 
-        backupFile = Paths.get(backupFile.getAbsolutePath(), configurations.getName()).toFile();
+        backupFile = Paths.get(backupFile.getParent(), configurations.getName()).toFile();
         if (configurations.isDirectory()) {
             boolean status = backupFile.mkdirs();
             if (!status) {
@@ -98,7 +104,7 @@ public class FileUtils {
         }
     }
 
-    public static void deleteDirectroy(File file) throws ConfigParserException {
+    public static void deleteDirectory(File file) throws ConfigParserException {
 
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -106,13 +112,12 @@ public class FileUtils {
                 if (files != null) {
                     if (files.length > 0) {
                         for (File file1 : files) {
-                            deleteDirectroy(file1);
+                            deleteDirectory(file1);
                         }
-                    } else {
-                        boolean status = file.delete();
-                        if (!status) {
-                            throw new ConfigParserException("Error while deleting " + file.getName());
-                        }
+                    }
+                    boolean status = file.delete();
+                    if (!status) {
+                        throw new ConfigParserException("Error while deleting " + file.getName());
                     }
                 }
             } else {
@@ -121,6 +126,24 @@ public class FileUtils {
                     throw new ConfigParserException("Error while deleting " + file.getName());
                 }
             }
+        }
+
+    }
+
+    public static void writeDirectory(String configurations, String backupPath, Set<String> fileSet)
+            throws ConfigParserException {
+
+        for (String file : fileSet) {
+            try {
+                File configFile = Paths.get(configurations, file).toFile();
+                File backupFile = Paths.get(backupPath, file).toFile();
+                if (configFile.exists()) {
+                    writeDirectory(configFile, backupFile);
+                }
+            } catch (ConfigParserException e) {
+                throw e;
+            }
+
         }
 
     }
