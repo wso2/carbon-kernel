@@ -610,6 +610,8 @@
         <version.jinjava>2.4.14</version.jinjava>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
+        <version.jackson>2.9.8</version.jackson>
+        <version.guava>27.0.1-jre</version.guava>
     </properties>
 
     <dependencyManagement>
@@ -1729,6 +1731,26 @@
                 <groupId>net.consensys.cava</groupId>
                 <artifactId>cava-toml</artifactId>
                 <version>${version.cava-toml}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${version.guava}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
