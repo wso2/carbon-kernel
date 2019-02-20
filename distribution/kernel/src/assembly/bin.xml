@@ -36,7 +36,7 @@
                 <exclude>**/native/*</exclude>
                 <exclude>**/wso2carbon-version.txt</exclude>
                 <exclude>**/conf/carbon.xml</exclude>
-                <exclude>**/conf/templates/repository/conf/carbon.xml</exclude>
+                <exclude>**/conf/templates/repository/conf/carbon.xml.j2</exclude>
                 <exclude>INSTALL.txt</exclude>
                 <exclude>README.txt</exclude>
                 <exclude>LICENSE.txt</exclude>
@@ -96,14 +96,14 @@
 	    <filtered>true</filtered>
         </file>
 
-	<file>
+        <file>
             <source>carbon-home/repository/conf/carbon.xml</source>
             <outputDirectory>repository/conf/</outputDirectory>
             <fileMode>644</fileMode>
-	    <filtered>true</filtered>
+            <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/repository/resources/conf/templates/repository/conf/carbon.xml</source>
+            <source>carbon-home/repository/resources/conf/templates/repository/conf/carbon.xml.j2</source>
             <outputDirectory>repository/resources/conf/templates/repository/conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>

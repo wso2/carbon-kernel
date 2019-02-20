@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -50,6 +51,7 @@ public class ConfigParser {
     private static final String META_DATA_CONFIG_FILE = "metadata_config.properties";
     private static final String META_DATA_TEMPLATE_FILE = "metadata_template.properties";
     private static final String META_DATA_DIRECTORY = ".metadata";
+    private static final String JINJA_TEMPLATE_EXTENSION = ".j2";
     private String deploymentConfigurationPath;
     private String templateFileDir;
     private String inferConfigurationFilePath;
@@ -204,16 +206,25 @@ public class ConfigParser {
 
         Map<String, File> fileNames = new LinkedHashMap<>();
         File[] files = templateDir.listFiles();
-        if (files != null) {
+        if (Objects.nonNull(files)) {
             for (File file : files) {
                 if (file.isFile()) {
-                    fileNames.put(file.getParentFile().toPath().relativize(file.toPath()).toString(), file);
+                    fileNames.put(getFileNameWithRelativePath(file, file), file);
                 } else {
                     handleDirectories(file, fileNames, file);
                 }
             }
         }
         return fileNames;
+    }
+
+    private String getFileNameWithRelativePath(File basePath, File file) {
+        String fileName = basePath.getParentFile().toPath()
+                              .relativize(file.toPath()).toString();
+        if (file.getName().endsWith(JINJA_TEMPLATE_EXTENSION)) {
+            fileName = fileName.substring(0, (fileName.length() - JINJA_TEMPLATE_EXTENSION.length()));
+        }
+        return fileName;
     }
 
     /**
@@ -315,11 +326,11 @@ public class ConfigParser {
 
         File[] fileList = file.listFiles();
         if (fileList != null) {
-            for (File file1 : fileList) {
-                if (file1.isDirectory()) {
-                    handleDirectories(basePath, files, file1);
+            for (File currentFile : fileList) {
+                if (currentFile.isDirectory()) {
+                    handleDirectories(basePath, files, currentFile);
                 } else {
-                    files.put(basePath.getParentFile().toPath().relativize(file1.toPath()).toString(), file1);
+                    files.put(getFileNameWithRelativePath(basePath, currentFile), currentFile);
                 }
             }
         }
