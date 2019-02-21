@@ -67,6 +67,7 @@
                             org.wso2.carbon.caching.impl.*,
                             *;resolution:=optional
                         </Import-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                         <Embed-Dependency>
                             acegi-security;scope=compile|runtime;inline=false
                         </Embed-Dependency>
