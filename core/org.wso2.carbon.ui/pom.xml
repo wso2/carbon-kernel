@@ -179,6 +179,10 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

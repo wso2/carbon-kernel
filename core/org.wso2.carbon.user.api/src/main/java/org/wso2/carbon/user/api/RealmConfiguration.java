@@ -41,7 +41,7 @@ public class RealmConfiguration {
     protected String description = null;
     protected List<String> restrictedDomainsForSelfSignUp = new ArrayList<String>();
     protected List<String> reservedRoleNames = new ArrayList<String>();
-    ;
+    protected String isOverrideUsernameClaimFromInternalUsername = "false";
     protected Map<String, String> userStoreProperties = new HashMap<String, String>();
     protected Map<String, String> authzProperties = new HashMap<String, String>();
     protected Map<String, String> realmProperties = new HashMap<String, String>();
@@ -305,5 +305,13 @@ public class RealmConfiguration {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getIsOverrideUsernameClaimFromInternalUsername() {
+        return isOverrideUsernameClaimFromInternalUsername;
+    }
+
+    public void setIsOverrideUsernameClaimFromInternalUsername(String isOverrideUsernameClaimFromInternalUsername) {
+        this.isOverrideUsernameClaimFromInternalUsername = isOverrideUsernameClaimFromInternalUsername;
     }
 }
