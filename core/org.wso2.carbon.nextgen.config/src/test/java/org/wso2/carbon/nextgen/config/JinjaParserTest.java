@@ -6,6 +6,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +24,7 @@ public class JinjaParserTest {
     }
 
     @Test(dataProvider = "flatKeySetProvider")
-    public void testDottedKeyProcessing(String key, Object value) {
+    public void testDottedKeyProcessing(String key, Object value) throws ConfigParserException {
         Map<String, Object> outputMap = JinjaParser.getHierarchicalDottedKeyMap(inputMap);
         String[] dottedKeyArray = key.split("\\.");
 
@@ -36,6 +37,46 @@ public class JinjaParserTest {
         Assert.assertEquals(lastKeyMap.get(dottedKeyArray[dottedKeyArray.length - 1]), value);
     }
 
+    @Test (dataProvider = "splitDataProvider")
+    public void testSplitMethod(String input, String[] expectedOutput) {
+        List<String> stringList = JinjaParser.splitWithoutEmptyStrings(input);
+
+        Assert.assertEquals(stringList.size(), expectedOutput.length, "Split item count mismatch.");
+        for (int i = 0; i < stringList.size(); i++) {
+            Assert.assertEquals(stringList.get(i), expectedOutput[i], "Split value mismatch.");
+        }
+    }
+
+    @Test (dataProvider = "dottedKeyArraySplitDataProvider")
+    public void testDottedKeyArraySplit(String input, String[] expectedOutput) throws ConfigParserException {
+        List<String> stringList = JinjaParser.getDottedKeyArray(input);
+
+        Assert.assertEquals(stringList.size(), expectedOutput.length, "Split item count mismatch.");
+        for (int i = 0; i < stringList.size(); i++) {
+            Assert.assertEquals(stringList.get(i), expectedOutput[i], "Split value mismatch.");
+        }
+    }
+
+    @DataProvider(name = "dottedKeyArraySplitDataProvider")
+    public Object[][] dottedKeyArraySplitData() {
+        return new Object[][]{
+                {"one.two.three.four", new String[]{"one", "two", "three", "four"}},
+                {".one.'two.three'", new String[]{"one", "two.three"}},
+                {".one.'two.three'.four", new String[]{"one", "two.three", "four"}},
+                {".one.two.'three.four'.five.six", new String[]{"one", "two", "three.four", "five", "six"}},
+                {".one.two.'three.four.five'.six.seven", new String[]{"one", "two", "three.four.five", "six", "seven"}},
+                };
+    }
+
+    @DataProvider(name = "splitDataProvider")
+    public Object[][] splitTestData() {
+        return new Object[][]{
+                {"one.two.three", new String[]{"one", "two", "three"}},
+                {".one.two.three.", new String[]{"one", "two", "three"}},
+                {".one.two.four.", new String[]{"one", "two", "four"}},
+                {".one.two.three..four.", new String[]{"one", "two", "three", "four"}},
+                };
+    }
 
     @DataProvider(name = "flatKeySetProvider")
     public Object[][] flatKeyDataSet() {

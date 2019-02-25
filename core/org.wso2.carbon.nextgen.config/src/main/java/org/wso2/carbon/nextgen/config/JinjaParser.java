@@ -20,11 +20,12 @@ class JinjaParser {
 
     private static final Log LOGGER = LogFactory.getLog(JinjaParser.class);
 
-    private JinjaParser() {
 
+    private JinjaParser() {
     }
 
-    static Map<String, String> parse(Map<String, Object> dottedKeyMap, Map<String, File> templateFiles) {
+    static Map<String, String> parse(Map<String, Object> dottedKeyMap, Map<String, File> templateFiles)
+            throws ConfigParserException {
 
         Map<String, String> outputs = new LinkedHashMap<>();
         for (Map.Entry<String, File> templateFile : templateFiles.entrySet()) {
@@ -45,7 +46,8 @@ class JinjaParser {
 
     }
 
-    static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap) {
+    static Map<String, Object> getHierarchicalDottedKeyMap(Map<String, Object> dottedKeyMap)
+            throws ConfigParserException {
 
         Map<String, Object> newContext = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : dottedKeyMap.entrySet()) {
@@ -54,14 +56,13 @@ class JinjaParser {
         return newContext;
     }
 
-    private static void changeToHierarchicalMap(Map.Entry<String, Object> entry, Map<String, Object> context) {
-
-        String flatKey = entry.getKey();
-        String[] dottedKeyArray = flatKey.split("\\.");
+    private static void changeToHierarchicalMap(Map.Entry<String, Object> entry, Map<String, Object> context)
+            throws ConfigParserException {
+        List<String> dottedKeyList = getDottedKeyArray(entry.getKey());
 
         Map<String, Object> parentMap = context;
-        for (int i = 0; i < dottedKeyArray.length - 1; i++) {
-            String keyElement = dottedKeyArray[i];
+        for (int i = 0; i < dottedKeyList.size() - 1; i++) {
+            String keyElement = dottedKeyList.get(i);
             Object object = parentMap.get(keyElement);
             Map<String, Object> map;
             if (object instanceof Map) {
@@ -77,11 +78,40 @@ class JinjaParser {
         if (value instanceof List) {
             value = processArray((List) value);
         }
-        parentMap.put(dottedKeyArray[dottedKeyArray.length - 1], value);
+        parentMap.put(dottedKeyList.get(dottedKeyList.size() - 1), value);
 
     }
 
-    private static List<Object> processArray(List<Object> list) {
+    static List<String> getDottedKeyArray(String dottedFlatKey) throws ConfigParserException {
+        List<String> list = new ArrayList<>();
+        int lastMatchedIndex = 0;
+        while (lastMatchedIndex != -1) {
+            int startIndex = dottedFlatKey.indexOf('\'', lastMatchedIndex + 1);
+            if (startIndex == -1) {
+                int beginIndx = lastMatchedIndex == 0 ? 0 : lastMatchedIndex + 1;
+                splitAndAddToList(dottedFlatKey, list, beginIndx, dottedFlatKey.length());
+                lastMatchedIndex = startIndex;
+            } else {
+                int endIndex = dottedFlatKey.indexOf('\'', startIndex + 1);
+                if (endIndex == -1) {
+                    throw new ConfigParserException("Couldn't find matching ending \"'\" for sub key in flat key "
+                                                    + dottedFlatKey);
+                }
+                splitAndAddToList(dottedFlatKey, list, lastMatchedIndex, startIndex);
+                list.add(dottedFlatKey.substring(startIndex + 1, endIndex));
+                lastMatchedIndex = endIndex;
+            }
+        }
+        return list;
+    }
+
+    private static void splitAndAddToList(String flatKey, List<String> list, int startIndex, int endIndex) {
+        String dottedSubKey = flatKey.substring(startIndex, endIndex);
+        List<String> subKeyList = splitWithoutEmptyStrings(dottedSubKey);
+        list.addAll(subKeyList);
+    }
+
+    private static List<Object> processArray(List<Object> list) throws ConfigParserException {
 
         List<Object> newList = new ArrayList<>(list.size());
 
@@ -95,5 +125,25 @@ class JinjaParser {
             newList.add(processedObject);
         }
         return newList;
+    }
+
+    static List<String> splitWithoutEmptyStrings(String input) {
+        List<String> list = new ArrayList<>();
+        int lastDelimiterIndex = -1;
+        for (int i = 0; i < input.length(); i++) {
+            char currentChar = input.charAt(i);
+            if (currentChar == '.') {
+                if ((i - lastDelimiterIndex) != 1) {
+                    String substring = input.substring(lastDelimiterIndex + 1, i);
+                    list.add(substring);
+                }
+                lastDelimiterIndex = i;
+            }
+        }
+        if (lastDelimiterIndex != (input.length() - 1)) {
+            list.add(input.substring(lastDelimiterIndex + 1));
+        }
+
+        return list;
     }
 }
