@@ -2689,7 +2689,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         try {
             ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
-                    new SortControl(userNameAttribute, Control.CRITICAL)});
+                    new SortControl(userNameAttribute, Control.NONCRITICAL)});
             users = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
             result.setUsers(users.toArray(new String[0]));
             return result;
@@ -2870,7 +2870,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     cookie = parseControls(ldapContext.getResponseControls());
                     String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
                     ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
-                            Control.CRITICAL), new SortControl(userNameAttribute, Control.CRITICAL)});
+                            Control.CRITICAL), new SortControl(userNameAttribute, Control.NONCRITICAL)});
                 } while ((cookie != null) && (cookie.length != 0));
             }
         } catch (PartialResultException e) {

@@ -1380,15 +1380,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             String groupDN = null;
                             if (groupResults.hasMore()) {
                                 resultedGroup = groupResults.next();
-                                Attribute attribute = resultedGroup.getAttributes()
-                                        .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
-                                if (attribute == null) {
-                                    groupDN = resultedGroup.getName();
-                                } else {
-                                    String groupNameAttributeValue = (String) attribute.get();
-                                    groupDN = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) +
-                                            "=" + groupNameAttributeValue;
-                                }
+                                groupDN = getGroupName(resultedGroup);
                             }
                             if (resultedGroup != null && isUserInRole(userNameDN, resultedGroup)) {
                                 this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
@@ -1441,15 +1433,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             String groupDN = null;
                             if (groupResults.hasMore()) {
                                 resultedGroup = groupResults.next();
-                                Attribute attribute = resultedGroup.getAttributes()
-                                        .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
-                                if (attribute == null) {
-                                    groupDN = resultedGroup.getName();
-                                } else {
-                                    String groupNameAttributeValue = (String) attribute.get();
-                                    groupDN = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) +
-                                            "=" + groupNameAttributeValue;
-                                }
+                                groupDN = getGroupName(resultedGroup);
                             }
                             if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
@@ -1485,6 +1469,19 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(mainDirContext);
+        }
+    }
+
+    private String getGroupName(SearchResult resultedGroup) throws NamingException {
+
+        Attribute attribute = resultedGroup.getAttributes()
+                .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
+        if (attribute == null) {
+            return resultedGroup.getName();
+        } else {
+            String groupNameAttributeValue = (String) attribute.get();
+            return realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) +
+                    "=" + groupNameAttributeValue;
         }
     }
 
@@ -1529,15 +1526,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 String groupName = null;
                 while (groupSearchResults.hasMoreElements()) {
                     resultedGroup = groupSearchResults.next();
-                    Attribute attribute = resultedGroup.getAttributes()
-                            .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
-                    if (attribute == null) {
-                        groupName = resultedGroup.getName();
-                    } else {
-                        String groupNameAttributeValue = (String) attribute.get();
-                        groupName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) +
-                                "=" + groupNameAttributeValue;
-                    }
+                    groupName = getGroupName(resultedGroup);
                 }
                 // check whether update operations are going to violate non
                 // empty role
