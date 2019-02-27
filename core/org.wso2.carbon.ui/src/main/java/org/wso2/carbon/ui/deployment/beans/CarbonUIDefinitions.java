@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.ui.deployment.beans;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -226,6 +227,7 @@ public class CarbonUIDefinitions {
                     String[] requiredPermissions = menu.getRequirePermission();
                     int grantCount = 0;
                     for (String requiredPermission : requiredPermissions) {
+                        requiredPermission = StringUtils.trim(requiredPermission);
                         int temp = grantCount;
                         for (String grantedPermission : userPermissions) {
                             if ("*".equals(requiredPermission)) {
