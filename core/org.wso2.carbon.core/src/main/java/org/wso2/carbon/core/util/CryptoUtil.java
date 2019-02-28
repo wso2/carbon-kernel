@@ -144,7 +144,7 @@ public class CryptoUtil {
                 }
             }
 
-            if (plainTextBytes.length == 0) {
+            if (StringUtils.isNotBlank(cipherTransformation) && plainTextBytes.length == 0) {
                 if (log.isDebugEnabled()) {
                     log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
                 }
@@ -153,7 +153,7 @@ public class CryptoUtil {
                 encryptedKey = cryptoService.encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
             }
 
-            if (returnSelfContainedCipherText) {
+            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText) {
 
                 Certificate certificate = cryptoService.getCertificate(CryptoContext.buildEmptyContext(
                         MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
@@ -227,7 +227,7 @@ public class CryptoUtil {
         try {
             CryptoService cryptoService = CarbonCoreDataHolder.getInstance().getCryptoService();
 
-            if (cryptoService == null) {
+            if(cryptoService == null){
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
@@ -236,20 +236,18 @@ public class CryptoUtil {
 
             String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
-            if (cipherTransformation == null) {
-                cipherTransformation = algorithm;
-            }
-
-            CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
-            if (cipherHolder != null) {
-                //cipher with meta data
-                if (log.isDebugEnabled()) {
-                    log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+            if (cipherTransformation != null) {
+                CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+                if (cipherHolder != null) {
+                    //cipher with meta data
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                    }
+                    algorithm = cipherHolder.getTransformation();
+                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                } else {
+                    algorithm = cipherTransformation;
                 }
-                algorithm = cipherHolder.getTransformation();
-                cipherTextBytes = cipherHolder.getCipherBase64Decoded();
-            } else {
-                algorithm = cipherTransformation;
             }
 
             if (cipherTextBytes.length == 0) {
