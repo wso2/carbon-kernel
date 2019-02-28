@@ -69,7 +69,7 @@ public class CarbonAuthenticationUtil {
         SimpleDateFormat date = new SimpleDateFormat("'['yyyy-MM-dd HH:mm:ss,SSSZ']'");
 
         //error msg to be displayed for an non-admin user login
-        String msg = "Non-Admin user login attempt \'" + username + "[" + tenantId + "]\' at "
+        String msg = "Login failed. Unauthorized login attempt \'" + username + "[" + tenantId + "]\' at "
                    + date.format(currentTime);
         if(!CarbonUtils.isRunningOnLocalTransportMode()){
            msg +=  " from IP address " + remoteAddress;
