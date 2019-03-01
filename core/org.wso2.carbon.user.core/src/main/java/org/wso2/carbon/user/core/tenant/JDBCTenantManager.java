@@ -210,9 +210,7 @@ public class JDBCTenantManager implements TenantManager {
 
 
     public void updateTenant(org.wso2.carbon.user.api.Tenant tenant) throws UserStoreException {
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenant.getId()));
-        tenantDomainCache.clearCacheEntry(new TenantIdKey(tenant.getId()));
-        tenantIdCache.clearCacheEntry(new TenantDomainKey(tenant.getDomain().toLowerCase()));
+        clearTenantCache(tenant.getId());
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -270,7 +268,7 @@ public class JDBCTenantManager implements TenantManager {
                         prepStmt.setInt(2, tenant.getId());
                         prepStmt.executeUpdate();
                         dbConnection.commit();
-                        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenant.getId()));
+                        clearTenantCache(tenant.getId());
                         RealmCache.getInstance().clearFromCache(tenant.getId(), "primary");
                     } catch (IOException e) {
                         log.error("Error occurs while reading realm configuration", e);
@@ -301,11 +299,12 @@ public class JDBCTenantManager implements TenantManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Tenant getTenant(int tenantId) throws UserStoreException {
 
-        @SuppressWarnings("unchecked")
-        TenantCacheEntry<Tenant> entry = (TenantCacheEntry<Tenant>) tenantCacheManager
-                .getValueFromCache(new TenantIdKey(tenantId));
+
+        TenantCacheEntry<Tenant> entry = tenantCacheManager.getValueFromCache(new TenantIdKey(tenantId));
+
         if ((entry != null) && (entry.getTenant() != null)) {
             return entry.getTenant();
         }
@@ -344,6 +343,7 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
+
                 tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
                 tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(domain));
                 tenantIdCache.addToCache(new TenantDomainKey(domain), new TenantIdEntry(id));
@@ -558,8 +558,7 @@ public class JDBCTenantManager implements TenantManager {
 
     public void activateTenant(int tenantId) throws UserStoreException {
 
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
-
+        clearTenantCache(tenantId);
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -585,7 +584,7 @@ public class JDBCTenantManager implements TenantManager {
     public void deactivateTenant(int tenantId) throws UserStoreException {
 
         // Remove tenant information from the cache.
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -668,9 +667,7 @@ public class JDBCTenantManager implements TenantManager {
             throws org.wso2.carbon.user.api.UserStoreException {
         // Remove tenant information from the cache.
         String domain = getDomain(tenantId);
-        tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
-        tenantIdCache.clearCacheEntry(new TenantDomainKey(domain));
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
         invalidateCacheManager(domain, tenantId);
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
@@ -695,6 +692,14 @@ public class JDBCTenantManager implements TenantManager {
                 DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
             }
         }
+    }
+
+    private void clearTenantCache(int tenantId) throws UserStoreException {
+
+        String domain = getDomain(tenantId);
+        tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
+        tenantIdCache.clearCacheEntry(new TenantDomainKey(domain));
+        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 
     private void invalidateCacheManager(String domain, int tenantId) {
