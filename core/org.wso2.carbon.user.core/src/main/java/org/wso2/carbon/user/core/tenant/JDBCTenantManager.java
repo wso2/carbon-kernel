@@ -19,12 +19,10 @@
 package org.wso2.carbon.user.core.tenant;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.clustering.ClusteringAgent;
-import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -36,7 +34,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -422,6 +419,7 @@ public class JDBCTenantManager implements TenantManager {
             return tenantDomainEntry.getTenantDomainName();
         }
 
+        String tenantDomain = null;
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet result = null;
@@ -558,7 +556,6 @@ public class JDBCTenantManager implements TenantManager {
     public void activateTenant(int tenantId) throws UserStoreException {
 
         clearTenantCache(tenantId);
-
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -645,7 +642,7 @@ public class JDBCTenantManager implements TenantManager {
         // Remove tenant information from the cache.
         String domain = getDomain(tenantId);
         clearTenantCache(tenantId);
-        invalidateCacheManager(domain, tenantId);
+        invalidateCacheManager(domain);
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
             PreparedStatement prepStmt = null;
@@ -679,11 +676,10 @@ public class JDBCTenantManager implements TenantManager {
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 
-    private void invalidateCacheManager(String domain, int tenantId) {
+    private void invalidateCacheManager(String domain) {
 
         CacheManagerFactoryImpl cacheManagerFactory = (CacheManagerFactoryImpl) Caching.getCacheManagerFactory();
         cacheManagerFactory.removeCacheManagerMap(domain);
-        notifyCacheManagerInvalidation(domain, tenantId);
     }
 
     public void setBundleContext(BundleContext bundleContext) {
@@ -747,46 +743,5 @@ public class JDBCTenantManager implements TenantManager {
             }
         }
 
-    }
-
-    private void notifyCacheManagerInvalidation(String tenantDomain, int tenantId) {
-
-        int numberOfRetries = 0;
-
-        if (log.isDebugEnabled()) {
-            log.debug("Sending cache manager invalidation message to other cluster nodes for tenant  '" + tenantDomain);
-        }
-
-        ClusterCacheManagerInvalidationRequest clusterCacheManagerInvalidationRequest = new
-                ClusterCacheManagerInvalidationRequest(tenantDomain, tenantId);
-
-        while (numberOfRetries < 60) {
-            try {
-                ClusteringAgent clusteringAgent = getClusteringAgent();
-                if (clusteringAgent != null) {
-                    clusteringAgent.sendMessage(clusterCacheManagerInvalidationRequest, true);
-                    log.debug("Sent [" + clusterCacheManagerInvalidationRequest + "]");
-                }
-                break;
-            } catch (ClusteringFault e) {
-                numberOfRetries++;
-                if (numberOfRetries < 60) {
-                    log.warn("Could not send clusterCacheManagerInvalidationMessage for tenant " +
-                            tenantId + ". Retry will be attempted in 2s. Request: " +
-                            clusterCacheManagerInvalidationRequest, e);
-                } else {
-                    log.error("Could not send clusterCacheManagerInvalidationMessage for tenant " +
-                            tenantId + ". Several retries failed. Request:" + clusterCacheManagerInvalidationRequest, e);
-                }
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
-    }
-
-    private ClusteringAgent getClusteringAgent() {
-        return DataHolder.getInstance().getClusteringAgent();
     }
 }
