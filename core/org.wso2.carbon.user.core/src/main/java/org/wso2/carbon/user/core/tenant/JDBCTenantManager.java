@@ -24,8 +24,7 @@ import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
-import org.wso2.carbon.caching.impl.DataHolder;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -37,6 +36,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -422,7 +422,6 @@ public class JDBCTenantManager implements TenantManager {
             return tenantDomainEntry.getTenantDomainName();
         }
 
-        String tenantDomain = null;
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet result = null;
@@ -559,6 +558,7 @@ public class JDBCTenantManager implements TenantManager {
     public void activateTenant(int tenantId) throws UserStoreException {
 
         clearTenantCache(tenantId);
+
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -613,33 +613,10 @@ public class JDBCTenantManager implements TenantManager {
     public boolean isTenantActive(int tenantId) throws UserStoreException {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             return true;
+        } else {
+            Tenant tenant = getTenant(tenantId);
+            return tenant.isActive();
         }
-        Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
-        try {
-            dbConnection = getDBConnection();
-            String sqlStmt = TenantConstants.IS_TENANT_ACTIVE_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, tenantId);
-            ResultSet result = prepStmt.executeQuery();
-            if (result.next()) {
-                return result.getBoolean("UM_ACTIVE");
-            }
-            dbConnection.commit();
-        } catch (SQLException e) {
-
-            DatabaseUtil.rollBack(dbConnection);
-
-            String msg = "Error in getting the tenant status with " + "tenant id: "
-                    + tenantId + ".";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
-        }
-        return false;
     }
 
     /**

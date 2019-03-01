@@ -499,6 +499,45 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
     }
 
+    public String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getAllowedUIResourcesForRole",
+                    new Object[]{roleName, permissionRootPath}, argTypes);
+            return (String[]) object;
+        }
+
+        List<String> lstPermissions = new ArrayList<String>();
+        List<String> resourceIds = getUIPermissionId();
+        if (resourceIds != null) {
+            for (String resourceId : resourceIds) {
+                if (isRoleAuthorized(roleName, resourceId, CarbonConstants.UI_PERMISSION_ACTION)) {
+                    if (permissionRootPath == null) {
+                        permissionRootPath = "/"; // Assign root path when permission path is null
+                    }
+                    if (resourceId.contains(permissionRootPath)) {
+                        lstPermissions.add(resourceId);
+                    }
+                }//authorization check up
+            }//loop over resource list
+        }//resource ID checkup
+
+        String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+        String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
+
+        if (debug) {
+            log.debug("Allowed UI Resources for Role: " + roleName + " in permissionRootPath: " +
+                    permissionRootPath);
+            for (String resource : optimizedList) {
+                log.debug("Resource: " + resource);
+            }
+        }
+
+        return optimizedList;
+    }
+
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {
 
