@@ -22,7 +22,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -34,7 +33,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -50,6 +48,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.sql.DataSource;
 
 public class JDBCTenantManager implements TenantManager {
     private static Log log = LogFactory.getLog(TenantManager.class);
@@ -633,7 +632,9 @@ public class JDBCTenantManager implements TenantManager {
         String tenantDomain = (String) tenantIdDomainMap.remove(tenantId);
         if (tenantDomain != null) {
             tenantDomainIdMap.remove(tenantDomain);
+            tenantCacheManager.removeGlobalCacheEntry(tenantDomain);
         }
+
         clearTenantCache(tenantId);
 
         if (removeFromPersistentStorage) {
