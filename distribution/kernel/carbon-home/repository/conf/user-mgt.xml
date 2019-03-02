@@ -17,13 +17,15 @@
 <UserManager>
     <Realm>
         <Configuration>
-		<AddAdmin>true</AddAdmin>
+		    <AddAdmin>true</AddAdmin>
             <AdminRole>admin</AdminRole>
             <AdminUser>
                 <UserName>admin</UserName>
                 <Password>admin</Password>
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
+            !-- Enable username claim retrieve from the UM_USER_NAME in JDBC datasources -->
+            <OverrideUsernameClaimFromInternalUsername>true</OverrideUsernameClaimFromInternalUsername>
             <Property name="isCascadeDeleteEnabled">true</Property>
             <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
         </Configuration>
@@ -158,6 +160,7 @@
             <Property name="LDAPConnectionTimeout">5000</Property>
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
+            <Property name="StartTLSEnabled">false</Property>
         </UserStoreManager-->
 
         <!-- Following user manager is used by Identity Server (IS) as its default user manager.
@@ -210,6 +213,7 @@
             <Property name="LDAPConnectionTimeout">5000</Property>
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
+            <Property name="StartTLSEnabled">false</Property>
         </ISUserStoreManager-->
 
         <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">

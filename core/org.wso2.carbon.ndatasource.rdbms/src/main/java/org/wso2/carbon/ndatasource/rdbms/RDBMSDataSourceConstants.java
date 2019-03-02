@@ -24,6 +24,8 @@ public class RDBMSDataSourceConstants {
 
 	public static final String DATASOURCE_PROPS_NAME = "dataSourceProps";
 
+	public static final String JDBC_INTERCEPTOR_SEPARATOR = ";";
+
 	public static final String ROLLBACK_ON_RETURN = "rollbackOnReturn";
 
 	public static final String CORRELATION_LOG_INTERCEPTOR = "org.wso2.carbon.ndatasource.rdbms.CorrelationLogInterceptor";
