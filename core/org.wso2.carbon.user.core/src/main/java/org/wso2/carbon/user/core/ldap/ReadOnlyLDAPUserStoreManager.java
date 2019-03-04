@@ -55,6 +55,20 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -79,20 +93,6 @@ import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import javax.naming.ldap.Rdn;
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -1064,10 +1064,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     searchControls,
                                     displayNameAttribute, false);
                     // we expect only one display name
-                    String name =
-                            UserCoreUtil.getCombinedName(this.realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME),
-                                    userName, displayNames.get(0));
-                    combinedNames.add(name);
+                    if (displayNames != null && !displayNames.isEmpty()) {
+                        String name = UserCoreUtil.getCombinedName(this.realmConfig.getUserStoreProperty(
+                                UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME), userName, displayNames.get(0));
+                        combinedNames.add(name);
+                    }
                 }
                 return combinedNames.toArray(new String[combinedNames.size()]);
             } else {
@@ -1847,7 +1848,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 Attributes userAttributes;
                 try {
                     // '\' and '"' characters need another level of escaping before searching
-                    userAttributes = dirContext.getAttributes(new CompositeName().add(user), returnedAttributes);
+                    userAttributes = dirContext.getAttributes(escapeDNForSearch(user), returnedAttributes);
 
                     String displayName = null;
                     String userName = null;
@@ -3000,7 +3001,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             try {
                 String displayName = null;
                 String userName = null;
-                Attributes userAttributes = dirContext.getAttributes(new CompositeName().add(user), requiredAttributes);
+                Attributes userAttributes = dirContext.getAttributes(escapeDNForSearch(user), requiredAttributes);
 
                 if (userAttributes != null) {
                     Attribute userNameAttribute = userAttributes.get(userNameProperty);
@@ -4133,7 +4134,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @return composite name
      * @throws InvalidNameException failed to build composite name
      */
-    private Name escapeDNForSearch(String dn) throws InvalidNameException {
+    protected Name escapeDNForSearch(String dn) throws InvalidNameException {
+        // This is done to escape '/' which is not a LDAP special character but a JNDI special character.
+        // Refer: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4307193
         return new CompositeName().add(dn);
     }
 
@@ -4184,6 +4187,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
+                UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
+                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,

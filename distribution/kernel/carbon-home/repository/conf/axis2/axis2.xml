@@ -33,6 +33,10 @@
 
     <parameter name="EnableChildFirstClassLoading">${childfirstCL}</parameter>
 
+    <!--If this is set to true then elements that have the @IgnoreNullElement annotation will also be returned even the
+    value is null. -->
+    <parameter name="forceIncludeNullElements">false</parameter>
+
     <!--
     The exposeServiceMetadata parameter decides whether the metadata (WSDL, schema, policy) of
     the services deployed on Axis2 should be visible when ?wsdl, ?wsdl2, ?xsd, ?policy requests

@@ -51,8 +51,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-import javax.naming.CompositeName;
-import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -332,10 +330,16 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
         }
         if (!checkUserPasswordValid(credential)) {
+            String regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_USER_NAME_JAVA_REG_EX);
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                        .PROPERTY_USER_NAME_JAVA_REG);
+            }
             throw new UserStoreException(
                     "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+                            + regularExpression);
         }
         if (isExistingUser(userName)) {
             throw new UserStoreException("User " + userName + " already exist in the LDAP");
@@ -354,7 +358,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         // assume first search base in case of multiple definitions
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE).split("#")[0];
         try {
-            return (DirContext) mainDirContext.lookup(searchBase);
+            return (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
         } catch (NamingException e) {
             String errorMessage = "Can not access the directory context or"
                     + "user already exists in the system";
@@ -590,7 +594,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 if (log.isDebugEnabled()) {
                     log.debug("Deleting " + userDN + " with search base " + userSearchBase);
                 }
-                subDirContext = (DirContext) mainDirContext.lookup(userSearchBase);
+                subDirContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(userSearchBase));
                 subDirContext.destroySubcontext(userDN);
             }
             removeFromUserCache(userName);
@@ -641,7 +645,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 searchResult = namingEnumeration.next();
 
                 String dnName = searchResult.getName();
-                subDirContext = (DirContext) dirContext.lookup(searchBase);
+                subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(searchBase));
 
                 byte[] passwordToStore = UserCoreUtil.getPasswordToStore(newCredential, passwordHashMethod, kdcEnabled);
                 try {
@@ -730,7 +734,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 }
 
                 String dnName = searchResult.getName();
-                subDirContext = (DirContext) dirContext.lookup(searchBase);
+                subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(searchBase));
 
                 byte[] passwordToStore = UserCoreUtil.getPasswordToStore(newCredential, passwordHashMethod, kdcEnabled);
                 try {
@@ -937,7 +941,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // update the attributes in the relevant entry of the directory
             // store
 
-            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
@@ -1033,7 +1037,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // update the attributes in the relevant entry of the directory
             // store
 
-            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
@@ -1095,7 +1099,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             updatedAttributes.put(currentUpdatedAttribute);
 
-            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REMOVE_ATTRIBUTE,
                     updatedAttributes);
 
@@ -1154,7 +1158,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 updatedAttributes.put(currentUpdatedAttribute);
             }
 
-            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REMOVE_ATTRIBUTE,
                     updatedAttributes);
 
@@ -1259,7 +1263,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     groupAttributes.put(memberAttribute);
                 }
 
-                groupContext = (DirContext) mainDirContext.lookup(searchBase);
+                groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
                 NameParser ldapParser = groupContext.getNameParser("");
                 /*
                      * Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" +
@@ -1391,7 +1395,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                             // need to update authz cache of user since roles
                             // are deleted
-                            userRealm.getAuthorizationManager().clearUserAuthorization(userName);
+                            String userNameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+                            userRealm.getAuthorizationManager().clearUserAuthorization(userNameWithDomain);
 
                         } else {
                             errorMessage = "The role: " + URLEncoder.encode(deletedRole, String.valueOf
@@ -1524,6 +1529,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 } else {
                     List<String> newUserList = new ArrayList<String>();
                     List<String> deleteUserList = new ArrayList<String>();
+                    Map<String, String> userDnToUserNameMapping = new HashMap<>();
 
                     if (newUsers != null && newUsers.length != 0) {
                         String invalidUserList = "";
@@ -1562,6 +1568,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                                 invalidUserList += deletedUser + ",";
                             } else {
                                 deleteUserList.add(userNameDN);
+                                userDnToUserNameMapping.put(userNameDN, deletedUser);
                             }
                         }
                         if (!StringUtils.isEmpty(invalidUserList)) {
@@ -1578,7 +1585,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     for (String userNameDN : deleteUserList) {
                         modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
                         // needs to clear authz cache for deleted users
-                        userRealm.getAuthorizationManager().clearUserAuthorization(userNameDN);
+                        String deletedUserName = userDnToUserNameMapping.get(userNameDN);
+                        String deletedUserNameWithDomain =
+                                UserCoreUtil.addDomainToName(deletedUserName, getMyDomainName());
+                        userRealm.getAuthorizationManager().clearUserAuthorization(deletedUserNameWithDomain);
                     }
                 }
             } catch (NamingException e) {
@@ -1620,7 +1630,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         DirContext groupContext = null;
         try {
             mainDirContext = this.connectionSource.getContext();
-            groupContext = (DirContext) mainDirContext.lookup(searchBase);
+            groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
             String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
             Attributes modifyingAttributes = new BasicAttributes(true);
             Attribute memberAttribute = new BasicAttribute(memberAttributeName);
@@ -1765,7 +1775,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             String groupNameRDN = resultedGroup.getName();
             String newGroupNameRDN = roleNameAttributeName + "=" + newRoleName;
 
-            groupContext = (DirContext) mainContext.lookup(groupSearchBase);
+            groupContext = (DirContext) mainContext.lookup(escapeDNForSearch(groupSearchBase));
             groupContext.rename(groupNameRDN, newGroupNameRDN);
 
             String roleNameWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
@@ -1826,7 +1836,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             String groupName = resultedGroup.getName();
 
-            groupContext = (DirContext) mainDirContext.lookup(groupSearchBase);
+            groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(groupSearchBase));
             String groupNameAttributeValue = (String) resultedGroup.getAttributes()
                     .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE))
                     .get();
@@ -2038,6 +2048,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
                 USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
+                UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
+                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
     }
 
 //
@@ -2335,16 +2348,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     }
 
-    /**
-     * This method performs the additional level escaping for ldap search. In ldap search / and " characters
-     * have to be escaped again
-     * @param dn DN
-     * @return composite name
-     * @throws InvalidNameException failed to build composite name
-     */
-    private Name escapeDNForSearch(String dn) throws InvalidNameException {
-        return new CompositeName().add(dn);
-    }
     private static void setAdvancedProperty(String name, String displayName, String value,
                                             String description) {
         Property property = new Property(name, value, displayName + "#" + description, null);

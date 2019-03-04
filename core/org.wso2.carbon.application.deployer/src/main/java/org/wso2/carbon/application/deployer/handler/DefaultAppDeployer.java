@@ -39,19 +39,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is one of the default handlers which is registered into the ApplicationManager. This
- * class deploys AAR services, JAXWS services, Data services and libs.
+ * This is one of the default handlers which is registered into the ApplicationManager.
+ * This class deploys AAR services, JAXWS services and libs.
  */
 public class DefaultAppDeployer implements AppDeploymentHandler {
 
     private static final Log log = LogFactory.getLog(DefaultAppDeployer.class);
 
     public static final String AAR_TYPE = "service/axis2";
-    public static final String DS_TYPE = "service/dataservice";
     public static final String BUNDLE_TYPE = "bundle";
     public static final String MEDIATOR_TYPE = "lib/synapse/mediator";
-
-    public static final String DS_DIR = "dataservices";
 
     private Map<String, Boolean> acceptanceList = null;
 
@@ -302,9 +299,6 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
             if (deployer == null) {
                 deployer = deploymentEngine.getServiceDeployer();
             }
-        } else if (DS_TYPE.equals(artifactType)) {
-            // TODO : Move data services out of carbon core
-            deployer = deploymentEngine.getDeployer(DefaultAppDeployer.DS_DIR, "dbs");
         } else if (AppDeployerConstants.CARBON_APP_TYPE.equals(artifactType)) {
             deployer = deploymentEngine.getDeployer(AppDeployerConstants.CARBON_APPS, "car");
         }

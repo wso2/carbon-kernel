@@ -657,13 +657,13 @@ public final class UserCoreUtil {
             if ((!userName.equals(displayName)) && (displayName != null)) {
                 userName = domainName + userName;
                 displayName = domainName + displayName;
-                combinedName = userName + CarbonConstants.NAME_COMBINER + displayName;
+                combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = domainName + userName;
             }
         } else {
             if (!userName.equals(displayName) && displayName != null) {
-                combinedName = userName + CarbonConstants.NAME_COMBINER + displayName;
+                combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = userName;
             }

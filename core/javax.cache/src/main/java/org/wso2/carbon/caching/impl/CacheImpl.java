@@ -89,7 +89,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private Map<K, Long> distributedTimestampMap;
     private Map<K, Long> localTimestampMap = new ConcurrentHashMap<K, Long>();
     private long capacity = CachingConstants.DEFAULT_CACHE_CAPACITY;
-    private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<K, CacheEntry<K, V>>((int)capacity, 0.75f, 50);
+    private int initialCapacity = 1000;
+    private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<>(initialCapacity, 0.75f, 50);
     private CacheConfiguration<K, V> cacheConfiguration;
 
     private List<CacheEntryListener> cacheEntryListeners = new ArrayList<CacheEntryListener>();

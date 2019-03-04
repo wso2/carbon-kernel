@@ -1169,10 +1169,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
 
         if (!checkUserNameValid(userName)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Username validation failed");
+            }
             return false;
         }
 
         if (!checkUserPasswordValid(credential)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Password validation failed");
+            }
             return false;
         }
 
@@ -3175,8 +3181,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
+            Map<String, String> userAttributes = new HashMap<>();
             for (Map.Entry<String, String> entry : properties.entrySet()) {
-                String propertyName = getClaimAtrribute(entry.getKey(), userName, null);
+                String attributeName = getClaimAtrribute(entry.getKey(), userName, null);
+                String attributeValue = entry.getValue();
+                userAttributes.put(attributeName, attributeValue);
+            }
+
+            for (Map.Entry<String, String> entry : userAttributes.entrySet()) {
+                String propertyName = entry.getKey();
                 String propertyValue = entry.getValue();
                 if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                     if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {

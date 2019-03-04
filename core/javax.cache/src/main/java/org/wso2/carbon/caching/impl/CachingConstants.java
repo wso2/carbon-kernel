@@ -25,7 +25,7 @@ import org.wso2.carbon.caching.impl.eviction.LeastRecentlyUsedEvictionAlgorithm;
  */
 public final class CachingConstants {
 
-    public static final int DEFAULT_CACHE_CAPACITY = 1000;
+    public static final int DEFAULT_CACHE_CAPACITY = 10000;
     public static final EvictionAlgorithm DEFAULT_EVICTION_ALGORITHM = new LeastRecentlyUsedEvictionAlgorithm();
     public static final double CACHE_EVICTION_FACTOR = 0.25;
     public static final long MAX_CACHE_IDLE_TIME_MILLIS = 15 * 60 * 1000; // 15mins

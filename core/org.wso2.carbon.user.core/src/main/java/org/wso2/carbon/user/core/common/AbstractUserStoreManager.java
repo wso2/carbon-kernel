@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
@@ -1315,7 +1316,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to list users using username");
@@ -2704,6 +2706,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         if (StringUtils.isEmpty(userName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regEx) || StringUtils.isEmpty(regEx.trim())) {
+                regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+            }
             String message = String.format(ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getMessage(), null, regEx);
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getCode();
             handleAddUserFailure(errorCode, message, null, credential, roleList, claims, profileName);
@@ -2839,6 +2845,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             if (!checkUserNameValid(userStore.getDomainFreeName())) {
                 String regEx = realmConfig
                         .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+                //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+                if (StringUtils.isEmpty(regEx) || StringUtils.isEmpty(regEx.trim())) {
+                    regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+                }
                 String message = String
                         .format(ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getMessage(), userStore.getDomainFreeName(),
                                 regEx);
@@ -3350,9 +3360,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (index2 > 0) {
                     domain = newRole.substring(0, index2);
                 }
-                if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+
+                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    // If this is an internal role.
+                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+                } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                    // If this is an application role or workflow role.
                     internalRoleNew.add(newRole);
-                } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
+                } else if (this.isReadOnly()) {
+                    // If this is a readonly user store, we add even normal roles as internal roles.
                     internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
                 } else {
                     roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
@@ -5202,6 +5218,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         List<String> getAgain = new ArrayList<String>();
         Map<String, String> finalValues = new HashMap<String, String>();
+        boolean isOverrideUsernameClaimEnabled = Boolean.parseBoolean(realmConfig
+                .getIsOverrideUsernameClaimFromInternalUsername());
 
         for (String claim : claims) {
             ClaimMapping mapping;
@@ -5229,16 +5247,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
                 value = uerProperties.get(property);
 
-                if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
-                    // Check whether we have a value for the requested attribute
-                    if (value != null && value.trim().length() > 0) {
-                        finalValues.put(claim, value);
+                if (isOverrideUsernameClaimEnabled && USERNAME_CLAIM_URI.equals(mapping.getClaim()
+                        .getClaimUri())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("The username claim value is overridden by the username :" + userName);
                     }
-                } else {
-                    if (value != null && value.trim().length() > 0) {
-                        finalValues.put(claim, value);
-                    }
+                    value = userName;
                 }
+                if (value != null && value.trim().length() > 0) {
+                    finalValues.put(claim, value);
+                }
+
             } else {
                 if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
@@ -5352,7 +5371,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
             String regularExpression =
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            return regularExpression == null || isFormatCorrect(regularExpression, credentialObj.getChars());
+            if (regularExpression != null) {
+                if (isFormatCorrect(regularExpression, credentialObj.getChars())) {
+                    return true;
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Submitted password does not match with the regex " + regularExpression);
+                    }
+                    return false;
+                }
+            }
+            return true;
         } finally {
             credentialObj.clear();
         }
@@ -5384,6 +5413,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         String regularExpression = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+        //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+        if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+            regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+        }
 
         if (MultitenantUtils.isEmailUserName()) {
             regularExpression = realmConfig
@@ -5393,6 +5426,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
                         .PROPERTY_USER_NAME_JAVA_REG_EX);
             }
+
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+            }
+
             if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
                 regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
             }
@@ -5402,9 +5441,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             regularExpression = regularExpression.trim();
         }
 
-        return regularExpression == null || regularExpression.equals("")
-                || isFormatCorrect(regularExpression, userName);
-
+        if (StringUtils.isNotEmpty(regularExpression)) {
+            if (isFormatCorrect(regularExpression, userName)) {
+                return true;
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Username " + userName + " does not match with the regex "
+                            + regularExpression);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -6532,7 +6580,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             log.debug("Listing and paginate users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to paginate users using username");
