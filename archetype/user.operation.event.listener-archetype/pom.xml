@@ -16,14 +16,21 @@
   under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>org.wso2.carbon</groupId>
+    <artifactId>org.wso2.carbon.archetypes</artifactId>
+    <version>4.4.37-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.wso2.carbon</groupId>
-  <artifactId>org.wso2.carbon.is.user.operation.event.listener-archetype</artifactId>
-  <version>1.0.0</version>
+  <artifactId>org.wso2.carbon.user.core.listener-user.operation.event.listener-archetype</artifactId>
   <packaging>maven-archetype</packaging>
+  <description>Archetype for a Maven project intended to develop extension to user operation event listener.</description>
 
-  <name>org.wso2.carbon.is.user.operation.event.listener-archetype</name>
+  <name>UserOperationEventListener - Archetype</name>
 
   <build>
     <extensions>
