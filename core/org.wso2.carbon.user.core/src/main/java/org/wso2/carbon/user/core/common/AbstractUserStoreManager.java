@@ -175,9 +175,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 throw new UserStoreException(e.getCause().getCause().getMessage(), e);
 
             } else {
-                String msg = "Error occurred while accessing Java Security Manager Privilege Block when called by " +
-                        "method " + methodName + " with " + objects.length + " length of Objects and argTypes " +
-                        Arrays.toString(argTypes);
+                String msg;
+                if (objects != null && argTypes != null) {
+                    msg = "Error occurred while accessing Java Security Manager Privilege Block when called by " +
+                            "method " + methodName + " with " + objects.length + " length of Objects and argTypes " +
+                            Arrays.toString(argTypes);
+                } else {
+                    msg = "Error occurred while accessing Java Security Manager Privilege Block";
+                }
                 log.error(msg);
                 throw new UserStoreException(msg, e);
             }
