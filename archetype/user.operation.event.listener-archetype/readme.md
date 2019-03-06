@@ -12,8 +12,8 @@ project using the archetype by following command
 
         mvn archetype:generate
                 -DarchetypeGroupId=org.wso2.carbon
-                -DarchetypeArtifactId=org.wso2.carbon.is.user.operation.event.listener-archetype
-        	  -DarchetypeVersion=1.0.0
+                -DarchetypeArtifactId=org.wso2.carbon.user.core.listener-user.operation.event.listener-archetype
+                -DarchetypeVersion=<kernel_version>
                 -DgroupId=<your_groupID>
                 -DartifactId=<your_artifact_id>
                 -Dversion=<your_verion>
