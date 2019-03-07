@@ -576,7 +576,7 @@
         <orbit.version.qpid>0.12.wso2v1</orbit.version.qpid>
 
         <!--Wso2 Secure Vault -->
-        <securevault.version>1.0.0-wso2v2</securevault.version>
+        <securevault.version>1.1.0-SNAPSHOT</securevault.version>
 
         <jdbc-pool.version>7.0.81.wso2v2</jdbc-pool.version>
 

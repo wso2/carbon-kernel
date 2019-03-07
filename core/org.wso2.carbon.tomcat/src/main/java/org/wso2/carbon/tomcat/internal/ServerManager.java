@@ -188,8 +188,15 @@ public class ServerManager {
                     token = tempToken + "." + attributeName;
                     if(resolver.isTokenProtected(token)){
                         node.setNodeValue(resolver.resolve(token));
-                        nodeMap.removeNamedItem(
-                                SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                        try {
+                            nodeMap.removeNamedItem(
+                                    SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                        } catch (DOMException e) {
+                            String msg =
+                                    "Error while removing " + SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS;
+                            // log is ignored
+                            log.debug(msg, e);
+                        }
                     }
                 }
             }
