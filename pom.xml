@@ -42,7 +42,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
@@ -51,7 +51,7 @@
                     <show>public</show>
                     <nohelp>true</nohelp>
                 </configuration>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
     <profiles>
