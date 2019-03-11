@@ -15,6 +15,18 @@
       "isCascadeDeleteEnabled": true
     }
   },
+  "user_store.properties": {
+    "ReadGroups": true,
+    "UsernameJavaScriptRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+    "UsernameJavaRegExViolationErrorMsg" : "Username pattern policy violated",
+    "PasswordJavaRegEx" : "^[\\S]{5,30}$",
+    "PasswordJavaScriptRegEx" : "^[\\S]{5,30}$",
+    "PasswordJavaRegExViolationErrorMsg" : "Password length should be within 5 to 30 characters",
+    "RolenameJavaScriptRegEx" : "^[\\S]{3,30}$",
+    "MultiAttributeSeparator" : ",",
+    "MaxUserNameListLength" : "100",
+    "MaxRoleNameListLength" : "100"
+  },
   "governance.data_source": "jdbc/SHARED_DB",
   "governance.cache_id": "$conf{database.shared_db.username}@$conf{database.shared_db.url}",
   "governance.enable_cache": true,
