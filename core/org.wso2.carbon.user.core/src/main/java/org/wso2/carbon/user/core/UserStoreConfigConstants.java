@@ -103,4 +103,9 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
+    // Property to enable TLS connection with LDAP server using StartTLS extended operation.
+    public static final String STARTTLS_ENABLED = "StartTLSEnabled";
+    public static final String STARTTLS_ENABLED_DISPLAY_NAME = "Enable StartTLS";
+    public static final String STARTTLS_ENABLED_DESCRIPTION = "Enable secure connection by using " +
+            "StartTLS extended operation in LDAP";
 }

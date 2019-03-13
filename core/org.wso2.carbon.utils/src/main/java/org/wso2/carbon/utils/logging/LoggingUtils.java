@@ -57,6 +57,42 @@ public class LoggingUtils {
                                 record.getMessage(), record.getThrown());
     }
 
+    @Deprecated
+    /**
+     * Returns a TenantAwareLoggingEvent that wraps the LoggingEvent with tenant specific tenantId
+     * and serviceName
+     *
+     * @param loggingEvent
+     *         -  The LoggingEvent with the log content
+     * @param tenantId
+     *         - tenant Id of the tenant which triggered log event
+     * @param serviceName
+     *         - service name of the current log event
+     * @return a TenantAwareLoggingEvent
+     */
+    public static TenantAwareLoggingEvent getTenantAwareLogEvent(LoggingEvent loggingEvent,
+                                                                 int tenantId, String serviceName) {
+        Logger logger = Logger.getLogger(loggingEvent.getLoggerName());
+        TenantAwareLoggingEvent tenantAwareLoggingEvent;
+        ThrowableInformation throwableInformation = loggingEvent.getThrowableInformation();
+        Throwable throwable;
+        // loggingEvent.getThrowableInformation may return null if there's no such information
+        // therefore add a null check here
+        if (null == throwableInformation) {
+            throwable = null;
+        } else {
+            throwable = throwableInformation.getThrowable();
+        }
+        tenantAwareLoggingEvent = new TenantAwareLoggingEvent(loggingEvent.fqnOfCategoryClass,
+                logger, loggingEvent.timeStamp,
+                loggingEvent.getLevel(),
+                loggingEvent.getMessage(),
+                throwable);
+        tenantAwareLoggingEvent.setTenantId(Integer.toString(tenantId));
+        tenantAwareLoggingEvent.setServiceName(serviceName);
+        return tenantAwareLoggingEvent;
+    }
+
     /**
      * Returns a TenantAwareLoggingEvent that wraps the LoggingEvent with tenant specific tenantId
      * and serviceName
@@ -86,10 +122,10 @@ public class LoggingUtils {
             throwable = throwableInformation.getThrowable();
         }
 
-        String logMessage = loggingEvent.getMessage().toString();
+        String logMessage = getLogMessage(loggingEvent);
 
         // Check whether there are any masking patterns defined.
-        if (maskingPatterns != null && maskingPatterns.size() > 0) {
+        if (logMessage != null && maskingPatterns != null && maskingPatterns.size() > 0) {
 
             for (Pattern pattern : maskingPatterns) {
                 Matcher matcher = pattern.matcher(logMessage);
@@ -111,6 +147,15 @@ public class LoggingUtils {
         tenantAwareLoggingEvent.setTenantId(Integer.toString(tenantId));
         tenantAwareLoggingEvent.setServiceName(serviceName);
         return tenantAwareLoggingEvent;
+    }
+
+    private static String getLogMessage(LoggingEvent loggingEvent) {
+
+        if (loggingEvent.getMessage() == null) {
+            return null;
+        } else {
+            return loggingEvent.getMessage().toString();
+        }
     }
 
     /**
