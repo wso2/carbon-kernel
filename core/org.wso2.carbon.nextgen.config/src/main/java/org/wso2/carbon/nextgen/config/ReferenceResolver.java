@@ -7,8 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * Resolves placeholder references in the configuration.
@@ -27,9 +30,9 @@ public class ReferenceResolver {
 
     private static final String CONF_PLACEHOLDER_PREFIX = "$conf{";
     private static final String SYS_PROPERTY_PLACEHOLDER_PREFIX = "$sys{";
+    private static final String SECRET_PROPERTY_PLACEHOLDER_PREFIX = "$secret{";
     private static final String ENV_VAR_PLACEHOLDER_PREFIX = "$env{";
     private static final String PLACEHOLDER_SUFFIX = "}";
-
     private ReferenceResolver() {
 
     }
@@ -38,10 +41,12 @@ public class ReferenceResolver {
      * Resolves the placeholder strings.
      *
      * @param context Configuration context
+     * @param secrets
      * @throws ConfigParserException
      */
-    public static void resolve(Map<String, Object> context) throws ConfigParserException {
+    public static void resolve(Map<String, Object> context, Properties secrets) throws ConfigParserException {
 
+        resolveSecrets(context, secrets);
         resolveSystemProperties(context);
         resolveEnvVariables(context);
         resolveConfigReferences(context);
@@ -136,6 +141,55 @@ public class ReferenceResolver {
     }
 
     /**
+     * Resolves system property references ($sys{ref}).
+     *
+     * @param context The configuration context
+     * @param secrets
+     */
+    public static void resolveSecrets(Map<String, Object> context, Properties secrets) throws ConfigParserException {
+
+        boolean enabledSecret = false;
+        for (Map.Entry<String, Object> entry : context.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                enabledSecret = !(!enabledSecret && !resolveStringWithSecretPlaceHolders(value, secrets));
+            } else if (value instanceof List) {
+                for (Object v : (List) value) {
+                    if (v instanceof String) {
+                        enabledSecret = !(!enabledSecret && !resolveStringWithSecretPlaceHolders(v, secrets));
+                    } else if (v instanceof Map) {
+                        Set<Map.Entry> entries = ((Map) v).entrySet();
+                        for (Map.Entry entrySet : entries) {
+                            enabledSecret = !(!enabledSecret &&
+                                    !resolveStringWithSecretPlaceHolders(entrySet.getValue(), secrets));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean resolveStringWithSecretPlaceHolders(Object value, Properties secrets)
+            throws ConfigParserException {
+
+        boolean exists = false;
+
+        if (value instanceof String) {
+            String[] secretRefs = StringUtils.substringsBetween((String) value, SECRET_PROPERTY_PLACEHOLDER_PREFIX,
+                    PLACEHOLDER_SUFFIX);
+            if (secretRefs != null) {
+                for (String secretRef : secretRefs) {
+                    if (!secrets.containsKey(secretRef)) {
+                        throw new ConfigParserException("Secret References can't be resolved for " + secretRef);
+                    }
+                    exists = true;
+                }
+            }
+        }
+        return exists;
+    }
+
+    /**
      * Resolves environment variable references ($env{ref}).
      * @param context The configuration context
      */
@@ -179,7 +233,8 @@ public class ReferenceResolver {
                 context.put(k, value);
             } else if (existingValue instanceof String) {
                 existingValue = ((String) existingValue).replaceAll(Pattern.quote(
-                        CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX), value.toString());
+                        CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX),
+                        Matcher.quoteReplacement(value.toString()));
                 context.put(k, existingValue);
             }
         }

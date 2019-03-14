@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.nextgen.config.util;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.wso2.carbon.nextgen.config.ConfigConstants;
 import org.wso2.carbon.nextgen.config.ConfigParserException;
 
 import java.io.BufferedReader;
@@ -27,10 +30,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -38,6 +43,7 @@ import java.util.Set;
  */
 public class FileUtils {
 
+    private static final Logger LOGGER = Logger.getLogger(FileUtils.class);
     private FileUtils() {
 
     }
@@ -147,4 +153,41 @@ public class FileUtils {
         }
 
     }
+
+    public static Properties loadSecrets() {
+
+        Properties properties = new Properties();
+        String filePath;
+        String configPath = System.getProperty(ConfigConstants.CARBON_CONFIG_DIR_PATH);
+        String carbonHome = System.getProperty(ConfigConstants.CARBON_HOME);
+        if (configPath == null) {
+            filePath =
+                    Paths.get(carbonHome, ConfigConstants.REPOSITORY_DIR, ConfigConstants.CONF_DIR,
+                            ConfigConstants.SECURITY_DIR, ConfigConstants.SECRET_CONF).toString();
+        } else {
+            filePath = Paths.get(configPath, ConfigConstants.SECURITY_DIR, ConfigConstants.SECRET_CONF).toString();
+        }
+
+        File dataSourceFile = new File(filePath);
+        try (InputStream inputStream = new FileInputStream(dataSourceFile)) {
+            Properties secretConfProperties = new Properties();
+            secretConfProperties.load(inputStream);
+            if (secretConfProperties.containsKey(ConfigConstants.SECRET_REPOSITORY_LOCATION)) {
+                String secretRepositoryLocation =
+                        secretConfProperties.getProperty(ConfigConstants.SECRET_REPOSITORY_LOCATION);
+                if (StringUtils.isNotEmpty(secretRepositoryLocation)) {
+                    try (InputStream input =
+                                 new FileInputStream(Paths.get(carbonHome, secretRepositoryLocation).toString())) {
+                        properties.load(input);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            String msg = "Error loading properties from a file at :" + filePath;
+            LOGGER.warn(msg, e);
+            return properties;
+        }
+        return properties;
+    }
+
 }

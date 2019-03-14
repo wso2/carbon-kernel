@@ -41,6 +41,7 @@
                 <exclude>README.txt</exclude>
                 <exclude>LICENSE.txt</exclude>
                 <exclude>release-notes.html</exclude>
+                <exclude>**/lib/commons-lang-1.0.jar</exclude>
             </excludes>
         </fileSet>
         <fileSet>

@@ -282,18 +282,12 @@ public class ServerConfiguration implements ServerConfigurationService {
 			OMElement element = (OMElement) childElements.next();
 			nameStack.push(element.getLocalName());
 			if (elementHasText(element)) {
-				String key = MiscellaneousUtil.getProtectedToken(element.getText());
+				String key = getKey(nameStack);
 				String value = replaceSystemProperty(element.getText());
-				if (key != null && !key.isEmpty()) {
-					if (isProtectedAlias(key)) {
-						value = getProtectedValueFromAlias(key);
-					}
-				}
-				if (key == null) {
-					key = getKey(nameStack);
-					if (isProtectedToken(key)) {
-						value = getProtectedValue(key);
-					}
+				String resolvedValue = MiscellaneousUtil.resolve(element, secretResolver);
+
+				if (resolvedValue != null && !resolvedValue.isEmpty()) {
+					value = resolvedValue;
 				}
 				addToConfiguration(key, value);
 			}
@@ -535,19 +529,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 				&& secretResolver.isTokenProtected("Carbon." + key);
 	}
 
-	private boolean isProtectedAlias(String alias) {
-
-		return secretResolver != null && secretResolver.isInitialized()
-				&& secretResolver.isTokenProtected(alias);
-	}
-
 	protected String getProtectedValue(String key) {
 		return secretResolver.resolve("Carbon." + key);
 	}
-
-	private String getProtectedValueFromAlias(String alias) {
-
-		return secretResolver.resolve(alias);
-	}
-
 }

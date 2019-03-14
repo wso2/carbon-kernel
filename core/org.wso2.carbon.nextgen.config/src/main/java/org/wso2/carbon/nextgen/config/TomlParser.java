@@ -121,4 +121,25 @@ class TomlParser {
         }
         return finalList;
     }
+
+    public static Map<String, String> getSecrets(String filePath) {
+
+        Map<String, String> context = new LinkedHashMap<>();
+        try {
+            TomlParseResult result;
+
+            result = Toml.parse(Paths.get(filePath));
+            result.errors().forEach(error -> LOGGER.error(error.toString()));
+            TomlTable table = result.getTable(ConfigConstants.SECRET_PROPERTY_MAP_NAME);
+            if (table != null) {
+                table.dottedKeySet().forEach(key -> {
+                    context.put(key, table.getString(key));
+                });
+            }
+        } catch (IOException e) {
+            LOGGER.error("Error parsing file " + filePath, e);
+        }
+
+        return context;
+    }
 }
