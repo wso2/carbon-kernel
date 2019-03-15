@@ -283,12 +283,15 @@ public class ServerConfiguration implements ServerConfigurationService {
 			nameStack.push(element.getLocalName());
 			if (elementHasText(element)) {
 				String key = getKey(nameStack);
-				String value = replaceSystemProperty(element.getText());
+				String value;
 				String resolvedValue = MiscellaneousUtil.resolve(element, secretResolver);
 
 				if (resolvedValue != null && !resolvedValue.isEmpty()) {
 					value = resolvedValue;
+				} else {
+					value = element.getText();
 				}
+				value = replaceSystemProperty(value);
 				addToConfiguration(key, value);
 			}
 			readChildElements(element, nameStack);

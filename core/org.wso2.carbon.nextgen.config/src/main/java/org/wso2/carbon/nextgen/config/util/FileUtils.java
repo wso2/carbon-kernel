@@ -169,23 +169,25 @@ public class FileUtils {
         }
 
         File dataSourceFile = new File(filePath);
-        try (InputStream inputStream = new FileInputStream(dataSourceFile)) {
-            Properties secretConfProperties = new Properties();
-            secretConfProperties.load(inputStream);
-            if (secretConfProperties.containsKey(ConfigConstants.SECRET_REPOSITORY_LOCATION)) {
-                String secretRepositoryLocation =
-                        secretConfProperties.getProperty(ConfigConstants.SECRET_REPOSITORY_LOCATION);
-                if (StringUtils.isNotEmpty(secretRepositoryLocation)) {
-                    try (InputStream input =
-                                 new FileInputStream(Paths.get(carbonHome, secretRepositoryLocation).toString())) {
-                        properties.load(input);
+        if (dataSourceFile.exists()) {
+            try (InputStream inputStream = new FileInputStream(dataSourceFile)) {
+                Properties secretConfProperties = new Properties();
+                secretConfProperties.load(inputStream);
+                if (secretConfProperties.containsKey(ConfigConstants.SECRET_REPOSITORY_LOCATION)) {
+                    String secretRepositoryLocation =
+                            secretConfProperties.getProperty(ConfigConstants.SECRET_REPOSITORY_LOCATION);
+                    if (StringUtils.isNotEmpty(secretRepositoryLocation)) {
+                        try (InputStream input =
+                                     new FileInputStream(Paths.get(carbonHome, secretRepositoryLocation).toString())) {
+                            properties.load(input);
+                        }
                     }
                 }
+            } catch (IOException e) {
+                String msg = "Error loading properties from a file at :" + filePath;
+                LOGGER.warn(msg);
+                return properties;
             }
-        } catch (IOException e) {
-            String msg = "Error loading properties from a file at :" + filePath;
-            LOGGER.warn(msg, e);
-            return properties;
         }
         return properties;
     }

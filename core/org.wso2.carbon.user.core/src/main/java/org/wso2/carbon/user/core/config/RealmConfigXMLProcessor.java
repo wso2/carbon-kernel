@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -372,13 +373,9 @@ public class RealmConfigXMLProcessor {
                 .getFirstChildWithName(
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_USER_NAME)).getText()
                 .trim();
-        adminPassword = adminUser
-                .getFirstChildWithName(new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_PASSWORD))
-                .getText().trim();
-        if (secretResolver != null && secretResolver.isInitialized()
-                && secretResolver.isTokenProtected("UserManager.AdminUser.Password")) {
-            adminPassword = secretResolver.resolve("UserManager.AdminUser.Password");
-        }
+        OMElement adminPasswordElement =
+                adminUser.getFirstChildWithName(new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_PASSWORD));
+        adminPassword = MiscellaneousUtil.resolve(adminPasswordElement, secretResolver);
         adminRoleName = mainConfig
                 .getFirstChildWithName(
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_ADMIN_ROLE)).getText()
@@ -586,17 +583,7 @@ public class RealmConfigXMLProcessor {
             OMElement propElem = (OMElement) ite.next();
             String propName = propElem.getAttributeValue(new QName(
                     UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME));
-            String propValue = propElem.getText();
-            if (secretResolver != null && secretResolver.isInitialized()) {
-                if (secretResolver.isTokenProtected("UserManager.Configuration.Property."
-                        + propName)) {
-                    propValue = secretResolver.resolve("UserManager.Configuration.Property."
-                            + propName);
-                }
-                if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName)) {
-                    propValue = secretResolver.resolve("UserStoreManager.Property." + propName);
-                }
-            }
+            String propValue = MiscellaneousUtil.resolve(propElem, secretResolver);
             map.put(propName.trim(), propValue.trim());
         }
         return map;

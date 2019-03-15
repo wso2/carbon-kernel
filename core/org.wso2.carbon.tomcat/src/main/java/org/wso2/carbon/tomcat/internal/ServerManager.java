@@ -28,6 +28,7 @@ import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.SecurityConstants;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 import org.wso2.securevault.secret.SecretManager;
 import org.xml.sax.SAXException;
 
@@ -183,19 +184,24 @@ public class ServerManager {
         if (nodeMap != null) {
             for (int j = 0; j < nodeMap.getLength(); j++) {
                 Node node = nodeMap.item(j);
-                if(node != null){
-                    String attributeName = node.getNodeName();
-                    token = tempToken + "." + attributeName;
-                    if(resolver.isTokenProtected(token)){
-                        node.setNodeValue(resolver.resolve(token));
-                        try {
-                            nodeMap.removeNamedItem(
-                                    SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
-                        } catch (DOMException e) {
-                            String msg =
-                                    "Error while removing " + SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS;
-                            // log is ignored
-                            log.debug(msg, e);
+                if (node != null) {
+                    String alias = MiscellaneousUtil.getProtectedToken(node.getNodeValue());
+                    if (alias != null && alias.length() > 0) {
+                        node.setNodeValue(MiscellaneousUtil.resolve(alias, resolver));
+                    } else {
+                        String attributeName = node.getNodeName();
+                        token = tempToken + "." + attributeName;
+                        if (resolver.isTokenProtected(token)) {
+                            node.setNodeValue(resolver.resolve(token));
+                            try {
+                                nodeMap.removeNamedItem(
+                                        SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                            } catch (DOMException e) {
+                                String msg =
+                                        "Error while removing " + SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS;
+                                // log is ignored
+                                log.debug(msg, e);
+                            }
                         }
                     }
                 }

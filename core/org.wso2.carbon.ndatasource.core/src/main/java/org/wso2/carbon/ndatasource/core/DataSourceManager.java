@@ -26,6 +26,7 @@ import org.wso2.carbon.ndatasource.core.internal.DataSourceServiceComponent;
 import org.wso2.carbon.ndatasource.core.utils.DataSourceUtils;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.securevault.SecretResolverFactory;
 
 import javax.xml.bind.JAXBContext;
 import java.io.File;

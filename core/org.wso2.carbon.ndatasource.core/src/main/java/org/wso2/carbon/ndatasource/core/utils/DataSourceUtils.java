@@ -39,6 +39,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
@@ -170,36 +171,61 @@ public class DataSourceUtils {
 			return null;
 		}
 	}
-	
+
 	private static synchronized String loadFromSecureVault(String alias) {
+
 		if (secretResolver == null) {
-		    secretResolver = SecretResolverFactory.create((OMElement) null, false);
-		    secretResolver.init(DataSourceServiceComponent.
-		    		getSecretCallbackHandlerService().getSecretCallbackHandler());
+			secretResolver = SecretResolverFactory.create((OMElement) null, false);
+			secretResolver.init(DataSourceServiceComponent.
+					getSecretCallbackHandlerService().getSecretCallbackHandler());
 		}
 		return secretResolver.resolve(alias);
 	}
 
-    private static void secureLoadElement(Element element, boolean checkSecureVault) 
+	private static synchronized boolean isSecuredTokenProtected(String alias) {
+
+		if (secretResolver == null) {
+			secretResolver = SecretResolverFactory.create((OMElement) null, false);
+			secretResolver.init(DataSourceServiceComponent.
+					getSecretCallbackHandlerService().getSecretCallbackHandler());
+		}
+		if (secretResolver.isInitialized() && secretResolver.isTokenProtected(alias)) {
+			return true;
+		}
+		return false;
+	}
+
+
+	private static void secureLoadElement(Element element, boolean checkSecureVault)
 			throws CryptoException {
+
 		if (checkSecureVault) {
-			Attr secureAttr = element.getAttributeNodeNS(DataSourceConstants.SECURE_VAULT_NS,
-					DataSourceConstants.SECRET_ALIAS_ATTR_NAME);
-			if (secureAttr != null) {
-				element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
-                element.removeAttributeNode(secureAttr);
-			} 
+			String alias = MiscellaneousUtil.getProtectedToken(element.getTextContent());
+			if (alias != null && !alias.isEmpty()) {
+				if (isSecuredTokenProtected(alias)){
+					element.setTextContent(loadFromSecureVault(alias));
+				}
+			} else {
+				Attr secureAttr = element.getAttributeNodeNS(DataSourceConstants.SECURE_VAULT_NS,
+						DataSourceConstants.SECRET_ALIAS_ATTR_NAME);
+				if (secureAttr != null) {
+					if (isSecuredTokenProtected(secureAttr.getValue())) {
+						element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
+					}
+					element.removeAttributeNode(secureAttr);
+				}
+			}
 		} else {
-		    String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
-		    if (encryptedStr != null) {
-			    boolean encrypted = Boolean.parseBoolean(encryptedStr);
-			    if (encrypted) {
-				    element.setTextContent(new String(CryptoUtil.getDefaultCryptoUtil(
-				    		DataSourceServiceComponent.getServerConfigurationService(),
-				    		DataSourceServiceComponent.getRegistryService()).
-				    		base64DecodeAndDecrypt(element.getTextContent())));
-			    }
-		    }
+			String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
+			if (encryptedStr != null) {
+				boolean encrypted = Boolean.parseBoolean(encryptedStr);
+				if (encrypted) {
+					element.setTextContent(new String(CryptoUtil.getDefaultCryptoUtil(
+							DataSourceServiceComponent.getServerConfigurationService(),
+							DataSourceServiceComponent.getRegistryService()).
+							base64DecodeAndDecrypt(element.getTextContent())));
+				}
+			}
 		}
 		NodeList childNodes = element.getChildNodes();
 		int count = childNodes.getLength();
