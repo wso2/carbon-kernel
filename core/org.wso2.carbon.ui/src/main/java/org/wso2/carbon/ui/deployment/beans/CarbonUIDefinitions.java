@@ -228,22 +228,21 @@ public class CarbonUIDefinitions {
                 }
                 if (continueAdding) {
                     String[] requiredPermissions = menu.getRequirePermission();
-                    if (requiredPermissions != null) {
-                        int grantCount = 0;
-                        for (String requiredPermission : requiredPermissions) {
-                            requiredPermission = StringUtils.trim(requiredPermission);
-                            int temp = grantCount;
-                            for (String grantedPermission : userPermissions) {
-                                if ("*".equals(requiredPermission)) {
-                                    grantCount++;
+                    if (requiredPermissions != null) {int grantCount = 0;
+                    for (String requiredPermission : requiredPermissions) {requiredPermission = StringUtils.trim(requiredPermission);
+                        int temp = grantCount;
+                        for (String grantedPermission : userPermissions) {
+                            if ("*".equals(requiredPermission)) {
+                                grantCount++;
+                                break;
+                            } else {
+                                //remove whitespaces before the text
+                                requiredPermission = requiredPermission.replaceAll("\\s","");if (!requiredPermission.startsWith("/")) {
+                                    grantCount = requiredPermissions.length;
+                                    log.error(" Attention :: Permission issue in Menu item "
+                                            + menu.getId());
                                     break;
-                                } else {
-                                    if (!requiredPermission.startsWith("/")) {
-                                        grantCount = requiredPermissions.length;
-                                        log.error(" Attention :: Permission issue in Menu item "
-                                                + menu.getId());
-                                        break;
-                                    }
+                                }
 
                                     if (requiredPermission.startsWith(grantedPermission)) {
                                         grantCount++;
