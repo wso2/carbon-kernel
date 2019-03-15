@@ -232,6 +232,8 @@ public class CarbonUIDefinitions {
                                 grantCount++;
                                 break;
                             } else {
+                                //remove whitespaces before the text
+                                requiredPermission = requiredPermission.replaceAll("\\s","");
                                 if (!requiredPermission.startsWith("/")) {
                                     grantCount = requiredPermissions.length;
                                     log.error(" Attention :: Permission issue in Menu item "
