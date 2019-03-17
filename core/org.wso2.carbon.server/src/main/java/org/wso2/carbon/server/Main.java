@@ -242,7 +242,8 @@ public class Main {
                         .withValidatorFilePath(newConfigDirectoryPath)
                         .withTemplateFilePath(newConfigDirectoryPath)
                         .withDefaultValueFilePath(newConfigDirectoryPath)
-                        .withMetaDataFilePath(newConfigDirectoryPath);
+                        .withMetaDataFilePath(newConfigDirectoryPath)
+                        .withUnitResolverFilePath(newConfigDirectoryPath);
         try {
             configParserBuilder.build().parse(carbonHomePath);
         } catch (ConfigParserException e) {
