@@ -36,7 +36,12 @@
       "user_store.properties.PasswordHashMethod": "PLAIN_TEXT",
       "user_store.properties.ConnectionPoolingEnabled": true,
       "user_store.properties.LDAPConnectionTimeout": 5000,
-      "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true,
+      "user_store.properties.SCIMEnabled": false,
+      "user_store.properties.UserRolesCacheEnabled": true,
+      "user_store.properties.ReadTimeout": "",
+      "user_store.properties.RetryAttempts": ""
+
     },
     "read_write_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager",
@@ -67,7 +72,8 @@
       "user_store.properties.EmptyRolesAllowed": true,
       "user_store.properties.kdcEnabled": false,
       "user_store.properties.defaultRealmName": "WSO2.ORG",
-      "user_store.properties.StartTLSEnabled": false
+      "user_store.properties.StartTLSEnabled": false,
+      "user_store.properties.UserRolesCacheEnabled": true
     },
     "active_directory": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager",
@@ -102,7 +108,11 @@
       "user_store.properties.isADLDSRole": false,
       "user_store.properties.userAccountControl": 512,
       "user_store.properties.MembershipAttributeRange": 1500,
-      "user_store.properties.StartTLSEnabled": false
+      "user_store.properties.StartTLSEnabled": false,
+      "user_store.properties.SCIMEnabled": false,
+      "user_store.properties.UserRolesCacheEnabled": true,
+      "user_store.properties.ReadTimeout": "",
+      "user_store.properties.RetryAttempts": ""
     }
   },
   "database.shared_db.type": {
