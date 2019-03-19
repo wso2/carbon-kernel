@@ -80,6 +80,7 @@
         <module>features/consent-mgt</module>
         <module>features/functions-library-mgt</module>
         <module>features/template-mgt</module>
+        <module>features/configuration-mgt</module>
     </modules>
 
     <repositories>
@@ -1205,6 +1206,12 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.configuration.mgt.core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.configuration.mgt.endpoint</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
