@@ -25,7 +25,10 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
 
 public class UnitResolverTest {
 
@@ -50,9 +53,10 @@ public class UnitResolverTest {
         context.put(key, value);
         try {
             UnitResolver.updateUnits(context, unitConfiguration);
-            fail(String.format("Expected error message matching regex '%s' for %s = %s", expectedErrorRegex, key, value));
+            fail(String.format("Expected error message matching regex '%s' for %s = %s", expectedErrorRegex, key,
+                    value));
         } catch (ConfigParserException e) {
-            assertTrue(e.getMessage() !=null && e.getMessage().matches(expectedErrorRegex),
+            assertTrue(e.getMessage() != null && e.getMessage().matches(expectedErrorRegex),
                     String.format("Expected error message matching regex '%s' for %s = %s, but was %s",
                             expectedErrorRegex, key, value, e.getMessage()));
         }
