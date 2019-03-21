@@ -24,6 +24,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
@@ -32,19 +33,20 @@ import org.wso2.carbon.core.services.util.CarbonAuthenticationUtil;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * This is not an AdminService, but we are retainig the name for historical reasons.
@@ -122,6 +124,14 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
                         remoteAddress, "Invalid credential");
                 handleAuthenticationCompleted(tenantId, false);
+                return false;
+            }
+        } catch (UserStoreException e) {
+            if (isLoginFailureReasonEnabled()) {
+                throw new AuthenticationException(e.getMessage(), e);
+            } else {
+                String msg = "System error while Authenticating/Authorizing User : " + e.getMessage();
+                log.error(msg);
                 return false;
             }
         } catch (AuthenticationException e) {
@@ -375,5 +385,13 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             }
         }
         return httpSession;
+    }
+
+    private boolean isLoginFailureReasonEnabled() {
+
+        String enableLoginFailureReason = ServerConfiguration.getInstance().
+                getFirstProperty("EnableLoginFailureReason");
+        return enableLoginFailureReason != null && "true".equals(enableLoginFailureReason.trim());
+
     }
 }
