@@ -38,9 +38,7 @@
       "user_store.properties.LDAPConnectionTimeout": 5000,
       "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true,
       "user_store.properties.SCIMEnabled": false,
-      "user_store.properties.UserRolesCacheEnabled": true,
-      "user_store.properties.ReadTimeout": "",
-      "user_store.properties.RetryAttempts": ""
+      "user_store.properties.UserRolesCacheEnabled": true
 
     },
     "read_write_ldap": {
@@ -110,9 +108,7 @@
       "user_store.properties.MembershipAttributeRange": 1500,
       "user_store.properties.StartTLSEnabled": false,
       "user_store.properties.SCIMEnabled": false,
-      "user_store.properties.UserRolesCacheEnabled": true,
-      "user_store.properties.ReadTimeout": "",
-      "user_store.properties.RetryAttempts": ""
+      "user_store.properties.UserRolesCacheEnabled": true
     }
   },
   "database.shared_db.type": {
