@@ -17,7 +17,7 @@
   },
   "user_store.properties": {
     "ReadGroups": true,
-    "UsernameJavaScriptRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+    "UsernameJavaScriptRegEx": "^[\\S]{5,30}$",
     "UsernameJavaRegExViolationErrorMsg" : "Username pattern policy violated",
     "PasswordJavaRegEx" : "^[\\S]{5,30}$",
     "PasswordJavaScriptRegEx" : "^[\\S]{5,30}$",
