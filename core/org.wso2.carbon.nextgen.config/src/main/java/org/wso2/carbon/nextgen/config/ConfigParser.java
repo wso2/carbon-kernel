@@ -49,6 +49,7 @@ public class ConfigParser {
     private static final String VALIDATOR_FILE_PATH = "validator.json";
     private static final String MAPPING_FILE_PATH = "key-mappings.json";
     private static final String DEFAULT_VALUE_FILE_PATH = "default.json";
+    private static final String UNIT_RESOLVER_FILE_PATH = "unit-resolve.json";
     private static final String META_DATA_CONFIG_FILE = "metadata_config.properties";
     private static final String META_DATA_TEMPLATE_FILE = "metadata_template.properties";
     private static final String META_DATA_DIRECTORY = ".metadata";
@@ -56,6 +57,7 @@ public class ConfigParser {
     private String deploymentConfigurationPath;
     private String templateFileDir;
     private String inferConfigurationFilePath;
+    private String unitResolverFilePath;
     private String validatorFilePath;
     private String mappingFilePath;
     private String defaultValueFilePath;
@@ -78,7 +80,7 @@ public class ConfigParser {
                     ChangedFileSet templateChanged = MetaDataParser.getChangedFiles(basePath,
                             new String[]{templateFileDir,
                                     inferConfigurationFilePath, defaultValueFilePath, validatorFilePath,
-                                    mappingFilePath}, metadataTemplateFilePath);
+                                    mappingFilePath, unitResolverFilePath}, metadataTemplateFilePath);
                     if (templateChanged.isChanged()) {
                         // template Metadata changed then deploy and write
                         LOGGER.warn("Template files changed under " + templateFileDir);
@@ -154,9 +156,9 @@ public class ConfigParser {
 
         LOGGER.info("Writing Metadata Entries...");
         MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath,
-                                            new String[]{templateFileDir, inferConfigurationFilePath,
-                                                         defaultValueFilePath,
-                                                         validatorFilePath, mappingFilePath});
+                new String[]{templateFileDir, inferConfigurationFilePath,
+                        defaultValueFilePath, unitResolverFilePath,
+                        validatorFilePath, mappingFilePath});
         deployedFileSet.add(deploymentConfigurationPath);
         MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath,
                 deployedFileSet.toArray(new String[deployedFileSet.size()]));
@@ -191,6 +193,7 @@ public class ConfigParser {
         Map<String, Object> enrichedContext = ValueInferrer.infer(defaultContext, inferConfigurationFilePath);
         Properties secrets = FileUtils.loadSecrets();
         ReferenceResolver.resolve(enrichedContext, secrets);
+        UnitResolver.updateUnits(enrichedContext, unitResolverFilePath);
         Validator.validate(enrichedContext, validatorFilePath);
 
         Map<String, File> fileNames = getTemplatedFilesMap(templateDir);
@@ -201,7 +204,7 @@ public class ConfigParser {
         File templateDir = new File(templateFileDir);
         if (!templateDir.exists() || !templateDir.isDirectory()) {
             throw new ConfigParserException(String.format("Template directory (%s) does not exist or is not a " +
-                                                          "directory", templateDir.getAbsolutePath()));
+                    "directory", templateDir.getAbsolutePath()));
         }
         return templateDir;
     }
@@ -240,6 +243,7 @@ public class ConfigParser {
         private String deploymentConfigurationPath;
         private String templateFileDir;
         private String inferConfigurationFilePath;
+        private String unitResolverFilePath;
         private String validatorFilePath;
         private String mappingFilePath;
         private String defaultValueFilePath;
@@ -255,6 +259,7 @@ public class ConfigParser {
             inferConfigurationFilePath = INFER_CONFIG_FILE_PATH;
             validatorFilePath = VALIDATOR_FILE_PATH;
             mappingFilePath = MAPPING_FILE_PATH;
+            unitResolverFilePath = UNIT_RESOLVER_FILE_PATH;
         }
 
         public ConfigParserBuilder withDeploymentConfigurationPath(String deploymentConfigurationPath) {
@@ -293,11 +298,18 @@ public class ConfigParser {
             return this;
         }
 
+        public ConfigParserBuilder withUnitResolverFilePath(String defaultUnitResolverPath) {
+
+            this.unitResolverFilePath = defaultUnitResolverPath + File.separator + UNIT_RESOLVER_FILE_PATH;
+            return this;
+        }
+
         public ConfigParser build() {
 
             ConfigParser configParser = new ConfigParser();
             configParser.templateFileDir = this.templateFileDir;
             configParser.inferConfigurationFilePath = this.inferConfigurationFilePath;
+            configParser.unitResolverFilePath = this.unitResolverFilePath;
             configParser.validatorFilePath = this.validatorFilePath;
             configParser.deploymentConfigurationPath = this.deploymentConfigurationPath;
             configParser.mappingFilePath = this.mappingFilePath;

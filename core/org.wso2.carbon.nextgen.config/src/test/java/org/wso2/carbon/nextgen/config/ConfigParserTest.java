@@ -45,6 +45,8 @@ public class ConfigParserTest {
                 org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String defaultConfiguration =
                 org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
+        String unitConfiguration =
+                org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario).getAbsolutePath();
         String expectedOutputDirPath =
                 org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario, "expected")
                         .getAbsolutePath();
@@ -56,6 +58,7 @@ public class ConfigParserTest {
                 .withValidatorFilePath(validatorConfiguration)
                 .withTemplateFilePath(templateConfiguration)
                 .withDefaultValueFilePath(defaultConfiguration)
+                .withUnitResolverFilePath(unitConfiguration)
                 .build();
         Map<String, String> outputFileContentMap = configParser.parse();
         File resultDir = new File(expectedOutputDirPath);
