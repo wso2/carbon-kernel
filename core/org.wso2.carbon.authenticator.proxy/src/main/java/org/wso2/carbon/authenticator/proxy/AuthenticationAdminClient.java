@@ -66,7 +66,12 @@ public class AuthenticationAdminClient {
             return result;
         } catch (java.lang.Exception e) {
             String msg = "Error occurred while logging in";
-            log.error(msg, e);
+            if (e.getMessage() != null && (e.getMessage().contains("17001") || e.getMessage().contains("17003"))) {
+                //skip loggin these exceptions. These are not server errors, but the errors due to userNotFound and
+                // userLocked.
+            } else {
+                log.error(msg, e);
+            }
             throw new AuthenticationException(e);
         }
     }
