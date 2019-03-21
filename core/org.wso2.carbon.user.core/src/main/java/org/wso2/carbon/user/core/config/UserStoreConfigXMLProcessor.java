@@ -26,6 +26,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -41,6 +42,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -230,15 +232,23 @@ public class UserStoreConfigXMLProcessor {
                     UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME));
             String propValue = propElem.getText();
             if (secretResolver != null && secretResolver.isInitialized()) {
-                if (secretResolver.isTokenProtected("UserManager.Configuration.Property."
-                        + propName + domainName)) {
-                    propValue = secretResolver.resolve("UserManager.Configuration.Property."
-                            + propName + domainName);
-                }
-                if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName + domainName)) {
-                    propValue = secretResolver.resolve("UserStoreManager.Property." + propName + domainName);
+                String alias = MiscellaneousUtil.getProtectedToken(propValue);
+                if (StringUtils.isNotEmpty(alias) && secretResolver.isTokenProtected(alias)) {
+                    propValue = secretResolver.resolve(alias);
                     tokenProtected = true;
+                } else {
+                    if (secretResolver.isTokenProtected("UserManager.Configuration.Property."
+                            + propName + domainName)) {
+                        propValue = secretResolver.resolve("UserManager.Configuration.Property."
+                                + propName + domainName);
+                        tokenProtected = true;
+                    }
+                    if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName + domainName)) {
+                        propValue = secretResolver.resolve("UserStoreManager.Property." + propName + domainName);
+                        tokenProtected = true;
+                    }
                 }
+
             }
             if (!tokenProtected && propValue != null) {
                 propValue = resolveEncryption(propElem);

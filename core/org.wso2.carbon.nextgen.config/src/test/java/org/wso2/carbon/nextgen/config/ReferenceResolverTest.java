@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 package org.wso2.carbon.nextgen.config;
 
 import org.testng.Assert;
@@ -8,6 +27,7 @@ import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class ReferenceResolverTest {
 
@@ -28,16 +48,36 @@ public class ReferenceResolverTest {
     @Test(dataProvider = "contextProvider")
     public void testResolve(Map<String, Object> context, String key, Object expected) throws ConfigParserException {
 
-        ReferenceResolver.resolve(context);
+        Properties secrets = new Properties();
+        ReferenceResolver.resolve(context, secrets);
         Object actual = context.get(key);
         Assert.assertEquals(actual, expected, "Incorrect resolved value for " + key);
     }
 
     @Test(dataProvider = "invalidReferencesProvider", expectedExceptions = ConfigParserException.class)
     public void testResolve(Map<String, Object> context, String key) throws ConfigParserException {
-
-        ReferenceResolver.resolve(context);
+        Properties secrets = new Properties();
+        ReferenceResolver.resolve(context, secrets);
         Assert.fail("Placeholder reference resolution should have been failed.");
+    }
+
+    @Test(dataProvider = "secretProvider")
+    public void testResolve(Map<String, Object> context) throws ConfigParserException {
+        Properties secrets = new Properties();
+        secrets.put("b.c.d", "sssssss");
+        ReferenceResolver.resolve(context, secrets);
+    }
+
+    @Test(dataProvider = "secretProviderNegative")
+    public void testResolveNegative(Map<String, Object> context) {
+        Properties secrets = new Properties();
+
+        try {
+            ReferenceResolver.resolve(context, secrets);
+            Assert.fail();
+        } catch (ConfigParserException e) {
+            Assert.assertTrue(e.getMessage().contains("Secret References can't be resolved for b.d.d"));
+        }
     }
 
     @DataProvider(name = "contextProvider")
@@ -81,4 +121,31 @@ public class ReferenceResolverTest {
                 {invalidReferenceContext2, "fe"},
         };
     }
+
+    @DataProvider(name = "secretProvider")
+    public Object[][] secretDataSet() {
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("secrets.a.b.c", "aaaaa");
+        context.put("secrets.b.c.d", "aaaaaaaa");
+        context.put("aaa.bbb.ccc", "$conf{deployment_admin_password}");
+        context.put("deployment_admin_password", "$secret{b.c.d}");
+        return new Object[][]{
+                {context}
+        };
+    }
+
+    @DataProvider(name = "secretProviderNegative")
+    public Object[][] secretDataSet1() {
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("secrets.a.b.c", "aaaaa");
+        context.put("secrets.b.c.d", "aaaaaaaa");
+        context.put("aaa.bbb.ccc", "$conf{deployment.admin.password}");
+        context.put("deployment.admin.password", "$secret{b.d.d}");
+        return new Object[][]{
+                {context}
+        };
+    }
+
 }

@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -101,8 +102,8 @@ public class ConfigParser {
                                 // if configuration is not changed check deployment.toml is changed
                                 ChangedFileSet deploymentConfigurationChanged =
                                         MetaDataParser.getChangedFiles(basePath,
-                                                                       new String[]{deploymentConfigurationPath},
-                                                                       metadataFilePath);
+                                                new String[]{deploymentConfigurationPath},
+                                                metadataFilePath);
                                 if (deploymentConfigurationChanged.isChanged()) {
                                     // if deployment.toml is changed then deploy
                                     deployAndStoreMetadata(outputFilePath);
@@ -118,14 +119,14 @@ public class ConfigParser {
                     }
                 } else {
                     LOGGER.warn("Metadata File doesn't exist at " + new File(metadataFilePath).getParent() +
-                                " Consider as first startup");
+                            " Consider as first startup");
                     // template Metadata not exist then deploy and write
                     deployAndStoreMetadata(outputFilePath);
                 }
 
             } else {
                 LOGGER.warn("deployment.toml didn't exist in " + deploymentConfigurationPath + " configurations not " +
-                            "overridden");
+                        "overridden");
             }
         } catch (IOException e) {
             throw new ConfigParserException("Error while store new configurations", e);
@@ -144,11 +145,13 @@ public class ConfigParser {
     }
 
     private void deployAndStoreMetadata(String outputFilePath) throws IOException, ConfigParserException {
+
         LOGGER.info("Backed up the configurations into " + basePath + File.separator +
                 "backup");
         backupConfigurations(outputFilePath, backupPath);
 
         Set<String> deployedFileSet = deploy(outputFilePath);
+
         LOGGER.info("Writing Metadata Entries...");
         MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath,
                                             new String[]{templateFileDir, inferConfigurationFilePath,
@@ -186,7 +189,8 @@ public class ConfigParser {
         Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(context, mappingFilePath);
         Map<String, Object> defaultContext = DefaultParser.addDefaultValues(mappedConfigs, defaultValueFilePath);
         Map<String, Object> enrichedContext = ValueInferrer.infer(defaultContext, inferConfigurationFilePath);
-        ReferenceResolver.resolve(enrichedContext);
+        Properties secrets = FileUtils.loadSecrets();
+        ReferenceResolver.resolve(enrichedContext, secrets);
         Validator.validate(enrichedContext, validatorFilePath);
 
         Map<String, File> fileNames = getTemplatedFilesMap(templateDir);
@@ -219,8 +223,9 @@ public class ConfigParser {
     }
 
     private String getFileNameWithRelativePath(File basePath, File file) {
+
         String fileName = basePath.getParentFile().toPath()
-                              .relativize(file.toPath()).toString();
+                .relativize(file.toPath()).toString();
         if (file.getName().endsWith(JINJA_TEMPLATE_EXTENSION)) {
             fileName = fileName.substring(0, (fileName.length() - JINJA_TEMPLATE_EXTENSION.length()));
         }
