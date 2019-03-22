@@ -893,7 +893,6 @@
                 <artifactId>cxf-rt-rs-extension-providers</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>javax.servlet</artifactId>
@@ -1644,7 +1643,7 @@
         <codehaus.jackson-core-asl.version>1.8.6</codehaus.jackson-core-asl.version>
         <codehaus.jackson-mapper-asl.version>1.8.6</codehaus.jackson-mapper-asl.version>
         <codehaus.jackson-jaxrs.version>1.8.6</codehaus.jackson-jaxrs.version>
-        <springframework.spring-web.version>4.1.6.RELEASE</springframework.spring-web.version>
+        <springframework.spring-web.version>5.1.1.RELEASE</springframework.spring-web.version>
         <jaxrx.jsr311.api.version>1.1.1</jaxrx.jsr311.api.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
