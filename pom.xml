@@ -875,14 +875,25 @@
             </dependency>
             <dependency>
                 <groupId>javax.ws.rs</groupId>
-                <artifactId>jsr311-api</artifactId>
-                <version>${jsr311-api.version}</version>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.org.apache.cxf</groupId>
-                <artifactId>cxf-bundle</artifactId>
-                <version>${cxf-bundle.wso2.version}</version>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-core</artifactId>
+                <version>${org.apache.cxf.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-client</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-extension-providers</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>javax.servlet</artifactId>
@@ -1591,11 +1602,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>${apache.cxf-rt-frontend-jaxrs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description</artifactId>
                 <version>${apache.cxf-rt-rs-service-description.version}</version>
             </dependency>
@@ -1640,7 +1646,6 @@
         <codehaus.jackson-jaxrs.version>1.8.6</codehaus.jackson-jaxrs.version>
         <springframework.spring-web.version>4.1.6.RELEASE</springframework.spring-web.version>
         <jaxrx.jsr311.api.version>1.1.1</jaxrx.jsr311.api.version>
-        <org.apache.cxf.version>3.2.0</org.apache.cxf.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1849,9 +1854,9 @@
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
         <json.wso2.version.range>[3.0.0.wso2v1, 4.0.0)</json.wso2.version.range>
-        <com.fasterxml.jackson.version>2.9.6</com.fasterxml.jackson.version>
-        <com.fasterxml.jackson.annotation.version>2.9.6</com.fasterxml.jackson.annotation.version>
-        <com.fasterxml.jackson.jaxrs-json-provider-version>2.9.6</com.fasterxml.jackson.jaxrs-json-provider-version>
+        <com.fasterxml.jackson.version>2.9.7</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.annotation.version>2.9.7</com.fasterxml.jackson.annotation.version>
+        <com.fasterxml.jackson.jaxrs-json-provider-version>2.9.7</com.fasterxml.jackson.jaxrs-json-provider-version>
 
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
         <openspml.version>192-20100413</openspml.version>
@@ -1864,10 +1869,12 @@
         <thetransactioncompany.cors-filter.wso2.version>1.7.0.wso2v1</thetransactioncompany.cors-filter.wso2.version>
         <thetransactioncompany.utils.wso2.version>1.9.0.wso2v1</thetransactioncompany.utils.wso2.version>
         <jsr311-api.version>1.1.1</jsr311-api.version>
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <tomcat-util.version>3.3.2</tomcat-util.version>
         <jdom.wso2.version>1.0.0.wso2v1</jdom.wso2.version>
         <json-smart.version>1.3</json-smart.version>
         <cxf-bundle.wso2.version>2.7.16.wso2v1</cxf-bundle.wso2.version>
+        <org.apache.cxf.version>3.2.8</org.apache.cxf.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
