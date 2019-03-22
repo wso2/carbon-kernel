@@ -28,7 +28,7 @@
   "user_store.properties.MaxRoleNameListLength": "100",
 
   "governance.data_source": "jdbc/SHARED_DB",
-  "governance.cache_id": "$conf{database.shared_db.username}@$conf{database.shared_db.url}",
+  "governance.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
   "governance.enable_cache": true,
   "transport.http.port": "9763",
   "transport.http.redirectPort": "9443",
@@ -69,8 +69,8 @@
   "transport.https.compressionMinSize": "2048",
   "transport.https.noCompressionUserAgents": "gozilla, traviata",
   "transport.https.compressableMimeType": "text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg",
-  "transport.https.keystoreFile": "${carbon.home}/repository/resources/security/$conf{keystore.tls.file_name}",
-  "transport.https.keystorePass": "$conf{keystore.tls.password}",
+  "transport.https.keystoreFile": "${carbon.home}/repository/resources/security/$ref{keystore.tls.file_name}",
+  "transport.https.keystorePass": "$ref{keystore.tls.password}",
   "transport.https.URIEncoding": "UTF-8",
   "message_formatters": [
     {
@@ -133,7 +133,7 @@
     }
   ],
   "clustering.domain": "wso2.carbon.domain",
-  "clustering.local_member_host": "$conf{deployment.local_member_ip}",
+  "clustering.local_member_host": "$ref{deployment.local_member_ip}",
   "clustering.members": [
     "127.0.0.1:4000"
   ],

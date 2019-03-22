@@ -62,7 +62,7 @@ endpoint = "km.wso2.com:443"
 
 [apim.store]
 endpoint = "https://store.wso2.com:443/store"
-revoke_api_endpoint = "$conf{apim.gateway.environment.dev.https_loadbalance_endpoint}"
+revoke_api_endpoint = "$ref{apim.gateway.environment.dev.https_loadbalance_endpoint}"
 
 [apim.traffic_manager]
 publisher_nodes = "{tcp://tm1.node:9611}"
