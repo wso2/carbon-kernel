@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 public final class CarbonUILoginUtil {
 
     private static final String ACCOUNT_LOCK_ERROR_CODE = "17003";
+    private static final String ACCOUNT_LOCK_ERROR_MESSAGE = "Cannot login until the account is unlocked.";
     private static final String USER_NOT_FOUND_ERROR_CODE = "17001";
     private static final String INVALID_CREDENTIALS_ERROR_CODE = "Invalid user credentials.";
     private static Log log = LogFactory.getLog(CarbonUILoginUtil.class);
@@ -481,7 +482,8 @@ public final class CarbonUILoginUtil {
                 getAuthenticator(request).unauthenticate(request);
 
                 if (isLoginFailureReasonEnabled()) {
-                    if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE)) {
+                    if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE) || e.getCause().getMessage()
+                            .contains(ACCOUNT_LOCK_ERROR_MESSAGE)) {
                         response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error" +
                                 ".code.17003");
                         return false;
