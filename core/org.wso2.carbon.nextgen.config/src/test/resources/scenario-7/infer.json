@@ -77,7 +77,7 @@
   "database.shared_db.type": {
     "mysql": {
       "database.shared_db.driver": "com.mysql.jdbc.Driver",
-      "database.shared_db.url": "jdbc:mysql://$conf{database.shared_db.hostname}:$conf{database.shared_db.port}/$conf{database.shared_db.name}",
+      "database.shared_db.url": "jdbc:mysql://$ref{database.shared_db.hostname}:$ref{database.shared_db.port}/$ref{database.shared_db.name}",
       "database.shared_db.validationQuery": "SELECT 1"
     },
     "h2": {
@@ -89,7 +89,7 @@
   "database.apim.type": {
     "mysql": {
       "database.apim.driver": "com.mysql.jdbc.Driver",
-      "database.apim.url": "jdbc:mysql://$conf{database.shared_db.hostname}:$conf{database.shared_db.port}/$conf{database.shared_db.name}",
+      "database.apim.url": "jdbc:mysql://$ref{database.shared_db.hostname}:$ref{database.shared_db.port}/$ref{database.shared_db.name}",
       "database.apim.validationQuery": "SELECT 1"
     },
     "h2": {

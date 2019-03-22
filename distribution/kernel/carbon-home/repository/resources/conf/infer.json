@@ -19,8 +19,8 @@
     "read_only_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
-      "user_store.properties.UserSearchBase": "ou=Users,$conf{user_store.base_dn}",
-      "user_store.properties.GroupSearchBase": "ou=Groups,$conf{user_store.base_dn}",
+      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
       "user_store.properties.AnonymousBind": false,
       "user_store.properties.UserNameAttribute": "uid",
       "user_store.properties.UserNameSearchFilter": "(&amp;(objectClass=person)(uid=?))",
@@ -44,8 +44,8 @@
     "read_write_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
-      "user_store.properties.UserSearchBase": "ou=Users,$conf{user_store.base_dn}",
-      "user_store.properties.GroupSearchBase": "ou=Groups,$conf{user_store.base_dn}",
+      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
       "user_store.properties.AnonymousBind": false,
       "user_store.properties.WriteGroups": true,
       "user_store.properties.UserEntryObjectClass": "identityPerson",
@@ -76,8 +76,8 @@
     "active_directory": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
-      "user_store.properties.UserSearchBase": "ou=Users,$conf{user_store.base_dn}",
-      "user_store.properties.GroupSearchBase": "ou=Groups,$conf{user_store.base_dn}",
+      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
       "user_store.properties.AnonymousBind": false,
       "user_store.properties.UserEntryObjectClass": "identityPerson",
       "user_store.properties.UserNameAttribute": "uid",
@@ -114,7 +114,7 @@
   "database.shared_db.type": {
     "mysql": {
       "database.shared_db.driver": "com.mysql.jdbc.Driver",
-      "database.shared_db.url": "jdbc:mysql://$conf{database.shared_db.hostname}:$conf{database.shared_db.port}/$conf{database.shared_db.name}",
+      "database.shared_db.url": "jdbc:mysql://$ref{database.shared_db.hostname}:$ref{database.shared_db.port}/$ref{database.shared_db.name}",
       "database.shared_db.validationQuery": "SELECT 1"
     },
     "h2": {
