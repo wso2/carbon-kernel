@@ -88,11 +88,11 @@ public class ReferenceResolverTest {
         Map<String, Object> environmentContextPlaceholders = new HashMap<>();
         Map<String, Object> complexPlaceholders = new HashMap<>();
         fileContextPlaceholders.put("fa", "AAA");
-        fileContextPlaceholders.put("fa1", "$conf{fa}");
-        fileContextPlaceholders.put("fa2", "$conf{fa1}");
+        fileContextPlaceholders.put("fa1", "$ref{fa}");
+        fileContextPlaceholders.put("fa2", "$ref{fa1}");
         fileContextPlaceholders.put("fb", "BBB");
-        fileContextPlaceholders.put("fb1", "$conf{fa}-$conf{fb}");
-        fileContextPlaceholders.put("fb2", "$conf{fa1}-$conf{fb}");
+        fileContextPlaceholders.put("fb1", "$ref{fa}-$ref{fb}");
+        fileContextPlaceholders.put("fb2", "$ref{fa1}-$ref{fb}");
         systemContextPlaceholders.put("sa", "$sys{syskey1}");
         systemContextPlaceholders.put("sb", "$sys{syskey1}-AAA");
         systemContextPlaceholders.put("sc", "$sys{syskey1}-$sys{syskey2}");
@@ -113,9 +113,9 @@ public class ReferenceResolverTest {
 
         Map<String, Object> invalidReferenceContext1 = new HashMap<>();
         Map<String, Object> invalidReferenceContext2 = new HashMap<>();
-        invalidReferenceContext1.put("fc", "$conf{fd}");
-        invalidReferenceContext1.put("fd", "$conf{fc}");
-        invalidReferenceContext2.put("fe", "$conf{fz}");
+        invalidReferenceContext1.put("fc", "$ref{fd}");
+        invalidReferenceContext1.put("fd", "$ref{fc}");
+        invalidReferenceContext2.put("fe", "$ref{fz}");
         return new Object[][]{
                 {invalidReferenceContext1, "fc"},
                 {invalidReferenceContext2, "fe"},
@@ -128,7 +128,7 @@ public class ReferenceResolverTest {
         Map<String, Object> context = new HashMap<>();
         context.put("secrets.a.b.c", "aaaaa");
         context.put("secrets.b.c.d", "aaaaaaaa");
-        context.put("aaa.bbb.ccc", "$conf{deployment_admin_password}");
+        context.put("aaa.bbb.ccc", "$ref{deployment_admin_password}");
         context.put("deployment_admin_password", "$secret{b.c.d}");
         return new Object[][]{
                 {context}
@@ -141,7 +141,7 @@ public class ReferenceResolverTest {
         Map<String, Object> context = new HashMap<>();
         context.put("secrets.a.b.c", "aaaaa");
         context.put("secrets.b.c.d", "aaaaaaaa");
-        context.put("aaa.bbb.ccc", "$conf{deployment.admin.password}");
+        context.put("aaa.bbb.ccc", "$ref{deployment.admin.password}");
         context.put("deployment.admin.password", "$secret{b.d.d}");
         return new Object[][]{
                 {context}
