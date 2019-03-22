@@ -601,7 +601,7 @@
         <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
-        <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
+        <version.com.google.code.gson>2.7</version.com.google.code.gson>
 
         <test.framework.version>4.4.3</test.framework.version>
         <testng.verson>6.10</testng.verson>
