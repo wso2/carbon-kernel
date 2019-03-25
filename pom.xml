@@ -1821,7 +1821,7 @@
         <com.google.service.api.version>directory_v1-rev28-1.17.0-rc</com.google.service.api.version>
         <orbit.version.backport.util>3.1.0.wso2v1</orbit.version.backport.util>
         <stratos.version>2.2.0</stratos.version>
-        <org.slf4j.verison>1.6.1</org.slf4j.verison>
+        <org.slf4j.verison>1.7.21</org.slf4j.verison>
         <org.slf4j.imp.pkg.version.range>[1.6.1,2.0.0)</org.slf4j.imp.pkg.version.range>
 
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
