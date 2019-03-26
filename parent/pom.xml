@@ -380,7 +380,7 @@
         <orbit.version.el.impl>2.2.wso2v1</orbit.version.el.impl>
 
         <!-- H2 Database Engine -->
-        <version.h2.engine>1.3.175.wso2v1</version.h2.engine>
+        <version.h2.engine>1.4.191.wso2v1</version.h2.engine>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -428,12 +428,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v29</version.axis2>
+        <version.axis2>1.6.1-wso2v30-SNAPSHOT</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v29</version.addressing>
-        <orbit.version.axis2>1.6.1-wso2v29</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.1-wso2v29</axis2.client.osgi.version>
-        <version.axis2.json>1.6.1-wso2v29</version.axis2.json>
+        <version.addressing>1.6.1-wso2v30-SNAPSHOT</version.addressing>
+        <orbit.version.axis2>1.6.1-wso2v30-SNAPSHOT</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1-wso2v30-SNAPSHOT</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v30-SNAPSHOT</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
@@ -465,7 +465,7 @@
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
-        <version.tomcat>7.0.85</version.tomcat>
+        <version.tomcat>7.0.93</version.tomcat>
         <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1
         </orbit.version.tomcat.servlet.api>
@@ -551,7 +551,7 @@
         <wagon.ssh.version>2.1</wagon.ssh.version>
         <version.org.wso2.orbit.javax.xml.bind.jaxb-api>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind.jaxb-api>
         <version.org.wso2.orbit.javax.xml.bind.jaxb>2.3.2.wso2v1</version.org.wso2.orbit.javax.xml.bind.jaxb>
-        <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
+        <version.org.wso2.orbit.javax.activation>1.1.1.wso2v2</version.org.wso2.orbit.javax.activation>
         <version.org.wso2.orbit.com.sun.xml.ws.jaxws>2.3.2.wso2v1</version.org.wso2.orbit.com.sun.xml.ws.jaxws>
         <version.org.wso2.orbit.javax.jta>1.1.0.wso2v1</version.org.wso2.orbit.javax.jta>
         <verion.javax.annotation.annotation-api>1.3.2</verion.javax.annotation.annotation-api>
@@ -573,7 +573,7 @@
         <!--Wso2 Secure Vault -->
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
-        <jdbc-pool.version>7.0.81.wso2v2</jdbc-pool.version>
+        <jdbc-pool.version>9.0.16.wso2v1</jdbc-pool.version>
 
         <!-- Test integration -->
         <slf4j.version>1.5.10</slf4j.version>
