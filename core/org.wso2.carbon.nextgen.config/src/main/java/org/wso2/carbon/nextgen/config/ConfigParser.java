@@ -19,22 +19,30 @@
 
 package org.wso2.carbon.nextgen.config;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
+import org.wso2.ciphertool.utils.KeyStoreUtil;
+import org.wso2.ciphertool.utils.Utils;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
+import javax.crypto.Cipher;
 
 /**
  * Configuration parser class. Entry point to the config parsing logic.
@@ -191,13 +199,19 @@ public class ConfigParser {
         Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(context, mappingFilePath);
         Map<String, Object> defaultContext = DefaultParser.addDefaultValues(mappedConfigs, defaultValueFilePath);
         Map<String, Object> enrichedContext = ValueInferrer.infer(defaultContext, inferConfigurationFilePath);
-        Properties secrets = FileUtils.loadSecrets();
+        Map secrets = TomlParser.getSecrets(deploymentConfigurationPath);
         ReferenceResolver.resolve(enrichedContext, secrets);
         UnitResolver.updateUnits(enrichedContext, unitResolverFilePath);
         Validator.validate(enrichedContext, validatorFilePath);
 
         Map<String, File> fileNames = getTemplatedFilesMap(templateDir);
         return JinjaParser.parse(enrichedContext, fileNames);
+    }
+
+    private void handleSecVaultProperties() {
+
+        org.wso2.ciphertool.utils.Utils.setSystemProperties();
+        org.wso2.ciphertool.utils.Utils.writeToSecureConfPropertyFile();
     }
 
     private File checkTemplateDirExistence(String templateFileDir) throws ConfigParserException {
@@ -351,5 +365,76 @@ public class ConfigParser {
                 }
             }
         }
+    }
+
+    public void handleEncryption() throws ConfigParserException {
+        handleSecVaultProperties();
+
+        Map<String, String> secretMap = TomlParser.getSecrets(deploymentConfigurationPath);
+        Cipher cipher = null;
+        if (!secretMap.isEmpty()) {
+            Utils.setSystemProperties();
+            cipher = KeyStoreUtil.initializeCipher();
+        }
+        for (Map.Entry<String, String> entry : secretMap.entrySet()) {
+            String key = entry.getKey();
+            String value = getUnEncryptedValue(entry.getValue());
+            if (StringUtils.isNotEmpty(value)) {
+                String encryptedValue = Utils.doEncryption(cipher, value);
+                secretMap.replace(key, encryptedValue);
+            }
+        }
+        updateDeploymentConfigurationWithEncryptedKeys(secretMap);
+    }
+
+    private String getUnEncryptedValue(String value) {
+
+        String[] envRefs = StringUtils.substringsBetween(value, "[", "]");
+        if (envRefs != null && envRefs.length == 1) {
+            return envRefs[0];
+        } else {
+            return null;
+        }
+
+    }
+
+    private void updateDeploymentConfigurationWithEncryptedKeys(Map<String, String> encryptedKeyMap)
+            throws ConfigParserException {
+
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(deploymentConfigurationPath));
+            try (BufferedWriter bufferedWriter =
+                         new BufferedWriter(new OutputStreamWriter(new FileOutputStream(deploymentConfigurationPath),
+                                 StandardCharsets.UTF_8))) {
+                boolean found = false;
+                for (String line : lines) {
+                    if (found) {
+                        if (StringUtils.isNotEmpty(StringUtils.substringBetween(line.trim(),
+                                ConfigConstants.SECTION_PREFIX,
+                                ConfigConstants.SECTION_SUFIX))) {
+                            found = false;
+                        } else {
+                            StringTokenizer stringTokenizer = new StringTokenizer(line,
+                                    ConfigConstants.KEY_VALUE_SEPERATOR);
+                            if (stringTokenizer.hasMoreTokens()) {
+                                String key = stringTokenizer.nextToken();
+                                String value = encryptedKeyMap.get(key.trim());
+                                line = key.concat(" = \"").concat(value).concat("\"");
+                            }
+                        }
+                    } else {
+                        if (ConfigConstants.SECRETS_SECTION.equals(line.trim())) {
+                            found = true;
+                        }
+                    }
+                    bufferedWriter.write(line);
+                    bufferedWriter.newLine();
+                }
+                bufferedWriter.flush();
+            }
+        } catch (IOException e) {
+            throw new ConfigParserException("Error while writing encrypted values into deployment file", e);
+        }
+
     }
 }

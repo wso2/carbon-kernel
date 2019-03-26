@@ -15,12 +15,13 @@
  */
 package org.wso2.carbon.ndatasource.core.utils;
 
+import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,11 +42,16 @@ import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.commons.MiscellaneousUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
 
 /**
  * Data Sources utility class.
@@ -182,59 +188,37 @@ public class DataSourceUtils {
 		return secretResolver.resolve(alias);
 	}
 
-	private static synchronized boolean isSecuredTokenProtected(String alias) {
-
-		if (secretResolver == null) {
-			secretResolver = SecretResolverFactory.create((OMElement) null, false);
-			secretResolver.init(DataSourceServiceComponent.
-					getSecretCallbackHandlerService().getSecretCallbackHandler());
-		}
-		if (secretResolver.isInitialized() && secretResolver.isTokenProtected(alias)) {
-			return true;
-		}
-		return false;
-	}
-
-
-	private static void secureLoadElement(Element element, boolean checkSecureVault)
+	private static void secureLoadElement(OMElement element, boolean checkSecureVault)
 			throws CryptoException {
 
 		if (checkSecureVault) {
-			String alias = MiscellaneousUtil.getProtectedToken(element.getTextContent());
+			String alias = MiscellaneousUtil.getProtectedToken(element.getText());
 			if (alias != null && !alias.isEmpty()) {
-				if (isSecuredTokenProtected(alias)){
-					element.setTextContent(loadFromSecureVault(alias));
-				}
+				element.setText(loadFromSecureVault(alias));
 			} else {
-				Attr secureAttr = element.getAttributeNodeNS(DataSourceConstants.SECURE_VAULT_NS,
-						DataSourceConstants.SECRET_ALIAS_ATTR_NAME);
+				OMAttribute secureAttr = element.getAttribute(new QName(DataSourceConstants.SECURE_VAULT_NS,
+						DataSourceConstants.SECRET_ALIAS_ATTR_NAME));
 				if (secureAttr != null) {
-					if (isSecuredTokenProtected(secureAttr.getValue())) {
-						element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
-					}
-					element.removeAttributeNode(secureAttr);
+					element.setText(loadFromSecureVault(secureAttr.getAttributeValue()));
+					element.removeAttribute(secureAttr);
 				}
 			}
 		} else {
-			String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
+			String encryptedStr = element.getAttributeValue(new QName(DataSourceConstants.ENCRYPTED_ATTR_NAME));
 			if (encryptedStr != null) {
 				boolean encrypted = Boolean.parseBoolean(encryptedStr);
 				if (encrypted) {
-					element.setTextContent(new String(CryptoUtil.getDefaultCryptoUtil(
+					element.setText(new String(CryptoUtil.getDefaultCryptoUtil(
 							DataSourceServiceComponent.getServerConfigurationService(),
 							DataSourceServiceComponent.getRegistryService()).
-							base64DecodeAndDecrypt(element.getTextContent())));
+							base64DecodeAndDecrypt(element.getText())));
 				}
 			}
 		}
-		NodeList childNodes = element.getChildNodes();
-		int count = childNodes.getLength();
-		Node tmpNode;
-		for (int i = 0; i < count; i++) {
-			tmpNode = childNodes.item(i);
-			if (tmpNode instanceof Element) {
-				secureLoadElement((Element) tmpNode, checkSecureVault);
-			}
+		Iterator<OMElement> childNodes = element.getChildElements();
+		while (childNodes.hasNext()) {
+			OMElement tmpNode = childNodes.next();
+			secureLoadElement(tmpNode, checkSecureVault);
 		}
 	}
 	
@@ -260,12 +244,12 @@ public class DataSourceUtils {
 		}
 	}
 	
-	public static void secureResolveDocument(Document doc, boolean checkSecureVault)
+	public static void secureResolveDocument(OMElement doc, boolean checkSecureVault)
             throws DataSourceException {
-        Element element = doc.getDocumentElement();
-		if (element != null) {
+		if (doc != null) {
 			try {
-				secureLoadElement(element, checkSecureVault);
+				secretResolver = SecretResolverFactory.create(doc, true);
+				secureLoadElement(doc, checkSecureVault);
 			} catch (CryptoException e) {
 				throw new DataSourceException("Error in secure load of data source meta info: " +
 			            e.getMessage(), e);
@@ -273,20 +257,20 @@ public class DataSourceUtils {
 		}
     }
 
-    public static Document convertToDocument(File file) throws DataSourceException {
+    public static OMElement convertToDocument(File file) throws DataSourceException {
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            return db.parse(file);
+			OMElement documentElement = new StAXOMBuilder(new FileInputStream(file)).getDocumentElement();
+            return documentElement;
         } catch (Exception e) {
             throw new DataSourceException("Error in creating an XML document from file: " +
                     e.getMessage(), e);
         }
     }
 
-    public static Document convertToDocument(InputStream in) throws DataSourceException {
+    public static OMElement convertToDocument(InputStream in) throws DataSourceException {
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            return db.parse(in);
+			OMElement documentElement = new StAXOMBuilder(in).getDocumentElement();
+            return documentElement;
         } catch (Exception e) {
             throw new DataSourceException("Error in creating an XML document from stream: " +
                     e.getMessage(), e);

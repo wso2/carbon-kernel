@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,6 +51,8 @@ public class ReferenceResolver {
     private static final String SECRET_PROPERTY_PLACEHOLDER_PREFIX = "$secret{";
     private static final String ENV_VAR_PLACEHOLDER_PREFIX = "$env{";
     private static final String PLACEHOLDER_SUFFIX = "}";
+    private static final String PLAIN_TEXT_VALUE_PLACE_HOLDER_PREFIX = "[";
+    private static final String PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFIXX = "]";
     private ReferenceResolver() {
 
     }
@@ -63,7 +64,7 @@ public class ReferenceResolver {
      * @param secrets
      * @throws ConfigParserException
      */
-    public static void resolve(Map<String, Object> context, Properties secrets) throws ConfigParserException {
+    public static void resolve(Map<String, Object> context, Map secrets) throws ConfigParserException {
 
         resolveSecrets(context, secrets);
         resolveSystemProperties(context);
@@ -165,7 +166,7 @@ public class ReferenceResolver {
      * @param context The configuration context
      * @param secrets
      */
-    public static void resolveSecrets(Map<String, Object> context, Properties secrets) throws ConfigParserException {
+    public static void resolveSecrets(Map<String, Object> context, Map secrets) throws ConfigParserException {
 
         boolean enabledSecret = false;
         for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -186,9 +187,10 @@ public class ReferenceResolver {
                 }
             }
         }
+        System.setProperty(ConfigConstants.ENABLE_SEC_VAULT, String.valueOf(enabledSecret));
     }
 
-    private static boolean resolveStringWithSecretPlaceHolders(Object value, Properties secrets)
+    private static boolean resolveStringWithSecretPlaceHolders(Object value, Map secrets)
             throws ConfigParserException {
 
         boolean exists = false;
@@ -198,8 +200,16 @@ public class ReferenceResolver {
                     PLACEHOLDER_SUFFIX);
             if (secretRefs != null) {
                 for (String secretRef : secretRefs) {
-                    if (!secrets.containsKey(secretRef)) {
+                    Object secretValue = secrets.get(secretRef);
+                    if (secretValue == null) {
                         throw new ConfigParserException("Secret References can't be resolved for " + secretRef);
+                    } else if (!(!(secretValue instanceof String)
+                            || Boolean.getBoolean(ConfigConstants.ENCRYPT_SECRETS))) {
+                        String[] secretArray = StringUtils.substringsBetween((String) secretValue,
+                                PLAIN_TEXT_VALUE_PLACE_HOLDER_PREFIX, PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFIXX);
+                        if (secretArray != null && secretArray.length > 0) {
+                            throw new ConfigParserException("Secret References can't be Plain-Text for " + secretRef);
+                        }
                     }
                     exists = true;
                 }
