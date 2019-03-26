@@ -22,7 +22,7 @@ ant_1.7.0.wso2v1.jar                                                            
 backport-util-concurrent_3.1.0.wso2v1.jar                                       bundle         apache2   1007      
 bcpkix-jdk15on-1.60.jar                                                         jarinbundle    bouncy    3734      
 bcprov-jdk15on-1.60.jar                                                         jarinbundle    bouncy    3733      
-com.google.gson_2.3.1.jar                                                       bundle         apache2   1143      
+com.google.gson_2.8.5.jar                                                       bundle         apache2   3820      
 commons-beanutils-1.7.0.jar                                                     jarinbundle    apache2   383       
 commons-collections-3.2.2.wso2v1.jar                                            bundle         apache2   6256      
 commons-collections_3.2.2.wso2v1.jar                                            bundle         apache2   6268      
@@ -45,7 +45,7 @@ h2_1.3.175.wso2v1.jar                                                           
 hazelcast_3.5.4.wso2v2.jar                                                      bundle         apache2   8481      
 httpcore_4.3.3.wso2v1.jar                                                       bundle         apache2   3638      
 javasysmon_0.3.3.wso2v1.jar                                                     bundle         bsd       721       
-javax.cache.wso2_4.4.37.jar                                                     bundle         apache2   3732      
+javax.cache.wso2_4.4.38.jar                                                     bundle         apache2   3819      
 jaxb_2.2.5.wso2v1.jar                                                           bundle         cddl1     883       
 jdbc-pool_7.0.81.wso2v2.jar                                                     bundle         apache2   14077     
 jericho-html-2.4.jar                                                            jarinbundle    epl1      363       
@@ -54,7 +54,7 @@ jstl_1.2.1.wso2v2.jar                                                           
 neethi_2.0.4.wso2v5.jar                                                         bundle         apache2   6267      
 opencsv-1.8.jar                                                                 jarinbundle    apache2   368       
 opencsv_1.8.0.wso2v1.jar                                                        bundle         apache2   928       
-org.apache.commons.codec_1.10.0.jar                                             bundle         apache2   3596      
+org.apache.commons.commons-codec_1.12.0.jar                                     bundle         apache2   3818      
 org.apache.felix.gogo.command_0.10.0.v201209301215.jar                          bundle         apache2   1134      
 org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar                          bundle         apache2   1133      
 org.apache.felix.gogo.shell_0.10.0.v201212101605.jar                            bundle         apache2   1132      
