@@ -295,7 +295,7 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE, "Update User " +
                 "Property SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE, "");
-        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY, "Delete User Property SQL", JDBCRealmConstants.UPDATE_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY, "Delete User Property SQL", JDBCRealmConstants.DELETE_USER_PROPERTY_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE, "Delete User " +
                 "Property SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .DELETE_USER_PROPERTY_SQL_CASE_INSENSITIVE, "");
