@@ -69,7 +69,7 @@ public class JDBCUserStoreConstants {
                 "Password pattern policy violated.", passwordJavaRegExViolationErrorMsgDescription);
         setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate role names");
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
-        setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
+        setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
         //set Advanced properties
