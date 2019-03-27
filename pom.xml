@@ -1604,21 +1604,6 @@
                 <artifactId>cxf-rt-rs-service-description</artifactId>
                 <version>${apache.cxf-rt-rs-service-description.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>${codehaus.jackson-core-asl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${codehaus.jackson-mapper-asl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-jaxrs</artifactId>
-                <version>${codehaus.jackson-jaxrs.version}</version>
-            </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
@@ -1645,9 +1630,6 @@
         <apache.tomcat-catalina.version>9.0.11</apache.tomcat-catalina.version>
         <apache.cxf-rt-frontend-jaxrs.version>2.7.16</apache.cxf-rt-frontend-jaxrs.version>
         <apache.cxf-rt-rs-service-description.version>3.1.4</apache.cxf-rt-rs-service-description.version>
-        <codehaus.jackson-core-asl.version>1.8.6</codehaus.jackson-core-asl.version>
-        <codehaus.jackson-mapper-asl.version>1.8.6</codehaus.jackson-mapper-asl.version>
-        <codehaus.jackson-jaxrs.version>1.8.6</codehaus.jackson-jaxrs.version>
         <codehaus.jettison.version>1.4.0</codehaus.jettison.version>
         <springframework.spring-web.version>5.1.1.RELEASE</springframework.spring-web.version>
         <jaxrx.jsr311.api.version>1.1.1</jaxrx.jsr311.api.version>
