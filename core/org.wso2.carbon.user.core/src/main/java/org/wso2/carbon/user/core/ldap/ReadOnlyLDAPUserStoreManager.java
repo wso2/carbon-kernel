@@ -3123,19 +3123,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         // Handle pagination depends on given offset, i.e. start index.
         if (pageIndex == (offset / pageSize)) {
             int startPosition = (offset % pageSize);
-            if (startPosition < tempUserList.size() - 1 && 0 < startPosition) {
+            if (startPosition < tempUserList.size() - 1) {
                 users.addAll(tempUserList.subList(startPosition, tempUserList.size()));
             } else if (startPosition == tempUserList.size() - 1) {
                 users.add(tempUserList.get(tempUserList.size() - 1));
-            } else {
-                users.addAll(tempUserList);
             }
         } else if (pageIndex == (offset / pageSize) + 1) {
             needMore = pageSize - users.size();
-            if (needMore - 1 == 0) {
-                users.add(tempUserList.get(0));
-            } else if (tempUserList.size() > needMore) {
-                users.addAll(tempUserList.subList(0, (needMore - 1)));
+            if (tempUserList.size() >= needMore) {
+                users.addAll(tempUserList.subList(0, (needMore)));
             } else {
                 users.addAll(tempUserList);
             }
