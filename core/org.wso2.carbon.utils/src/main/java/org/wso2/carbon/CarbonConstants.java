@@ -52,6 +52,8 @@ public final class CarbonConstants {
     public static final String UI_PERMISSION_ACTION = "ui.execute";
     public static final String UI_USER_PERMISSIONS = "user-permissions";
 
+    public static final String IS_PASSWORD_TRIM_ENABLED = "EnablePasswordTrim";
+
     public static final String AUTHZ_FAULT_CODE = "WSO2CarbonAuthorizationFailure";
     public static final String MODULE_NOT_FOUND_FAULT_CODE = "Axis2ModuleNotFound";
 

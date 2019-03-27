@@ -1665,6 +1665,20 @@ function isEmpty(fldname) {
     return false;
 }
 
+function isEmptyCheckWithoutTrim(fldname) {
+    var fld = document.getElementsByName(fldname)[0];
+    if (fld.value.length == 0) {
+        return true;
+    }
+    var tempFieldValue = fld.value;
+    tempFieldValue = tempFieldValue.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+    if (tempFieldValue.length == 0) {
+        return true;
+    }
+
+    return false;
+}
+
 function validateText(e) {
     var key = String.fromCharCode(getkey(e));
     if (key == null) {
