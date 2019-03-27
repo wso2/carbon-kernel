@@ -1187,6 +1187,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return false;
         }
 
+        String leadingOrTrailingSpaceAllowedInUserName = realmConfig.getUserStoreProperty(UserCoreConstants
+                .RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
+        if (StringUtils.isNotEmpty(leadingOrTrailingSpaceAllowedInUserName)) {
+            boolean isSpaceAllowedInUserName = Boolean.parseBoolean(leadingOrTrailingSpaceAllowedInUserName);
+            if (log.isDebugEnabled()) {
+                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : " +
+                        isSpaceAllowedInUserName);
+            }
+            // if space is not allowed in username and user input contains a space, we fail user authentication.
+            if (!isSpaceAllowedInUserName && !userName.equals(userName.trim())) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Leading or trailing spaces are not allowed in username. Hence failing authentication " +
+                            "for the user : " + userName);
+                }
+                return false;
+            }
+        }
+
         Connection dbConnection = null;
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
