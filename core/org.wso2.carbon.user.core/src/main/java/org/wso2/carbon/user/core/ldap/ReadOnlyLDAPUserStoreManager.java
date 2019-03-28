@@ -3111,10 +3111,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * So we need to process the page results according to the requested start index.
      *
      * @param pageIndex    index of the paginated page.
-     * @param offset       start index .
+     * @param offset       start index.
      * @param pageSize     number of results per page which is equal to count/limit.
-     * @param tempUserList users in the particular indexed page
-     * @param users        final paginated user list
+     * @param tempUserList users in the particular indexed page.
+     * @param users        final paginated user list.
      */
     private void generatePaginatedUserList(int pageIndex, int offset, int pageSize, List<String> tempUserList,
                                            List<String> users) {
