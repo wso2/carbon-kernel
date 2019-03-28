@@ -56,5 +56,17 @@
       "default_value": "admin",
       "match_regex": ""
     }
+  ],
+  "datasource:type": [
+    {
+      "default_value": "h2",
+      "regex": "\\Amysql\\Z|\\Aoracle\\Z|\\Amssql\\Z|\\Apostgres\\Z"
+    }
+  ],
+  "datasource:pool_options.a": [
+    {
+      "default_value": "b",
+      "regex": "\\Ab\\Z"
+    }
   ]
 }

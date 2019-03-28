@@ -20,6 +20,7 @@
 package org.wso2.carbon.nextgen.config;
 
 import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,7 @@ public class Validator {
     private static final String IF = "if";
     private static final String REGEX = "regex";
     private static final String EMPTY_STRING = "";
+    private static final String EMPTY_STRING_MESSAGE = "empty String";
 
     private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 
@@ -113,19 +116,55 @@ public class Validator {
                 }
             }
         }
-        Object configValue = configurationValues.get(keyToValidate);
+        List<String> configValues = getConfigurationValues(configurationValues, keyToValidate);
 
         if (validationRule.get(REGEX) instanceof String) {
-            String confValueString = configValue == null ? EMPTY_STRING : configValue.toString();
-            String regex = (String) validationRule.get(REGEX);
-            if (!confValueString.matches(regex)) {
-                String errorMessage = (String) validationRule.get("error_message");
-                if (errorMessage == null) {
-                    errorMessage = String.format("Validation failed for %s. Expected value to match \"%s\", but was " +
-                            "%s", keyToValidate, regex, confValueString);
+
+            for (String configValue : configValues) {
+
+                String regex = (String) validationRule.get(REGEX);
+                if (!configValue.matches(regex)) {
+                    String errorMessage = (String) validationRule.get("error_message");
+                    if (errorMessage == null) {
+                        errorMessage = String.format("Validation failed for %s. Expected value to match \"%s\", but " +
+                                "was " +
+                                "%s", keyToValidate, regex, EMPTY_STRING.equals(configValue) ? EMPTY_STRING_MESSAGE :
+                                configValue);
+                    }
+                    throw new ConfigParserException(errorMessage);
                 }
-                throw new ConfigParserException(errorMessage);
+
             }
+
         }
     }
+
+    private static List getConfigurationValues(Map<String, Object> configurationValues, String keyToValidate) {
+
+        List<String> list = new ArrayList<>();
+
+        String[] splittedArray = StringUtils.split(keyToValidate, ":");
+        if (splittedArray != null && splittedArray.length == 2) {
+            Object configurations = configurationValues.get(splittedArray[0]);
+            if (configurations != null && configurations instanceof List) {
+                ((List) configurations).forEach(configuration -> {
+                    if (configuration instanceof Map) {
+                        if (((Map) configuration).get(splittedArray[1]) != null) {
+                            list.add((String) ((Map) configuration).get(splittedArray[1]));
+                        } else {
+                            list.add(EMPTY_STRING);
+                        }
+                    }
+                });
+            }
+        } else {
+            if (configurationValues.containsKey(keyToValidate)) {
+                list.add((String) configurationValues.get(keyToValidate));
+            } else {
+                list.add(EMPTY_STRING);
+            }
+        }
+        return list;
+    }
 }
+
