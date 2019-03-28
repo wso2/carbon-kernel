@@ -10,7 +10,7 @@
     }
   },
   "realm_manager": {
-    "data_source": "jdbc/SHARED_DB",
+    "data_source": "SHARED_DB",
     "properties": {
       "isCascadeDeleteEnabled": true
     }
@@ -27,9 +27,12 @@
   "user_store.properties.MaxUserNameListLength": "100",
   "user_store.properties.MaxRoleNameListLength": "100",
 
-  "governance.data_source": "jdbc/SHARED_DB",
-  "governance.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
-  "governance.enable_cache": true,
+  "governance_data.data_source": "SHARED_DB",
+  "governance_data.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
+  "governance_data.enable_cache": true,
+  "config_data.data_source": "$ref{governance_data.data_source}",
+  "config_data.cache_id": "$ref{governance_data.cache_id}",
+  "config_data.enable_cache": "$ref{governance_data.enable_cache}",
   "transport.http.port": "9763",
   "transport.http.redirectPort": "9443",
   "transport.http.bindOnInit": "false",
@@ -138,6 +141,7 @@
     "127.0.0.1:4000"
   ],
   "clustering.local_member_port": "4000",
+  "database.shared_db.id": "SHARED_DB",
   "database.shared_db.pool_options.maxActive": "50",
   "database.shared_db.pool_options.maxWait": "60000",
   "database.shared_db.pool_options.testOnBorrow": "true",
@@ -148,6 +152,11 @@
   "keystore.tls.password": "wso2carbon",
   "keystore.tls.alias": "wso2carbon",
   "keystore.tls.key_password": "wso2carbon",
+  "keystore.internal.file_name": "$ref{keystore.tls.file_name}",
+  "keystore.internal.type": "$ref{keystore.tls.type}",
+  "keystore.internal.password": "$ref{keystore.tls.password}",
+  "keystore.internal.alias": "$ref{keystore.tls.alias}",
+  "keystore.internal.key_password": "$ref{keystore.tls.key_password}",
   "truststore.file_name": "client-truststore.jks",
   "truststore.type": "JKS",
   "truststore.password": "wso2carbon",
