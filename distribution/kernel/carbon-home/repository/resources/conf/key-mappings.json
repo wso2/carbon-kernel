@@ -4,5 +4,24 @@
   "database.shared_db.pool_options.max_wait": "database.shared_db.pool_options.maxWait",
   "database.shared_db.pool_options.test_on_borrow": "database.shared_db.pool_options.testOnBorrow",
   "database.shared_db.pool_options.validation_interval": "database.shared_db.pool_options.validationInterval",
-  "database.shared_db.pool_options.default_auto_commit": "database.shared_db.pool_options.defaultAutoCommit"
+  "database.shared_db.pool_options.default_auto_commit": "database.shared_db.pool_options.defaultAutoCommit",
+
+  "authenticator.saml_sso_authenticator.login_page": "authenticator.saml_sso_authenticator.config.LoginPage",
+  "authenticator.saml_sso_authenticator.service_provider_id": "authenticator.saml_sso_authenticator.config.ServiceProviderID",
+  "authenticator.saml_sso_authenticator.identity_provider_sso_service_url": "authenticator.saml_sso_authenticator.config.IdentityProviderSSOServiceURL",
+  "authenticator.saml_sso_authenticator.name_id_policy_format": "authenticator.saml_sso_authenticator.config.NameIDPolicyFormat",
+  "authenticator.saml_sso_authenticator.assertion_consumer_service_url": "authenticator.saml_sso_authenticator.config.AssertionConsumerServiceURL",
+  "authenticator.saml_sso_authenticator.jit_user_provisioning_enabled": "authenticator.saml_sso_authenticator.config.JITUserProvisioningEnabled",
+  "authenticator.saml_sso_authenticator.super_admin_role_required": "authenticator.saml_sso_authenticator.config.IsSuperAdminRoleRequired",
+  "authenticator.saml_sso_authenticator.idp_cert_alias": "authenticator.saml_sso_authenticator.config.IdPCertAlias",
+  "authenticator.saml_sso_authenticator.response_signature_validation_enabled": "authenticator.saml_sso_authenticator.config.ResponseSignatureValidationEnabled",
+  "authenticator.saml_sso_authenticator.assertion_signature_validation_enabled": "authenticator.saml_sso_authenticator.config.AssertionSignatureValidationEnabled",
+  "authenticator.saml_sso_authenticator.login_attribute_name": "authenticator.saml_sso_authenticator.config.LoginAttributeName",
+  "authenticator.saml_sso_authenticator.role_claim_attribute": "authenticator.saml_sso_authenticator.config.RoleClaimAttribute",
+  "authenticator.saml_sso_authenticator.attribute_value_separator": "authenticator.saml_sso_authenticator.config.AttributeValueSeparator",
+  "authenticator.saml_sso_authenticator.provisioning_default_userstore": "authenticator.saml_sso_authenticator.config.ProvisioningDefaultUserstore",
+  "authenticator.saml_sso_authenticator.provisioning_default_role": "authenticator.saml_sso_authenticator.config.ProvisioningDefaultRole",
+
+  "authenticator.mutual_ssl_authenticator.username_header": "authenticator.mutual_ssl_authenticator.config.UsernameHeader",
+  "authenticator.mutual_ssl_authenticator.white_list_enabled": "authenticator.mutual_ssl_authenticator.config.WhiteListEnabled"
 }

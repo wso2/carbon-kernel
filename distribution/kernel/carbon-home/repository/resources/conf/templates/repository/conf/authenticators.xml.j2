@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  ~ Copyright 2019 WSO2, Inc. (http://wso2.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+     This is the configuration file for Carbon authenticators. All the authenticator related configurations
+     should go here.
+-->
+<Authenticators xmlns="http://wso2.org/projects/carbon/authenticators.xml">
+
+    <!-- Authenticator Configurations for TokenUIAuthenticator -->
+    <Authenticator id="token_ui_authenticator" name="TokenUIAuthenticator" disabled="{{authenticator.token_ui_authenticator.disable}}">
+        <Priority>{{authenticator.token_ui_authenticator.priority}}</Priority>
+        {% if authenticator.token_ui_authenticator.config is defined %}
+        <Config>
+            {% for key,value in authenticator.token_ui_authenticator.config.items() %}
+            <Parameter name="{{key}}">{{value}}</Parameter>
+            {% endfor %}
+        </Config>
+        {% endif %}
+    </Authenticator>
+
+    <!-- Authenticator Configurations for SAML2SSOAuthenticator -->
+    <Authenticator id="saml_sso_authenticator" name="SAML2SSOAuthenticator" disabled="{{authenticator.saml_sso_authenticator.disable}}">
+        <Priority>{{authenticator.saml_sso_authenticator.priority}}</Priority>
+        <Config>
+            {% for key,value in authenticator.saml_sso_authenticator.config.items() %}
+            <Parameter name="{{key}}">{{value}}</Parameter>
+            {% endfor %}
+	    </Config>
+        {% if authenticator.saml_sso_authenticator.skip_authenticator_urls is defined %}
+	    <SkipAuthentication>
+            {% for url in authenticator.saml_sso_authenticator.skip_authenticator_urls %}
+            <UrlContains>{{url}}</UrlContains>
+            {% endfor %}
+        </SkipAuthentication>
+        {% endif %}
+        {% if authenticator.saml_sso_authenticator.skip_session_validation_urls is defined %}
+        <SkipSessionValidation>
+            {% for url in authenticator.saml_sso_authenticator.skip_session_validation_urls %}
+            <UrlContains></UrlContains>
+            {% endfor %}
+        </SkipSessionValidation>
+        {% endif %}
+    </Authenticator>
+
+    <!-- Authenticator Configurations for MutualSSLAuthenticator -->
+    <Authenticator id="mutual_ssl_authenticator" name="MutualSSLAuthenticator">
+	    <Priority>{{authenticator.mutual_ssl_authenticator.priority}}</Priority>
+	    <Config>
+            {% for key,value in authenticator.mutual_ssl_authenticator.config.items() %}
+            <Parameter name="{{key}}">{{value}}</Parameter>
+            {% endfor %}
+	    </Config>
+    </Authenticator>
+
+    <!-- Authenticator Configurations for Custom Authenticators -->
+    {% for authenticator in authenticator.custom %}
+    <Authenticator id="{{authenticator.id}}" name="{{authenticator.name}}" disabled="{{authenticator.disable}}">
+        <Priority>{{authenticator.priority}}</Priority>
+        {% if authenticator.config is defined %}
+        <Config>
+            {% for key,value in authenticator.config.items() %}
+            <Parameter name="{{key}}">{{value}}</Parameter>
+            {% endfor %}
+        </Config>
+        {% endif %}
+    </Authenticator>
+    {% endfor %}
+    
+</Authenticators>
+
