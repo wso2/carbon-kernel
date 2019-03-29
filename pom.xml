@@ -1873,7 +1873,7 @@
         <jdom.wso2.version>1.0.0.wso2v1</jdom.wso2.version>
         <json-smart.version>1.3</json-smart.version>
         <cxf-bundle.wso2.version>2.7.16.wso2v1</cxf-bundle.wso2.version>
-        <org.apache.cxf.version>3.2.8</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.1</org.apache.cxf.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
