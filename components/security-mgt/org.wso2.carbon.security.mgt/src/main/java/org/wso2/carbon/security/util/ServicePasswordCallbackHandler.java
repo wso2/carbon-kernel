@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.security.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.WSPasswordCallback;
@@ -117,11 +118,16 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                     throw new UnsupportedCallbackException(callbacks[i], "check failed");
                                 }
                             } catch (Exception e) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Error when authenticating user : " + username + ", password provided : "
+                                            + StringUtils.isNotEmpty(receivedPasswd), e);
+                                }
                                 throw new UnsupportedCallbackException(callbacks[i],
                                         "Check failed : System error");
                             }
 
                             break;
+
                         case WSPasswordCallback.USERNAME_TOKEN:
                             // In username token scenario, if user sends the digested password, callback handler needs to provide plain text password.
                             // We get plain text password through UserCredentialRetriever interface, which is implemented by custom user store managers.
@@ -162,8 +168,11 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                         throw new UnsupportedCallbackException(callbacks[i], "check failed");
                                     }
                                 } catch (Exception e) {
-                                    throw new UnsupportedCallbackException(callbacks[i],
-                                            "Check failed : System error");
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Error when authenticating user : " + username + ", password provided : "
+                                                + StringUtils.isNotEmpty(receivedPasswd), e);
+                                    }
+                                    throw new UnsupportedCallbackException(callbacks[i], "Check failed : System error");
                                 }
                                 passwordCallback.setPassword(storedPassword);
                                 break;
@@ -235,18 +244,18 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         boolean isAuthenticated = false;
         boolean isAuthorized = false;
 
-        // verify whether user is in same tenant that service has been deployed.
-        if (realm.getUserStoreManager().getTenantId() !=
-                SecurityServiceHolder.getRealmService().getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(user))) {
-            if (log.isDebugEnabled()) {
-                log.debug("User : " + user + " trying access service which is deployed in different tenant domain");
-            }
-            return false;
-        }
-
-        String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
-
         try {
+            // Verify whether user is in same tenant that service has been deployed.
+            if (realm.getUserStoreManager().getTenantId() !=
+                    SecurityServiceHolder.getRealmService().getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(user))) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User : " + user + " trying access service which is deployed in different tenant domain");
+                }
+                return false;
+            }
+
+            String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
+
             isAuthenticated = realm.getUserStoreManager().authenticate(
                     tenantAwareUserName, password);
 
@@ -264,6 +273,15 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                         .isUserAuthorized(tenantAwareUserName,
                                 serviceGroupId + "/" + serviceId,
                                 UserCoreConstants.INVOKE_SERVICE_PERMISSION);
+                if (!isAuthorized) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authorization failure for user : " + tenantAwareUserName);
+                    }
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Authentication failure for user : " + tenantAwareUserName);
+                }
             }
 
             return isAuthorized;
