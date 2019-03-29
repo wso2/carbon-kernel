@@ -389,7 +389,8 @@ public class ConfigParser {
 
     private String getUnEncryptedValue(String value) {
 
-        String[] envRefs = StringUtils.substringsBetween(value, "[", "]");
+        String[] envRefs = StringUtils.substringsBetween(value, ConfigConstants.SECTION_PREFIX,
+                ConfigConstants.SECTION_SUFFIX);
         if (envRefs != null && envRefs.length == 1) {
             return envRefs[0];
         } else {
@@ -409,9 +410,7 @@ public class ConfigParser {
                 boolean found = false;
                 for (String line : lines) {
                     if (found) {
-                        if (StringUtils.isNotEmpty(StringUtils.substringBetween(line.trim(),
-                                ConfigConstants.SECTION_PREFIX,
-                                ConfigConstants.SECTION_SUFIX))) {
+                        if (line.matches("[.+]")) {
                             found = false;
                         } else {
                             StringTokenizer stringTokenizer = new StringTokenizer(line,

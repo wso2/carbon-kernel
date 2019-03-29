@@ -52,7 +52,7 @@ public class ReferenceResolver {
     private static final String ENV_VAR_PLACEHOLDER_PREFIX = "$env{";
     private static final String PLACEHOLDER_SUFFIX = "}";
     private static final String PLAIN_TEXT_VALUE_PLACE_HOLDER_PREFIX = "[";
-    private static final String PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFIXX = "]";
+    private static final String PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFFIX = "]";
     private ReferenceResolver() {
 
     }
@@ -206,7 +206,7 @@ public class ReferenceResolver {
                     } else if (!(!(secretValue instanceof String)
                             || Boolean.getBoolean(ConfigConstants.ENCRYPT_SECRETS))) {
                         String[] secretArray = StringUtils.substringsBetween((String) secretValue,
-                                PLAIN_TEXT_VALUE_PLACE_HOLDER_PREFIX, PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFIXX);
+                                PLAIN_TEXT_VALUE_PLACE_HOLDER_PREFIX, PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFFIX);
                         if (secretArray != null && secretArray.length > 0) {
                             throw new ConfigParserException("Secret References can't be Plain-Text for " + secretRef);
                         }

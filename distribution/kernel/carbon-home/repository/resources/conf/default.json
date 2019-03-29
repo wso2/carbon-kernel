@@ -30,6 +30,8 @@
   "governance_data.data_source": "SHARED_DB",
   "governance_data.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
   "governance_data.enable_cache": true,
+  "governance_data.path": "/_system/governance",
+  "config_data.path": "/_system/config",
   "config_data.data_source": "$ref{governance_data.data_source}",
   "config_data.cache_id": "$ref{governance_data.cache_id}",
   "config_data.enable_cache": "$ref{governance_data.enable_cache}",

@@ -28,7 +28,7 @@ public class ConfigConstants {
 
     public static final String SECRETS_SECTION = "[secrets]";
     public static final String SECTION_PREFIX = "[";
-    public static final String SECTION_SUFIX = "[";
+    public static final String SECTION_SUFFIX = "]";
 
     public static final String KEY_VALUE_SEPERATOR = "=";
     public static final String ENCRYPT_SECRETS = "encryptSecrets";

@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -188,7 +189,40 @@ public class DataSourceUtils {
 		return secretResolver.resolve(alias);
 	}
 
-	private static void secureLoadElement(OMElement element, boolean checkSecureVault)
+
+	private static void secureLoadElement(Element element, boolean checkSecureVault)
+			throws CryptoException {
+		if (checkSecureVault) {
+			Attr secureAttr = element.getAttributeNodeNS(DataSourceConstants.SECURE_VAULT_NS,
+					DataSourceConstants.SECRET_ALIAS_ATTR_NAME);
+			if (secureAttr != null) {
+				element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
+				element.removeAttributeNode(secureAttr);
+			}
+		} else {
+			String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
+			if (encryptedStr != null) {
+				boolean encrypted = Boolean.parseBoolean(encryptedStr);
+				if (encrypted) {
+					element.setTextContent(new String(CryptoUtil.getDefaultCryptoUtil(
+							DataSourceServiceComponent.getServerConfigurationService(),
+							DataSourceServiceComponent.getRegistryService()).
+							base64DecodeAndDecrypt(element.getTextContent())));
+				}
+			}
+		}
+		NodeList childNodes = element.getChildNodes();
+		int count = childNodes.getLength();
+		Node tmpNode;
+		for (int i = 0; i < count; i++) {
+			tmpNode = childNodes.item(i);
+			if (tmpNode instanceof Element) {
+				secureLoadElement((Element) tmpNode, checkSecureVault);
+			}
+		}
+	}
+
+	private static void secureLoadOMElement(OMElement element, boolean checkSecureVault)
 			throws CryptoException {
 
 		if (checkSecureVault) {
@@ -218,7 +252,7 @@ public class DataSourceUtils {
 		Iterator<OMElement> childNodes = element.getChildElements();
 		while (childNodes.hasNext()) {
 			OMElement tmpNode = childNodes.next();
-			secureLoadElement(tmpNode, checkSecureVault);
+			secureLoadOMElement(tmpNode, checkSecureVault);
 		}
 	}
 	
@@ -243,13 +277,45 @@ public class DataSourceUtils {
 			}
 		}
 	}
-	
-	public static void secureResolveDocument(OMElement doc, boolean checkSecureVault)
+
+	public static void secureResolveDocument(Document doc, boolean checkSecureVault)
+			throws DataSourceException {
+		Element element = doc.getDocumentElement();
+		if (element != null) {
+			try {
+				secureLoadElement(element, checkSecureVault);
+			} catch (CryptoException e) {
+				throw new DataSourceException("Error in secure load of data source meta info: " +
+						e.getMessage(), e);
+			}
+		}
+	}
+
+	public static Document convertToDocument(File file) throws DataSourceException {
+		try {
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			return db.parse(file);
+		} catch (Exception e) {
+			throw new DataSourceException("Error in creating an XML document from file: " +
+					e.getMessage(), e);
+		}
+	}
+	public static Document convertToDocument(InputStream in) throws DataSourceException {
+		try {
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			return db.parse(in);
+		} catch (Exception e) {
+			throw new DataSourceException("Error in creating an XML document from stream: " +
+					e.getMessage(), e);
+		}
+	}
+
+	public static void secureResolveOMElement(OMElement doc, boolean checkSecureVault)
             throws DataSourceException {
 		if (doc != null) {
 			try {
 				secretResolver = SecretResolverFactory.create(doc, true);
-				secureLoadElement(doc, checkSecureVault);
+				secureLoadOMElement(doc, checkSecureVault);
 			} catch (CryptoException e) {
 				throw new DataSourceException("Error in secure load of data source meta info: " +
 			            e.getMessage(), e);
@@ -257,7 +323,7 @@ public class DataSourceUtils {
 		}
     }
 
-    public static OMElement convertToDocument(File file) throws DataSourceException {
+    public static OMElement convertToOMElement(File file) throws DataSourceException {
         try {
 			OMElement documentElement = new StAXOMBuilder(new FileInputStream(file)).getDocumentElement();
             return documentElement;
@@ -267,7 +333,7 @@ public class DataSourceUtils {
         }
     }
 
-    public static OMElement convertToDocument(InputStream in) throws DataSourceException {
+    public static OMElement convertToOMElement(InputStream in) throws DataSourceException {
         try {
 			OMElement documentElement = new StAXOMBuilder(in).getDocumentElement();
             return documentElement;
@@ -276,7 +342,7 @@ public class DataSourceUtils {
                     e.getMessage(), e);
         }
     }
-    
+
     public static InputStream elementToInputStream(Element element) {
 		try {
 			if (element == null) {
@@ -290,8 +356,8 @@ public class DataSourceUtils {
 			return null;
 		}
 	}
-    
-    public static Element convertDataSourceMetaInfoToElement(DataSourceMetaInfo dsmInfo, 
+
+    public static Element convertDataSourceMetaInfoToElement(DataSourceMetaInfo dsmInfo,
     		Marshaller dsmMarshaller) throws DataSourceException{
     	Element element;
 		try {

@@ -64,7 +64,7 @@ public class Validator {
     private static final String IF = "if";
     private static final String REGEX = "regex";
     private static final String EMPTY_STRING = "";
-    private static final String EMPTY_STRING_MESSAGE = "empty String";
+    private static final String EMPTY_STRING_MESSAGE = "an empty string";
 
     private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 

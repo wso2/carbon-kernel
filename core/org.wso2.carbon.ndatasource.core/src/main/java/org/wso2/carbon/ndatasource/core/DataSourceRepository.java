@@ -414,10 +414,10 @@ public class DataSourceRepository {
 					return null;
 				}
 			    in = resource.getContentStream();
-                OMElement doc = DataSourceUtils.convertToDocument(in);
+                OMElement doc = DataSourceUtils.convertToOMElement(in);
                 /* only super tenant will lookup secure vault information for system data sources,
 			     * others are not allowed to */
-                DataSourceUtils.secureResolveDocument(doc, false);
+                DataSourceUtils.secureResolveOMElement(doc, false);
 
                 this.getRegistry().commitTransaction();
                 doc.toStringWithConsume();
