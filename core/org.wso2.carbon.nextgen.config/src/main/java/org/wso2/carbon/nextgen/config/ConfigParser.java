@@ -389,10 +389,10 @@ public class ConfigParser {
 
     private String getUnEncryptedValue(String value) {
 
-        String[] envRefs = StringUtils.substringsBetween(value, ConfigConstants.SECTION_PREFIX,
+        String[] unEncryptedRefs = StringUtils.substringsBetween(value, ConfigConstants.SECTION_PREFIX,
                 ConfigConstants.SECTION_SUFFIX);
-        if (envRefs != null && envRefs.length == 1) {
-            return envRefs[0];
+        if (unEncryptedRefs != null && unEncryptedRefs.length == 1) {
+            return unEncryptedRefs[0];
         } else {
             return null;
         }

@@ -31,10 +31,14 @@
         <dataSource>jdbc/WSO2CarbonDB</dataSource>
     </dbConfig>
     <dbConfig name="govregistry">
-        <dataSource>jdbc/{{governance_data.data_source}}</dataSource>
+        <dataSource>jdbc/SHARED_DB</dataSource>
     </dbConfig>
     <dbConfig name="configregistry">
-        <dataSource>jdbc/{{config_data.data_source}}</dataSource>
+    {% if database.config is defined%}
+        <dataSource>jdbc/WSO2CONFIG_DB</dataSource>
+    {% else %}
+        <dataSource>jdbc/SHARED_DB</dataSource>
+    {% endif %}
     </dbConfig>
 
     <remoteInstance url="https://{{deployment.hostname}}">
@@ -51,7 +55,7 @@
         <cacheId>{{config_data.cache_id}}</cacheId>
         <dbConfig>configregistry</dbConfig>
         <readOnly>false</readOnly>
-        <enableCache>{{config_data.cache_enable}}</enableCache>
+        <enableCache>{{config_data.enable_cache}}</enableCache>
         <registryRoot>/</registryRoot>
     </remoteInstance>
 

@@ -17,6 +17,37 @@ testOnBorrow = true
 validationInterval = "30000"
 defaultAutoCommit = true
 
+# To seperate user data
+#[database.user]
+#type = "h2"
+#url="jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
+#username = "wso2carbon"
+#password = "wso2carbon"
+#[database.shared_db.pool_options]
+#maxActive = "50"
+#maxWait = "60000"
+#testOnBorrow = true
+#validationInterval = "30000"
+#defaultAutoCommit = true
+
+
+# To seperate config data
+#[database.config]
+#type = "h2"
+#url="jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
+#username = "wso2carbon"
+#password = "wso2carbon"
+#[database.shared_db.pool_options]
+#maxActive = "50"
+#maxWait = "60000"
+#testOnBorrow = true
+#validationInterval = "30000"
+#defaultAutoCommit = true
+
+#[config_data]
+#path = "/_system/config/apim" to change data path
+#enable_cache = true To enable data feched from config
+
 [super_admin]
 username = "admin"
 password = "admin"
