@@ -155,20 +155,20 @@
   "encryption.algorithm": "AES",
   "encryption.alias": "symmetric.key.value",
 
-  "authenticator.token_ui_authenticator.disable": true,
-  "authenticator.token_ui_authenticator.priority": "5",
+  "admin_console.authenticator.token_ui_authenticator.enable": false,
+  "admin_console.authenticator.token_ui_authenticator.priority": "5",
 
-  "authenticator.saml_sso_authenticator.disable": true,
-  "authenticator.saml_sso_authenticator.priority": "10",
-  "authenticator.saml_sso_authenticator.config.LoginPage": "/carbon/admin/login.jsp",
-  "authenticator.saml_sso_authenticator.config.ServiceProviderID": "carbonServer",
-  "authenticator.saml_sso_authenticator.config.IdentityProviderSSOServiceURL": "$ref{deployment.base_path}/samlsso",
-  "authenticator.saml_sso_authenticator.config.NameIDPolicyFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
-  "authenticator.saml_sso_authenticator.config.AssertionConsumerServiceURL": "$ref{deployment.base_path}/acs",
-  "authenticator.saml_sso_authenticator.config.JITUserProvisioningEnabled": false,
-  "authenticator.saml_sso_authenticator.config.IsSuperAdminRoleRequired": false,
+  "admin_console.authenticator.saml_sso_authenticator.enable": false,
+  "admin_console.authenticator.saml_sso_authenticator.priority": "10",
+  "admin_console.authenticator.saml_sso_authenticator.config.LoginPage": "/carbon/admin/login.jsp",
+  "admin_console.authenticator.saml_sso_authenticator.config.ServiceProviderID": "carbonServer",
+  "admin_console.authenticator.saml_sso_authenticator.config.IdentityProviderSSOServiceURL": "$ref{server.base_path}/samlsso",
+  "admin_console.authenticator.saml_sso_authenticator.config.NameIDPolicyFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+  "admin_console.authenticator.saml_sso_authenticator.config.AssertionConsumerServiceURL": "$ref{server.base_path}/acs",
+  "admin_console.authenticator.saml_sso_authenticator.config.JITUserProvisioningEnabled": false,
+  "admin_console.authenticator.saml_sso_authenticator.config.IsSuperAdminRoleRequired": false,
 
-  "authenticator.mutual_ssl_authenticator.priority": "5",
-  "authenticator.mutual_ssl_authenticator.config.UsernameHeader": "UserName",
-  "authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": false
+  "admin_console.authenticator.mutual_ssl_authenticator.priority": "5",
+  "admin_console.authenticator.mutual_ssl_authenticator.config.UsernameHeader": "UserName",
+  "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": false
 }
