@@ -405,7 +405,31 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             return false;
         }
 
-        userName = userName.trim();
+        String leadingOrTrailingSpaceAllowedInUserName = realmConfig.getUserStoreProperty(UserCoreConstants
+                .RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
+        if (StringUtils.isNotEmpty(leadingOrTrailingSpaceAllowedInUserName)) {
+            boolean isSpaceAllowedInUserName = Boolean.parseBoolean(leadingOrTrailingSpaceAllowedInUserName);
+            if (log.isDebugEnabled()) {
+                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : " +
+                        isSpaceAllowedInUserName);
+            }
+            if (!isSpaceAllowedInUserName) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Leading or trailing spaces are not allowed in username. Hence validating the username" +
+                            " against the regex for the user : " + userName);
+                }
+                // Need to validate the username against the regex.
+                if (!checkUserNameValid(userName)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Username validation failed for the user : " + userName);
+                    }
+                    return false;
+                }
+            }
+        } else {
+            // Keeping old behavior for backward-compatibility.
+            userName = userName.trim();
+        }
 
         Secret credentialObj;
         try {
