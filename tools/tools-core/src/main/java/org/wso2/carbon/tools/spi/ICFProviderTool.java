@@ -151,7 +151,7 @@ public class ICFProviderTool implements CarbonTool {
                        .append(" ")
                        .append(internal.resolve(ACTIVATOR_CLASS_FILE).toString().replace(tmpDir.toString(), ""));
                 logger.log(Level.INFO, "Executing '" + command.toString() + "'");
-                process = Runtime.getRuntime().exec(command.toString());
+                process = new ProcessBuilder(command.toString()).start();
                 process.waitFor(5, TimeUnit.SECONDS);
                 addBundleActivatorHeader(finalJarPath, tmpDir);
             } catch (IOException e) {
