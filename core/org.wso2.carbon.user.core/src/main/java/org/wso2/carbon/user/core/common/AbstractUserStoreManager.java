@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
@@ -5711,7 +5710,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return (String[]) object;
         }
 
-        String[] roleList;
+        String[] roleList = getRoleListOfUserFromCache(this.tenantId, userName);
+        if (roleList != null && roleList.length > 0) {
+            return roleList;
+        }
 
         String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
 
