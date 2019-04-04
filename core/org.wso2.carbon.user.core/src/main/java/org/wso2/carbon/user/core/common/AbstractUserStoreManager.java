@@ -5711,7 +5711,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return (String[]) object;
         }
 
-        String[] roleList;
+        String[] roleList = getRoleListOfUserFromCache(this.tenantId, userName);
+        if (roleList != null && roleList.length > 0) {
+            return roleList;
+        }
 
         String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
 
