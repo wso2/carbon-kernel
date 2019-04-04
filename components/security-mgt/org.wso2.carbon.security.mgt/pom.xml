@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity.framework</groupId>
         <artifactId>security-mgt</artifactId>
-        <version>5.11.255-SNAPSHOT</version>
+        <version>5.12.335-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -108,7 +108,8 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.xml.namespace,
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
-
+                            javax.xml.bind,
+                            javax.xml.bind.annotation,
                             org.w3c.dom,
                             org.jaxen; version="${axiom.org.jaxen.imp.pkg.version.range}",
 
@@ -138,9 +139,7 @@
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.core.*;
-                            version="${carbon.identity.package.import.version.range}"
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.security.internal,
