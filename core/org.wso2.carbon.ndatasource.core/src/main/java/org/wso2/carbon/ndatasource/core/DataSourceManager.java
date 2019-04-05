@@ -15,9 +15,9 @@
  */
 package org.wso2.carbon.ndatasource.core;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.ndatasource.common.DataSourceConstants;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
@@ -26,15 +26,14 @@ import org.wso2.carbon.ndatasource.core.internal.DataSourceServiceComponent;
 import org.wso2.carbon.ndatasource.core.utils.DataSourceUtils;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.securevault.SecretResolverFactory;
 
-import javax.xml.bind.JAXBContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.xml.bind.JAXBContext;
 
 /**
  * This class contains the functionality in managing the data sources.
@@ -174,10 +173,10 @@ public class DataSourceManager {
 	private void initSystemDataSource(File sysDSFile) throws DataSourceException {
 		try {
 		    JAXBContext ctx = JAXBContext.newInstance(SystemDataSourcesConfiguration.class);
-            Document doc = DataSourceUtils.convertToDocument(sysDSFile);
-            DataSourceUtils.secureResolveDocument(doc, true);
+            OMElement doc = DataSourceUtils.convertToOMElement(sysDSFile);
+            DataSourceUtils.secureResolveOMElement(doc, true);
 		    SystemDataSourcesConfiguration sysDS = (SystemDataSourcesConfiguration) ctx.createUnmarshaller().
-		    		unmarshal(doc);
+		    		unmarshal(doc.getXMLStreamReader());
 		    this.addDataSourceProviders(sysDS.getProviders());
 		    DataSourceRepository dsRepo = this.getDataSourceRepository(
 		    		MultitenantConstants.SUPER_TENANT_ID);

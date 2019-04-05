@@ -159,6 +159,7 @@
                 <include>commons-codec:commons-codec:jar</include>
                 <include>ant-contrib:ant-contrib:jar</include>
                 <include>xerces.wso2:xercesImpl:jar</include>
+                <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

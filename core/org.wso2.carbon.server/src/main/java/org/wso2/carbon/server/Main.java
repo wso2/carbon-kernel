@@ -19,6 +19,7 @@ package org.wso2.carbon.server;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.ConfigConstants;
 import org.wso2.carbon.nextgen.config.ConfigParserException;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
@@ -94,10 +95,14 @@ public class Main {
         if (System.getProperty(LauncherConstants.PROFILE) == null) {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
-        handleConfiguration();
-        invokeExtensions();
-        removeAllAppendersFromCarbon();
-        launchCarbon();
+        if (Boolean.getBoolean(ConfigConstants.ENCRYPT_SECRETS)) {
+            handleConfiguration(true);
+        } else {
+            handleConfiguration(false);
+            invokeExtensions();
+            removeAllAppendersFromCarbon();
+            launchCarbon();
+        }
     }
 
     /**
@@ -228,7 +233,7 @@ public class Main {
         }
     }
 
-    private static void handleConfiguration() {
+    private static void handleConfiguration(boolean encryption) {
 
         String newConfigDirectoryPath = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
         String configDirectoryPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
@@ -245,7 +250,12 @@ public class Main {
                         .withMetaDataFilePath(newConfigDirectoryPath)
                         .withUnitResolverFilePath(newConfigDirectoryPath);
         try {
-            configParserBuilder.build().parse(carbonHomePath);
+            ConfigParser configParser = configParserBuilder.build();
+            configParser.parse(carbonHomePath);
+            if (encryption) {
+                System.clearProperty(LauncherConstants.CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+                configParser.handleEncryption();
+            }
         } catch (ConfigParserException e) {
             log.error("Error while performing configuration changes", e);
             System.exit(1);

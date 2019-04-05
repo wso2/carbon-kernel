@@ -15,7 +15,9 @@
  */
 package org.wso2.carbon.ndatasource.core.utils;
 
+import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
@@ -41,19 +43,24 @@ import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.commons.MiscellaneousUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
 
 /**
  * Data Sources utility class.
  */
 public class DataSourceUtils {
-	
+
 	private static Log log = LogFactory.getLog(DataSourceUtils.class);
-	
+
 	private static SecretResolver secretResolver;
     private static final String XML_DECLARATION = "xml-declaration";
 	private static final int ENTITY_EXPANSION_LIMIT = 0;
@@ -84,15 +91,15 @@ public class DataSourceUtils {
             return null;
         }
     };
-    
+
     public static void setCurrentDataSourceId(String dsId) {
     	dataSourceId.set(dsId);
     }
-    
+
     public static String getCurrentDataSourceId() {
     	return dataSourceId.get();
     }
-	
+
 	public static Registry getConfRegistryForTenant(int tenantId) throws DataSourceException {
 		try {
 			/* be super tenant to retrieve the registry of a given tenant id */
@@ -104,14 +111,14 @@ public class DataSourceUtils {
 			return DataSourceServiceComponent.getRegistryService().getConfigSystemRegistry(
 					tenantId);
 		} catch (RegistryException e) {
-			throw new DataSourceException("Error in retrieving conf registry instance: " + 
+			throw new DataSourceException("Error in retrieving conf registry instance: " +
 		            e.getMessage(), e);
 		} finally {
 			/* go out of being super tenant */
 			PrivilegedCarbonContext.endTenantFlow();
 		}
 	}
-	
+
 	public static Registry getGovRegistryForTenant(int tenantId) throws DataSourceException {
 		try {
 			/* be super tenant to retrieve the registry of a given tenant id */
@@ -121,14 +128,14 @@ public class DataSourceUtils {
 			return DataSourceServiceComponent.getRegistryService().getGovernanceSystemRegistry(
                     tenantId);
 		} catch (RegistryException e) {
-			throw new DataSourceException("Error in retrieving gov registry instance: " + 
+			throw new DataSourceException("Error in retrieving gov registry instance: " +
 		            e.getMessage(), e);
 		} finally {
 			/* go out of being super tenant */
 			PrivilegedCarbonContext.endTenantFlow();
 		}
 	}
-	
+
 	public static boolean nullAllowEquals(Object lhs, Object rhs) {
 		if (lhs == null && rhs == null) {
 			return true;
@@ -138,7 +145,7 @@ public class DataSourceUtils {
 		}
 		return lhs.equals(rhs);
 	}
-	
+
 	public static String elementToString(Element element) {
 		try {
 			if (element == null) {
@@ -158,7 +165,7 @@ public class DataSourceUtils {
 			return null;
 		}
 	}
-	
+
 	public static Element stringToElement(String xml) {
 		if (xml == null || xml.trim().length() == 0) {
 			return null;
@@ -173,59 +180,34 @@ public class DataSourceUtils {
 	}
 
 	private static synchronized String loadFromSecureVault(String alias) {
-
 		if (secretResolver == null) {
-			secretResolver = SecretResolverFactory.create((OMElement) null, false);
-			secretResolver.init(DataSourceServiceComponent.
-					getSecretCallbackHandlerService().getSecretCallbackHandler());
+		    secretResolver = SecretResolverFactory.create((OMElement) null, false);
+		    secretResolver.init(DataSourceServiceComponent.
+		    		getSecretCallbackHandlerService().getSecretCallbackHandler());
 		}
 		return secretResolver.resolve(alias);
 	}
 
-	private static synchronized boolean isSecuredTokenProtected(String alias) {
-
-		if (secretResolver == null) {
-			secretResolver = SecretResolverFactory.create((OMElement) null, false);
-			secretResolver.init(DataSourceServiceComponent.
-					getSecretCallbackHandlerService().getSecretCallbackHandler());
-		}
-		if (secretResolver.isInitialized() && secretResolver.isTokenProtected(alias)) {
-			return true;
-		}
-		return false;
-	}
-
-
-	private static void secureLoadElement(Element element, boolean checkSecureVault)
+    private static void secureLoadElement(Element element, boolean checkSecureVault)
 			throws CryptoException {
-
 		if (checkSecureVault) {
-			String alias = MiscellaneousUtil.getProtectedToken(element.getTextContent());
-			if (alias != null && !alias.isEmpty()) {
-				if (isSecuredTokenProtected(alias)){
-					element.setTextContent(loadFromSecureVault(alias));
-				}
-			} else {
-				Attr secureAttr = element.getAttributeNodeNS(DataSourceConstants.SECURE_VAULT_NS,
-						DataSourceConstants.SECRET_ALIAS_ATTR_NAME);
-				if (secureAttr != null) {
-					if (isSecuredTokenProtected(secureAttr.getValue())) {
-						element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
-					}
-					element.removeAttributeNode(secureAttr);
-				}
+			Attr secureAttr = element.getAttributeNodeNS(DataSourceConstants.SECURE_VAULT_NS,
+					DataSourceConstants.SECRET_ALIAS_ATTR_NAME);
+			if (secureAttr != null) {
+				element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
+                element.removeAttributeNode(secureAttr);
 			}
 		} else {
-			String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
-			if (encryptedStr != null) {
-				boolean encrypted = Boolean.parseBoolean(encryptedStr);
-				if (encrypted) {
-					element.setTextContent(new String(CryptoUtil.getDefaultCryptoUtil(
-							DataSourceServiceComponent.getServerConfigurationService(),
-							DataSourceServiceComponent.getRegistryService()).
-							base64DecodeAndDecrypt(element.getTextContent())));
-				}
-			}
+		    String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
+		    if (encryptedStr != null) {
+			    boolean encrypted = Boolean.parseBoolean(encryptedStr);
+			    if (encrypted) {
+				    element.setTextContent(new String(CryptoUtil.getDefaultCryptoUtil(
+				    		DataSourceServiceComponent.getServerConfigurationService(),
+				    		DataSourceServiceComponent.getRegistryService()).
+				    		base64DecodeAndDecrypt(element.getTextContent())));
+			    }
+		    }
 		}
 		NodeList childNodes = element.getChildNodes();
 		int count = childNodes.getLength();
@@ -237,7 +219,41 @@ public class DataSourceUtils {
 			}
 		}
 	}
-	
+
+	private static void secureLoadOMElement(OMElement element, boolean checkSecureVault)
+			throws CryptoException {
+
+		if (checkSecureVault) {
+			String alias = MiscellaneousUtil.getProtectedToken(element.getText());
+			if (alias != null && !alias.isEmpty()) {
+				element.setText(loadFromSecureVault(alias));
+			} else {
+				OMAttribute secureAttr = element.getAttribute(new QName(DataSourceConstants.SECURE_VAULT_NS,
+						DataSourceConstants.SECRET_ALIAS_ATTR_NAME));
+				if (secureAttr != null) {
+					element.setText(loadFromSecureVault(secureAttr.getAttributeValue()));
+					element.removeAttribute(secureAttr);
+				}
+			}
+		} else {
+			String encryptedStr = element.getAttributeValue(new QName(DataSourceConstants.ENCRYPTED_ATTR_NAME));
+			if (encryptedStr != null) {
+				boolean encrypted = Boolean.parseBoolean(encryptedStr);
+				if (encrypted) {
+					element.setText(new String(CryptoUtil.getDefaultCryptoUtil(
+							DataSourceServiceComponent.getServerConfigurationService(),
+							DataSourceServiceComponent.getRegistryService()).
+							base64DecodeAndDecrypt(element.getText())));
+				}
+			}
+		}
+		Iterator<OMElement> childNodes = element.getChildElements();
+		while (childNodes.hasNext()) {
+			OMElement tmpNode = childNodes.next();
+			secureLoadOMElement(tmpNode, checkSecureVault);
+		}
+	}
+
 	public static void secureSaveElement(Element element) throws CryptoException {
 		String encryptedStr = element.getAttribute(DataSourceConstants.ENCRYPTED_ATTR_NAME);
 		if (encryptedStr != null) {
@@ -259,7 +275,7 @@ public class DataSourceUtils {
 			}
 		}
 	}
-	
+
 	public static void secureResolveDocument(Document doc, boolean checkSecureVault)
             throws DataSourceException {
         Element element = doc.getDocumentElement();
@@ -292,7 +308,43 @@ public class DataSourceUtils {
                     e.getMessage(), e);
         }
     }
-    
+
+    public static void secureResolveOMElement(OMElement doc, boolean checkSecureVault)
+            throws DataSourceException {
+
+        if (doc != null) {
+            try {
+                secretResolver = SecretResolverFactory.create(doc, true);
+                secureLoadOMElement(doc, checkSecureVault);
+            } catch (CryptoException e) {
+                throw new DataSourceException("Error in secure load of data source meta info: " +
+                        e.getMessage(), e);
+            }
+        }
+    }
+
+    public static OMElement convertToOMElement(File file) throws DataSourceException {
+
+        try {
+            OMElement documentElement = new StAXOMBuilder(new FileInputStream(file)).getDocumentElement();
+            return documentElement;
+        } catch (Exception e) {
+            throw new DataSourceException("Error in creating an XML document from file: " +
+                    e.getMessage(), e);
+        }
+    }
+
+    public static OMElement convertToOMElement(InputStream in) throws DataSourceException {
+
+        try {
+            OMElement documentElement = new StAXOMBuilder(in).getDocumentElement();
+            return documentElement;
+        } catch (Exception e) {
+            throw new DataSourceException("Error in creating an XML document from stream: " +
+                    e.getMessage(), e);
+        }
+    }
+
     public static InputStream elementToInputStream(Element element) {
 		try {
 			if (element == null) {
@@ -306,8 +358,8 @@ public class DataSourceUtils {
 			return null;
 		}
 	}
-    
-    public static Element convertDataSourceMetaInfoToElement(DataSourceMetaInfo dsmInfo, 
+
+    public static Element convertDataSourceMetaInfoToElement(DataSourceMetaInfo dsmInfo,
     		Marshaller dsmMarshaller) throws DataSourceException{
     	Element element;
 		try {
@@ -318,7 +370,7 @@ public class DataSourceUtils {
 		} catch (Exception e) {
 			throw new DataSourceException("Error in creating an XML document from stream: " +
                     e.getMessage(), e);
-		} 
+		}
 		return element;
     }
 }

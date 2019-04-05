@@ -118,6 +118,7 @@ public class Utils {
         System.out.println("\t-DserverRoles=<roles>\t\tA comma separated list of roles. Used in deploying cApps");
         System.out.println("\t-DworkerNode\t\t\tSet this system property when starting as a worker node.");
         System.out.println("\t-Dprofile=<profileName>\t\tStarts the server as the specified profile. e.g. worker profile.");
+        System.out.println("\t-DencryptSecrets=true\t\tEncrypt the secrets in deployment Configuration");
         System.out.println("\t-Dtenant.idle.time=<time>\tIf a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.");
         System.out.println("\t\t\t\t\tThis is required in clustered setups with master and worker nodes.");
         System.out.println();

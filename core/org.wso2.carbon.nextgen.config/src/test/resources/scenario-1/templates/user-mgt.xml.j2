@@ -28,7 +28,11 @@
             {% for property_name,property_value in realm_manager.properties.items() %}
             <Property name="{{property_name}}">{{property_value}}</Property>
             {% endfor %}
-            <Property name="dataSource">{{realm_manager.data_source}}</Property>
+            {%if database.user is defined%}
+            <Property name="dataSource">jdbc/WSO2USER_DB</Property>
+           {%else%}
+            <Property name="dataSource">jdbc/SHARED_DB</Property>
+           {%endif%}
         </Configuration>
         <UserStoreManager class="{{user_store.class}}">
             {% for property_name,property_value in user_store.properties.items() %}

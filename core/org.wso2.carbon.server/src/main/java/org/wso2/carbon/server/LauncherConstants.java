@@ -72,4 +72,6 @@ public final class LauncherConstants {
     public static final String DEFAULT_CARBON_PROFILE = "default";
     public static final String WORKER_NODE = "workerNode";
     public static final String WORKER_PROFILE = "worker";
+    public static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
+
 }

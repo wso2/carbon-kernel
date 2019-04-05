@@ -68,8 +68,23 @@ public class ReferenceResolverTest {
         ReferenceResolver.resolve(context, secrets);
     }
 
+    @Test(dataProvider = "secretProvider")
+    public void testResolveNegative1(Map<String, Object> context) {
+
+        Properties secrets = new Properties();
+        secrets.put("b.c.d", "[sssssss]");
+        try {
+            ReferenceResolver.resolve(context, secrets);
+            Assert.fail();
+        } catch (ConfigParserException e) {
+            Assert.assertTrue(e.getMessage().contains("Secret References can't be Plain-Text for "));
+        }
+    }
+
+
+
     @Test(dataProvider = "secretProviderNegative")
-    public void testResolveNegative(Map<String, Object> context) {
+    public void testResolveNegative2(Map<String, Object> context) {
         Properties secrets = new Properties();
 
         try {

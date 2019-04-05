@@ -6,3 +6,19 @@ admin_role = "admin"
 
 [user_store]
 type = "jdbc"
+
+[[datasource]]
+id = "abcd"
+type = "mysql"
+username = "admin"
+password = "admin"
+[datasource.pool_options]
+a = "b"
+
+[[datasource]]
+id = "abcd"
+type = "mysql"
+username = "admin"
+password = "admin"
+[datasource.pool_options]
+a = "b"
