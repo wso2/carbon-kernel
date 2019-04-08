@@ -1,4 +1,4 @@
-[deployement]
+[server]
 local_host_name = "example.com"
 
 [user_store]
@@ -7,6 +7,6 @@ type = "jdbc"
 [clustering] # optional
 membership_scheme = "wka"
 domain = "wso2.carbon.domain"
-local_member_host = "$ref{deployement.local_host_name}"
+local_member_host = "$ref{server.local_host_name}"
 local_member_port = 4000
 members = [ "192.168.1.2:4000", "192.168.1.2:4001" ]

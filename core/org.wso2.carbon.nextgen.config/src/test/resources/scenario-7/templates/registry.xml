@@ -32,7 +32,7 @@
     <dbConfig name="govregistry">
         <dataSource>{{governance.data_source}}</dataSource>
      </dbConfig>
-    <remoteInstance url="https://{{deployment.hostname}}">
+    <remoteInstance url="https://{{server.hostname}}">
         <id>gov</id>
         <cacheId>{{governance.cache_id}}</cacheId>
         <dbConfig>govregistry</dbConfig>

@@ -138,7 +138,7 @@
     }
   ],
   "clustering.domain": "wso2.carbon.domain",
-  "clustering.local_member_host": "$ref{deployment.local_member_ip}",
+  "clustering.local_member_host": "$ref{server.local_member_ip}",
   "clustering.members": [
     "127.0.0.1:4000"
   ],
