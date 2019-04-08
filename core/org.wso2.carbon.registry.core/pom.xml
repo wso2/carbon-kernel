@@ -69,6 +69,7 @@
                             org.wso2.carbon.user.*,
                             org.wso2.carbon.utils.*,
                             !javax.xml.namespace,
+                            javax.activation.*;version="[0.0.0, 1.0.0)",
                             org.apache.abdera.*; version="${imp.pkg.version.abdera}",
                             javax.xml.namespace; version=0.0.0,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
