@@ -5412,7 +5412,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return false;
         }
 
-        userName = userName.trim();
+        String leadingOrTrailingSpaceAllowedInUserName = realmConfig.getUserStoreProperty(UserCoreConstants
+                .RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
+        if (StringUtils.isEmpty(leadingOrTrailingSpaceAllowedInUserName)) {
+            // Keeping old behavior for backward-compatibility.
+            userName = userName.trim();
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : " +
+                        leadingOrTrailingSpaceAllowedInUserName + ". Hence username trimming will be skipped during " +
+                        "validation for the username: " + userName);
+            }
+        }
 
         if (userName.length() < 1) {
             return false;
