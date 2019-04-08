@@ -25,7 +25,7 @@
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName>
             <!-- By default users in this role sees the registry root -->
-            <Property name="dataSource"></Property>
+            <Property name="dataSource">jdbc/SHARED_DB</Property>
         </Configuration>
         <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>

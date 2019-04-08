@@ -1,4 +1,4 @@
-[deployment]
+[server]
 hostname = "am.wso2.com"
 
 [user_store]

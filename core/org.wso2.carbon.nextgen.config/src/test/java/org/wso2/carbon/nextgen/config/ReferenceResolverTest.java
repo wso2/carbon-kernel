@@ -156,7 +156,7 @@ public class ReferenceResolverTest {
         Map<String, Object> context = new HashMap<>();
         context.put("secrets.a.b.c", "aaaaa");
         context.put("secrets.b.c.d", "aaaaaaaa");
-        context.put("aaa.bbb.ccc", "$ref{deployment.admin.password}");
+        context.put("aaa.bbb.ccc", "$ref{server.admin.password}");
         context.put("deployment.admin.password", "$secret{b.d.d}");
         return new Object[][]{
                 {context}

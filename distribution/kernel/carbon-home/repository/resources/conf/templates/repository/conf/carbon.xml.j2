@@ -44,14 +44,14 @@
        This is will become part of the End Point Reference of the
        services deployed on this server instance.
     -->
-    {%if deployment.hostname is defined %}
-    <HostName>{{deployment.hostname}}</HostName>
+    {%if server.hostname is defined %}
+    <HostName>{{server.hostname}}</HostName>
      {% endif %}
     <!--
     Host name to be used for the Carbon management console
     -->
-     {%if deployment.hostname is defined %}
-    <MgtHostName>{{deployment.hostname}}</MgtHostName>
+     {%if server.hostname is defined %}
+    <MgtHostName>{{server.hostname}}</MgtHostName>
      {% endif %}
 
     <!--
@@ -101,8 +101,8 @@
    	appserver - proxy context path. This specially required whenever you are generating URLs to displace in
    	Carbon UI components.
     -->
-    <MgtProxyContextPath>{{deployment.proxy_context_path}}</MgtProxyContextPath>
-    <ProxyContextPath>{{deployment.proxy_context_path}}</ProxyContextPath>
+    <MgtProxyContextPath>{{server.proxy_context_path}}</MgtProxyContextPath>
+    <ProxyContextPath>{{server.proxy_context_path}}</ProxyContextPath>
 
     <!-- In-order to  get the registry http Port from the back-end when the default http transport is not the same-->
     <!--RegistryHttpPort>9763</RegistryHttpPort-->
@@ -125,7 +125,7 @@
          the define value + Offset.
          e.g. Offset=2 and HTTPS port=9443 will set the effective HTTPS port to 9445
          -->
-        <Offset>{{deployment.offset | default('0')}}</Offset>
+        <Offset>{{server.offset | default('0')}}</Offset>
 
         <!-- The JMX Ports -->
         <JMX>
