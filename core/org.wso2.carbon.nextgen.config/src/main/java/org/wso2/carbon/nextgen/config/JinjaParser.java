@@ -46,11 +46,11 @@ class JinjaParser {
             throws ConfigParserException {
 
         Map<String, String> outputs = new LinkedHashMap<>();
-        for (Map.Entry<String, File> templateFile : templateFiles.entrySet()) {
-            JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
-            Jinjava jinjava = new Jinjava(configurator);
+        JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
+        Jinjava jinjava = new Jinjava(configurator);
+        Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
+        templateFiles.entrySet().parallelStream().forEach((templateFile) -> {
             String renderedTemplate = "";
-            Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
             try {
                 String template = FileUtils.readFile(templateFile.getValue());
                 renderedTemplate = jinjava.render(template, context);
@@ -59,7 +59,7 @@ class JinjaParser {
                 LOGGER.error("Error while parsing Jinja template", e);
             }
             outputs.put(templateFile.getKey(), renderedTemplate);
-        }
+        });
         return outputs;
 
     }
