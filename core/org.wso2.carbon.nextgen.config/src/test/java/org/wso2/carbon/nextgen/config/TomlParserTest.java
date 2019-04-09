@@ -60,6 +60,8 @@ public class TomlParserTest {
                 {"header_test.b.c", "value1"},
                 {"header_test.b.d", "value2"},
                 {"key", "value3"},
+                {"a.'b.c'", "value4"},
+                {"a.'d.e'", "value5"},
                 };
     }
 
