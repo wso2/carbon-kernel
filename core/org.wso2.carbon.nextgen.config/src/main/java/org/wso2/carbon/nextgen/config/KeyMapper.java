@@ -44,7 +44,7 @@ class KeyMapper {
         try (Reader validatorJson = new InputStreamReader(new FileInputStream(mappingFile),
                                                           Charset.defaultCharset())) {
             Gson gson = new Gson();
-            Map<String, String> keyMappings = gson.fromJson(validatorJson, Map.class);
+            Map<String, Object> keyMappings = gson.fromJson(validatorJson, Map.class);
             return map(inputContext, keyMappings);
         } catch (IOException e) {
             throw new ConfigParserException("Error while parsing JSON file " + mappingFile, e);
@@ -52,12 +52,18 @@ class KeyMapper {
     }
 
     static Map<String, Object> map(Map<String, Object> context,
-                                   Map<String, String> keyMappings) throws ConfigParserException {
+                                   Map<String, Object> keyMappings) throws ConfigParserException {
         Map<String, Object> mappedConfigs = new LinkedHashMap<>();
 
         for (Map.Entry<String, Object> entry : context.entrySet()) {
-            String mappedKey = keyMappings.getOrDefault(entry.getKey(), entry.getKey());
-            mappedConfigs.put(mappedKey, entry.getValue());
+            Object mappedKeys = keyMappings.getOrDefault(entry.getKey(), entry.getKey());
+            if (mappedKeys instanceof String) {
+                mappedConfigs.put((String) mappedKeys, entry.getValue());
+            } else if (mappedKeys instanceof List) {
+                ((List) mappedKeys).forEach(mappedKey -> {
+                    mappedConfigs.put((String) mappedKey, entry.getValue());
+                });
+            }
         }
 
         processArrayKeys(keyMappings, mappedConfigs);
@@ -67,9 +73,9 @@ class KeyMapper {
     /**
      * Process array keys that are denoted in the config file suffixed with a ":".
      */
-    private static void processArrayKeys(Map<String, String> keyMappings, Map<String, Object> mappedConfigs)
+    private static void processArrayKeys(Map<String, Object> keyMappings, Map<String, Object> mappedConfigs)
             throws ConfigParserException {
-        for (Map.Entry<String, String> entry : keyMappings.entrySet()) {
+        for (Map.Entry<String, Object> entry : keyMappings.entrySet()) {
             String key = entry.getKey();
             String[] splitKey = key.split(":");
             if (splitKey.length == 2) {
@@ -83,7 +89,7 @@ class KeyMapper {
         }
     }
 
-    private static void processArrayKey(Map.Entry<String, String> entry, String[] splitKey, Object object)
+    private static void processArrayKey(Map.Entry<String, Object> entry, String[] splitKey, Object object)
             throws ConfigParserException {
         if (object instanceof List) {
             List<Object> list = (List) object;
@@ -95,16 +101,28 @@ class KeyMapper {
         }
     }
 
-    private static void processMap(Map.Entry<String, String> entry, String key, Map<String, Object> map)
+    private static void processMap(Map.Entry<String, Object> entry, String key, Map<String, Object> map)
             throws ConfigParserException {
         Object removedValue = map.remove(key);
         if (Objects.nonNull(removedValue)) {
-            String[] splitValue = entry.getValue().split(":");
-            if (splitValue.length != 2) {
-                throw new ConfigParserException("Unknown key mapping value with multiple array "
-                                                + "elements: " + entry.getValue());
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                String[] splitValue = ((String) value).split(":");
+                if (splitValue.length != 2) {
+                    throw new ConfigParserException("Unknown key mapping value with multiple array "
+                            + "elements: " + entry.getValue());
+                }
+                map.put(splitValue[1], removedValue);
+            } else if (value instanceof List) {
+                for (String mappedValue : (List<String>) value) {
+                    String[] splitValue = mappedValue.split(":");
+                    if (splitValue.length != 2) {
+                        throw new ConfigParserException("Unknown key mapping value with multiple array "
+                                + "elements: " + entry.getValue());
+                    }
+                    map.put(splitValue[1], removedValue);
+                }
             }
-            map.put(splitValue[1], removedValue);
         }
     }
 }

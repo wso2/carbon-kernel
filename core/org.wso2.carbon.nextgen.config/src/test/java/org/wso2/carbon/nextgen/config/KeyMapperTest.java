@@ -24,7 +24,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +35,7 @@ import java.util.Map;
 public class KeyMapperTest {
 
     private Map<String, Object> inputMap = new HashMap<>();
-    private Map<String, String> keyMappings = new HashMap<>();
+    private Map<String, Object> keyMappings = new HashMap<>();
     private Map<String, Object> outputMap = new HashMap<>();
 
     @BeforeClass
@@ -43,9 +45,9 @@ public class KeyMapperTest {
         for (Object[] flatKeyConfig : flatKeyConfigs) {
             inputMap.put((String) flatKeyConfig[0], flatKeyConfig[2]);
 
-            String newKey = (String) flatKeyConfig[1];
-            if (!newKey.isEmpty()) { // no mapping
-                keyMappings.put((String) flatKeyConfig[0], (String) flatKeyConfig[1]);
+            Object newKey = flatKeyConfig[1];
+            if (newKey != null) { // no mapping
+                keyMappings.put((String) flatKeyConfig[0], flatKeyConfig[1]);
             }
         }
 
@@ -57,11 +59,17 @@ public class KeyMapperTest {
     }
 
     @Test(dataProvider = "mappedKeyValues")
-    public void testMappedKeyParsing(String oldKey, String newKey, String value) {
+    public void testMappedKeyParsing(String oldKey, Object newKey, String value) {
 
-        Assert.assertEquals(outputMap.get(newKey), value, "Value was not mapped to new key");
+        if (newKey instanceof String) {
+            Assert.assertEquals(outputMap.get(newKey), value, "Value was not mapped to new key");
+        } else if (newKey instanceof List) {
+            ((List) newKey).forEach(key -> {
+                Assert.assertEquals(outputMap.get(key), value, "Value was not mapped to new key");
+            });
+        }
         Assert.assertNull(outputMap.get(oldKey), "Old key [ " + oldKey + " ] should not be present in the mapped "
-                                                 + "values");
+                + "values");
     }
 
     @Test(dataProvider = "unmappedKeyValues")
@@ -73,10 +81,13 @@ public class KeyMapperTest {
     @DataProvider(name = "mappedKeyValues")
     public Object[][] keyMappingDataSet() {
 
+        List list = Arrays.asList("a.b.c.d.e", "x.y.z");
         return new Object[][]{
                 {"old_key_1", "newKey1", "value1"},
                 {"old_key_2", "new-key-2", "value2"},
-                {"org.wso2.old_key", "org.wso2.oldKey", "value3"}
+                {"org.wso2.old_key", "org.wso2.oldKey", "value3"},
+                {"a_b_c_d", list, "value4"},
+                {"a:b.c.d", "x:y.z", "value5"}
         };
     }
 
