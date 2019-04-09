@@ -1,5 +1,8 @@
 key = "value3"
 
+a."b.c" = "value4"
+a.'d.e' = "value5"
+
 [header_test]
 b.c = "value1"
 b.d = "value2"

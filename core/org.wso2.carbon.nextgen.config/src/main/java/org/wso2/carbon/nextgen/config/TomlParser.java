@@ -57,6 +57,7 @@ class TomlParser {
 
             Set<String> dottedKeySet = result.dottedKeySet();
             for (String dottedKey: dottedKeySet) {
+                dottedKey = dottedKey.replaceAll("\"", "'");
                 context.put(dottedKey, getValue(result.get(dottedKey)));
             }
         } catch (IOException e) {
