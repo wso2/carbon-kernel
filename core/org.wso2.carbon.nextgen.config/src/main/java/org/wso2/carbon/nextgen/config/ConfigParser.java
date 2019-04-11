@@ -196,16 +196,16 @@ public class ConfigParser {
         File templateDir = checkTemplateDirExistence(templateFileDir);
 
         Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
-        Map<String, Object> mappedConfigs = KeyMapper.mapWithConfig(context, mappingFilePath);
-        Map<String, Object> defaultContext = DefaultParser.addDefaultValues(mappedConfigs, defaultValueFilePath);
-        Map<String, Object> enrichedContext = ValueInferrer.infer(defaultContext, inferConfigurationFilePath);
+        context = KeyMapper.mapWithConfig(context, mappingFilePath);
+        context = ValueInferrer.infer(context, inferConfigurationFilePath);
+        context = DefaultParser.addDefaultValues(context, defaultValueFilePath);
         Map secrets = TomlParser.getSecrets(deploymentConfigurationPath);
-        ReferenceResolver.resolve(enrichedContext, secrets);
-        UnitResolver.updateUnits(enrichedContext, unitResolverFilePath);
-        Validator.validate(enrichedContext, validatorFilePath);
+        ReferenceResolver.resolve(context, secrets);
+        UnitResolver.updateUnits(context, unitResolverFilePath);
+        Validator.validate(context, validatorFilePath);
 
         Map<String, File> fileNames = getTemplatedFilesMap(templateDir);
-        return JinjaParser.parse(enrichedContext, fileNames);
+        return JinjaParser.parse(context, fileNames);
     }
 
     private void handleSecVaultProperties() {
