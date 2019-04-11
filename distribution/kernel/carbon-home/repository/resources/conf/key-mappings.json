@@ -4,5 +4,26 @@
   "database.shared_db.pool_options.max_wait": "database.shared_db.pool_options.maxWait",
   "database.shared_db.pool_options.test_on_borrow": "database.shared_db.pool_options.testOnBorrow",
   "database.shared_db.pool_options.validation_interval": "database.shared_db.pool_options.validationInterval",
-  "database.shared_db.pool_options.default_auto_commit": "database.shared_db.pool_options.defaultAutoCommit"
+  "database.shared_db.pool_options.default_auto_commit": "database.shared_db.pool_options.defaultAutoCommit",
+
+  "admin_console.authenticator.saml_sso_authenticator.login_page": "admin_console.authenticator.saml_sso_authenticator.config.LoginPage",
+  "admin_console.authenticator.saml_sso_authenticator.service_provider_id": "admin_console.authenticator.saml_sso_authenticator.config.ServiceProviderID",
+  "admin_console.authenticator.saml_sso_authenticator.identity_provider_sso_service_url": "admin_console.authenticator.saml_sso_authenticator.config.IdentityProviderSSOServiceURL",
+  "admin_console.authenticator.saml_sso_authenticator.name_id_policy_format": "admin_console.authenticator.saml_sso_authenticator.config.NameIDPolicyFormat",
+  "admin_console.authenticator.saml_sso_authenticator.assertion_consumer_service_url": "admin_console.authenticator.saml_sso_authenticator.config.AssertionConsumerServiceURL",
+  "admin_console.authenticator.saml_sso_authenticator.jit_user_provisioning_enabled": "admin_console.authenticator.saml_sso_authenticator.config.JITUserProvisioningEnabled",
+  "admin_console.authenticator.saml_sso_authenticator.super_admin_role_required": "admin_console.authenticator.saml_sso_authenticator.config.IsSuperAdminRoleRequired",
+  "admin_console.authenticator.saml_sso_authenticator.idp_cert_alias": "admin_console.authenticator.saml_sso_authenticator.config.IdPCertAlias",
+  "admin_console.authenticator.saml_sso_authenticator.response_signature_validation_enabled": "admin_console.authenticator.saml_sso_authenticator.config.ResponseSignatureValidationEnabled",
+  "admin_console.authenticator.saml_sso_authenticator.assertion_signature_validation_enabled": "admin_console.authenticator.saml_sso_authenticator.config.AssertionSignatureValidationEnabled",
+  "admin_console.authenticator.saml_sso_authenticator.login_attribute_name": "admin_console.authenticator.saml_sso_authenticator.config.LoginAttributeName",
+  "admin_console.authenticator.saml_sso_authenticator.role_claim_attribute": "admin_console.authenticator.saml_sso_authenticator.config.RoleClaimAttribute",
+  "admin_console.authenticator.saml_sso_authenticator.attribute_value_separator": "admin_console.authenticator.saml_sso_authenticator.config.AttributeValueSeparator",
+  "admin_console.authenticator.saml_sso_authenticator.provisioning_default_userstore": "admin_console.authenticator.saml_sso_authenticator.config.ProvisioningDefaultUserstore",
+  "admin_console.authenticator.saml_sso_authenticator.provisioning_default_role": "admin_console.authenticator.saml_sso_authenticator.config.ProvisioningDefaultRole",
+
+  "admin_console.authenticator.mutual_ssl_authenticator.username_header": "admin_console.authenticator.mutual_ssl_authenticator.config.UsernameHeader",
+  "admin_console.authenticator.mutual_ssl_authenticator.white_list_enabled": "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled",
+  "admin_console.authenticator.mutual_ssl_authenticator.white_list": "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteList"
+
 }

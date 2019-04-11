@@ -70,5 +70,15 @@
       "match_regex": ".+",
       "error_message": "Encryption key required for symmetric encryption"
     }
+  ],
+
+  "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteList": [
+    {
+      "if": {
+        "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": true
+      },
+      "regex": ".+",
+      "error_message": "Trusted client certificates list is required"
+    }
   ]
 }
