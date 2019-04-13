@@ -370,6 +370,19 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
     }
 
     /**
+     * Get the allowed UI resources for a role.
+     *
+     * @param roleName
+     * @param permissionRootPath
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException {
+        return getAuthorizationManager().getAllowedUIResourcesForRole(roleName, permissionRootPath);
+    }
+
+    /**
      * Clear the role authorization.
      *
      * @param roleName

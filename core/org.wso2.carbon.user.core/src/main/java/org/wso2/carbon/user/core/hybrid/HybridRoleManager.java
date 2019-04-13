@@ -717,8 +717,20 @@ public class HybridRoleManager {
         String[] roles = getHybridRoleListOfUser(userName, "*");
         if (roles != null && roleName != null) {
             for (String role : roles) {
-                if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
-                    return true;
+                if (roleName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                    if (role.equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
+                } else {
+                    if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
                 }
             }
         }

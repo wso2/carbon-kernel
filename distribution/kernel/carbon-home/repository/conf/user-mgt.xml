@@ -62,6 +62,7 @@
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="UserNameUniqueAcrossTenants">false</Property>
+            <Property name="LeadingOrTrailingSpaceAllowedInUserName">false</Property>
         </UserStoreManager>
 	
 	    <!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
@@ -77,7 +78,7 @@
             <Property name="UserSearchBase">ou=system</Property>
             <Property name="UserNameAttribute">uid</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
-            <Property name="UserNameListFilter">(objectClass=person)</Property>
+            <Property name="UserNameListFilter">(&amp;(objectClass=person)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="GroupSearchBase">ou=system</Property>
@@ -122,7 +123,7 @@
             <Property name="UserEntryObjectClass">user</Property>
             <Property name="UserNameAttribute">cn</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=user)(cn=?))</Property>
-            <Property name="UserNameListFilter">(objectClass=user)</Property>
+            <Property name="UserNameListFilter">(&amp;(objectClass=user)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>
@@ -180,7 +181,7 @@
             <Property name="UserEntryObjectClass">identityPerson</Property>
             <Property name="UserNameAttribute">uid</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
-            <Property name="UserNameListFilter">(objectClass=person)</Property>
+            <Property name="UserNameListFilter">(&amp;(objectClass=person)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>

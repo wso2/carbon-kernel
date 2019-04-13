@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.4.37-SNAPSHOT</version>
+        <version>4.4.39-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -69,6 +69,8 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.user.core:${carbon.kernel.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.orbit.org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-ooxml:${orbit.version.poi.ooxml}
                                 </bundleDef>
