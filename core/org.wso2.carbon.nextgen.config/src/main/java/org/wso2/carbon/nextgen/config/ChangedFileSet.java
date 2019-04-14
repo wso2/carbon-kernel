@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.nextgen.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +27,12 @@ import java.util.List;
 public class ChangedFileSet {
 
     private boolean changed;
-    private List changedFiles;
-    private List newFiles;
+    private List changedFiles = new ArrayList();
+    private List newFiles = new ArrayList();
+
+    public ChangedFileSet() {
+
+    }
 
     public ChangedFileSet(boolean changed, List changedFiles, List newFiles) {
 
@@ -49,5 +54,16 @@ public class ChangedFileSet {
     public List getNewFiles() {
 
         return newFiles;
+    }
+
+    public void addChangedFile(String path) {
+        changed =  true;
+        changedFiles.add(path);
+
+    }
+
+    public void addNewFile(String path) {
+        changed = true;
+        newFiles.add(path);
     }
 }

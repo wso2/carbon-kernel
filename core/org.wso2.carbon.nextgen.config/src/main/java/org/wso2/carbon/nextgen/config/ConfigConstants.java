@@ -32,5 +32,6 @@ public class ConfigConstants {
 
     public static final String KEY_VALUE_SEPERATOR = "=";
     public static final String ENCRYPT_SECRETS = "encryptSecrets";
+    public static final String OVERRIDE_CONFIGURATION_ALWAYS = "overrideConfigurationAlways";
 
 }

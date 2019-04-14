@@ -28,12 +28,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * ConfigurationFileMetadata Persisting parser.
@@ -61,6 +61,17 @@ public class MetaDataParser {
         return md5sumValues;
     }
 
+    public static String readLastModifiedValue(String path)
+            throws ConfigParserException {
+
+        try {
+            File file = new File(path);
+            return getMetadata(file);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error while reading metadata", e);
+        }
+    }
+
     private static void handleDirectories(String basePath, Map<String, String> md5sumValues, File directory)
             throws IOException {
 
@@ -83,7 +94,7 @@ public class MetaDataParser {
         }
     }
 
-    public static ChangedFileSet getChangedFiles(String basePath, String[] deploymentConfigurationPaths,
+    public static ChangedFileSet getChangedFiles(String basePath, List<String> deploymentConfigurationPaths,
                                                  String metadataFilePath)
             throws ConfigParserException {
 
@@ -99,26 +110,55 @@ public class MetaDataParser {
             logger.error("Metadata File couldn't Read", e);
             throw new ConfigParserException("Metadata File couldn't Read", e);
         }
-        List<String> changedFiles = new ArrayList<>();
-        List<String> newFiles = new ArrayList<>();
+        ChangedFileSet changedFileSet = new ChangedFileSet();
         for (String deploymentConfigurationPath : deploymentConfigurationPaths) {
             Map<String, String> actualLastModifiedValues = readLastModifiedValues(basePath,
                     deploymentConfigurationPath);
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                String path = (String) entry.getKey();
-                String lastModifiedTimeStamp = (String) entry.getValue();
-                String lastModified = actualLastModifiedValues.get(path);
-                if (StringUtils.isNotEmpty(lastModified)) {
-                    if (!lastModifiedTimeStamp.equals(lastModified)) {
-                        changedFiles.add(path);
+            actualLastModifiedValues.forEach((path, lastModifiedValue) -> {
+                String lastModifiedValueFromFile = (properties.containsKey(path) ?
+                        (String) properties.get(path) : null);
+                if (StringUtils.isNotEmpty(lastModifiedValueFromFile)) {
+                    if (!lastModifiedValue.equals(lastModifiedValueFromFile)) {
+                        changedFileSet.addChangedFile(path);
                     }
+                } else {
+                    changedFileSet.addNewFile(path);
+                }
+
+            });
+        }
+        return changedFileSet;
+    }
+
+    public static ChangedFileSet getChangedFiles(String basePath,
+                                                 String metadataFilePath)
+            throws ConfigParserException {
+
+        File metaDataFile = new File(metadataFilePath);
+        if (!metaDataFile.exists()) {
+            return new ChangedFileSet(true, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        }
+        Properties properties = new Properties();
+
+        try (FileInputStream fileInputStream = new FileInputStream(metaDataFile)) {
+            properties.load(fileInputStream);
+        } catch (IOException e) {
+            logger.error("Metadata File couldn't Read", e);
+            throw new ConfigParserException("Metadata File couldn't Read", e);
+        }
+        ChangedFileSet changedFileSet = new ChangedFileSet();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            String path = (String) entry.getKey();
+            String lastmodifiedValue = (String) entry.getValue();
+            String actualLastModifiedValue = readLastModifiedValue(Paths.get(basePath, path).toString());
+            if (StringUtils.isNotEmpty(actualLastModifiedValue)) {
+                if (!lastmodifiedValue.equals(actualLastModifiedValue)) {
+                    changedFileSet.addChangedFile(path);
                 }
             }
+
         }
-        if (!changedFiles.isEmpty() || !newFiles.isEmpty()) {
-            return new ChangedFileSet(true, changedFiles, newFiles);
-        }
-        return new ChangedFileSet(false, changedFiles, newFiles);
+        return changedFileSet;
     }
 
     public static boolean metaDataFileExist(String metadataFilePath) {
@@ -129,7 +169,7 @@ public class MetaDataParser {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
             justification = "return not need in mkdirs()")
-    public static void storeMetaDataEntries(String basePath, String outputFilePath, String[] entries)
+    public static void storeMetaDataEntries(String basePath, String outputFilePath, Set<String> entries)
             throws ConfigParserException {
 
         File outputFile = new File(outputFilePath);
