@@ -11,11 +11,11 @@ url="jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIM
 username = "wso2carbon"
 password = "wso2carbon"
 [database.shared_db.pool_options]
-maxActive = "50"
-maxWait = "60000"
-testOnBorrow = true
-validationInterval = "30000"
-defaultAutoCommit = true
+max_active = "50"
+max_wait = "60000"
+test_on_borrow = true
+validation_interval = "30000"
+default_auto_commit = true
 
 # To seperate user data
 #[database.user]
