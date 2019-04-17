@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -184,5 +186,50 @@ public class MetaDataParser {
             logger.error("error while storing metadata", e);
             throw new RuntimeException("error while storing metadata");
         }
+    }
+
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
+            justification = "return not need in mkdirs()")
+    public static void storeReferences(String metadataPropertyPath, Properties references)
+            throws ConfigParserException {
+
+        File outputFile = new File(metadataPropertyPath);
+        outputFile.getParentFile().mkdirs();
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(metadataPropertyPath),
+                StandardCharsets.UTF_8)) {
+            references.store(outputStreamWriter, null);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error While storing References", e);
+        }
+    }
+
+    public static boolean isReferencesChanged(String metadataPropertyPath) {
+
+        boolean status = true;
+        if (new File(metadataPropertyPath).exists()) {
+            Properties references = new Properties();
+            try (FileInputStream fileInputStream = new FileInputStream(metadataPropertyPath)) {
+                references.load(fileInputStream);
+            } catch (IOException e) {
+                logger.error("Error while reading References", e);
+            }
+            for (Map.Entry<Object, Object> entry : references.entrySet()) {
+                String key = (String) entry.getKey();
+                if (key.contains(ConfigConstants.SYSTEM_PROPERTY_PREFIX)) {
+                    String value = System.getProperty(key.replace(ConfigConstants.SYSTEM_PROPERTY_PREFIX, ""));
+                    if (!entry.getValue().equals(value)) {
+                        status = true;
+                        break;
+                    }
+                } else if (key.contains(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX)) {
+                    String value = System.getenv(key.replace(ConfigConstants.SYSTEM_PROPERTY_PREFIX, ""));
+                    if (!entry.getValue().equals(value)) {
+                        status = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return status;
     }
 }

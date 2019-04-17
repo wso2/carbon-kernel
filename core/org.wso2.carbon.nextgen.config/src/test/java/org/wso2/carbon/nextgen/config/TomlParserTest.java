@@ -43,7 +43,7 @@ public class TomlParserTest {
         String deploymentConfiguration =
                 FileUtils.getFile("src", "test", "resources", TOML_FILE_NAME).getAbsolutePath();
 
-        parsedValueMap = TomlParser.parse(deploymentConfiguration);
+        parsedValueMap = new TomlParser(deploymentConfiguration).parse();
     }
 
     @Test(dataProvider = "flatKeySetProvider")

@@ -41,38 +41,44 @@ class TomlParser {
 
     private static final Log LOGGER = LogFactory.getLog(TomlParser.class);
 
-    private TomlParser() {}
+    private TomlParseResult result;
 
-    static Map<String, Object> parse(String filePath) {
-        return parseToml(filePath);
-    }
+    public TomlParser(String path) {
 
-    private static Map<String, Object> parseToml(String filePath) {
-        Map<String, Object> context = new LinkedHashMap<>();
         try {
             TomlParseResult result;
-
-            result = Toml.parse(Paths.get(filePath));
+            result = Toml.parse(Paths.get(path));
             result.errors().forEach(error -> LOGGER.error(error.toString()));
-
-            Set<String> dottedKeySet = result.dottedKeySet();
-            for (String dottedKey: dottedKeySet) {
-                dottedKey = dottedKey.replaceAll("\"", "'");
-                context.put(dottedKey, getValue(result.get(dottedKey)));
-            }
+            this.result = result;
         } catch (IOException e) {
-            LOGGER.error("Error parsing file " + filePath, e);
+            LOGGER.error("Error parsing file " + path, e);
         }
+    }
 
+    Map<String, Object> parse() {
+
+        return parseToml(result);
+    }
+
+    private Map<String, Object> parseToml(TomlParseResult result) {
+
+        Map<String, Object> context = new LinkedHashMap<>();
+        Set<String> dottedKeySet = result.dottedKeySet();
+        for (String dottedKey : dottedKeySet) {
+            dottedKey = dottedKey.replaceAll("\"", "'");
+            context.put(dottedKey, getValue(result.get(dottedKey)));
+        }
         return context;
     }
 
     /**
      * Return the relevant object representation.
+     *
      * @param value value returned by the TOML parser.
      * @return This can be  a simple value, an array ({@link ArrayList}, or a key value map {@link Map}
      */
     private static Object getValue(Object value) {
+
         Object returnValue;
         if (value instanceof TomlArray) {
             returnValue = processTomlArray((TomlArray) value);
@@ -86,13 +92,15 @@ class TomlParser {
 
     /**
      * Process the TomlTable and output the relevant Map representation.
+     *
      * @param tomlTable {@link TomlTable}
      * @return Map representation of the {@link TomlTable}
      */
     private static Object processTomlMap(TomlTable tomlTable) {
+
         Map<String, Object> finalMap = new LinkedHashMap<>();
         Set<String> dottedKeySet = tomlTable.dottedKeySet();
-        for (String key: dottedKeySet) {
+        for (String key : dottedKeySet) {
             Object value = tomlTable.get(key);
             if (value instanceof TomlArray) {
                 finalMap.put(key, processTomlArray((TomlArray) value));
@@ -105,10 +113,12 @@ class TomlParser {
 
     /**
      * Process the {@link TomlArray} and output the relevant {@link List} representation.
+     *
      * @param value {@link TomlArray}
      * @return List representation of the {@link TomlArray}
      */
     private static Object processTomlArray(TomlArray value) {
+
         ArrayList<Object> finalList = new ArrayList<>();
         List<Object> tomlList = value.toList();
         for (Object obj : tomlList) {
@@ -123,24 +133,19 @@ class TomlParser {
         return finalList;
     }
 
-    public static Map<String, String> getSecrets(String filePath) {
+    public Map<String, String> getSecrets() {
+
+        return processSecrets(result);
+    }
+
+    private Map<String, String> processSecrets(TomlParseResult result) {
 
         Map<String, String> context = new LinkedHashMap<>();
-        try {
-            TomlParseResult result;
-
-            result = Toml.parse(Paths.get(filePath));
-            result.errors().forEach(error -> LOGGER.error(error.toString()));
-            TomlTable table = result.getTable(ConfigConstants.SECRET_PROPERTY_MAP_NAME);
-            if (table != null) {
-                table.dottedKeySet().forEach(key -> {
-                    context.put(key, table.getString(key));
-                });
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error parsing file " + filePath, e);
+        result.errors().forEach(error -> LOGGER.error(error.toString()));
+        TomlTable table = result.getTable(ConfigConstants.SECRET_PROPERTY_MAP_NAME);
+        if (table != null) {
+            table.dottedKeySet().forEach(key -> context.put(key, table.getString(key)));
         }
-
         return context;
     }
 }

@@ -69,6 +69,7 @@ public class ConfigParserTest {
         String expectedOutputDirPath =
                 org.apache.commons.io.FileUtils.getFile("src", "test", "resources", scenario, "expected")
                         .getAbsolutePath();
+        String newConfigDirectoryPath = Paths.get(tempDir.toString(), "repository", "resources", "conf").toString();
 
         ConfigParser configParser = new ConfigParser.ConfigParserBuilder()
                 .withDeploymentConfigurationPath(deploymentConfiguration)
@@ -78,6 +79,7 @@ public class ConfigParserTest {
                 .withTemplateFilePath(templateConfiguration)
                 .withDefaultValueFilePath(defaultConfiguration)
                 .withUnitResolverFilePath(unitConfiguration)
+                .withMetaDataFilePath(newConfigDirectoryPath)
                 .build();
         Map<String, String> outputFileContentMap = configParser.parse();
         File resultDir = new File(expectedOutputDirPath);
@@ -148,6 +150,24 @@ public class ConfigParserTest {
         Paths.get(newConfigDirectoryPath, "templates", "repository", "conf", "abc.xml.j2").toFile().createNewFile();
         configParser.parse(tempDir.toString());
         Assert.assertTrue(Paths.get(configDirectoryPath, "abc.xml").toFile().exists());
+
+// Check System property
+        deploymentContent = org.apache.commons.io.FileUtils.readFileToString(Paths.get(tempDir.toString(),
+                "deployment.toml").toFile());
+        // Change in deployment.toml
+        deploymentContent = deploymentContent.replaceAll("username = \"admin2\"", "username = \"\\" +
+                "$sys{admin_username}\"");
+        org.apache.commons.io.FileUtils.writeStringToFile(Paths.get(tempDir.toString(), "deployment.toml")
+                .toFile(), deploymentContent);
+        System.setProperty("admin_username", "admin3");
+        configParser.parse(tempDir.toString());
+        Assert.assertTrue(org.apache.commons.io.FileUtils.readFileToString(Paths.get(configDirectoryPath,
+                "user-mgt.xml").toFile()).contains("<UserName>admin3</UserName>"));
+        System.setProperty("admin_username", "admin4");
+        configParser.parse(tempDir.toString());
+        Assert.assertTrue(org.apache.commons.io.FileUtils.readFileToString(Paths.get(configDirectoryPath,
+                "user-mgt.xml").toFile()).contains("<UserName>admin4</UserName>"));
+
         // Remove deployment.toml and check
         Paths.get(tempDir.toString(), "deployment.toml").toFile().delete();
         configParser.parse(tempDir.toString());

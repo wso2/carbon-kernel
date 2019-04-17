@@ -49,7 +49,8 @@ public class ReferenceResolverTest {
     public void testResolve(Map<String, Object> context, String key, Object expected) throws ConfigParserException {
 
         Properties secrets = new Properties();
-        ReferenceResolver.resolve(context, secrets);
+        Properties references  = new Properties();
+        ReferenceResolver.resolve(context, secrets, references);
         Object actual = context.get(key);
         Assert.assertEquals(actual, expected, "Incorrect resolved value for " + key);
     }
@@ -57,7 +58,8 @@ public class ReferenceResolverTest {
     @Test(dataProvider = "invalidReferencesProvider", expectedExceptions = ConfigParserException.class)
     public void testResolve(Map<String, Object> context, String key) throws ConfigParserException {
         Properties secrets = new Properties();
-        ReferenceResolver.resolve(context, secrets);
+        Properties references  = new Properties();
+        ReferenceResolver.resolve(context, secrets, references);
         Assert.fail("Placeholder reference resolution should have been failed.");
     }
 
@@ -65,7 +67,8 @@ public class ReferenceResolverTest {
     public void testResolve(Map<String, Object> context) throws ConfigParserException {
         Properties secrets = new Properties();
         secrets.put("b.c.d", "sssssss");
-        ReferenceResolver.resolve(context, secrets);
+        Properties references  = new Properties();
+        ReferenceResolver.resolve(context, secrets, references);
     }
 
     @Test(dataProvider = "secretProvider")
@@ -73,8 +76,9 @@ public class ReferenceResolverTest {
 
         Properties secrets = new Properties();
         secrets.put("b.c.d", "[sssssss]");
+        Properties references  = new Properties();
         try {
-            ReferenceResolver.resolve(context, secrets);
+            ReferenceResolver.resolve(context, secrets, references);
             Assert.fail();
         } catch (ConfigParserException e) {
             Assert.assertTrue(e.getMessage().contains("Secret References can't be Plain-Text for "));
@@ -86,9 +90,10 @@ public class ReferenceResolverTest {
     @Test(dataProvider = "secretProviderNegative")
     public void testResolveNegative2(Map<String, Object> context) {
         Properties secrets = new Properties();
+        Properties references  = new Properties();
 
         try {
-            ReferenceResolver.resolve(context, secrets);
+            ReferenceResolver.resolve(context, secrets, references);
             Assert.fail();
         } catch (ConfigParserException e) {
             Assert.assertTrue(e.getMessage().contains("Secret References can't be resolved for b.d.d"));
