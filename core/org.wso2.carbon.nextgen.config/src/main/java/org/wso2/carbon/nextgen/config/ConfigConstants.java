@@ -32,7 +32,7 @@ public class ConfigConstants {
 
     public static final String KEY_VALUE_SEPERATOR = "=";
     public static final String ENCRYPT_SECRETS = "encryptSecrets";
-    public static final String OVERRIDE_CONFIGURATION_ALWAYS = "overrideConfigurationAlways";
+    public static final String OVERRIDE_CONFIGURATION_ALWAYS = "forceConfigUpdate";
     public static final String SYSTEM_PROPERTY_PREFIX = "sys:";
     public static final String ENVIRONMENT_VARIABLE_PREFIX = "env:";
 

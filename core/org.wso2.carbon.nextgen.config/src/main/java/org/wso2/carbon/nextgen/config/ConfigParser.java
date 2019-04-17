@@ -106,7 +106,7 @@ public class ConfigParser {
                             templateChanged.getNewFiles().forEach(path ->
                                     LOGGER.warn("New Configurations found in :" + path));
 
-                            LOGGER.warn("Applying Configurations upon new Templates");
+                            LOGGER.info("Applying Configurations upon new Templates");
                         }
                         if (configurationChanged.isChanged()) {
                             configurationChanged.getChangedFiles().forEach(path ->
@@ -316,7 +316,6 @@ public class ConfigParser {
             return this;
         }
 
-
         public ConfigParser build() {
 
             ConfigParser configParser = new ConfigParser();
@@ -370,6 +369,7 @@ public class ConfigParser {
     }
 
     public void handleEncryption() throws ConfigParserException {
+
         handleSecVaultProperties();
 
         Map<String, String> secretMap = new TomlParser(deploymentConfigurationPath).getSecrets();
@@ -394,6 +394,7 @@ public class ConfigParser {
     }
 
     protected Cipher getCipher() {
+
         Utils.setSystemProperties();
         return KeyStoreUtil.initializeCipher();
     }

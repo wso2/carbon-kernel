@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -146,23 +147,25 @@ public class ReferenceResolver {
      *
      * @param context The configuration context
      */
-    private static void resolveSystemProperties(Map<String, Object> context, Properties references) {
+    private static void resolveSystemProperties(Map<String, Object> context, Properties references)
+            throws ConfigParserException {
 
-        context.replaceAll((s, o) -> {
-            if (o instanceof String) {
-                return resolveStringWithSysVarPlaceholders((String) o, references);
-            } else if (o instanceof List) {
-                ((List<Object>) o).replaceAll(listItem -> {
-                    if (listItem instanceof String) {
-                        return resolveStringWithSysVarPlaceholders((String) listItem, references);
-                    } else {
-                        return listItem;
+        for (Map.Entry<String, Object> entry : context.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                context.replace(entry.getKey(), resolveStringWithSysVarPlaceholders((String) entry.getValue(),
+                        references));
+            } else if (entry.getValue() instanceof List) {
+                ListIterator listIterator = ((List) entry.getValue()).listIterator();
+                while (listIterator.hasNext()) {
+                    Object value = listIterator.next();
+                    if (value instanceof String) {
+                        listIterator.remove();
+                        listIterator.add(resolveStringWithSysVarPlaceholders((String) value, references));
                     }
-                });
-                return o;
+                }
             }
-            return o;
-        });
+
+        }
     }
 
     /**
@@ -227,24 +230,27 @@ public class ReferenceResolver {
      * Resolves environment variable references ($env{ref}).
      *
      * @param context The configuration context
+     * @param references Resolved Environment Variables;
+     * @throws ConfigParserException if Environment Variable not defined
      */
-    private static void resolveEnvVariables(Map<String, Object> context, Properties references) {
+    private static void resolveEnvVariables(Map<String, Object> context, Properties references)
+            throws ConfigParserException {
 
-        context.replaceAll((s, o) -> {
-            if (o instanceof String) {
-                return resolveStringWithEnvVarPlaceholders((String) o, references);
-            } else if (o instanceof List) {
-                ((List<Object>) o).replaceAll(listItem -> {
-                    if (listItem instanceof String) {
-                        return resolveStringWithEnvVarPlaceholders((String) listItem, references);
-                    } else {
-                        return listItem;
+        for (Map.Entry<String, Object> entry : context.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                context.replace(entry.getKey(), resolveStringWithEnvVarPlaceholders((String) entry.getValue(),
+                        references));
+            } else if (entry.getValue() instanceof List) {
+                ListIterator values = ((List) entry.getValue()).listIterator();
+                while (values.hasNext()) {
+                    Object value = values.next();
+                    if (value instanceof String) {
+                        values.remove();
+                        values.add(resolveStringWithEnvVarPlaceholders((String) value, references));
                     }
-                });
-                return o;
+                }
             }
-            return o;
-        });
+        }
     }
 
     /**
@@ -280,18 +286,23 @@ public class ReferenceResolver {
      * Resolves system property references ($sys{ref}) in an individual string.
      *
      * @param value                    string with system property reference
-     * @param resolvedSystemProperties
+     * @param resolvedSystemProperties resolved System Properties
      * @return the value with system properties references resolved
      */
-    private static String resolveStringWithSysVarPlaceholders(String value, Properties resolvedSystemProperties) {
+    private static String resolveStringWithSysVarPlaceholders(String value, Properties resolvedSystemProperties)
+            throws ConfigParserException {
 
         String[] sysRefs = StringUtils.substringsBetween(value, SYS_PROPERTY_PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX);
         if (sysRefs != null) {
             for (String ref : sysRefs) {
                 String property = System.getProperty(ref);
-                resolvedSystemProperties.put(ConfigConstants.SYSTEM_PROPERTY_PREFIX.concat(ref), property);
-                value = value.replaceAll(Pattern.quote(SYS_PROPERTY_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
-                        property);
+                if (StringUtils.isNotEmpty(property)) {
+                    resolvedSystemProperties.put(ConfigConstants.SYSTEM_PROPERTY_PREFIX.concat(ref), property);
+                    value = value.replaceAll(Pattern.quote(SYS_PROPERTY_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
+                            property);
+                } else {
+                    throw new ConfigParserException("Error while Retrieving " + ref + " System Property");
+                }
             }
         }
         return value;
@@ -303,16 +314,21 @@ public class ReferenceResolver {
      * @param value string with environment variable reference
      * @return the value with environment variables references resolved
      */
-    private static String resolveStringWithEnvVarPlaceholders(String value, Map resolvedEnvironmentVariables) {
+    private static String resolveStringWithEnvVarPlaceholders(String value, Map resolvedEnvironmentVariables)
+            throws ConfigParserException {
 
         String[] envRefs = StringUtils.substringsBetween(value, ENV_VAR_PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX);
         if (envRefs != null) {
             for (String ref : envRefs) {
                 String resolvedValue = System.getenv(ref);
-                resolvedEnvironmentVariables.put(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX.concat(ref),
-                        resolvedValue);
-                value = value.replaceAll(Pattern.quote(ENV_VAR_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
-                        resolvedValue);
+                if (resolvedValue != null) {
+                    resolvedEnvironmentVariables.put(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX.concat(ref),
+                            resolvedValue);
+                    value = value.replaceAll(Pattern.quote(ENV_VAR_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
+                            resolvedValue);
+                } else {
+                    throw new ConfigParserException("Environment Variable " + ref + " Not defined in system");
+                }
             }
         }
         return value;

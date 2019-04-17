@@ -126,7 +126,6 @@ public class MetaDataParser {
                 } else {
                     changedFileSet.addNewFile(path);
                 }
-
             });
         }
         return changedFileSet;
@@ -158,15 +157,8 @@ public class MetaDataParser {
                     changedFileSet.addChangedFile(path);
                 }
             }
-
         }
         return changedFileSet;
-    }
-
-    public static boolean metaDataFileExist(String metadataFilePath) {
-
-        File metaDataFile = new File(metadataFilePath);
-        return metaDataFile.exists();
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
@@ -222,7 +214,7 @@ public class MetaDataParser {
                         break;
                     }
                 } else if (key.contains(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX)) {
-                    String value = System.getenv(key.replace(ConfigConstants.SYSTEM_PROPERTY_PREFIX, ""));
+                    String value = System.getenv(key.replace(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX, ""));
                     if (!entry.getValue().equals(value)) {
                         status = true;
                         break;
