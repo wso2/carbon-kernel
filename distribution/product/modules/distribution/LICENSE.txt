@@ -15,6 +15,7 @@ Name                                                                            
 ---------------------------------------------------------------------------------------------------------
 abdera_1.0.0.wso2v3.jar                                                         bundle         apache2   907       
 addressing-1.6.1-wso2v34.mar                                                    bundle         apache2   18972     
+addressing-1.6.1-wso2v35.mar                                                    bundle         apache2   19090     
 ajaxtags_1.3.0.beta-rc7-wso2v1.jar                                              bundle         apache2   905       
 annogen_0.1.0.wso2v1.jar                                                        bundle         apache2   942       
 ant-contrib-1.0b3.jar                                                           jar            apache2   549       
