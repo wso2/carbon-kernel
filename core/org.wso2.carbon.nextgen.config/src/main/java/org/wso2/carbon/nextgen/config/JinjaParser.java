@@ -101,10 +101,16 @@ class JinjaParser {
     }
 
     static List<String> getDottedKeyArray(String dottedFlatKey) throws ConfigParserException {
+
         List<String> list = new ArrayList<>();
         int lastMatchedIndex = 0;
         while (lastMatchedIndex != -1) {
-            int startIndex = dottedFlatKey.indexOf('\'', lastMatchedIndex + 1);
+            int startIndex = 0;
+            if (lastMatchedIndex == 0) {
+                startIndex = dottedFlatKey.indexOf('\'', lastMatchedIndex);
+            } else {
+                startIndex = dottedFlatKey.indexOf('\'', lastMatchedIndex + 1);
+            }
             if (startIndex == -1) {
                 int beginIndx = lastMatchedIndex == 0 ? 0 : lastMatchedIndex + 1;
                 splitAndAddToList(dottedFlatKey, list, beginIndx, dottedFlatKey.length());
@@ -113,9 +119,13 @@ class JinjaParser {
                 int endIndex = dottedFlatKey.indexOf('\'', startIndex + 1);
                 if (endIndex == -1) {
                     throw new ConfigParserException("Couldn't find matching ending \"'\" for sub key in flat key "
-                                                    + dottedFlatKey);
+                            + dottedFlatKey);
                 }
-                splitAndAddToList(dottedFlatKey, list, lastMatchedIndex, startIndex);
+                if (lastMatchedIndex == 0) {
+                    splitAndAddToList(dottedFlatKey, list, lastMatchedIndex, startIndex);
+                } else {
+                    splitAndAddToList(dottedFlatKey, list, lastMatchedIndex + 1, startIndex);
+                }
                 list.add(dottedFlatKey.substring(startIndex + 1, endIndex));
                 lastMatchedIndex = endIndex;
             }

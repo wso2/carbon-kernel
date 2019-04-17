@@ -84,6 +84,22 @@ public class JinjaParserTest {
                 {".one.'two.three'.four", new String[]{"one", "two.three", "four"}},
                 {".one.two.'three.four'.five.six", new String[]{"one", "two", "three.four", "five", "six"}},
                 {".one.two.'three.four.five'.six.seven", new String[]{"one", "two", "three.four.five", "six", "seven"}},
+                {"one.two.'three.four.five'.six.'seven.eight'", new String[]{"one", "two", "three.four.five", "six",
+                        "seven.eight"}},
+                {".one.two.'three.four.five'.six.'seven.eight'", new String[]{"one", "two", "three.four.five", "six",
+                        "seven.eight"}},
+                {"'one.two'.three.four.five.'six.seven'.eight", new String[]{"one.two", "three", "four", "five",
+                        "six.seven", "eight"}},
+                {".'one.two'.three.four.five.'six.seven'.eight", new String[]{"one.two", "three", "four", "five",
+                        "six.seven", "eight"}},
+                {"one.'two.three'.four.'five.six'.seven.'eight.nine'", new String[]{"one", "two.three", "four",
+                        "five.six", "seven", "eight.nine"}},
+                {".one.'two.three'.four.'five.six'.seven.'eight.nine'", new String[]{"one", "two.three", "four",
+                        "five.six", "seven", "eight.nine"}},
+                {"'one.two'.'three.four'.'five.six'.seven.'eight.nine'", new String[]{"one.two", "three.four",
+                        "five.six", "seven", "eight.nine"}},
+                {".'one.two'.'three.four'.'five.six'.seven.'eight.nine'", new String[]{"one.two", "three.four",
+                        "five.six", "seven", "eight.nine"}},
                 };
     }
 
