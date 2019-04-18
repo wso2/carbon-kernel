@@ -108,6 +108,9 @@ public class ReferenceResolverTest {
         fileContextPlaceholders.put("fb", "BBB");
         fileContextPlaceholders.put("fb1", "$ref{fa}-$ref{fb}");
         fileContextPlaceholders.put("fb2", "$ref{fa1}-$ref{fb}");
+        fileContextPlaceholders.put("fc", true);
+        fileContextPlaceholders.put("fc1", "$ref{fc}");
+        fileContextPlaceholders.put("fc2", "$ref{fc1}");
         systemContextPlaceholders.put("sa", "$sys{syskey1}");
         systemContextPlaceholders.put("sb", "$sys{syskey1}-AAA");
         systemContextPlaceholders.put("sc", "$sys{syskey1}-$sys{syskey2}");
@@ -117,6 +120,8 @@ public class ReferenceResolverTest {
                 {fileContextPlaceholders, "fa2", "AAA"},
                 {fileContextPlaceholders, "fb1", "AAA-BBB"},
                 {fileContextPlaceholders, "fb2", "AAA-BBB"},
+                {fileContextPlaceholders, "fc1", true},
+                {fileContextPlaceholders, "fc2", true},
                 {systemContextPlaceholders, "sa", "sysval1"},
                 {systemContextPlaceholders, "sb", "sysval1-AAA"},
                 {systemContextPlaceholders, "sc", "sysval1-sysval2"},
