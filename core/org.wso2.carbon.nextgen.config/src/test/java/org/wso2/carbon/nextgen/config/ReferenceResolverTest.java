@@ -25,9 +25,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class ReferenceResolverTest {
 
@@ -48,52 +48,56 @@ public class ReferenceResolverTest {
     @Test(dataProvider = "contextProvider")
     public void testResolve(Map<String, Object> context, String key, Object expected) throws ConfigParserException {
 
-        Properties secrets = new Properties();
-        Properties references  = new Properties();
-        ReferenceResolver.resolve(context, secrets, references);
+        Map secrets = Collections.emptyMap();
+        Map resolvedSystemProperties = new HashMap();
+        Map resolvedEnvironmentVariables = new HashMap();
+        ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
         Object actual = context.get(key);
         Assert.assertEquals(actual, expected, "Incorrect resolved value for " + key);
     }
 
     @Test(dataProvider = "invalidReferencesProvider", expectedExceptions = ConfigParserException.class)
     public void testResolve(Map<String, Object> context, String key) throws ConfigParserException {
-        Properties secrets = new Properties();
-        Properties references  = new Properties();
-        ReferenceResolver.resolve(context, secrets, references);
+
+        Map secrets = new HashMap();
+        Map resolvedSystemProperties = new HashMap();
+        Map resolvedEnvironmentVariables = new HashMap();
+        ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
         Assert.fail("Placeholder reference resolution should have been failed.");
     }
 
     @Test(dataProvider = "secretProvider")
     public void testResolve(Map<String, Object> context) throws ConfigParserException {
-        Properties secrets = new Properties();
+
+        Map secrets = new HashMap();
         secrets.put("b.c.d", "sssssss");
-        Properties references  = new Properties();
-        ReferenceResolver.resolve(context, secrets, references);
+        Map resolvedSystemProperties = new HashMap();
+        Map resolvedEnvironmentVariables = new HashMap();
+        ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
     }
 
     @Test(dataProvider = "secretProvider")
     public void testResolveNegative1(Map<String, Object> context) {
-
-        Properties secrets = new Properties();
+        Map secrets = new HashMap();
+        Map resolvedSystemProperties = new HashMap();
+        Map resolvedEnvironmentVariables = new HashMap();
         secrets.put("b.c.d", "[sssssss]");
-        Properties references  = new Properties();
         try {
-            ReferenceResolver.resolve(context, secrets, references);
+            ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
             Assert.fail();
         } catch (ConfigParserException e) {
             Assert.assertTrue(e.getMessage().contains("Secret References can't be Plain-Text for "));
         }
     }
 
-
-
     @Test(dataProvider = "secretProviderNegative")
     public void testResolveNegative2(Map<String, Object> context) {
-        Properties secrets = new Properties();
-        Properties references  = new Properties();
+        Map secrets = new HashMap();
+        Map resolvedSystemProperties = new HashMap();
+        Map resolvedEnvironmentVariables = new HashMap();
 
         try {
-            ReferenceResolver.resolve(context, secrets, references);
+            ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
             Assert.fail();
         } catch (ConfigParserException e) {
             Assert.assertTrue(e.getMessage().contains("Secret References can't be resolved for b.d.d"));
@@ -105,8 +109,6 @@ public class ReferenceResolverTest {
 
         Map<String, Object> fileContextPlaceholders = new HashMap<>();
         Map<String, Object> systemContextPlaceholders = new HashMap<>();
-        Map<String, Object> environmentContextPlaceholders = new HashMap<>();
-        Map<String, Object> complexPlaceholders = new HashMap<>();
         fileContextPlaceholders.put("fa", "AAA");
         fileContextPlaceholders.put("fa1", "$ref{fa}");
         fileContextPlaceholders.put("fa2", "$ref{fa1}");

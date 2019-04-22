@@ -22,6 +22,7 @@ package org.wso2.carbon.nextgen.config;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
 import org.wso2.ciphertool.utils.KeyStoreUtil;
 import org.wso2.ciphertool.utils.Utils;
@@ -41,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.crypto.Cipher;
@@ -146,8 +146,8 @@ public class ConfigParser {
         LOGGER.info("Backed up the configurations into " + basePath + File.separator +
                 "backup");
         backupConfigurations(outputFilePath, backupPath);
-
-        Set<String> deployedFileSet = deploy(outputFilePath);
+        Context context = new Context();
+        Set<String> deployedFileSet = deploy(context, outputFilePath);
 
         LOGGER.info("Writing Metadata Entries...");
         Set<String> entries = new HashSet<>(Arrays.asList(templateFileDir,
@@ -156,17 +156,18 @@ public class ConfigParser {
         MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath, entries);
         deployedFileSet.add(deploymentConfigurationPath);
         MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, deployedFileSet);
+        MetaDataParser.storeReferences(metadataPropertyPath, context);
 
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
             justification = "return not need in mkdirs()")
-    private Set<String> deploy(String outputFilePath) throws IOException, ConfigParserException {
+    private Set<String> deploy(Context context, String outputFilePath) throws IOException, ConfigParserException {
 
         File outputDir = new File(outputFilePath);
         Set<String> changedFileSet = new HashSet<>();
         if (outputDir.exists() && outputDir.isDirectory()) {
-            Map<String, String> outputs = parse();
+            Map<String, String> outputs = parse(context);
             for (Map.Entry<String, String> entry : outputs.entrySet()) {
                 File outputFile = new File(outputDir, entry.getKey());
                 if (!outputFile.getParentFile().exists()) {
@@ -185,18 +186,15 @@ public class ConfigParser {
         return changedFileSet;
     }
 
-    protected Map<String, String> parse() throws ConfigParserException {
+    public Map<String, String> parse(Context context) throws ConfigParserException {
 
         File templateDir = checkTemplateDirExistence(templateFileDir);
         TomlParser tomlParser = new TomlParser(deploymentConfigurationPath);
-        Map<String, Object> context = tomlParser.parse();
+        context = tomlParser.parse(context);
         context = KeyMapper.mapWithConfig(context, mappingFilePath);
         context = ValueInferrer.infer(context, inferConfigurationFilePath);
         context = DefaultParser.addDefaultValues(context, defaultValueFilePath);
-        Map secrets = tomlParser.getSecrets();
-        Properties references = new Properties();
-        ReferenceResolver.resolve(context, secrets, references);
-        MetaDataParser.storeReferences(metadataPropertyPath, references);
+        ReferenceResolver.resolve(context);
         UnitResolver.updateUnits(context, unitResolverFilePath);
         Validator.validate(context, validatorFilePath);
 

@@ -20,6 +20,7 @@
 package org.wso2.carbon.nextgen.config;
 
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,18 +62,30 @@ public class ReferenceResolver {
     /**
      * Resolves the placeholder strings.
      *
-     * @param context    Configuration context
-     * @param secrets
-     * @param references
+     * @param context
      * @throws ConfigParserException
      */
-    public static void resolve(Map<String, Object> context, Map secrets, Properties references)
+    public static void resolve(Context context) throws ConfigParserException {
+
+        resolve(context.getTemplateData(), context.getSecrets(), context.getResolvedSystemProperties(),
+                context.getResolvedEnvironmentVariables());
+    }
+
+    /**
+     * Resolves the placeholder strings.
+     *
+     * @param resolvedSystemProperties
+     * @param resolvedEnvironmentVariables
+     * @throws ConfigParserException
+     */
+    static void resolve(Map<String, Object> templateData, Map<String, String> secrets, Map<String,
+            String> resolvedSystemProperties, Map<String, String> resolvedEnvironmentVariables)
             throws ConfigParserException {
 
-        resolveSecrets(context, secrets);
-        resolveSystemProperties(context, references);
-        resolveEnvVariables(context, references);
-        resolveConfigReferences(context);
+        resolveSecrets(templateData, secrets);
+        resolveSystemProperties(templateData, resolvedSystemProperties);
+        resolveEnvVariables(templateData, resolvedEnvironmentVariables);
+        resolveConfigReferences(templateData);
     }
 
     /**
@@ -147,7 +159,7 @@ public class ReferenceResolver {
      *
      * @param context The configuration context
      */
-    private static void resolveSystemProperties(Map<String, Object> context, Properties references)
+    private static void resolveSystemProperties(Map<String, Object> context, Map references)
             throws ConfigParserException {
 
         for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -229,11 +241,11 @@ public class ReferenceResolver {
     /**
      * Resolves environment variable references ($env{ref}).
      *
-     * @param context The configuration context
+     * @param context    The configuration context
      * @param references Resolved Environment Variables;
      * @throws ConfigParserException if Environment Variable not defined
      */
-    private static void resolveEnvVariables(Map<String, Object> context, Properties references)
+    private static void resolveEnvVariables(Map<String, Object> context, Map references)
             throws ConfigParserException {
 
         for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -289,7 +301,7 @@ public class ReferenceResolver {
      * @param resolvedSystemProperties resolved System Properties
      * @return the value with system properties references resolved
      */
-    private static String resolveStringWithSysVarPlaceholders(String value, Properties resolvedSystemProperties)
+    private static String resolveStringWithSysVarPlaceholders(String value, Map resolvedSystemProperties)
             throws ConfigParserException {
 
         String[] sysRefs = StringUtils.substringsBetween(value, SYS_PROPERTY_PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX);
@@ -297,7 +309,7 @@ public class ReferenceResolver {
             for (String ref : sysRefs) {
                 String property = System.getProperty(ref);
                 if (StringUtils.isNotEmpty(property)) {
-                    resolvedSystemProperties.put(ConfigConstants.SYSTEM_PROPERTY_PREFIX.concat(ref), property);
+                    resolvedSystemProperties.put(ref, property);
                     value = value.replaceAll(Pattern.quote(SYS_PROPERTY_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
                             property);
                 } else {
@@ -322,8 +334,7 @@ public class ReferenceResolver {
             for (String ref : envRefs) {
                 String resolvedValue = System.getenv(ref);
                 if (resolvedValue != null) {
-                    resolvedEnvironmentVariables.put(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX.concat(ref),
-                            resolvedValue);
+                    resolvedEnvironmentVariables.put(ref, resolvedValue);
                     value = value.replaceAll(Pattern.quote(ENV_VAR_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
                             resolvedValue);
                 } else {

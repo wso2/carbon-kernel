@@ -25,6 +25,7 @@ import net.consensys.cava.toml.TomlParseResult;
 import net.consensys.cava.toml.TomlTable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -146,6 +147,12 @@ class TomlParser {
         if (table != null) {
             table.dottedKeySet().forEach(key -> context.put(key, table.getString(key)));
         }
+        return context;
+    }
+
+    public Context parse(Context context) {
+        context.getTemplateData().putAll(parseToml(result));
+        context.getSecrets().putAll(processSecrets(result));
         return context;
     }
 }

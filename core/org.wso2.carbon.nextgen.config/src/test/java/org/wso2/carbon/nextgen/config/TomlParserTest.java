@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,10 +41,12 @@ public class TomlParserTest {
     @BeforeClass
     public void setUp() {
 
+        Context context = new Context();
         String deploymentConfiguration =
                 FileUtils.getFile("src", "test", "resources", TOML_FILE_NAME).getAbsolutePath();
 
-        parsedValueMap = new TomlParser(deploymentConfiguration).parse();
+        context = new TomlParser(deploymentConfiguration).parse(context);
+        parsedValueMap.putAll(context.getTemplateData());
     }
 
     @Test(dataProvider = "flatKeySetProvider")

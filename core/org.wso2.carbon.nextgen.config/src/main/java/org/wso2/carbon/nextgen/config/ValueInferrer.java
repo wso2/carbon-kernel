@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,6 +47,14 @@ class ValueInferrer {
     }
 
     private static final Log LOGGER = LogFactory.getLog(ValueInferrer.class);
+
+    static Context infer(Context context, String inferConfigFilePath) {
+
+        Map<String, Object> inferedContext = infer(context.getTemplateData(), inferConfigFilePath);
+        context.getTemplateData().clear();
+        context.getTemplateData().putAll(inferedContext);
+        return context;
+    }
 
     static Map<String, Object> infer(Map<String, Object> context, String inferConfigFilePath) {
 

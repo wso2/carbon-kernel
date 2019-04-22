@@ -24,23 +24,36 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.ElementSelectors;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Properties;
 
 public class ConfigParserTest {
 
     Path tempDir;
+    Context context = new Context();
 
     @BeforeMethod
     public void createTemporaryDirectory() throws IOException {
 
         tempDir = Files.createTempDirectory("output");
+        context.getTemplateData().clear();
+        context.getSecrets().clear();
+        context.getResolvedSystemProperties().clear();
+        context.getResolvedEnvironmentVariables().clear();
     }
 
     @AfterMethod
@@ -81,7 +94,7 @@ public class ConfigParserTest {
                 .withUnitResolverFilePath(unitConfiguration)
                 .withMetaDataFilePath(newConfigDirectoryPath)
                 .build();
-        Map<String, String> outputFileContentMap = configParser.parse();
+        Map<String, String> outputFileContentMap = configParser.parse(context);
         File resultDir = new File(expectedOutputDirPath);
         for (Map.Entry<String, String> entry : outputFileContentMap.entrySet()) {
             File expectedOutput = new File(resultDir, entry.getKey());
@@ -89,7 +102,17 @@ public class ConfigParserTest {
                 Assert.fail("Expected result file doesn't exist for " + entry.getKey());
             }
             String expected = FileUtils.readFile(expectedOutput);
-            handleAssertion(entry.getValue(), expected);
+            if (expectedOutput.getName().contains(".xml")) {
+                handleXmlAssersions(entry.getValue(), expected);
+            } else if (expectedOutput.getName().contains(".properties")) {
+                Properties expectedProperties = new Properties();
+                Properties actualProperties = new Properties();
+                expectedProperties.load(new FileInputStream(expectedOutput));
+                expectedProperties.load(new StringReader(entry.getValue()));
+                handlePropertiesFileAssersion(actualProperties, expectedProperties);
+            } else {
+                handleAssertion(entry.getValue(), expected);
+            }
         }
 
     }
@@ -202,6 +225,23 @@ public class ConfigParserTest {
         } else {
             Assert.assertEquals(actual, expected);
         }
+    }
+
+    private void handleXmlAssersions(String actual, String expected) {
+
+        Diff difference = DiffBuilder.compare(actual).withTest(expected).ignoreComments().ignoreWhitespace()
+                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes)).checkForSimilar()
+                .build();
+        if (!difference.hasDifferences()) {
+            Assert.assertTrue(true);
+        } else {
+            Assert.assertEquals(actual, expected);
+        }
+    }
+
+    private void handlePropertiesFileAssersion(Properties actualProperties, Properties expectedProperties) {
+
+        Assert.assertEquals(actualProperties, expectedProperties);
     }
 
 }

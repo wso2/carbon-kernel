@@ -22,6 +22,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -182,14 +183,21 @@ public class MetaDataParser {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
             justification = "return not need in mkdirs()")
-    public static void storeReferences(String metadataPropertyPath, Properties references)
+    public static void storeReferences(String metadataPropertyPath, Context context)
             throws ConfigParserException {
 
         File outputFile = new File(metadataPropertyPath);
         outputFile.getParentFile().mkdirs();
         try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(metadataPropertyPath),
                 StandardCharsets.UTF_8)) {
-            references.store(outputStreamWriter, null);
+            Properties properties = new Properties();
+            context.getResolvedEnvironmentVariables().forEach((key, value) -> {
+                properties.put(ConfigConstants.ENVIRONMENT_VARIABLE_PREFIX.concat(key), value);
+            });
+            context.getResolvedSystemProperties().forEach((key, value) -> {
+                properties.put(ConfigConstants.SYSTEM_PROPERTY_PREFIX.concat(key), value);
+            });
+            properties.store(outputStreamWriter, null);
         } catch (IOException e) {
             throw new ConfigParserException("Error While storing References", e);
         }
@@ -197,7 +205,7 @@ public class MetaDataParser {
 
     public static boolean isReferencesChanged(String metadataPropertyPath) {
 
-        boolean status = true;
+        boolean status = false;
         if (new File(metadataPropertyPath).exists()) {
             Properties references = new Properties();
             try (FileInputStream fileInputStream = new FileInputStream(metadataPropertyPath)) {
