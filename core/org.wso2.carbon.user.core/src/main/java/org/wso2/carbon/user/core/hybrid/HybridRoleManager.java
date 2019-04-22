@@ -236,8 +236,9 @@ public class HybridRoleManager {
             }
 
             dbConnection.setAutoCommit(false);
-            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-
+            if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+                dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, filter);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -717,8 +718,20 @@ public class HybridRoleManager {
         String[] roles = getHybridRoleListOfUser(userName, "*");
         if (roles != null && roleName != null) {
             for (String role : roles) {
-                if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
-                    return true;
+                if (roleName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                    if (role.equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
+                } else {
+                    if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
                 }
             }
         }

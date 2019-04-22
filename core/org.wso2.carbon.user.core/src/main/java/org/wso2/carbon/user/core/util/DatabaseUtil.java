@@ -303,6 +303,18 @@ public class DatabaseUtil {
                     (JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED)));
         }
 
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.COMMIT_ON_RETURN)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.COMMIT_ON_RETURN).trim().isEmpty()) {
+            poolProperties.setCommitOnReturn(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.COMMIT_ON_RETURN)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.ROLLBACK_ON_RETURN)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.ROLLBACK_ON_RETURN).trim().isEmpty()) {
+            poolProperties.setRollbackOnReturn(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.ROLLBACK_ON_RETURN)));
+        }
+
         setIsolationLevel(poolProperties, realmConfig.getUserStoreProperty(JDBCRealmConstants
                 .DEFAULT_TRANSACTION_ISOLATION));
 
@@ -521,6 +533,18 @@ public class DatabaseUtil {
                 !realmConfig.getRealmProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED).trim().isEmpty()) {
             poolProperties.setAlternateUsernameAllowed(Boolean.parseBoolean(realmConfig.getRealmProperty
                     (JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.COMMIT_ON_RETURN)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.COMMIT_ON_RETURN).trim().isEmpty()) {
+            poolProperties.setCommitOnReturn(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.COMMIT_ON_RETURN)));
+        }
+
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.ROLLBACK_ON_RETURN)) &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.ROLLBACK_ON_RETURN).trim().isEmpty()) {
+            poolProperties.setRollbackOnReturn(Boolean.parseBoolean(realmConfig.getUserStoreProperty
+                    (JDBCRealmConstants.ROLLBACK_ON_RETURN)));
         }
 
         setIsolationLevel(poolProperties, realmConfig.getRealmProperty(JDBCRealmConstants

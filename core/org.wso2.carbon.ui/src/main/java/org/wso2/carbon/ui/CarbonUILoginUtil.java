@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
 import org.wso2.carbon.utils.ServerConstants;
@@ -39,6 +40,10 @@ import java.util.regex.Pattern;
 
 public final class CarbonUILoginUtil {
 
+    private static final String ACCOUNT_LOCK_ERROR_CODE = "17003";
+    private static final String ACCOUNT_LOCK_ERROR_MESSAGE = "Cannot login until the account is unlocked.";
+    private static final String USER_NOT_FOUND_ERROR_CODE = "17001";
+    private static final String INVALID_CREDENTIALS_ERROR_CODE = "Invalid user credentials.";
     private static Log log = LogFactory.getLog(CarbonUILoginUtil.class);
     private static Pattern tenantEnabledUriPattern;
     private static final String TENANT_ENABLED_URI_PATTERN = "(/.*/|/)"
@@ -475,6 +480,21 @@ public final class CarbonUILoginUtil {
             try {
                 request.getSession().invalidate();
                 getAuthenticator(request).unauthenticate(request);
+
+                if (isLoginFailureReasonEnabled()) {
+                    if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE) || e.getCause().getMessage()
+                            .contains(ACCOUNT_LOCK_ERROR_MESSAGE)) {
+                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error" +
+                                ".code.17003");
+                        return false;
+                    } else if (e.getCause().getMessage().contains(USER_NOT_FOUND_ERROR_CODE)) {
+                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17001");
+                        return false;
+                    } else if (e.getCause().getMessage().contains(INVALID_CREDENTIALS_ERROR_CODE)) {
+                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17002");
+                        return false;
+                    }
+                }
                 if (httpLogin != null) {
                     response.sendRedirect(httpLogin + "?loginStatus=false");
                     return false;
@@ -681,6 +701,13 @@ public final class CarbonUILoginUtil {
             return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
         }
         return false;
+    }
+
+    private static boolean isLoginFailureReasonEnabled() {
+
+        String enableLoginFailureReason = ServerConfiguration.getInstance().
+                getFirstProperty("EnableLoginFailureReason");
+        return enableLoginFailureReason != null && "true".equals(enableLoginFailureReason.trim());
     }
 
     /**

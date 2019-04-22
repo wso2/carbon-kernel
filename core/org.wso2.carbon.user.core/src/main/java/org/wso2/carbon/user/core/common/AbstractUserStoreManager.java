@@ -175,7 +175,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 throw new UserStoreException(e.getCause().getCause().getMessage(), e);
 
             } else {
-                String msg = "Error occurred while accessing Java Security Manager Privilege Block";
+                String msg;
+                if (objects != null && argTypes != null) {
+                    msg = "Error occurred while accessing Java Security Manager Privilege Block when called by " +
+                            "method " + methodName + " with " + objects.length + " length of Objects and argTypes " +
+                            Arrays.toString(argTypes);
+                } else {
+                    msg = "Error occurred while accessing Java Security Manager Privilege Block";
+                }
                 log.error(msg);
                 throw new UserStoreException(msg, e);
             }
@@ -5405,7 +5412,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return false;
         }
 
-        userName = userName.trim();
+        String leadingOrTrailingSpaceAllowedInUserName = realmConfig.getUserStoreProperty(UserCoreConstants
+                .RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
+        if (StringUtils.isEmpty(leadingOrTrailingSpaceAllowedInUserName)) {
+            // Keeping old behavior for backward-compatibility.
+            userName = userName.trim();
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : " +
+                        leadingOrTrailingSpaceAllowedInUserName + ". Hence username trimming will be skipped during " +
+                        "validation for the username: " + userName);
+            }
+        }
 
         if (userName.length() < 1) {
             return false;
@@ -5704,7 +5722,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return (String[]) object;
         }
 
-        String[] roleList;
+        String[] roleList = getRoleListOfUserFromCache(this.tenantId, userName);
+        if (roleList != null && roleList.length > 0) {
+            return roleList;
+        }
 
         String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
 

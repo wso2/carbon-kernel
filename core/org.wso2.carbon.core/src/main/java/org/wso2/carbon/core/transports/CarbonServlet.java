@@ -42,6 +42,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.*;
@@ -173,6 +174,11 @@ public class CarbonServlet extends AxisServlet {
                             request.getParameter((String) name));
                 }
             }
+
+            HttpSession session = request.getSession();
+            Boolean isAuthenticatedObj = (Boolean) session.getAttribute("authenticated");
+            boolean isAuthenticated = isAuthenticatedObj != null ? isAuthenticatedObj : false;
+            carbonHttpRequest.setParameter("authenticated", String.valueOf(isAuthenticated));
 
             carbonHttpRequest.setContextPath(request.getContextPath());
             carbonHttpRequest.setQueryString(request.getQueryString());
