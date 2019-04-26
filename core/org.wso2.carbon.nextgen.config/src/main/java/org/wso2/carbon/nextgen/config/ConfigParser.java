@@ -118,8 +118,8 @@ public class ConfigParser {
                             LOGGER.warn("Configuration value changed in references, Overriding files in the " +
                                     "configuration directory" + outputFilePath);
                         }
+                        deployAndStoreMetadata(outputFilePath);
                     }
-                    deployAndStoreMetadata(outputFilePath);
                 }
 
             } else {
@@ -154,10 +154,18 @@ public class ConfigParser {
         Set<String> entries = new HashSet<>(Arrays.asList(templateFileDir,
                 inferConfigurationFilePath, defaultValueFilePath, unitResolverFilePath, validatorFilePath,
                 mappingFilePath));
-        MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath, entries);
-        deployedFileSet.add(deploymentConfigurationPath);
-        MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, deployedFileSet);
-        MetaDataParser.storeReferences(metadataPropertyPath, context);
+        new Thread(() -> {
+
+            try {
+                MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath, entries);
+                deployedFileSet.add(deploymentConfigurationPath);
+                MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, deployedFileSet);
+                MetaDataParser.storeReferences(metadataPropertyPath, context);
+            } catch (ConfigParserException e) {
+                LOGGER.warn("Error while Storing Metadata Entries", e);
+            }
+        }).start();
+
 
     }
 
