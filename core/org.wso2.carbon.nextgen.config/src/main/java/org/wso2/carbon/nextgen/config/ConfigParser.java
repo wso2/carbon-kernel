@@ -45,6 +45,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.crypto.Cipher;
+import javax.xml.xpath.XPathFactory;
 
 /**
  * Configuration parser class. Entry point to the config parsing logic.
@@ -203,6 +204,9 @@ public class ConfigParser {
     }
 
     protected void handleSecVaultProperties() {
+        // Have to use xalan as xpath factory to cipher tool.
+        System.setProperty(XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
+                "com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl");
 
         org.wso2.ciphertool.utils.Utils.setSystemProperties();
         org.wso2.ciphertool.utils.Utils.writeToSecureConfPropertyFile();
