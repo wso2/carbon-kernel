@@ -93,11 +93,13 @@ class TomlParser {
         Map<String, Object> finalMap = new LinkedHashMap<>();
         Set<String> dottedKeySet = tomlTable.dottedKeySet();
         for (String key: dottedKeySet) {
+            key = key.replaceAll("\"", "'");
             Object value = tomlTable.get(key);
             if (value instanceof TomlArray) {
                 finalMap.put(key, processTomlArray((TomlArray) value));
+            } else {
+                finalMap.put(key, tomlTable.get(key));
             }
-            finalMap.put(key, tomlTable.get(key));
         }
 
         return finalMap;
