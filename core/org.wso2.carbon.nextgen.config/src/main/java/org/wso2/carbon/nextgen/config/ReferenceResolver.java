@@ -260,6 +260,8 @@ public class ReferenceResolver {
             if (value instanceof List) {
                 //todo $ref-someOtherString when $ref is a list
                 context.put(k, value);
+            } else if (value instanceof Boolean) {
+                context.put(k, value);
             } else if (existingValue instanceof String) {
                 existingValue = ((String) existingValue).replaceAll(Pattern.quote(
                         CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX),
