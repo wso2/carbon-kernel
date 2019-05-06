@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<Server port="8005" shutdown="SHUTDOWN" xmlns:svns="http://org.wso2.securevault/configuration">
+<Server port="8005" shutdown="SHUTDOWN">
 
     <Service className="org.wso2.carbon.tomcat.ext.service.ExtendedStandardService" name="Catalina">
 
@@ -27,8 +27,8 @@
         -->
         <Connector protocol="org.apache.coyote.http11.Http11NioProtocol"
         {% for property_name,property_value in transport.http.items() %}
-                   {{property_name}}="{{property_value}}"
-                           {% endfor %}
+        {{property_name}}="{{property_value}}"
+        {% endfor %}
         />
 
         <!--
@@ -39,8 +39,8 @@
         -->
         <Connector protocol="org.apache.coyote.http11.Http11NioProtocol"
         {% for property_name,property_value in transport.https.items() %}
-                   {{property_name}}="{{property_value}}"
-                   {% endfor %}
+        {{property_name}}="{{property_value}}"
+        {% endfor %}
         />
 
         <Engine name="Catalina" defaultHost="localhost">
@@ -59,8 +59,14 @@
                        prefix="http_access_" suffix=".log" pattern="%h %l %u %t %r %s %b %{Referer}i %{User-Agent}i %T"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CarbonStuckThreadDetectionValve" threshold="600"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CompositeValve"/>
+
+                <!-- Authentication and Authorization valve for the rest apis and we can configure context for this in identity.xml  -->
+                <Valve className="org.wso2.carbon.identity.auth.valve.AuthenticationValve"/>
+                <Valve className="org.wso2.carbon.identity.authz.valve.AuthorizationValve"/>
+                <Valve className="org.wso2.carbon.identity.context.rewrite.valve.TenantContextRewriteValve"/>
                 <!--Error pages -->
-                <Valve className="org.apache.catalina.valves.ErrorReportValve" showServerInfo="false" showReport="false"/>
+                <Valve className="org.apache.catalina.valves.ErrorReportValve" showServerInfo="false"
+                       showReport="false"/>
             </Host>
         </Engine>
     </Service>

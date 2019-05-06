@@ -191,7 +191,7 @@ public class ConfigParser {
         return changedFileSet;
     }
 
-    protected Map<String, String> parse() throws ConfigParserException {
+    public Map<String, String> parse() throws ConfigParserException {
 
         File templateDir = checkTemplateDirExistence(templateFileDir);
 
