@@ -112,8 +112,8 @@
 	                    StringWriter sw = new StringWriter();
 	                    PrintWriter pw = new PrintWriter(sw);
                     	if(carbonMessage.isShowStackTrace()){
-                    	    pw.write("<b>The following error details are available. Please refer logs for more details.</b><br/>");
-                            e.printStackTrace(pw);
+                    	    pw.format("%s - An error has occurred. Please refer the logs for more details.",
+                                    e.getLocalizedMessage());
                             String errorStr = Encode.forHtml(sw.toString());
                             errorStr = errorStr.replaceAll("\n", "<br/>");
                             for (int i = 0; i < errorStr.length(); i++) {

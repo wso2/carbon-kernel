@@ -325,6 +325,9 @@ public class HybridRoleManager {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
+        if (!isCaseSensitiveUsername()) {
+            sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE;
+        }
         Connection dbConnection = null;
 
         try {
@@ -552,6 +555,9 @@ public class HybridRoleManager {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL;
+        if(!isCaseSensitiveUsername()){
+            sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE;
+        }
         Connection dbConnection = null;
 
         try {
@@ -793,9 +799,14 @@ public class HybridRoleManager {
             domain = domain.toUpperCase();
         }
 
+        String sqlStmt = HybridJDBCConstants.REMOVE_USER_SQL;
+        if (!isCaseSensitiveUsername()) {
+            sqlStmt = HybridJDBCConstants.REMOVE_USER_SQL_CASE_INSENSITIVE;
+        }
+
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            preparedStatement = dbConnection.prepareStatement(HybridJDBCConstants.REMOVE_USER_SQL);
+            preparedStatement = dbConnection.prepareStatement(sqlStmt);
             preparedStatement.setString(1, UserCoreUtil.removeDomainFromName(userName));
             preparedStatement.setInt(2, tenantId);
             preparedStatement.setInt(3, tenantId);
