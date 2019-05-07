@@ -1,0 +1,22 @@
+key = "value3"
+
+a."b.c" = "value4"
+a.'d.e' = "value5"
+
+[header_test]
+b.c = "value1"
+b.d = "value2"
+
+[numbers]
+g = 1234
+
+[array_test]
+colors=["blue", "green", "red"]
+
+[[datasource]]
+a.b.c = "datasource value"
+a.b.d = "datasources value 3"
+
+[[datasource]]
+a.b.c = "datasource value 2"
+a.b.d = "data 4"

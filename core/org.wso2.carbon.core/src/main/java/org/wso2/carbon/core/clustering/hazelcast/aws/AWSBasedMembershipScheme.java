@@ -38,8 +38,10 @@ import org.wso2.carbon.core.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastUtil;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKAConstants;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.xml.StringUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -110,41 +112,51 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         SecretResolver secretResolver = getAxis2SecretResolver();
 
         if (accessKey != null) {
-            if (secretResolver != null && secretResolver.isInitialized() &&
-                    secretResolver.isTokenProtected(SECURE_VAULT_ACCESS_KEY)) {
-                awsConfig.setAccessKey(secretResolver.resolve(SECURE_VAULT_ACCESS_KEY));
+            if (secretResolver != null) {
+                String resolvedValue = MiscellaneousUtil.resolve(accessKey.getParameterElement(), secretResolver);
+                if (StringUtils.isEmpty(resolvedValue)) {
+                    if (secretResolver.isInitialized() && secretResolver.isTokenProtected(SECURE_VAULT_ACCESS_KEY)) {
+                        resolvedValue = secretResolver.resolve(SECURE_VAULT_ACCESS_KEY);
+                    }
+                    awsConfig.setAccessKey(resolvedValue);
+                }
             } else {
-                awsConfig.setAccessKey(((String)accessKey.getValue()).trim());
+                awsConfig.setAccessKey(((String) accessKey.getValue()).trim());
             }
         }
         if (secretKey != null) {
-            if (secretResolver != null && secretResolver.isInitialized() &&
-                    secretResolver.isTokenProtected(SECURE_VAULT_SECRET_KEY)) {
-                awsConfig.setSecretKey(secretResolver.resolve(SECURE_VAULT_SECRET_KEY));
+            if (secretResolver != null) {
+                String resolvedValue = MiscellaneousUtil.resolve(secretKey.getParameterElement(), secretResolver);
+                if (StringUtils.isEmpty(resolvedValue)) {
+                    if (secretResolver.isInitialized() && secretResolver.isTokenProtected(SECURE_VAULT_SECRET_KEY)) {
+                        resolvedValue = secretResolver.resolve(SECURE_VAULT_SECRET_KEY);
+                    }
+                    awsConfig.setSecretKey(resolvedValue);
+                }
             } else {
-                awsConfig.setSecretKey(((String)secretKey.getValue()).trim());
+                awsConfig.setSecretKey(((String) secretKey.getValue()).trim());
             }
         }
         if (iamRole != null) {
             awsConfig.setIamRole(((String) iamRole.getValue()).trim());
         }
         if (securityGroup != null) {
-            awsConfig.setSecurityGroupName(((String)securityGroup.getValue()).trim());
+            awsConfig.setSecurityGroupName(((String) securityGroup.getValue()).trim());
         }
         if (connTimeout != null) {
             awsConfig.setConnectionTimeoutSeconds(Integer.parseInt(((String) connTimeout.getValue()).trim()));
         }
         if (hostHeader != null) {
-            awsConfig.setHostHeader(((String)hostHeader.getValue()).trim());
+            awsConfig.setHostHeader(((String) hostHeader.getValue()).trim());
         }
         if (region != null) {
-            awsConfig.setRegion(((String)region.getValue()).trim());
+            awsConfig.setRegion(((String) region.getValue()).trim());
         }
         if (tagKey != null) {
-            awsConfig.setTagKey(((String)tagKey.getValue()).trim());
+            awsConfig.setTagKey(((String) tagKey.getValue()).trim());
         }
         if (tagValue != null) {
-            awsConfig.setTagValue(((String)tagValue.getValue()).trim());
+            awsConfig.setTagValue(((String) tagValue.getValue()).trim());
         }
 
     }

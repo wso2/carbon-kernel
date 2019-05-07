@@ -21,21 +21,35 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
+import org.w3c.dom.Element;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.securevault.SecretManagerInitializer;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
-import org.w3c.dom.Element;
-import org.wso2.carbon.securevault.SecretManagerInitializer;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.StringTokenizer;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.*;
 
 /**
  * This class stores the configuration of the Carbon Server.
@@ -262,18 +276,22 @@ public class ServerConfiguration implements ServerConfigurationService {
 		init(configurationXMLLocation);
 	}
 
-	private void readChildElements(OMElement serverConfig,
-			Stack<String> nameStack) {
-		for (Iterator childElements = serverConfig.getChildElements(); childElements
-				.hasNext();) {
+	private void readChildElements(OMElement serverConfig, Stack<String> nameStack) {
+
+		for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
 			OMElement element = (OMElement) childElements.next();
 			nameStack.push(element.getLocalName());
 			if (elementHasText(element)) {
 				String key = getKey(nameStack);
-				String value = replaceSystemProperty(element.getText());
-				if (isProtectedToken(key)) {
-					value = getProtectedValue(key);
+				String value;
+				String resolvedValue = MiscellaneousUtil.resolve(element, secretResolver);
+
+				if (resolvedValue != null && !resolvedValue.isEmpty()) {
+					value = resolvedValue;
+				} else {
+					value = element.getText();
 				}
+				value = replaceSystemProperty(value);
 				addToConfiguration(key, value);
 			}
 			readChildElements(element, nameStack);

@@ -1,0 +1,105 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+
+    <providers>
+        <provider>org.wso2.carbon.ndatasource.rdbms.RDBMSDataSourceReader</provider>
+    </providers>
+
+    <datasources>
+
+        <datasource>
+            <name>WSO2_CARBON_DB</name>
+            <description>The datasource used for registry and user manager</description>
+            <jndiConfig>
+                <name>jdbc/WSO2CarbonDB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:h2:repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE</url>
+                    <username>wso2carbon</username>
+                    <password>wso2carbon</password>
+                    <driverClassName>org.h2.Driver</driverClassName>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <defaultAutoCommit>true</defaultAutoCommit>
+                </configuration>
+            </definition>
+        </datasource>
+        <datasource>
+            <name>WSO2_MB_STORE_DB</name>
+            <description>The datasource used for message broker database</description>
+            <jndiConfig>
+                <name>WSO2MBStoreDB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:h2:repository/database/WSO2MB_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
+                    <username>wso2carbon</username>
+                    <password>wso2carbon</password>
+                    <driverClassName>org.h2.Driver</driverClassName>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <defaultAutoCommit>false</defaultAutoCommit>
+                </configuration>
+            </definition>
+        </datasource>
+
+        <datasource>
+            <name>SharedDb</name>
+            <description>Shared Database for user and registry data</description>
+            <jndiConfig>
+                <name>jdbc/Shared_DB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/sharedDb</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <max_active>5</max_active>
+                </configuration>
+            </definition>
+        </datasource>
+
+        <datasource>
+            <name>WSO2AM_DB</name>
+            <description>The datasource used for API Manager database</description>
+            <jndiConfig>
+                <name>jdbc/WSO2AM_DB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/sharedDb</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <max_active>5</max_active>
+                </configuration>
+            </definition>
+        </datasource>
+
+        <datasource>
+            <name>ds1</name>
+            <description>this database is ds1</description>
+            <jndiConfig>
+                <name>jdbc/ds1</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/ds1</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                </configuration>
+            </definition>
+        </datasource>
+    </datasources>
+
+</datasources-configuration>

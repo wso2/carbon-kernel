@@ -28,6 +28,7 @@ import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.SecurityConstants;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 import org.wso2.securevault.secret.SecretManager;
 import org.xml.sax.SAXException;
 
@@ -61,6 +62,7 @@ public class ServerManager {
      * initialization code goes here.i.e : configuring tomcat instance using catalina-server.xml
      */
     public void init() {
+
         bundleCtxtClassLoader = Thread.currentThread().getContextClassLoader();
         String carbonHome = System.getProperty(CarbonBaseConstants.CARBON_HOME);
         String catalinaHome;
@@ -76,7 +78,8 @@ public class ServerManager {
         } catch (FileNotFoundException e) {
             log.error("could not locate the file catalina-server.xml", e);
         }
-        //setting catalina.base system property. tomcat configurator refers this property while tomcat instance creation.
+        //setting catalina.base system property. tomcat configurator refers this property while tomcat instance
+        // creation.
         //you can override the property in wso2server.sh
         String internalLibPath = System.getProperty(CarbonBaseConstants.CARBON_INTERNAL_LIB_DIR_PATH);
         if (internalLibPath == null) {
@@ -102,25 +105,23 @@ public class ServerManager {
 
         tomcat = new CarbonTomcat();
 
-        if(SecretManager.getInstance().isInitialized()){
+        Element config = inputStreamToDOM(inputStream);
+        if (SecretManager.getInstance().isInitialized()) {
             //creates DOM from input stream
-            Element config = inputStreamToDOM(inputStream);
             //creates Secret resolver
             resolver = SecretResolverFactory.create(config, true);
             //resolves protected passwords
             resolveSecuredConfig(config, null);
-            if (config.getAttributes().getNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
-                    SVNS) != null) {
-                config.getAttributes().removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
-                        SVNS);
-            }
-            // creates new input stream from processed DOM element
-            InputStream newStream = domToInputStream(config);
-            
-            tomcat.configure(catalinaHome, newStream);
-        } else {
-            tomcat.configure(catalinaHome, inputStream);    
         }
+        if (config.getAttributes().getNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
+                SVNS) != null) {
+            config.getAttributes().removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
+                    SVNS);
+        }
+        // creates new input stream from processed DOM element
+        InputStream newStream = domToInputStream(config);
+
+        tomcat.configure(catalinaHome, newStream);
     }
 
     /**
@@ -183,13 +184,25 @@ public class ServerManager {
         if (nodeMap != null) {
             for (int j = 0; j < nodeMap.getLength(); j++) {
                 Node node = nodeMap.item(j);
-                if(node != null){
-                    String attributeName = node.getNodeName();
-                    token = tempToken + "." + attributeName;
-                    if(resolver.isTokenProtected(token)){
-                        node.setNodeValue(resolver.resolve(token));
-                        nodeMap.removeNamedItem(
-                                SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                if (node != null) {
+                    String alias = MiscellaneousUtil.getProtectedToken(node.getNodeValue());
+                    if (alias != null && alias.length() > 0) {
+                        node.setNodeValue(MiscellaneousUtil.resolve(alias, resolver));
+                    } else {
+                        String attributeName = node.getNodeName();
+                        token = tempToken + "." + attributeName;
+                        if (resolver.isTokenProtected(token)) {
+                            node.setNodeValue(resolver.resolve(token));
+                            try {
+                                nodeMap.removeNamedItem(
+                                        SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                            } catch (DOMException e) {
+                                String msg =
+                                        "Error while removing " + SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS;
+                                // log is ignored
+                                log.debug(msg, e);
+                            }
+                        }
                     }
                 }
             }

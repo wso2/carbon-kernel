@@ -1,0 +1,65 @@
+{
+  "super_admin.admin_role": "admin",
+  "authorization_manager": {
+    "class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
+    "properties": {
+      "AdminRoleManagementPermissions": "/permission",
+      "AuthorizationCacheEnabled": "true",
+      "GetAllRolesOfUserEnabled": "false"
+    }
+  },
+  "realm_manager": {
+    "data_source": "jdbc/SharedDb",
+    "properties": {
+      "isCascadeDeleteEnabled": true,
+      "initializeNewClaimManager": true
+    }
+  },
+  "governance.data_source": "jdbc/SharedDb",
+  "governance.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
+  "governance.enable_cache": true,
+  "transport.http": {
+    "port": "9763",
+    "redirectPort": "9443",
+    "bindOnInit": "false",
+    "maxHttpHeaderSize": 8192,
+    "acceptorThreadCount": 2,
+    "maxThreads": "250",
+    "minSpareThreads": "50",
+    "disableUploadTimeout": "false",
+    "connectionUploadTimeout": "120000",
+    "maxKeepAliveRequests": "200",
+    "acceptCount": "200",
+    "server": "WSO2 Carbon Server",
+    "compression": "on",
+    "compressionMinSize": "2048",
+    "noCompressionUserAgents": "gozilla, traviata",
+    "compressableMimeType": "text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg",
+    "URIEncoding": "UTF-8"
+  },
+  "transport.https.port": "9443",
+  "transport.https.bindOnInit": "false",
+  "transport.https.sslProtocol": "TLS",
+  "transport.https.sslEnabledProtocols": "TLSv1,TLSv1.1,TLSv1.2",
+  "transport.https.maxHttpHeaderSize": "8192",
+  "transport.https.acceptorThreadCount": "2",
+  "transport.https.maxThreads": "250",
+  "transport.https.minSpareThreads": "50",
+  "transport.https.disableUploadTimeout": "false",
+  "transport.https.enableLookups": "false",
+  "transport.https.connectionUploadTimeout": "120000",
+  "transport.https.maxKeepAliveRequests": "200",
+  "transport.https.acceptCount": "200",
+  "transport.https.server": "WSO2 Carbon Server",
+  "transport.https.clientAuth": "false",
+  "transport.https.compression": "on",
+  "transport.https.scheme": "https",
+  "transport.https.secure": "true",
+  "transport.https.SSLEnabled": "true",
+  "transport.https.compressionMinSize": "2048",
+  "transport.https.noCompressionUserAgents": "gozilla, traviata",
+  "transport.https.compressableMimeType": "text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg",
+  "transport.https.keystoreFile": "${carbon.home}/repository/resources/security/$ref{keystore.tls.file_name}",
+  "transport.https.keystorePass": "$ref{keystore.tls.password}",
+  "transport.https.URIEncoding": "UTF-8"
+}
