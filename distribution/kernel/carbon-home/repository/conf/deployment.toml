@@ -64,3 +64,30 @@ file_name = "client-truststore.jks"
 type = "JKS"
 password = "wso2carbon"
 
+#[keystore.internal]
+#file_name = "wso2carbon.jks"
+#type ="JKS"
+#password ="wso2carbon"
+#alias ="wso2carbon"
+#key_password = "wso2carbon"
+
+#[admin_console.authenticator.token_ui_authenticator]
+#enable = false
+#priority = 5
+
+#[admin_console.authenticator.saml_sso_authenticator]
+#enable = false
+#priority = 10
+#login_page = "/carbon/admin/login.jsp"
+#service_provider_id = "carbonServer"
+#identity_provider_sso_service_url = "https://localhost:9443/samlsso"
+#name_id_policy_format = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+#assertion_consumer_service_url = "https://localhost:9443/acs"
+#jit_user_provisioning_enabled = false
+#super_admin_role_required = false
+
+#[admin_console.authenticator.mutual_ssl_authenticator]
+#priority = 5
+#username_header
+#white_list_enabled
+#white_list
