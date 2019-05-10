@@ -101,8 +101,10 @@
    	appserver - proxy context path. This specially required whenever you are generating URLs to displace in
    	Carbon UI components.
     -->
+    {% if server.proxy_context_path is defined %}
     <MgtProxyContextPath>{{server.proxy_context_path}}</MgtProxyContextPath>
     <ProxyContextPath>{{server.proxy_context_path}}</ProxyContextPath>
+    {% endif %}
 
     <!-- In-order to  get the registry http Port from the back-end when the default http transport is not the same-->
     <!--RegistryHttpPort>9763</RegistryHttpPort-->
@@ -360,7 +362,11 @@
         <Enabled>true</Enabled>
 
         <!-- The crypto provider which is used for internal data encryption and decryption -->
+        {% if encryption.internal_crypto_provider is defined %}
         <InternalCryptoProviderClassName>{{encryption.internal_crypto_provider}}</InternalCryptoProviderClassName>
+        {% else %}
+        <InternalCryptoProviderClassName>org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider</InternalCryptoProviderClassName>
+        {% endif %}
 
         {% if encryption.key is defined %}
         <Secret>{{encryption.key}}</Secret>

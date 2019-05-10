@@ -60,7 +60,7 @@
       "user_store.properties.MembershipAttribute": "member",
       "user_store.properties.BackLinksEnabled": false,
       "user_store.properties.SCIMEnabled": true,
-      "user_store.properties.IsBulkImportSupported": true,
+      "user_store.properties.IsBulkImportSupported": false,
       "user_store.properties.UsernameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
       "user_store.properties.RolenameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
       "user_store.properties.PasswordHashMethod": "PLAIN_TEXT",

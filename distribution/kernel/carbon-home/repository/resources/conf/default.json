@@ -66,7 +66,7 @@
   "transport.https.maxKeepAliveRequests": "200",
   "transport.https.acceptCount": "200",
   "transport.https.server": "WSO2 Carbon Server",
-  "transport.https.clientAuth": "false",
+  "transport.https.clientAuth": "want",
   "transport.https.compression": "on",
   "transport.https.scheme": "https",
   "transport.https.secure": "true",
