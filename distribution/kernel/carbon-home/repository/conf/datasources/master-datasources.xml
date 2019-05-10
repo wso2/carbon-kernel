@@ -47,6 +47,21 @@
                 </configuration>
             </definition>
         </datasource>
+        <datasource>
+            <name>WSO2_IDENTITY_DB</name>
+            <description>Shared database for identity data</description>
+            <jndiConfig>
+                <name>jdbc/WSO2IdentityDB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
+                    <username>wso2carbon</username>
+                    <password>wso2carbon</password>
+                    <driverClassName>org.h2.Driver</driverClassName>
+                </configuration>
+            </definition>
+        </datasource>
         <!-- For an explanation of the properties, see: http://people.apache.org/~fhanik/jdbc-pool/jdbc-pool.html -->
         <!--datasource>
             <name>SAMPLE_DATA_SOURCE</name>
