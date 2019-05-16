@@ -1,0 +1,89 @@
+{
+  "user_store.type": {
+    "jdbc": {
+      "user_store.class" : "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager",
+      "user_store.properties.TenantManager" : "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
+      "user_store.properties.ReadOnly" : false,
+      "user_store.properties.CaseInsensitiveUsername" : true,
+      "user_store.properties.PasswordDigest" : "SHA-256",
+      "user_store.properties.StoreSaltedPassword" : true,
+      "user_store.properties.UserNameUniqueAcrossTenants" : false
+    },
+    "read_only_ldap" : {
+      "user_store.properties.AnonymousBind" : false,
+      "user_store.properties.UserNameAttribute" : "uid",
+      "user_store.properties.UserNameSearchFilter" : "(&(objectClass=person)(uid=?))",
+      "user_store.properties.UserNameListFilter" : "(objectClass=person)",
+      "user_store.properties.DisplayNameAttribute" : "",
+      "user_store.properties.GroupNameAttribute" : "cn",
+      "user_store.properties.GroupNameSearchFilter" : "(&(objectClass=groupOfNames)(cn=?))",
+      "user_store.properties.GroupNameListFilter" : "(objectClass=groupOfNames)",
+      "user_store.properties.MembershipAttribute" : "member",
+      "user_store.properties.BackLinksEnabled" : false,
+      "user_store.properties.PasswordHashMethod" : "PLAIN_TEXT",
+      "user_store.properties.ConnectionPoolingEnabled" : true,
+      "user_store.properties.LDAPConnectionTimeout" : 5000,
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin" : true
+    },
+    "read_write_ldap" : {
+      "user_store.properties.AnonymousBind" : false,
+      "user_store.properties.UserEntryObjectClass" : "identityPerson",
+      "user_store.properties.UserNameAttribute" : "uid",
+      "user_store.properties.UserNameSearchFilter" : "(&(objectClass=person)(uid=?))",
+      "user_store.properties.UserNameListFilter" : "(objectClass=person)",
+      "user_store.properties.DisplayNameAttribute" : "",
+      "user_store.properties.GroupEntryObjectClass" : "groupOfNames",
+      "user_store.properties.GroupNameAttribute" : "cn",
+      "user_store.properties.GroupNameSearchFilter" : "(&(objectClass=groupOfNames)(cn=?))",
+      "user_store.properties.GroupNameListFilter" : "(objectClass=groupOfNames)",
+      "user_store.properties.MembershipAttribute" : "member",
+      "user_store.properties.BackLinksEnabled" : false,
+      "user_store.properties.PasswordHashMethod" : "PLAIN_TEXT",
+      "user_store.properties.ConnectionPoolingEnabled" : true,
+      "user_store.properties.LDAPConnectionTimeout" : 5000,
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin" : true,
+      "user_store.properties.EmptyRolesAllowed" : true,
+      "user_store.properties.kdcEnabled" : false,
+      "user_store.properties.defaultRealmName" : "WSO2.ORG"
+    },
+    "active_directory" : {
+      "user_store.properties.AnonymousBind" : false,
+      "user_store.properties.UserEntryObjectClass" : "identityPerson",
+      "user_store.properties.UserNameAttribute" : "uid",
+      "user_store.properties.UserNameSearchFilter" : "(&(objectClass=person)(uid=?))",
+      "user_store.properties.UserNameListFilter" : "(objectClass=person)",
+      "user_store.properties.DisplayNameAttribute" : "",
+      "user_store.properties.GroupEntryObjectClass" : "groupOfNames",
+      "user_store.properties.GroupNameAttribute" : "cn",
+      "user_store.properties.GroupNameSearchFilter" : "(&(objectClass=groupOfNames)(cn=?))",
+      "user_store.properties.GroupNameListFilter" : "(objectClass=groupOfNames)",
+      "user_store.properties.MembershipAttribute" : "member",
+      "user_store.properties.MemberOfAttribute" : "memberOf",
+      "user_store.properties.BackLinksEnabled" : false,
+      "user_store.properties.PasswordHashMethod" : "PLAIN_TEXT",
+      "user_store.properties.ConnectionPoolingEnabled" : true,
+      "user_store.properties.LDAPConnectionTimeout" : 5000,
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin" : true,
+      "user_store.properties.EmptyRolesAllowed" : true,
+      "user_store.properties.kdcEnabled" : false,
+      "user_store.properties.defaultRealmName" : "WSO2.ORG",
+      "user_store.properties.Referral" : "follow",
+      "user_store.properties.isADLDSRole" : false,
+      "user_store.properties.userAccountControl" : 512,
+      "user_store.properties.MembershipAttributeRange" : 1500
+    }
+  },
+
+  "database.type": {
+    "mysql": {
+      "database.driver":"com.mysql.jdbc.Driver",
+      "database.url" : "jdbc:mysql://${database.hostname}:${database.port}/${database.name}",
+      "database.validationQuery" : "SELECT 1"
+    },
+    "h2": {
+      "database.driver":"org.h2.Driver",
+      "database.url" : "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
+      "database.validationQuery" : "SELECT 1"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "transport_receivers": {
+    "http": {
+      "class": "org.apache.synapse.transport.passthru.PassThroughHttpListener",
+      "port": 8280
+    },
+    "https": {
+      "class": "org.apache.synapse.transport.passthru.PassThroughHttpListener",
+      "port": 8243
+    }
+  }
+}

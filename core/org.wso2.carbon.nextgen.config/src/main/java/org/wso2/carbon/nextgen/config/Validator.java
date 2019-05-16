@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,7 +76,7 @@ public class Validator {
         }
     }
 
-    public static void validate(Map<String, Object> configurationValues, String fileName)
+    public static void validate(Context context, String fileName)
             throws ConfigParserException {
 
         try {
@@ -84,7 +85,7 @@ public class Validator {
             for (Map.Entry<String, Object> entry : ruleConfiguration.entrySet()) {
                 List<Map<String, Object>> value = (List<Map<String, Object>>) entry.getValue();
                 for (Object rule : value) {
-                    doValidation(entry.getKey(), (Map<String, Object>) rule, configurationValues);
+                    doValidation(entry.getKey(), (Map<String, Object>) rule, context.getTemplateData());
                 }
             }
         } catch (IOException e) {
