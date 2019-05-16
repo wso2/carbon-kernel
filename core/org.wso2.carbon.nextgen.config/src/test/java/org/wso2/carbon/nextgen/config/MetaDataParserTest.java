@@ -23,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
 
 public class MetaDataParserTest {
@@ -49,10 +50,9 @@ public class MetaDataParserTest {
                 FileUtils.getFile("src", "test", "resources", "metadata.properties").getAbsolutePath();
         String basePath =
                 FileUtils.getFile("src", "test", "resources").getAbsolutePath();
-        ChangedFileSet changedFiles = MetaDataParser.getChangedFiles(basePath, new String[]{deploymentConfiguration},
+        ChangedFileSet changedFiles = MetaDataParser.getChangedFiles(basePath, Arrays.asList(deploymentConfiguration),
                 metadataConfiguration);
         Assert.assertEquals(changedFiles.getChangedFiles().size(), 0);
-        Assert.assertEquals(changedFiles.getNewFiles().size(), 0);
 
     }
 
@@ -62,11 +62,10 @@ public class MetaDataParserTest {
         String deploymentConfiguration =
                 FileUtils.getFile("src", "test", "resources", "NewFileTest").getAbsolutePath();
 
-        String metadataConfiguration =
-                FileUtils.getFile("src", "test", "resources", "metadata-new.properties").getAbsolutePath();
-        String basePath =
-                FileUtils.getFile("src", "test", "resources").getAbsolutePath();
-        ChangedFileSet changedFiles = MetaDataParser.getChangedFiles(basePath, new String[]{deploymentConfiguration},
+        String metadataConfiguration = FileUtils.getFile("src", "test", "resources",
+                "metadata-new.properties").getAbsolutePath();
+        String basePath = FileUtils.getFile("src", "test", "resources").getAbsolutePath();
+        ChangedFileSet changedFiles = MetaDataParser.getChangedFiles(basePath, Arrays.asList(deploymentConfiguration),
                 metadataConfiguration);
         Assert.assertEquals(changedFiles.getChangedFiles().size(), 1);
         Assert.assertTrue(changedFiles.getChangedFiles().contains(Paths.get("NewFileTest", "a", "file1").toString()));

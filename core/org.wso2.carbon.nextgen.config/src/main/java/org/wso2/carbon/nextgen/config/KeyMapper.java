@@ -20,6 +20,7 @@
 package org.wso2.carbon.nextgen.config;
 
 import com.google.gson.Gson;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,8 +40,8 @@ class KeyMapper {
     private KeyMapper() {
     }
 
-    static Map<String, Object> mapWithConfig(Map<String, Object> inputContext,
-                                             String mappingFile) throws ConfigParserException {
+    static Context mapWithConfig(Context inputContext,
+                                 String mappingFile) throws ConfigParserException {
         try (Reader validatorJson = new InputStreamReader(new FileInputStream(mappingFile),
                                                           Charset.defaultCharset())) {
             Gson gson = new Gson();
@@ -51,11 +52,11 @@ class KeyMapper {
         }
     }
 
-    static Map<String, Object> map(Map<String, Object> context,
+    static Context map(Context context,
                                    Map<String, Object> keyMappings) throws ConfigParserException {
         Map<String, Object> mappedConfigs = new LinkedHashMap<>();
 
-        for (Map.Entry<String, Object> entry : context.entrySet()) {
+        for (Map.Entry<String, Object> entry : context.getTemplateData().entrySet()) {
             Object mappedKeys = keyMappings.getOrDefault(entry.getKey(), entry.getKey());
             if (mappedKeys instanceof String) {
                 mappedConfigs.put((String) mappedKeys, entry.getValue());
@@ -67,7 +68,9 @@ class KeyMapper {
         }
 
         processArrayKeys(keyMappings, mappedConfigs);
-        return mappedConfigs;
+        context.getTemplateData().clear();
+        context.getTemplateData().putAll(mappedConfigs);
+        return context;
     }
 
     /**

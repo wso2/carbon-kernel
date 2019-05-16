@@ -22,6 +22,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
 
 import java.io.File;
@@ -42,18 +43,18 @@ class JinjaParser {
     private JinjaParser() {
     }
 
-    static Map<String, String> parse(Map<String, Object> dottedKeyMap, Map<String, File> templateFiles)
+    static Map<String, String> parse(Context context, Map<String, File> templateFiles)
             throws ConfigParserException {
 
         Map<String, String> outputs = new LinkedHashMap<>();
         JinjavaConfig configurator = JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
         Jinjava jinjava = new Jinjava(configurator);
-        Map<String, Object> context = getHierarchicalDottedKeyMap(dottedKeyMap);
+        Map<String, Object> dottedKeyMap = getHierarchicalDottedKeyMap(context.getTemplateData());
         templateFiles.entrySet().parallelStream().forEach((templateFile) -> {
             String renderedTemplate = "";
             try {
                 String template = FileUtils.readFile(templateFile.getValue());
-                renderedTemplate = jinjava.render(template, context);
+                renderedTemplate = jinjava.render(template, dottedKeyMap);
 
             } catch (ConfigParserException e) {
                 LOGGER.error("Error while parsing Jinja template", e);

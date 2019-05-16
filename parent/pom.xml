@@ -629,6 +629,7 @@
         <version.jackson>2.9.8</version.jackson>
         <version.guava>27.0.1-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
+        <xml.unit.verions>2.6.2</xml.unit.verions>
     </properties>
 
     <dependencyManagement>
@@ -1778,6 +1779,21 @@
                 <groupId>org.wso2.ciphertool</groupId>
                 <artifactId>org.wso2.ciphertool</artifactId>
                 <version>${version.ciphertool}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>${xml.unit.verions}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-matchers</artifactId>
+                <version>${xml.unit.verions}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-assertj</artifactId>
+                <version>${xml.unit.verions}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

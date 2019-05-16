@@ -22,6 +22,7 @@ package org.wso2.carbon.nextgen.config;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
 import org.wso2.ciphertool.utils.KeyStoreUtil;
 import org.wso2.ciphertool.utils.Utils;
@@ -35,6 +36,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +45,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.crypto.Cipher;
+import javax.xml.xpath.XPathFactory;
 
 /**
  * Configuration parser class. Entry point to the config parsing logic.
@@ -60,6 +63,8 @@ public class ConfigParser {
     private static final String UNIT_RESOLVER_FILE_PATH = "unit-resolve.json";
     private static final String META_DATA_CONFIG_FILE = "metadata_config.properties";
     private static final String META_DATA_TEMPLATE_FILE = "metadata_template.properties";
+    private static final String CONFIG_PROPERTIES_FILE = "references.properties";
+
     private static final String META_DATA_DIRECTORY = ".metadata";
     private static final String JINJA_TEMPLATE_EXTENSION = ".j2";
     private String deploymentConfigurationPath;
@@ -73,6 +78,7 @@ public class ConfigParser {
     private String metadataTemplateFilePath;
     private String basePath;
     private String backupPath;
+    private String metadataPropertyPath;
 
     public void parse(String outputFilePath) throws ConfigParserException {
 
@@ -81,57 +87,39 @@ public class ConfigParser {
             File deploymentConfigurationFile = new File(deploymentConfigurationPath);
             // Check deployment.toml existence
             if (deploymentConfigurationFile.exists()) {
-                // deployment.toml exist
-                boolean metaDataTemplateExist = MetaDataParser.metaDataFileExist(metadataTemplateFilePath);
-                if (metaDataTemplateExist) {
-                    // template metadata exist
-                    ChangedFileSet templateChanged = MetaDataParser.getChangedFiles(basePath,
-                            new String[]{templateFileDir,
-                                    inferConfigurationFilePath, defaultValueFilePath, validatorFilePath,
-                                    mappingFilePath, unitResolverFilePath}, metadataTemplateFilePath);
-                    if (templateChanged.isChanged()) {
-                        // template Metadata changed then deploy and write
-                        LOGGER.warn("Template files changed under " + templateFileDir);
-                        LOGGER.warn("Applying Configurations upon new Templates");
-                        deployAndStoreMetadata(outputFilePath);
-                    } else {
-                        // check configurations metadata exist
-                        boolean metaDataExist = MetaDataParser.metaDataFileExist(metadataFilePath);
-                        if (metaDataExist) {
-                            // if exist check if its changed
-                            ChangedFileSet configurationChanged = MetaDataParser.getChangedFiles(basePath,
-                                    new String[]{outputFilePath}, metadataFilePath);
-                            if (configurationChanged.isChanged()) {
-                                // if changed override configs
-                                configurationChanged.getChangedFiles().forEach(path -> {
-                                    LOGGER.warn("Configurations Changed in :" + path);
-                                });
-                                LOGGER.warn("Overriding files in configuration directory " + outputFilePath);
-                                deployAndStoreMetadata(outputFilePath);
-                            } else {
-                                // if configuration is not changed check deployment.toml is changed
-                                ChangedFileSet deploymentConfigurationChanged =
-                                        MetaDataParser.getChangedFiles(basePath,
-                                                new String[]{deploymentConfigurationPath},
-                                                metadataFilePath);
-                                if (deploymentConfigurationChanged.isChanged()) {
-                                    // if deployment.toml is changed then deploy
-                                    deployAndStoreMetadata(outputFilePath);
-                                } else {
-                                    // if there's noting touched then start without applying configurations
-                                    LOGGER.info("No new configuration to apply");
-                                }
-                            }
-                        } else {
-                            deployAndStoreMetadata(outputFilePath);
-                        }
-
-                    }
-                } else {
-                    LOGGER.warn("Metadata File doesn't exist at " + new File(metadataFilePath).getParent() +
-                            " Consider as first startup");
-                    // template Metadata not exist then deploy and write
+                if (Boolean.getBoolean(ConfigConstants.OVERRIDE_CONFIGURATION_ALWAYS)) {
+                    LOGGER.info("Configurations Override Always was enable");
                     deployAndStoreMetadata(outputFilePath);
+                } else {
+                    List<String> configurationPaths = Arrays.asList(templateFileDir, inferConfigurationFilePath,
+                            defaultValueFilePath, validatorFilePath, mappingFilePath, unitResolverFilePath);
+                    ChangedFileSet templateChanged = MetaDataParser.getChangedFiles(basePath, configurationPaths,
+                            metadataTemplateFilePath);
+                    ChangedFileSet configurationChanged = MetaDataParser.getChangedFiles(basePath,
+                            metadataFilePath);
+                    boolean referencesChanged = MetaDataParser.isReferencesChanged(metadataPropertyPath);
+                    if (templateChanged.isChanged() || configurationChanged.isChanged() | referencesChanged) {
+
+                        if (templateChanged.isChanged()) {
+                            // template Metadata changed then deploy and write
+                            templateChanged.getChangedFiles().forEach(path ->
+                                    LOGGER.warn("Configurations templates Changed in :" + path));
+                            templateChanged.getNewFiles().forEach(path ->
+                                    LOGGER.warn("New Configurations found in :" + path));
+
+                            LOGGER.info("Applying Configurations upon new Templates");
+                        }
+                        if (configurationChanged.isChanged()) {
+                            configurationChanged.getChangedFiles().forEach(path ->
+                                    LOGGER.warn("Configurations Changed in :" + path));
+                            LOGGER.warn("Overriding files in configuration directory " + outputFilePath);
+                        }
+                        if (referencesChanged) {
+                            LOGGER.warn("Configuration value changed in references, Overriding files in the " +
+                                    "configuration directory" + outputFilePath);
+                        }
+                        deployAndStoreMetadata(outputFilePath);
+                    }
                 }
 
             } else {
@@ -159,28 +147,44 @@ public class ConfigParser {
         LOGGER.info("Backed up the configurations into " + basePath + File.separator +
                 "backup");
         backupConfigurations(outputFilePath, backupPath);
-
-        Set<String> deployedFileSet = deploy(outputFilePath);
+        Context context = new Context();
+        Set<String> deployedFileSet = deploy(context, outputFilePath);
 
         LOGGER.info("Writing Metadata Entries...");
-        MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath,
-                new String[]{templateFileDir, inferConfigurationFilePath,
-                        defaultValueFilePath, unitResolverFilePath,
-                        validatorFilePath, mappingFilePath});
-        deployedFileSet.add(deploymentConfigurationPath);
-        MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath,
-                deployedFileSet.toArray(new String[deployedFileSet.size()]));
+        Set<String> entries = new HashSet<>(Arrays.asList(templateFileDir,
+                inferConfigurationFilePath, defaultValueFilePath, unitResolverFilePath, validatorFilePath,
+                mappingFilePath));
+        new Thread(() -> {
+
+            try {
+                MetaDataParser.storeMetaDataEntries(basePath, metadataTemplateFilePath, entries);
+                deployedFileSet.add(deploymentConfigurationPath);
+                MetaDataParser.storeMetaDataEntries(basePath, metadataFilePath, deployedFileSet);
+                MetaDataParser.storeReferences(metadataPropertyPath, context);
+            } catch (ConfigParserException e) {
+                LOGGER.warn("Error while Storing Metadata Entries", e);
+            }
+        }).start();
+
 
     }
 
-    private Set<String> deploy(String outputFilePath) throws IOException, ConfigParserException {
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
+            justification = "return not need in mkdirs()")
+    private Set<String> deploy(Context context, String outputFilePath) throws IOException, ConfigParserException {
 
         File outputDir = new File(outputFilePath);
         Set<String> changedFileSet = new HashSet<>();
         if (outputDir.exists() && outputDir.isDirectory()) {
-            Map<String, String> outputs = parse();
+            Map<String, String> outputs = parse(context);
             for (Map.Entry<String, String> entry : outputs.entrySet()) {
                 File outputFile = new File(outputDir, entry.getKey());
+                if (!outputFile.getParentFile().exists()) {
+                    outputFile.getParentFile().mkdirs();
+                }
+                if (!outputFile.exists()) {
+                    outputFile.createNewFile();
+                }
                 try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
                         new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
                     outputStreamWriter.write(entry.getValue());
@@ -191,16 +195,15 @@ public class ConfigParser {
         return changedFileSet;
     }
 
-    protected Map<String, String> parse() throws ConfigParserException {
+    public Map<String, String> parse(Context context) throws ConfigParserException {
 
         File templateDir = checkTemplateDirExistence(templateFileDir);
-
-        Map<String, Object> context = TomlParser.parse(deploymentConfigurationPath);
+        TomlParser tomlParser = new TomlParser(deploymentConfigurationPath);
+        context = tomlParser.parse(context);
         context = KeyMapper.mapWithConfig(context, mappingFilePath);
         context = ValueInferrer.infer(context, inferConfigurationFilePath);
         context = DefaultParser.addDefaultValues(context, defaultValueFilePath);
-        Map secrets = TomlParser.getSecrets(deploymentConfigurationPath);
-        ReferenceResolver.resolve(context, secrets);
+        ReferenceResolver.resolve(context);
         UnitResolver.updateUnits(context, unitResolverFilePath);
         Validator.validate(context, validatorFilePath);
 
@@ -208,13 +211,17 @@ public class ConfigParser {
         return JinjaParser.parse(context, fileNames);
     }
 
-    private void handleSecVaultProperties() {
+    protected void handleSecVaultProperties() {
+        // Have to use xalan as xpath factory to cipher tool.
+        System.setProperty(XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
+                "com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl");
 
         org.wso2.ciphertool.utils.Utils.setSystemProperties();
         org.wso2.ciphertool.utils.Utils.writeToSecureConfPropertyFile();
     }
 
     private File checkTemplateDirExistence(String templateFileDir) throws ConfigParserException {
+
         File templateDir = new File(templateFileDir);
         if (!templateDir.exists() || !templateDir.isDirectory()) {
             throw new ConfigParserException(String.format("Template directory (%s) does not exist or is not a " +
@@ -265,6 +272,7 @@ public class ConfigParser {
         private String metadataTemplateFilePath;
         private String basePath;
         private String backupPath;
+        private String metadataPropertyPath;
 
         public ConfigParserBuilder() {
 
@@ -332,6 +340,7 @@ public class ConfigParser {
             configParser.metadataTemplateFilePath = this.metadataTemplateFilePath;
             configParser.basePath = this.basePath;
             configParser.backupPath = this.backupPath;
+            configParser.metadataPropertyPath = this.metadataPropertyPath;
             return configParser;
         }
 
@@ -342,6 +351,8 @@ public class ConfigParser {
 
             this.metadataTemplateFilePath =
                     metadataFilePath + File.separator + META_DATA_DIRECTORY + File.separator + META_DATA_TEMPLATE_FILE;
+            this.metadataPropertyPath =
+                    metadataFilePath + File.separator + META_DATA_DIRECTORY + File.separator + CONFIG_PROPERTIES_FILE;
             return this;
         }
 
@@ -368,23 +379,34 @@ public class ConfigParser {
     }
 
     public void handleEncryption() throws ConfigParserException {
+
         handleSecVaultProperties();
 
-        Map<String, String> secretMap = TomlParser.getSecrets(deploymentConfigurationPath);
+        Map<String, String> secretMap = new TomlParser(deploymentConfigurationPath).getSecrets();
         Cipher cipher = null;
         if (!secretMap.isEmpty()) {
-            Utils.setSystemProperties();
-            cipher = KeyStoreUtil.initializeCipher();
+            cipher = getCipher();
         }
         for (Map.Entry<String, String> entry : secretMap.entrySet()) {
             String key = entry.getKey();
             String value = getUnEncryptedValue(entry.getValue());
             if (StringUtils.isNotEmpty(value)) {
-                String encryptedValue = Utils.doEncryption(cipher, value);
+                String encryptedValue = getEncryptedValue(cipher, value);
                 secretMap.replace(key, encryptedValue);
             }
         }
         updateDeploymentConfigurationWithEncryptedKeys(secretMap);
+    }
+
+    protected String getEncryptedValue(Cipher cipher, String value) {
+
+        return Utils.doEncryption(cipher, value);
+    }
+
+    protected Cipher getCipher() {
+
+        Utils.setSystemProperties();
+        return KeyStoreUtil.initializeCipher();
     }
 
     private String getUnEncryptedValue(String value) {
@@ -436,4 +458,5 @@ public class ConfigParser {
         }
 
     }
+
 }

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.nextgen.config.handlers.Builders;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class DefaultParser {
 
     }
 
-    static Map<String, Object> addDefaultValues(Map<String, Object> enrichedContext, String defaultValueFilePath)
+    static Context addDefaultValues(Context enrichedContext, String defaultValueFilePath)
             throws ConfigParserException {
 
         try {
@@ -51,12 +52,12 @@ public class DefaultParser {
             for (Map.Entry<String, Object> entry : defaultValueMap.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                if (!enrichedContext.containsKey(key)) {
-                    enrichedContext.put(key, value);
+                if (!enrichedContext.getTemplateData().containsKey(key)) {
+                    enrichedContext.getTemplateData().put(key, value);
                 } else {
-                    Object retrievedEnrichedContext = enrichedContext.get(key);
-                    Builders messageBuilder = readHandles(key);
-                    enrichedContext.put(key, messageBuilder.handle(retrievedEnrichedContext, value));
+                    Object retrievedEnrichedContext = enrichedContext.getTemplateData().get(key);
+                    Builders builders = readHandles(key);
+                    enrichedContext.getTemplateData().put(key, builders.handle(retrievedEnrichedContext, value));
 
                 }
             }

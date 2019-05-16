@@ -20,6 +20,7 @@ package org.wso2.carbon.nextgen.config;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -48,10 +49,10 @@ public class UnitResolver {
     private UnitResolver() {
     }
 
-    public static void updateUnits(Map<String, Object> context, String unitConfigFilePath)
+    public static void updateUnits(Context context, String unitConfigFilePath)
             throws ConfigParserException {
         readConfiguration(unitConfigFilePath);
-        resolveTimeConfiguration(context);
+        resolveTimeConfiguration(context.getTemplateData());
         timeMapping = null;
     }
 

@@ -21,36 +21,34 @@ package org.wso2.carbon.nextgen.config;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.wso2.carbon.nextgen.config.model.Context;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-
 public class UnitResolverTest {
 
     private static final String UNIT_TOML = "test-unit-resolve.json";
 
-
     @Test(dataProvider = "validDataProvider")
     public void testUpdateUnits(String key, Object value, String expected) throws ConfigParserException {
-        Map<String, Object> context = new HashMap<>();
+
+        Context context = new Context();
         String unitConfiguration =
                 FileUtils.getFile("src", "test", "resources", UNIT_TOML).getAbsolutePath();
-        context.put(key, value);
+        context.getTemplateData().put(key, value);
         UnitResolver.updateUnits(context, unitConfiguration);
-        assertEquals(context.get(key), expected);
+        assertEquals(context.getTemplateData().get(key), expected);
     }
 
     @Test(dataProvider = "invalidDataProvider")
     public void testInvalidValues(String key, Object value, String expectedErrorRegex) {
-        Map<String, Object> context = new HashMap<>();
+
+        Context context = new Context();
         String unitConfiguration =
                 FileUtils.getFile("src", "test", "resources", UNIT_TOML).getAbsolutePath();
-        context.put(key, value);
+        context.getTemplateData().put(key, value);
         try {
             UnitResolver.updateUnits(context, unitConfiguration);
             fail(String.format("Expected error message matching regex '%s' for %s = %s", expectedErrorRegex, key,
@@ -64,6 +62,7 @@ public class UnitResolverTest {
 
     @DataProvider(name = "validDataProvider")
     public Object[][] unitResolverDataSet() {
+
         return new Object[][]{
                 {"a.b.m", 10, "10"},  // hr -> min
                 {"a.b.m", "10h", "600"},  // hr -> min
@@ -79,6 +78,7 @@ public class UnitResolverTest {
 
     @DataProvider(name = "invalidDataProvider")
     public Object[][] invalidDataSet() {
+
         return new Object[][]{
                 {"a.b.m", "adw", "Invalid configuration value.*"},
                 {"a.b.m", "10x", "Invalid unit.*"},
