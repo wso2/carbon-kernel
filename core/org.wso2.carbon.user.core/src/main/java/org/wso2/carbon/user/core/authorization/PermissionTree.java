@@ -1001,23 +1001,27 @@ public class PermissionTree {
                 }
             } else {
                 synchronized (this) {
-                    updatePermissionTreeFromDB();
-                    cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-                    cacheEntry = new GhostResource<TreeNode>(root);
-                    try {
-                        permissionCache.put(cacheKey, cacheEntry);
-                    } catch (IllegalStateException e) {
-                        // There is no harm ignoring cache update. as the local cache is already of no use.
-                        // Mis-penalty is low.
-                        String msg = "Error occurred while adding the permission tree to cache while trying to " +
-                                "update resource: " + resourceId + " in tenant: " + tenantId;
-                        log.warn(msg);
-                        if (log.isDebugEnabled()) {
-                            log.debug(msg, e);
+                    cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
+                    if (cacheEntry == null || cacheEntry.getResource() == null) {
+                        updatePermissionTreeFromDB();
+                        cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+                        cacheEntry = new GhostResource<TreeNode>(root);
+                        try {
+                            permissionCache.put(cacheKey, cacheEntry);
+                        } catch (IllegalStateException e) {
+                            // There is no harm ignoring cache update. as the local cache is already of no use.
+                            // Mis-penalty is low.
+                            String msg = "Error occurred while adding the permission tree to cache while trying to update" +
+                                    " resource: " + resourceId + " in tenant: " + tenantId;
+                            log.warn(msg);
+                            if (log.isDebugEnabled()) {
+                                log.debug(msg, e);
+                            }
                         }
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded from database");
+                        if (log.isDebugEnabled()) {
+                            log.debug("Permission tree is loaded from database for the resource " + resourceId +
+                                    " in tenant " + tenantId);
+                        }
                     }
                 }
             }

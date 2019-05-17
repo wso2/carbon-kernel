@@ -260,6 +260,15 @@
                    <Include>*,!foo.com,!bar.com</Include>
             </EagerLoading>-->
         </LoadingPolicy>
+
+        <!-- Flag to enable or disable tenant deletion. By default tenant deletion is enabled-->
+        <TenantDelete>true</TenantDelete>
+
+        <!-- Configurations related to listener invocation by tenant admin service-->
+        <ListenerInvocationPolicy>
+            <!-- Flag to enable or disable listener invocation on tenant delete. This is disabled by default-->
+            <InvokeOnDelete>false</InvokeOnDelete>
+        </ListenerInvocationPolicy>
     </Tenant>
 
     <!--
@@ -406,8 +415,8 @@
     <!-- 
       Enable following config to allow Emails as usernames. 	
     -->	    	
-    <!--EnableEmailUserName>true</EnableEmailUserName-->	
-
+    <!--EnableEmailUserName>true</EnableEmailUserName-->
+    <!--EnablePasswordTrim>false</EnablePasswordTrim-->
     <!--
       Security configurations
     -->

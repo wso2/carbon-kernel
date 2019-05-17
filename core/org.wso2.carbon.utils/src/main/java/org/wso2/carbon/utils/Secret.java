@@ -19,12 +19,16 @@
 package org.wso2.carbon.utils;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.base.ServerConfiguration;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
+import static org.wso2.carbon.CarbonConstants.IS_PASSWORD_TRIM_ENABLED;
 
 /**
  * This class wraps a character array to be used to handle sensitive data like passwords.
@@ -153,6 +157,10 @@ public class Secret {
                 char[] secretChars = (char[]) secret;
                 return new Secret(Arrays.copyOf(secretChars, secretChars.length));
             } else if (secret instanceof String) {
+
+                if (!isPasswordTrimEnabled()) {
+                    return new Secret(((String) secret).toCharArray());
+                }
                 return new Secret(((String) secret).trim().toCharArray());
             } else {
                 throw new UnsupportedSecretTypeException(
@@ -161,6 +169,17 @@ public class Secret {
         }
 
         return new Secret(ArrayUtils.EMPTY_CHAR_ARRAY);
+    }
+
+    private static boolean isPasswordTrimEnabled() {
+        boolean isPasswordTrimEnabled = true;
+        ServerConfiguration serverConfiguration = CarbonUtils.getServerConfiguration();
+        if (serverConfiguration != null && StringUtils.isNotEmpty(serverConfiguration.getFirstProperty
+                (IS_PASSWORD_TRIM_ENABLED))) {
+            isPasswordTrimEnabled = Boolean.parseBoolean(serverConfiguration.getFirstProperty
+                    (IS_PASSWORD_TRIM_ENABLED));
+        }
+        return isPasswordTrimEnabled;
     }
 
     private void clearChars(char[] chars) {

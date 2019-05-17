@@ -236,8 +236,9 @@ public class HybridRoleManager {
             }
 
             dbConnection.setAutoCommit(false);
-            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-
+            if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+                dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, filter);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -324,6 +325,9 @@ public class HybridRoleManager {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
+        if (!isCaseSensitiveUsername()) {
+            sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE;
+        }
         Connection dbConnection = null;
 
         try {
@@ -551,6 +555,9 @@ public class HybridRoleManager {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL;
+        if(!isCaseSensitiveUsername()){
+            sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE;
+        }
         Connection dbConnection = null;
 
         try {
@@ -717,8 +724,20 @@ public class HybridRoleManager {
         String[] roles = getHybridRoleListOfUser(userName, "*");
         if (roles != null && roleName != null) {
             for (String role : roles) {
-                if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
-                    return true;
+                if (roleName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                    if (role.equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
+                } else {
+                    if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
                 }
             }
         }
@@ -780,9 +799,14 @@ public class HybridRoleManager {
             domain = domain.toUpperCase();
         }
 
+        String sqlStmt = HybridJDBCConstants.REMOVE_USER_SQL;
+        if (!isCaseSensitiveUsername()) {
+            sqlStmt = HybridJDBCConstants.REMOVE_USER_SQL_CASE_INSENSITIVE;
+        }
+
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            preparedStatement = dbConnection.prepareStatement(HybridJDBCConstants.REMOVE_USER_SQL);
+            preparedStatement = dbConnection.prepareStatement(sqlStmt);
             preparedStatement.setString(1, UserCoreUtil.removeDomainFromName(userName));
             preparedStatement.setInt(2, tenantId);
             preparedStatement.setInt(3, tenantId);

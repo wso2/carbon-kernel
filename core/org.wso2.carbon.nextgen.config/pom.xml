@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.37-SNAPSHOT</version>
+        <version>4.4.41-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

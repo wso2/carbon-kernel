@@ -29,6 +29,7 @@ public class TestRealmConfigBuilder {
 
     public static RealmConfiguration buildRealmConfigWithJDBCConnectionUrl(InputStream inStream,
             String connectionUrl) throws UserStoreException {
+
         RealmConfigXMLProcessor builder = new RealmConfigXMLProcessor();
         RealmConfiguration realmConfig = builder.buildRealmConfiguration(inStream);
         Map<String, String> map = realmConfig.getRealmProperties();

@@ -165,6 +165,7 @@
   "encryption.type": "asymmetric",
   "encryption.algorithm": "AES",
   "encryption.alias": "symmetric.key.value",
+  "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider",
 
   "admin_console.authenticator.token_ui_authenticator.enable": false,
   "admin_console.authenticator.token_ui_authenticator.priority": "5",

@@ -68,7 +68,8 @@ public class CarbonAuthenticationUtil {
         Date currentTime = Calendar.getInstance().getTime();
         SimpleDateFormat date = new SimpleDateFormat("'['yyyy-MM-dd HH:mm:ss,SSSZ']'");
 
-        String msg = "Failed Administrator login attempt \'" + username + "[" + tenantId + "]\' at "
+        //error msg to be displayed for an non-admin user login
+        String msg = "Login failed. Unauthorized login attempt \'" + username + "[" + tenantId + "]\' at "
                    + date.format(currentTime);
         if(!CarbonUtils.isRunningOnLocalTransportMode()){
            msg +=  " from IP address " + remoteAddress;
