@@ -83,7 +83,7 @@ public class JMXServerManager {
 
         int rmiRegistryPort = jmxProperties.getRmiRegistryPort();
         if (rmiRegistryPort == -1) {
-            throw new RuntimeException("RMIRegistry port has not been properly defined in the " +
+            throw new ServerException("RMIRegistry port has not been properly defined in the " +
                                            "jmx.xml or carbon.xml files");
         }
         MBeanServer mbs = ManagementFactory.getMBeanServer();
