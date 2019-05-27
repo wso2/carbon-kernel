@@ -27,7 +27,7 @@
              <!--Enable username claim retrieve from the UM_USER_NAME in JDBC datasources-->
             <OverrideUsernameClaimFromInternalUsername>true</OverrideUsernameClaimFromInternalUsername>
             <Property name="isCascadeDeleteEnabled">true</Property>
-            <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
+            <Property name="dataSource">jdbc/SHARED_DB</Property>
         </Configuration>
 
 	    <!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC.

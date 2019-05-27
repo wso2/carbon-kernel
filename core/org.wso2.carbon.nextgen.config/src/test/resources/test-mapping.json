@@ -1,0 +1,5 @@
+{
+  "old_key_1": "newKey1",
+  "old_key_2": "new-key-2",
+  "org.wso2.old_key": "org.wso2.oldKey"
+}

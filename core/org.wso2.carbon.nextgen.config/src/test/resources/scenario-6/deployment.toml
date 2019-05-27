@@ -1,0 +1,9 @@
+[user_store]
+type = "jdbc"
+
+[[message_builders]]
+content_type="application/xml"
+class = "org.apache.axis2.builder.ApplicationXMLBuilder"
+[[message_builders]]
+content_type="application/json"
+class = "org.apache.axis2.builder.ApplicationXMLBuilder"

@@ -34,21 +34,10 @@ import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.FileManipulator;
-import org.wso2.securevault.SecretResolver;
-import org.wso2.securevault.SecretResolverFactory;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -57,7 +46,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
@@ -65,37 +61,32 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     private static final Log log = LogFactory.getLog(SymmetricEncryptionTestCase.class);
 
     private static SecretKey symmetricKey = null;
-    private static boolean isSymmetricKeyFromFile = false;
     private static String symmetricKeyEncryptAlgoDefault = "AES";
-    private static String symmetricKeySecureVaultAliasDefault = "symmetric.key.value";
-    private String propertyKey = "symmetric.key";
-    private String symmetricKeyEncryptEnabled;
-    private String symmetricKeyEncryptAlgo;
-    private String symmetricKeySecureVaultAlias;
+    private String symmetricKeyEncryptAlgo = "AES";
     private String passwordString = "administrator";
     private String encryptedString = "l58EohFmzXxXe8I924WQoQ==";
+    private String secret = "229E09ED15D5DBB6605FAEF188274946";
     private ServerConfigurationManager serverConfigurationManager;
     private static int portOffset = 0;
     private String carbonHome;
+
+    public SymmetricEncryptionTestCase() {
+
+    }
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
 
         super.init();
         carbonHome = CarbonUtils.getCarbonHome();
-        String pathToCarbonXML = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File.separator +
-                "CARBON" + File.separator + "encryption" + File.separator + "carbon.xml";
-        String targetCarbonXML = carbonHome + File.separator + "repository" + File.separator +
-                "conf" + File.separator + "carbon.xml";
-        String pathToSymmetricProperties = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File
-                .separator + "CARBON" + File.separator + "encryption" + File.separator + "symmetric-key.properties";
-        String securityFolder = carbonHome + File.separator + "repository" + File.separator +
-                "resources" + File.separator + "security" + File.separator + "symmetric-key.properties";
+        String pathToDeploymentTOML = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File.separator +
+                "CARBON" + File.separator + "encryption" + File.separator + "deployment.toml";
+
+        String targetDeploymentTOML = carbonHome + File.separator + "repository" + File.separator +
+                "conf" + File.separator + "deployment.toml";
         serverConfigurationManager = new ServerConfigurationManager(automationContext);
-        serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToSymmetricProperties), new File
-                (securityFolder), false);
-        serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToCarbonXML), new File
-                (targetCarbonXML), false);
+        serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToDeploymentTOML), new File
+                (targetDeploymentTOML), false);
         serverConfigurationManager.restartGracefully();
         uploadApp();
         readSymmetricKey();
@@ -184,60 +175,10 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         }
     }
 
+    private void readSymmetricKey() {
 
-    private void readSymmetricKey() throws CryptoException {
-        FileInputStream fileInputStream = null;
-        String secretAlias;
-        String encryptionAlgo;
-        Properties properties;
+        symmetricKey = new SecretKeySpec(secret.getBytes(), 0, secret.getBytes().length, symmetricKeyEncryptAlgo);
 
-        try {
-            symmetricKeyEncryptEnabled = "true";
-            symmetricKeyEncryptAlgo = "AES";
-            symmetricKeySecureVaultAlias = "symmetric.key.value";
-
-            String filePath = carbonHome + File.separator + "repository" + File.separator + "resources" +
-                    File.separator + "security" + File.separator + "symmetric-key.properties";
-
-            File file = new File(filePath);
-            if (file.exists()) {
-                fileInputStream = new FileInputStream(file);
-                properties = new Properties();
-                properties.load(fileInputStream);
-
-                SecretResolver secretResolver = SecretResolverFactory.create(properties);
-                if (symmetricKeySecureVaultAlias == null) {
-                    secretAlias = symmetricKeySecureVaultAliasDefault;
-                } else {
-                    secretAlias = symmetricKeySecureVaultAlias;
-                }
-
-                if (symmetricKeyEncryptAlgo == null) {
-                    encryptionAlgo = symmetricKeyEncryptAlgoDefault;
-                } else {
-                    encryptionAlgo = symmetricKeyEncryptAlgo;
-                }
-
-                if (secretResolver != null && secretResolver.isInitialized()) {
-                    if (secretResolver.isTokenProtected(secretAlias)) {
-                        symmetricKey = new SecretKeySpec(Base64.decode(secretResolver.resolve(secretAlias)), 0,
-                                Base64.decode(secretResolver.resolve(secretAlias)).length, encryptionAlgo);
-                    } else {
-                        symmetricKey = new SecretKeySpec(Base64.decode((String) properties.get(secretAlias)), 0,
-                                Base64.decode((String) properties.get(secretAlias)).length, encryptionAlgo);
-                    }
-                } else if (properties.containsKey(propertyKey)) {
-                    symmetricKey = new SecretKeySpec(properties.getProperty(propertyKey).getBytes(), 0,
-                            properties.getProperty(propertyKey).getBytes().length, encryptionAlgo);
-                }
-
-                if (symmetricKey != null) {
-                    isSymmetricKeyFromFile = true;
-                }
-            }
-        } catch (Exception e) {
-            throw new CryptoException("Error in generating symmetric key", e);
-        }
     }
 
     private byte[] encryptWithSymmetricKey(byte[] plainText) throws CryptoException {

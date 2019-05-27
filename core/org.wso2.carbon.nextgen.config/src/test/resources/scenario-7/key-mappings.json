@@ -1,0 +1,5 @@
+{
+  "tenant_mgt.tenant_manager.config_builder": "tenant_mgt.tenant_manager.properties.MultiTenantRealmConfigBuilder",
+  "datasource:pool_options.max_Active": "datasources:pool_options.maxActive",
+  "datasource:pool_options.max_wait": "datasources:pool_options.maxWait"
+}

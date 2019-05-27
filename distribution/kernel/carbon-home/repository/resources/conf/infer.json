@@ -1,0 +1,140 @@
+{
+  "user_store.type": {
+    "database": {
+      "user_store.class": "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager",
+      "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
+      "user_store.properties.ReadOnly": false,
+      "user_store.properties.WriteGroups": true,
+      "user_store.properties.UsernameJavaRegEx": "^[\\S]{3,30}$",
+      "user_store.properties.RolenameJavaRegEx": "^[\\S]{3,30}$",
+      "user_store.properties.CaseInsensitiveUsername": true,
+      "user_store.properties.SCIMEnabled": false,
+      "user_store.properties.IsBulkImportSupported": true,
+      "user_store.properties.PasswordDigest": "SHA-256",
+      "user_store.properties.StoreSaltedPassword": true,
+      "user_store.properties.UserRolesCacheEnabled": true,
+      "user_store.properties.UserNameUniqueAcrossTenants": false,
+      "tenant_mgt.tenant_manager.type": "jdbc"
+    },
+    "read_only_ldap": {
+      "user_store.class": "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager",
+      "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
+      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
+      "user_store.properties.AnonymousBind": false,
+      "user_store.properties.UserNameAttribute": "uid",
+      "user_store.properties.UserNameSearchFilter": "(&amp;(objectClass=person)(uid=?))",
+      "user_store.properties.UserNameListFilter": "(objectClass=person)",
+      "user_store.properties.DisplayNameAttribute": "",
+      "user_store.properties.GroupNameAttribute": "cn",
+      "user_store.properties.GroupNameSearchFilter": "(&amp;(objectClass=groupOfNames)(cn=?))",
+      "user_store.properties.GroupNameListFilter": "(objectClass=groupOfNames)",
+      "user_store.properties.MembershipAttribute": "member",
+      "user_store.properties.BackLinksEnabled": false,
+      "user_store.properties.UsernameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+      "user_store.properties.RolenameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+      "user_store.properties.PasswordHashMethod": "PLAIN_TEXT",
+      "user_store.properties.ConnectionPoolingEnabled": true,
+      "user_store.properties.LDAPConnectionTimeout": 5000,
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true,
+      "user_store.properties.SCIMEnabled": false,
+      "user_store.properties.UserRolesCacheEnabled": true
+
+    },
+    "read_write_ldap": {
+      "user_store.class": "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager",
+      "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
+      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
+      "user_store.properties.AnonymousBind": false,
+      "user_store.properties.WriteGroups": true,
+      "user_store.properties.UserEntryObjectClass": "identityPerson",
+      "user_store.properties.UserNameAttribute": "uid",
+      "user_store.properties.UserNameSearchFilter": "(&amp;(objectClass=person)(uid=?))",
+      "user_store.properties.UserNameListFilter": "(objectClass=person)",
+      "user_store.properties.DisplayNameAttribute": "",
+      "user_store.properties.GroupEntryObjectClass": "groupOfNames",
+      "user_store.properties.GroupNameAttribute": "cn",
+      "user_store.properties.GroupNameSearchFilter": "(&amp;(objectClass=groupOfNames)(cn=?))",
+      "user_store.properties.GroupNameListFilter": "(objectClass=groupOfNames)",
+      "user_store.properties.MembershipAttribute": "member",
+      "user_store.properties.BackLinksEnabled": false,
+      "user_store.properties.SCIMEnabled": true,
+      "user_store.properties.IsBulkImportSupported": true,
+      "user_store.properties.UsernameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+      "user_store.properties.RolenameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+      "user_store.properties.PasswordHashMethod": "PLAIN_TEXT",
+      "user_store.properties.ConnectionPoolingEnabled": false,
+      "user_store.properties.LDAPConnectionTimeout": 5000,
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true,
+      "user_store.properties.EmptyRolesAllowed": true,
+      "user_store.properties.kdcEnabled": false,
+      "user_store.properties.defaultRealmName": "WSO2.ORG",
+      "user_store.properties.StartTLSEnabled": false,
+      "user_store.properties.UserRolesCacheEnabled": true
+    },
+    "active_directory": {
+      "user_store.class": "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager",
+      "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
+      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
+      "user_store.properties.AnonymousBind": false,
+      "user_store.properties.UserEntryObjectClass": "identityPerson",
+      "user_store.properties.UserNameAttribute": "uid",
+      "user_store.properties.UserNameSearchFilter": "(&amp;(objectClass=person)(uid=?))",
+      "user_store.properties.UserNameListFilter": "(objectClass=person)",
+      "user_store.properties.DisplayNameAttribute": "",
+      "user_store.properties.WriteGroups": true,
+      "user_store.properties.GroupEntryObjectClass": "groupOfNames",
+      "user_store.properties.GroupNameAttribute": "cn",
+      "user_store.properties.GroupNameSearchFilter": "(&amp;(objectClass=groupOfNames)(cn=?))",
+      "user_store.properties.GroupNameListFilter": "(objectClass=groupOfNames)",
+      "user_store.properties.MembershipAttribute": "member",
+      "user_store.properties.MemberOfAttribute": "memberOf",
+      "user_store.properties.BackLinksEnabled": false,
+      "user_store.properties.IsBulkImportSupported": true,
+      "user_store.properties.UsernameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+      "user_store.properties.RolenameJavaRegEx": "[a-zA-Z0-9._\\-|//]{3,30}$",
+      "user_store.properties.PasswordHashMethod": "PLAIN_TEXT",
+      "user_store.properties.ConnectionPoolingEnabled": false,
+      "user_store.properties.LDAPConnectionTimeout": 5000,
+      "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true,
+      "user_store.properties.EmptyRolesAllowed": true,
+      "user_store.properties.kdcEnabled": false,
+      "user_store.properties.defaultRealmName": "WSO2.ORG",
+      "user_store.properties.Referral": "follow",
+      "user_store.properties.isADLDSRole": false,
+      "user_store.properties.userAccountControl": 512,
+      "user_store.properties.MembershipAttributeRange": 1500,
+      "user_store.properties.StartTLSEnabled": false,
+      "user_store.properties.SCIMEnabled": false,
+      "user_store.properties.UserRolesCacheEnabled": true
+    }
+  },
+  "database.shared_db.type": {
+    "mysql": {
+      "database.shared_db.driver": "com.mysql.jdbc.Driver",
+      "database.shared_db.url": "jdbc:mysql://$ref{database.shared_db.hostname}:$ref{database.shared_db.port}/$ref{database.shared_db.name}",
+      "database.shared_db.validationQuery": "SELECT 1"
+    },
+    "h2": {
+      "database.shared_db.driver": "org.h2.Driver",
+      "database.shared_db.url": "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
+      "database.shared_db.validationQuery": "SELECT 1"
+    }
+  },
+  "tenant_mgt.tenant_manager.type": {
+    "jdbc": {
+      "tenant_mgt.tenant_manager.config_builder": "org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder",
+      "tenant_mgt.tenant_manager.class": "org.wso2.carbon.user.core.tenant.JDBCTenantManager"
+    }
+  },
+  "encryption.type": {
+    "asymmetric": {
+      "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider"
+    },
+    "symmetric": {
+      "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider"
+    }
+  }
+}
