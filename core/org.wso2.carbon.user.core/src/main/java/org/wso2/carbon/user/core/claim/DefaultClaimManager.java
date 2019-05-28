@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.user.core.claim;
 
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
@@ -67,6 +69,10 @@ public class DefaultClaimManager implements ClaimManager {
             this.claimMapping = new ConcurrentHashMap<String, ClaimMapping>();
             this.claimMapping.putAll(claimMapping);
             this.claimCache.invalidateCache();
+            if (ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE) != null &&
+                    ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE).equals("true")) {
+                this.claimCache.setIsAlreadyInitialize(true);
+            }
         }
     }
 

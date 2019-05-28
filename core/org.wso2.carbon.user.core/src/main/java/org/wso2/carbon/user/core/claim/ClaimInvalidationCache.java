@@ -17,6 +17,8 @@ package org.wso2.carbon.user.core.claim;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.caching.impl.CachingConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -31,6 +33,10 @@ public class ClaimInvalidationCache {
     private String INVALIDATE_CACHE_KEY = "Invalidate.Cache.Key";
 
     private int myHashCode;
+    /**
+     * This boolean is used to flag the cache, once the claims are loaded to the cache.
+     */
+    private boolean isAlreadyInitialize;
 
     private ClaimInvalidationCache() {
     }
@@ -63,6 +69,12 @@ public class ClaimInvalidationCache {
                 myHashCode = hashCode;
                 return true;
             }
+        }
+        if (ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE) != null &&
+                ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE).equals("true") &&
+                hashCode == null && this.isAlreadyInitialize) {
+            updateCache(INVALIDATE_CACHE_KEY, myHashCode);
+            return true;
         }
         return false;
     }
@@ -114,6 +126,25 @@ public class ClaimInvalidationCache {
         Cache<String, Integer> cache = getClaimCache();
         if (cache != null) {
             cache.remove(key);
+        }
+    }
+
+    public void setIsAlreadyInitialize(Boolean bool) {
+        this.isAlreadyInitialize = bool;
+    }
+
+    /**
+     * Update the cache entry without clearing.
+     *
+     * @param key   Key which cache entry is indexed.
+     * @param entry Actual object where cache entry is placed.
+     */
+    private void updateCache(String key, Integer entry) {
+        Cache<String, Integer> cache = getClaimCache();
+        if (cache != null) {
+            cache.put(key, entry);
+        } else {
+            log.debug("Error while updating the claim cache. ClaimCache is null");
         }
     }
 }
