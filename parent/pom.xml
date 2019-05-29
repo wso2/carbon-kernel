@@ -698,7 +698,7 @@
         <dependency.tipi.hamcrest.version>1.3.0.1</dependency.tipi.hamcrest.version>
         <dependency.tipi.junit.version>4.12.0.1</dependency.tipi.junit.version>
         <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
-        <slf4j.api.version>1.7.12</slf4j.api.version>
+        <slf4j.api.version>1.7.26</slf4j.api.version>
         <javax.inject.version>1</javax.inject.version>
         <ops4j.base.version>1.5.0</ops4j.base.version>
         <osgi.compendium.version>4.3.1</osgi.compendium.version>
