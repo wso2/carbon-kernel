@@ -1094,7 +1094,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                             domain);
                 } catch (UserStoreException e) {
                     if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
-                        log.warn("Permission Id: " + permissionId + "is already added to the role: " + roleName);
+                        log.warn("Permission Id: " + permissionId + " is already added to the role: " + roleName);
                     } else {
                         throw e;
                     }
