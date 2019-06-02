@@ -962,14 +962,12 @@ public final class UserCoreUtil {
 
     private static boolean isExistingDomain(String domain, int tenantId, Connection connection)
             throws UserStoreException {
-        Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         boolean isExisting = false;
 
         try {
-            dbConnection = connection;
-            prepStmt = dbConnection.prepareStatement(JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL);
+            prepStmt = connection.prepareStatement(JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL);
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -987,6 +985,8 @@ public final class UserCoreUtil {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections( null, rs, prepStmt );
         }
     }
 
