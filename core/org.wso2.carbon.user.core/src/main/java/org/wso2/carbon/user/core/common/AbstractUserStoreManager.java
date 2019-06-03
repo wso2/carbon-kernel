@@ -83,6 +83,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
+
 public abstract class AbstractUserStoreManager implements UserStoreManager, PaginatedUserStoreManager {
 
     protected static final String TRUE_VALUE = "true";
@@ -254,7 +260,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @param requirePasswordChange whether password required is need
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doAddUser(String userName, Object credential, String[] roleList,
+    protected abstract void  doAddUser(String userName, Object credential, String[] roleList,
                                       Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException;
 
@@ -5811,18 +5817,46 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         String systemRole = UserCoreUtil.removeDomainFromName(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME);
 
         if (!systemUserRoleManager.isExistingSystemUser(systemUser)) {
-            systemUserRoleManager.addSystemUser(systemUser,
-                    UserCoreUtil.getPolicyFriendlyRandomPassword(systemUser), null);
+            try {
+                systemUserRoleManager.addSystemUser(systemUser,
+                        UserCoreUtil.getPolicyFriendlyRandomPassword(systemUser), null);
+            } catch (UserStoreException e) {
+                if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER.getCode().equals(e.getErrorCode())) {
+                    log.warn(String.format("System User :%s has already added. Hence, continue without adding the " +
+                                    "user.", systemUser));
+                } else {
+                    throw e;
+                }
+            }
+
         }
 
         if (!systemUserRoleManager.isExistingRole(systemRole)) {
-            systemUserRoleManager.addSystemRole(systemRole, new String[]{systemUser});
+            try {
+                systemUserRoleManager.addSystemRole(systemRole, new String[]{systemUser});
+            } catch (UserStoreException e) {
+                if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE.getCode().equals(e.getErrorCode())) {
+                    log.warn(String.format("System Role :%s is already added. Hence, continue without adding the " +
+                                    "role.", systemRole), e);
+                } else {
+                    throw e;
+                }
+            }
         }
 
         if (!hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(realmConfig
                 .getEveryOneRoleName()))) {
-            hybridRoleManager.addHybridRole(
-                    UserCoreUtil.removeDomainFromName(realmConfig.getEveryOneRoleName()), null);
+            try {
+                hybridRoleManager.addHybridRole(
+                        UserCoreUtil.removeDomainFromName(realmConfig.getEveryOneRoleName()), null);
+            } catch (UserStoreException e) {
+                if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode().equals(e.getErrorCode())) {
+                    log.warn(String.format("Hybrid Role :%s is already added. Hence, continue without adding the " +
+                            "role.", systemRole));
+                } else {
+                    throw e;
+                }
+            }
         }
     }
 
@@ -5904,7 +5938,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     String message = "Admin user has not been created. " +
                             "Error occurs while creating Admin user in primary user store.";
                     if (initialSetup) {
-                        throw new UserStoreException(message, e);
+                        if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER.getCode
+                                ().equals(((UserStoreException) e).getErrorCode())) {
+                            log.warn(String.format("Admin User :%s is already added. Hence, continue without adding" +
+                                    " the user.", adminUserName));
+                        } else {
+                            throw new UserStoreException(message, e);
+                        }
                     } else if (log.isDebugEnabled()) {
                         log.error(message, e);
                     }
@@ -5933,7 +5973,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                         String message = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
                         if (initialSetup) {
-                            throw new UserStoreException(message, e);
+                            if (ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode().equals(((UserStoreException) e)
+                                    .getErrorCode())) {
+                                log.warn(String.format("Admin Role :%s is already added. Hence, continue without " +
+                                        "adding the role.", adminRoleName));
+                            } else {
+                                throw new UserStoreException(message, e);
+                            }
                         } else if (log.isDebugEnabled()) {
                             log.error(message, e);
                         }
@@ -5947,7 +5993,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                         String message = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
                         if (initialSetup) {
-                            throw new UserStoreException(message, e);
+                            if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode().equals(((UserStoreException) e)
+                                    .getErrorCode())) {
+                                log.warn(String.format("Hybrid Admin Role :%s is already added. Hence, continue " +
+                                        "without adding the hybrid role.", adminRoleName));
+                            } else {
+                                throw new UserStoreException(message, e);
+                            }
                         } else if (log.isDebugEnabled()) {
                             log.error(message, e);
                         }
