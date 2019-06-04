@@ -30,6 +30,7 @@ public class LoggingUtils {
     // bridges when they are not yet registered with the LoggingBridgeRegister.
     private static final Map<String, Queue<LogRecord>> loggingBridgeQueues =
             new ConcurrentHashMap<String, Queue<LogRecord>>();
+    private static Boolean isRegistrationCompleted = false;
 
     public static void pushLogRecord(String bridgeName,
                                      LoggingBridge loggingBridge,
@@ -40,18 +41,21 @@ public class LoggingUtils {
                 loggingBridge = bridge;
             }
         }
-        if (loggingBridge == null) {// LoggingBridge is not yet registered hence queuing the log records
-            Queue<LogRecord> logQueue = loggingBridgeQueues.get(bridgeName);
-            if (logQueue == null) {
-                synchronized (loggingBridgeQueues) {
-                    logQueue = loggingBridgeQueues.get(bridgeName);
-                    if (logQueue == null) {
-                        logQueue = new LinkedList<LogRecord>();
-                        loggingBridgeQueues.put(bridgeName, logQueue);
+        if (loggingBridge == null) {// LoggingBridge is not yet registered hence queuing
+            // the log records
+            if (!isRegistrationCompleted) {
+                Queue<LogRecord> logQueue = loggingBridgeQueues.get(bridgeName);
+                if (logQueue == null) {
+                    synchronized (loggingBridgeQueues) {
+                        logQueue = loggingBridgeQueues.get(bridgeName);
+                        if (logQueue == null) {
+                            logQueue = new LinkedList<LogRecord>();
+                            loggingBridgeQueues.put(bridgeName, logQueue);
+                        }
                     }
                 }
+                logQueue.add(record);
             }
-            logQueue.add(record);
         } else {
             loggingBridge.push(record);
         }
@@ -73,5 +77,10 @@ public class LoggingUtils {
             // clear old log records from queue
             logQueue.clear();
         }
+    }
+
+    public static void clear() {
+        isRegistrationCompleted = true;
+        loggingBridgeQueues.clear();
     }
 }

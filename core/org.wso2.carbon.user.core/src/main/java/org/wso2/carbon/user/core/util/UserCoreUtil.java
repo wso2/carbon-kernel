@@ -822,18 +822,19 @@ public final class UserCoreUtil {
                 domain = domain.toUpperCase();
             }
 
-            if (!isExistingDomain(domain, tenantId, dataSource)) {
-                dbConnection = DatabaseUtil.getDBConnection(dataSource);
-                dbConnection.setAutoCommit(false);
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            dbConnection.setAutoCommit(false);
+            if (!isExistingDomain(domain, tenantId, dbConnection)) {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
-                dbConnection.commit();
             }
+            dbConnection.commit();
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while checking is existing domain : " + domain + " for tenant : " + tenantId;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+            DatabaseUtil.rollBack(dbConnection);
             throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
             String errorMessage =
@@ -857,13 +858,12 @@ public final class UserCoreUtil {
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
-
-            if (isExistingDomain(domain, tenantId, dataSource)) {
-                dbConnection = DatabaseUtil.getDBConnection(dataSource);
-                dbConnection.setAutoCommit(false);
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            dbConnection.setAutoCommit(false);
+            if (isExistingDomain(domain, tenantId, dbConnection)) {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
-                dbConnection.commit();
             }
+            dbConnection.commit();
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while deleting domain : " + domain + " for tenant : " + tenantId;
@@ -896,16 +896,16 @@ public final class UserCoreUtil {
                 newDomain = newDomain.toUpperCase();
             }
 
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             // check for previous domain exists
-            if (isExistingDomain(previousDomain, tenantId, dataSource)) {
+            if (isExistingDomain(previousDomain, tenantId, dbConnection)) {
 
                 // New domain already exists, delete it first
-                if (!isExistingDomain(newDomain, tenantId, dataSource)) {
+                if (!isExistingDomain(newDomain, tenantId, dbConnection)) {
                     deletePersistedDomain(newDomain, tenantId, dataSource);
                 }
 
                 // Now rename the domain name
-                dbConnection = DatabaseUtil.getDBConnection(dataSource);
                 dbConnection.setAutoCommit(false);
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, newDomain, previousDomain, tenantId);
                 dbConnection.commit();
@@ -960,16 +960,14 @@ public final class UserCoreUtil {
 //		}
 //    }
 
-    private static boolean isExistingDomain(String domain, int tenantId, DataSource dataSource)
+    private static boolean isExistingDomain(String domain, int tenantId, Connection connection)
             throws UserStoreException {
-        Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         boolean isExisting = false;
 
         try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            prepStmt = dbConnection.prepareStatement(JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL);
+            prepStmt = connection.prepareStatement(JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL);
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -988,7 +986,7 @@ public final class UserCoreUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+            DatabaseUtil.closeAllConnections( null, rs, prepStmt );
         }
     }
 

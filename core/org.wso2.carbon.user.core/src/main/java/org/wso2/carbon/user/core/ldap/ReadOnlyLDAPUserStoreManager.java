@@ -406,7 +406,31 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             return false;
         }
 
-        userName = userName.trim();
+        String leadingOrTrailingSpaceAllowedInUserName = realmConfig.getUserStoreProperty(UserCoreConstants
+                .RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
+        if (StringUtils.isNotEmpty(leadingOrTrailingSpaceAllowedInUserName)) {
+            boolean isSpaceAllowedInUserName = Boolean.parseBoolean(leadingOrTrailingSpaceAllowedInUserName);
+            if (log.isDebugEnabled()) {
+                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : " +
+                        isSpaceAllowedInUserName);
+            }
+            if (!isSpaceAllowedInUserName) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Leading or trailing spaces are not allowed in username. Hence validating the username" +
+                            " against the regex for the user : " + userName);
+                }
+                // Need to validate the username against the regex.
+                if (!checkUserNameValid(userName)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Username validation failed for the user : " + userName);
+                    }
+                    return false;
+                }
+            }
+        } else {
+            // Keeping old behavior for backward-compatibility.
+            userName = userName.trim();
+        }
 
         Secret credentialObj;
         try {
@@ -2844,7 +2868,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     List<String> tempUserList = new ArrayList<>();
                     answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
                     if (answer.hasMore()) {
-                        tempUserList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer);
+                        tempUserList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
+                                isSingleAttributeFilterOperation(expressionConditions));
                         pageIndex++;
                     }
                     if (CollectionUtils.isNotEmpty(tempUserList)) {
@@ -2897,22 +2922,40 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
+     * Method to verify whether the filter operation is a single attribute filter scenario or multi attribute filter scenario
+     *
+     * @param expressionConditions Expression conditions
+     * @return True if the operation is a single attribute filter.
+     */
+    private boolean isSingleAttributeFilterOperation(List<ExpressionCondition> expressionConditions) {
+
+        /*
+        The size of the expression condition is used to verify the type of filter operation since the up
+        coming steps needs to verify whether this is a multi attribute scenario or single attribute scenario.
+        (value will equal to 1 for a single attribute filter)
+        */
+        return (expressionConditions.size() == 1);
+    }
+
+    /**
      * Get user list from multi attribute search filter.
      *
-     * @param isGroupFiltering
-     * @param returnedAttributes
-     * @param answer
-     * @return
+     * @param isGroupFiltering        Whether the filtering has the group attribute name.
+     * @param returnedAttributes      Returned Attributes
+     * @param answer                  Answer
+     * @param isSingleAttributeFilter Whether the original request is from a single attribute filter or a multi
+     *                                attribute filter, so that AND operation can be omitted during the filtering
+     *                                process.
+     * @return A users list
      * @throws UserStoreException
      * @throws NamingException
      */
     private List<String> getUserListFromSearch(boolean isGroupFiltering, List<String> returnedAttributes,
-                                               NamingEnumeration<SearchResult> answer)
-            throws UserStoreException {
+            NamingEnumeration<SearchResult> answer, boolean isSingleAttributeFilter) throws UserStoreException {
 
         List<String> tempUserList;
         if (isGroupFiltering) {
-            tempUserList = getUserListFromGroupFilterResult(answer, returnedAttributes);
+            tempUserList = getUserListFromGroupFilterResult(answer, returnedAttributes, isSingleAttributeFilter);
         } else {
             tempUserList = getUserListFromNonGroupFilterResult(answer, returnedAttributes);
         }
@@ -2925,14 +2968,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * get the mutual members' out of it as a DN list.
      * If it's memberOf group filtering, directly get the user name list from search result.
      *
-     * @param answer
-     * @param returnedAttributes
-     * @return
+     * @param answer                  Answer
+     * @param returnedAttributes      Returned Attributes
+     * @param isSingleAttributeFilter Whether the original request is from a single attribute filter or a multi
+     *                                attribute filter, so that AND operation can be omitted during the filtering
+     *                                process.
+     * @return A users list
      * @throws UserStoreException
      */
     private List<String> getUserListFromGroupFilterResult(NamingEnumeration<SearchResult> answer,
-                                                          List<String> returnedAttributes)
-            throws UserStoreException {
+            List<String> returnedAttributes, boolean isSingleAttributeFilter) throws UserStoreException {
 
         // Can be user DN list or username list
         List<String> userListFromSearch = new ArrayList<>();
@@ -2947,7 +2992,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 List<String> tempUserList = new ArrayList<>();
                 SearchResult searchResult = answer.next();
                 Attributes attributes = searchResult.getAttributes();
-                if (attributes == null) continue;
+                if (attributes == null)
+                    continue;
                 NamingEnumeration attributeEntry;
                 for (attributeEntry = attributes.getAll(); attributeEntry.hasMore(); ) {
                     Attribute valAttribute = (Attribute) attributeEntry.next();
@@ -2959,14 +3005,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
                 /*
-                 * If returnedAttributes doesn't contain 'member' attribute, then it's memberOf group filter.
-                 * If so we  don't need to do post processing.
+                 When singleAttributeFilter is true, that implies that the request is a single attribute filter. In
+                 this case, the intersection (AND operation) should not be performed on the filtered results.
+                 Following IF block handles the single attribute filter.
                  */
-                if (!returnedAttributes.contains(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))
-                        || count == 1) {
+                if (isSingleAttributeFilter) {
                     userListFromSearch.addAll(tempUserList);
                 } else {
-                    userListFromSearch.retainAll(tempUserList);
+                    /*
+                     * If returnedAttributes doesn't contain 'member' attribute, then it's memberOf group filter.
+                     * If so we  don't need to do post processing.
+                     */
+                    if (!returnedAttributes
+                            .contains(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))
+                            || count == 1) {
+                        userListFromSearch.addAll(tempUserList);
+                    } else {
+                        userListFromSearch.retainAll(tempUserList);
+                    }
                 }
             }
         } catch (NamingException e) {
@@ -3113,11 +3169,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * Generate paginated user list. Since LDAP doesn't support pagination with start index.
      * So we need to process the page results according to the requested start index.
      *
-     * @param pageIndex
-     * @param offset
-     * @param pageSize
-     * @param tempUserList
-     * @param users
+     * @param pageIndex    index of the paginated page.
+     * @param offset       start index.
+     * @param pageSize     number of results per page which is equal to count/limit.
+     * @param tempUserList users in the particular indexed page.
+     * @param users        final paginated user list.
      */
     private void generatePaginatedUserList(int pageIndex, int offset, int pageSize, List<String> tempUserList,
                                            List<String> users) {
@@ -3126,19 +3182,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         // Handle pagination depends on given offset, i.e. start index.
         if (pageIndex == (offset / pageSize)) {
             int startPosition = (offset % pageSize);
-            if (startPosition < tempUserList.size() - 1 && 0 < startPosition) {
+            if (startPosition < tempUserList.size() - 1) {
                 users.addAll(tempUserList.subList(startPosition, tempUserList.size()));
             } else if (startPosition == tempUserList.size() - 1) {
                 users.add(tempUserList.get(tempUserList.size() - 1));
-            } else {
-                users.addAll(tempUserList);
             }
         } else if (pageIndex == (offset / pageSize) + 1) {
             needMore = pageSize - users.size();
-            if (needMore - 1 == 0) {
-                users.add(tempUserList.get(0));
-            } else if (tempUserList.size() > needMore) {
-                users.addAll(tempUserList.subList(0, (needMore - 1)));
+            if (tempUserList.size() >= needMore) {
+                users.addAll(tempUserList.subList(0, needMore));
             } else {
                 users.addAll(tempUserList);
             }

@@ -65,8 +65,8 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
         function doValidation() {
             var reason = "";
 
-            var userNameEmpty = isEmpty("username");
-            var passwordEmpty = isEmpty("password");
+            var userNameEmpty = isEmptyCheckWithoutTrim("username");
+            var passwordEmpty = isEmptyCheckWithoutTrim("password");
 
             if (userNameEmpty || passwordEmpty) {
                 CARBON.showWarningDialog('<fmt:message key="empty.credentials"/>');

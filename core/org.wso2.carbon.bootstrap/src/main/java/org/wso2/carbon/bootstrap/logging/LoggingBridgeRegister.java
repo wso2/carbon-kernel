@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.bootstrap.logging;
 
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

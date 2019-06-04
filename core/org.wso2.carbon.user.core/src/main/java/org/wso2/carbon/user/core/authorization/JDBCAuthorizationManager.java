@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+
 public class JDBCAuthorizationManager implements AuthorizationManager {
 
     /**
@@ -497,6 +499,45 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
             return optimizedList;
         }
+    }
+
+    public String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getAllowedUIResourcesForRole",
+                    new Object[]{roleName, permissionRootPath}, argTypes);
+            return (String[]) object;
+        }
+
+        List<String> lstPermissions = new ArrayList<String>();
+        List<String> resourceIds = getUIPermissionId();
+        if (resourceIds != null) {
+            for (String resourceId : resourceIds) {
+                if (isRoleAuthorized(roleName, resourceId, CarbonConstants.UI_PERMISSION_ACTION)) {
+                    if (permissionRootPath == null) {
+                        permissionRootPath = "/"; // Assign root path when permission path is null
+                    }
+                    if (resourceId.contains(permissionRootPath)) {
+                        lstPermissions.add(resourceId);
+                    }
+                }//authorization check up
+            }//loop over resource list
+        }//resource ID checkup
+
+        String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+        String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
+
+        if (debug) {
+            log.debug("Allowed UI Resources for Role: " + roleName + " in permissionRootPath: " +
+                    permissionRootPath);
+            for (String resource : optimizedList) {
+                log.debug("Resource: " + resource);
+            }
+        }
+
+        return optimizedList;
     }
 
     public void authorizeRole(String roleName, String resourceId, String action)
@@ -1047,9 +1088,17 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                             + " of domain: " + domain + " to resource: " + resourceId);
                 }
 
-                DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
-                        UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
-                        domain);
+                try {
+                    DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
+                            UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
+                            domain);
+                } catch (UserStoreException e) {
+                    if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                        log.warn("Permission Id: " + permissionId + " is already added to the role: " + roleName);
+                    } else {
+                        throw e;
+                    }
+                }
             }
 
             if (updateCache) {

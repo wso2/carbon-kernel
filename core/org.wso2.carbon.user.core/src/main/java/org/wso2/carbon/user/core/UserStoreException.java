@@ -24,6 +24,7 @@ public class UserStoreException extends org.wso2.carbon.user.api.UserStoreExcept
      * Default serial
      */
     private static final long serialVersionUID = -6057036683816666255L;
+    private String errorCode;
 
     public UserStoreException() {
         super();
@@ -31,6 +32,11 @@ public class UserStoreException extends org.wso2.carbon.user.api.UserStoreExcept
 
     public UserStoreException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public UserStoreException(String message, String errorCode,  Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
     }
 
     public UserStoreException(String message, boolean convertMessage) {
@@ -46,5 +52,7 @@ public class UserStoreException extends org.wso2.carbon.user.api.UserStoreExcept
         super(cause);
     }
 
-
+    public String getErrorCode() {
+        return errorCode;
+    }
 }
