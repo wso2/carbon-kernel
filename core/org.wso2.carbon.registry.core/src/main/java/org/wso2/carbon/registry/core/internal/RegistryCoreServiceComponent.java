@@ -102,7 +102,6 @@ public class RegistryCoreServiceComponent {
      * @param context the OSGi component context.
      */
     @SuppressWarnings("unused")
-    @Activate
     protected void activate(ComponentContext context) {
         // for new cahing, every thread should has its own populated CC. During the deployment time we assume super tenant
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -199,7 +198,7 @@ public class RegistryCoreServiceComponent {
      * @param context the OSGi component context.
      */
     @SuppressWarnings("unused")
-    @Deactivate
+
     protected void deactivate(ComponentContext context) {
         while (!registrations.empty()) {
             registrations.pop().unregister();
@@ -665,7 +664,7 @@ public class RegistryCoreServiceComponent {
      *
      * @param _cacheInvalidator the cache invalidator service.
      */
-    @Reference(name = "CacheInvalidator", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, 
+    @Reference(name = "CacheInvalidator", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC,
             unbind = "unSetCacheInvalidatorService")
     protected void setCacheInvalidatorService(CacheInvalidator _cacheInvalidator) {
         cacheInvalidator = _cacheInvalidator;
@@ -696,7 +695,7 @@ public class RegistryCoreServiceComponent {
      *
      * @param realmService the realm service.
      */
-    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC,
             unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
         // this is used in check-in client
@@ -719,7 +718,7 @@ public class RegistryCoreServiceComponent {
      * @param statisticsCollector the statistics collector service.
      */
     @SuppressWarnings("unused")
-    @Reference(name = "statistics.collector", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, 
+    @Reference(name = "statistics.collector", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC,
             unbind = "unsetStatisticsCollector")
     protected synchronized void setStatisticsCollector(StatisticsCollector statisticsCollector) {
         RegistryContext.getBaseInstance().addStatisticsCollector(statisticsCollector);

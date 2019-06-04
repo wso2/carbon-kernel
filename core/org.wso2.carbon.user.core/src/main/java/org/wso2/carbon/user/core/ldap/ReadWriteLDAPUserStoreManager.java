@@ -51,6 +51,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+import javax.naming.CompositeName;
+import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
