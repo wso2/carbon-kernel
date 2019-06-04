@@ -24,7 +24,7 @@
                 <Password>admin</Password>
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
-            !-- Enable username claim retrieve from the UM_USER_NAME in JDBC datasources -->
+             <!--Enable username claim retrieve from the UM_USER_NAME in JDBC datasources-->
             <OverrideUsernameClaimFromInternalUsername>true</OverrideUsernameClaimFromInternalUsername>
             <Property name="isCascadeDeleteEnabled">true</Property>
             <Property name="dataSource">jdbc/WSO2CarbonDB</Property>

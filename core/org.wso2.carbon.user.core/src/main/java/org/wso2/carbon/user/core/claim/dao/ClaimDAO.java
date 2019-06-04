@@ -31,11 +31,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_ERROR_WHILE_ADDING_CLAIM_MAPPINGS;
 
 public class ClaimDAO {
 
@@ -131,7 +134,7 @@ public class ClaimDAO {
         }
     }
 
-    public void addCliamMappings(ClaimMapping[] claims) throws UserStoreException {
+    public void  addCliamMappings(ClaimMapping[] claims) throws UserStoreException {
         Connection dbConnection = null;
         try {
             dbConnection = dataSource.getConnection();
@@ -142,6 +145,7 @@ public class ClaimDAO {
             dbConnection.commit();
         } catch (SQLException e) {
             log.error("Database Error - " + e.getMessage(), e);
+            DatabaseUtil.rollBack(dbConnection);
             throw new UserStoreException("Database Error - " + e.getMessage(), e);
         } finally {
             DatabaseUtil.closeConnection(dbConnection);
@@ -260,7 +264,14 @@ public class ClaimDAO {
             }
         } catch (SQLException e) {
             log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                // Duplicate entry
+                throw new UserStoreException("Database Error - " + e.getMessage(),
+                        ERROR_CODE_DUPLICATE_ERROR_WHILE_ADDING_CLAIM_MAPPINGS.getCode(), e);
+            } else {
+                // Other SQL Exception
+                throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            }
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
