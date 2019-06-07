@@ -22,6 +22,7 @@ package org.wso2.carbon.nextgen.config;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.nextgen.config.model.Context;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ReferenceResolver {
     /**
      * Resolves the placeholder strings.
      *
-     * @param context
+     * @param context Context object
      * @throws ConfigParserException
      */
     public static void resolve(Context context) throws ConfigParserException {
@@ -102,8 +103,13 @@ public class ReferenceResolver {
         context.forEach((k, v) -> {
             if (v instanceof String) {
                 extractPlaceholdersFromString(k, (String) v, unresolvedKeys, valuesToResolve);
+            } else if (v instanceof ArrayList) {
+                for (Object elementItem : (ArrayList) v) {
+                    if (elementItem instanceof String) {
+                        extractPlaceholdersFromString(k, (String) elementItem, unresolvedKeys, valuesToResolve);
+                    }
+                }
             }
-            //todo handle list types
         });
 
         boolean atLeastOneResolved = true;
@@ -283,7 +289,6 @@ public class ReferenceResolver {
         for (String k : dependentKeys) {
             Object existingValue = context.get(k);
             if (value instanceof List) {
-                //todo $ref-someOtherString when $ref is a list
                 context.put(k, value);
             } else if (value instanceof Boolean) {
                 context.put(k, value);
@@ -292,6 +297,15 @@ public class ReferenceResolver {
                         CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX),
                         Matcher.quoteReplacement(value.toString()));
                 context.put(k, existingValue);
+            } else if (existingValue instanceof  ArrayList) {
+                ArrayList<String> modifiedValueList = new ArrayList<>();
+                for (String item : (ArrayList<String>) existingValue) {
+                    item = item.replaceAll(Pattern.quote(
+                            CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX),
+                                           Matcher.quoteReplacement(value.toString()));
+                    modifiedValueList.add(item);
+                }
+                context.put(k, modifiedValueList);
             }
         }
     }

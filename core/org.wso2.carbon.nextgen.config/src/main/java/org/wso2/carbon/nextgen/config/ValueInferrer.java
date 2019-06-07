@@ -46,7 +46,7 @@ class ValueInferrer {
 
     }
 
-    private static final Log LOGGER = LogFactory.getLog(ValueInferrer.class);
+    private static final Log log = LogFactory.getLog(ValueInferrer.class);
 
     static Context infer(Context context, String inferConfigFilePath) {
 
@@ -65,7 +65,7 @@ class ValueInferrer {
             enrichedContext.putAll(context);
             return enrichedContext;
         } catch (ConfigParserException e) {
-            LOGGER.error("Error while inferring values with file " + inferConfigFilePath, e);
+            log.error("Error while inferring values with file " + inferConfigFilePath, e);
         }
         return enrichedContext;
     }
@@ -160,7 +160,7 @@ class ValueInferrer {
         return null;
     }
 
-    private static Map<String, String> getResolvedValues(String key, String matchedKey) {
+    private static Map getResolvedValues(String key, String matchedKey) {
 
         Map map = new LinkedHashMap();
         int l = 0;

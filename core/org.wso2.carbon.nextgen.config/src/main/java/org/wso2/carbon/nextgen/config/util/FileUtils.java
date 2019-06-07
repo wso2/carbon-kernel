@@ -19,7 +19,6 @@
 
 package org.wso2.carbon.nextgen.config.util;
 
-import org.apache.log4j.Logger;
 import org.wso2.carbon.nextgen.config.ConfigParserException;
 
 import java.io.BufferedReader;
@@ -39,7 +38,6 @@ import java.util.Set;
  */
 public class FileUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(FileUtils.class);
     private FileUtils() {
 
     }
@@ -70,12 +68,12 @@ public class FileUtils {
         }
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
-            justification = "return not need in mkdirs()")
     private static void writeFile(File file, String input) throws ConfigParserException {
 
         if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
+            if (!file.getParentFile().mkdirs()) {
+                throw new ConfigParserException("Error while creating new directory " + file.getAbsolutePath());
+            }
         }
         try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),
                 StandardCharsets.UTF_8))) {
@@ -136,16 +134,11 @@ public class FileUtils {
             throws ConfigParserException {
 
         for (String file : fileSet) {
-            try {
-                File configFile = Paths.get(configurations, file).toFile();
-                File backupFile = Paths.get(backupPath, file).toFile();
-                if (configFile.exists()) {
-                    writeDirectory(configFile, backupFile);
-                }
-            } catch (ConfigParserException e) {
-                throw e;
+            File configFile = Paths.get(configurations, file).toFile();
+            File backupFile = Paths.get(backupPath, file).toFile();
+            if (configFile.exists()) {
+                writeDirectory(configFile, backupFile);
             }
-
         }
 
     }

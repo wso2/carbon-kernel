@@ -95,14 +95,11 @@ public class Main {
         if (System.getProperty(LauncherConstants.PROFILE) == null) {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
-        if (Boolean.getBoolean(ConfigConstants.ENCRYPT_SECRETS)) {
-            handleConfiguration(true);
-        } else {
-            handleConfiguration(false);
-            invokeExtensions();
-            removeAllAppendersFromCarbon();
-            launchCarbon();
-        }
+        handleConfiguration();
+        invokeExtensions();
+        removeAllAppendersFromCarbon();
+        launchCarbon();
+
     }
 
     /**
@@ -233,16 +230,12 @@ public class Main {
         }
     }
 
-    private static void handleConfiguration(boolean encryption) {
+    private static void handleConfiguration() {
         String resourcesDir = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
         String configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH)  + File.separator + ConfigParser.UX_FILE_PATH;
         String outputDir = System.getProperty(LauncherConstants.CARBON_HOME);
         try {
             ConfigParser.parse(configFilePath, resourcesDir, outputDir);
-            if (encryption) {
-                System.clearProperty(LauncherConstants.CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
-                ConfigParser.handleEncryption();
-            }
         } catch (ConfigParserException e) {
             log.error("Error while performing configuration changes", e);
             System.exit(1);

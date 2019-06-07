@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 /**
  * Resolves units provided in values to component expected values.
  */
-public class UnitResolver {
+class UnitResolver {
 
     private static final String DAY_SUFFIX = "d";
     private static final String HOUR_SUFFIX = "h";
@@ -49,7 +49,7 @@ public class UnitResolver {
     private UnitResolver() {
     }
 
-    public static void updateUnits(Context context, String unitConfigFilePath)
+    static void updateUnits(Context context, String unitConfigFilePath)
             throws ConfigParserException {
         readConfiguration(unitConfigFilePath);
         resolveTimeConfiguration(context.getTemplateData());

@@ -24,45 +24,45 @@ import java.util.List;
 /**
  * Representation of Changed files model.
  */
-public class ChangedFileSet {
+class ChangedFileSet {
 
     private boolean changed;
     private List changedFiles = new ArrayList();
     private List newFiles = new ArrayList();
 
-    public ChangedFileSet() {
+    ChangedFileSet() {
 
     }
 
-    public ChangedFileSet(boolean changed, List changedFiles, List newFiles) {
+    ChangedFileSet(boolean changed, List changedFiles, List newFiles) {
 
         this.changed = changed;
         this.changedFiles = changedFiles;
         this.newFiles = newFiles;
     }
 
-    public boolean isChanged() {
+    boolean isChanged() {
 
         return changed;
     }
 
-    public List getChangedFiles() {
+    List getChangedFiles() {
 
         return changedFiles;
     }
 
-    public List getNewFiles() {
+    List getNewFiles() {
 
         return newFiles;
     }
 
-    public void addChangedFile(String path) {
+    void addChangedFile(String path) {
         changed =  true;
         changedFiles.add(path);
 
     }
 
-    public void addNewFile(String path) {
+    void addNewFile(String path) {
         changed = true;
         newFiles.add(path);
     }

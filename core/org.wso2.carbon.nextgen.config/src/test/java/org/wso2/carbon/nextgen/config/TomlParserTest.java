@@ -45,7 +45,8 @@ public class TomlParserTest {
         String deploymentConfiguration =
                 FileUtils.getFile("src", "test", "resources", TOML_FILE_NAME).getAbsolutePath();
 
-        context = new TomlParser(deploymentConfiguration).parse(context);
+        ConfigParser.ConfigPaths.setConfigFilePath(deploymentConfiguration);
+        context = TomlParser.parse(context);
         parsedValueMap.putAll(context.getTemplateData());
     }
 

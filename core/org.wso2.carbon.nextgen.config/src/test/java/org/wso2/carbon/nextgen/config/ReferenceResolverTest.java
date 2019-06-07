@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +54,16 @@ public class ReferenceResolverTest {
         Map resolvedEnvironmentVariables = new HashMap();
         ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
         Object actual = context.get(key);
-        Assert.assertEquals(actual, expected, "Incorrect resolved value for " + key);
+        if (expected instanceof ArrayList) {
+            ArrayList<String> expectedArrayList = (ArrayList<String>) expected;
+            ArrayList<String> actualArrayList = (ArrayList<String>) actual;
+            for (int i = 0; i < expectedArrayList.size(); i++) {
+                Assert.assertEquals(actualArrayList.get(i), expectedArrayList.get(i),
+                                    "Incorrect resolved value for " + key);
+            }
+        } else {
+            Assert.assertEquals(actual, expected, "Incorrect resolved value for " + key);
+        }
     }
 
     @Test(dataProvider = "invalidReferencesProvider", expectedExceptions = ConfigParserException.class)
@@ -107,6 +117,14 @@ public class ReferenceResolverTest {
     @DataProvider(name = "contextProvider")
     public Object[][] resolverDataSet() {
 
+        ArrayList<String> referenceArray = new ArrayList<>();
+        referenceArray.add("$ref{fa}:$ref{fb}");
+        referenceArray.add("$ref{fb}");
+
+        ArrayList<String> expectedArray = new ArrayList<>();
+        expectedArray.add("AAA:BBB");
+        expectedArray.add("BBB");
+
         Map<String, Object> fileContextPlaceholders = new HashMap<>();
         Map<String, Object> systemContextPlaceholders = new HashMap<>();
         fileContextPlaceholders.put("fa", "AAA");
@@ -118,6 +136,7 @@ public class ReferenceResolverTest {
         fileContextPlaceholders.put("fc", true);
         fileContextPlaceholders.put("fc1", "$ref{fc}");
         fileContextPlaceholders.put("fc2", "$ref{fc1}");
+        fileContextPlaceholders.put("fc3", referenceArray);
         systemContextPlaceholders.put("sa", "$sys{syskey1}");
         systemContextPlaceholders.put("sb", "$sys{syskey1}-AAA");
         systemContextPlaceholders.put("sc", "$sys{syskey1}-$sys{syskey2}");
@@ -129,6 +148,7 @@ public class ReferenceResolverTest {
                 {fileContextPlaceholders, "fb2", "AAA-BBB"},
                 {fileContextPlaceholders, "fc1", true},
                 {fileContextPlaceholders, "fc2", true},
+                {fileContextPlaceholders, "fc3", expectedArray},
                 {systemContextPlaceholders, "sa", "sysval1"},
                 {systemContextPlaceholders, "sb", "sysval1-AAA"},
                 {systemContextPlaceholders, "sc", "sysval1-sysval2"},

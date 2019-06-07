@@ -43,9 +43,9 @@ import java.util.Set;
  */
 public class MetaDataParser {
 
-    private static Log logger = LogFactory.getLog(MetaDataParser.class);
+    private static Log log = LogFactory.getLog(MetaDataParser.class);
 
-    public static Map<String, String> readLastModifiedValues(String basePath, String path)
+    static Map<String, String> readLastModifiedValues(String basePath, String path)
             throws ConfigParserException {
 
         Map<String, String> md5sumValues = new HashMap<>();
@@ -64,7 +64,7 @@ public class MetaDataParser {
         return md5sumValues;
     }
 
-    public static String readLastModifiedValue(String path)
+    private static String readLastModifiedValue(String path)
             throws ConfigParserException {
 
         try {
@@ -97,8 +97,8 @@ public class MetaDataParser {
         }
     }
 
-    public static ChangedFileSet getChangedFiles(String basePath, List<String> deploymentConfigurationPaths,
-                                                 String metadataFilePath)
+    static ChangedFileSet getChangedFiles(String basePath, List<String> deploymentConfigurationPaths,
+                                          String metadataFilePath)
             throws ConfigParserException {
 
         File metaDataFile = new File(metadataFilePath);
@@ -110,7 +110,7 @@ public class MetaDataParser {
         try (FileInputStream fileInputStream = new FileInputStream(metaDataFile)) {
             properties.load(fileInputStream);
         } catch (IOException e) {
-            logger.error("Metadata File couldn't Read", e);
+            log.error(metaDataFile + "Metadata File couldn't Read", e);
             throw new ConfigParserException("Metadata File couldn't Read", e);
         }
         ChangedFileSet changedFileSet = new ChangedFileSet();
@@ -132,8 +132,8 @@ public class MetaDataParser {
         return changedFileSet;
     }
 
-    public static ChangedFileSet getChangedFiles(String basePath,
-                                                 String metadataFilePath)
+    static ChangedFileSet getChangedFiles(String basePath,
+                                          String metadataFilePath)
             throws ConfigParserException {
 
         File metaDataFile = new File(metadataFilePath);
@@ -145,7 +145,7 @@ public class MetaDataParser {
         try (FileInputStream fileInputStream = new FileInputStream(metaDataFile)) {
             properties.load(fileInputStream);
         } catch (IOException e) {
-            logger.error("Metadata File couldn't Read", e);
+            log.error("Metadata File couldn't Read", e);
             throw new ConfigParserException("Metadata File couldn't Read", e);
         }
         ChangedFileSet changedFileSet = new ChangedFileSet();
@@ -162,13 +162,15 @@ public class MetaDataParser {
         return changedFileSet;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
-            justification = "return not need in mkdirs()")
     public static void storeMetaDataEntries(String basePath, String outputFilePath, Set<String> entries)
             throws ConfigParserException {
 
         File outputFile = new File(outputFilePath);
-        outputFile.getParentFile().mkdirs();
+        if (!outputFile.getParentFile().exists()) {
+            if (!outputFile.getParentFile().mkdirs()) {
+                throw new ConfigParserException("Error while creating new directory " + outputFile.getAbsolutePath());
+            }
+        }
         Properties properties = new Properties();
         for (String entry : entries) {
             properties.putAll(readLastModifiedValues(basePath, entry));
@@ -176,18 +178,20 @@ public class MetaDataParser {
         try (FileOutputStream fileOutputStream = new FileOutputStream(outputFilePath)) {
             properties.store(fileOutputStream, null);
         } catch (IOException e) {
-            logger.error("error while storing metadata", e);
-            throw new RuntimeException("error while storing metadata");
+            log.error("error while storing metadata", e);
+            throw new ConfigParserException("error while storing metadata");
         }
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
-            justification = "return not need in mkdirs()")
     public static void storeReferences(String metadataPropertyPath, Context context)
             throws ConfigParserException {
 
         File outputFile = new File(metadataPropertyPath);
-        outputFile.getParentFile().mkdirs();
+        if (!outputFile.getParentFile().exists()) {
+            if (!outputFile.getParentFile().mkdirs()) {
+                throw new ConfigParserException("Error while creating new directory " + outputFile.getAbsolutePath());
+            }
+        }
         try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(metadataPropertyPath),
                 StandardCharsets.UTF_8)) {
             Properties properties = new Properties();
@@ -203,7 +207,7 @@ public class MetaDataParser {
         }
     }
 
-    public static boolean isReferencesChanged(String metadataPropertyPath) {
+    static boolean isReferencesChanged(String metadataPropertyPath) {
 
         boolean status = false;
         if (new File(metadataPropertyPath).exists()) {
@@ -211,7 +215,7 @@ public class MetaDataParser {
             try (FileInputStream fileInputStream = new FileInputStream(metadataPropertyPath)) {
                 references.load(fileInputStream);
             } catch (IOException e) {
-                logger.error("Error while reading References", e);
+                log.error("Error while reading References", e);
             }
             for (Map.Entry<Object, Object> entry : references.entrySet()) {
                 String key = (String) entry.getKey();

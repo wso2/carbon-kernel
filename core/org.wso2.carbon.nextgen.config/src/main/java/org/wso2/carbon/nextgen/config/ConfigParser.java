@@ -19,22 +19,16 @@
 
 package org.wso2.carbon.nextgen.config;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
-import org.wso2.ciphertool.utils.KeyStoreUtil;
-import org.wso2.ciphertool.utils.Utils;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,9 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringTokenizer;
-import javax.crypto.Cipher;
-import javax.xml.xpath.XPathFactory;
 
 /**
  * Configuration parser class. Entry point to the config parsing logic.
@@ -69,7 +60,7 @@ public class ConfigParser {
     private static final String JINJA_TEMPLATE_EXTENSION = ".j2";
 
     /**
-     * Parse Toml file and write configurations into relevant places
+     * Parse Toml file and write configurations into relevant places.
      *
      * @param configFilePath    deployment.toml file path
      * @param resourcesDir      templates and rules directory
@@ -128,8 +119,6 @@ public class ConfigParser {
 
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
-            justification = "return not need in mkdirs()")
     private static void backupConfigurations(String configFilePath, String backupPath) throws ConfigParserException {
 
         File backupFile = new File(backupPath);
@@ -164,11 +153,8 @@ public class ConfigParser {
         }
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
-            justification = "return not need in mkdirs()")
     private static Set<String> deploy(Context context, String outputFilePath) throws IOException,
                                                                                      ConfigParserException {
-
         File outputDir = new File(outputFilePath);
         Set<String> changedFileSet = new HashSet<>();
         if (outputDir.exists() && outputDir.isDirectory()) {
@@ -176,10 +162,12 @@ public class ConfigParser {
             for (Map.Entry<String, String> entry : outputs.entrySet()) {
                 File outputFile = new File(outputDir, entry.getKey());
                 if (!outputFile.getParentFile().exists()) {
-                    outputFile.getParentFile().mkdirs();
+                    if (!outputFile.getParentFile().mkdirs()) {
+                        throw new ConfigParserException("Error while creating new directory " + outputFilePath);
+                    }
                 }
-                if (!outputFile.exists()) {
-                    outputFile.createNewFile();
+                if (!outputFile.createNewFile()) {
+                    log.debug(outputFile.getAbsolutePath() + "File already exist");
                 }
                 try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
                         new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
@@ -191,11 +179,10 @@ public class ConfigParser {
         return changedFileSet;
     }
 
-    public static Map<String, String> parse(Context context) throws ConfigParserException {
+    static Map<String, String> parse(Context context) throws ConfigParserException {
 
         File templateDir = checkTemplateDirExistence(ConfigPaths.getTemplateFileDir());
-        TomlParser tomlParser = new TomlParser(ConfigPaths.getConfigFilePath());
-        context = tomlParser.parse(context);
+        context = TomlParser.parse(context);
         context = KeyMapper.mapWithConfig(context, ConfigPaths.getMappingFilePath());
         context = ValueInferrer.infer(context, ConfigPaths.getInferConfigurationFilePath());
         context = DefaultParser.addDefaultValues(context, ConfigPaths.getDefaultValueFilePath());
@@ -205,15 +192,6 @@ public class ConfigParser {
 
         Map<String, File> fileNames = getTemplatedFilesMap(templateDir);
         return JinjaParser.parse(context, fileNames);
-    }
-
-    protected static void handleSecVaultProperties() {
-        // Have to use xalan as xpath factory to cipher tool.
-        System.setProperty(XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
-                "com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl");
-
-        org.wso2.ciphertool.utils.Utils.setSystemProperties();
-        org.wso2.ciphertool.utils.Utils.writeToSecureConfPropertyFile();
     }
 
     private static File checkTemplateDirExistence(String templateFileDir) throws ConfigParserException {
@@ -296,6 +274,15 @@ public class ConfigParser {
          */
         static String getConfigFilePath() {
             return configFilePath;
+        }
+
+        /**
+         * Set deployment toml file path.
+         *
+         * @param configFilePath    deployment toml file path
+         */
+        static void setConfigFilePath(String configFilePath) {
+            ConfigPaths.configFilePath = configFilePath;
         }
 
         /**
@@ -421,85 +408,4 @@ public class ConfigParser {
             }
         }
     }
-
-    public static void handleEncryption() throws ConfigParserException {
-
-        handleSecVaultProperties();
-
-        Map<String, String> secretMap = new TomlParser(ConfigPaths.getConfigFilePath()).getSecrets();
-        Cipher cipher = null;
-        if (!secretMap.isEmpty()) {
-            cipher = getCipher();
-        }
-        for (Map.Entry<String, String> entry : secretMap.entrySet()) {
-            String key = entry.getKey();
-            String value = getUnEncryptedValue(entry.getValue());
-            if (StringUtils.isNotEmpty(value)) {
-                String encryptedValue = getEncryptedValue(cipher, value);
-                secretMap.replace(key, encryptedValue);
-            }
-        }
-        updateDeploymentConfigurationWithEncryptedKeys(secretMap);
-    }
-
-    protected static String getEncryptedValue(Cipher cipher, String value) {
-
-        return Utils.doEncryption(cipher, value);
-    }
-
-    protected static Cipher getCipher() {
-
-        Utils.setSystemProperties();
-        return KeyStoreUtil.initializeCipher();
-    }
-
-    private static String getUnEncryptedValue(String value) {
-
-        String[] unEncryptedRefs = StringUtils.substringsBetween(value, ConfigConstants.SECTION_PREFIX,
-                ConfigConstants.SECTION_SUFFIX);
-        if (unEncryptedRefs != null && unEncryptedRefs.length == 1) {
-            return unEncryptedRefs[0];
-        } else {
-            return null;
-        }
-
-    }
-
-    private static void updateDeploymentConfigurationWithEncryptedKeys(Map<String, String> encryptedKeyMap)
-            throws ConfigParserException {
-
-        try {
-            List<String> lines = Files.readAllLines(Paths.get(ConfigPaths.getConfigFilePath()));
-            try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new
-                         FileOutputStream(ConfigPaths.getConfigFilePath()), StandardCharsets.UTF_8))) {
-                boolean found = false;
-                for (String line : lines) {
-                    if (found) {
-                        if (line.matches("[.+]")) {
-                            found = false;
-                        } else {
-                            StringTokenizer stringTokenizer = new StringTokenizer(line,
-                                    ConfigConstants.KEY_VALUE_SEPERATOR);
-                            if (stringTokenizer.hasMoreTokens()) {
-                                String key = stringTokenizer.nextToken();
-                                String value = encryptedKeyMap.get(key.trim());
-                                line = key.concat(" = \"").concat(value).concat("\"");
-                            }
-                        }
-                    } else {
-                        if (ConfigConstants.SECRETS_SECTION.equals(line.trim())) {
-                            found = true;
-                        }
-                    }
-                    bufferedWriter.write(line);
-                    bufferedWriter.newLine();
-                }
-                bufferedWriter.flush();
-            }
-        } catch (IOException e) {
-            throw new ConfigParserException("Error while writing encrypted values into deployment file", e);
-        }
-
-    }
-
 }

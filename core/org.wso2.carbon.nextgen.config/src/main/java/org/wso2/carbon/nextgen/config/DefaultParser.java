@@ -34,11 +34,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Default value pasing .
+ * Default value parsing .
  */
-public class DefaultParser {
+class DefaultParser {
 
-    private static final Log LOGGER = LogFactory.getLog(DefaultParser.class);
+    private static final Log log = LogFactory.getLog(DefaultParser.class);
 
     private DefaultParser() {
 
@@ -62,7 +62,7 @@ public class DefaultParser {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Error while default values with file" + defaultValueFilePath, e);
+            log.error("Error while default values with file" + defaultValueFilePath, e);
 
         } catch (IllegalAccessException e) {
             throw new ConfigParserException("Error while accessing Handler", e);
@@ -72,7 +72,7 @@ public class DefaultParser {
         return enrichedContext;
     }
 
-    private static Map<String, Object> readConfiguration(String defaultValueFilePath) throws IOException {
+    private static LinkedHashMap readConfiguration(String defaultValueFilePath) throws IOException {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(defaultValueFilePath)) {

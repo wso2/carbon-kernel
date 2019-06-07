@@ -60,14 +60,14 @@ import java.util.Map;
  */
 public class Validator {
 
-    private static final Log LOG = LogFactory.getLog(Validator.class);
+    private static final Log log = LogFactory.getLog(Validator.class);
 
     private static final String IF = "if";
     private static final String REGEX = "regex";
     private static final String EMPTY_STRING = "";
     private static final String EMPTY_STRING_MESSAGE = "an empty string";
 
-    private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
+    private static Map readConfiguration(String validationConfigFilePath) throws IOException {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(validationConfigFilePath)) {
@@ -102,16 +102,16 @@ public class Validator {
                 if (configurationValues.containsKey(entry.getKey())) {
                     Object configValue = configurationValues.get(entry.getKey());
                     if (!configValue.equals(entry.getValue())) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug(String.format("Condition doesn't match for %s, not enforcing rule. Expected %s " +
-                                    "for rule, was %s", entry.getKey(), configValue, entry.getValue()));
+                        if (log.isDebugEnabled()) {
+                            log.debug(String.format("Condition doesn't match for %s, not enforcing rule. Expected %s " +
+                                                    "for rule, was %s", entry.getKey(), configValue, entry.getValue()));
                         }
                         return;
                     }
                 } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Config %s is not present, hence not enforcing rule. ",
-                                entry.getKey()));
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Config %s is not present, hence not enforcing rule. ",
+                                                entry.getKey()));
                     }
                     return;
                 }
@@ -147,7 +147,7 @@ public class Validator {
         String[] splittedArray = StringUtils.split(keyToValidate, ":");
         if (splittedArray != null && splittedArray.length == 2) {
             Object configurations = configurationValues.get(splittedArray[0]);
-            if (configurations != null && configurations instanceof List) {
+            if (configurations instanceof List) {
                 ((List) configurations).forEach(configuration -> {
                     if (configuration instanceof Map) {
                         if (((Map) configuration).get(splittedArray[1]) != null) {
