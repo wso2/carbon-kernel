@@ -33,6 +33,7 @@ import org.xmlunit.diff.ElementSelectors;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -168,7 +169,13 @@ public class ConfigParserTest {
 
         // Remove deployment.toml and check
         Paths.get(tempDir.toString(), "deployment.toml").toFile().delete();
-        ConfigParser.parse(configFilePath, resourceDir, tempDir.toString());
+        boolean exceptionWithNoToml = false;
+        try {
+            ConfigParser.parse(configFilePath, resourceDir, tempDir.toString());
+        } catch (FileNotFoundException e) {
+            exceptionWithNoToml = true;
+        }
+        Assert.assertTrue(exceptionWithNoToml);
     }
 
     @DataProvider(name = "scenarios")

@@ -25,6 +25,7 @@ import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -59,64 +60,84 @@ public class ConfigParser {
     private static final String META_DATA_DIRECTORY = ".metadata";
     private static final String JINJA_TEMPLATE_EXTENSION = ".j2";
 
+    private ConfigParser() {
+    }
+
     /**
      * Parse Toml file and write configurations into relevant places.
      *
-     * @param configFilePath    deployment.toml file path
-     * @param resourcesDir      templates and rules directory
-     * @param outputDir         configuration destination directory
-     * @throws ConfigParserException
+     * @param configFilePath deployment.toml file path
+     * @param resourcesDir   templates and rules directory
+     * @param outputDir      configuration destination directory
+     * @throws ConfigParserException config parser exception
      */
     public static void parse(String configFilePath, String resourcesDir, String outputDir)
-            throws ConfigParserException {
+            throws ConfigParserException, FileNotFoundException {
         ConfigPaths.setPaths(configFilePath, resourcesDir, outputDir);
+        File deploymentConfigurationFile = new File(configFilePath);
+        if (!deploymentConfigurationFile.exists()) {
+            throw new FileNotFoundException("deployment.toml not found at " + configFilePath);
+        }
         try {
-            File deploymentConfigurationFile = new File(configFilePath);
-            if (deploymentConfigurationFile.exists()) {
-                if (Boolean.getBoolean(ConfigConstants.OVERRIDE_CONFIGURATION_ALWAYS)) {
+            if (Boolean.getBoolean(ConfigConstants.OVERRIDE_CONFIGURATION_ALWAYS)) {
+                if (log.isDebugEnabled()) {
                     log.debug("Forceful override configuration");
-                    deployAndStoreMetadata();
-                } else {
-                    List<String> configurationPaths = Arrays.asList(ConfigPaths.getTemplateFileDir(),
-                        ConfigPaths.getInferConfigurationFilePath(),
-                        ConfigPaths.getDefaultValueFilePath(), ConfigPaths.getValidatorFilePath(),
-                        ConfigPaths.getMappingFilePath(), ConfigPaths.getUnitResolverFilePath());
-                    ChangedFileSet templateChanged = MetaDataParser.getChangedFiles(outputDir, configurationPaths,
-                                   ConfigPaths.getMetadataTemplateFilePath());
-                    ChangedFileSet configurationChanged = MetaDataParser.getChangedFiles(outputDir,
-                                   ConfigPaths.getMetadataFilePath());
-                    boolean referencesChanged = MetaDataParser.isReferencesChanged(
-                            ConfigPaths.getMetadataPropertyPath());
-                    if (templateChanged.isChanged() || configurationChanged.isChanged() || referencesChanged) {
-
-                        if (templateChanged.isChanged()) {
-                            // template Metadata changed then deploy and write
-                            templateChanged.getChangedFiles().forEach(path ->
-                                log.warn("Configurations templates Changed in :" + path));
-                            templateChanged.getNewFiles().forEach(path ->
-                                log.warn("New Configurations found in :" + path));
-
-                            log.info("Applying Configurations upon new Templates");
-                        }
-                        if (configurationChanged.isChanged()) {
-                            configurationChanged.getChangedFiles().forEach(path ->
-                                log.warn("Configurations Changed in :" + path));
-                            log.warn("Overriding files in configuration directory " + outputDir);
-                        }
-                        if (referencesChanged) {
-                            log.warn("Configuration value changed in references, Overriding files in the " +
-                                     "configuration directory" + outputDir);
-                        }
-                        deployAndStoreMetadata();
-                    }
                 }
+                deployAndStoreMetadata();
             } else {
-                log.warn("deployment.toml not found at " + configFilePath);
+                List<String> configurationPaths =
+                        Arrays.asList(ConfigPaths.getTemplateFileDir(),
+                                      ConfigPaths.getInferConfigurationFilePath(),
+                                      ConfigPaths.getDefaultValueFilePath(), ConfigPaths.getValidatorFilePath(),
+                                      ConfigPaths.getMappingFilePath(), ConfigPaths.getUnitResolverFilePath());
+                ChangedFileSet templateFileSet =
+                        MetaDataParser.getChangedFiles(outputDir, configurationPaths,
+                                                       ConfigPaths.getMetadataTemplateFilePath());
+                ChangedFileSet configFileSet =
+                        MetaDataParser.getChangedFiles(outputDir, ConfigPaths.getMetadataFilePath());
+                boolean referencesVariableChanged = MetaDataParser.isReferencesChanged(
+                        ConfigPaths.getMetadataPropertyPath());
+                if (isDeploymentRequired(templateFileSet, configFileSet, referencesVariableChanged)) {
+
+                    if (templateFileSet.isChanged()) {
+                        // template Metadata changed then deploy and write
+                        templateFileSet.getChangedFiles().
+                                forEach(path -> log.warn("Configurations templates Changed in :" + path));
+                        templateFileSet.getNewFiles().
+                                forEach(path -> log.warn("New Configurations found in :" + path));
+
+                        log.info("Applying Configurations upon new Templates");
+                    }
+                    if (configFileSet.isChanged()) {
+                        configFileSet.getChangedFiles().
+                                forEach(path -> log.warn("Configurations Changed in :" + path));
+                        log.warn("Overriding files in configuration directory " + outputDir);
+                    }
+                    if (referencesVariableChanged) {
+                        log.warn("Configuration value changed in references, Overriding files in the " +
+                                 "configuration directory" + outputDir);
+                    }
+                    deployAndStoreMetadata();
+                }
             }
+
         } catch (IOException e) {
             throw new ConfigParserException("Error while store new configurations", e);
         }
 
+    }
+
+    private static boolean isDeploymentRequired(ChangedFileSet templateFileSet, ChangedFileSet configFileSet,
+                                                boolean referencesVariableChanged) {
+
+        if (templateFileSet.isChanged() || configFileSet.isChanged() || referencesVariableChanged) {
+             return true;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("No file changes detected");
+        }
+        return false;
     }
 
     private static void backupConfigurations(String configFilePath, String backupPath) throws ConfigParserException {
@@ -129,16 +150,20 @@ public class ConfigParser {
 
     private static void deployAndStoreMetadata() throws IOException, ConfigParserException {
 
-        log.debug("Backed up the configurations into " + ConfigPaths.getOutputDir() + File.separator +
-                 "backup");
+        if (log.isDebugEnabled()) {
+            log.debug("Backed up the configurations into " + ConfigPaths.getOutputDir() + File.separator +
+                      "backup");
+        }
         backupConfigurations(ConfigPaths.getOutputDir(), Paths.get(ConfigPaths.getOutputDir(), "backup").toString());
         Context context = new Context();
         Set<String> deployedFileSet = deploy(context, ConfigPaths.getOutputDir());
 
         log.info("Writing Metadata Entries...");
         Set<String> entries = new HashSet<>(Arrays.asList(ConfigPaths.getTemplateFileDir(),
-            ConfigPaths.getInferConfigurationFilePath(), ConfigPaths.getDefaultValueFilePath(),
-            ConfigPaths.getUnitResolverFilePath(), ConfigPaths.getValidatorFilePath(),
+                                                          ConfigPaths.getInferConfigurationFilePath(),
+                                                          ConfigPaths.getDefaultValueFilePath(),
+                                                          ConfigPaths.getUnitResolverFilePath(),
+                                                          ConfigPaths.getValidatorFilePath(),
                                                           ConfigPaths.getMappingFilePath()));
 
         try {
@@ -149,7 +174,7 @@ public class ConfigParser {
                                                 ConfigPaths.getMetadataFilePath(), deployedFileSet);
             MetaDataParser.storeReferences(ConfigPaths.getMetadataPropertyPath(), context);
         } catch (ConfigParserException e) {
-            log.warn("Error while Storing Metadata Entries", e);
+            log.warn("Error while storing metadata entries", e);
         }
     }
 
@@ -161,18 +186,19 @@ public class ConfigParser {
             Map<String, String> outputs = parse(context);
             for (Map.Entry<String, String> entry : outputs.entrySet()) {
                 File outputFile = new File(outputDir, entry.getKey());
-                if (!outputFile.getParentFile().exists()) {
-                    if (!outputFile.getParentFile().mkdirs()) {
-                        throw new ConfigParserException("Error while creating new directory " + outputFilePath);
+                if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
+                    throw new ConfigParserException("Error while creating new directory " + outputFilePath);
+                } else {
+                    if (!outputFile.createNewFile()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(outputFile.getAbsolutePath() + "File already exist");
+                        }
                     }
-                }
-                if (!outputFile.createNewFile()) {
-                    log.debug(outputFile.getAbsolutePath() + "File already exist");
-                }
-                try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-                        new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
-                    outputStreamWriter.write(entry.getValue());
-                    changedFileSet.add(outputFile.getAbsolutePath());
+                    try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
+                            new FileOutputStream(outputFile), Charset.forName("UTF-8"))) {
+                        outputStreamWriter.write(entry.getValue());
+                        changedFileSet.add(outputFile.getAbsolutePath());
+                    }
                 }
             }
         }
@@ -199,7 +225,7 @@ public class ConfigParser {
         File templateDir = new File(templateFileDir);
         if (!templateDir.exists() || !templateDir.isDirectory()) {
             throw new ConfigParserException(String.format("Template directory (%s) does not exist or is not a " +
-                    "directory", templateDir.getAbsolutePath()));
+                                                          "directory", templateDir.getAbsolutePath()));
         }
         return templateDir;
     }
@@ -222,8 +248,7 @@ public class ConfigParser {
 
     private static String getRelativeFilePath(File basePath, File file) {
 
-        String fileName = basePath.getParentFile().toPath()
-                .relativize(file.toPath()).toString();
+        String fileName = basePath.getParentFile().toPath().relativize(file.toPath()).toString();
         if (file.getName().endsWith(JINJA_TEMPLATE_EXTENSION)) {
             fileName = fileName.substring(0, (fileName.length() - JINJA_TEMPLATE_EXTENSION.length()));
         }
@@ -248,10 +273,20 @@ public class ConfigParser {
         private static String metadataTemplateFilePath;
         private static String metadataPropertyPath;
 
+        private ConfigPaths() {
+        }
+
+        /**
+         * Set paths to read templates, rules and output directory.
+         *
+         * @param configFilePath deployment toml file path
+         * @param resourcesDir   template and rules directory
+         * @param outputDir      result output directory
+         */
         static void setPaths(String configFilePath, String resourcesDir, String outputDir) {
             ConfigPaths.configFilePath = configFilePath;
             ConfigPaths.resourcesDir = resourcesDir;
-            ConfigPaths.outputDir =    outputDir;
+            ConfigPaths.outputDir = outputDir;
             ConfigPaths.templateFileDir = resourcesDir + File.separator + TEMPLATE_FILE_DIR;
             ConfigPaths.inferConfigurationFilePath = resourcesDir + File.separator + INFER_CONFIG_FILE_PATH;
             ConfigPaths.defaultValueFilePath = resourcesDir + File.separator + DEFAULT_VALUE_FILE_PATH;
@@ -279,7 +314,7 @@ public class ConfigParser {
         /**
          * Set deployment toml file path.
          *
-         * @param configFilePath    deployment toml file path
+         * @param configFilePath deployment toml file path
          */
         static void setConfigFilePath(String configFilePath) {
             ConfigPaths.configFilePath = configFilePath;
@@ -288,7 +323,7 @@ public class ConfigParser {
         /**
          * Get templates and rules directory path.
          *
-         * @return  resource file path
+         * @return resource file path
          */
         static String getResourcesDir() {
             return resourcesDir;
@@ -297,7 +332,7 @@ public class ConfigParser {
         /**
          * Get file configuration destination directory path.
          *
-         * @return  output directory path
+         * @return output directory path
          */
         static String getOutputDir() {
             return outputDir;
@@ -306,7 +341,7 @@ public class ConfigParser {
         /**
          * Get template directory file path.
          *
-         * @return  template files path
+         * @return template files path
          */
         static String getTemplateFileDir() {
             return templateFileDir;
@@ -315,7 +350,7 @@ public class ConfigParser {
         /**
          * Get Infer rules definition file path.
          *
-         * @return  infer config path
+         * @return infer config path
          */
         static String getInferConfigurationFilePath() {
             return inferConfigurationFilePath;
@@ -324,7 +359,7 @@ public class ConfigParser {
         /**
          * Get Default rules definition file path.
          *
-         * @return  default value path
+         * @return default value path
          */
         static String getDefaultValueFilePath() {
             return defaultValueFilePath;
@@ -342,7 +377,7 @@ public class ConfigParser {
         /**
          * Get validator rules definition file path.
          *
-         * @return  validator file path
+         * @return validator file path
          */
         static String getValidatorFilePath() {
             return validatorFilePath;
@@ -350,7 +385,8 @@ public class ConfigParser {
 
         /**
          * Get mapping rules definition file path.
-         * @return  mapping file path
+         *
+         * @return mapping file path
          */
         static String getMappingFilePath() {
             return mappingFilePath;
@@ -359,7 +395,7 @@ public class ConfigParser {
         /**
          * Get metadata file path.
          *
-         * @return  meta data file path
+         * @return meta data file path
          */
         static String getMetadataFilePath() {
             return metadataFilePath;
@@ -368,7 +404,7 @@ public class ConfigParser {
         /**
          * Get metadata property path.
          *
-         * @return  meta data property file path
+         * @return meta data property file path
          */
         static String getMetadataPropertyPath() {
             return metadataPropertyPath;
@@ -377,7 +413,7 @@ public class ConfigParser {
         /**
          * Get metadata template file path.
          *
-         * @return  meta data template file path
+         * @return meta data template file path
          */
         static String getMetadataTemplateFilePath() {
             return metadataTemplateFilePath;

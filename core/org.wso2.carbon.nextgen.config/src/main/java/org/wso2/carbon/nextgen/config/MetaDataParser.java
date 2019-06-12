@@ -41,9 +41,11 @@ import java.util.Set;
 /**
  * ConfigurationFileMetadata Persisting parser.
  */
-public class MetaDataParser {
+class MetaDataParser {
 
     private static Log log = LogFactory.getLog(MetaDataParser.class);
+
+    private MetaDataParser() {}
 
     static Map<String, String> readLastModifiedValues(String basePath, String path)
             throws ConfigParserException {
@@ -110,7 +112,6 @@ public class MetaDataParser {
         try (FileInputStream fileInputStream = new FileInputStream(metaDataFile)) {
             properties.load(fileInputStream);
         } catch (IOException e) {
-            log.error(metaDataFile + "Metadata File couldn't Read", e);
             throw new ConfigParserException("Metadata File couldn't Read", e);
         }
         ChangedFileSet changedFileSet = new ChangedFileSet();
@@ -138,7 +139,7 @@ public class MetaDataParser {
 
         File metaDataFile = new File(metadataFilePath);
         if (!metaDataFile.exists()) {
-            return new ChangedFileSet(true, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+            return new ChangedFileSet(true, Collections.emptyList(), Collections.emptyList());
         }
         Properties properties = new Properties();
 
@@ -151,10 +152,10 @@ public class MetaDataParser {
         ChangedFileSet changedFileSet = new ChangedFileSet();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String path = (String) entry.getKey();
-            String lastmodifiedValue = (String) entry.getValue();
+            String lastModifiedValue = (String) entry.getValue();
             String actualLastModifiedValue = readLastModifiedValue(Paths.get(basePath, path).toString());
             if (StringUtils.isNotEmpty(actualLastModifiedValue)) {
-                if (!lastmodifiedValue.equals(actualLastModifiedValue)) {
+                if (!lastModifiedValue.equals(actualLastModifiedValue)) {
                     changedFileSet.addChangedFile(path);
                 }
             }
@@ -162,14 +163,12 @@ public class MetaDataParser {
         return changedFileSet;
     }
 
-    public static void storeMetaDataEntries(String basePath, String outputFilePath, Set<String> entries)
+    static void storeMetaDataEntries(String basePath, String outputFilePath, Set<String> entries)
             throws ConfigParserException {
 
         File outputFile = new File(outputFilePath);
-        if (!outputFile.getParentFile().exists()) {
-            if (!outputFile.getParentFile().mkdirs()) {
-                throw new ConfigParserException("Error while creating new directory " + outputFile.getAbsolutePath());
-            }
+        if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
+            throw new ConfigParserException("Error while creating new directory " + outputFile.getAbsolutePath());
         }
         Properties properties = new Properties();
         for (String entry : entries) {
@@ -178,19 +177,16 @@ public class MetaDataParser {
         try (FileOutputStream fileOutputStream = new FileOutputStream(outputFilePath)) {
             properties.store(fileOutputStream, null);
         } catch (IOException e) {
-            log.error("error while storing metadata", e);
-            throw new ConfigParserException("error while storing metadata");
+            throw new ConfigParserException("Error while storing metadata", e);
         }
     }
 
-    public static void storeReferences(String metadataPropertyPath, Context context)
+    static void storeReferences(String metadataPropertyPath, Context context)
             throws ConfigParserException {
 
         File outputFile = new File(metadataPropertyPath);
-        if (!outputFile.getParentFile().exists()) {
-            if (!outputFile.getParentFile().mkdirs()) {
-                throw new ConfigParserException("Error while creating new directory " + outputFile.getAbsolutePath());
-            }
+        if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
+            throw new ConfigParserException("Error while creating new directory " + outputFile.getAbsolutePath());
         }
         try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(metadataPropertyPath),
                 StandardCharsets.UTF_8)) {

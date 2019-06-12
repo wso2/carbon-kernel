@@ -28,6 +28,7 @@ import org.wso2.carbon.nextgen.config.ConfigParser;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -232,11 +233,12 @@ public class Main {
 
     private static void handleConfiguration() {
         String resourcesDir = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
-        String configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH)  + File.separator + ConfigParser.UX_FILE_PATH;
+        String configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH)  + File.separator +
+                                ConfigParser.UX_FILE_PATH;
         String outputDir = System.getProperty(LauncherConstants.CARBON_HOME);
         try {
             ConfigParser.parse(configFilePath, resourcesDir, outputDir);
-        } catch (ConfigParserException e) {
+        } catch (ConfigParserException | FileNotFoundException e) {
             log.error("Error while performing configuration changes", e);
             System.exit(1);
         }

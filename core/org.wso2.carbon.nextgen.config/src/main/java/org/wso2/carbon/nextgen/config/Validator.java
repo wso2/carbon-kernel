@@ -67,7 +67,9 @@ public class Validator {
     private static final String EMPTY_STRING = "";
     private static final String EMPTY_STRING_MESSAGE = "an empty string";
 
-    private static Map readConfiguration(String validationConfigFilePath) throws IOException {
+    private Validator() { }
+
+    private static Map<String, Object> readConfiguration(String validationConfigFilePath) throws IOException {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(validationConfigFilePath)) {
@@ -140,7 +142,7 @@ public class Validator {
         }
     }
 
-    private static List getConfigurationValues(Map<String, Object> configurationValues, String keyToValidate) {
+    private static List<String> getConfigurationValues(Map<String, Object> configurationValues, String keyToValidate) {
 
         List<String> list = new ArrayList<>();
 

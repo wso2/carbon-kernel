@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -48,25 +47,20 @@ class ValueInferrer {
 
     private static final Log log = LogFactory.getLog(ValueInferrer.class);
 
-    static Context infer(Context context, String inferConfigFilePath) {
+    static Context infer(Context context, String inferConfigFilePath) throws ConfigParserException {
 
-        Map<String, Object> inferedContext = infer(context.getTemplateData(), inferConfigFilePath);
+        Map<String, Object> inferredContext = infer(context.getTemplateData(), inferConfigFilePath);
         context.getTemplateData().clear();
-        context.getTemplateData().putAll(inferedContext);
+        context.getTemplateData().putAll(inferredContext);
         return context;
     }
 
-    static Map<String, Object> infer(Map<String, Object> context, String inferConfigFilePath) {
+    static Map<String, Object> infer(Map<String, Object> context, String inferConfigFilePath)
+            throws ConfigParserException {
 
-        Map<String, Object> enrichedContext = Collections.emptyMap();
-        try {
-            enrichedContext = readConfiguration(inferConfigFilePath);
-            enrichedContext = getInferredValues(context, enrichedContext);
-            enrichedContext.putAll(context);
-            return enrichedContext;
-        } catch (ConfigParserException e) {
-            log.error("Error while inferring values with file " + inferConfigFilePath, e);
-        }
+        Map<String, Object> enrichedContext = readConfiguration(inferConfigFilePath);
+        enrichedContext = getInferredValues(context, enrichedContext);
+        enrichedContext.putAll(context);
         return enrichedContext;
     }
 
@@ -78,21 +72,22 @@ class ValueInferrer {
             Reader input = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
             return gson.fromJson(input, Map.class);
         } catch (IOException e) {
-            throw new ConfigParserException("Error while reading infering file", e);
+            throw new ConfigParserException("Error while reading inferring file", e);
         }
     }
 
-    private static Map<String, Object> getInferredValues(Map<String, Object> configurationValues, Map inferringData) {
+    private static Map<String, Object> getInferredValues(Map<String, Object> configurationValues,
+                                                         Map<String, Object> inferringData) {
 
         Map<String, Object> inferredValues = new LinkedHashMap<>();
         if (configurationValues != null) {
-            configurationValues.forEach((s, o) -> {
-                String matchedKey = getMatchedKey(s, inferringData.keySet());
+            configurationValues.forEach((key, value) -> {
+                String matchedKey = getMatchedKey(key, inferringData.keySet());
                 if (StringUtils.isNotEmpty(matchedKey)) {
-                    Map inferringValues = (Map) inferringData.get(matchedKey);
-                    if (inferringValues.containsKey(String.valueOf(o))) {
-                        Map valuesInferredByKey = new LinkedHashMap((Map) inferringValues.get(String.valueOf(o)));
-                        replaceReferences(matchedKey, s, valuesInferredByKey);
+                    Map<String, Object> inferringValues = (Map) inferringData.get(matchedKey);
+                    if (inferringValues.containsKey(String.valueOf(value))) {
+                        Map valuesInferredByKey = new LinkedHashMap((Map) inferringValues.get(String.valueOf(value)));
+                        replaceReferences(matchedKey, key, valuesInferredByKey);
                         getRecursiveInferredValues(inferredValues, valuesInferredByKey, inferringData);
                         inferredValues.putAll(valuesInferredByKey);
                     }
@@ -115,7 +110,7 @@ class ValueInferrer {
     private static void replaceReferences(String matchedKey, String s, Map<String, Object> valuesInferredByKey) {
 
         Map<String, String> resolvedValues = getResolvedValues(s, matchedKey);
-        new LinkedHashMap<String, Object>(valuesInferredByKey).forEach((key, value) -> {
+        new LinkedHashMap<>(valuesInferredByKey).forEach((key, value) -> {
             String resolvedKey = key;
             for (Map.Entry<String, String> entry : resolvedValues.entrySet()) {
                 String s1 = entry.getKey();
@@ -130,7 +125,7 @@ class ValueInferrer {
     }
 
     private static void getRecursiveInferredValues(Map context, Map<Object, Object> valuesInferredByKey,
-                                                   Map inferringData) {
+                                                   Map<String, Object> inferringData) {
 
         valuesInferredByKey.forEach((key, value) -> {
             String matchedKey = getMatchedKey((String) key, inferringData.keySet());

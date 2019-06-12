@@ -70,10 +70,8 @@ public class FileUtils {
 
     private static void writeFile(File file, String input) throws ConfigParserException {
 
-        if (!file.getParentFile().exists()) {
-            if (!file.getParentFile().mkdirs()) {
-                throw new ConfigParserException("Error while creating new directory " + file.getAbsolutePath());
-            }
+        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+            throw new ConfigParserException("Error while creating new directory " + file.getAbsolutePath());
         }
         try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),
                 StandardCharsets.UTF_8))) {
@@ -84,7 +82,7 @@ public class FileUtils {
         }
     }
 
-    static void writeDirectory(File configurations, File backupFile) throws ConfigParserException {
+    private static void writeDirectory(File configurations, File backupFile) throws ConfigParserException {
 
         backupFile = Paths.get(backupFile.getParent(), configurations.getName()).toFile();
         if (configurations.isDirectory()) {

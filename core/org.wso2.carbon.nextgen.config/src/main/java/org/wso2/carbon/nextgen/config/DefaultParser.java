@@ -58,12 +58,10 @@ class DefaultParser {
                     Object retrievedEnrichedContext = enrichedContext.getTemplateData().get(key);
                     Builders builders = readHandles(key);
                     enrichedContext.getTemplateData().put(key, builders.handle(retrievedEnrichedContext, value));
-
                 }
             }
         } catch (IOException e) {
-            log.error("Error while default values with file" + defaultValueFilePath, e);
-
+            throw new ConfigParserException("Error while default values with file" + defaultValueFilePath, e);
         } catch (IllegalAccessException e) {
             throw new ConfigParserException("Error while accessing Handler", e);
         } catch (InstantiationException | ClassNotFoundException e) {
@@ -86,8 +84,8 @@ class DefaultParser {
             IllegalAccessException, InstantiationException {
 
         Gson gson = new Gson();
-        Reader input = new InputStreamReader(DefaultParser.class.getClassLoader().getResourceAsStream("handle.json"),
-                StandardCharsets.UTF_8);
+        Reader input = new InputStreamReader(DefaultParser.class.getClassLoader()
+                        .getResourceAsStream("handle.json"), StandardCharsets.UTF_8);
         Map<String, String> handlers = gson.fromJson(input, Map.class);
         String className = handlers.get(key);
         if (className != null) {

@@ -27,14 +27,14 @@ import java.util.List;
 class ChangedFileSet {
 
     private boolean changed;
-    private List changedFiles = new ArrayList();
-    private List newFiles = new ArrayList();
+    private List<String> changedFiles;
+    private List<String> newFiles;
 
     ChangedFileSet() {
-
+        this(false, new ArrayList<>(), new ArrayList<>());
     }
 
-    ChangedFileSet(boolean changed, List changedFiles, List newFiles) {
+    ChangedFileSet(boolean changed, List<String> changedFiles, List<String> newFiles) {
 
         this.changed = changed;
         this.changedFiles = changedFiles;
@@ -46,12 +46,12 @@ class ChangedFileSet {
         return changed;
     }
 
-    List getChangedFiles() {
+    List<String> getChangedFiles() {
 
         return changedFiles;
     }
 
-    List getNewFiles() {
+    List<String> getNewFiles() {
 
         return newFiles;
     }

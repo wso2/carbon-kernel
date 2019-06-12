@@ -96,7 +96,7 @@ public class ReferenceResolverTest {
             ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
             Assert.fail();
         } catch (ConfigParserException e) {
-            Assert.assertTrue(e.getMessage().contains("Secret References can't be Plain-Text for "));
+            Assert.assertTrue(e.getMessage().contains("Secret references can't be plain text for "));
         }
     }
 
@@ -110,7 +110,7 @@ public class ReferenceResolverTest {
             ReferenceResolver.resolve(context, secrets, resolvedSystemProperties, resolvedEnvironmentVariables);
             Assert.fail();
         } catch (ConfigParserException e) {
-            Assert.assertTrue(e.getMessage().contains("Secret References can't be resolved for b.d.d"));
+            Assert.assertTrue(e.getMessage().contains("Secret references can't be resolved for b.d.d"));
         }
     }
 

@@ -33,7 +33,7 @@ public class ValueInferrerTest {
     private static final String INFER_TOML = "infer.json";
 
     @Test(dataProvider = "contextProvider")
-    public void testParse(Map<String, Object> context, String key, Object expectedValue) {
+    public void testParse(Map<String, Object> context, String key, Object expectedValue) throws ConfigParserException {
 
         String inferConfiguration =
                 FileUtils.getFile("src", "test", "resources", INFER_TOML).getAbsolutePath();
