@@ -1884,7 +1884,7 @@
         <jacoco.version>0.7.9</jacoco.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
-        <org.powermock.version>1.7.3</org.powermock.version>
+        <org.powermock.version>1.7.4</org.powermock.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
