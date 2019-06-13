@@ -72,6 +72,17 @@ class KeyMapper {
 
     /**
      * Process array keys that are denoted in the config file suffixed with a ":".
+     *
+     * ex:
+     * Toml configuration
+     * [a]
+     * b_c = "xyz"
+     * Key Mapper
+     * {
+     *  "a:b_c":"a:b.c"
+     * }
+     *
+     *
      */
     private static void processArrayKeys(Map<String, Object> keyMappings, Map<String, Object> mappedConfigs)
             throws ConfigParserException {
@@ -114,6 +125,16 @@ class KeyMapper {
                 }
                 map.put(splitValue[1], removedValue);
             } else if (value instanceof List) {
+                /* usecase
+                deployment.toml
+                [a]
+                b = "value"
+                keymapping.json
+                {"a.b":["x.y.z","c.d.e"]}
+                result
+                x.y.z = "value"
+                c.d.e = "value"
+                 */
                 for (String mappedValue : (List<String>) value) {
                     String[] splitValue = mappedValue.split(":");
                     if (splitValue.length != 2) {

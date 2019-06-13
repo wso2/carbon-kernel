@@ -76,10 +76,12 @@ public class ConfigParser {
         ConfigPaths.setPaths(configFilePath, resourcesDir, outputDir);
         File deploymentConfigurationFile = new File(configFilePath);
         if (!deploymentConfigurationFile.exists()) {
+            // If Deployment.toml didn't exist don't start server.
             throw new FileNotFoundException("deployment.toml not found at " + configFilePath);
         }
         try {
             if (Boolean.getBoolean(ConfigConstants.OVERRIDE_CONFIGURATION_ALWAYS)) {
+                //if -DforceConfigUpdate is true apply configurations forcefully.
                 if (log.isDebugEnabled()) {
                     log.debug("Forceful override configuration");
                 }
@@ -100,7 +102,7 @@ public class ConfigParser {
                 if (isDeploymentRequired(templateFileSet, configFileSet, referencesVariableChanged)) {
 
                     if (templateFileSet.isChanged()) {
-                        // template Metadata changed then deploy and write
+                        // Log changed files.
                         templateFileSet.getChangedFiles().
                                 forEach(path -> log.warn("Configurations templates Changed in :" + path));
                         templateFileSet.getNewFiles().
@@ -109,6 +111,7 @@ public class ConfigParser {
                         log.info("Applying Configurations upon new Templates");
                     }
                     if (configFileSet.isChanged()) {
+                        // Log changed files.
                         configFileSet.getChangedFiles().
                                 forEach(path -> log.warn("Configurations Changed in :" + path));
                         log.warn("Overriding files in configuration directory " + outputDir);
@@ -127,6 +130,13 @@ public class ConfigParser {
 
     }
 
+    /**
+     * Check Any kind of file get changed in deployment.
+     * @param templateFileSet set of templates with md5sum values
+     * @param configFileSet set of config files with md5sum values.
+     * @param referencesVariableChanged set of (environment variable,system properies)
+     * @return true if any one of above changed.
+     */
     private static boolean isDeploymentRequired(ChangedFileSet templateFileSet, ChangedFileSet configFileSet,
                                                 boolean referencesVariableChanged) {
 
@@ -140,6 +150,13 @@ public class ConfigParser {
         return false;
     }
 
+    /**
+     * Used to backup existing running configurations,templates,and deployment.toml
+     *
+     * @param configFilePath path contains the configurations
+     * @param backupPath path to backup
+     * @throws ConfigParserException
+     */
     private static void backupConfigurations(String configFilePath, String backupPath) throws ConfigParserException {
 
         File backupFile = new File(backupPath);
@@ -178,6 +195,16 @@ public class ConfigParser {
         }
     }
 
+    /**
+     * Write value filled config files into directory.
+     *
+     * @param context Parsing Context.
+     * @param outputFilePath path to write configuration files.
+     * @return list of files written into path.
+     * @throws IOException If file write get failed throw IO exception
+     * @throws ConfigParserException if unable to create parent directory.
+     *
+     */
     private static Set<String> deploy(Context context, String outputFilePath) throws IOException,
                                                                                      ConfigParserException {
         File outputDir = new File(outputFilePath);
@@ -205,6 +232,13 @@ public class ConfigParser {
         return changedFileSet;
     }
 
+    /**
+     * This generates the final output of configurations
+     *
+     * @param context Parsing Context to use between phases.
+     * @return <Relative File Path,Configuration content>
+     * @throws ConfigParserException
+     */
     static Map<String, String> parse(Context context) throws ConfigParserException {
 
         File templateDir = checkTemplateDirExistence(ConfigPaths.getTemplateFileDir());
@@ -220,6 +254,12 @@ public class ConfigParser {
         return JinjaParser.parse(context, fileNames);
     }
 
+    /**
+     * Check and get template directory if exist
+     * @param templateFileDir template file directory.
+     * @return File Object if exist the path.
+     * @throws ConfigParserException
+     */
     private static File checkTemplateDirExistence(String templateFileDir) throws ConfigParserException {
 
         File templateDir = new File(templateFileDir);
@@ -230,6 +270,11 @@ public class ConfigParser {
         return templateDir;
     }
 
+    /**
+     * Retrieve all the template files in map structure
+     * @param templateDir Template directory
+     * @return Map containing <Relative Template File Path,File of template>
+     */
     private static Map<String, File> getTemplatedFilesMap(File templateDir) {
 
         Map<String, File> fileNames = new LinkedHashMap<>();

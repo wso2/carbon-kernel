@@ -38,8 +38,6 @@ import java.util.Map;
  */
 class DefaultParser {
 
-    private static final Log log = LogFactory.getLog(DefaultParser.class);
-
     private DefaultParser() {
 
     }
