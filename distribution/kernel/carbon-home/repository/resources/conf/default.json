@@ -187,5 +187,8 @@
   "owasp.csrfguard.create_token_per_page": false,
   "owasp.csrfguard.token_length": "32",
   "owasp.csrfguard.random_number_generator_algo": "SHA1PRNG",
-  "owasp.csrfguard.js_servlet.x_request_with_header": "WSO2 CSRF Protection"
+  "owasp.csrfguard.js_servlet.x_request_with_header": "WSO2 CSRF Protection",
+
+  "tomcat.global.session_timeout": "30m",
+  "tomcat.management_console.session_timeout": "15m"
 }
