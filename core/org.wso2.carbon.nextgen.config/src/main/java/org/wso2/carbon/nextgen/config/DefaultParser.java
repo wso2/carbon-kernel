@@ -34,11 +34,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Default value pasing .
+ * Default value parsing .
  */
-public class DefaultParser {
+class DefaultParser {
 
-    private static final Log LOGGER = LogFactory.getLog(DefaultParser.class);
+    private static final Log log = LogFactory.getLog(DefaultParser.class);
 
     private DefaultParser() {
 
@@ -58,12 +58,10 @@ public class DefaultParser {
                     Object retrievedEnrichedContext = enrichedContext.getTemplateData().get(key);
                     Builders builders = readHandles(key);
                     enrichedContext.getTemplateData().put(key, builders.handle(retrievedEnrichedContext, value));
-
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Error while default values with file" + defaultValueFilePath, e);
-
+            throw new ConfigParserException("Error while default values with file" + defaultValueFilePath, e);
         } catch (IllegalAccessException e) {
             throw new ConfigParserException("Error while accessing Handler", e);
         } catch (InstantiationException | ClassNotFoundException e) {
@@ -72,7 +70,7 @@ public class DefaultParser {
         return enrichedContext;
     }
 
-    private static Map<String, Object> readConfiguration(String defaultValueFilePath) throws IOException {
+    private static LinkedHashMap readConfiguration(String defaultValueFilePath) throws IOException {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(defaultValueFilePath)) {
@@ -86,8 +84,8 @@ public class DefaultParser {
             IllegalAccessException, InstantiationException {
 
         Gson gson = new Gson();
-        Reader input = new InputStreamReader(DefaultParser.class.getClassLoader().getResourceAsStream("handle.json"),
-                StandardCharsets.UTF_8);
+        Reader input = new InputStreamReader(DefaultParser.class.getClassLoader()
+                        .getResourceAsStream("handle.json"), StandardCharsets.UTF_8);
         Map<String, String> handlers = gson.fromJson(input, Map.class);
         String className = handlers.get(key);
         if (className != null) {

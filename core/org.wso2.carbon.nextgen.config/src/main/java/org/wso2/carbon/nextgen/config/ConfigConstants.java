@@ -23,17 +23,15 @@ package org.wso2.carbon.nextgen.config;
  * Constants for Configuration.
  */
 public class ConfigConstants {
-    public static final String ENABLE_SEC_VAULT = "secVault.enabled";
-    public static final String SECRET_PROPERTY_MAP_NAME = "secrets";
+    private ConfigConstants() {
 
-    public static final String SECRETS_SECTION = "[secrets]";
-    public static final String SECTION_PREFIX = "[";
-    public static final String SECTION_SUFFIX = "]";
+    }
+    static final String ENABLE_SEC_VAULT = "secVault.enabled";
+    static final String SECRET_PROPERTY_MAP_NAME = "secrets";
 
-    public static final String KEY_VALUE_SEPERATOR = "=";
-    public static final String ENCRYPT_SECRETS = "encryptSecrets";
-    public static final String OVERRIDE_CONFIGURATION_ALWAYS = "forceConfigUpdate";
-    public static final String SYSTEM_PROPERTY_PREFIX = "sys:";
-    public static final String ENVIRONMENT_VARIABLE_PREFIX = "env:";
+    static final String ENCRYPT_SECRETS = "encryptSecrets";
+    static final String OVERRIDE_CONFIGURATION_ALWAYS = "forceConfigUpdate";
+    static final String SYSTEM_PROPERTY_PREFIX = "sys:";
+    static final String ENVIRONMENT_VARIABLE_PREFIX = "env:";
 
 }

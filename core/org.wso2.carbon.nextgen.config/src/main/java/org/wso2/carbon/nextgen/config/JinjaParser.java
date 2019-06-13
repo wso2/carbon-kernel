@@ -37,7 +37,7 @@ import java.util.Map;
  */
 class JinjaParser {
 
-    private static final Log LOGGER = LogFactory.getLog(JinjaParser.class);
+    private static final Log log = LogFactory.getLog(JinjaParser.class);
 
 
     private JinjaParser() {
@@ -57,7 +57,7 @@ class JinjaParser {
                 renderedTemplate = jinjava.render(template, dottedKeyMap);
 
             } catch (ConfigParserException e) {
-                LOGGER.error("Error while parsing Jinja template", e);
+                log.error("Error while parsing Jinja template", e);
             }
             outputs.put(templateFile.getKey(), renderedTemplate);
         });

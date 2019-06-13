@@ -40,36 +40,19 @@ import java.util.Set;
  */
 class TomlParser {
 
-    private static final Log LOGGER = LogFactory.getLog(TomlParser.class);
+    private static final Log log = LogFactory.getLog(TomlParser.class);
 
-    private TomlParseResult result;
+    private TomlParser() { }
 
-    public TomlParser(String path) {
+    private static Map<String, Object> parseToml(TomlParseResult result) {
 
-        try {
-            TomlParseResult result;
-            result = Toml.parse(Paths.get(path));
-            result.errors().forEach(error -> LOGGER.error(error.toString()));
-            this.result = result;
-        } catch (IOException e) {
-            LOGGER.error("Error parsing file " + path, e);
-        }
-    }
-
-    Map<String, Object> parse() {
-
-        return parseToml(result);
-    }
-
-    private Map<String, Object> parseToml(TomlParseResult result) {
-
-        Map<String, Object> context = new LinkedHashMap<>();
+        Map<String, Object> templateContext = new LinkedHashMap<>();
         Set<String> dottedKeySet = result.dottedKeySet();
         for (String dottedKey : dottedKeySet) {
             dottedKey = dottedKey.replaceAll("\"", "'");
-            context.put(dottedKey, getValue(result.get(dottedKey)));
+            templateContext.put(dottedKey, getValue(result.get(dottedKey)));
         }
-        return context;
+        return templateContext;
     }
 
     /**
@@ -97,7 +80,7 @@ class TomlParser {
      * @param tomlTable {@link TomlTable}
      * @return Map representation of the {@link TomlTable}
      */
-    private static Object processTomlMap(TomlTable tomlTable) {
+    private static Map<String, Object> processTomlMap(TomlTable tomlTable) {
 
         Map<String, Object> finalMap = new LinkedHashMap<>();
         Set<String> dottedKeySet = tomlTable.dottedKeySet();
@@ -105,8 +88,9 @@ class TomlParser {
             Object value = tomlTable.get(key);
             if (value instanceof TomlArray) {
                 finalMap.put(key, processTomlArray((TomlArray) value));
+            } else {
+                finalMap.put(key, tomlTable.get(key));
             }
-            finalMap.put(key, tomlTable.get(key));
         }
 
         return finalMap;
@@ -118,9 +102,9 @@ class TomlParser {
      * @param value {@link TomlArray}
      * @return List representation of the {@link TomlArray}
      */
-    private static Object processTomlArray(TomlArray value) {
+    private static List<Object> processTomlArray(TomlArray value) {
 
-        ArrayList<Object> finalList = new ArrayList<>();
+        List<Object> finalList = new ArrayList<>();
         List<Object> tomlList = value.toList();
         for (Object obj : tomlList) {
             if (obj instanceof TomlArray) {
@@ -134,15 +118,9 @@ class TomlParser {
         return finalList;
     }
 
-    public Map<String, String> getSecrets() {
-
-        return processSecrets(result);
-    }
-
-    private Map<String, String> processSecrets(TomlParseResult result) {
+    private static Map<String, String> processSecrets(TomlParseResult result) {
 
         Map<String, String> context = new LinkedHashMap<>();
-        result.errors().forEach(error -> LOGGER.error(error.toString()));
         TomlTable table = result.getTable(ConfigConstants.SECRET_PROPERTY_MAP_NAME);
         if (table != null) {
             table.dottedKeySet().forEach(key -> context.put(key, table.getString(key)));
@@ -150,9 +128,18 @@ class TomlParser {
         return context;
     }
 
-    public Context parse(Context context) {
-        context.getTemplateData().putAll(parseToml(result));
-        context.getSecrets().putAll(processSecrets(result));
+    static Context parse(Context context) throws ConfigParserException {
+        try {
+            TomlParseResult parseResult = Toml.parse(Paths.get(ConfigParser.ConfigPaths.getConfigFilePath()));
+            if (parseResult.hasErrors()) {
+                parseResult.errors().forEach(error -> log.error(error.toString()));
+                throw new ConfigParserException("Error parsing deployment configuration");
+            }
+            context.getTemplateData().putAll(parseToml(parseResult));
+            context.getSecrets().putAll(processSecrets(parseResult));
+        } catch (IOException e) {
+            throw new ConfigParserException("Error parsing file " + ConfigParser.ConfigPaths.getConfigFilePath(), e);
+        }
         return context;
     }
 }

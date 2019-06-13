@@ -22,6 +22,7 @@ package org.wso2.carbon.nextgen.config;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.nextgen.config.model.Context;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ReferenceResolver {
     /**
      * Resolves the placeholder strings.
      *
-     * @param context
+     * @param context Context object
      * @throws ConfigParserException
      */
     public static void resolve(Context context) throws ConfigParserException {
@@ -74,9 +75,11 @@ public class ReferenceResolver {
     /**
      * Resolves the placeholder strings.
      *
-     * @param resolvedSystemProperties
-     * @param resolvedEnvironmentVariables
-     * @throws ConfigParserException
+     * @param templateData      template data
+     * @param secrets           map of secrets
+     * @param resolvedSystemProperties          map of resolved system properties
+     * @param resolvedEnvironmentVariables      map of resolved environment varialbles
+     * @throws ConfigParserException            Config parser exception
      */
     static void resolve(Map<String, Object> templateData, Map<String, String> secrets, Map<String,
             String> resolvedSystemProperties, Map<String, String> resolvedEnvironmentVariables)
@@ -99,11 +102,16 @@ public class ReferenceResolver {
         Map<String, Set<String>> unresolvedKeys = new LinkedHashMap<>();
         Map<String, Set<String>> valuesToResolve = new LinkedHashMap<>();
 
-        context.forEach((k, v) -> {
-            if (v instanceof String) {
-                extractPlaceholdersFromString(k, (String) v, unresolvedKeys, valuesToResolve);
+        context.forEach((key, value) -> {
+            if (value instanceof String) {
+                extractPlaceholdersFromString(key, (String) value, unresolvedKeys, valuesToResolve);
+            } else if (value instanceof ArrayList) {
+                for (Object elementItem : (ArrayList) value) {
+                    if (elementItem instanceof String) {
+                        extractPlaceholdersFromString(key, (String) elementItem, unresolvedKeys, valuesToResolve);
+                    }
+                }
             }
-            //todo handle list types
         });
 
         boolean atLeastOneResolved = true;
@@ -140,8 +148,7 @@ public class ReferenceResolver {
     private static void extractPlaceholdersFromString(String key, String value, Map<String, Set<String>> unresolvedKeys,
                                                       Map<String, Set<String>> valuesToResolve) {
 
-        String[] fileRefs = StringUtils.substringsBetween(value, CONF_PLACEHOLDER_PREFIX,
-                PLACEHOLDER_SUFFIX);
+        String[] fileRefs = StringUtils.substringsBetween(value, CONF_PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX);
         if (fileRefs != null && fileRefs.length > 0) {
             for (String ref : fileRefs) {
                 Set<String> dependentKeys = valuesToResolve.getOrDefault(ref, new HashSet<>());
@@ -186,7 +193,7 @@ public class ReferenceResolver {
      * @param context The configuration context
      * @param secrets
      */
-    public static void resolveSecrets(Map<String, Object> context, Map secrets) throws ConfigParserException {
+    private static void resolveSecrets(Map<String, Object> context, Map secrets) throws ConfigParserException {
 
         boolean enabledSecret = false;
         for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -222,13 +229,13 @@ public class ReferenceResolver {
                 for (String secretRef : secretRefs) {
                     Object secretValue = secrets.get(secretRef);
                     if (secretValue == null) {
-                        throw new ConfigParserException("Secret References can't be resolved for " + secretRef);
+                        throw new ConfigParserException("Secret references can't be resolved for " + secretRef);
                     } else if (!(!(secretValue instanceof String)
                             || Boolean.getBoolean(ConfigConstants.ENCRYPT_SECRETS))) {
                         String[] secretArray = StringUtils.substringsBetween((String) secretValue,
                                 PLAIN_TEXT_VALUE_PLACE_HOLDER_PREFIX, PLAIN_TEXT_VALUE_PLACE_HOLDER_SUFFIX);
                         if (secretArray != null && secretArray.length > 0) {
-                            throw new ConfigParserException("Secret References can't be Plain-Text for " + secretRef);
+                            throw new ConfigParserException("Secret references can't be plain text for " + secretRef);
                         }
                     }
                     exists = true;
@@ -245,7 +252,7 @@ public class ReferenceResolver {
      * @param references Resolved Environment Variables;
      * @throws ConfigParserException if Environment Variable not defined
      */
-    private static void resolveEnvVariables(Map<String, Object> context, Map references)
+    private static void resolveEnvVariables(Map<String, Object> context, Map<String, String> references)
             throws ConfigParserException {
 
         for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -283,7 +290,6 @@ public class ReferenceResolver {
         for (String k : dependentKeys) {
             Object existingValue = context.get(k);
             if (value instanceof List) {
-                //todo $ref-someOtherString when $ref is a list
                 context.put(k, value);
             } else if (value instanceof Boolean) {
                 context.put(k, value);
@@ -292,6 +298,15 @@ public class ReferenceResolver {
                         CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX),
                         Matcher.quoteReplacement(value.toString()));
                 context.put(k, existingValue);
+            } else if (existingValue instanceof  ArrayList) {
+                ArrayList<String> modifiedValueList = new ArrayList<>();
+                for (String item : (ArrayList<String>) existingValue) {
+                    item = item.replaceAll(Pattern.quote(
+                            CONF_PLACEHOLDER_PREFIX + key + PLACEHOLDER_SUFFIX),
+                                           Matcher.quoteReplacement(value.toString()));
+                    modifiedValueList.add(item);
+                }
+                context.put(k, modifiedValueList);
             }
         }
     }
@@ -315,7 +330,7 @@ public class ReferenceResolver {
                     value = value.replaceAll(Pattern.quote(SYS_PROPERTY_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
                             property);
                 } else {
-                    throw new ConfigParserException("Error while Retrieving " + ref + " System Property");
+                    throw new ConfigParserException("Error while retrieving " + ref + " system property");
                 }
             }
         }
@@ -340,7 +355,7 @@ public class ReferenceResolver {
                     value = value.replaceAll(Pattern.quote(ENV_VAR_PLACEHOLDER_PREFIX + ref + PLACEHOLDER_SUFFIX),
                             resolvedValue);
                 } else {
-                    throw new ConfigParserException("Environment Variable " + ref + " Not defined in system");
+                    throw new ConfigParserException("Environment variable " + ref + " not defined in system");
                 }
             }
         }

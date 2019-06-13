@@ -28,6 +28,7 @@ import org.wso2.carbon.nextgen.config.ConfigParser;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -95,14 +96,11 @@ public class Main {
         if (System.getProperty(LauncherConstants.PROFILE) == null) {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
-        if (Boolean.getBoolean(ConfigConstants.ENCRYPT_SECRETS)) {
-            handleConfiguration(true);
-        } else {
-            handleConfiguration(false);
-            invokeExtensions();
-            removeAllAppendersFromCarbon();
-            launchCarbon();
-        }
+        handleConfiguration();
+        invokeExtensions();
+        removeAllAppendersFromCarbon();
+        launchCarbon();
+
     }
 
     /**
@@ -233,30 +231,14 @@ public class Main {
         }
     }
 
-    private static void handleConfiguration(boolean encryption) {
-
-        String newConfigDirectoryPath = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
-        String configDirectoryPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
-        String carbonHomePath = System.getProperty(LauncherConstants.CARBON_HOME);
-        ConfigParser.ConfigParserBuilder configParserBuilder =
-                new ConfigParser.ConfigParserBuilder()
-                        .withBasePath(carbonHomePath)
-                        .withDeploymentConfigurationPath(configDirectoryPath)
-                        .withInferConfigurationFilePath(newConfigDirectoryPath)
-                        .withMappingFilePath(newConfigDirectoryPath)
-                        .withValidatorFilePath(newConfigDirectoryPath)
-                        .withTemplateFilePath(newConfigDirectoryPath)
-                        .withDefaultValueFilePath(newConfigDirectoryPath)
-                        .withMetaDataFilePath(newConfigDirectoryPath)
-                        .withUnitResolverFilePath(newConfigDirectoryPath);
+    private static void handleConfiguration() {
+        String resourcesDir = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
+        String configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH)  + File.separator +
+                                ConfigParser.UX_FILE_PATH;
+        String outputDir = System.getProperty(LauncherConstants.CARBON_HOME);
         try {
-            ConfigParser configParser = configParserBuilder.build();
-            configParser.parse(carbonHomePath);
-            if (encryption) {
-                System.clearProperty(LauncherConstants.CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
-                configParser.handleEncryption();
-            }
-        } catch (ConfigParserException e) {
+            ConfigParser.parse(configFilePath, resourcesDir, outputDir);
+        } catch (ConfigParserException | FileNotFoundException e) {
             log.error("Error while performing configuration changes", e);
             System.exit(1);
         }
