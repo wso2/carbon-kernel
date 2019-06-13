@@ -1,4 +1,6 @@
 {
   "time": {
+    "tomcat.global.session_timeout": "m",
+    "tomcat.management_console.session_timeout": "m"
   }
 }
