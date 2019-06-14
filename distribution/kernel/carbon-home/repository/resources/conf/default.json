@@ -15,7 +15,6 @@
       "isCascadeDeleteEnabled": true
     }
   },
-
   "user_store.properties.ReadGroups": true,
   "user_store.properties.UsernameJavaScriptRegEx": "^[\\S]{5,30}$",
   "user_store.properties.UsernameJavaRegExViolationErrorMsg": "Username pattern policy violated",
@@ -26,7 +25,6 @@
   "user_store.properties.MultiAttributeSeparator": ",",
   "user_store.properties.MaxUserNameListLength": "100",
   "user_store.properties.MaxRoleNameListLength": "100",
-
   "governance_data.data_source": "SHARED_DB",
   "governance_data.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
   "governance_data.enable_cache": true,
@@ -77,66 +75,20 @@
   "transport.https.keystoreFile": "${carbon.home}/repository/resources/security/$ref{keystore.tls.file_name}",
   "transport.https.keystorePass": "$ref{keystore.tls.password}",
   "transport.https.URIEncoding": "UTF-8",
-  "message_formatters": [
-    {
-      "content_type": "application/x-www-form-urlencoded",
-      "class": "org.apache.axis2.transport.http.XFormURLEncodedFormatter"
-    },
-    {
-      "content_type": "multipart/form-data",
-      "class": "org.apache.axis2.transport.http.MultipartFormDataFormatter"
-    },
-    {
-      "content_type": "application/xml",
-      "class": "org.apache.axis2.transport.http.ApplicationXMLFormatter"
-    },
-    {
-      "content_type": "text/xml",
-      "class": "org.apache.axis2.transport.http.SOAPMessageFormatter"
-    },
-    {
-      "content_type": "application/soap+xml",
-      "class": "org.apache.axis2.transport.http.SOAPMessageFormatter"
-    },
-    {
-      "content_type": "application/json",
-      "class": "org.apache.axis2.json.gson.JsonFormatter"
-    },
-    {
-      "content_type": "application/json/badgerfish",
-      "class": "org.apache.axis2.json.JSONBadgerfishMessageFormatter"
-    },
-    {
-      "content_type": "text/javascript",
-      "class": "org.apache.axis2.json.gson.JsonFormatter"
-    }
-  ],
-  "message_builders": [
-    {
-      "content_type": "application/xml",
-      "class": "org.apache.axis2.builder.ApplicationXMLBuilder"
-    },
-    {
-      "content_type": "application/x-www-form-urlencoded",
-      "class": "org.apache.axis2.builder.XFormURLEncodedBuilder"
-    },
-    {
-      "content_type": "multipart/form-data",
-      "class": "org.apache.axis2.builder.MultipartFormDataBuilder"
-    },
-    {
-      "content_type": "application/json",
-      "class": "org.apache.axis2.json.gson.JsonBuilder"
-    },
-    {
-      "content_type": "application/json/badgerfish",
-      "class": "org.apache.axis2.json.JSONBadgerfishOMBuilder"
-    },
-    {
-      "content_type": "text/javascript",
-      "class": "org.apache.axis2.json.gson.JsonBuilder"
-    }
-  ],
+  "message_formatter.form_urlencoded": "org.apache.axis2.transport.http.XFormURLEncodedFormatter",
+  "message_formatter.multipart_form_data": "org.apache.axis2.transport.http.MultipartFormDataFormatter",
+  "message_formatter.application_xml": "org.apache.axis2.transport.http.ApplicationXMLFormatter",
+  "message_formatter.text_xml": "org.apache.axis2.transport.http.SOAPMessageFormatter",
+  "message_formatter.soap_xml": "org.apache.axis2.transport.http.SOAPMessageFormatter",
+  "message_formatter.json": "org.apache.axis2.json.gson.JsonFormatter",
+  "message_formatter.json_badgerfish": "org.apache.axis2.json.JSONBadgerfishMessageFormatter",
+  "message_formatter.text_javascript": "org.apache.axis2.json.gson.JsonFormatter",
+  "message_builder.application_xml": "org.apache.axis2.builder.ApplicationXMLBuilder",
+  "message_builder.form_urlencoded": "org.apache.axis2.builder.XFormURLEncodedBuilder",
+  "message_builder.multipart_form_data": "org.apache.axis2.builder.MultipartFormDataBuilder",
+  "message_builder.json": "org.apache.axis2.json.gson.JsonBuilder",
+  "message_builder.json_badgerfish": "org.apache.axis2.json.JSONBadgerfishOMBuilder",
+  "message_builder.text_javascript": "org.apache.axis2.json.gson.JsonBuilder",
   "clustering.domain": "wso2.carbon.domain",
   "clustering.local_member_host": "$ref{server.node_ip}",
   "clustering.members": [
@@ -166,10 +118,8 @@
   "encryption.algorithm": "AES",
   "encryption.alias": "symmetric.key.value",
   "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider",
-
   "admin_console.authenticator.token_ui_authenticator.enable": false,
   "admin_console.authenticator.token_ui_authenticator.priority": "5",
-
   "admin_console.authenticator.saml_sso_authenticator.enable": false,
   "admin_console.authenticator.saml_sso_authenticator.priority": "10",
   "admin_console.authenticator.saml_sso_authenticator.config.LoginPage": "/carbon/admin/login.jsp",
@@ -179,16 +129,13 @@
   "admin_console.authenticator.saml_sso_authenticator.config.AssertionConsumerServiceURL": "$ref{server.base_path}/acs",
   "admin_console.authenticator.saml_sso_authenticator.config.JITUserProvisioningEnabled": false,
   "admin_console.authenticator.saml_sso_authenticator.config.IsSuperAdminRoleRequired": false,
-
   "admin_console.authenticator.mutual_ssl_authenticator.priority": "5",
   "admin_console.authenticator.mutual_ssl_authenticator.config.UsernameHeader": "UserName",
   "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": false,
-
   "owasp.csrfguard.create_token_per_page": false,
   "owasp.csrfguard.token_length": "32",
   "owasp.csrfguard.random_number_generator_algo": "SHA1PRNG",
   "owasp.csrfguard.js_servlet.x_request_with_header": "WSO2 CSRF Protection",
-
   "tomcat.global.session_timeout": "30m",
   "tomcat.management_console.session_timeout": "15m",
 

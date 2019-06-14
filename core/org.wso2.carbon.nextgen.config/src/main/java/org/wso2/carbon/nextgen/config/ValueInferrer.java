@@ -141,13 +141,39 @@ class ValueInferrer {
         });
     }
 
+    /**
+     * Return Matched Key from infer
+     *
+     * @param key key to find from infered keys
+     * @param inferredKeys list of infered keys
+     * @return matched key
+     *
+     * deployment.toml
+     *
+     * [datasource.x]
+     * type = "mysql"
+     * [datasource.y]
+     * type = "mysql"
+     *
+     * infer.json
+     *
+     *   "datasource.$1.type": {
+     *     "mysql": {
+     *       "datasource.$1.driver": "abcde"
+     *     }
+     * output
+     * datasource.x.driver = "abcde"
+     * datasource.y.driver = "abcde"
+     *
+     *
+     */
     private static String getMatchedKey(String key, Set<String> inferredKeys) {
 
         if (inferredKeys.contains(key)) {
             return key;
         }
         for (String s : inferredKeys) {
-            String matchedRegex = s.replaceAll("\\$[0-9]+", "\\\\\\w+");
+            String matchedRegex = s.replaceAll("\\$[0-9]+", "\\\\w+");
             if (key.matches(matchedRegex)) {
                 return s;
             }

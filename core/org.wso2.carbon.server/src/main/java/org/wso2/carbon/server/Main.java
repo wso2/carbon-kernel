@@ -238,7 +238,7 @@ public class Main {
         String outputDir = System.getProperty(LauncherConstants.CARBON_HOME);
         try {
             ConfigParser.parse(configFilePath, resourcesDir, outputDir);
-        } catch (ConfigParserException | FileNotFoundException e) {
+        } catch (ConfigParserException e) {
             log.error("Error while performing configuration changes", e);
             System.exit(1);
         }

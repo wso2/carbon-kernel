@@ -20,9 +20,6 @@
 package org.wso2.carbon.nextgen.config;
 
 import com.google.gson.Gson;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.nextgen.config.handlers.Builders;
 import org.wso2.carbon.nextgen.config.model.Context;
 
 import java.io.FileInputStream;
@@ -37,8 +34,6 @@ import java.util.Map;
  * Default value parsing .
  */
 class DefaultParser {
-
-    private static final Log log = LogFactory.getLog(DefaultParser.class);
 
     private DefaultParser() {
 
@@ -56,16 +51,11 @@ class DefaultParser {
                     enrichedContext.getTemplateData().put(key, value);
                 } else {
                     Object retrievedEnrichedContext = enrichedContext.getTemplateData().get(key);
-                    Builders builders = readHandles(key);
-                    enrichedContext.getTemplateData().put(key, builders.handle(retrievedEnrichedContext, value));
+                    enrichedContext.getTemplateData().put(key, retrievedEnrichedContext);
                 }
             }
         } catch (IOException e) {
             throw new ConfigParserException("Error while default values with file" + defaultValueFilePath, e);
-        } catch (IllegalAccessException e) {
-            throw new ConfigParserException("Error while accessing Handler", e);
-        } catch (InstantiationException | ClassNotFoundException e) {
-            throw new ConfigParserException("Error while initializing Handler", e);
         }
         return enrichedContext;
     }
@@ -80,17 +70,4 @@ class DefaultParser {
         }
     }
 
-    private static Builders readHandles(String key) throws ClassNotFoundException,
-            IllegalAccessException, InstantiationException {
-
-        Gson gson = new Gson();
-        Reader input = new InputStreamReader(DefaultParser.class.getClassLoader()
-                        .getResourceAsStream("handle.json"), StandardCharsets.UTF_8);
-        Map<String, String> handlers = gson.fromJson(input, Map.class);
-        String className = handlers.get(key);
-        if (className != null) {
-            return (Builders) Class.forName(className).newInstance();
-        }
-        return new Builders();
-    }
 }
