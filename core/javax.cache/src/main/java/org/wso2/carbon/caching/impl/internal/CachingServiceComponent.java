@@ -20,33 +20,35 @@ package org.wso2.carbon.caching.impl.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-/**
- * @scr.component name="org.wso2.carbon.caching.impl.internal.CachingServiceComponent" immediate="true"
- * @scr.reference name="distributedMapProvider" interface="org.wso2.carbon.caching.impl.DistributedMapProvider"
- * cardinality="0..1" policy="dynamic"  bind="setDistributedMapProvider" unbind="unsetDistributedMapProvider"
- * @scr.reference name="server.configuration.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
- * cardinality="1..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
- * @scr.reference name="config.context.service" interface="org.wso2.carbon.utils.ConfigurationContextService"
- * cardinality="0..1" policy="dynamic" bind="setClusteringAgent" unbind="unsetClusteringAgent"
- */
+@Component(name = "org.wso2.carbon.caching.impl.internal.CachingServiceComponent", immediate = true)
 public class CachingServiceComponent {
     private static final Log log = LogFactory.getLog(CachingServiceComponent.class);
     private DataHolder dataHolder = DataHolder.getInstance();
 
+    @Activate
     protected void activate(ComponentContext ctx) {
        if(log.isDebugEnabled()){
            log.debug("CachingServiceComponent activated");
        }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctx) {
     }
 
+    @Reference(name = "distributedMapProvider", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetDistributedMapProvider")
     protected void setDistributedMapProvider(DistributedMapProvider mapProvider) {
         dataHolder.setDistributedMapProvider(mapProvider);
     }
@@ -55,6 +57,8 @@ public class CachingServiceComponent {
         dataHolder.setDistributedMapProvider(null);
     }
 
+    @Reference(name = "server.configuration.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         dataHolder.setServerConfigurationService(serverConfigurationService);
     }
@@ -63,6 +67,8 @@ public class CachingServiceComponent {
         dataHolder.setServerConfigurationService(null);
     }
 
+    @Reference(name = "config.context.service", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetClusteringAgent") 
     protected void setClusteringAgent(ConfigurationContextService configurationContextService) {
         dataHolder.setClusteringAgent(configurationContextService.getServerConfigContext().getAxisConfiguration().
                 getClusteringAgent());

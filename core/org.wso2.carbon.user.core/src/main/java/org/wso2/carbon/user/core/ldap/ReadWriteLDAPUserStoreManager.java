@@ -51,6 +51,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+import javax.naming.CompositeName;
+import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -1312,6 +1314,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String userNameDN = this.getNameInSpaceForUserName(userName);
         String membershipAttribute =
                 realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+        String roleNameAttribute =
+                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
 
 		/*
 		 * check deleted roles and delete member entries from relevant groups.
@@ -1366,7 +1370,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                         if (isExistingRole(deletedRole)) {
                             roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
-                            String[] returningAttributes = new String[]{membershipAttribute};
+                            String[] returningAttributes = new String[]{membershipAttribute, roleNameAttribute};
                             String searchBase = context.getSearchBase();
                             NamingEnumeration<SearchResult> groupResults =
                                     searchInGroupBase(roleSearchFilter,
@@ -1378,7 +1382,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             String groupDN = null;
                             if (groupResults.hasMore()) {
                                 resultedGroup = groupResults.next();
-                                groupDN = resultedGroup.getName();
+                                groupDN = getGroupName(resultedGroup);
                             }
                             if (resultedGroup != null && isUserInRole(userNameDN, resultedGroup)) {
                                 this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
@@ -1417,7 +1421,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                         if (isExistingRole(newRole)) {
                             roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
-                            String[] returningAttributes = new String[]{membershipAttribute};
+                            String[] returningAttributes = new String[]{membershipAttribute, roleNameAttribute};
                             String searchBase = context.getSearchBase();
 
                             NamingEnumeration<SearchResult> groupResults =
@@ -1431,7 +1435,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             String groupDN = null;
                             if (groupResults.hasMore()) {
                                 resultedGroup = groupResults.next();
-                                groupDN = resultedGroup.getName();
+                                groupDN = getGroupName(resultedGroup);
                             }
                             if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
@@ -1470,6 +1474,19 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
+    private String getGroupName(SearchResult resultedGroup) throws NamingException {
+
+        Attribute attribute = resultedGroup.getAttributes()
+                .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
+        if (attribute == null) {
+            return resultedGroup.getName();
+        } else {
+            String groupNameAttributeValue = (String) attribute.get();
+            return realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) +
+                    "=" + groupNameAttributeValue;
+        }
+    }
+
     /**
      * Update the set of users belong to a LDAP role.
      *
@@ -1498,7 +1515,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
                 String membershipAttributeName =
                         realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-                String[] returningAttributes = new String[]{membershipAttributeName};
+                String roleNameAttribute =
+                        realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+                String[] returningAttributes = new String[]{membershipAttributeName, roleNameAttribute};
 
                 String searchBase = ctx.getSearchBase();
                 groupSearchResults =
@@ -1509,7 +1528,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 String groupName = null;
                 while (groupSearchResults.hasMoreElements()) {
                     resultedGroup = groupSearchResults.next();
-                    groupName = resultedGroup.getName();
+                    groupName = getGroupName(resultedGroup);
                 }
                 // check whether update operations are going to violate non
                 // empty role
@@ -1834,12 +1853,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 throw new UserStoreException("Could not find specified group/role - " + roleName);
             }
 
-            String groupName = resultedGroup.getName();
-
             groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(groupSearchBase));
             String groupNameAttributeValue = (String) resultedGroup.getAttributes()
                     .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE))
                     .get();
+            String groupName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) + "=" + groupNameAttributeValue;
             if (groupNameAttributeValue.equals(roleName)) {
                 groupContext.destroySubcontext(groupName);
             }

@@ -32,9 +32,20 @@
 
     <build>
         <plugins>
-            <plugin>
+             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
+                <version>${maven.felix.scr.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-scr-scrdescriptor</id>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -58,6 +69,7 @@
                             org.wso2.carbon.user.*,
                             org.wso2.carbon.utils.*,
                             !javax.xml.namespace,
+                            javax.activation.*;version="[0.0.0, 1.0.0)",
                             org.apache.abdera.*; version="${imp.pkg.version.abdera}",
                             javax.xml.namespace; version=0.0.0,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
@@ -75,9 +87,10 @@
                             acegi-security;scope=compile|runtime;inline=false
                         </Embed-Dependency>
                         <Include-Resource>
-                            META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory,
-                            OSGI-INF/serviceComponents.xml=target/scr-plugin-generated/OSGI-INF/serviceComponents.xml,
+                            META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory
                         </Include-Resource>
+                        <!-- Enable fragment components to expose theri service description -->
+                        <Service-Component>OSGI-INF/*.xml</Service-Component>
                     </instructions>
                 </configuration>
             </plugin>
@@ -370,7 +383,7 @@
             <artifactId>annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
@@ -456,6 +469,28 @@
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.metatype.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+            <version>${version.org.apache.felix.scr.ds-annotations}</version>
         </dependency>
     </dependencies>
 

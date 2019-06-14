@@ -84,6 +84,8 @@
                                 <bundleDef>org.apache.ant.wso2:ant:${version.ant}</bundleDef>
                                 <bundleDef>org.apache.xmlbeans.wso2:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
+                                <bundleDef>org.wso2.orbit.javax.xml.bind:jaxb-api:${version.org.wso2.orbit.javax.xml.bind.jaxb-api}</bundleDef>
+                                <bundleDef>org.wso2.orbit.javax.activation:activation:${version.org.wso2.orbit.javax.activation}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.neethi:neethi:${neethi.osgi.version}</bundleDef>
                                 <bundleDef>org.apache.woden.wso2:woden:${version.woden}</bundleDef>
                                 <bundleDef>wsdl4j.wso2:wsdl4j:${orbit.version.wsdl4j}</bundleDef>
@@ -106,12 +108,18 @@
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
                                 <bundleDef>commons-lang.wso2:commons-lang:${orbit.version.commons.lang}</bundleDef>
                                 <bundleDef>
-                                    org.wso2.orbit.org.apache.geronimo.specs:geronimo-saaj_1.3_spec:${version.geronimo.saaj.spec}
+                                    org.wso2.orbit.sun.xml.ws:jaxws-ri:${version.org.wso2.orbit.com.sun.xml.ws.jaxws}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.orbit.javax.transaction:jta:${version.org.wso2.orbit.javax.jta}
+                                </bundleDef>
+                                <bundleDef>
+                                    javax.annotation:javax.annotation-api:${verion.javax.annotation.annotation-api}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-scratchpad:${orbit.version.poi.scratchpad}
                                 </bundleDef>
-                                <bundleDef>com.sun.xml.bind.wso2:jaxb:${version.jaxb}</bundleDef>
+                                <bundleDef>org.wso2.orbit.sun.xml.bind:jaxb:${version.org.wso2.orbit.javax.xml.bind.jaxb}</bundleDef>
                                 <bundleDef>com.jezhumble.wso2:javasysmon:${javasysmon.version}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:jdbc-pool:${jdbc-pool.version}</bundleDef>
                                 <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>

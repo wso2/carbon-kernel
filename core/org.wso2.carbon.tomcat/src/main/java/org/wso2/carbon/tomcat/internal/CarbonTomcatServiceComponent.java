@@ -19,13 +19,16 @@ package org.wso2.carbon.tomcat.internal;
 
 import javax.servlet.ServletContainerInitializer;
 
-/**
- * @scr.component name="org.wso2.carbon.tomcat.internal.CarbonTomcatServiceComponent" immediate="true"
- * @scr.reference name="sci" interface="javax.servlet.ServletContainerInitializer"
- * cardinality="0..n" policy="dynamic" bind="setServletContainerInitializer" unbind="unsetServletContainerInitializer"
- */
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+@Component(name = "org.wso2.carbon.tomcat.internal.CarbonTomcatServiceComponent", immediate = true)
 public class CarbonTomcatServiceComponent {
 
+    @Reference(name = "sci", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetServletContainerInitializer")
     public void setServletContainerInitializer(ServletContainerInitializer sci) {
         DataHolder.getInstance().addServletContainerInitializer(sci);
     }
