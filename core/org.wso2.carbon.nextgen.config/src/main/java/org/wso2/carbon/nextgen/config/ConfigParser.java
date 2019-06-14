@@ -25,7 +25,6 @@ import org.wso2.carbon.nextgen.config.model.Context;
 import org.wso2.carbon.nextgen.config.util.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -72,12 +71,15 @@ public class ConfigParser {
      * @throws ConfigParserException config parser exception
      */
     public static void parse(String configFilePath, String resourcesDir, String outputDir)
-            throws ConfigParserException, FileNotFoundException {
+            throws ConfigParserException {
+
         ConfigPaths.setPaths(configFilePath, resourcesDir, outputDir);
         File deploymentConfigurationFile = new File(configFilePath);
         if (!deploymentConfigurationFile.exists()) {
             // If Deployment.toml didn't exist don't start server.
-            throw new FileNotFoundException("deployment.toml not found at " + configFilePath);
+            log.warn("deployment.toml not found at " + configFilePath);
+            return;
+//            throw new FileNotFoundException("deployment.toml not found at " + configFilePath);
         }
         try {
             if (Boolean.getBoolean(ConfigConstants.OVERRIDE_CONFIGURATION_ALWAYS)) {
@@ -89,12 +91,12 @@ public class ConfigParser {
             } else {
                 List<String> configurationPaths =
                         Arrays.asList(ConfigPaths.getTemplateFileDir(),
-                                      ConfigPaths.getInferConfigurationFilePath(),
-                                      ConfigPaths.getDefaultValueFilePath(), ConfigPaths.getValidatorFilePath(),
-                                      ConfigPaths.getMappingFilePath(), ConfigPaths.getUnitResolverFilePath());
+                                ConfigPaths.getInferConfigurationFilePath(),
+                                ConfigPaths.getDefaultValueFilePath(), ConfigPaths.getValidatorFilePath(),
+                                ConfigPaths.getMappingFilePath(), ConfigPaths.getUnitResolverFilePath());
                 ChangedFileSet templateFileSet =
                         MetaDataParser.getChangedFiles(outputDir, configurationPaths,
-                                                       ConfigPaths.getMetadataTemplateFilePath());
+                                ConfigPaths.getMetadataTemplateFilePath());
                 ChangedFileSet configFileSet =
                         MetaDataParser.getChangedFiles(outputDir, ConfigPaths.getMetadataFilePath());
                 boolean referencesVariableChanged = MetaDataParser.isReferencesChanged(
@@ -118,7 +120,7 @@ public class ConfigParser {
                     }
                     if (referencesVariableChanged) {
                         log.warn("Configuration value changed in references, Overriding files in the " +
-                                 "configuration directory" + outputDir);
+                                "configuration directory" + outputDir);
                     }
                     deployAndStoreMetadata();
                 }
@@ -236,7 +238,7 @@ public class ConfigParser {
      * This generates the final output of configurations
      *
      * @param context Parsing Context to use between phases.
-     * @return <Relative File Path,Configuration content>
+     * @return Map containing list of values containing file paths and content.
      * @throws ConfigParserException
      */
     static Map<String, String> parse(Context context) throws ConfigParserException {
@@ -273,7 +275,7 @@ public class ConfigParser {
     /**
      * Retrieve all the template files in map structure
      * @param templateDir Template directory
-     * @return Map containing <Relative Template File Path,File of template>
+     * @return Map containing list of values containing file path and files.
      */
     private static Map<String, File> getTemplatedFilesMap(File templateDir) {
 
