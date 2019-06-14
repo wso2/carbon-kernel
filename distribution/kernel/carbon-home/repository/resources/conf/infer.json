@@ -136,5 +136,16 @@
     "symmetric": {
       "encryption.internal_crypto_provider": "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider"
     }
+  },
+  "tasks.resolver_type": {
+    "RoundRobin": {
+      "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver"
+    },
+    "Random": {
+      "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RandomTaskLocationResolver"
+    },
+    "RuleBased": {
+      "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RuleBasedLocationResolver"
+    }
   }
 }
