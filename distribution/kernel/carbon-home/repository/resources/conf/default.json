@@ -197,5 +197,13 @@
   "carbon_health_check.health_checker.data_source_health_checker.enable": true,
   "carbon_health_check.health_checker.super_tenant_health_checker.order": "98",
   "carbon_health_check.health_checker.super_tenant_health_checker.enable": true,
-  "carbon_health_check.health_checker.data_source_health_checker.pool_usage_limit_percentage": "80"
+  "carbon_health_check.health_checker.data_source_health_checker.pool_usage_limit_percentage": "80",
+
+  "tasks.mode": "AUTO",
+  "tasks.client_dispatch_address": "https://$ref{server.hostname}:9448",
+  "tasks.server_address": "https://$ref{server.hostname}:9443",
+  "tasks.server_count": "1",
+  "tasks.server_username": "admin",
+  "tasks.server_password": "admin",
+  "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver"
 }

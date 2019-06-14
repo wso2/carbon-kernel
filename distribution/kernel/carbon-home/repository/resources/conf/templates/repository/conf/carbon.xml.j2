@@ -273,9 +273,9 @@
     -->
     <Cache>
         <!-- Default cache timeout in minutes -->
-        <DefaultCacheTimeout>15</DefaultCacheTimeout>
+        <DefaultCacheTimeout>{{server.default_cache_timeout}}</DefaultCacheTimeout>
         <!-- Force all caches to act as local -->
-        <ForceLocalCache>false</ForceLocalCache>
+        <ForceLocalCache>{{server.force_local_cache}}</ForceLocalCache>
     </Cache>
 
     <!--
