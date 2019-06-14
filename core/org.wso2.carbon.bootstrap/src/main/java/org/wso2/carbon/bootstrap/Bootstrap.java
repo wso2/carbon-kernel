@@ -103,6 +103,7 @@ public class Bootstrap {
         for (Object key: keys)  {
             System.setProperty((String)key, (String)properties.get(key));
         }
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
     }
 
     protected void addClassPathEntries() throws MalformedURLException {
