@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Model object for parse.
+ * Model object for parse values within phases.
  */
 public class Context {
 

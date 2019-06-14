@@ -162,20 +162,12 @@
     <!-- Following content type to builder mapping can be used to implement support for -->
     <!-- different message formats in Axis2. These message formats are expected to be -->
     <!-- resolved based on the content type. -->
-    <messageBuilders>
-        <messageBuilder contentType="application/xml"
-                        class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
-        <messageBuilder contentType="text/html"
-                        class="org.wso2.carbon.relay.BinaryRelayBuilder"/>
-        <messageBuilder contentType="application/x-www-form-urlencoded"
-                        class="org.apache.synapse.commons.builders.XFormURLEncodedBuilder"/>
-        <messageBuilder contentType="multipart/form-data"
-                        class="org.apache.axis2.builder.MultipartFormDataBuilder"/>
-        <messageBuilder contentType="text/plain"
-                        class="org.apache.axis2.format.PlainTextBuilder"/>
-        <messageBuilder contentType="application/json"
-                        class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
-    </messageBuilders>
+        <messageBuilders>
+            <messageBuilder contentType="application/xml"
+                            class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
+            <messageBuilder contentType="application/json"
+                            class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
+        </messageBuilders>
 
     <!-- ================================================= -->
     <!--             Transport Ins (Listeners)             -->
