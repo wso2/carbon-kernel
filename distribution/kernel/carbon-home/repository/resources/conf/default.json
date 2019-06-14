@@ -190,5 +190,12 @@
   "owasp.csrfguard.js_servlet.x_request_with_header": "WSO2 CSRF Protection",
 
   "tomcat.global.session_timeout": "30m",
-  "tomcat.management_console.session_timeout": "15m"
+  "tomcat.management_console.session_timeout": "15m",
+
+  "carbon_health_check.enable": false,
+  "carbon_health_check.health_checker.data_source_health_checker.order": "97",
+  "carbon_health_check.health_checker.data_source_health_checker.enable": true,
+  "carbon_health_check.health_checker.super_tenant_health_checker.order": "98",
+  "carbon_health_check.health_checker.super_tenant_health_checker.enable": true,
+  "carbon_health_check.health_checker.data_source_health_checker.pool_usage_limit_percentage": "80"
 }
