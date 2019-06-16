@@ -152,5 +152,10 @@
   "tasks.server_count": "1",
   "tasks.server_username": "admin",
   "tasks.server_password": "admin",
-  "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver"
+  "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver",
+  "server.base_path": "https://localhost:9443",
+  "system.parameter": {
+    "javax.xml.bind.JAXBContextFactory": "com.sun.xml.bind.v2.ContextFactory",
+    "org.wso2.CipherTransformation": "RSA/ECB/OAEPwithSHA1andMGF1Padding"
+  }
 }
