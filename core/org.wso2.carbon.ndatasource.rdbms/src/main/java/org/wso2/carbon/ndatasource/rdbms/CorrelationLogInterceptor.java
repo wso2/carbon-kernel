@@ -37,11 +37,10 @@ import java.util.List;
  * Time-Logging interceptor for JDBC pool.
  * Logs the time taken to execute the query in each pool-ed connection.
  */
-
 public class CorrelationLogInterceptor extends AbstractQueryReport {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
-    private static Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
+    private static final Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
 
     private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "jdbc";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
@@ -52,7 +51,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     private List<String> blacklistedThreadList = new ArrayList<>();
 
     public CorrelationLogInterceptor() {
-
         String blacklistedThreadNames = System.getProperty(BLACKLISTED_THREADS_SYSTEM_PROPERTY);
 
         if (blacklistedThreadNames == null) {
@@ -81,7 +79,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
 
     @Override
     public Object createStatement(Object proxy, Method method, Object[] args, Object statement, long time) {
-
         try {
             if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
                 return invokeProxy(method, args, statement, time);
@@ -90,13 +87,12 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
             }
 
         } catch (Exception e) {
-            log.warn("Unable to create statement proxy for slow query report.", e);
+            log.error("Unable to create statement proxy for slow query report.", e);
             return statement;
         }
     }
 
     private Object invokeProxy(Method method, Object[] args, Object statement, long time) throws Exception {
-
         String name = method.getName();
         String sql = null;
         Constructor<?> constructor = null;
@@ -122,7 +118,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
      * Proxy Class that is used to calculate and log the time taken for queries
      */
     protected class StatementProxy implements InvocationHandler {
-
         protected boolean closed = false;
         protected Object delegate;
         protected final String query;
@@ -135,7 +130,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
             String name = method.getName();
             boolean close = CorrelationLogInterceptor.this.compare("close", name);
             try {
@@ -185,7 +179,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
          * @param methodName Name of the method executing
          */
         private void logQueryDetails(long start, long delta, String methodName) throws SQLException {
-
             if (!(this.delegate instanceof PreparedStatement)) {
                 return;
             }
@@ -213,7 +206,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
         }
 
         private boolean isCurrentThreadBlacklisted() {
-
             String threadName = Thread.currentThread().getName();
 
             for (String thread : blacklistedThreadList) {
@@ -231,7 +223,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
          * @return The log line
          */
         private String createFormattedLog(List<String> logPropertiesList) {
-
             StringBuilder sb = new StringBuilder();
             int count = 0;
             for (String property : logPropertiesList) {
