@@ -237,14 +237,14 @@ public class CarbonUIDefinitions {
                                 break;
                             } else {
                                 //remove whitespaces before the text
-                                requiredPermission = requiredPermission.replaceAll("\\s","");if (!requiredPermission.startsWith("/")) {
+                                requiredPermission = requiredPermission.replaceAll("\\s", "");
+                                if (!requiredPermission.startsWith("/")) {
                                     grantCount = requiredPermissions.length;
                                     log.error(" Attention :: Permission issue in Menu item "
                                             + menu.getId());
                                     break;
                                 }
-
-                                    if (requiredPermission.startsWith(grantedPermission)) {
+                                if (requiredPermission.startsWith(grantedPermission)) {
                                         grantCount++;
                                         break;
                                     }
