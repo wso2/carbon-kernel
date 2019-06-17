@@ -10,3 +10,31 @@ create_admin_account = true
 [encryption]
 type= "symmetric"
 key = "229E09ED15D5DBB6605FAEF188274946"
+
+
+[user_store]
+type = "database"
+
+[database.shared_db]
+type = "h2"
+url="jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
+username = "wso2carbon"
+password = "wso2carbon"
+[database.shared_db.pool_options]
+max_active = "50"
+max_wait = "60000"
+test_on_borrow = true
+validation_interval = "30000"
+default_auto_commit = true
+
+
+[keystore.tls]
+file_name = "wso2carbon.jks"
+type ="JKS"
+password ="wso2carbon"
+alias ="wso2carbon"
+key_password = "wso2carbon"
+[truststore]
+file_name = "client-truststore.jks"
+type = "JKS"
+password = "wso2carbon"

@@ -153,7 +153,7 @@
   "tasks.server_username": "admin",
   "tasks.server_password": "admin",
   "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver",
-  "server.base_path": "https://localhost:9443",
+  "server.base_path" : "${carbon.protocol}://${carbon.host}:${carbon.management.port}",
   "system.parameter": {
     "org.wso2.CipherTransformation": "RSA/ECB/OAEPwithSHA1andMGF1Padding"
   }
