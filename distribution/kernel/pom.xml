@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.4.41-SNAPSHOT</version>
+        <version>4.5.0-m1</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -262,9 +262,7 @@
                                 <echo message="##################### END ########################" />
 
                                 <echo message="########### Create Shared Database ##############" />
-                                <sql driver="org.h2.Driver"
-                                     url="jdbc:h2:${basedir}/target/repository/database/WSO2SHARED_DB"
-                                     userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
+                                <sql driver="org.h2.Driver" url="jdbc:h2:${basedir}/target/repository/database/WSO2SHARED_DB" userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
                                     <classpath>
                                         <path refid="h2.classpath" />
                                     </classpath>
