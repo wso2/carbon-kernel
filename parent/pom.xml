@@ -606,8 +606,8 @@
 
         <!-- Unit/Integration tests -->
         <jacoco.version>0.8.2</jacoco.version>
-        <maven.surefire.plugin.version>2.20.1</maven.surefire.plugin.version>
-        <maven.failsafe.plugin.version>2.20.1</maven.failsafe.plugin.version>
+        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>2.22.0</maven.failsafe.plugin.version>
         <mockito.version>2.23.4</mockito.version>
         <powermock.version>1.7.4</powermock.version>
 
