@@ -26,7 +26,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.nextgen.config.model.Context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -60,13 +62,18 @@ public class TomlParserTest {
 
     @DataProvider(name = "flatKeySetProvider")
     public Object[][] flatKeyDataSet() {
+        LinkedHashMap<String, String> data = new LinkedHashMap<String, String>();
+        ArrayList<Object> result = new ArrayList<Object>();
+        data.put("'a.b'", "value6");
+        result.add(data);
         return new Object[][]{
                 {"header_test.b.c", "value1"},
                 {"header_test.b.d", "value2"},
                 {"key", "value3"},
                 {"a.'b.c'", "value4"},
                 {"a.'d.e'", "value5"},
-                };
+                {"single_quote_test", result},
+        };
     }
 
 }

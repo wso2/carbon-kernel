@@ -85,6 +85,10 @@ class TomlParser {
         Map<String, Object> finalMap = new LinkedHashMap<>();
         Set<String> dottedKeySet = tomlTable.dottedKeySet();
         for (String key : dottedKeySet) {
+            // To support single quoted keys in the toml inside an array.
+            // Eg: [[a.b]]
+            //     'c.d' = "value"
+            key = key.replaceAll("\"", "'");
             Object value = tomlTable.get(key);
             if (value instanceof TomlArray) {
                 finalMap.put(key, processTomlArray((TomlArray) value));

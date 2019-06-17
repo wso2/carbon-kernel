@@ -20,3 +20,6 @@ a.b.d = "datasources value 3"
 [[datasource]]
 a.b.c = "datasource value 2"
 a.b.d = "data 4"
+
+[[single_quote_test]]
+'a.b' = "value6"
