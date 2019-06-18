@@ -1450,6 +1450,28 @@
                 <version>${ehcache.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.wso2.orbit.javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${version.org.wso2.orbit.javax.activation}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${version.org.wso2.orbit.javax.xml.bind}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.orbit.javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${version.org.wso2.orbit.javax.activation}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${version.org.wso2.orbit.javax.xml.bind}</version>
+            </dependency>
+
             <!--Dependencies requires for rest client-->
 
             <dependency>
@@ -1630,7 +1652,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.4.40</carbon.kernel.version>
+        <carbon.kernel.version>4.4.37-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
         <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 3.0.0)</carbon.consent.mgt.imp.pkg.version.range>
@@ -1667,7 +1689,7 @@
         <carbon.captcha.mgt.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.captcha.mgt.imp.pkg.version.range>
 
         <!-- Axis2 Version -->
-        <axis2.wso2.version>1.6.1.wso2v12</axis2.wso2.version>
+        <axis2.wso2.version>1.6.1-wso2v29</axis2.wso2.version>
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
@@ -1730,6 +1752,8 @@
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
         <orbit.version.infinispan>5.1.2.wso2v1</orbit.version.infinispan>
         <orbit.version.h2.engine>1.2.140.wso2v3</orbit.version.h2.engine>
+        <version.org.wso2.orbit.javax.xml.bind>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind>
+        <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -1800,7 +1824,7 @@
         <com.google.service.api.version>directory_v1-rev28-1.17.0-rc</com.google.service.api.version>
         <orbit.version.backport.util>3.1.0.wso2v1</orbit.version.backport.util>
         <stratos.version>2.2.0</stratos.version>
-        <org.slf4j.verison>1.7.21</org.slf4j.verison>
+        <org.slf4j.verison>1.7.25</org.slf4j.verison>
         <org.slf4j.imp.pkg.version.range>[1.6.1,2.0.0)</org.slf4j.imp.pkg.version.range>
 
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
@@ -1838,12 +1862,7 @@
 
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
         <openspml.version>192-20100413</openspml.version>
-        <testng.version>6.9.10</testng.version>
         <msf4j.version>2.7.0</msf4j.version>
-        <jacoco.version>0.7.9</jacoco.version>
-        <jmockit.version>1.35</jmockit.version>
-        <powermock.version>1.6.6</powermock.version>
-        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <thetransactioncompany.cors-filter.wso2.version>1.7.0.wso2v1</thetransactioncompany.cors-filter.wso2.version>
         <thetransactioncompany.utils.wso2.version>1.9.0.wso2v1</thetransactioncompany.utils.wso2.version>
         <jsr311-api.version>1.1.1</jsr311-api.version>
@@ -1871,7 +1890,7 @@
 
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
         <swagger2cxf-maven-plugin.version>1.0-SNAPSHOT</swagger2cxf-maven-plugin.version>
 
@@ -1881,9 +1900,9 @@
 
         <!-- Unit test versions -->
         <testng.version>6.9.10</testng.version>
-        <jacoco.version>0.7.9</jacoco.version>
-        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
-        <slf4j.api.version>1.7.12</slf4j.api.version>
+        <jacoco.version>0.8.2</jacoco.version>
+        <jmockit.version>1.44</jmockit.version>
+        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
         <org.powermock.version>1.7.4</org.powermock.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
