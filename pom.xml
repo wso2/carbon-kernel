@@ -61,6 +61,7 @@
         <module>components/functions-library-mgt</module>
         <module>components/template-mgt</module>
         <module>components/configuration-mgt</module>
+        <module>components/captcha-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
