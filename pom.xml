@@ -61,6 +61,7 @@
         <module>components/functions-library-mgt</module>
         <module>components/template-mgt</module>
         <module>components/configuration-mgt</module>
+        <module>components/captcha-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -957,9 +958,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
-                <version>${carbon.captcha.mgt.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1685,8 +1686,6 @@
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
         <carbon.base.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.base.imp.pkg.version.range>
         <carbon.logging.imp.pkg.version.range>[1.2.17, 2.0.0)</carbon.logging.imp.pkg.version.range>
-        <carbon.captcha.mgt.version>4.5.2</carbon.captcha.mgt.version>
-        <carbon.captcha.mgt.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.captcha.mgt.imp.pkg.version.range>
 
         <!-- Axis2 Version -->
         <axis2.wso2.version>1.6.1-wso2v37</axis2.wso2.version>
