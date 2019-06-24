@@ -40,7 +40,9 @@
 <%
     String filter = request.getParameter(SecurityUIConstants.KEYSTORE_CERT_LIST_FILTER);
     PaginatedCertData paginatedCertData = null;
+    PaginatedCertData paginatedKeyData = null;
     CertData[] certData = new CertData[0];
+    CertData[] keyData = new CertData[0];
     PaginatedKeyStoreData keyStoreData = (PaginatedKeyStoreData) session.getAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA);
     String keyStore = request.getParameter("keyStore");
     String paginationValue = "keyStore=" + keyStore;
@@ -94,6 +96,13 @@
             certData = Util.doPaging(pageNumberInt - startingPage, filteredCerts);
             numberOfPages = (int) Math.ceil((double) filteredCerts.length / SecurityUIConstants.DEFAULT_ITEMS_PER_PAGE);
         }
+	
+	    paginatedKeyData = keyStoreData.getPaginatedKeyData();
+	
+	    if (paginatedKeyData != null) {
+		    CertData[] filteredCerts = Util.doFilter(filter, paginatedKeyData.getCertDataSet());
+		    keyData = Util.doPaging(pageNumberInt - startingPage, filteredCerts);
+	    }
 
 
     } catch (Exception e) {
@@ -157,29 +166,33 @@
 	            </tr>
             </thead>
             <tbody>
-	            <%
-	                if (keyStoreData != null && keyStoreData.getKey() != null) {
-	                    CertData cdata = keyStoreData.getKey();
-	            %>
-	            <tr>
-	                <td><%=Encode.forHtmlContent(cdata.getAlias())%>
-	                </td>
-	                <td><%=Encode.forHtmlContent(cdata.getIssuerDN())%>
-	                </td>
-	                <td><%=Encode.forHtmlContent(cdata.getNotAfter())%>
-	                </td>
-	                <td><%=Encode.forHtmlContent(cdata.getNotBefore())%>
-	                </td>
-	                <td><%=cdata.getSerialNumber()%>
-	                </td>
-	                <td><%=Encode.forHtmlContent(cdata.getSubjectDN())%>
-	                </td>
-	                <td colspan="2"><%=cdata.getVersion()%>
-	                </td>
-	            </tr>
-	            <%
-	                }
-	            %>
+            <%
+	            if (keyData != null && keyData.length > 0) {
+		            for (CertData cert : keyData) {
+			            if (cert != null) {
+            %>
+            <tr>
+	            <td><%=Encode.forHtmlContent(cert.getAlias())%>
+	            </td>
+	            <td><%=Encode.forHtmlContent(cert.getIssuerDN())%>
+	            </td>
+	            <td><%=Encode.forHtmlContent(cert.getNotAfter())%>
+	            </td>
+	            <td><%=Encode.forHtmlContent(cert.getNotBefore())%>
+	            </td>
+	            <td><%=cert.getSerialNumber()%>
+	            </td>
+	            <td><%=Encode.forHtmlContent(cert.getSubjectDN())%>
+	            </td>
+	            <td><%=cert.getVersion()%>
+	            </td>
+
+            </tr>
+            <%
+			            }
+		            }
+	            }
+            %>
 	            <tr>
 	                <td class="buttonRow" colspan="8">
 	                    <form>

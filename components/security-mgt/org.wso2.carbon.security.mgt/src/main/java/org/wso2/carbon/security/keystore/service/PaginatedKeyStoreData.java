@@ -28,6 +28,15 @@ public class PaginatedKeyStoreData {
     private String pubKeyFilePath = null;
     private boolean isPrivateStore = false;
     private PaginatedCertData paginatedCertData;
+    private PaginatedCertData paginatedKeyData;
+
+    public PaginatedCertData getPaginatedKeyData() {
+        return paginatedKeyData;
+    }
+
+    public void setPaginatedKeyData(PaginatedCertData paginatedKeyData) {
+        this.paginatedKeyData = paginatedKeyData;
+    }
 
     public String getKeyStoreName() {
         return keyStoreName;

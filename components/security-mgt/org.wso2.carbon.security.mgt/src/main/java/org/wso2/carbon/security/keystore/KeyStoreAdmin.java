@@ -234,12 +234,7 @@ public class KeyStoreAdmin {
             while (enumeration.hasMoreElements()) {
                 String alias = (String) enumeration.nextElement();
                 if (keyStore.isKeyEntry(alias)) {
-                    if (pvtKeyAlias == null) {
-                        pvtKeyAlias = alias;
-                    } else {
-                        // more than one private key
-                        throw new SecurityConfigException("more than one private key");
-                    }
+                    pvtKeyAlias = alias;
                 }
             }
 
@@ -783,24 +778,21 @@ public class KeyStoreAdmin {
             keyStoreData.setPaginatedCertData(doPaging(pageNumber, certs));
             keyStoreData.setKeyStoreType(keyStoreType);
 
+            List<CertData> keyDataList = new ArrayList<>();
             aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
-                // There be only one entry in WSAS related keystores
                 if (keyStore.isKeyEntry(alias)) {
                     X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-                    keyStoreData.setKey(fillCertData(cert, alias, formatter));
-                    PrivateKey key = (PrivateKey) keyStore.getKey(alias, keyStorePassword
-                            .toCharArray());
-                    String pemKey;
-                    pemKey = "-----BEGIN PRIVATE KEY-----\n";
-                    pemKey += Base64.encode(key.getEncoded());
-                    pemKey += "\n-----END PRIVATE KEY-----";
-                    keyStoreData.setKeyValue(pemKey);
-                    break;
-
+                    keyDataList.add(fillCertData(cert, alias, formatter));
                 }
             }
+
+            // Create a cert array
+            CertData[] keyCerts = keyDataList.toArray(new CertData[keyDataList.size()]);
+            // Create a KeyStoreData bean, set the name and fill in the cert information
+            keyStoreData.setPaginatedKeyData(doPaging(pageNumber, keyCerts));
+
             return keyStoreData;
         } catch (Exception e) {
             String msg = "Error has encounted while loading the keystore to the given keystore name "
