@@ -1667,7 +1667,7 @@
         <carbon.captcha.mgt.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.captcha.mgt.imp.pkg.version.range>
 
         <!-- Axis2 Version -->
-        <axis2.wso2.version>1.6.1.wso2v37</axis2.wso2.version>
+        <axis2.wso2.version>1.6.1-wso2v37</axis2.wso2.version>
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
