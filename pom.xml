@@ -1805,8 +1805,8 @@
         <libthrift.wso2.osgi.version.range>[0.12.0.wso2v1,0.15.0)</libthrift.wso2.osgi.version.range>
         <log4j.version>1.2.17</log4j.version>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
-        <opensaml.version>2.6.4</opensaml.version>
-        <opensaml2.wso2.version>2.6.4.wso2v5</opensaml2.wso2.version>
+        <opensaml.version>2.6.6</opensaml.version>
+        <opensaml2.wso2.version>2.6.6.wso2v3</opensaml2.wso2.version>
         <opensaml2.wso2.osgi.version.range>[2.6.0,3.0.0)</opensaml2.wso2.osgi.version.range>
         <joda.version>2.9.4</joda.version>
         <joda.wso2.version>2.9.4.wso2v1</joda.wso2.version>
