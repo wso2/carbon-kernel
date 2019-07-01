@@ -448,18 +448,6 @@
                 <artifactId>org.wso2.carbon.securevault</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.wso2.orbit.org.apache.directory</groupId>
-                <artifactId>apacheds</artifactId>
-                <version>${orbit.version.apacheds}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.directory.shared</groupId>
-                <artifactId>shared-ldap-schema</artifactId>
-                <version>${version.apacheds.shared.ldap}</version>
-            </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
@@ -1405,26 +1393,6 @@
                 <version>${json-smart.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.directory.server</groupId>
-                <artifactId>apacheds-protocol-ldap</artifactId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>apacheds-protocol-kerberos</artifactId>
-                <groupId>org.apache.directory.server</groupId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>apacheds-interceptor-kerberos</artifactId>
-                <groupId>org.apache.directory.server</groupId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>apacheds-core-annotations</artifactId>
-                <groupId>org.apache.directory.server</groupId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.yubico</groupId>
                 <artifactId>u2flib-server-core</artifactId>
                 <version>${com.yubico.version}</version>
@@ -1742,8 +1710,6 @@
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
-        <apacheds.core.version>1.5.7</apacheds.core.version>
-        <apacheds.imp.pkg.version.range>[1.5.7,2.0.0)</apacheds.imp.pkg.version.range>
         <bcprov.version>1.49.0.wso2v2</bcprov.version>
         <swagger.jaxrs.version>1.5.2</swagger.jaxrs.version>
 
@@ -1836,8 +1802,6 @@
         <balana.imp.pkg.version.range>[1.1.0,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,2.0.0)</gdata-core.imp.pkg.version.range>
-        <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
-        <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
