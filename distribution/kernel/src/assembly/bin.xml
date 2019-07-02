@@ -121,25 +121,14 @@
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib/endorsed</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>xerces.wso2:xercesImpl:jar</include>
                 <include>org.wso2.orbit.xalan:xalan:jar</include>
                 <include>xml-apis:xml-apis:jar</include>
                 <include>xml-resolver:xml-resolver:jar</include>
-                <include>xml-apis.wso2:xml-apis:jar</include>
-                <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
-                <include>org.wso2.orbit.org.apache.geronimo.specs:geronimo-jms_1.1_spec:jar</include>
-                <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar</include>
-                <include>org.apache.tomcat:tomcat-annotations-api:jar</include>
-                <include>org.apache.geronimo.specs:geronimo-stax-api_1.2_spec</include>
                 <include>org.codehaus.woodstox:woodstox-core-asl</include>
                 <include>org.codehaus.woodstox:stax2-api</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
                 <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
                 <include>org.wso2.carbon:org.wso2.carbon.nextgen.config:jar</include>
