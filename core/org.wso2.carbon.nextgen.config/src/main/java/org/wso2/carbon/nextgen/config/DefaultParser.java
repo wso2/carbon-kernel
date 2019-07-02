@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -60,12 +59,12 @@ class DefaultParser {
         return enrichedContext;
     }
 
-    private static LinkedHashMap readConfiguration(String defaultValueFilePath) throws IOException {
+    private static Map readConfiguration(String defaultValueFilePath) throws IOException {
 
         Gson gson = new Gson();
         try (FileInputStream fileInputStream = new FileInputStream(defaultValueFilePath)) {
             Reader input = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
-            return gson.fromJson(input, LinkedHashMap.class);
+            return gson.fromJson(input, Map.class);
 
         }
     }
