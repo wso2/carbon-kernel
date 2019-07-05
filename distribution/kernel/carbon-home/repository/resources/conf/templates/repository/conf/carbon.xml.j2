@@ -715,6 +715,15 @@
         <property name="trace" />
         <property name="baseDir">${carbon.home}</property>
     </H2DatabaseConfiguration-->
+
+    {% if database_configuration.enable_h2_db %}
+    <H2DatabaseConfiguration>
+        <property name="web"/>
+        <property name="webPort">8082</property>
+        <property name="webAllowOthers"/>
+    </H2DatabaseConfiguration>
+    {% endif %}
+
     <!--Disabling statistics reporter by default-->
     <StatisticsReporterDisabled>true</StatisticsReporterDisabled>
 
