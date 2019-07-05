@@ -96,6 +96,7 @@
   ],
   "clustering.local_member_port": "4000",
   "database_configuration.enable_h2_db": false,
+  "wsdl.skip_null_elements": false,
   "database.shared_db.id": "SHARED_DB",
   "database.shared_db.pool_options.maxActive": "50",
   "database.shared_db.pool_options.maxWait": "60000",

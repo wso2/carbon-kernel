@@ -32,7 +32,9 @@
     <parameter name="sizeThreshold">4000</parameter>
 
     <parameter name="EnableChildFirstClassLoading">${childfirstCL}</parameter>
-
+    {% if wsdl.skip_null_elements is defined %}
+    <parameter name="forceIncludeNullElements">{{wsdl.skip_null_elements}}</parameter>
+    {% endif %}
     <!--
     The exposeServiceMetadata parameter decides whether the metadata (WSDL, schema, policy) of
     the services deployed on Axis2 should be visible when ?wsdl, ?wsdl2, ?xsd, ?policy requests
