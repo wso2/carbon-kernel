@@ -305,7 +305,7 @@ public class ConfigParser {
     /**
      * Class to keep required file names.
      */
-    static class ConfigPaths {
+    public static class ConfigPaths {
 
         private static String configFilePath;
         private static String resourcesDir;
