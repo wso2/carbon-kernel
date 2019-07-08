@@ -1,4 +1,7 @@
 {
+  "server.default_cache_timeout": "15",
+  "default_cache_timeout.force_local_cache": false,
+  "server.enableMTOM": "optional",
   "user_store.type": "database",
   "super_admin.admin_role": "admin",
   "authorization_manager": {
