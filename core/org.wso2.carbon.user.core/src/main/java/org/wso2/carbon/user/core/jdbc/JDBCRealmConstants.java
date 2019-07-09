@@ -29,6 +29,7 @@ public final class JDBCRealmConstants {
     public static final String GET_USER_FILTER_PAGINATED_ORACLE = "UserFilterPaginatedSQL-oracle";
     public static final String GET_USER_FILTER_PAGINATED_COUNT = "UserFilterPaginatedCountSQL";
     public static final String GET_USER_ROLE = "UserRoleSQL";
+    public static final String GET_IS_USER_ROLE_EXIST = "UserRoleExistSQL";
     public static final String GET_USERS_ROLE = "UsersRoleSQL";
     public static final String GET_SHARED_ROLES_FOR_USER = "UserSharedRoleSQL";
     public static final String GET_IS_ROLE_EXISTING = "IsRoleExistingSQL";
@@ -93,6 +94,10 @@ public final class JDBCRealmConstants {
     public static final String GET_USER_FILTER_PAGINATED_COUNT_SQL = "SELECT COUNT(UM_USER_NAME) FROM UM_USER WHERE " +
             "UM_USER_NAME LIKE ? AND UM_TENANT_ID=?";
     public static final String GET_USER_ROLE_SQL = "SELECT UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, UM_USER WHERE UM_USER.UM_USER_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_IS_USER_ROLE_EXIST_SQL = "SELECT UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, UM_USER "
+            + "WHERE UM_USER.UM_USER_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE"
+            + ".UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=? AND "
+            + "UM_ROLE_NAME LIKE ?";
     public static final String GET_USERS_ROLE_SQL = "SELECT UM_USER_NAME,UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, " +
             "UM_USER WHERE UM_USER.UM_USER_NAME IN (?) AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE" +
             ".UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";

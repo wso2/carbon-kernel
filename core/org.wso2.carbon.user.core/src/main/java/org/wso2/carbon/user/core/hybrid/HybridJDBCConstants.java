@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.hybrid;
 public class HybridJDBCConstants {
 
     public static final String GET_ROLE_LIST_OF_USER = "GetRoleListOfInternalUserSQL";
+    public static final String GET_IS_ROLE_EXIST_LIST_OF_USER = "GetIsRoleExistFromRoleListOfInternalUserSQL";
 
     public static final String GET_ROLE_LIST_OF_USERS = "GetRoleListOfInternalUsersSQL";
 
@@ -82,6 +83,11 @@ public class HybridJDBCConstants {
             "UM_HYBRID_ROLE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND " +
             "UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN " +
             "WHERE UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
+    public static final String GET_ROLE_OF_USER_SQL = "SELECT UM_ROLE_NAME FROM UM_HYBRID_USER_ROLE, "
+            + "UM_HYBRID_ROLE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND "
+            + "UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND "
+            + "UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND "
+            + "UM_DOMAIN_NAME=?) AND UM_ROLE_NAME LIKE ?";
 
     public static final String GET_INTERNAL_ROLE_LIST_OF_USERS_SQL = "SELECT UM_USER_NAME, UM_ROLE_NAME FROM "
             + "UM_HYBRID_USER_ROLE, UM_HYBRID_ROLE WHERE UM_USER_NAME IN (?) AND UM_HYBRID_USER_ROLE"
