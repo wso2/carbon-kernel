@@ -24,6 +24,10 @@
 
   "admin_console.authenticator.mutual_ssl_authenticator.username_header": "admin_console.authenticator.mutual_ssl_authenticator.config.UsernameHeader",
   "admin_console.authenticator.mutual_ssl_authenticator.white_list_enabled": "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled",
-  "admin_console.authenticator.mutual_ssl_authenticator.white_list": "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteList"
+  "admin_console.authenticator.mutual_ssl_authenticator.white_list": "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteList",
+
+  "user_store.connection_url":"user_store.properties.ConnectionURL",
+  "user_store.connection_name":"user_store.properties.ConnectionName",
+  "user_store.connection_password":"user_store.properties.ConnectionPassword"
 
 }
