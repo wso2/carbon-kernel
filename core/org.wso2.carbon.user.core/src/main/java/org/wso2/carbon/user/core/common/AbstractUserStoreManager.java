@@ -382,7 +382,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
         }
         if (log.isDebugEnabled()) {
-            log.debug("Retrieving internal roles for user name :  " + userName + " and search filter " + filter);
+            log.debug("Retrieving internal roles for user name :  " + userName + " and search filter : " + filter);
         }
         return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
     }
