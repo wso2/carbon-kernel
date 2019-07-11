@@ -140,7 +140,11 @@ public class LDAPConnectionContext {
 
         environment = new Hashtable();
 
-        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        String initialContextFactory = realmConfig.getUserStoreProperty(LDAPConstants.LDAP_INITIAL_CONTEXT_FACTORY);
+        if (initialContextFactory == null || initialContextFactory.isEmpty()) {
+            initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
+        }
+        environment.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
         environment.put(Context.SECURITY_AUTHENTICATION, "simple");
 
         /**

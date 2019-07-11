@@ -30,6 +30,7 @@ public class LDAPConstants {
     public static final String DEFAULT_TENANT_USER_FILTER = "DefaultTenantUserFilter";
     public static final String USER_DN_PATTERN = "UserDNPattern";
     public static final String ROLE_DN_PATTERN = "RoleDNPattern";
+    public static final String LDAP_INITIAL_CONTEXT_FACTORY = "LDAPInitialContextFactory";
     //Property that defines the status of the referral to be used:
     public static final String PROPERTY_REFERRAL = "Referral";
 
