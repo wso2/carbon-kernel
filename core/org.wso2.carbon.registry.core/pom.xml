@@ -74,8 +74,6 @@
                         <Include-Resource>
                             META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory
                         </Include-Resource>
-                        <!-- Enable fragment components to expose theri service description -->
-                        <Service-Component>OSGI-INF/*.xml</Service-Component>
                     </instructions>
                 </configuration>
             </plugin>

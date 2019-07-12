@@ -242,7 +242,7 @@ public class Main {
         try {
             ConfigParser.parse(configFilePath, resourcesDir, outputDir);
         } catch (ConfigParserException e) {
-            log.error("Error while performing configuration changes", e);
+            logger.log(Level.SEVERE, "Error while performing configuration changes", e);
             System.exit(1);
         }
     }
