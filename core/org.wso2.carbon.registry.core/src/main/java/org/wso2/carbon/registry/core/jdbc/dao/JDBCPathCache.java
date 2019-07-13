@@ -131,8 +131,8 @@ public class JDBCPathCache extends PathCache {
             }
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Failed to insert due to already exist in database : " + path);
+                if (log.isDebugEnabled()) {
+                    log.debug("Failed to insert due to already exist in database : " + path);
                 }
                 // we have to be expecting an exception with the duplicate value for the path value
                 // which can be further checked from here..
