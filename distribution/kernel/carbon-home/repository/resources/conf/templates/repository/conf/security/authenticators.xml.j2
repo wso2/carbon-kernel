@@ -73,7 +73,14 @@
     </Authenticator>
 
     <!-- Authenticator Configurations for MutualSSLAuthenticator -->
-    <Authenticator id="mutual_ssl_authenticator" name="MutualSSLAuthenticator">
+    <Authenticator
+        id="mutual_ssl_authenticator"
+        name="MutualSSLAuthenticator"
+        {% if admin_console.authenticator.mutual_ssl_authenticator.enable is sameas true %}
+        disabled="false">
+        {% else %}
+        disabled="true">
+        {% endif %}
 	    <Priority>{{admin_console.authenticator.mutual_ssl_authenticator.priority}}</Priority>
 	    <Config>
             {% for key,value in admin_console.authenticator.mutual_ssl_authenticator.config.items() %}
