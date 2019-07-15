@@ -135,6 +135,7 @@
   "admin_console.authenticator.saml_sso_authenticator.config.JITUserProvisioningEnabled": false,
   "admin_console.authenticator.saml_sso_authenticator.config.IsSuperAdminRoleRequired": false,
   "admin_console.authenticator.mutual_ssl_authenticator.priority": "5",
+  "admin_console.authenticator.mutual_ssl_authenticator.enable": false,
   "admin_console.authenticator.mutual_ssl_authenticator.config.UsernameHeader": "UserName",
   "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": false,
   "owasp.csrfguard.create_token_per_page": false,
