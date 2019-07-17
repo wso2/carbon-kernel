@@ -90,6 +90,7 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>conf/**</include>
+                                        <include>client-jars/**</include>
                                         <include>wso2/default/**</include>
                                         <include>wso2/lib/**</include>
                                         <include>build.properties</include>
