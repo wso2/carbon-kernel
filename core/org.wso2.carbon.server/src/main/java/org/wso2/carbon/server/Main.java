@@ -216,24 +216,6 @@ public class Main {
         }
     }
 
-    /**
-     * Removing all the appenders which were added in the non osigi environment, after the carbon starts up.
-     * Since another appender thread is there from osgi environment, it will be a conflict to access the log file by
-     * non osgi and osgi appenders which resulted log rotation fails in windows.
-     * This fix was introduced  for this jira: https://wso2.org/jira/browse/ESBJAVA-1614 .
-     *
-     * @deprecated with migration to Log4J2.
-     */
-    @Deprecated
-    private static void removeAllAppendersFromCarbon() {
-
-        try {
-            Logger.getRootLogger().removeAllAppenders();
-        } catch (Throwable e) {
-            System.err.println("couldn't remove appnders from Carbon non osgi environment");
-        }
-    }
-
     private static void handleConfiguration() {
         String resourcesDir = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
         String configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH)  + File.separator +
