@@ -283,7 +283,7 @@ public class ConfigParser {
         File[] files = templateDir.listFiles();
         if (Objects.nonNull(files)) {
             for (File file : files) {
-                if (file.isFile()) {
+                if (file.isFile() && file.getPath().endsWith(JINJA_TEMPLATE_EXTENSION)) {
                     fileNames.put(getRelativeFilePath(file, file), file);
                 } else {
                     handleDirectories(file, fileNames, file);
@@ -485,7 +485,7 @@ public class ConfigParser {
             for (File currentFile : fileList) {
                 if (currentFile.isDirectory()) {
                     handleDirectories(basePath, files, currentFile);
-                } else {
+                } else if (currentFile.getPath().endsWith(JINJA_TEMPLATE_EXTENSION)) {
                     files.put(getRelativeFilePath(basePath, currentFile), currentFile);
                 }
             }

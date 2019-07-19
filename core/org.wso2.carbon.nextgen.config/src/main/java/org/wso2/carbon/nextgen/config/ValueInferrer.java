@@ -112,13 +112,17 @@ class ValueInferrer {
         Map<String, String> resolvedValues = getResolvedValues(s, matchedKey);
         new LinkedHashMap<>(valuesInferredByKey).forEach((key, value) -> {
             String resolvedKey = key;
+            Object resolvedValue = value;
             for (Map.Entry<String, String> entry : resolvedValues.entrySet()) {
                 String s1 = entry.getKey();
                 String s2 = entry.getValue();
                 resolvedKey = resolvedKey.replaceAll(Pattern.quote(s1), s2);
+                if (value instanceof String) {
+                    resolvedValue = ((String) resolvedValue).replaceAll(Pattern.quote(s1), s2);
+                }
             }
             valuesInferredByKey.remove(key);
-            valuesInferredByKey.put(resolvedKey, value);
+            valuesInferredByKey.put(resolvedKey, resolvedValue);
 
         });
 

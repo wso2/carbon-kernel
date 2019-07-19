@@ -111,16 +111,36 @@
       "user_store.properties.UserRolesCacheEnabled": true
     }
   },
-  "database.shared_db.type": {
+  "database.$1.type": {
     "mysql": {
-      "database.shared_db.driver": "com.mysql.jdbc.Driver",
-      "database.shared_db.url": "jdbc:mysql://$ref{database.shared_db.hostname}:$ref{database.shared_db.port}/$ref{database.shared_db.name}",
-      "database.shared_db.validationQuery": "SELECT 1"
+      "database.$1.driver": "com.mysql.jdbc.Driver",
+      "database.$1.url": "jdbc:mysql://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
+      "database.$1.validationQuery": "SELECT 1"
+    },
+    "oracle": {
+      "database.$1.driver": "oracle.jdbc.OracleDriver",
+      "database.$1.url": "jdbc:oracle:thin:@$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.sid}",
+      "database.$1.validationQuery": "SELECT 1 FROM DUAL"
+    },
+    "mssql": {
+      "database.$1.driver": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      "database.$1.url": "jdbc:sqlserver://$ref{database.$1.hostname}:$ref{database.$1.port};databaseName=$ref{database.$1.name};SendStringParametersAsUnicode=false",
+      "database.$1.validationQuery": "SELECT 1"
+    },
+    "db2": {
+      "database.$1.driver": "com.ibm.db2.jcc.DB2Driver",
+      "database.$1.url": "jdbc:db2://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
+      "database.$1.validationQuery": "SELECT 1 FROM sysibm.sysdummy1"
+    },
+    "postgre": {
+      "database.$1.driver": "org.postgresql.Driver",
+      "database.$1.url": "jdbc:postgresql://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
+      "database.$1.validationQuery": "SELECT 1; COMMIT"
     },
     "h2": {
-      "database.shared_db.driver": "org.h2.Driver",
-      "database.shared_db.url": "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
-      "database.shared_db.validationQuery": "SELECT 1"
+      "database.$1.driver": "org.h2.Driver",
+      "database.$1.url": "jdbc:h2:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000",
+      "database.$1.validationQuery": "SELECT 1"
     }
   },
   "tenant_mgt.tenant_manager.type": {
