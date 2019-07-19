@@ -49,7 +49,7 @@
                             org.wso2.carbon.registry.synchronization.*;version=1.0.1,
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*,
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.apache.ws.commons.schema.*,
                             org.wso2.carbon.user.*,
                             org.wso2.carbon.utils.*,

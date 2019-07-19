@@ -120,7 +120,7 @@
                             org.osgi.service.*,
                             org.wso2.carbon.user.core.*,
                             org.wso2.carbon.utils,
-                            org.apache.commons.logging.*,
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.wso2.carbon.registry.core.*,
                             org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             org.wso2.carbon.core.common.*;version="0.0.0"

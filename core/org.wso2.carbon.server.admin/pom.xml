@@ -113,7 +113,7 @@
                             org.osgi.framework.*,
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
-                            org.apache.commons.logging.*,
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.wso2.carbon.utils.*,
                             org.apache.neethi.*; version="${neethi.osgi.version.range}",
                             org.wso2.carbon.core.*,

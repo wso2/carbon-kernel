@@ -33,7 +33,7 @@
                         </Export-Package>
                         <Import-Package>
                             org.apache.axis2.*,
-                            org.apache.commons.logging.*,
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.osgi.framework,
                             *;resolution:=optional
                         </Import-Package>
