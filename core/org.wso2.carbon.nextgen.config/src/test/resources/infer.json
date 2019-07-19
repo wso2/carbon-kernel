@@ -91,7 +91,8 @@
   },
   "datasource.$1.type": {
     "mysql": {
-      "datasource.$1.driver": "com.mysql.jdbc.Driver"
+      "datasource.$1.driver": "com.mysql.jdbc.Driver",
+      "datasource.$1.url": "jdbc:mysql://localhost:3306/$ref{datasource.$1.name}"
     }
   },
   "datasource.carbon.type": {

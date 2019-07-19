@@ -30,13 +30,13 @@ import java.util.Map;
 
 public class ValueInferrerTest {
 
-    private static final String INFER_TOML = "infer.json";
+    private static final String INFER_JSON = "infer.json";
 
     @Test(dataProvider = "contextProvider")
     public void testParse(Map<String, Object> context, String key, Object expectedValue) throws ConfigParserException {
 
         String inferConfiguration =
-                FileUtils.getFile("src", "test", "resources", INFER_TOML).getAbsolutePath();
+                FileUtils.getFile("src", "test", "resources", INFER_JSON).getAbsolutePath();
 
         Map<String, Object> inferredValues = ValueInferrer.infer(context, inferConfiguration);
         Object actualValue = inferredValues.get(key);
@@ -55,6 +55,7 @@ public class ValueInferrerTest {
         Map<String, Object> variableContext = new HashMap<>();
         variableContext.put("datasource.apim.type", "mysql");
         variableContext.put("datasource.abc.type", "mysql");
+        variableContext.put("datasource.abc.name", "hellodb");
         variableContext.put("datasource.cde.type", "oracle");
         variableContext.put("datasource.carbon.type", "mysql");
         return new Object[][]{
@@ -67,6 +68,7 @@ public class ValueInferrerTest {
                 {invalidContext, "user_store.class", null},
                 {variableContext, "datasource.apim.driver", "com.mysql.jdbc.Driver"},
                 {variableContext, "datasource.abc.driver", "com.mysql.jdbc.Driver"},
+                {variableContext, "datasource.abc.url", "jdbc:mysql://localhost:3306/$ref{datasource.abc.name}"},
                 {variableContext, "datasource.cde.driver", null},
                 {variableContext, "datasource.carbon.driver", "com.oracle.Driver"},
                 {jdbcContext, "tenant_mgt.tenant_manager.config_builder", "org.wso2.carbon.user.core.config" +
