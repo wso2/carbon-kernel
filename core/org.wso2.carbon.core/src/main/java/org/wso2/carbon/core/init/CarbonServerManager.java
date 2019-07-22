@@ -96,6 +96,7 @@ import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.management.ManagementPermission;
 import java.net.SocketException;
 import java.util.Date;
@@ -866,6 +867,7 @@ public final class CarbonServerManager implements Controllable {
             setJULFileHandler();
             setJULConsoleHandler();
 
+            logger.setUseParentHandlers(false);
             logger.info("Shutdown complete");
             logger.info("Halting JVM");
 
@@ -1013,7 +1015,13 @@ public final class CarbonServerManager implements Controllable {
      * @throws IOException If an error occurs while setting handler
      */
     private void setJULConsoleHandler() throws IOException {
-        Handler consoleHandler = new ConsoleHandler();
+
+        Handler consoleHandler = new ConsoleHandler (){
+            @Override
+            protected synchronized void setOutputStream(OutputStream out) throws SecurityException {
+                super.setOutputStream(System.out);
+            }
+        };
         consoleHandler.setFormatter(new SimpleFormatter() {
 
             @Override
