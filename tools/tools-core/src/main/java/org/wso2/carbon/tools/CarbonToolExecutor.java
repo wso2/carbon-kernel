@@ -62,25 +62,28 @@ public class CarbonToolExecutor {
      * @throws CarbonToolException if the tool cannot be identified for execution
      */
     private static void executeTool(String toolIdentifier, String... toolArgs) throws CarbonToolException {
+
         if (toolIdentifier == null) {
             throw new CarbonToolException("The Carbon tool identifier cannot be null");
         }
 
         CarbonTool carbonTool;
         switch (toolIdentifier) {
-        case "jar-to-bundle-converter":
-            carbonTool = new BundleGeneratorTool();
-            break;
-        case "osgi-lib-deployer":
-            carbonTool = new OSGiLibDeployerTool();
-            break;
-        case "icf-provider":
-            carbonTool = new ICFProviderTool();
-            break;
-        default:
-            carbonTool = null;
+            case "jar-to-bundle-converter":
+                carbonTool = new BundleGeneratorTool();
+                break;
+            case "osgi-lib-deployer":
+                carbonTool = new OSGiLibDeployerTool();
+                break;
+            case "icf-provider":
+                carbonTool = new ICFProviderTool();
+                break;
+            case "install-jars":
+                carbonTool = new InstallJarsTool();
+                break;
+            default:
+                carbonTool = null;
         }
-
         if (carbonTool != null) {
             carbonTool.execute(toolArgs);
         }
