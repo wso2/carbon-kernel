@@ -17,12 +17,17 @@
  */
 package org.wso2.carbon.user.core.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SqlBuilder {
+
+    private static final String START_PARENTHESES = "(";
+    private static final String CLOSE_PARENTHESES = ")";
 
     private List<String> wheres = new ArrayList<>();
     private StringBuilder sql;
@@ -57,9 +62,9 @@ public class SqlBuilder {
         wheres = new ArrayList<>();
         this.addedWhereStatement = false;
         if (tail != null) {
-            return sql.toString() + tail;
+            return buildExecutableSQLStatement(new StringBuilder(sql.toString() + tail));
         } else {
-            return sql.toString();
+            return buildExecutableSQLStatement(new StringBuilder(sql.toString()));
         }
     }
 
@@ -176,4 +181,25 @@ public class SqlBuilder {
         }
         count++;
     }
+
+    /**
+     * This method to build an executable SQL statement.
+     *
+     * @param sqlQueryStringBuilder Final sql query string.
+     */
+    private String buildExecutableSQLStatement(StringBuilder sqlQueryStringBuilder) {
+
+        // Check whether any parentheses which are not closed in the SQL statement if so close it.
+        int startParenthesesCounts = StringUtils.countMatches(sqlQueryStringBuilder.toString(), START_PARENTHESES);
+        int endParenthesesCounts = StringUtils.countMatches(sqlQueryStringBuilder.toString(), CLOSE_PARENTHESES);
+        int needToBeCloseParenthesesCount = startParenthesesCounts - endParenthesesCounts;
+
+        if (needToBeCloseParenthesesCount > 0) {
+            for (int i = 0; i < needToBeCloseParenthesesCount; i++) {
+                sqlQueryStringBuilder.append(CLOSE_PARENTHESES);
+            }
+        }
+        return sqlQueryStringBuilder.toString();
+    }
+
 }
