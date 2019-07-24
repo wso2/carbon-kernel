@@ -89,6 +89,26 @@
 	    </Config>
     </Authenticator>
 
+    {% if admin_console.authenticator.iwa_ui_authenticator is defined %}
+    <Authenticator
+        id="iwa_ui_authenticator"
+        name="IWAUIAuthenticator"
+        {% if admin_console.authenticator.iwa_ui_authenticator.enable is sameas true %}
+        disabled="false">
+        {% else %}
+        disabled="true">
+        {% endif %}
+	    <Priority>{{admin_console.authenticator.iwa_ui_authenticator.priority}}</Priority>
+        {% if admin_console.authenticator.iwa_ui_authenticator.config is defined %}
+	    <Config>
+            {% for key,value in admin_console.authenticator.mutual_ssl_authenticator.config.items() %}
+            <Parameter name="{{key}}">{{value}}</Parameter>
+            {% endfor %}
+	    </Config>
+        {% endif %}
+    </Authenticator>
+    {% endif %}
+
     <!-- Authenticator Configurations for Custom Authenticators -->
     {% for authenticator in admin_console.authenticator.custom %}
     <Authenticator
