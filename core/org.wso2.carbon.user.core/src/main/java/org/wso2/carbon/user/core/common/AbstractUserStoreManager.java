@@ -5547,7 +5547,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     protected void addToUserRolesCache(int tenantID, String userName, String[] roleList) {
         if (userRolesCache != null) {
             String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
-            userRolesCache.addToCache(cacheIdentifier, tenantID, usernameWithDomain, roleList);
+            String[] rolesWithDomain = UserCoreUtil.addDomainToNames(roleList, getMyDomainName());
+            userRolesCache.addToCache(cacheIdentifier, tenantID, usernameWithDomain, rolesWithDomain);
             AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
             authorizationCache.clearCacheByTenant(tenantID);
         }
