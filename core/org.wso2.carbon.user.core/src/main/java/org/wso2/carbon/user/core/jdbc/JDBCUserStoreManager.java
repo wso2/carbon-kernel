@@ -450,8 +450,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
-        // TODO
-        String[] roles = doGetExternalRoleListOfUser(userName, "*");
+
+        String[] roles = doGetExternalRoleListOfUser(userName, roleName);
         if (roles != null) {
             for (String role : roles) {
                 if (role.equalsIgnoreCase(roleName)) {
@@ -2907,22 +2907,33 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         String sqlStmt;
-        if (isCaseSensitiveUsername()) {
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_ROLE);
+        String[] names;
+        if (filter.equals("*") || StringUtils.isEmpty(filter)) {
+
+            sqlStmt = getExternalRoleListSqlStatement(
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_ROLE),
+                    realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE));
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                names = getStringValuesFromDatabase(sqlStmt, userName, tenantId, tenantId, tenantId);
+            } else {
+                names = getStringValuesFromDatabase(sqlStmt, userName);
+            }
         } else {
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE);
+            filter = filter.trim();
+            filter = filter.replace("*", "%");
+            filter = filter.replace("?", "_");
+            sqlStmt = getExternalRoleListSqlStatement(
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_USER_ROLE_EXIST), realmConfig
+                            .getUserStoreProperty(
+                                    JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_EXIST_CASE_INSENSITIVE));
+
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                names = getStringValuesFromDatabase(sqlStmt, userName, tenantId, tenantId, tenantId, filter);
+            } else {
+                names = getStringValuesFromDatabase(sqlStmt, userName, filter);
+            }
         }
         List<String> roles = new ArrayList<String>();
-        String[] names;
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for retrieving user roles is null");
-        }
-        if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            names = getStringValuesFromDatabase(sqlStmt, userName, tenantId, tenantId, tenantId);
-        } else {
-            names = getStringValuesFromDatabase(sqlStmt, userName);
-        }
-
         if (log.isDebugEnabled()) {
             if (names != null) {
                 for (String name : names) {
@@ -4291,5 +4302,27 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private boolean isCaseSensitiveUsername() {
         String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+    }
+
+    /**
+     * Get the SQL statement for ExternalRoles.
+     *
+     * @param caseSensitiveUsernameQuery    query for getting role with case sensitive username.
+     * @param nonCaseSensitiveUsernameQuery query for getting role with non-case sensitive username.
+     * @return sql statement.
+     * @throws UserStoreException
+     */
+    private String getExternalRoleListSqlStatement(String caseSensitiveUsernameQuery,
+            String nonCaseSensitiveUsernameQuery) throws UserStoreException {
+        String sqlStmt;
+        if (isCaseSensitiveUsername()) {
+            sqlStmt = caseSensitiveUsernameQuery;
+        } else {
+            sqlStmt = nonCaseSensitiveUsernameQuery;
+        }
+        if (sqlStmt == null) {
+            throw new UserStoreException("The sql statement for retrieving user roles is null");
+        }
+        return sqlStmt;
     }
 }
