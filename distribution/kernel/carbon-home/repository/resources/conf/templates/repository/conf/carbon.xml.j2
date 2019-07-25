@@ -330,7 +330,11 @@
          calling to BE server -->
         <clientAxis2XmlLocation>${carbon.home}/repository/conf/axis2/axis2_client.xml</clientAxis2XmlLocation>
         <!-- If this parameter is set, the ?wsdl on an admin service will not give the admin service wsdl. -->
+        {% if admin_service.wsdl.enable is sameas true %}
+        <HideAdminServiceWSDLs>false</HideAdminServiceWSDLs>
+        {% else %}
         <HideAdminServiceWSDLs>true</HideAdminServiceWSDLs>
+        {% endif %}
 
 	<!--WARNING-Use With Care! Uncommenting bellow parameter would expose all AdminServices in HTTP transport.
 	With HTTP transport your credentials and data routed in public channels are vulnerable for sniffing attacks.
