@@ -17,10 +17,17 @@ package org.wso2.carbon.tools;
 
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
+import org.wso2.carbon.utils.FileUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,48 +38,163 @@ import java.util.logging.Logger;
 /**
  * This class defines a tool which can automatically installs jars as OSGI bundles
  * in WSO2 Carbon Server.
- *
- * @since 5.1.0
+ * <p>
+ * Here is the jar installing algorithm.
+ * 1) Creates a backup at CARBON_HOME/_lib (if it does not exist). Backup all the bundles in the
+ * CARBON_HOME/lib directory.
+ * 2) Converts the Jars inside CARBON_HOME/jars directory as OSGI bundles and copy them to CARBON_HOME/lib directory and
+ * Writes the last directory updated timestamp to a meta file at CARBON_HOME/.meta/jarsMeta
+ * 3) Copies the bundles in the CARBON_HOME/bundles directory to CARBON_HOME/lib directory and writes
+ * the last directory updated timestamp to a meta file at CARBON_HOME/.meta/bundleMeta
+ * 4) When the CARBON_HOME/jars or/and CARBON_HOME/bundles directory is updated, restores the default
+ * CARBON_HOME/lib and performs the installation process again.
  */
 public class InstallJarsTool implements CarbonTool {
 
     private static final Logger logger = Logger.getLogger(InstallJarsTool.class.getName());
+    private static final String BUNDLE_BACKUP_DIR_NAME = "_lib";
+    private static final String META_DATA_DIR_NAME = ".meta";
+    private static final String LIB_DIR_NAME = "lib";
+    private static final String JARS_DIR_NAME = "jars";
+    private static final String BUNDLE_DIR_NAME = "bundles";
+    private static final String JARS_META_FILE = "jarsMeta";
+    private static final String BUNDLE_META_FILE = "bundleMeta";
+    private String carbonHome;
 
     /**
-     * Executes the WSO2 Carbon OSGi-lib deployer tool based on the specified arguments.
+     * Executes the WSO2 Carbon Install Jars tool.
      *
-     * @param toolArgs the {@link String} argument specifying the Carbon Runtime and CARBON_HOME
+     * @param toolArgs the {@link String} argument specifying the CARBON_HOME
      */
     @Override
     public void execute(String... toolArgs) {
-        String carbonHome = toolArgs[0];
-        Path sourcePath = Paths.get(carbonHome.concat("/jars"));
-        Path outputPath = Paths.get(carbonHome.concat("/lib"));
-        File jarsDir = sourcePath.toFile();
+        carbonHome = toolArgs[0];
+        Path jarSourcePath = Paths.get(carbonHome , JARS_DIR_NAME);
+        Path bundleSourcePath = Paths.get(carbonHome, BUNDLE_DIR_NAME);
+        Path outputPath = Paths.get(carbonHome, LIB_DIR_NAME);
 
-        if ((Files.isReadable(sourcePath)) && (Files.isWritable(outputPath))) {
+        File jarsDir = jarSourcePath.toFile();
+        File bundlesDir = bundleSourcePath.toFile();
+        File outputDir = outputPath.toFile();
+
+        if ((Files.isReadable(jarSourcePath)) && (Files.isReadable(bundleSourcePath)) &&
+                (Files.isWritable(outputPath))) {
             try {
-                File[] files = jarsDir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".jar");
-                    }
-                });
-                if (files != null && files.length > 0) {
-                    for (File jar : files) {
+                File metaDir = new File(carbonHome, META_DATA_DIR_NAME);
+                File[] jars = listJarsInDirectory(jarsDir);
+                File[] bundles = listJarsInDirectory(bundlesDir);
+                File jarMetaFile = new File(metaDir, JARS_META_FILE);
+                File bundleMetaFile = new File(metaDir, BUNDLE_META_FILE);
+
+                boolean isJarDirectoryUpdated = isDirectoryUpdated(jarMetaFile, jarsDir);
+                boolean isBundleDirectoryUpdated = isDirectoryUpdated(bundleMetaFile, bundlesDir);
+                boolean isReverted = false;
+
+                if (isBundleDirectoryUpdated || isJarDirectoryUpdated) {
+                    revertLibDirectoryToDefaultVersion();
+                    isReverted = true;
+                }
+
+                if (jars != null && (isJarDirectoryUpdated || !jarMetaFile.exists() || isReverted)) {
+                    backupLibDirectory(outputDir);
+                    for (File jar : jars) {
                         BundleGeneratorUtils.convertFromJarToBundle(
                                 jar.toPath(), outputPath, new Manifest(), "");
                     }
-
+                    updateMetaFile(jarsDir, jarMetaFile);
+                }
+                if (bundles != null && (isJarDirectoryUpdated || !bundleMetaFile.exists()
+                        || isReverted)) {
+                    for (File bundle : bundles) {
+                        FileUtils.copyFileToDir(bundle, outputDir);
+                    }
+                    updateMetaFile(bundlesDir, bundleMetaFile);
                 }
             } catch (IOException | CarbonToolException e) {
                 logger.log(Level.SEVERE,
-                        "An error occurred when making the JAR (Java Archive) to OSGi bundle conversion", e);
+                        "An error occurred while installing Jars and Bundles to the distribution.", e);
             }
         } else {
-            String message = "The source location and/or bundle destination does not have appropriate " +
-                    "read/write permissions.";
+            String message = "The jars location:" + jarSourcePath + " and/or bundle location:" + bundleSourcePath +
+                    " and/or lib location:" + outputPath + "  does not have appropriate " + "read/write permissions.";
             logger.log(Level.WARNING, message);
         }
+    }
+
+    private boolean isDirectoryUpdated(File metaDataFile, File directory) throws IOException {
+        if (metaDataFile.exists()) {
+            try (BufferedReader bufReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(metaDataFile), Charset.defaultCharset()))) {
+                String metaReadInfo = bufReader.readLine();
+                if (metaReadInfo != null) {
+                    return !metaReadInfo.equalsIgnoreCase(Long.toString(directory.lastModified()));
+                }
+            }
+        }
+        return false;
+    }
+
+    private void revertLibDirectoryToDefaultVersion() throws IOException {
+        File libDir = new File(carbonHome, LIB_DIR_NAME);
+        File backupLibDir = new File(carbonHome, BUNDLE_BACKUP_DIR_NAME);
+        if (libDir.exists() && backupLibDir.exists()) {
+            logger.info("Reverting " + libDir.toPath() + " to default version.");
+            FileUtils.deleteDir(libDir);
+            File[] bundles = listJarsInDirectory(backupLibDir);
+            for (File bundle : bundles) {
+                FileUtils.copyFileToDir(bundle, libDir);
+            }
+        }
+    }
+
+    private void backupLibDirectory(File bundleDir) throws IOException {
+        File bundleBackupDir = new File(carbonHome, BUNDLE_BACKUP_DIR_NAME);
+        boolean alreadyBackedUp = bundleBackupDir.exists();
+        if (!alreadyBackedUp) {
+            File[] jarsInDir = listJarsInDirectory(bundleDir);
+            for (File jar : jarsInDir) {
+                FileUtils.copyFileToDir(jar, bundleBackupDir);
+            }
+            logger.info("Backed up lib to " + bundleBackupDir.toPath());
+        }
+    }
+
+    private void updateMetaFile(File directory, File metaFile) {
+        File metaDir = new File(carbonHome, META_DATA_DIR_NAME);
+        if (!metaDir.exists()) {
+            if (metaDir.mkdir()) {
+                logger.info(META_DATA_DIR_NAME + " successfully created on " + metaDir.toPath());
+            }
+        }
+        writeToFile(metaFile, Long.toString(directory.lastModified()));
+    }
+
+    private void writeToFile(File file, String content) {
+        BufferedWriter bufWriter = null;
+        try {
+            bufWriter = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(file), Charset.defaultCharset()));
+            bufWriter.write(content);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "An error occurred while writing to file " + file.toPath(), e);
+        } finally {
+            if (bufWriter != null) {
+                try {
+                    bufWriter.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private File[] listJarsInDirectory(File jarsDir) {
+        File[] files = {};
+        if (jarsDir.exists()) {
+            files = jarsDir.listFiles((dir, name) -> name.endsWith(".jar"));
+            return files;
+        } else {
+            logger.warning("Directory " + jarsDir.getPath() + " does not exist.");
+        }
+        return files;
     }
 }

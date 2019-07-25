@@ -121,4 +121,4 @@ echo CARBON_HOME environment variable is set to $CARBON_HOME
 CURRENT_DIR=${PWD};
 cd "$CARBON_HOME/bin/";
 
-java -cp "../bin/tools/*" -Dwso2.carbon.tool="install-jars" org.wso2.carbon.tools.CarbonToolExecutor "$CURRENT_DIR"
+java -cp "../bin/tools/*" -Dwso2.carbon.tool="install-jars" org.wso2.carbon.tools.CarbonToolExecutor "$CARBON_HOME"
