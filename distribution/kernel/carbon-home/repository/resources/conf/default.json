@@ -162,5 +162,7 @@
   "server.base_path" : "${carbon.protocol}://${carbon.host}:${carbon.management.port}",
   "system.parameter": {
     "org.wso2.CipherTransformation": "RSA/ECB/OAEPwithSHA1andMGF1Padding"
-  }
+  },
+
+  "admin_service.wsdl.enable": false
 }
