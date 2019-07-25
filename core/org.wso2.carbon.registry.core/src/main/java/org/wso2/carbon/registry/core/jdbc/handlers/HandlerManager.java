@@ -500,8 +500,10 @@ public class HandlerManager {
             methodInfo = sb.toString();
         }
         if (log.isDebugEnabled()) {
-            log.debug("Registered the handler " + filter.getClass().getName() +
-                    " --> " + handler.getClass().getName() + " for" + methodInfo + " methods.");
+            if (filter != null && handler != null) {
+                log.debug("Registered the handler " + filter.getClass().getName() +
+                        " --> " + handler.getClass().getName() + " for" + methodInfo + " methods.");
+            }
         }
     }
 
