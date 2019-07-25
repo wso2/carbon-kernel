@@ -34,9 +34,11 @@ import java.nio.file.Paths;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * This class defines a tool which can automatically installs jars as OSGI bundles
+ * This class defines a tool which can automatically install jars as OSGI bundles
  * in WSO2 Carbon Server.
  * <p>
  * Here is the jar installing algorithm.
@@ -59,6 +61,7 @@ public class InstallJarsTool implements CarbonTool {
     private static final String BUNDLE_DIR_NAME = "bundles";
     private static final String JARS_META_FILE = "jarsMeta";
     private static final String BUNDLE_META_FILE = "bundleMeta";
+    private static final Pattern EXTRACT_JAR_NAME_PATTERN = Pattern.compile("(.*)-\\d+\\.\\d+\\.\\d+(\\.jar)$");
     private String carbonHome;
 
     /**
@@ -91,7 +94,7 @@ public class InstallJarsTool implements CarbonTool {
                 boolean isReverted = false;
 
                 if (isBundleDirectoryUpdated || isJarDirectoryUpdated) {
-                    revertLibDirectoryToDefaultVersion();
+                    revertLibDirToDefault();
                     isReverted = true;
                 }
 
@@ -106,6 +109,14 @@ public class InstallJarsTool implements CarbonTool {
                 if (bundles != null && (isJarDirectoryUpdated || !bundleMetaFile.exists()
                         || isReverted)) {
                     for (File bundle : bundles) {
+                        String bundleName = bundle.getName();
+                        Matcher matcher = EXTRACT_JAR_NAME_PATTERN.matcher(bundleName);
+                        if (matcher.matches()) {
+                            String bundleArtifactName = matcher.group(1);
+                            if (bundleArtifactName != null) {
+                                cleanExistingBundle(outputDir, bundleArtifactName);
+                            }
+                        }
                         FileUtils.copyFileToDir(bundle, outputDir);
                     }
                     updateMetaFile(bundlesDir, bundleMetaFile);
@@ -134,7 +145,7 @@ public class InstallJarsTool implements CarbonTool {
         return false;
     }
 
-    private void revertLibDirectoryToDefaultVersion() throws IOException {
+    private void revertLibDirToDefault() throws IOException {
         File libDir = new File(carbonHome, LIB_DIR_NAME);
         File backupLibDir = new File(carbonHome, BUNDLE_BACKUP_DIR_NAME);
         if (libDir.exists() && backupLibDir.exists()) {
@@ -182,6 +193,17 @@ public class InstallJarsTool implements CarbonTool {
                 try {
                     bufWriter.close();
                 } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private void cleanExistingBundle(File bundleDir, String bundleName) {
+        File[] files = bundleDir.listFiles((dir, name) -> name.matches(bundleName + ".*\\.jar"));
+        if (files != null) {
+            for (final File file : files) {
+                if (!file.delete()) {
+                    logger.log(Level.SEVERE, "Failed to clean existing bundle, " + file.getAbsolutePath());
                 }
             }
         }
