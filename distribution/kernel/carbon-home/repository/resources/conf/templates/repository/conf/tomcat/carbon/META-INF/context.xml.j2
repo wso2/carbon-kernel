@@ -15,7 +15,8 @@
   -->
 
 <!-- The contents of this file will be loaded for each web application -->
-<Context privileged="true" allowLinking="true" useHttpOnly="true" useRelativeRedirects="false">
+<Context privileged="true" useHttpOnly="true" useRelativeRedirects="false">
+    <Resources allowLinking="true" />
 
     <!-- Default set of monitored resources -->
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
