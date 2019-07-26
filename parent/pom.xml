@@ -642,6 +642,7 @@
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
+        <config.mapper.version>1.0.0</config.mapper.version>
     </properties>
 
     <dependencyManagement>
@@ -1788,9 +1789,9 @@
                 <version>2.3.1.wso2v1</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.nextgen.config</artifactId>
-                <version>${carbon.kernel.version}</version>
+                <groupId>org.wso2.config.mapper</groupId>
+                <artifactId>config-mapper</artifactId>
+                <version>${config.mapper.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hubspot.jinjava</groupId>
