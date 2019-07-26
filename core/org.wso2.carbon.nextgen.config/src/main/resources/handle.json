@@ -1,4 +1,0 @@
-{
-  "message_builders": "org.wso2.carbon.nextgen.config.handlers.MessageBuilders",
-  "message_formatters": "org.wso2.carbon.nextgen.config.handlers.MessageBuilders"
-}

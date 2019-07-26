@@ -130,7 +130,7 @@
                 <include>org.codehaus.woodstox:woodstox-core-asl</include>
                 <include>org.codehaus.woodstox:stax2-api</include>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.nextgen.config:jar</include>
+                <include>org.wso2.config.mapper:config-mapper:jar</include>
                 <include>net.consensys.cava:cava-toml:jar</include>
                 <include>org.ops4j.pax.logging:pax-logging-api:jar</include>
                 <include>org.ops4j.pax.logging:pax-logging-log4j2:jar</include>
