@@ -204,11 +204,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.logging</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
@@ -509,11 +504,15 @@
                 <version>${wsdl4j.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons-logging.version}</version>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-log4j2</artifactId>
+                <version>${pax.logging.log4j2.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.opensaml</groupId>
                 <artifactId>opensaml</artifactId>
@@ -1621,7 +1620,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.5.0-m1</carbon.kernel.version>
+        <carbon.kernel.version>4.5.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
         <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 3.0.0)</carbon.consent.mgt.imp.pkg.version.range>
@@ -1653,7 +1652,6 @@
         <!--Carbon component version-->
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
         <carbon.base.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.base.imp.pkg.version.range>
-        <carbon.logging.imp.pkg.version.range>[1.2.17, 2.0.0)</carbon.logging.imp.pkg.version.range>
 
         <!-- Axis2 Version -->
         <axis2.wso2.version>1.6.1-wso2v37</axis2.wso2.version>
@@ -1755,8 +1753,6 @@
         <commons-httpclient.wso2.version>3.1.0.wso2v2</commons-httpclient.wso2.version>
         <commons-httpclient.wso2.osgi.version>[3.1.0,4.0.0)</commons-httpclient.wso2.osgi.version>
         <commons-dbcp.version>1.2.2</commons-dbcp.version>
-        <commons-logging.version>1.2</commons-logging.version>
-        <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <commons-lang.version.range>[2.6.0,3.0.0)</commons-lang.version.range>
         <commons-lang.wso2.osgi.version.range>[2.6.0,3.0.0)</commons-lang.wso2.osgi.version.range>
@@ -1861,6 +1857,9 @@
 
         <jersey-version>1.19.1</jersey-version>
 
+        <pax.logging.api.version>1.10.1</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.10.1</pax.logging.log4j2.version>
+
         <!-- Unit test versions -->
         <testng.version>6.9.10</testng.version>
         <jacoco.version>0.8.2</jacoco.version>
@@ -1910,7 +1909,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.4.0</version>
+                    <version>3.2.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>

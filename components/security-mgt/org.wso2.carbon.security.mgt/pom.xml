@@ -130,10 +130,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -166,7 +163,7 @@
                             org.apache.rampart.*; version="${rampart.wso2.osgi.version.range}",
                             org.apache.ws.secpolicy.*; version="${rampart.wso2.osgi.version.range}",
                             org.apache.ws.security.*; version="${wss4j.ws.security.imp.pkg.version.range}",
-                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.commons.logging;
                             org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
 
