@@ -17,13 +17,18 @@
  */
 package org.wso2.carbon.tomcat.internal;
 
-
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -32,16 +37,26 @@ import org.wso2.securevault.commons.MiscellaneousUtil;
 import org.wso2.securevault.secret.SecretManager;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import javax.naming.Context;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.nio.file.Paths;
 
 /**
  * Configuring,initialization and stopping the carbon tomcat instance
@@ -68,11 +83,16 @@ public class ServerManager {
         String catalinaHome;
         String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
         String catalinaXML;
+        String catalinaPropertiesXml;
         if (configPath == null) {
             catalinaXML = Paths.get(carbonHome, "repository", "conf", "tomcat", "catalina-server.xml").toString();
+            catalinaPropertiesXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "catalina.properties").toString();
         } else {
             catalinaXML = Paths.get(configPath, "tomcat", "catalina-server.xml").toString();
+            catalinaPropertiesXml = Paths.get(configPath, "tomcat", "catalina.properties").toString();
         }
+        System.setProperty("catalina.config", "file://" + catalinaPropertiesXml);
+
         try {
             inputStream = new FileInputStream(new File(catalinaXML));
         } catch (FileNotFoundException e) {
@@ -103,6 +123,11 @@ public class ServerManager {
         }
         System.setProperty(Context.URL_PKG_PREFIXES, value);
 
+        // As of Tomcat 8, TomcatURLStreamHandlerFactory.disable() will disable Tomcat's custom URLStreamHandlerFactory.
+        // If this is disabled, access to resources in JARs in packed WARs will break unless
+        // the WarURLStreamHandler is registered via other means.
+//      // In WSO2 as the WARs are always unpacked before loading, there wont't be any issue.
+        TomcatURLStreamHandlerFactory.disable();
         tomcat = new CarbonTomcat();
 
         Element config = inputStreamToDOM(inputStream);

@@ -60,6 +60,12 @@ public class TestServletRequest implements ServletRequest {
     }
 
     @Override
+    public long getContentLengthLong() {
+
+        return 0;
+    }
+
+    @Override
     public String getContentType() {
         return null;
     }

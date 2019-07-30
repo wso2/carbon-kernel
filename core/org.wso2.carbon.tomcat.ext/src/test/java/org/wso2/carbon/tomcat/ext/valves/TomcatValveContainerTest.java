@@ -2,6 +2,7 @@ package org.wso2.carbon.tomcat.ext.valves;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.junit.Test;
@@ -83,7 +84,7 @@ public class TomcatValveContainerTest extends TestCase {
 
     private boolean checkLinksInTomcatValveContainerValves(String expectedString){
         CarbonTomcatValve valve = tomcatContainerValves.get(0);
-        Request request = new Request();
+        Request request = new Connector().createRequest();
 
         while (valve != null) {
             valve.invoke(request, null, null);
