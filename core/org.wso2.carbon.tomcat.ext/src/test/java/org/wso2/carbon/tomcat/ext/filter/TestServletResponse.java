@@ -64,6 +64,11 @@ public class TestServletResponse implements ServletResponse {
     }
 
     @Override
+    public void setContentLengthLong(long l) {
+
+    }
+
+    @Override
     public void setContentType(String s) {
         this.contentType = s;
     }

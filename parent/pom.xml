@@ -503,14 +503,13 @@
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
-        <version.tomcat>7.0.93</version.tomcat>
+        <version.tomcat>9.0.21</version.tomcat>
         <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1
         </orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
         <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
-        <orbit.version.tribes>7.0.34.wso2v1</orbit.version.tribes>
 
         <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
 
@@ -1029,9 +1028,9 @@
                 <version>${axis2.client.osgi.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.tomcat.wso2</groupId>
-                <artifactId>tribes</artifactId>
-                <version>${orbit.version.tribes}</version>
+                <groupId>org.wso2.tomcat</groupId>
+                <artifactId>tomcat-servlet-api</artifactId>
+                <version>${orbit.version.tomcat.servlet.api}</version>
             </dependency>
             <dependency>
                 <groupId>org.ajaxtags.wso2</groupId>
