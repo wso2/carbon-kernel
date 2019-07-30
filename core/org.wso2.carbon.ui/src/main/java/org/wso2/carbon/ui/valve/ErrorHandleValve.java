@@ -19,7 +19,6 @@ package org.wso2.carbon.ui.valve;
 
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
-import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.catalina.valves.Constants;
 import org.apache.catalina.valves.ErrorReportValve;
@@ -35,7 +34,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Scanner;
-import javax.servlet.ServletException;
 
 /**
  * Implementation of a Valve that outputs pluggable HTML error pages
@@ -74,12 +72,12 @@ public class ErrorHandleValve extends ErrorReportValve {
         if (statusCode < 400 || response.getContentWritten() > 0 || !response.setErrorReported()) {
             return;
         }
-        String message = RequestUtil.filter(response.getMessage());
+        String message = filter(response.getMessage());
         if (message == null) {
             if (throwable != null) {
                 String exceptionMessage = throwable.getMessage();
                 if (exceptionMessage != null && exceptionMessage.length() > 0) {
-                    message = RequestUtil.filter((new Scanner(exceptionMessage)).nextLine());
+                    message = filter((new Scanner(exceptionMessage)).nextLine());
                 }
             }
             if (message == null) {
@@ -126,6 +124,46 @@ public class ErrorHandleValve extends ErrorReportValve {
                 log.debug("Error while writing the HTML response", e);
             }
         }
+
+    }
+
+
+    /**
+     * This method is a duplicated of RequestUtil.filter() from tomcat.
+     *
+     * Filter the specified message string for characters that are sensitive
+     * in HTML.  This avoids potential attacks caused by including JavaScript
+     * codes in the request URL that is often reported in error messages.
+     *
+     * @param message The message string to be filtered
+     */
+    private String filter(String message) {
+
+        if (message == null)
+            return (null);
+
+        char content[] = new char[message.length()];
+        message.getChars(0, message.length(), content, 0);
+        StringBuilder result = new StringBuilder(content.length + 50);
+        for (int i = 0; i < content.length; i++) {
+            switch (content[i]) {
+                case '<':
+                    result.append("&lt;");
+                    break;
+                case '>':
+                    result.append("&gt;");
+                    break;
+                case '&':
+                    result.append("&amp;");
+                    break;
+                case '"':
+                    result.append("&quot;");
+                    break;
+                default:
+                    result.append(content[i]);
+            }
+        }
+        return (result.toString());
 
     }
 
@@ -178,7 +216,7 @@ public class ErrorHandleValve extends ErrorReportValve {
                 sb.append("<p><b>");
                 sb.append(smClient.getString("errorReportValve.exception"));
                 sb.append("</b> <pre>");
-                sb.append(RequestUtil.filter(stackTrace));
+                sb.append(filter(stackTrace));
                 sb.append("</pre></p>");
 
                 int loops = 0;
@@ -188,7 +226,7 @@ public class ErrorHandleValve extends ErrorReportValve {
                     sb.append("<p><b>");
                     sb.append(smClient.getString("errorReportValve.rootCause"));
                     sb.append("</b> <pre>");
-                    sb.append(RequestUtil.filter(stackTrace));
+                    sb.append(filter(stackTrace));
                     sb.append("</pre></p>");
                     // In case root cause is somehow heavily nested
                     rootCause = rootCause.getCause();

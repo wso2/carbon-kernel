@@ -122,10 +122,6 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.apache.jasper.glassfish</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet.jsp</artifactId>
         </dependency>
         <dependency>
