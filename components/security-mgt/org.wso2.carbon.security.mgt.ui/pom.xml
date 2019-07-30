@@ -82,7 +82,7 @@
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
                             org.apache.commons.fileupload.*; version="${commons-fileupload.imp.pkg.version.range}",
-                            org.apache.commons.logging;
+                            org.apache.commons.logging; version="${import.package.version.commons.logging}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.util.tracker; version="${osgi.util.tracker.imp.pkg.version.range}",
