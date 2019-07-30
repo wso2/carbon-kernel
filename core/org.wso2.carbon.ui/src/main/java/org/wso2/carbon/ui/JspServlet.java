@@ -15,13 +15,12 @@
  */
 package org.wso2.carbon.ui;
 
+import org.apache.jasper.Constants;
+import org.apache.jasper.compiler.TldCache;
+import org.apache.jasper.servlet.TldScanner;
 import org.osgi.framework.Bundle;
+import org.xml.sax.SAXException;
 
-import javax.servlet.*;
-import javax.servlet.descriptor.JspConfigDescriptor;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -31,7 +30,25 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Permission;
 import java.security.PermissionCollection;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.EventListener;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.SessionTrackingMode;
+import javax.servlet.descriptor.JspConfigDescriptor;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -111,23 +128,58 @@ public class JspServlet extends HttpServlet {
         ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(jspLoader);
+            // As in the tomcat 9, the TLD cache needs to be initialized in during the initialize of the servlet.
+            initializeTldCache(config);
             jspServlet.init(new ServletConfigAdaptor(config));
-            // If a SecurityManager is set we need to override the permissions collection set in Jasper's JSPRuntimeContext
-            			if (System.getSecurityManager() != null) {
-            				try {
-            					Field jspRuntimeContextField = jspServlet.getClass().getDeclaredField("rctxt"); //$NON-NLS-1$
-            					jspRuntimeContextField.setAccessible(true);
-            					Object jspRuntimeContext = jspRuntimeContextField.get(jspServlet);
-            					Field permissionCollectionField = jspRuntimeContext.getClass().getDeclaredField("permissionCollection"); //$NON-NLS-1$
-            					permissionCollectionField.setAccessible(true);
-            					permissionCollectionField.set(jspRuntimeContext, bundlePermissions);
-            				} catch (Exception e) {
-            					throw new ServletException("Cannot initialize JSPServlet. Failed to set JSPRuntimeContext permission collection."); //$NON-NLS-1$
-            				}
-            			}
+            // If a SecurityManager is set we need to override the permissions collection set in Jasper's
+            // JSPRuntimeContext
+            if (System.getSecurityManager() != null) {
+                try {
+                    Field jspRuntimeContextField = jspServlet.getClass().getDeclaredField("rctxt"); //$NON-NLS-1$
+                    jspRuntimeContextField.setAccessible(true);
+                    Object jspRuntimeContext = jspRuntimeContextField.get(jspServlet);
+                    Field permissionCollectionField = jspRuntimeContext.getClass().getDeclaredField
+                            ("permissionCollection"); //$NON-NLS-1$
+                    permissionCollectionField.setAccessible(true);
+                    permissionCollectionField.set(jspRuntimeContext, bundlePermissions);
+                } catch (Exception e) {
+                    throw new ServletException("Cannot initialize JSPServlet. Failed to set JSPRuntimeContext " +
+                            "permission collection."); //$NON-NLS-1$
+                }
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(original);
         }
+    }
+
+    private void initializeTldCache(ServletConfig config) throws ServletException {
+
+        ServletContext context = config.getServletContext();
+        boolean validate = Boolean.parseBoolean(
+                context.getInitParameter(Constants.XML_VALIDATION_TLD_INIT_PARAM));
+        String blockExternalString = context.getInitParameter(
+                Constants.XML_BLOCK_EXTERNAL_INIT_PARAM);
+        boolean blockExternal;
+        if (blockExternalString == null) {
+            blockExternal = true;
+        } else {
+            blockExternal = Boolean.parseBoolean(blockExternalString);
+        }
+        // scan the application for TLDs
+        TldScanner scanner = new TldScanner(context, true, validate, blockExternal);
+        try {
+            scanner.scan();
+        } catch (IOException | SAXException e) {
+            throw new ServletException(e);
+        }
+
+        // add any listeners defined in TLDs
+        for (String listener : scanner.getListeners()) {
+            context.addListener(listener);
+        }
+        context.setAttribute(TldCache.SERVLET_CONTEXT_ATTRIBUTE_NAME,
+                new TldCache(context, scanner.getUriTldResourcePathMap(),
+                        scanner.getTldResourcePathTaglibXmlMap()));
     }
 
     public void destroy() {
