@@ -1855,7 +1855,6 @@
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
-        <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
         <swagger2cxf-maven-plugin.version>1.0-SNAPSHOT</swagger2cxf-maven-plugin.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
@@ -1901,20 +1900,6 @@
                             ${project.basedir}/src/main/resources/org.wso2.carbon.identity.template.mgt.api.yaml
                         </inputSpec>
                     </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-scr-plugin</artifactId>
-                    <version>${maven.scr.plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>generate-scr-scrdescriptor</id>
-                            <goals>
-                                <goal>scr</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
