@@ -283,13 +283,25 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             throw new UserStoreException("Unsupported credential type", e);
         }
 
+        if (logger.isDebugEnabled()) {
+            try {
+                if (dirContext != null) {
+                    logger.debug(
+                            "Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext
+                                    .getNameInNamespace());
+                }
+            } catch (NamingException e) {
+                logger.debug("Error while getting DN of search base", e);
+            }
+        }
+
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
             searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
-            while (searchResults.hasMore()) {
+            while (searchResults.hasMoreElements()) {
                 if (count > 0) {
                     throw new UserStoreException(
                             "There are more than one result in the user store " + "for user: "
@@ -350,9 +362,19 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
             searchResults = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchControl);
+            if (logger.isDebugEnabled()) {
+                try {
+                    if (dirContext != null) {
+                        logger.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
+                                + dirContext.getNameInNamespace());
+                    }
+                } catch (NamingException e) {
+                    logger.debug("Error while getting DN of search base", e);
+                }
+            }
             SearchResult user = null;
             int count = 0;
-            while (searchResults.hasMore()) {
+            while (searchResults.hasMoreElements()) {
                 if (count > 0) {
                     throw new UserStoreException("There are more than one result in the user store " + "for user: "
                             + userName);
