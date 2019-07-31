@@ -19,7 +19,7 @@
     }
   },
   "user_store.properties.ReadGroups": true,
-  "user_store.properties.UsernameJavaScriptRegEx": "^[\\S]{5,30}$",
+  "user_store.properties.UsernameJavaScriptRegEx": "^[\\S]{3,30}$",
   "user_store.properties.UsernameJavaRegExViolationErrorMsg": "Username pattern policy violated",
   "user_store.properties.PasswordJavaRegEx": "^[\\S]{5,30}$",
   "user_store.properties.PasswordJavaScriptRegEx": "^[\\S]{5,30}$",
