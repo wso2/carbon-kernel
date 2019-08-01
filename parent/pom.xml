@@ -1028,7 +1028,7 @@
                 <version>${axis2.client.osgi.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.tomcat</groupId>
+                <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
                 <artifactId>tomcat-servlet-api</artifactId>
                 <version>${orbit.version.tomcat.servlet.api}</version>
             </dependency>
@@ -1296,7 +1296,7 @@
                 <version>${version.ibm.icu}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.tomcat</groupId>
+                <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
                 <artifactId>tomcat</artifactId>
                 <version>${orbit.version.tomcat}</version>
             </dependency>
@@ -1447,7 +1447,7 @@
                 <version>${version.tomcat}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.tomcat.ha</groupId>
+                <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
                 <artifactId>tomcat-catalina-ha</artifactId>
                 <version>${orbit.version.tomcat.ha}</version>
             </dependency>
