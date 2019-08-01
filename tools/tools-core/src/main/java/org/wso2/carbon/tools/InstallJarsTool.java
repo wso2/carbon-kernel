@@ -98,7 +98,8 @@ public class InstallJarsTool implements CarbonTool {
                     isReverted = true;
                 }
 
-                if (jars != null && (isJarDirectoryUpdated || !jarMetaFile.exists() || isReverted)) {
+                if (jars != null && (isJarDirectoryUpdated || (!jarMetaFile.exists() && jars.length > 0)
+                        || isReverted)) {
                     backupLibDirectory(outputDir);
                     for (File jar : jars) {
                         BundleGeneratorUtils.convertFromJarToBundle(
@@ -106,8 +107,9 @@ public class InstallJarsTool implements CarbonTool {
                     }
                     updateMetaFile(jarsDir, jarMetaFile);
                 }
-                if (bundles != null && (isJarDirectoryUpdated || !bundleMetaFile.exists()
+                if (bundles != null && (isJarDirectoryUpdated || (!bundleMetaFile.exists() && bundles.length > 0)
                         || isReverted)) {
+                    backupLibDirectory(outputDir);
                     for (File bundle : bundles) {
                         String bundleName = bundle.getName();
                         Matcher matcher = EXTRACT_JAR_NAME_PATTERN.matcher(bundleName);
