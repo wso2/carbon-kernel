@@ -423,13 +423,28 @@ public class HybridRoleManager {
                 roles = DatabaseUtil
                         .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
                                 tenantId, tenantId, tenantId, domain);
-            } else {
+            } else if (filter.contains("*") || filter.contains("?")) {
                 filter = filter.trim();
                 filter = filter.replace("*", "%");
                 filter = filter.replace("?", "_");
                 sqlStmt = getHybridRoleListSqlStatement(
                         realmConfig.getRealmProperty(HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
                         HybridJDBCConstants.GET_ROLE_OF_USER_SQL,
+                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
+
+                if (filter.toLowerCase().contains(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase())) {
+                    int index;
+                    if ((index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
+                        filter = filter.substring(index + 1);
+                    }
+                }
+                roles = DatabaseUtil
+                        .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
+                                tenantId, tenantId, tenantId, domain, filter);
+            } else {
+                sqlStmt = getHybridRoleListSqlStatement(
+                        realmConfig.getRealmProperty(HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
+                        HybridJDBCConstants.GET_USER_ROLE_NAME_SQL,
                         JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
 
                 if (filter.toLowerCase().contains(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase())) {
