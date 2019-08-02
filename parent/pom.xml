@@ -335,7 +335,7 @@
         <version.equinox.launcher.gtk.linux.x86>1.1.400.v20160518-1444</version.equinox.launcher.gtk.linux.x86>
         <version.equinox.core.runtime>3.9.0.v20130326-1255</version.equinox.core.runtime>
         <version.equinox.osgi.services>3.5.100.v20160504-1419</version.equinox.osgi.services>
-        <version.equinox.osgi>3.11.0.v20160603-1336</version.equinox.osgi>
+        <version.equinox.osgi>3.14.0</version.equinox.osgi>
         <version.equinox.core.contenttype>3.4.200.v20130326-1255</version.equinox.core.contenttype>
         <version.equinox.core.expressions>3.4.500.v20130515-1343</version.equinox.core.expressions>
         <version.equinox.core.jobs>3.5.300.v20130429-1813</version.equinox.core.jobs>
@@ -671,7 +671,7 @@
                 <version>${orbit.version.hazelcast}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.eclipse.osgi</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${version.equinox.osgi}</version>
             </dependency>

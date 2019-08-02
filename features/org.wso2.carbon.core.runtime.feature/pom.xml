@@ -34,7 +34,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
@@ -283,7 +283,7 @@
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
                                 <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
-                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.osgi</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.concurrent</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin</bundleDef>
