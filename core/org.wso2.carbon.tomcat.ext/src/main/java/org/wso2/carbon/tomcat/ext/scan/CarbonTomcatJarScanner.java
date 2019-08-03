@@ -107,17 +107,19 @@ public class CarbonTomcatJarScanner extends StandardJarScanner {
         // processing.
         Deque<URL> classPathUrlsToProcess = new LinkedList<>();
         File pluginsDir = new File(CARBON_PLUGINS_DIR_PATH);
-        pluginsDir.listFiles(file -> {
+        File[] files = pluginsDir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
             if (file.getName().endsWith(Constants.JAR_EXT)) {
                 try {
-                    classPathUrlsToProcess.add(new URL(file.getPath()));
-                    return true;
+                    classPathUrlsToProcess.add(files[0].toURI().toURL());
                 } catch (MalformedURLException e) {
-                    return false;
+                    // ignore
                 }
             }
-            return false;
-        });
+        };
         processURLs(scanType, callback, processedURLs, false, classPathUrlsToProcess);
     }
 }
