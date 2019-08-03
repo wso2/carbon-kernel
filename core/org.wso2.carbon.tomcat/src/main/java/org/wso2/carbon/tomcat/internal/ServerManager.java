@@ -44,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import javax.naming.Context;
 import javax.xml.XMLConstants;
@@ -91,7 +92,11 @@ public class ServerManager {
             catalinaXML = Paths.get(configPath, "tomcat", "catalina-server.xml").toString();
             catalinaPropertiesXml = Paths.get(configPath, "tomcat", "catalina.properties").toString();
         }
-        System.setProperty("catalina.config", "file://" + catalinaPropertiesXml);
+        try {
+            System.setProperty("catalina.config", new File(catalinaPropertiesXml).toURI().toURL().toString());
+        } catch (MalformedURLException e) {
+            log.error("could not locate the file catalina.properties", e);
+        }
 
         try {
             inputStream = new FileInputStream(new File(catalinaXML));
