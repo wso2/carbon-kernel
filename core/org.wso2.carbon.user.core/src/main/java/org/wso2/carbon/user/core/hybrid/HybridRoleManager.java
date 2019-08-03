@@ -432,8 +432,6 @@ public class HybridRoleManager {
                         HybridJDBCConstants.GET_ROLE_OF_USER_SQL,
                         JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
 
-                // If the filter contains the internal domain, then here we remove the internal domain from the filter
-                // as the database only has the role name without the internal domain.
                 if (filter.toLowerCase().contains(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase())) {
                     int index;
                     if ((index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
