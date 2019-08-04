@@ -131,7 +131,7 @@ public class ServerManager {
         // As of Tomcat 8, TomcatURLStreamHandlerFactory.disable() will disable Tomcat's custom URLStreamHandlerFactory.
         // If this is disabled, access to resources in JARs in packed WARs will break unless
         // the WarURLStreamHandler is registered via other means.
-//      // In WSO2 as the WARs are always unpacked before loading, there wont't be any issue.
+        // In WSO2 as the WARs are always unpacked before loading, there wont't be any issue.
         TomcatURLStreamHandlerFactory.disable();
         tomcat = new CarbonTomcat();
 
