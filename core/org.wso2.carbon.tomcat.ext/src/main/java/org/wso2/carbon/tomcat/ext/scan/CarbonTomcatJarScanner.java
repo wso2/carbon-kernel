@@ -119,7 +119,7 @@ public class CarbonTomcatJarScanner extends StandardJarScanner {
                     // ignore
                 }
             }
-        };
+        }
         processURLs(scanType, callback, processedURLs, false, classPathUrlsToProcess);
     }
 }
