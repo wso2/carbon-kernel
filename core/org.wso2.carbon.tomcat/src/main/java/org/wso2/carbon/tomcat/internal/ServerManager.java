@@ -87,7 +87,7 @@ public class ServerManager {
         String catalinaPropertiesXml;
         if (configPath == null) {
             catalinaXML = Paths.get(carbonHome, "repository", "conf", "tomcat", "catalina-server.xml").toString();
-            catalinaPropertiesXml = Paths.get(System.getProperty("carbon.home"), "repository", "conf", "tomcat", "catalina.properties").toString();
+            catalinaPropertiesXml = Paths.get(carbonHome, "repository", "conf", "tomcat", "catalina.properties").toString();
         } else {
             catalinaXML = Paths.get(configPath, "tomcat", "catalina-server.xml").toString();
             catalinaPropertiesXml = Paths.get(configPath, "tomcat", "catalina.properties").toString();
