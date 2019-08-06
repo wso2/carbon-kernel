@@ -10,6 +10,7 @@ org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../lib/fe
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:jartobundle.sh,permissions:755);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:icf-provider.sh,permissions:755);\
 org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:osgi-lib.sh,permissions:755);\
+org.wso2.carbon.extensions.touchpoint.chmod(targetDir:${installFolder}/../../bin,targetFile:install-jars.sh,permissions:755);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../bin,targetFile:kernel-version.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../lib,targetFile:README.txt,permissions:644);\
 org.eclipse.equinox.p2.touchpoint.natives.chmod(targetDir:${installFolder}/../../tmp,targetFile:README.txt,permissions:644);\
