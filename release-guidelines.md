@@ -32,7 +32,7 @@
         * Change carbon.version
 4. Verify all the scripts in the CARBON_HOME/bin/ folder
 5. Use maven release plugin with release builder or jenkins builder to release the RC1 of the kernel. The WSO2 release process can be found here.
-https://docs.wso2.com/display/Carbon440/Releasing+a+Git+Repository
+https://docs.wso2.com/display/Carbon450/Releasing+a+Git+Repository
 Note: The tag should be RC1, but that should not be included for the product version.
 6. Once release is done, call for the release vote (send an email to dev@wso2.com) and wait for 72h.
 7. If there are no negative votes with in 72 hours, close the vote (reply to the same email)
