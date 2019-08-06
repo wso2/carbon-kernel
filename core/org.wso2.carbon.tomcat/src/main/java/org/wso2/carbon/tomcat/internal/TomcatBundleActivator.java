@@ -22,12 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.url.URLConstants;
-import org.osgi.service.url.URLStreamHandlerService;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
-import org.wso2.carbon.tomcat.jndi.JNDIURLStreamHandlerService;
-
-import java.util.Hashtable;
 
 /**
  * The OSGi BundleActivator for the {@link org.wso2.carbon.tomcat} bundle
@@ -45,14 +40,6 @@ public class TomcatBundleActivator implements BundleActivator {
             serverManager.init();
             serverManager.start();
             serviceRegistration = bundleContext.registerService(CarbonTomcatService.class.getName(), serverManager.getTomcatInstance(), null);
-            if (log.isDebugEnabled()) {
-                log.debug("Registering the JNDI stream handler...");
-            }
-            //registering JNDI stream handler
-            Hashtable<String, String[]> properties = new Hashtable<String, String[]>();
-            properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[]{"jndi"});
-            bundleContext.registerService(URLStreamHandlerService.class.getName(),
-                    new JNDIURLStreamHandlerService(), properties);
         } catch (Throwable t) {
             log.fatal("Error while starting server " + t.getMessage(), t);
             //do not throw because framework will keep trying. catching throwable is a bad thing, but

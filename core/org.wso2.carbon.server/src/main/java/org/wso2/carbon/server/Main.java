@@ -17,12 +17,11 @@
  */
 package org.wso2.carbon.server;
 
-import org.wso2.carbon.nextgen.config.ConfigConstants;
-import org.wso2.carbon.nextgen.config.ConfigParserException;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
 import org.apache.log4j.Logger;
-import org.wso2.carbon.nextgen.config.ConfigParser;
+import org.wso2.config.mapper.ConfigParser;
+import org.wso2.config.mapper.ConfigParserException;
 
 import java.io.BufferedWriter;
 import java.io.File;
