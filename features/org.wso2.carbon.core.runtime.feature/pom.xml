@@ -86,7 +86,7 @@
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
         </dependency>
         <dependency>
@@ -294,7 +294,7 @@
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
                                 </bundleDef>
                                 <!--<bundleDef>org.apache.felix:org.apache.felix.scr</bundleDef>-->
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.console</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.command</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.shell</bundleDef>
