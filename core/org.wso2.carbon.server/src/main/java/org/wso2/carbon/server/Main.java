@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.server;
 
+import org.apache.commons.lang3.StringUtils;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
 import org.apache.log4j.Logger;
@@ -216,9 +217,15 @@ public class Main {
     }
 
     private static void handleConfiguration() {
+
         String resourcesDir = System.getProperty(LauncherConstants.CARBON_NEW_CONFIG_DIR_PATH);
-        String configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH)  + File.separator +
-                ConfigParser.UX_FILE_PATH;
+
+        String configFilePath = System.getProperty(LauncherConstants.DEPLOYMENT_CONFIG_FILE_PATH);
+        if (StringUtils.isEmpty(configFilePath)) {
+            configFilePath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH) + File.separator +
+                    ConfigParser.UX_FILE_PATH;
+        }
+
         String outputDir = System.getProperty(LauncherConstants.CARBON_HOME);
         try {
             ConfigParser.parse(configFilePath, resourcesDir, outputDir);
