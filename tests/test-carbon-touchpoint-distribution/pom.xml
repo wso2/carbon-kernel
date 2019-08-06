@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-tests</artifactId>
-        <version>5.2.9</version>
+        <version>5.2.10-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
