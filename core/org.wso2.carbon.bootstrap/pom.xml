@@ -54,6 +54,12 @@
         <dependency>
             <groupId>org.apache.log4j.wso2</groupId>
             <artifactId>log4j</artifactId>
+            <version>${version.log4j}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <properties>
+        <version.log4j>1.2.17.wso2v1</version.log4j>
+    </properties>
 </project>
