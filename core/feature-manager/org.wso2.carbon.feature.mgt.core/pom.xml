@@ -155,6 +155,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
+                            org.osgi.framework.*; version="${import.osgi.framework.version.range}",
+                            org.osgi.service.component.*; version="${import.osgi.service.component.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>

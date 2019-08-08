@@ -348,7 +348,8 @@
         <version.sat4j.core>2.3.5.v201308161310</version.sat4j.core>
         <version.sat4j.pb>2.3.5.v201308161310</version.sat4j.pb>
         <version.org.sat4j.pb>2.3.0.v20110329</version.org.sat4j.pb>
-
+        <import.osgi.framework.version.range>[1.9,2.0)</import.osgi.framework.version.range>
+        <import.osgi.service.component.version.range>[1.2.0,2.0)</import.osgi.service.component.version.range>
         <version.equinox.http.servlet>1.1.400.v20130418-1354</version.equinox.http.servlet>
         <version.equinox.http.helper>1.1.0.wso2v1</version.equinox.http.helper>
         <version.equinox.jsp.jasper>1.0.400.v20120522-2049</version.equinox.jsp.jasper>
@@ -541,8 +542,8 @@
         <version.commons.logging>1.2</version.commons.logging>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>1.10.1</pax.logging.api.version>
-        <pax.logging.log4j2.version>1.10.1</pax.logging.log4j2.version>
+        <pax.logging.api.version>1.11.0</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.11.0</pax.logging.log4j2.version>
 
         <!--<version.opensaml2>2.4.1.wso2v1</version.opensaml2>-->
         <version.compass>2.0.1.wso2v2</version.compass>
