@@ -146,8 +146,8 @@
                             org.apache.catalina,
                             org.apache.catalina.connector,
                             org.apache.commons.lang,
-                        </Import-Package>
-                        <Import-Package>
+                            org.osgi.framework.*; version="${import.osgi.framework.version.range}",
+                            org.osgi.service.component.*; version="${import.osgi.service.component.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
