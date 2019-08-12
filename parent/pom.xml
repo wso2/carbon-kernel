@@ -594,7 +594,7 @@
         <javasysmon.version>0.3.3.wso2v1</javasysmon.version>
         <zookeeper.version>3.3.5.wso2v1</zookeeper.version>
         <wagon.ssh.version>2.1</wagon.ssh.version>
-        <version.org.wso2.orbit.javax.xml.bind.jaxb-api>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind.jaxb-api>
+        <version.jaxb.api>2.4.0-b180830.0359</version.jaxb.api>
         <version.org.wso2.orbit.javax.xml.bind.jaxb>2.3.2.wso2v1</version.org.wso2.orbit.javax.xml.bind.jaxb>
         <version.org.wso2.orbit.javax.activation>1.1.1.wso2v3</version.org.wso2.orbit.javax.activation>
         <version.org.wso2.orbit.com.sun.xml.ws.jaxws>2.3.2.wso2v1</version.org.wso2.orbit.com.sun.xml.ws.jaxws>
@@ -1795,14 +1795,9 @@
                 <version>${version.org.wso2.orbit.javax.activation}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>${version.org.wso2.orbit.javax.xml.bind.jaxb-api}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>2.3.1.wso2v1</version>
+                <version>${version.jaxb.api}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.config.mapper</groupId>
