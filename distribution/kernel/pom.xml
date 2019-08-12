@@ -129,6 +129,10 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-juli</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

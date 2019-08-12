@@ -152,6 +152,7 @@
                 <include>ant-contrib:ant-contrib:jar</include>
                 <include>xerces.wso2:xercesImpl:jar</include>
                 <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
+                <include>javax.xml.bind:jaxb-api:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
