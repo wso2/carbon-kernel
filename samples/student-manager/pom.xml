@@ -70,11 +70,6 @@
                 <version>${student.manager.version}</version>
                 <type>zip</type>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>${orbit.version.activation}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

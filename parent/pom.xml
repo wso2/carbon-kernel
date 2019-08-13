@@ -596,7 +596,7 @@
         <wagon.ssh.version>2.1</wagon.ssh.version>
         <version.jaxb.api>2.4.0-b180830.0359</version.jaxb.api>
         <version.org.wso2.orbit.javax.xml.bind.jaxb>2.3.2.wso2v1</version.org.wso2.orbit.javax.xml.bind.jaxb>
-        <version.org.wso2.orbit.javax.activation>1.1.1.wso2v3</version.org.wso2.orbit.javax.activation>
+        <version.activation>1.1.1</version.activation>
         <version.org.wso2.orbit.com.sun.xml.ws.jaxws>2.3.2.wso2v1</version.org.wso2.orbit.com.sun.xml.ws.jaxws>
         <version.org.wso2.orbit.javax.jta>1.1.0.wso2v2</version.org.wso2.orbit.javax.jta>
         <verion.javax.annotation.annotation-api>1.3.2</verion.javax.annotation.annotation-api>
@@ -1790,9 +1790,9 @@
                 <version>${powermock.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.javax.activation</groupId>
+                <groupId>javax.activation</groupId>
                 <artifactId>activation</artifactId>
-                <version>${version.org.wso2.orbit.javax.activation}</version>
+                <version>${version.activation}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
