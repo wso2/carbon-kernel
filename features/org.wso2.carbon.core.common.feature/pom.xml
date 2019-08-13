@@ -109,9 +109,6 @@
                                     org.wso2.orbit.sun.xml.ws:jaxws-ri:${version.org.wso2.orbit.com.sun.xml.ws.jaxws}
                                 </bundleDef>
                                 <bundleDef>
-                                    org.wso2.orbit.javax.transaction:jta:${version.org.wso2.orbit.javax.jta}
-                                </bundleDef>
-                                <bundleDef>
                                     javax.annotation:javax.annotation-api:${verion.javax.annotation.annotation-api}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>
