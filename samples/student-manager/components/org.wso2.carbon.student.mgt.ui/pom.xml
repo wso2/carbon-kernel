@@ -29,10 +29,6 @@
             <groupId>wsdl4j.wso2</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.javax.activation</groupId>
-            <artifactId>activation</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
