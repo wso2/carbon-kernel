@@ -46,7 +46,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 )
 public class SecurityMgtServiceComponent {
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
-    private static Log log = LogFactory.getLog(SecurityMgtServiceComponent.class);
+    private static final Log log = LogFactory.getLog(SecurityMgtServiceComponent.class);
     private static ConfigurationContextService configContextService = null;
     private static RealmService realmService;
     private static RegistryService registryService;

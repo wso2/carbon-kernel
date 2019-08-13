@@ -72,7 +72,7 @@ public class POXSecurityHandler implements Handler {
 
     public static final String POX_CACHE_MANAGER = "POX_CACHE_MANAGER";
     public static final String POX_ENABLED = "pox-security";
-    private static Log log = LogFactory.getLog(POXSecurityHandler.class);
+    private static final Log log = LogFactory.getLog(POXSecurityHandler.class);
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
     private HandlerDescription description;
     private static final String MESSAGE_TYPE = "messageType";

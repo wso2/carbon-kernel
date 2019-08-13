@@ -122,7 +122,7 @@ public class SecurityConfigAdmin {
     public static final String DISABLE_REST = "disableREST";
     public static final String POLICY_PATH = "policyPath";
     private static final String SEC_LABEL = "sec";
-    private static Log log = LogFactory.getLog(SecurityConfigAdmin.class);
+    private static final Log log = LogFactory.getLog(SecurityConfigAdmin.class);
     private AxisConfiguration axisConfig = null;
     private CallbackHandler callback = null;
     private Registry registry = null;

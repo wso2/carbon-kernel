@@ -52,7 +52,7 @@ import java.util.Enumeration;
 
 public class KeyStoreAdminClient {
 
-    private static Log log = LogFactory.getLog(KeyStoreAdminClient.class);
+    private static final Log log = LogFactory.getLog(KeyStoreAdminClient.class);
     private String serviceEndPoint = null;
     private KeyStoreAdminServiceStub stub = null;
 

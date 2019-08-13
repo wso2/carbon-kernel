@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class SecurityServiceAdmin {
 
-    private static Log log = LogFactory.getLog(SecurityServiceAdmin.class);
+    private static final Log log = LogFactory.getLog(SecurityServiceAdmin.class);
     protected AxisConfiguration axisConfig = null;
 
 
