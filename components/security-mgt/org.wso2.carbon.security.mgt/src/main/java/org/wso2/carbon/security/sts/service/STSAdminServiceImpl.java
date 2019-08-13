@@ -46,7 +46,7 @@ import java.util.Set;
 
 public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServiceInterface {
 
-    private static Log log = LogFactory.getLog(STSAdminServiceImpl.class);
+    private static final Log log = LogFactory.getLog(STSAdminServiceImpl.class);
 
     @Override
     public void addTrustedService(String serviceAddress, String certAlias)

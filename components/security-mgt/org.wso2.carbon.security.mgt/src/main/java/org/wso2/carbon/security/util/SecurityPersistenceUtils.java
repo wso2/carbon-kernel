@@ -37,7 +37,7 @@ import java.util.List;
 @Deprecated
 public class SecurityPersistenceUtils {
 
-    private static Log log = LogFactory.getLog(SecurityPersistenceUtils.class);
+    private static final Log log = LogFactory.getLog(SecurityPersistenceUtils.class);
 
     /**
      * @param serviceGroupId      serviceGroupId

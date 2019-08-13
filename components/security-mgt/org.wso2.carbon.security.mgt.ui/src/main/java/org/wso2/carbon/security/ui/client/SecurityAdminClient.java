@@ -39,7 +39,7 @@ import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper;
 
 public class SecurityAdminClient {
 
-    private static Log log = LogFactory.getLog(SecurityAdminClient.class);
+    private static final Log log = LogFactory.getLog(SecurityAdminClient.class);
     private SecurityAdminServiceStub stub = null;
 
     public SecurityAdminClient(String cookie, String url, ConfigurationContext configContext)

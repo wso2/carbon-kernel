@@ -75,7 +75,7 @@ public class KeyStoreAdmin {
     public static final String SERVER_TRUSTSTORE_PASSWORD = "Security.TrustStore.Password";
     public static final String SERVER_TRUSTSTORE_TYPE = "Security.TrustStore.Type";
 
-    private static Log log = LogFactory.getLog(KeyStoreAdmin.class);
+    private static final Log log = LogFactory.getLog(KeyStoreAdmin.class);
     private Registry registry = null;
     private int tenantId;
     private boolean includeCert = false;

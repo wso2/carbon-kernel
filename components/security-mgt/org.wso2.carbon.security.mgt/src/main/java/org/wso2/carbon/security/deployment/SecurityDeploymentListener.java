@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class SecurityDeploymentListener extends AbstractAxis2ConfigurationContextObserver {
 
-    private static Log log = LogFactory.getLog(SecurityDeploymentListener.class);
+    private static final Log log = LogFactory.getLog(SecurityDeploymentListener.class);
 
     @Override
     public void createdConfigurationContext(ConfigurationContext configCtx) {
