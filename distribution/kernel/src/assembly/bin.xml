@@ -154,6 +154,7 @@
                 <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
                 <include>javax.xml.bind:jaxb-api:jar</include>
                 <include>javax.activation:activation:jar</include>
+                <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
