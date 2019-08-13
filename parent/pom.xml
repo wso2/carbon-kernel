@@ -431,7 +431,7 @@
         <version.geronimo.jms.spec>1.1.1.wso2v1</version.geronimo.jms.spec>
         <version.geronimo.stax.api.spec>1.0.1.wso2v2</version.geronimo.stax.api.spec>
         <version.geronimo.stax.spec>1.2</version.geronimo.stax.spec>
-        <version.geronimo.jta.spec>1.1.1</version.geronimo.jta.spec>
+        <version.geronimo.jta.spec>1.1</version.geronimo.jta.spec>
         <version.geronimo.jaxws.spec>1.0</version.geronimo.jaxws.spec>
         <version.woodstox.core.asl>4.4.1</version.woodstox.core.asl>
         <version.stax2.api>3.1.4</version.stax2.api>
