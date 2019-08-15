@@ -19,6 +19,9 @@ package org.wso2.carbon.user.core.util;
 
 import java.sql.SQLException;
 
+/**
+ * Support class to handle the exceptions throw by the Unit of work patten.
+ */
 public class UnitOfWorkException extends SQLException {
 
     public UnitOfWorkException() {

@@ -26,12 +26,29 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Support class to implement Unit of work patter.
+ * Support class to implement Unit of work patten.
+ * <p>
+ * Whenever the user wants to get the database connection they can call getDBConnection() to get their connection and
+ * when they gets the connection, the backend will maintain a map with connection and data source. At the same time,
+ * the user can start the transaction by calling beginTransaction(). It will start and create a new threatLocal and
+ * increase the transaction depth count. The user can able to create multiple transactions within the same method. At
+ * the end, user can end the transaction by calling commitTransaction()/rollbackTransaction(). it will decrease the
+ * transaction depth count. When the transaction depth count is getting zero it will commit or rollback all
+ * connection maintained by the threadLocal. Finally we can call closeTransaction() to close all the threatLocal and
+ * database connections.
+ * eg:
+ * -->begin new Transaction 1 (depth = 0 => 0+1)
+ * --> begin new Transaction 2 (depth = 1 => 1+1)
+ * --> begin new Transaction3 (depth = 2 => 2+1)
+ * ---------------
+ * <-- end the Transaction 3 (depth =2 => 3-1)
+ * <--end the Transaction 2 (depth =1 => 2-1)
+ * --> end the Transaction 1 (depth = 0 => 1-1) ( this is the place the actual commit / rollback occurs)
+ * --> finally close all the threatLocal and connections.
  */
 public class UnitOfWork {
 
-    private static Log log = LogFactory.getLog(UnitOfWork.class);
-    private boolean errorOccurred = false;
+    private static final Log log = LogFactory.getLog(UnitOfWork.class);
     private static ThreadLocal<UnitOfWorkTransactionContext> transactionContextThreadLocal = new ThreadLocal<>();
 
     public UnitOfWork() {
@@ -58,7 +75,6 @@ public class UnitOfWork {
      *
      * @param dataSource dataSource of the connection.
      * @return current connection
-     * @throws SQLException
      * @Deprecated The getDBConnection should handle both transaction and non-transaction connection. Earlier it
      * handle only the transactionConnection. Therefore this method was deprecated and changed as handle both
      * transaction and non-transaction connection. getDBConnection(DataSource dataSource, boolean autoCommit) method
@@ -76,17 +92,17 @@ public class UnitOfWork {
      * @param dataSource dataSource of the connection.
      * @param autoCommit autocommit state of the connection.
      * @return current connection
-     * @throws SQLException
      */
     public Connection getDBConnection(DataSource dataSource, boolean autoCommit) throws SQLException {
 
         UnitOfWorkTransactionContext unitOfWorkTransactionContext = transactionContextThreadLocal.get();
         if (unitOfWorkTransactionContext == null) {
-            throw new UnitOfWorkException("There is no transaction getting started");
+            throw new UnitOfWorkException(
+                    "Can not get a connection as Transaction context is not started for dataSource : " + dataSource);
         }
         Connection connection = unitOfWorkTransactionContext.getDBConnection(dataSource);
 
-        if (!autoCommit) {
+        if (!autoCommit && connection.getAutoCommit()) {
             //We need only set "autocommit==false", which indicate start of database transaction.
             connection.setAutoCommit(autoCommit);
         }
@@ -101,11 +117,12 @@ public class UnitOfWork {
         try {
             UnitOfWorkTransactionContext unitOfWorkTransactionContext = transactionContextThreadLocal.get();
             if (unitOfWorkTransactionContext == null) {
-                throw new UnitOfWorkException("There is no transaction getting started");
+                throw new UnitOfWorkException("Can not get a connection as Transaction context is not started");
 
             }
             unitOfWorkTransactionContext.decrementTransactionDepth();
-            if (unitOfWorkTransactionContext.getTransactionDepth() == 0 && !errorOccurred) {
+            if (unitOfWorkTransactionContext.getTransactionDepth() == 0 && !unitOfWorkTransactionContext
+                    .isErrorOccurred()) {
                 unitOfWorkTransactionContext.commitAllConnection();
             }
         } catch (SQLException e) {
@@ -119,20 +136,19 @@ public class UnitOfWork {
     public void rollbackTransaction() {
 
         try {
-            errorOccurred = true;
             UnitOfWorkTransactionContext unitOfWorkTransactionContext = transactionContextThreadLocal.get();
+            unitOfWorkTransactionContext.setErrorOccurred();
             if (unitOfWorkTransactionContext == null) {
-                throw new UnitOfWorkException("There is no transaction getting started");
-
+                throw new UnitOfWorkException("Can not get a connection as Transaction context is not started");
             }
             unitOfWorkTransactionContext.decrementTransactionDepth();
-            if (unitOfWorkTransactionContext.getTransactionDepth() == 0 && errorOccurred) {
+            if (unitOfWorkTransactionContext.getTransactionDepth() == 0 && unitOfWorkTransactionContext
+                    .isErrorOccurred()) {
                 unitOfWorkTransactionContext.rollbackAllConnection();
             }
         } catch (SQLException e) {
             log.error("Error occurred while rollback connection", e);
         }
-
     }
 
     /**
@@ -143,7 +159,7 @@ public class UnitOfWork {
         try {
             UnitOfWorkTransactionContext unitOfWorkTransactionContext = transactionContextThreadLocal.get();
             if (unitOfWorkTransactionContext == null) {
-                throw new UnitOfWorkException("There is no transaction getting started");
+                throw new UnitOfWorkException("Can not get a connection as Transaction context is not started");
             }
             unitOfWorkTransactionContext.closeConnection();
             transactionContextThreadLocal.remove();

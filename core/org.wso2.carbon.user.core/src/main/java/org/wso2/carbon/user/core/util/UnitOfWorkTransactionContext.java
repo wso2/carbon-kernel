@@ -25,34 +25,83 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 
+/**
+ * Support class to maintain a mapping between dataSource and connection. At the same time it maintains commit and
+ * rollback transaction.
+ * By calling commitAllConnection() method user can commit all the transaction. If something happen at the middle
+ * then it will rollback the remaining connection.
+ * By calling rollbackAllConnection() method user can rollback all the transaction. If something happen at the middle
+ * then it will ignore the current transaction and rollback the remaining transaction.
+ * By calling closeConnection() method user can closs all the open connection. If something happen at the middle
+ * then it will ignore the current connection and close the remaining connections.
+ */
 public class UnitOfWorkTransactionContext {
 
-    private static Log log = LogFactory.getLog(UnitOfWorkTransactionContext.class);
+    private static final Log log = LogFactory.getLog(UnitOfWorkTransactionContext.class);
     private HashMap<DataSource, Connection> activeConnection = new HashMap();
     private int transactionDepth = 0;
+    private boolean errorOccurred = false;
 
     /**
      * Commit all the transaction, if something happened at the middle then it print all the commit and uncommitted
      * transaction.
      */
-    public void commitAllConnection() {
+    void commitAllConnection() {
 
+        StringBuilder commitErrorHandling = new StringBuilder();
         List<DataSource> listOfDataSource = new ArrayList<>();
-        for (DataSource dataSource : activeConnection.keySet()) {
+        HashMap<DataSource, Connection> rollBackConnections = new HashMap();
+        for (Map.Entry entry : activeConnection.entrySet()) {
             try {
-                Connection connection = activeConnection.get(dataSource);
+                Connection connection = (Connection) entry.getValue();
                 if (connection != null) {
-                    listOfDataSource.add(dataSource);
+                    listOfDataSource.add((DataSource) entry.getKey());
                     connection.commit();
                 }
             } catch (SQLException e) {
-
-                log.error("Error occurred while committing the connection. Connection: " + activeConnection
-                        .get(dataSource) + ". We have committed few transaction before error occurs. Committed "
-                        + "dataSource are: " + listOfDataSource.toString(), e);
+                commitErrorHandling.append("Error occurred while committing the connection. Connection: ")
+                        .append(entry.getValue())
+                        .append(". We have committed few transaction before error occurred. Committed dataSource : ")
+                        .append(listOfDataSource.toString()).append(". ");
+                for (Map.Entry activeEntry : activeConnection.entrySet()) {
+                    if (!listOfDataSource.contains(activeEntry.getKey())) {
+                        rollBackConnections.put((DataSource) activeEntry.getKey(), (Connection) activeEntry.getValue());
+                    }
+                }
+                internalRollbackConnection(rollBackConnections, commitErrorHandling);
+                log.error(commitErrorHandling.toString(), e);
             }
+        }
+    }
+
+    /**
+     * Rollback the remaining transaction if something happened at the middle while committing.
+     *
+     * @param rollBackConnections the connection map need to be rollback.
+     * @param commitErrorHandling the error handling message.
+     */
+    private void internalRollbackConnection(HashMap<DataSource, Connection> rollBackConnections,
+            StringBuilder commitErrorHandling) {
+
+        boolean internalRollback = false;
+        for (Map.Entry entry : rollBackConnections.entrySet()) {
+            try {
+                Connection connection = (Connection) entry.getValue();
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException e) {
+                commitErrorHandling.append("Error occurred while rollback the connection for dataSource: ")
+                        .append(entry.getKey()).append(", ").append(e).append(". ");
+                internalRollback = true;
+            }
+        }
+        if (!internalRollback) {
+            commitErrorHandling
+                    .append("Successfully rollback the remaining open connection due to this commit error. ");
         }
     }
 
@@ -60,17 +109,24 @@ public class UnitOfWorkTransactionContext {
      * Rollback all the transaction, if something happened at the middle then it will continue and rollback all the
      * connection as much as possible.
      */
-    public void rollbackAllConnection() {
-        for (DataSource dataSource : activeConnection.keySet()) {
+    void rollbackAllConnection() {
+
+        StringBuilder rollbackErrorHandling = new StringBuilder();
+        boolean rollbackErrorOccurred = false;
+        for (Map.Entry entry : activeConnection.entrySet()) {
             try {
-                Connection connection = activeConnection.get(dataSource);
+                Connection connection = (Connection) entry.getValue();
                 if (connection != null) {
                     connection.rollback();
                 }
             } catch (SQLException e) {
-                log.error("Error occurred while rollback the connection for dataSource: " + dataSource, e);
-                continue;
+                rollbackErrorHandling.append("Error occurred while rollback the connection for dataSource: ")
+                        .append(entry.getKey()).append(", ").append(e).append(". ");
+                rollbackErrorOccurred = true;
             }
+        }
+        if (rollbackErrorOccurred) {
+            log.error(rollbackErrorHandling);
         }
     }
 
@@ -79,7 +135,6 @@ public class UnitOfWorkTransactionContext {
      *
      * @param dataSource dataSource of the connection
      * @return the current connection
-     * @throws SQLException
      */
     public Connection getDBConnection(DataSource dataSource) throws SQLException {
 
@@ -96,15 +151,33 @@ public class UnitOfWorkTransactionContext {
      *
      * @return transaction level
      */
-    public int getTransactionDepth() {
+    int getTransactionDepth() {
 
         return transactionDepth;
     }
 
     /**
+     * Get the transaction level.
+     *
+     * @return transaction level
+     */
+    boolean isErrorOccurred() {
+
+        return errorOccurred;
+    }
+
+    /**
      * Increment the transaction depth by one to store the level of a transaction.
      */
-    public void incrementTransactionDepth() {
+    void setErrorOccurred() {
+
+        this.errorOccurred = true;
+    }
+
+    /**
+     * Increment the transaction depth by one to store the level of a transaction.
+     */
+    void incrementTransactionDepth() {
 
         transactionDepth++;
     }
@@ -112,7 +185,7 @@ public class UnitOfWorkTransactionContext {
     /**
      * Decrement the transaction depth by one to notice the remaining levels of a transaction.
      */
-    public void decrementTransactionDepth() {
+    void decrementTransactionDepth() {
 
         transactionDepth--;
     }
@@ -120,16 +193,23 @@ public class UnitOfWorkTransactionContext {
     /**
      * Close all the db connection.
      */
-    public void closeConnection() {
+    void closeConnection() {
 
-        for (DataSource dataSource : activeConnection.keySet()) {
-            Connection connection = activeConnection.get(dataSource);
+        boolean connectionErrorOccurred = false;
+        StringBuilder connectionErrorHandling = new StringBuilder();
+        for (Map.Entry entry : activeConnection.entrySet()) {
+            Connection connection = (Connection) entry.getValue();
             try {
                 connection.close();
             } catch (SQLException e) {
-                log.error("Error occurred while close the connection:  " + connection, e);
-                continue;
+                connectionErrorOccurred = true;
+                connectionErrorHandling.append("Error occurred while close the connection:  ")
+                        .append(connectionErrorHandling).append(", Error was : ").append(e).append(". ");
+
             }
+        }
+        if (connectionErrorOccurred) {
+            log.error(connectionErrorHandling);
         }
     }
 }
