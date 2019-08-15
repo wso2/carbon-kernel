@@ -115,7 +115,7 @@
                                 <bundleDef>org.apache.ws.security.wso2:wss4j</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.version}
+                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.feature.version}
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>
