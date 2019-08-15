@@ -46,14 +46,14 @@ public class UnitOfWorkTransactionContext {
     private boolean errorOccurred = false;
 
     /**
-     * Commit all the transaction, if something happened at the middle then it print all the commit and uncommitted
-     * transaction.
+     * Commit all the transaction, if something happened at the middle then it throw all committed transaction and it
+     * will rollback the remaining transaction.
      */
     void commitAllConnection() {
 
-        StringBuilder commitErrorHandling;
-        List<DataSource> listOfCommittedDataSource;
-        HashMap<DataSource, Connection> rollBackConnections;
+        StringBuilder commitErrorHandling = null;
+        List<DataSource> listOfCommittedDataSource = null;
+        HashMap<DataSource, Connection> rollBackConnections = null;
 
         for (Map.Entry entry : activeConnection.entrySet()) {
             try {
@@ -62,9 +62,16 @@ public class UnitOfWorkTransactionContext {
                     connection.commit();
                 }
             } catch (SQLException e) {
-                commitErrorHandling = new StringBuilder();
-                listOfCommittedDataSource = new ArrayList<>();
-                rollBackConnections = new HashMap();
+                if (commitErrorHandling.equals(null)) {
+                    commitErrorHandling = new StringBuilder();
+                }
+                if (listOfCommittedDataSource.equals(null)) {
+                    listOfCommittedDataSource = new ArrayList<>();
+                }
+                if (rollBackConnections.equals(null)) {
+                    rollBackConnections = new HashMap();
+                }
+                //get all the transaction that are committed before error occurs.
                 for (Map.Entry activeEntry : activeConnection.entrySet()) {
                     if (!entry.getKey().equals(activeEntry.getKey())) {
                         listOfCommittedDataSource.add((DataSource) activeEntry.getKey());
@@ -76,11 +83,13 @@ public class UnitOfWorkTransactionContext {
                         .append(entry.getValue())
                         .append(". We have committed few transaction before error occurred. Committed dataSource : ")
                         .append(listOfCommittedDataSource.toString()).append(". ");
+                //get all the transaction that are not committed.
                 for (Map.Entry activeEntry : activeConnection.entrySet()) {
                     if (!listOfCommittedDataSource.contains(activeEntry.getKey())) {
                         rollBackConnections.put((DataSource) activeEntry.getKey(), (Connection) activeEntry.getValue());
                     }
                 }
+                // this method do the rollback for all uncommitted transaction list get above.
                 internalRollbackConnection(rollBackConnections, commitErrorHandling);
                 log.error(commitErrorHandling.toString(), e);
             }
@@ -130,7 +139,9 @@ public class UnitOfWorkTransactionContext {
                     connection.rollback();
                 }
             } catch (SQLException e) {
-                rollbackErrorHandling = new StringBuilder();
+                if (rollbackErrorHandling.equals(null)) {
+                    rollbackErrorHandling = new StringBuilder();
+                }
                 rollbackErrorHandling.append("Error occurred while rollback the connection for dataSource: ")
                         .append(entry.getKey()).append(", ").append(e).append(". ");
                 rollbackErrorOccurred = true;
@@ -213,7 +224,9 @@ public class UnitOfWorkTransactionContext {
             try {
                 connection.close();
             } catch (SQLException e) {
-                connectionErrorHandling = new StringBuilder();
+                if (connectionErrorHandling.equals(null)) {
+                    connectionErrorHandling = new StringBuilder();
+                }
                 connectionErrorOccurred = true;
                 connectionErrorHandling.append("Error occurred while close the connection:  ")
                         .append(connectionErrorHandling).append(", Error was : ").append(e).append(". ");
