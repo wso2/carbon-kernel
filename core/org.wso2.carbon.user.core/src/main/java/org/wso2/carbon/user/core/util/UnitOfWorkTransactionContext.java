@@ -51,23 +51,33 @@ public class UnitOfWorkTransactionContext {
      */
     void commitAllConnection() {
 
-        StringBuilder commitErrorHandling = new StringBuilder();
-        List<DataSource> listOfDataSource = new ArrayList<>();
-        HashMap<DataSource, Connection> rollBackConnections = new HashMap();
+        StringBuilder commitErrorHandling;
+        List<DataSource> listOfCommittedDataSource;
+        HashMap<DataSource, Connection> rollBackConnections;
+
         for (Map.Entry entry : activeConnection.entrySet()) {
             try {
                 Connection connection = (Connection) entry.getValue();
                 if (connection != null) {
-                    listOfDataSource.add((DataSource) entry.getKey());
                     connection.commit();
                 }
             } catch (SQLException e) {
+                commitErrorHandling = new StringBuilder();
+                listOfCommittedDataSource = new ArrayList<>();
+                rollBackConnections = new HashMap();
+                for (Map.Entry activeEntry : activeConnection.entrySet()) {
+                    if (!entry.getKey().equals(activeEntry.getKey())) {
+                        listOfCommittedDataSource.add((DataSource) activeEntry.getKey());
+                    } else {
+                        break;
+                    }
+                }
                 commitErrorHandling.append("Error occurred while committing the connection. Connection: ")
                         .append(entry.getValue())
                         .append(". We have committed few transaction before error occurred. Committed dataSource : ")
-                        .append(listOfDataSource.toString()).append(". ");
+                        .append(listOfCommittedDataSource.toString()).append(". ");
                 for (Map.Entry activeEntry : activeConnection.entrySet()) {
-                    if (!listOfDataSource.contains(activeEntry.getKey())) {
+                    if (!listOfCommittedDataSource.contains(activeEntry.getKey())) {
                         rollBackConnections.put((DataSource) activeEntry.getKey(), (Connection) activeEntry.getValue());
                     }
                 }
@@ -111,7 +121,7 @@ public class UnitOfWorkTransactionContext {
      */
     void rollbackAllConnection() {
 
-        StringBuilder rollbackErrorHandling = new StringBuilder();
+        StringBuilder rollbackErrorHandling = null;
         boolean rollbackErrorOccurred = false;
         for (Map.Entry entry : activeConnection.entrySet()) {
             try {
@@ -120,6 +130,7 @@ public class UnitOfWorkTransactionContext {
                     connection.rollback();
                 }
             } catch (SQLException e) {
+                rollbackErrorHandling = new StringBuilder();
                 rollbackErrorHandling.append("Error occurred while rollback the connection for dataSource: ")
                         .append(entry.getKey()).append(", ").append(e).append(". ");
                 rollbackErrorOccurred = true;
@@ -196,12 +207,13 @@ public class UnitOfWorkTransactionContext {
     void closeConnection() {
 
         boolean connectionErrorOccurred = false;
-        StringBuilder connectionErrorHandling = new StringBuilder();
+        StringBuilder connectionErrorHandling = null;
         for (Map.Entry entry : activeConnection.entrySet()) {
             Connection connection = (Connection) entry.getValue();
             try {
                 connection.close();
             } catch (SQLException e) {
+                connectionErrorHandling = new StringBuilder();
                 connectionErrorOccurred = true;
                 connectionErrorHandling.append("Error occurred while close the connection:  ")
                         .append(connectionErrorHandling).append(", Error was : ").append(e).append(". ");
