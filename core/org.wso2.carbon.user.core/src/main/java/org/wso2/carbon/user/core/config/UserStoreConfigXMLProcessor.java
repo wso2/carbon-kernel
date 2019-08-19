@@ -361,19 +361,34 @@ public class UserStoreConfigXMLProcessor {
             return null;
         }
 
-        String password = serverConfigurationService.getFirstProperty(
-                "Security.KeyStore.Password");
-        String keyPass = serverConfigurationService.getFirstProperty(
-                "Security.KeyStore.KeyPassword");
-        String keyAlias = serverConfigurationService.getFirstProperty(
-                "Security.KeyStore.KeyAlias");
         InputStream in = null;
+
+        // Get the encryption keystore.
+        String encryptionKeyStore = serverConfigurationService.getFirstProperty(
+                "Security.UserStorePasswordEncryption");
+
+        String passwordXPath = "Security.KeyStore.Password";
+        String keypassXPath = "Security.KeyStore.KeyPassword";
+        String keyAliasXPath = "Security.KeyStore.KeyAlias";
+        String locationXPath = "Security.KeyStore.Location";
+        String typeXPath = "Security.KeyStore.Type";
+
+        // If the encryption keystore is selected to be internal then select that keystore XPath.
+        if ("InternalKeystore".equalsIgnoreCase(encryptionKeyStore)) {
+            passwordXPath = "Security.InternalKeyStore.Password";
+            keypassXPath = "Security.InternalKeyStore.KeyPassword";
+            keyAliasXPath = "Security.InternalKeyStore.KeyAlias";
+            locationXPath = "Security.InternalKeyStore.Location";
+            typeXPath = "Security.InternalKeyStore.Type";
+
+        }
+        String password = serverConfigurationService.getFirstProperty(passwordXPath);
+        String keyPass = serverConfigurationService.getFirstProperty(keypassXPath);
+        String keyAlias = serverConfigurationService.getFirstProperty(keyAliasXPath);
+
         try {
-            KeyStore store = KeyStore.getInstance(
-                    serverConfigurationService.getFirstProperty(
-                            "Security.KeyStore.Type"));
-            String file = new File(serverConfigurationService.getFirstProperty(
-                    "Security.KeyStore.Location")).getAbsolutePath();
+            KeyStore store = KeyStore.getInstance(serverConfigurationService.getFirstProperty(typeXPath));
+            String file = new File(serverConfigurationService.getFirstProperty(locationXPath)).getAbsolutePath();
             in = new FileInputStream(file);
             store.load(in, password.toCharArray());
             return (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
