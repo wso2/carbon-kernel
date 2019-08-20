@@ -1976,6 +1976,7 @@
                         <configuration>
                             <!--This parameter disables doclint-->
                             <doclint>none</doclint>
+                            <quiet>true</quiet>
                         </configuration>
                     </execution>
                 </executions>
