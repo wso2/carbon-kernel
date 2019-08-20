@@ -297,8 +297,10 @@ public class CarbonUIServiceComponent {
 
         adaptedJspServlet = new ContextPathServletAdaptor(
                 new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
-        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, null,
-                                    commonContext);
+
+        Dictionary<String, String> carbonInitparams = new Hashtable<String, String>();
+        carbonInitparams.put("strictQuoteEscaping", "false");
+        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
 
         ServletContext jspServletContext =
                 adaptedJspServlet.getServletConfig().getServletContext();
