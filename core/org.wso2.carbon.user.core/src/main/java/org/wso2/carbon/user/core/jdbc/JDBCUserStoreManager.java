@@ -2961,7 +2961,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     protected Map<String, Map<String, String>> getUsersPropertyValues(List<String> users, String[] propertyNames,
-            String profileName) throws UserStoreException {
+                                                                      String profileName) throws UserStoreException {
 
         Connection dbConnection = null;
         String sqlStmt;

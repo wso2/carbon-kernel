@@ -24,20 +24,20 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.UserStore;
+import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
 
-import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.sql.DataSource;
 
 /**
  * Utility class to handle user kernel utilities.
@@ -70,6 +71,8 @@ public final class UserCoreUtil {
      * belongs to, as a thread local variable.
      */
     private static ThreadLocal<String> threadLocalToSetDomain = new ThreadLocal<String>();
+    private static ThreadLocal<UserMgtContext> threadLocalToSetUserMgtContext = new
+            ThreadLocal<UserMgtContext>();
 
     /**
      * @param arr1
@@ -453,6 +456,25 @@ public final class UserCoreUtil {
             name = name.substring(index + 1);
         }
         return name;
+    }
+
+    public static void setUserMgtContextInThreadLocal(UserMgtContext functionalContainer) {
+
+        if (functionalContainer != null) {
+            threadLocalToSetUserMgtContext.set(functionalContainer);
+        } else {
+            threadLocalToSetUserMgtContext.remove();
+        }
+    }
+
+    public static UserMgtContext getUserMgtContextFromThreadLocal() {
+
+        return threadLocalToSetUserMgtContext.get();
+    }
+
+    public static void removeUserMgtContextInThreadLocal() {
+
+        threadLocalToSetUserMgtContext.remove();
     }
 
     /**

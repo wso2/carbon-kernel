@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -36,6 +37,7 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
+import org.wso2.carbon.user.core.config.UserStorePreferenceOrderSupplier;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
@@ -55,6 +57,7 @@ import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
 import org.wso2.carbon.user.core.model.OperationalOperation;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
+import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
@@ -545,13 +548,30 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Boolean>() {
                 @Override
                 public Boolean run() throws Exception {
-                    return authenticateInternal(userName, credential, domainProvided);
+                    return authenticateInternalIteration(userName, credential, domainProvided);
                 }
             });
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
         }
 
+    }
+
+    private boolean authenticateInternalIteration(String userName, Object credential, boolean domainProvided)
+            throws UserStoreException {
+
+        List<String> userStorePreferenceOrder = new ArrayList<>();
+        // Check whether user store chain needs to be generated or not.
+        if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
+            if (log.isDebugEnabled()) {
+                log.debug("User store chain generation is needed hence generating the user store chain using the user" +
+                        " store preference order: " + userStorePreferenceOrder);
+            }
+            return generateUserStoreChain(userName, credential, domainProvided, userStorePreferenceOrder);
+        } else {
+            // Authenticate the user.
+            return authenticateInternal(userName, credential, domainProvided);
+        }
     }
 
     /**
@@ -586,9 +606,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private boolean authenticateInternal(String userName, Object credential, boolean domainProvided)
             throws UserStoreException {
 
+        AbstractUserStoreManager abstractUserStoreManager = this;
+        if (this instanceof IterativeUserStoreManager) {
+            abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
+        }
+
         boolean authenticated = false;
 
-        UserStore userStore = getUserStore(userName);
+        UserStore userStore = abstractUserStoreManager.getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager()).authenticate(userStore.getDomainFreeName(),
                     credential, domainProvided);
@@ -615,7 +640,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     credentialArgument = credential;
                 }
 
-                if (!listener.authenticate(userName, credentialArgument, this)) {
+                if (!listener.authenticate(userName, credentialArgument, abstractUserStoreManager)) {
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), userName,
                             credentialArgument);
@@ -633,7 +658,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                         credentialArgument = credential;
                     }
 
-                    if (!listener.doPreAuthenticate(userName, credentialArgument, this)) {
+                    if (!listener.doPreAuthenticate(userName, credentialArgument, abstractUserStoreManager)) {
                         handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                                         UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
@@ -649,7 +674,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
             // #################### </Listeners> #####################################################
 
-            int tenantId = getTenantId();
+            int tenantId = abstractUserStoreManager.getTenantId();
 
             try {
                 RealmService realmService = UserCoreUtil.getRealmService();
@@ -677,7 +702,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
             try {
                 // Let's authenticate with the primary UserStoreManager.
-                authenticated = doAuthenticate(userName, credentialObj);
+                authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
             } catch (Exception e) {
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
@@ -698,14 +723,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (authenticated) {
             // Set domain in thread local variable for subsequent operations
-            UserCoreUtil.setDomainInThreadLocal(UserCoreUtil.getDomainName(this.realmConfig));
+            UserCoreUtil.setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
         }
 
         // If authentication fails in the previous step and if the user has not specified a
         // domain- then we need to execute chained UserStoreManagers recursively.
-        if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null) {
-            authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
-                    .authenticate(userName, credential, domainProvided);
+        if (!authenticated && !domainProvided) {
+            AbstractUserStoreManager userStoreManager;
+            if (this instanceof IterativeUserStoreManager) {
+                IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
+                userStoreManager = iterativeUserStoreManager.nextUserStoreManager();
+            } else {
+                userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
+            }
+            if (userStoreManager != null) {
+                authenticated = userStoreManager.authenticate(userName, credential, domainProvided);
+            }
         }
 
         if (!authenticated) {
@@ -717,7 +750,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         try {
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPostAuthenticate(userName, authenticated, this)) {
+                if (!listener.doPostAuthenticate(userName, authenticated, abstractUserStoreManager)) {
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
                                     UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, credential);
@@ -6955,5 +6988,70 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         return roleName.toLowerCase().startsWith(APPLICATION_DOMAIN.toLowerCase()) || roleName.toLowerCase()
                 .startsWith(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase()) || roleName.toLowerCase()
                 .startsWith(WORKFLOW_DOMAIN.toLowerCase());
+    }
+}
+
+
+    private List<String> getUserStorePreferenceOrder() throws UserStoreException {
+
+        UserMgtContext userMgtContext = UserCoreUtil.getUserMgtContextFromThreadLocal();
+        if (userMgtContext != null) {
+            // Retrieve the relevant supplier to generate the user store preference order.
+            UserStorePreferenceOrderSupplier<List<String>> userStorePreferenceSupplier = userMgtContext.
+                    getUserStorePreferenceOrderSupplier();
+            if (userStorePreferenceSupplier != null) {
+                // Generate the user store preference order.
+                List<String> userStorePreferenceOrder = userStorePreferenceSupplier.get();
+                if (userStorePreferenceOrder != null) {
+                    return userStorePreferenceOrder;
+                }
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private boolean hasUserStorePreferenceChainGenerated() throws UserStoreException {
+
+        return this instanceof IterativeUserStoreManager;
+    }
+
+    private boolean isUserStoreChainNeeded(List<String> userStorePreferenceOrder) throws UserStoreException {
+
+        if (this instanceof IterativeUserStoreManager) {
+            return false;
+        }
+        userStorePreferenceOrder.addAll(getUserStorePreferenceOrder());
+        return CollectionUtils.isNotEmpty(userStorePreferenceOrder) && !hasUserStorePreferenceChainGenerated();
+    }
+
+    private boolean generateUserStoreChain(String userName, Object credential, boolean domainProvided,
+                                           List<String> userStorePreferenceOrder) throws UserStoreException {
+
+        IterativeUserStoreManager initialUserStoreManager = null;
+        IterativeUserStoreManager prevUserStoreManager = null;
+        for (String domainName : userStorePreferenceOrder) {
+            UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(domainName);
+            // If the user store manager is instance of AbstractUserStoreManager then generate a user store chain using
+            // IterativeUserStoreManager.
+            if (userStoreManager instanceof AbstractUserStoreManager) {
+                if (initialUserStoreManager == null) {
+                    prevUserStoreManager = new IterativeUserStoreManager((AbstractUserStoreManager) userStoreManager);
+                    initialUserStoreManager = prevUserStoreManager;
+                } else {
+                    IterativeUserStoreManager currentUserStoreManager = new IterativeUserStoreManager(
+                            (AbstractUserStoreManager) userStoreManager);
+                    prevUserStoreManager.setNextUserStoreManager(currentUserStoreManager);
+                    prevUserStoreManager = currentUserStoreManager;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate the" +
+                            " user through all the available user store list.");
+                }
+                return authenticateInternal(userName, credential, domainProvided);
+            }
+        }
+        // Authenticate using the initial user store from the user store preference list.
+        return initialUserStoreManager.authenticate(userName, credential);
     }
 }
