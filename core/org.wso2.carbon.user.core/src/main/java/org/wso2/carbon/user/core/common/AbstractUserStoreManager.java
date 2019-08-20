@@ -2814,6 +2814,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * {@inheritDoc}
      */
     public final UserStoreManager getSecondaryUserStoreManager() {
+        if (secondaryUserStoreManager == null) {
+            try {
+                ((DefaultRealm)userRealm).initializeSecondaryUserStores();
+            } catch (UserStoreException e) {
+                log.error("Error while lazy loading user store.", e);
+            }
+
+        }
+
         return secondaryUserStoreManager;
     }
 
