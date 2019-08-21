@@ -2813,6 +2813,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     public final UserStoreManager getSecondaryUserStoreManager() {
 
+        // Handling lazy user store loading
         DefaultRealm defaultRealm = ((DefaultRealm)userRealm);
         if (secondaryUserStoreManager == null && !defaultRealm.getLazyUserStoreLoader().isEmpty()) {
             Map.Entry<String, RealmConfiguration> lazyLoadingRealmConfigurationEntry =
@@ -2838,6 +2839,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (userDomain == null) {
             return null;
         }
+
+        // Triggering lazy user store loading
+        DefaultRealm defaultRealm = ((DefaultRealm)userRealm);
+        if (!defaultRealm.getLazyUserStoreLoader().isEmpty()) {
+            UserStoreManager usm = this;
+            while (usm != null) {
+                usm = this.getSecondaryUserStoreManager();
+            }
+        }
+
         return userStoreManagerHolder.get(userDomain.toUpperCase());
     }
 
