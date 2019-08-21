@@ -140,9 +140,6 @@ public class DefaultRealm implements UserRealm {
             log.error("Unable to add user store. UserStoreManager class name is null.");
         } else {
             try {
-                UserStoreManager manager = (UserStoreManager) createObjectWithOptions(
-                        value, userStoreRealmConfig, properties);
-
                 String domainName = userStoreRealmConfig
                         .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
@@ -152,7 +149,20 @@ public class DefaultRealm implements UserRealm {
                                 + "Duplicate domain names not allowed.");
                         return;
                     } else {
+                        Boolean isDisabled = false;
+                        if (userStoreRealmConfig
+                                .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
+                            isDisabled = Boolean
+                                    .parseBoolean(realmConfig
+                                            .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
+                            if (isDisabled) {
+                                log.warn("Secondary user store disabled with domain " + domainName + ".");
+                            }
+                        }
+
                         // Fulfilled requirements for adding UserStore,
+                        UserStoreManager manager = (UserStoreManager) createObjectWithOptions(value,
+                                userStoreRealmConfig, properties);
 
                         // now adding UserStoreManager to end of the UserStoreManager chain
                         UserStoreManager tmpUserStoreManager = this.userStoreManager;
@@ -167,18 +177,6 @@ public class DefaultRealm implements UserRealm {
 
                         if (log.isDebugEnabled()) {
                             log.debug("UserStoreManager : " + domainName + "added to the list");
-                        }
-
-                        Boolean isDisabled = false;
-                        if (userStoreRealmConfig
-                                .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
-                            isDisabled = Boolean
-                                    .parseBoolean(realmConfig
-                                            .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
-                            if (isDisabled) {
-                                log.warn("Secondary user store disabled with domain " + domainName
-                                        + ".");
-                            }
                         }
                     }
                 } else {
@@ -265,9 +263,6 @@ public class DefaultRealm implements UserRealm {
                 log.info("System is functioning without user store writing ability. User add/edit/delete will not work");
             } else {
                 try {
-                    UserStoreManager manager = (UserStoreManager) createObjectWithOptions(
-                            value, tmpRealmConfig, properties);
-
                     domainName = tmpRealmConfig
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
@@ -292,6 +287,9 @@ public class DefaultRealm implements UserRealm {
                                     continue;
                                 }
                             }
+
+                            UserStoreManager manager = (UserStoreManager) createObjectWithOptions(
+                                    value, tmpRealmConfig, properties);
 
                             tmpUserStoreManager.setSecondaryUserStoreManager(manager);
                             userStoreManager.addSecondaryUserStoreManager(domainName,
@@ -337,36 +335,12 @@ public class DefaultRealm implements UserRealm {
 
 
 
-    public void updateUserStoreManagerChainWithUserStore(UserStoreManager lastUserStoreManager, RealmConfiguration lazyLoadingRealmConfig) {
+    public void updateUserStoreManagerChainWithUserStore(UserStoreManager lastUserStoreManager,
+                                                         RealmConfiguration lazyLoadingRealmConfig) {
 
-//        TODO: Remove all validations and properly add those during initial attempt.
         String lazyLoadingUserStoreClass = lazyLoadingRealmConfig.getUserStoreClass();
-//        if (lazyLoadingUserStoreClass == null) {
-//            log.info("Could not initialize secondary user store manager. UserStore Class is not defined");
-//            return;
-//        }
-//
         String domainName =
                 lazyLoadingRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-//
-//        if (StringUtils.isEmpty(domainName)) {
-//            log.warn("Could not initialize secondary user store manager. Domain name is not defined");
-//            return;
-//        }
-//
-//        if (userStoreManager.getSecondaryUserStoreManager(domainName) != null) {
-//            log.warn("Could not initialize secondary user store manager. Duplicate domain names not allowed.");
-//            return;
-//        }
-//
-//        String dd = lazyLoadingRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED);
-//        if (!StringUtils.isEmpty(dd)) {
-//            boolean isDisabled = Boolean.parseBoolean(dd);
-//            if (isDisabled) {
-//                log.warn("Secondary user store disabled with domain " + domainName + ".");
-//                return;
-//            }
-//        }
 
         try {
             UserStoreManager manager = (UserStoreManager) createObjectWithOptions(lazyLoadingUserStoreClass,
@@ -456,7 +430,6 @@ public class DefaultRealm implements UserRealm {
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-//            getLazyUserStoreLoader().put(tenantId, realmConfig);
             getLazyUserStoreLoader().put(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME), realmConfig);
             throw new UserStoreException(e.getMessage() + "Type " + e.getClass(), e);
         }
