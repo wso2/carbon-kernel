@@ -2842,7 +2842,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // Triggering lazy user store loading
         DefaultRealm defaultRealm = ((DefaultRealm)userRealm);
-        if (!defaultRealm.getLazyUserStoreLoader().isEmpty()) {
+        if (defaultRealm.getLazyUserStoreLoader().containsKey(userDomain)) {
             UserStoreManager usm = this;
             while (usm != null) {
                 usm = this.getSecondaryUserStoreManager();
