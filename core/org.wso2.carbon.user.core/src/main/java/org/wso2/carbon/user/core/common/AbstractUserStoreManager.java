@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.user.core.common;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -46,7 +45,6 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -2820,7 +2818,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             Map.Entry<String, RealmConfiguration> lazyLoadingRealmConfigurationEntry =
                     defaultRealm.getLazyUserStoreLoader().entrySet().iterator().next();
 
-            defaultRealm.initializeSecondaryUserStore(this, lazyLoadingRealmConfigurationEntry.getValue());
+            defaultRealm.updateUserStoreManagerChainWithUserStore(this, lazyLoadingRealmConfigurationEntry.getValue());
         }
 
         return secondaryUserStoreManager;

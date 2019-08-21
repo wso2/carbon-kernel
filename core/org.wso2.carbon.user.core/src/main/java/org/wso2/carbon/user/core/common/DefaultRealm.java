@@ -336,7 +336,7 @@ public class DefaultRealm implements UserRealm {
 
 
 
-    public void initializeSecondaryUserStore(UserStoreManager tmpUserStoreManager, RealmConfiguration tmpRealmConfig) {
+    public void updateUserStoreManagerChainWithUserStore(UserStoreManager tmpUserStoreManager, RealmConfiguration tmpRealmConfig) {
 
         String value;
 
@@ -407,6 +407,7 @@ public class DefaultRealm implements UserRealm {
                             tmpUserStoreManager.setSecondaryUserStoreManager(manager);
                             userStoreManager.addSecondaryUserStoreManager(domainName,
                                     tmpUserStoreManager.getSecondaryUserStoreManager());
+                            getLazyUserStoreLoader().remove(domainName);
                         }
                     } else {
                         log.warn("Could not initialize secondary user store manager.  "
