@@ -336,7 +336,7 @@ public class DefaultRealm implements UserRealm {
 
 
 
-    public void initializeSecondaryUserStore(UserStoreManager tmpUserStoreManager, RealmConfiguration tmpRealmConfig) throws UserStoreException {
+    public void initializeSecondaryUserStore(UserStoreManager tmpUserStoreManager, RealmConfiguration tmpRealmConfig) {
 
         String value;
 
@@ -419,20 +419,11 @@ public class DefaultRealm implements UserRealm {
 
 
                 } catch (Exception e) {
-                    if (tmpRealmConfig.isPrimary()) {
-                        String errorMessage = "Cannot create connection to the primary user store. Error message "
-                                + e.getMessage();
-                        if (log.isDebugEnabled()) {
-                            log.debug(errorMessage, e);
-                        }
-                        throw new UserStoreException(errorMessage, e);
-                    } else {
-                        log.warn("Could not initialize secondary user store manager", e);
+                    log.warn("Could not initialize secondary user store manager", e);
 
 //                        TODO: Remove Iteration I
 //                        tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
 //                        continue;
-                    }
                 }
             }
 
