@@ -340,33 +340,9 @@ public class DefaultRealm implements UserRealm {
 
         String value;
 
-//        TODO: Remove Seondary variable init
-//        RealmConfiguration tmpRealmConfig = realmConfig.getSecondaryRealmConfig();
-//        UserStoreManager tmpUserStoreManager = userStoreManager;
-
-//        TODO: Remove Validation for PRIMARY
-//        String domainName = realmConfig
-//                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-//        if (domainName != null) {
-//            userStoreManager.addSecondaryUserStoreManager(domainName, userStoreManager);
-//        }
-//
-//        boolean isDisabled = false;
-//
-//        if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
-//            isDisabled = Boolean.parseBoolean(realmConfig
-//                    .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
-//            if (isDisabled) {
-//                log.warn("You cannot disable the primary user store.");
-//            }
-//        }
-
-
         boolean isDisabled = false;
         String domainName;
 
-//        TODO: Remove Iteration I
-//        while (tmpRealmConfig != null) {
             value = tmpRealmConfig.getUserStoreClass();
             if (value == null) {
                 log.info("System is functioning without user store writing ability. User add/edit/delete will not work");
@@ -383,9 +359,6 @@ public class DefaultRealm implements UserRealm {
                             log.warn("Could not initialize secondary user store manager."
                                     + "Duplicate domain names not allowed.");
 
-//                            TODO: Iteration I
-//                            tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
-//                            continue;
                         } else {
                             isDisabled = false;
 
@@ -398,9 +371,6 @@ public class DefaultRealm implements UserRealm {
                                     log.warn("Secondary user store disabled with domain " + domainName
                                             + ".");
 
-//                                    TODO: Remove Iteration I
-//                                    tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
-//                                    continue;
                                 }
                             }
 
@@ -413,36 +383,15 @@ public class DefaultRealm implements UserRealm {
                         log.warn("Could not initialize secondary user store manager.  "
                                 + "Domain name is not defined");
 
-//                        TODO: Remove Iteration I
-//                        tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
-//                        continue;
                     }
 
 
                 } catch (Exception e) {
                     log.warn("Could not initialize secondary user store manager", e);
 
-//                        TODO: Remove Iteration I
-//                        tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
-//                        continue;
                 }
             }
 
-//            TODO: Remove Iteration I
-//            tmpUserStoreManager = tmpUserStoreManager.getSecondaryUserStoreManager();
-//            tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
-//        }
-
-
-//        TODO: Remove Authz Manager Init
-//        value = realmConfig.getAuthorizationManagerClass();
-//        if (value == null) {
-//            String message = "System cannot continue. Authorization writer is null";
-//            log.error(message);
-//            throw new UserStoreException(message);
-//        }
-//        this.authzManager = (AuthorizationManager) createObjectWithOptions(value, realmConfig,
-//                properties);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
