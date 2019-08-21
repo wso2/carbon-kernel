@@ -339,33 +339,34 @@ public class DefaultRealm implements UserRealm {
 
     public void updateUserStoreManagerChainWithUserStore(UserStoreManager lastUserStoreManager, RealmConfiguration lazyLoadingRealmConfig) {
 
+//        TODO: Remove all validations and properly add those during initial attempt.
         String lazyLoadingUserStoreClass = lazyLoadingRealmConfig.getUserStoreClass();
-        if (lazyLoadingUserStoreClass == null) {
-            log.info("Could not initialize secondary user store manager. UserStore Class is not defined");
-            return;
-        }
-
+//        if (lazyLoadingUserStoreClass == null) {
+//            log.info("Could not initialize secondary user store manager. UserStore Class is not defined");
+//            return;
+//        }
+//
         String domainName =
                 lazyLoadingRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-
-        if (StringUtils.isEmpty(domainName)) {
-            log.warn("Could not initialize secondary user store manager. Domain name is not defined");
-            return;
-        }
-
-        if (userStoreManager.getSecondaryUserStoreManager(domainName) != null) {
-            log.warn("Could not initialize secondary user store manager. Duplicate domain names not allowed.");
-            return;
-        }
-
-        String dd = lazyLoadingRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED);
-        if (!StringUtils.isEmpty(dd)) {
-            boolean isDisabled = Boolean.parseBoolean(dd);
-            if (isDisabled) {
-                log.warn("Secondary user store disabled with domain " + domainName + ".");
-                return;
-            }
-        }
+//
+//        if (StringUtils.isEmpty(domainName)) {
+//            log.warn("Could not initialize secondary user store manager. Domain name is not defined");
+//            return;
+//        }
+//
+//        if (userStoreManager.getSecondaryUserStoreManager(domainName) != null) {
+//            log.warn("Could not initialize secondary user store manager. Duplicate domain names not allowed.");
+//            return;
+//        }
+//
+//        String dd = lazyLoadingRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED);
+//        if (!StringUtils.isEmpty(dd)) {
+//            boolean isDisabled = Boolean.parseBoolean(dd);
+//            if (isDisabled) {
+//                log.warn("Secondary user store disabled with domain " + domainName + ".");
+//                return;
+//            }
+//        }
 
         try {
             UserStoreManager manager = (UserStoreManager) createObjectWithOptions(lazyLoadingUserStoreClass,
