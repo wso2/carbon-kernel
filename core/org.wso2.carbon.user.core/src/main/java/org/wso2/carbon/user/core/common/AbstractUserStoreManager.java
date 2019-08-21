@@ -4087,6 +4087,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
 
         } catch (Throwable e) {
+            String domainName = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+            DefaultRealm defaultRealm = ((DefaultRealm)userRealm);
+            defaultRealm.getLazyUserStoreLoader().put(domainName, realmConfig);
+
             log.error("Cannot create " + className, e);
             throw new UserStoreException(e.getMessage() + "Type " + e.getClass(), e);
         }
@@ -4200,6 +4205,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 return;
             }
             prevUserStoreManager = secondaryUSM;
+        }
+
+        DefaultRealm defaultRealm = ((DefaultRealm)userRealm);
+        if (defaultRealm.getLazyUserStoreLoader().containsKey(userStoreDomainName)) {
+            defaultRealm.getLazyUserStoreLoader().remove(userStoreDomainName);
         }
 
         if (!isUSMContainsInMap && isUSMConatainsInChain) {
