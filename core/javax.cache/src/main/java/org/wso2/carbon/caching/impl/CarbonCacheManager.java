@@ -187,6 +187,21 @@ public class CarbonCacheManager implements CacheManager {
         return oldCache != null;
     }
 
+    /**
+     * Removes all local caches and returns whether there are no more caches managed by this CacheManager.
+     *
+     * @return true if there are no caches managed by this CacheManager and false otherwise
+     */
+    boolean removeLocalCaches() {
+        for (Cache<?, ?> cache : caches.values()) {
+            boolean isLocalCache = cache.getName().startsWith(CachingConstants.LOCAL_CACHE_PREFIX);
+            if (isLocalCache) {
+                removeCache(cache.getName());
+            }
+        }
+        return this.caches.isEmpty();
+    }
+
     @Override
     public javax.transaction.UserTransaction getUserTransaction() {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
