@@ -831,7 +831,12 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 log.warn("Exception occurred while expiring item from distributed cache. " + e.getMessage());
             }
         }
-        if (isIdle()) {
+        //keep the empty cache object if discardEmptyCachesProp is false
+        String discardEmptyCachesProp =
+                ServerConfiguration.getInstance().getFirstProperty(CachingConstants.DISCARD_EMPTY_CACHES);
+        boolean discardEmptyCaches =
+                (discardEmptyCachesProp == null) || Boolean.parseBoolean(discardEmptyCachesProp);
+        if (discardEmptyCaches && isIdle()) {
             cacheManager.removeCache(cacheName);
         }
         if (entry != null) {

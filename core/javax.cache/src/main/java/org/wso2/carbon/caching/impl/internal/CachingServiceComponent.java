@@ -1,4 +1,4 @@
-/*
+    /*
 *  Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -26,9 +26,12 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.caching.impl.CachingAxisConfigurationObserver;
+import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 @Component(name = "org.wso2.carbon.caching.impl.internal.CachingServiceComponent", immediate = true)
@@ -41,6 +44,12 @@ public class CachingServiceComponent {
        if(log.isDebugEnabled()){
            log.debug("CachingServiceComponent activated");
        }
+        //register service for CachingAxisConfigurationObserver
+        BundleContext bundleContext = ctx.getBundleContext();
+        CachingAxisConfigurationObserver cachingAxisConfigurationObserver =
+                new CachingAxisConfigurationObserver();
+        bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(),
+                cachingAxisConfigurationObserver, null);
     }
 
     @Deactivate

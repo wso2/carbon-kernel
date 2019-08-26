@@ -148,6 +148,20 @@ public class CacheManagerFactoryImpl implements CacheManagerFactory, TenantCache
         }
     }
 
+    /**
+     * Remove all the Caches and CacheManagers of the specified tenant
+     *
+     * @param tenantDomain The domain of the tenant whose caches need to be removed
+     */
+    public void removeAllCacheManagers(String tenantDomain) {
+        Map<String, CacheManager> cacheManagers = globalCacheManagerMap.get(tenantDomain);
+        for (CacheManager cacheManager : cacheManagers.values()) {
+            if (((CarbonCacheManager) cacheManager).removeLocalCaches()) {
+                cacheManagers.remove(cacheManager.getName());
+            }
+        }
+    }
+
     public void removeCacheManagerMap(String tenantDomain) {
 
         globalCacheManagerMap.remove(tenantDomain);
