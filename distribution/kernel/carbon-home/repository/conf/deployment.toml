@@ -2,7 +2,7 @@
 hostname = "localhost"
 node_ip = "127.0.0.1"
 force_local_cache = true
-DiscardEmptyCaches = true
+DiscardEmptyCaches = false
 
 [user_store]
 type = "database"
