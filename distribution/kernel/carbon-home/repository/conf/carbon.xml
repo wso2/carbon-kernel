@@ -278,7 +278,8 @@
         <!-- Default cache timeout in minutes -->
         <DefaultCacheTimeout>15</DefaultCacheTimeout>
         <!-- Force all caches to act as local -->
-        <ForceLocalCache>false</ForceLocalCache>
+        <ForceLocalCache>true</ForceLocalCache>
+        <DiscardEmptyCaches>false</DiscardEmptyCaches>
     </Cache>
 
     <!--
