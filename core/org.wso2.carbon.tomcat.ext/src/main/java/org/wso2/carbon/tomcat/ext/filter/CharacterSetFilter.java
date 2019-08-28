@@ -25,8 +25,9 @@ import java.io.IOException;
  * This is a filter class to force the java webapp to handle all requests and responses as UTF-8 encoded by default.
  * This requires that we define a character set filter.
  * This filter makes sure that if the browser hasn't set the encoding used in the request, that it's set to UTF-8.
+ * Deprecated use {@link org.apache.catalina.filters.SetCharacterEncodingFilter}
  */
-
+@Deprecated
 public class CharacterSetFilter implements Filter {
 
     private static final String UTF8 = "UTF-8";
@@ -58,7 +59,6 @@ public class CharacterSetFilter implements Filter {
         /**
          * Set the default response content type and encoding
          */
-        response.setContentType(CONTENT_TYPE);
         response.setCharacterEncoding(UTF8);
 
 
