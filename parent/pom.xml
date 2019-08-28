@@ -352,7 +352,7 @@
         <import.osgi.service.component.version.range>[1.2.0,2.0)</import.osgi.service.component.version.range>
         <version.equinox.http.servlet>1.1.400.v20130418-1354</version.equinox.http.servlet>
         <version.equinox.http.helper>1.1.0.wso2v1</version.equinox.http.helper>
-        <version.equinox.jsp.jasper>1.0.400.v20120522-2049</version.equinox.jsp.jasper>
+        <version.equinox.jsp.jasper>1.1.200</version.equinox.jsp.jasper>
         <version.equinox.javax.servlet>3.0.0.v201112011016</version.equinox.javax.servlet>
         <version.equinox.javax.el>2.2.0.v201108011116</version.equinox.javax.el>
         <version.equinox.javax.servlet.jsp>2.2.0.v201112011158</version.equinox.javax.servlet.jsp>
@@ -656,7 +656,7 @@
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
         <version.jackson>2.9.8</version.jackson>
-        <version.jackson.databind>2.9.9.1</version.jackson.databind>
+        <version.jackson.databind>2.9.9.2</version.jackson.databind>
         <version.guava>27.0.1-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
@@ -921,7 +921,7 @@
                 <version>${version.equinox.http.helper}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.jsp.jasper</artifactId>
                 <version>${version.equinox.jsp.jasper}</version>
             </dependency>
