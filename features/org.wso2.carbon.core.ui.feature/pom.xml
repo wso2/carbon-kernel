@@ -53,7 +53,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.jsp.jasper:${version.equinox.jsp.jasper}</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.jsp.jasper:${version.equinox.jsp.jasper}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.commons.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui.menu.general:${carbon.kernel.version}</bundleDef>
