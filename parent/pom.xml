@@ -595,6 +595,8 @@
         <zookeeper.version>3.3.5.wso2v1</zookeeper.version>
         <wagon.ssh.version>2.1</wagon.ssh.version>
         <version.jaxb.api>2.4.0-b180830.0359</version.jaxb.api>
+        <version.jaxb.impl>2.4.0-b180830.0438</version.jaxb.impl>
+        <version.com.sun.istack>3.0.8</version.com.sun.istack>
         <version.org.wso2.orbit.javax.xml.bind.jaxb>2.3.2.wso2v1</version.org.wso2.orbit.javax.xml.bind.jaxb>
         <version.activation>1.1.1</version.activation>
         <version.org.wso2.orbit.com.sun.xml.ws.jaxws>2.3.2.wso2v1</version.org.wso2.orbit.com.sun.xml.ws.jaxws>
@@ -1334,11 +1336,6 @@
                 <version>${version.activation}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.sun.xml.bind</groupId>
-                <artifactId>jaxb</artifactId>
-                <version>${version.org.wso2.orbit.javax.xml.bind.jaxb}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaxws_2.2_spec</artifactId>
                 <version>${version.geronimo.jaxws.spec}</version>
@@ -1798,6 +1795,16 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${version.jaxb.api}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${version.jaxb.impl}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-runtime</artifactId>
+                <version>${version.com.sun.istack}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.config.mapper</groupId>
