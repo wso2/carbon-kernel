@@ -42,7 +42,8 @@
                    compressionMinSize="2048"
                    noCompressionUserAgents="gozilla, traviata"
                    compressibleMimeType="text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg"
-                   URIEncoding="UTF-8"/>
+                   URIEncoding="UTF-8">
+        </Connector>
 
         <!--
         optional attributes:
@@ -53,8 +54,6 @@
         <Connector protocol="org.apache.coyote.http11.Http11NioProtocol"
                    port="9443"
                    bindOnInit="false"
-                   sslProtocol="TLS"
-                   sslEnabledProtocols="+TLSv1,+TLSv1.1,+TLSv1.2"
                    maxHttpHeaderSize="8192"
                    acceptorThreadCount="2"
                    maxThreads="250"
@@ -65,7 +64,6 @@
                    maxKeepAliveRequests="200"
                    acceptCount="200"
                    server="WSO2 Carbon Server"
-                   clientAuth="false"
                    compression="on"
                    scheme="https"
                    secure="true"
@@ -73,9 +71,23 @@
                    compressionMinSize="2048"
                    noCompressionUserAgents="gozilla, traviata"
                    compressibleMimeType="text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg"
-                   keystoreFile="${carbon.home}/repository/resources/security/wso2carbon.jks"
-                   keystorePass="wso2carbon"
-                   URIEncoding="UTF-8"/>
+                   URIEncoding="UTF-8"
+        >
+            <SSLHostConfig
+                    protocols="+TLSv1,+TLSv1.1,+TLSv1.2"
+                    sslProtocol="TLS"
+                    certificateVerification="false"
+                    truststoreFile="${carbon.home}/repository/resources/security/client-truststore.jks"
+                    truststorePassword="wso2carbon"
+                    truststoreType="JKS"
+            >
+                <Certificate certificateKeystoreFile="${carbon.home}/repository/resources/security/wso2carbon.jks"
+                             certificateKeystorePassword="wso2carbon"
+                             certificateKeystoreType="JKS"
+                             certificateKeyAlias="wso2carbon"
+                />
+            </SSLHostConfig>
+        </Connector>
 
 
         <Engine name="Catalina" defaultHost="localhost">
@@ -96,4 +108,3 @@
         </Engine>
     </Service>
 </Server>
-
