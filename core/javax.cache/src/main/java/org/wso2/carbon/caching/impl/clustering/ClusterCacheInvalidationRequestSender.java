@@ -27,6 +27,7 @@ import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
@@ -39,7 +40,8 @@ import javax.cache.event.CacheEntryUpdatedListener;
  * This is feature intended only when separate local caches are maintained by each node
  * in the cluster.
  */
-public class ClusterCacheInvalidationRequestSender implements CacheEntryRemovedListener, CacheEntryUpdatedListener {
+public class ClusterCacheInvalidationRequestSender implements CacheEntryRemovedListener, CacheEntryUpdatedListener,
+        CacheEntryCreatedListener {
 
     private static final Log log = LogFactory.getLog(ClusterCacheInvalidationRequestSender.class);
 
@@ -50,6 +52,11 @@ public class ClusterCacheInvalidationRequestSender implements CacheEntryRemovedL
 
     @Override
     public void entryUpdated(CacheEntryEvent event) throws CacheEntryListenerException {
+        send(event);
+    }
+
+    @Override
+    public void entryCreated(CacheEntryEvent event) throws CacheEntryListenerException {
         send(event);
     }
 
