@@ -114,10 +114,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         if (accessKey != null) {
             if (secretResolver != null) {
                 String resolvedValue = MiscellaneousUtil.resolve(accessKey.getParameterElement(), secretResolver);
-                if (StringUtils.isEmpty(resolvedValue)) {
-                    if (secretResolver.isInitialized() && secretResolver.isTokenProtected(SECURE_VAULT_ACCESS_KEY)) {
-                        resolvedValue = secretResolver.resolve(SECURE_VAULT_ACCESS_KEY);
-                    }
+                if (!StringUtils.isEmpty(resolvedValue)) {
                     awsConfig.setAccessKey(resolvedValue);
                 }
             } else {
@@ -127,10 +124,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         if (secretKey != null) {
             if (secretResolver != null) {
                 String resolvedValue = MiscellaneousUtil.resolve(secretKey.getParameterElement(), secretResolver);
-                if (StringUtils.isEmpty(resolvedValue)) {
-                    if (secretResolver.isInitialized() && secretResolver.isTokenProtected(SECURE_VAULT_SECRET_KEY)) {
-                        resolvedValue = secretResolver.resolve(SECURE_VAULT_SECRET_KEY);
-                    }
+                if (!StringUtils.isEmpty(resolvedValue)) {
                     awsConfig.setSecretKey(resolvedValue);
                 }
             } else {
