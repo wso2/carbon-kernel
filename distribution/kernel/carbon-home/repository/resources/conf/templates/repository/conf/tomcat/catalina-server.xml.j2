@@ -58,8 +58,6 @@
 
         <Engine name="Catalina" defaultHost="localhost">
 
-            <!--Realm className="org.apache.catalina.realm.MemoryRealm" pathname="${carbon.home}/repository/conf/tomcat/tomcat-users.xml"/-->
-
             <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"/>
 
             <Host name="localhost" unpackWARs="true" deployOnStartup="false" autoDeploy="false"
