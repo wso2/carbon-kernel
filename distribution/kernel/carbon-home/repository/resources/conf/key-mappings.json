@@ -28,6 +28,10 @@
 
   "user_store.connection_url":"user_store.properties.ConnectionURL",
   "user_store.connection_name":"user_store.properties.ConnectionName",
-  "user_store.connection_password":"user_store.properties.ConnectionPassword"
+  "user_store.connection_password":"user_store.properties.ConnectionPassword",
+
+  "transport.https.properties.certificate_verification": "transport.https.sslHostConfig.properties.certificateVerification",
+  "transport.https.properties.protocols": "transport.https.sslHostConfig.properties.protocols",
+  "transport.https.properties.ssl_protocol": "transport.https.sslHostConfig.properties.sslProtocol"
 
 }
