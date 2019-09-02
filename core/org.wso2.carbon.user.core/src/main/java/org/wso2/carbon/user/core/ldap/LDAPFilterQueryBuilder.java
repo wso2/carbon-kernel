@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 
@@ -45,16 +46,16 @@ public class LDAPFilterQueryBuilder {
     /**
      * Add a new filter to the query.
      *
-     * @param condition
-     * @param isMembershipMulitGroupFilters
+     * @param condition                     Validated expression condition.
+     * @param isMembershipMultiGroupFilters boolean value indicate is a membership multi group filters or not.
      */
-    public void addFilter(ExpressionCondition condition, boolean isMembershipMulitGroupFilters) {
+    public void addFilter(ExpressionCondition condition, boolean isMembershipMultiGroupFilters) {
 
         String property = condition.getAttributeName();
         String operation = condition.getOperation();
         String value = condition.getAttributeValue();
 
-        if (isMembershipMulitGroupFilters) {
+        if (isMembershipMultiGroupFilters) {
             buildFilter(membershipMultiGroupFilters, property, operation, value);
         } else {
             buildFilter(searchFilter, property, operation, value);
@@ -64,30 +65,30 @@ public class LDAPFilterQueryBuilder {
     /**
      * Generate filter depends on given filter operation.
      *
-     * @param stringBuilder
-     * @param property
-     * @param operation
-     * @param value
+     * @param queryBuilder Query builder.
+     * @param property     Attribute name.
+     * @param operation    Attribute value.
+     * @param value        Filter query with provided filter.
      */
-    private void buildFilter(StringBuilder stringBuilder, String property, String operation, String value) {
+    private void buildFilter(StringBuilder queryBuilder, String property, String operation, String value) {
 
         if (ExpressionOperation.EQ.toString().equals(operation)) {
-            stringBuilder.append(equalFilterBuilder(property, value));
+            queryBuilder.append(equalFilterBuilder(property, value));
         } else if (ExpressionOperation.CO.toString().equals(operation)) {
-            stringBuilder.append(containsFilterBuilder(property, value));
+            queryBuilder.append(containsFilterBuilder(property, value));
         } else if (ExpressionOperation.EW.toString().equals(operation)) {
-            stringBuilder.append(endWithFilterBuilder(property, value));
+            queryBuilder.append(endWithFilterBuilder(property, value));
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
-            stringBuilder.append(startWithFilterBuilder(property, value));
+            queryBuilder.append(startWithFilterBuilder(property, value));
         }
     }
 
     /**
      * Generate "EQ" filter.
      *
-     * @param property
-     * @param value
-     * @return
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Search Filter query with eq filter.
      */
     private String equalFilterBuilder(String property, String value) {
 
@@ -99,9 +100,9 @@ public class LDAPFilterQueryBuilder {
     /**
      * Generate "CO" filter.
      *
-     * @param property
-     * @param value
-     * @return
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with contains filter.
      */
     private String containsFilterBuilder(String property, String value) {
 
@@ -114,9 +115,9 @@ public class LDAPFilterQueryBuilder {
     /**
      * Generate "EW" filter.
      *
-     * @param property
-     * @param value
-     * @return
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with end-with filter.
      */
     private String endWithFilterBuilder(String property, String value) {
 
@@ -129,9 +130,9 @@ public class LDAPFilterQueryBuilder {
     /**
      * Generate "SW" filter.
      *
-     * @param property
-     * @param value
-     * @return
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with start-with filter.
      */
     private String startWithFilterBuilder(String property, String value) {
 
@@ -144,15 +145,19 @@ public class LDAPFilterQueryBuilder {
     /**
      * Get final search filter query.
      *
-     * @return
+     * @return filter query string.
      */
     public String getSearchFilterQuery() {
 
-        if (membershipMultiGroupFilters != null && !membershipMultiGroupFilters.toString().equals("")) {
-            searchFilter.append(OPEN_PARENTHESIS).append(OR_OPERATION).append(membershipMultiGroupFilters).
-                    append(CLOSE_PARENTHESIS);
+        if (searchFilter != null) {
+            if (StringUtils.isNotEmpty(membershipMultiGroupFilters.toString())) {
+                searchFilter.append(OPEN_PARENTHESIS).append(OR_OPERATION).append(membershipMultiGroupFilters).
+                        append(CLOSE_PARENTHESIS);
+            }
+            searchFilter.append(CLOSE_PARENTHESIS);
+            return String.valueOf(searchFilter);
+        } else {
+            return "";
         }
-        searchFilter.append(CLOSE_PARENTHESIS);
-        return String.valueOf(searchFilter);
     }
 }
