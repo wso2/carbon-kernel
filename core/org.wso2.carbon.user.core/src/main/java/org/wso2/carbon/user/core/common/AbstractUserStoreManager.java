@@ -6989,8 +6989,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 .startsWith(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase()) || roleName.toLowerCase()
                 .startsWith(WORKFLOW_DOMAIN.toLowerCase());
     }
-}
-
 
     private List<String> getUserStorePreferenceOrder() throws UserStoreException {
 
