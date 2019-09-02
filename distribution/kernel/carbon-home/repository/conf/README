@@ -43,11 +43,6 @@ Usage of the sub-directories of relevant configurations are as follows.
 	 You can also use this file to configure transport connectors, specify nio ports (http and https ports) 
 	 for WSO2 Carbon server.
 
-	-tomcat-users.xml
-	 This is the standard tomcat-users.xml file which can be used for definig users & roles. This
-	 is applicable to webapps only, and will be used only if the Security/TomcatRealm entry in the
-         carbon.xml is set to Memory.
-
 6. etc <directory>
 	-config-validation.xml
 	 This file contains recommended configuration settings to run WSO2 Carbon. System settings will be
