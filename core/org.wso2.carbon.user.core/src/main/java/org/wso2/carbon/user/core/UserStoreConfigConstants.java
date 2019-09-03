@@ -110,4 +110,9 @@ public class UserStoreConfigConstants {
     public static final String STARTTLS_ENABLED_DISPLAY_NAME = "Enable StartTLS";
     public static final String STARTTLS_ENABLED_DESCRIPTION = "Enable secure connection by using " +
             "StartTLS extended operation in LDAP";
+    // Property to specify waiting time to re-establish LDAP connection after couple of failure attempts.
+    public static final String CONNECTION_RETRY_DELAY = "ConnectionRetryDelay";
+    public static final String CONNECTION_RETRY_DELAY_DISPLAY_NAME = "Connection Retry Delay";
+    public static final String CONNECTION_RETRY_DELAY_DESCRIPTION = "Specifies waiting time in milliseconds"
+            + " inorder to establish the connection after couple of failure attempts.";
 }

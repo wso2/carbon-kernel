@@ -51,8 +51,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-import javax.naming.CompositeName;
-import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -164,8 +162,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             dirContext = connectionSource.getContext();
             log.info("LDAP connection created successfully in read-write mode");
         } catch (Exception e) {
-            throw new UserStoreException("Cannot create connection to LDAP server. Error message "
-                    + e.getMessage());
+            // Skipped to throw a UserStoreException and log the error message in-order to successfully initiate and
+            // create the user-store object.
+            log.error("Cannot create connection to LDAP server. Connection URL: " + realmConfig
+                    .getUserStoreProperty(LDAPConstants.CONNECTION_URL) + " Error message: " + e.getMessage());
         } finally {
             JNDIUtil.closeContext(dirContext);
         }
@@ -2069,6 +2069,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME, "120000",
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
     }
 
 //

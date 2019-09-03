@@ -78,6 +78,12 @@ public class LDAPConnectionContext {
     private static final int CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH = 0;
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    public static final String CIRCUIT_STATE_OPEN = "open";
+    public static final String CIRCUIT_STATE_CLOSE = "close";
+
+    private String ldapConnectionCircuitBreakerState;
+    private long thresholdTimeoutInMilliseconds;
+    private long thresholdStartTime;
     private boolean startTLSEnabled;
 
     static {
@@ -203,9 +209,86 @@ public class LDAPConnectionContext {
         // Set StartTLS option if provided in the configuration. Otherwise normal connection.
         startTLSEnabled = Boolean.parseBoolean(realmConfig.getUserStoreProperty(
                 UserStoreConfigConstants.STARTTLS_ENABLED));
+
+        // Set waiting time to re-establish LDAP connection after couple of failure attempts if specified otherwise
+        // set default time.
+        String retryWaitingTime = realmConfig.getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
+        if (StringUtils.isNotEmpty(retryWaitingTime)) {
+            thresholdTimeoutInMilliseconds = getThresholdTimeoutInMilliseconds(retryWaitingTime);
+        } else {
+            thresholdTimeoutInMilliseconds = 120000;
+        }
+        // By-default set to close state.
+        ldapConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+        thresholdStartTime = 0;
     }
 
     public DirContext getContext() throws UserStoreException {
+
+        DirContext context = null;
+
+        // Implemented basic circuit breaker logic to reduce the resource consumption.
+        switch (ldapConnectionCircuitBreakerState) {
+        case CIRCUIT_STATE_OPEN:
+            long circuitOpenDuration = System.currentTimeMillis() - thresholdStartTime;
+            if (circuitOpenDuration >= thresholdTimeoutInMilliseconds) {
+                try {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Trying to obtain LDAP connection, connection URL: " + environment
+                                .get(Context.PROVIDER_URL) + " when circuit breaker state: "
+                                + ldapConnectionCircuitBreakerState + " and circuit breaker open duration: "
+                                + circuitOpenDuration + "ms.");
+                    }
+                    context = getDirContext();
+                    ldapConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+                    thresholdStartTime = 0;
+                    break;
+                } catch (UserStoreException e) {
+                    log.error("Error occurred while obtaining LDAP connection. Connection URL: " + environment
+                            .get(Context.PROVIDER_URL), e);
+                    thresholdStartTime = System.currentTimeMillis();
+                    if (log.isDebugEnabled()) {
+                        log.debug("LDAP connection circuit breaker state set to: " + ldapConnectionCircuitBreakerState);
+                    }
+                    throw new UserStoreException("Error occurred while obtaining LDAP connection.", e);
+                }
+            } else {
+                throw new UserStoreException(
+                        "LDAP connection circuit breaker is in open state for " + circuitOpenDuration
+                                + "ms and has not reach the threshold timeout: " + thresholdTimeoutInMilliseconds
+                                + "ms, hence avoid establishing the LDAP connection.");
+            }
+        case CIRCUIT_STATE_CLOSE:
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug("LDAP connection circuit breaker state: " + ldapConnectionCircuitBreakerState
+                            + ", so trying to obtain the LDAP connection, connection URL: "
+                            + environment.get(Context.PROVIDER_URL));
+                }
+                context = getDirContext();
+                break;
+            } catch (UserStoreException e) {
+                log.error("Error occurred while obtaining LDAP connection. Connection URL: "
+                        + environment.get(Context.PROVIDER_URL), e);
+                log.error("Trying again to get connection.");
+                try {
+                    context = getDirContext();
+                    break;
+                } catch (Exception e1) {
+                    log.error("Error occurred while obtaining connection for the second time.", e1);
+                    ldapConnectionCircuitBreakerState = CIRCUIT_STATE_OPEN;
+                    thresholdStartTime = System.currentTimeMillis();
+                    throw new UserStoreException("Error occurred while obtaining LDAP connection, LDAP connection "
+                            + "circuit breaker state set to: " + ldapConnectionCircuitBreakerState, e1);
+                }
+            }
+        default:
+            throw new UserStoreException("Unknown LDAP connection circuit breaker state.");
+        }
+        return context;
+    }
+
+    private DirContext getDirContext() throws UserStoreException {
 
         DirContext context = null;
         //if dcMap is not populated, it is not DNS case
@@ -368,6 +451,72 @@ public class LDAPConnectionContext {
     @Deprecated
     public LdapContext getContextWithCredentials(String userDN, String password)
             throws UserStoreException, NamingException, AuthenticationException {
+
+        LdapContext context = null;
+
+        // Implemented basic circuit breaker logic to reduce the resource consumption.
+        switch (ldapConnectionCircuitBreakerState) {
+        case CIRCUIT_STATE_OPEN:
+            long circuitOpenDuration = System.currentTimeMillis() - thresholdStartTime;
+            if (circuitOpenDuration >= thresholdTimeoutInMilliseconds) {
+                try {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Trying to obtain LDAP connection, connection URL: " + environment
+                                .get(Context.PROVIDER_URL) + " when circuit breaker state: "
+                                + ldapConnectionCircuitBreakerState + " and circuit breaker open duration: "
+                                + circuitOpenDuration + "ms.");
+                    }
+                    context = getLdapContextWithCredentials(userDN, password);
+                    ldapConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+                    thresholdStartTime = 0;
+                    break;
+                } catch (UserStoreException e) {
+                    log.error("Error occurred while obtaining LDAP connection. Connection URL: " + environment
+                            .get(Context.PROVIDER_URL), e);
+                    thresholdStartTime = System.currentTimeMillis();
+                    if (log.isDebugEnabled()) {
+                        log.debug("LDAP connection circuit breaker state set to: " + ldapConnectionCircuitBreakerState);
+                    }
+                    throw new UserStoreException("Error occurred while obtaining LDAP connection.", e);
+                }
+            } else {
+                throw new UserStoreException(
+                        "LDAP connection circuit breaker is in open state for " + circuitOpenDuration
+                                + "ms and has not reach the threshold timeout: " + thresholdTimeoutInMilliseconds
+                                + "ms, hence avoid establishing the LDAP connection.");
+            }
+        case CIRCUIT_STATE_CLOSE:
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug("LDAP connection circuit breaker state: " + ldapConnectionCircuitBreakerState
+                            + ", so trying to obtain the LDAP connection. " + "Connection URL: "
+                            + environment.get(Context.PROVIDER_URL));
+                }
+                context = getLdapContextWithCredentials(userDN, password);
+                break;
+            } catch (UserStoreException e) {
+                log.error("Error occurred while obtaining LDAP connection. Connection URL: "
+                        + environment.get(Context.PROVIDER_URL), e);
+                log.error("Trying again to get connection.");
+                try {
+                    context = getLdapContextWithCredentials(userDN, password);
+                    break;
+                } catch (Exception e1) {
+                    log.error("Error occurred while obtaining connection for the second time.", e1);
+                    ldapConnectionCircuitBreakerState = CIRCUIT_STATE_OPEN;
+                    thresholdStartTime = System.currentTimeMillis();
+                    throw new UserStoreException("Error occurred while obtaining LDAP connection, LDAP connection "
+                            + "circuit breaker state set to: " + ldapConnectionCircuitBreakerState, e1);
+                }
+            }
+        default:
+            throw new UserStoreException("Unknown LDAP connection circuit breaker state.");
+        }
+        return context;
+    }
+
+    private LdapContext getLdapContextWithCredentials(String userDN, String password)
+            throws NamingException, UserStoreException {
 
         //create a temp env for this particular authentication session by copying the original env
         // following logic help to re use the connection pool in authentication
@@ -674,5 +823,22 @@ public class LDAPConnectionContext {
             count++;
         }
         return sb.toString();
+    }
+
+    /**
+     * Convert retry waiting time string to long.
+     *
+     * @param retryWaitingTime
+     * @return
+     * @throws UserStoreException
+     */
+    private long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
+
+        try {
+            return Long.parseLong(retryWaitingTime);
+        } catch (NumberFormatException e) {
+            throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
+                    + UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
+        }
     }
 }
