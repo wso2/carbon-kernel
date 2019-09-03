@@ -211,6 +211,7 @@ xml-resolver-1.2.jar                                                            
 xmlbeans-2.3.0.jar                                                              jarinbundle    apache2   344
 xmlbeans_2.3.0.wso2v1.jar                                                       bundle         apache2   749
 XmlSchema_1.4.7.wso2v6.jar                                                      bundle         apache2   18926
+org.wso2.orbit.sun.xml.bind.jaxb_2.3.2.wso2v1.jar                               bundle         apache2   20616
 
 
 
