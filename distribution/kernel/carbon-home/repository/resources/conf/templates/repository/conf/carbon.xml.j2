@@ -132,9 +132,9 @@
         <!-- The JMX Ports -->
         <JMX>
             <!--The port RMI registry is exposed-->
-            <RMIRegistryPort>9999</RMIRegistryPort>
+            <RMIRegistryPort>{{monitoring.jmx.rmi_registry_port}}</RMIRegistryPort>
             <!--The port RMI server should be exposed-->
-            <RMIServerPort>11111</RMIServerPort>
+            <RMIServerPort>{{monitoring.jmx.rmi_server_port}}</RMIServerPort>
         </JMX>
 
         <!-- Embedded LDAP server specific ports -->
