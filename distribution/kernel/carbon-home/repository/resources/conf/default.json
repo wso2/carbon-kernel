@@ -111,6 +111,7 @@
   "database.shared_db.pool_options.testOnBorrow": "true",
   "database.shared_db.pool_options.validationInterval": "30000",
   "database.shared_db.pool_options.defaultAutoCommit": "true",
+  "database.shared_db.jmx_enable": "false",
   "keystore.tls.file_name": "wso2carbon.jks",
   "keystore.tls.type": "JKS",
   "keystore.tls.password": "wso2carbon",
@@ -169,5 +170,9 @@
     "org.wso2.CipherTransformation": "RSA/ECB/OAEPwithSHA1andMGF1Padding"
   },
 
-  "admin_service.wsdl.enable": false
+  "admin_service.wsdl.enable": false,
+  "monitoring.jmx.rmi_registry_port": "9999",
+  "monitoring.jmx.rmi_server_port": "11111",
+  "monitoring.jmx.rmi_server_start": true,
+  "monitoring.jmx.rmi_hostname": "$ref{server.hostname}"
 }

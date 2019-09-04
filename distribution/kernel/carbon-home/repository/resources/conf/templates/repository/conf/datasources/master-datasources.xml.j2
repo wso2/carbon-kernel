@@ -42,6 +42,7 @@
                     {% for property_name,property_value in database.shared_db.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                         {% endfor %}
+                    <jmxEnabled>{{database.shared_db.jmx_enable}}</jmxEnabled>
                  </configuration>
             </definition>
         </datasource>
@@ -62,6 +63,7 @@
                     {% for property_name,property_value in database.user.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                         {% endfor %}
+                    <jmxEnabled>{{database.user.jmx_enable}}</jmxEnabled>
                  </configuration>
             </definition>
         </datasource>
@@ -83,6 +85,7 @@
                     {% for property_name,property_value in database.config.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                         {% endfor %}
+                    <jmxEnabled>{{database.config.jmx_enable}}</jmxEnabled>
                  </configuration>
             </definition>
         </datasource>
@@ -104,6 +107,7 @@
                     {% for property_name,property_value in data.pool_options.items() %}
                      <{{property_name}}>{{property_value}}</{{property_name}}>
                     {% endfor %}
+                     <jmxEnabled>{{data.jmx_enable}}</jmxEnabled>
                 </configuration>
             </definition>
         </datasource>
