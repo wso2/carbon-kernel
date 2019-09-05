@@ -175,6 +175,7 @@
                                 <bundleDef>
                                     org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider:${carbon.crypto.version}
                                 </bundleDef>
+                                <bundleDef>org.wso2.orbit.sun.xml.bind:jaxb:${version.org.wso2.orbit.javax.xml.bind.jaxb}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

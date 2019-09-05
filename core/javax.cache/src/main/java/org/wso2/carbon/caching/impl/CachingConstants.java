@@ -41,6 +41,8 @@ public final class CachingConstants {
     // Cache name prefix of Time Stamp cache
     public static final String TIMESTAMP_CACHE_PREFIX = "$_timestamp_$";
     public static final String FORCE_LOCAL_CACHE = "Cache.ForceLocalCache";
+    //Keep or discard empty cache objects
+    public static final String DISCARD_EMPTY_CACHES = "Cache.DiscardEmptyCaches";
 
     public static final String ILLEGAL_STATE_EXCEPTION_MESSAGE = "The cache status is not STARTED";
 

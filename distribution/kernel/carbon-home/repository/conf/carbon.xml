@@ -278,7 +278,8 @@
         <!-- Default cache timeout in minutes -->
         <DefaultCacheTimeout>15</DefaultCacheTimeout>
         <!-- Force all caches to act as local -->
-        <ForceLocalCache>false</ForceLocalCache>
+        <ForceLocalCache>true</ForceLocalCache>
+        <DiscardEmptyCaches>false</DiscardEmptyCaches>
     </Cache>
 
     <!--
@@ -471,13 +472,9 @@
         </NetworkAuthenticatorConfig>
 
         <!--
-         The Tomcat realm to be used for hosted Web applications. Allowed values are;
-         1. UserManager
-         2. Memory
-
+         The Tomcat realm to be used for hosted Web applications. Allowed value is UserManager.
          If this is set to 'UserManager', the realm will pick users & roles from the system's
-         WSO2 User Manager. If it is set to 'memory', the realm will pick users & roles from
-         CARBON_HOME/repository/conf/tomcat/tomcat-users.xml
+         WSO2 User Manager.
         -->
         <TomcatRealm>UserManager</TomcatRealm>
 

@@ -132,9 +132,9 @@
         <!-- The JMX Ports -->
         <JMX>
             <!--The port RMI registry is exposed-->
-            <RMIRegistryPort>9999</RMIRegistryPort>
+            <RMIRegistryPort>{{monitoring.jmx.rmi_registry_port}}</RMIRegistryPort>
             <!--The port RMI server should be exposed-->
-            <RMIServerPort>11111</RMIServerPort>
+            <RMIServerPort>{{monitoring.jmx.rmi_server_port}}</RMIServerPort>
         </JMX>
 
         <!-- Embedded LDAP server specific ports -->
@@ -276,6 +276,7 @@
         <DefaultCacheTimeout>{{server.default_cache_timeout}}</DefaultCacheTimeout>
         <!-- Force all caches to act as local -->
         <ForceLocalCache>{{server.force_local_cache}}</ForceLocalCache>
+        <DiscardEmptyCaches>{{server.discard_empty_caches}}</DiscardEmptyCaches>
     </Cache>
 
     <!--
@@ -507,13 +508,9 @@
         </NetworkAuthenticatorConfig>
 
         <!--
-         The Tomcat realm to be used for hosted Web applications. Allowed values are;
-         1. UserManager
-         2. Memory
-
+         The Tomcat realm to be used for hosted Web applications. Allowed value is UserManager.
          If this is set to 'UserManager', the realm will pick users & roles from the system's
-         WSO2 User Manager. If it is set to 'memory', the realm will pick users & roles from
-         CARBON_HOME/repository/conf/tomcat/tomcat-users.xml
+         WSO2 User Manager.
         -->
         <TomcatRealm>UserManager</TomcatRealm>
 
