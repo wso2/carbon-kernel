@@ -56,6 +56,7 @@
   "user_store.username_java_regex":"user_store.properties.UsernameJavaRegEx",
   "user_store.rolename_java_regex":"user_store.properties.RolenameJavaRegEx",
   "user_store.password_java_regex":"user_store.properties.PasswordJavaRegEx",
+  "user_store.connection_retry_delay": "user_store.properties.ConnectionRetryDelay",
 
   "transport.https.properties.certificate_verification": "transport.https.sslHostConfig.properties.certificateVerification",
   "transport.https.properties.protocols": "transport.https.sslHostConfig.properties.protocols",

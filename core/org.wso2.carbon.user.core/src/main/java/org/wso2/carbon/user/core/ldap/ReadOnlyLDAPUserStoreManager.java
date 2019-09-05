@@ -229,12 +229,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.info("LDAP connection created successfully in read-only mode");
             }
         } catch (Exception e) {
-            String errorMessage = "Cannot create connection to LDAP server. Error message " +
-                                  e.getMessage();
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
+            // Skipped to throw a UserStoreException and log the error message in-order to successfully initiate and
+            // create the user-store object.
+            log.error("Cannot create connection to LDAP server. Connection URL: " + realmConfig
+                    .getUserStoreProperty(LDAPConstants.CONNECTION_URL) + " Error message: " + e.getMessage());
         } finally {
             JNDIUtil.closeContext(dirContext);
         }
@@ -4245,6 +4243,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME, "120000",
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,
