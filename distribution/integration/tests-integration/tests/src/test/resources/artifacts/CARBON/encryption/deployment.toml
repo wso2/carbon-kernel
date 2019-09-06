@@ -28,7 +28,7 @@ validation_interval = "30000"
 default_auto_commit = true
 
 
-[keystore.tls]
+[keystore.primary]
 file_name = "wso2carbon.jks"
 type ="JKS"
 password ="wso2carbon"

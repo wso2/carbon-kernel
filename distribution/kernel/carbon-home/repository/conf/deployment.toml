@@ -55,7 +55,7 @@ username = "admin"
 password = "admin"
 create_admin_account = true
 
-[keystore.tls]
+[keystore.primary]
 file_name = "wso2carbon.jks"
 type ="JKS"
 password ="wso2carbon"
