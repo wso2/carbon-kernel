@@ -66,8 +66,6 @@ cd %CARBON_HOME%
 set CARBON_CLASSPATH=
 FOR %%C in ("%CARBON_HOME%\bin\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\%%~nC%%~xC"
 
-set CARBON_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%CARBON_CLASSPATH%;
-
 FOR %%D in ("%CARBON_HOME%\lib\commons-lang*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\lib\%%~nD%%~xD"
 
 rem ----- Process the input command -------------------------------------------
@@ -161,6 +159,8 @@ FOR /d %%G in ("*.*") DO rmdir %%G /s /q
 cd ..
 
 rem ---------- Add jars to classpath ----------------
+
+if %JAVA_VERSION% LEQ 18 set CARBON_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%CARBON_CLASSPATH%;
 
 set CARBON_CLASSPATH=.\lib;%CARBON_CLASSPATH%
 
