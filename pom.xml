@@ -892,7 +892,7 @@
                 <version>${version.javax.servlet}</version>
             </dependency>
 
-            <!--Start of SAML3 Dependencies-->
+            <!--Start of OpenSAML3 Dependencies-->
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-saml-impl</artifactId>
@@ -983,7 +983,7 @@
                 <artifactId>opensaml-xmlsec-impl</artifactId>
                 <version>${opensaml.version}</version>
             </dependency>
-            <!--End of SAML3 Dependencies-->
+            <!--End of OpenSAML3 Dependencies-->
 
             <!--Start of Shibboleth Dependencies-->
             <dependency>
@@ -1882,11 +1882,10 @@
         <!--Change major version to minor version which is 0.9.0 due to 0.8.x and 0.9.x incompatibility-->
         <libthrift.wso2.osgi.version.range>[0.12.0.wso2v1,0.15.0)</libthrift.wso2.osgi.version.range>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
-        <opensaml.version>3.2.0</opensaml.version>
+        <opensaml.version>3.3.1</opensaml.version>
         <shibboleth.version>7.3.0</shibboleth.version>
-        <opensaml2.wso2.version>3.2.0.wso2v1</opensaml2.wso2.version>
-        <!--<opensaml2.wso2.osgi.version.range>[2.8.0,3.2.0)</opensaml2.wso2.osgi.version.range>-->
-        <opensaml2.wso2.osgi.version.range>[3.2.0,4.0.0)</opensaml2.wso2.osgi.version.range>
+        <opensaml2.wso2.version>3.3.1.wso2v1</opensaml2.wso2.version>
+        <opensaml2.wso2.osgi.version.range>[3.3.0,4.0.0)</opensaml2.wso2.osgi.version.range>
         <joda.version>2.9.4</joda.version>
         <joda.wso2.version>2.9.4.wso2v1</joda.wso2.version>
         <joda.wso2.osgi.version.range>[2.8.2,3.0.0)</joda.wso2.osgi.version.range>
