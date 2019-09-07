@@ -2074,7 +2074,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
     }
 
-//
 //	/**
 //	 * Check and add the initial data to the user store for user manager to start properly.
 //	 */
