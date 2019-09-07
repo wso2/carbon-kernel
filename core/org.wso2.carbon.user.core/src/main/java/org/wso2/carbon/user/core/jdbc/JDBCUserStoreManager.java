@@ -88,6 +88,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
     private static final char SQL_FILTER_CHAR_ESCAPE = '\\';
+    public static final String QUERY_BINDING_SYMBOL = "?";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
 
@@ -3807,7 +3808,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 int endIndex = 0;
                 for (String query : splits) {
                     List<String> tempUserList = new ArrayList<>();
-                    int occurance = StringUtils.countMatches(query, "?");
+                    int occurance = StringUtils.countMatches(query, QUERY_BINDING_SYMBOL);
                     endIndex = endIndex + occurance;
                     prepStmt = dbConnection.prepareStatement(query);
                     populatePrepareStatement(sqlBuilder, prepStmt, startIndex, endIndex);
