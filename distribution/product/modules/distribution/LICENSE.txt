@@ -1,4 +1,3 @@
-
 This product is licensed by WSO2 Inc. under Apache License 2.0. The license
 can be downloaded from the following locations:
 	http://www.apache.org/licenses/LICENSE-2.0.html
@@ -48,7 +47,7 @@ commons-logging-1.2.jar                                                         
 commons-pool_1.5.6.wso2v1.jar                                                   bundle         apache2   1009
 commons-text_1.6.0.wso2v1.jar                                                   bundle         apache2   20625
 compass_2.0.1.wso2v2.jar                                                        bundle         apache2   897
-config-mapper-1.0.1.jar                                                         jar            apache2   4182
+config-mapper-1.0.2.jar                                                         jar            apache2   4224
 csrfguard_3.1.0.wso2v3.jar                                                      bundle         bsd       16052
 encoder_1.2.0.wso2v1.jar                                                        bundle         apache2   4030
 geronimo-jta_1.1_spec-1.1.jar                                                   jar            apache2   1066
@@ -64,7 +63,7 @@ jackson-core-2.9.8.jar                                                          
 jackson-databind-2.9.9.2.jar                                                    bundle         apache2   4220
 javasysmon_0.3.3.wso2v1.jar                                                     bundle         bsd       721
 javax.annotation-api-1.3.2.jar                                                  bundle         cddl+gpl  3734
-javax.cache.wso2_4.5.0.beta.jar                                                 bundle         apache2   4218
+javax.cache.wso2_4.5.0.jar                                                      bundle         apache2   4223
 jaxb-api-2.4.0-b180830.0359.jar                                                 bundle         cddl1     4181
 jaxb-impl-2.4.0-b180830.0438.jar                                                bundle         cddl1     4222
 jdbc-pool_9.0.16.wso2v1.jar                                                     bundle         apache2   20657
@@ -137,52 +136,53 @@ org.ops4j.pax.logging.pax-logging-api_1.11.0.jar                                
 org.ops4j.pax.logging.pax-logging-log4j2_1.11.0.jar                             bundle         apache2   4064
 org.sat4j.core_2.3.5.v201308161310.jar                                          bundle         epl1+lgpl21091
 org.sat4j.pb_2.3.5.v201308161310.jar                                            bundle         epl1+lgpl21090
-org.wso2.carbon.addressing_4.5.0.beta.jar                                       bundle         apache2   21825
-org.wso2.carbon.application.deployer_4.5.0.beta.jar                             bundle         apache2   21813
-org.wso2.carbon.authenticator.proxy_4.5.0.beta.jar                              bundle         apache2   21830
-org.wso2.carbon.authenticator.stub_4.5.0.beta.jar                               bundle         apache2   21826
-org.wso2.carbon.base_4.5.0.beta.jar                                             bundle         apache2   21801
-org.wso2.carbon.bootstrap-4.5.0-beta.jar                                        bundle         apache2   21846
-org.wso2.carbon.cluster.mgt.core_4.5.0.beta.jar                                 bundle         apache2   21837
-org.wso2.carbon.core.bootup.validator_4.5.0.beta.jar                            bundle         apache2   21812
-org.wso2.carbon.core.commons.stub_4.5.0.beta.jar                                bundle         apache2   21829
-org.wso2.carbon.core.common_4.5.0.beta.jar                                      bundle         apache2   21807
-org.wso2.carbon.core.services_4.5.0.beta.jar                                    bundle         apache2   21822
-org.wso2.carbon.core_4.5.0.beta.jar                                             bundle         apache2   21810
+org.wso2.carbon.addressing_4.5.0.jar                                            bundle         apache2   21877
+org.wso2.carbon.application.deployer_4.5.0.jar                                  bundle         apache2   21874
+org.wso2.carbon.authenticator.proxy_4.5.0.jar                                   bundle         apache2   21851
+org.wso2.carbon.authenticator.stub_4.5.0.jar                                    bundle         apache2   21872
+org.wso2.carbon.base_4.5.0.jar                                                  bundle         apache2   21868
+org.wso2.carbon.bootstrap-4.5.0.jar                                             bundle         apache2   21889
+org.wso2.carbon.cluster.mgt.core_4.5.0.jar                                      bundle         apache2   21859
+org.wso2.carbon.core.bootup.validator_4.5.0.jar                                 bundle         apache2   21878
+org.wso2.carbon.core.commons.stub_4.5.0.jar                                     bundle         apache2   21863
+org.wso2.carbon.core.common_4.5.0.jar                                           bundle         apache2   21857
+org.wso2.carbon.core.services_4.5.0.jar                                         bundle         apache2   21850
+org.wso2.carbon.core_4.5.0.jar                                                  bundle         apache2   21882
 org.wso2.carbon.crypto.api_1.1.2.jar                                            bundle         apache2   21344
 org.wso2.carbon.crypto.impl_1.1.2.jar                                           bundle         apache2   21342
 org.wso2.carbon.crypto.provider_1.1.2.jar                                       bundle         apache2   21314
-org.wso2.carbon.feature.mgt.core_4.5.0.beta.jar                                 bundle         apache2   21827
-org.wso2.carbon.feature.mgt.services_4.5.0.beta.jar                             bundle         apache2   21799
-org.wso2.carbon.feature.mgt.stub_4.5.0.beta.jar                                 bundle         apache2   21809
-org.wso2.carbon.framework.exporter_4.5.0.beta.jar                               bundle         apache2   21836
-org.wso2.carbon.i18n_4.5.0.beta.jar                                             bundle         apache2   21843
-org.wso2.carbon.ndatasource.common_4.5.0.beta.jar                               bundle         apache2   21814
-org.wso2.carbon.ndatasource.core_4.5.0.beta.jar                                 bundle         apache2   21828
-org.wso2.carbon.ndatasource.rdbms_4.5.0.beta.jar                                bundle         apache2   21803
-org.wso2.carbon.osgi.security_4.5.0.beta.jar                                    bundle         apache2   21796
-org.wso2.carbon.pax-logging-log4j2-plugins_4.5.0.beta.jar                       bundle         apache2   21800
-org.wso2.carbon.queuing_4.5.0.beta.jar                                          bundle         apache2   21824
-org.wso2.carbon.registry.api_4.5.0.beta.jar                                     bundle         apache2   21834
-org.wso2.carbon.registry.core_4.5.0.beta.jar                                    bundle         apache2   21817
-org.wso2.carbon.registry.server_4.5.0.beta.jar                                  bundle         apache2   21842
-org.wso2.carbon.roles.mgt.stub_4.5.0.beta.jar                                   bundle         apache2   21839
-org.wso2.carbon.roles.mgt.ui_4.5.0.beta.jar                                     bundle         apache2   21840
-org.wso2.carbon.roles.mgt_4.5.0.beta.jar                                        bundle         apache2   21798
-org.wso2.carbon.securevault_4.5.0.beta.jar                                      bundle         apache2   21816
-org.wso2.carbon.server-4.5.0-beta.jar                                           bundle         apache2   21847
-org.wso2.carbon.server.admin.common_4.5.0.beta.jar                              bundle         apache2   21811
-org.wso2.carbon.server.admin.stub_4.5.0.beta.jar                                bundle         apache2   21808
-org.wso2.carbon.server.admin.ui_4.5.0.beta.jar                                  bundle         apache2   21804
-org.wso2.carbon.server.admin_4.5.0.beta.jar                                     bundle         apache2   21819
-org.wso2.carbon.styles_4.5.0.beta.jar                                           bundle         apache2   21797
-org.wso2.carbon.tomcat.ext_4.5.0.beta.jar                                       bundle         apache2   21818
-org.wso2.carbon.tomcat_4.5.0.beta.jar                                           bundle         apache2   21841
-org.wso2.carbon.ui.menu.general_4.5.0.beta.jar                                  bundle         apache2   21844
-org.wso2.carbon.ui_4.5.0.beta.jar                                               bundle         apache2   21815
-org.wso2.carbon.user.api_4.5.0.beta.jar                                         bundle         apache2   21835
-org.wso2.carbon.user.core_4.5.0.beta.jar                                        bundle         apache2   21805
-org.wso2.carbon.utils_4.5.0.beta.jar                                            bundle         apache2   21823
+org.wso2.carbon.feature.mgt.core_4.5.0.jar                                      bundle         apache2   21880
+org.wso2.carbon.feature.mgt.services_4.5.0.jar                                  bundle         apache2   21871
+org.wso2.carbon.feature.mgt.stub_4.5.0.jar                                      bundle         apache2   21876
+org.wso2.carbon.framework.exporter_4.5.0.jar                                    bundle         apache2   21883
+org.wso2.carbon.i18n_4.5.0.jar                                                  bundle         apache2   21866
+org.wso2.carbon.ndatasource.common_4.5.0.jar                                    bundle         apache2   21861
+org.wso2.carbon.ndatasource.core_4.5.0.jar                                      bundle         apache2   21873
+org.wso2.carbon.ndatasource.rdbms_4.5.0.jar                                     bundle         apache2   21879
+org.wso2.carbon.osgi.security_4.5.0.jar                                         bundle         apache2   21848
+org.wso2.carbon.pax-logging-log4j2-plugins_4.5.0.jar                            bundle         apache2   21870
+org.wso2.carbon.queuing_4.5.0.jar                                               bundle         apache2   21856
+org.wso2.carbon.registry.api_4.5.0.jar                                          bundle         apache2   21852
+org.wso2.carbon.registry.core_4.5.0.jar                                         bundle         apache2   21867
+org.wso2.carbon.registry.server_4.5.0.jar                                       bundle         apache2   21864
+org.wso2.carbon.roles.mgt.stub_4.5.0.jar                                        bundle         apache2   21869
+org.wso2.carbon.roles.mgt.ui_4.5.0.jar                                          bundle         apache2   21860
+org.wso2.carbon.roles.mgt_4.5.0.jar                                             bundle         apache2   21862
+org.wso2.carbon.securevault_4.5.0.jar                                           bundle         apache2   21855
+org.wso2.carbon.server-4.5.0.jar                                                bundle         apache2   21890
+org.wso2.carbon.server.admin.common_4.5.0.jar                                   bundle         apache2   21886
+org.wso2.carbon.server.admin.stub_4.5.0.jar                                     bundle         apache2   21887
+org.wso2.carbon.server.admin.ui_4.5.0.jar                                       bundle         apache2   21865
+org.wso2.carbon.server.admin_4.5.0.jar                                          bundle         apache2   21853
+org.wso2.carbon.styles_4.5.0.jar                                                bundle         apache2   21854
+org.wso2.carbon.tomcat.ext_4.5.0.jar                                            bundle         apache2   21884
+org.wso2.carbon.tomcat_4.5.0.jar                                                bundle         apache2   21881
+org.wso2.carbon.ui.menu.general_4.5.0.jar                                       bundle         apache2   21849
+org.wso2.carbon.ui_4.5.0.jar                                                    bundle         apache2   21888
+org.wso2.carbon.user.api_4.5.0.jar                                              bundle         apache2   21858
+org.wso2.carbon.user.core_4.5.0.jar                                             bundle         apache2   21875
+org.wso2.carbon.utils_4.5.0.jar                                                 bundle         apache2   21885
+org.wso2.orbit.sun.xml.bind.jaxb_2.3.2.wso2v1.jar                               bundle         apache2   20616
 org.wso2.orbit.sun.xml.ws.jaxws-ri_2.3.2.wso2v1.jar                             bundle         apache2   20653
 org.wso2.securevault_1.1.3.jar                                                  bundle         apache2   21388
 pdepublishing-ant.jar                                                           jar            epl1      524
@@ -211,7 +211,6 @@ xml-resolver-1.2.jar                                                            
 xmlbeans-2.3.0.jar                                                              jarinbundle    apache2   344
 xmlbeans_2.3.0.wso2v1.jar                                                       bundle         apache2   749
 XmlSchema_1.4.7.wso2v6.jar                                                      bundle         apache2   18926
-org.wso2.orbit.sun.xml.bind.jaxb_2.3.2.wso2v1.jar                               bundle         apache2   20616
 
 
 
