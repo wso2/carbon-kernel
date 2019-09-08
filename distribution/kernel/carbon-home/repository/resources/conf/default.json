@@ -104,7 +104,7 @@
     "127.0.0.1:4000"
   ],
   "clustering.local_member_port": "4000",
-  "database_configuration.enable_h2_db": false,
+  "database_configuration.enable_h2_console": false,
   "wsdl.skip_null_elements": false,
   "database.shared_db.id": "SHARED_DB",
   "database.shared_db.pool_options.maxActive": "50",
