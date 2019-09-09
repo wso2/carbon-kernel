@@ -1181,7 +1181,9 @@ public class CarbonUtils {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Source xmlSource = new DOMSource(doc);
             Result result = new StreamResult(outputStream);
-            TransformerFactory.newInstance().newTransformer().transform(xmlSource, result);
+            TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.newTransformer().transform(xmlSource, result);
             in = new ByteArrayInputStream(outputStream.toByteArray());
         } catch (TransformerException e) {
             throw new CarbonException("Error in transforming DOM to InputStream", e);
