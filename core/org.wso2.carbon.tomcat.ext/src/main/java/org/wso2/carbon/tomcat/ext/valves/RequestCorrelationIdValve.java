@@ -23,12 +23,14 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -66,6 +68,8 @@ public class RequestCorrelationIdValve extends ValveBase {
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    private static final String PADDING_CHAR = "=";
+    private static final String SPLITTING_CHAR = "&";
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -200,12 +204,16 @@ public class RequestCorrelationIdValve extends ValveBase {
      * @return A map which contains all the query and values that should be associated to the thread
      */
     private Map<String, String> getQueryParamsToAssociate(ServletRequest servletRequest) {
+
         Map<String, String> queryToAssociate = new HashMap<>();
         if (queryToIdMapping == null || !(servletRequest instanceof HttpServletRequest)) {
             return queryToAssociate;
         }
-
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        if (StringUtils.isBlank(httpServletRequest.getQueryString())) {
+            return queryToAssociate;
+        }
+
         for (Map.Entry<String, String> entry : queryToIdMapping.entrySet()) {
             String queryConfigured = entry.getKey();
             String correlationIdName = entry.getValue();
@@ -213,15 +221,12 @@ public class RequestCorrelationIdValve extends ValveBase {
                 continue;
             }
 
-            Enumeration<String> parameterNames = httpServletRequest.getParameterNames();
-            if (parameterNames == null) {
-                return queryToAssociate;
-            }
+            Map<String, String[]> parameters = getQueryParameters(URLDecoder
+                    .decode(httpServletRequest.getQueryString()));
 
-            while (parameterNames.hasMoreElements()) {
-                String queryReceived = parameterNames.nextElement();
-                queryToAssociate.putAll(getQueryCorrelationIdValue(queryReceived, queryConfigured,
-                        httpServletRequest, correlationIdName));
+            for (Map.Entry<String, String[]> pair : parameters.entrySet()) {
+                queryToAssociate.putAll(getQueryCorrelationIdValue(pair.getKey(), queryConfigured,
+                        String.join(",", pair.getValue()), correlationIdName));
             }
         }
         return queryToAssociate;
@@ -290,24 +295,48 @@ public class RequestCorrelationIdValve extends ValveBase {
      *
      * @param queryReceived      Query received in request
      * @param queryConfigured    Query configured in the valve
-     * @param httpServletRequest Request received
+     * @param queryValue         Query value received in request
      * @param correlationIdName  Correlation Id
      * @return A map which contains a query and value that should be associated to the thread
      */
     private Map<String, String> getQueryCorrelationIdValue(String queryReceived, String queryConfigured,
-                                                           HttpServletRequest httpServletRequest,
-                                                           String correlationIdName) {
+                                                           String queryValue, String correlationIdName) {
+
         Map<String, String> queryToAssociate = new HashMap<>();
 
         if (StringUtils.isEmpty(queryReceived) || !StringUtils.equalsIgnoreCase(queryReceived, queryConfigured)) {
             return queryToAssociate;
         }
 
-        String queryValue = httpServletRequest.getParameter(queryReceived);
         if (StringUtils.isNotEmpty(queryValue)) {
             queryToAssociate.put(correlationIdName, queryValue);
         }
         return queryToAssociate;
+    }
+
+    /**
+     * Get query parameters from the query string.
+     *
+     * @param queryString      Query String
+     * @return A map which contains a name and value of each query param
+     */
+    private Map<String, String[]> getQueryParameters(String queryString) {
+
+        Map<String, String[]> queryParameters = new HashMap<>();
+
+        if (StringUtils.isEmpty(queryString)) {
+            return queryParameters;
+        }
+
+        String[] parameters = queryString.split(SPLITTING_CHAR);
+
+        for (String parameter : parameters) {
+            String[] keyValuePair = parameter.split(PADDING_CHAR);
+            String[] values = queryParameters.get(keyValuePair[0]);
+            values = (String[]) ArrayUtils.add(values, keyValuePair.length == 1 ? "" : keyValuePair[1]);
+            queryParameters.put(keyValuePair[0], values);
+        }
+        return queryParameters;
     }
 
     public void setHeaderToCorrelationIdMapping(String headerToCorrelationIdMapping) {
