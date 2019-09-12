@@ -27,7 +27,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-kernel-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.2.11-SNAPSHOT</version>
+    <version>5.2.11</version>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.com</url>
@@ -629,7 +629,7 @@
         <carbon.securevault.version.range>[5.0.0, 6.0.0)</carbon.securevault.version.range>
         <carbon.touchpoint.version>1.1.0</carbon.touchpoint.version>
         <!-- Carbon platform version comes here-->
-        <carbon.kernel.version>5.2.11-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>5.2.11</carbon.kernel.version>
         <carbon.kernel.package.export.version>${carbon.kernel.version}</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
@@ -726,4 +726,8 @@
         <org.eclipse.equinox.p2.engine.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
         <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
     </properties>
+
+  <scm>
+    <tag>v5.2.11</tag>
+  </scm>
 </project>
