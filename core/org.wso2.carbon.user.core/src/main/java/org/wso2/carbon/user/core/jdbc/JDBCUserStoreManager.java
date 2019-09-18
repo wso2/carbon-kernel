@@ -87,7 +87,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
-    private static final char SQL_FILTER_CHAR_ESCAPE = '\\';
+    private static final String SQL_FILTER_CHAR_ESCAPE = "\\";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
 
@@ -365,7 +365,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (filter != null && filter.trim().length() != 0) {
                 filter = filter.trim();
                 filter = filter.replace("*", "%");
-                filter = filter.replace("?", "_");
             } else {
                 filter = "%";
             }
@@ -378,16 +377,27 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 throw new UserStoreException("null connection");
             }
 
-            if (isCaseSensitiveUsername()) {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER);
+            if (filter.contains("_")) {
+                filter = filter.replaceAll("_", "\\\\_");
+                sqlStmt = getUserFilterQuery(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE,
+                        JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE);
             } else {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE);
+                sqlStmt = getUserFilterQuery(JDBCRealmConstants.GET_USER_FILTER,
+                        JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE);
             }
 
+            filter = filter.replace("?", "_");
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, filter);
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
+            if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
+                prepStmt.setString(2, SQL_FILTER_CHAR_ESCAPE);
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(3, tenantId);
+                }
+            } else {
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(2, tenantId);
+                }
             }
             prepStmt.setMaxRows(maxItemLimit);
             try {
@@ -447,6 +457,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     }
 
+    private String getUserFilterQuery(String caseSensitiveQueryPropertyName, String caseInsensitiveQueryPropertyName) {
+
+        String sqlStmt;
+        if (isCaseSensitiveUsername()) {
+            sqlStmt = realmConfig.getUserStoreProperty(caseSensitiveQueryPropertyName);
+        } else {
+            sqlStmt = realmConfig.getUserStoreProperty(caseInsensitiveQueryPropertyName);
+        }
+        return sqlStmt;
+    }
 
     @Override
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {

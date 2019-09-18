@@ -23,6 +23,7 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST = "GetRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_USER_FILTER = "UserFilterSQL";
+    public static final String GET_USER_FILTER_WITH_ESCAPE = "UserFilterSQLWithEscape";
     public static final String GET_USER_FILTER_PAGINATED = "UserFilterPaginatedSQL";
     public static final String GET_USER_FILTER_PAGINATED_MSSQL = "UserFilterPaginatedSQL-mssql";
     public static final String GET_USER_FILTER_PAGINATED_DB2 = "UserFilterPaginatedSQL-db2";
@@ -80,6 +81,8 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
     public static final String GET_SHARED_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_SHARED_ROLE ='1' ORDER BY UM_ROLE_NAME";
     public static final String GET_USER_FILTER_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
+    public static final String GET_USER_FILTER_SQL_WITH_ESCAPE = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME "
+            + "LIKE ? ESCAPE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_PAGINATED_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME " +
             "LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?";
     public static final String GET_USER_FILTER_PAGINATED_SQL_DB2 = "SELECT UM_USER_NAME FROM (SELECT ROW_NUMBER() " +
