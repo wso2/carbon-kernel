@@ -769,4 +769,8 @@
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
 
+      {% if TimeToLive is defined %}
+      <STSTimeToLive>{{STS.TimeToLive}}</STSTimeToLive>
+      {% endif %}
+
 </Server>
