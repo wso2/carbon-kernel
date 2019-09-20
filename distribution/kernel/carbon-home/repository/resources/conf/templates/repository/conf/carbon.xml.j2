@@ -717,7 +717,7 @@
         <property name="baseDir">${carbon.home}</property>
     </H2DatabaseConfiguration-->
 
-    {% if database_configuration.enable_h2_console %}
+    {% if database_configuration.enable_h2_console is defined %}
     <H2DatabaseConfiguration>
         <property name="web"/>
         <property name="webPort">8082</property>
