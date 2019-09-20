@@ -127,10 +127,10 @@
 
     <!-- NOTE: You can edit the options under "StaticConfiguration" only before the
      startup. -->
-    <staticConfiguration>
-        <versioningProperties>true</versioningProperties>
-        <versioningComments>true</versioningComments>
-        <versioningTags>true</versioningTags>
-        <versioningRatings>true</versioningRatings>
-    </staticConfiguration>
+     <staticConfiguration>
+            <versioningProperties>{{staticConfiguration.versioningProperties.enable}}</versioningProperties>
+            <versioningComments>{{staticConfiguration.versioningComments.enable}}</versioningComments>
+            <versioningTags>{{staticConfiguration.versioningTags.enable}}</versioningTags>
+            <versioningRatings>{{staticConfiguration.versioningRatings.enable}}</versioningRatings>
+        </staticConfiguration>
 </wso2registry>
