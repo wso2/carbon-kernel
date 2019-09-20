@@ -181,9 +181,9 @@
   "monitoring.jmx.rmi_server_port": "11111",
   "monitoring.jmx.rmi_server_start": true,
   "monitoring.jmx.rmi_hostname": "$ref{server.hostname}",
-  "staticConfiguration.versioningProperties.enable": false,
-  "staticConfiguration.versioningComments.enable": false,
-  "staticConfiguration.versioningTags.enable": false,
-  "staticConfiguration.versioningRatings.enable":false
+  "static_configuration.versioning_properties.enable": false,
+  "static_configuration.versioning_comments.enable": false,
+  "static_configuration.versioning_tags.enable": false,
+  "static_configuration.versioning_ratings.enable": false
 
 }

@@ -170,5 +170,19 @@
     "RuleBased": {
       "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RuleBasedLocationResolver"
     }
+  },
+  "registory.static_configuration.enable": {
+        "true":{
+  "static_configuration.versioning_properties.enable": true,
+  "static_configuration.versioning_comments.enable": true,
+  "static_configuration.versioning_tags.enable": true,
+  "static_configuration.versioning_ratings.enable": true
+                                            },
+    "false": {
+      "static_configuration.versioning_properties.enable": false,
+      "static_configuration.versioning_comments.enable": false,
+      "static_configuration.versioning_tags.enable": false,
+      "static_configuration.versioning_ratings.enable": false
+             }
   }
 }
