@@ -115,4 +115,5 @@ public class UserStoreConfigConstants {
     public static final String CONNECTION_RETRY_DELAY_DISPLAY_NAME = "Connection Retry Delay";
     public static final String CONNECTION_RETRY_DELAY_DESCRIPTION = "Specifies waiting time in milliseconds"
             + " inorder to establish the connection after couple of failure attempts.";
+    public static final int DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS = 120000;
 }
