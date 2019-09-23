@@ -296,6 +296,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 AbstractUserStoreManager manager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
                 for (String role : allowedRoles) {
                     try {
+                        if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
+                            if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equalsIgnoreCase(role)) {
+                                userAllowed = true;
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
                         if (manager.isUserInRole(userName, role)) {
                             if (log.isDebugEnabled()) {
                                 log.debug(userName + " user is in role :  " + role);
