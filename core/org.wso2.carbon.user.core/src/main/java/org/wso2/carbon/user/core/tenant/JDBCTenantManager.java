@@ -807,7 +807,6 @@ public class JDBCTenantManager implements TenantManager {
             if (log.isDebugEnabled()) {
                 log.debug("Tenant domain contains trailing white spaces, tenantDomain: {" + tenantDomain + "}, "
                         + "current stack trace: \n" + printCurrentStackTrace().toString());
-
             }
         }
     }

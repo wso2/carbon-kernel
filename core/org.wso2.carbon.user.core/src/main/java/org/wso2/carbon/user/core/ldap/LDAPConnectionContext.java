@@ -216,7 +216,7 @@ public class LDAPConnectionContext {
         if (StringUtils.isNotEmpty(retryWaitingTime)) {
             thresholdTimeoutInMilliseconds = getThresholdTimeoutInMilliseconds(retryWaitingTime);
         } else {
-            thresholdTimeoutInMilliseconds = 120000;
+            thresholdTimeoutInMilliseconds = UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
         }
         // By-default set to close state.
         ldapConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
@@ -828,8 +828,8 @@ public class LDAPConnectionContext {
     /**
      * Convert retry waiting time string to long.
      *
-     * @param retryWaitingTime
-     * @return
+     * @param retryWaitingTime Retry waiting time as a string.
+     * @return Retry waiting time in milliseconds.
      * @throws UserStoreException
      */
     private long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {

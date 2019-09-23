@@ -25,6 +25,9 @@ public class MultitenantConstants {
 
     public static final String MULTITENANT_DISPATCHER_SERVICE = "__MultitenantDispatcherService";
     public static final QName MULTITENANT_DISPATCHER_OPERATION = new QName("dispatch");
+    public static final String MULTITENANT_CLIENT_OUT_SERVICE = "tenantClientService";
+    public static final QName MULTITENANT_CLIENT_SERVICE_IN_OUT_OPERATION = new QName("anonInOutOp");
+    public static final QName MULTITENANT_CLIENT_SERVICE_OUT_ONLY_OPERATION = new QName("anonOutonlyOp");
 
     public static final String TENANT_MR_STARTED_FAULT = "tenantMRStartedFault";
     public static final String TENANT_DOMAIN = "tenantDomain";

@@ -4244,7 +4244,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
-                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME, "120000",
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
+                String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
     }
 
