@@ -1,6 +1,7 @@
 {
   "server.default_cache_timeout": "15m",
-  "server.force_local_cache": false,
+  "server.force_local_cache": true,
+  "server.discard_empty_caches": false,
   "server.enableMTOM": "optional",
   "server.file_upload.file_size_limit": "100",
   "user_store.type": "database",
