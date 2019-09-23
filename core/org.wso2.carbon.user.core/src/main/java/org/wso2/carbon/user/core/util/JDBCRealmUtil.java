@@ -60,6 +60,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_USER_FILTER,
                     JDBCRealmConstants.GET_USER_FILTER_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE,
+                    JDBCRealmConstants.GET_USER_FILTER_SQL_WITH_ESCAPE);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED,
                     JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL);
@@ -312,6 +316,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE_WITH_ESCAPE);
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED,

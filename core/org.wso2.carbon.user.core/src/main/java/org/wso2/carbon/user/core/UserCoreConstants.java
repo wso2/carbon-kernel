@@ -46,6 +46,8 @@ public class UserCoreConstants {
 
     public static final String UM_TENANT_COLUMN = "UM_TENANT_ID";
 
+    public static final String SQL_ESCAPE_KEYWORD = "ESCAPE";
+
     public static final String SYSTEM_RESOURCE = "System";
     public static final String MSSQL_TYPE = "mssql";
     public static final String MYSQL_TYPE = "mysql";
