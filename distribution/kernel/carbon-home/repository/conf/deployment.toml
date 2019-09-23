@@ -1,8 +1,6 @@
 [server]
 hostname = "localhost"
 node_ip = "127.0.0.1"
-force_local_cache = true
-discard_empty_caches = false
 
 [user_store]
 type = "database"
