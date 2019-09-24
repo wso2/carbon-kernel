@@ -47,14 +47,15 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
     private static final String BLACKLISTED_THREADS_SYSTEM_PROPERTY =
             "org.wso2.CorrelationLogInterceptor.BlacklistedThreads";
-    private static final String DEFAULT_BLACKLISTED_THREAD = "MessageDeliveryTaskThreadPool";
+    private static final String[] DEFAULT_BLACKLISTED_THREADS = {"MessageDeliveryTaskThreadPool", "HumanTaskServer" ,
+            "BPELServer", "CarbonDeploymentSchedulerThread"};
     private List<String> blacklistedThreadList = new ArrayList<>();
 
     public CorrelationLogInterceptor() {
         String blacklistedThreadNames = System.getProperty(BLACKLISTED_THREADS_SYSTEM_PROPERTY);
 
         if (blacklistedThreadNames == null) {
-            blacklistedThreadList.add(DEFAULT_BLACKLISTED_THREAD);
+            blacklistedThreadList.addAll(Arrays.asList(DEFAULT_BLACKLISTED_THREADS));
         }
 
         if (!StringUtils.isEmpty(blacklistedThreadNames)) {
