@@ -61,6 +61,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -1181,8 +1182,7 @@ public class CarbonUtils {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Source xmlSource = new DOMSource(doc);
             Result result = new StreamResult(outputStream);
-            TransformerFactory factory = TransformerFactory.newInstance();
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            TransformerFactory factory = getSecureTransformerFactory();
             factory.newTransformer().transform(xmlSource, result);
             in = new ByteArrayInputStream(outputStream.toByteArray());
         } catch (TransformerException e) {
@@ -1190,7 +1190,19 @@ public class CarbonUtils {
         }
         return in;
     }
-	
+
+    /**
+     * Create a secure process enabled TransformerFactory
+     *
+     * @return
+     * @throws TransformerConfigurationException
+     */
+    public static TransformerFactory getSecureTransformerFactory() throws TransformerConfigurationException {
+
+        TransformerFactory factory = TransformerFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return factory;
+    }
 
     private static final boolean isWorkerNode = Boolean.parseBoolean(System.getProperty("workerNode"));
 

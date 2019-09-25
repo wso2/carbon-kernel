@@ -39,6 +39,8 @@ import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import static org.wso2.carbon.utils.CarbonUtils.getSecureTransformerFactory;
+
 /**
  *
  */
@@ -51,7 +53,7 @@ public class Utils {
         Source xmlStreamSource = new StreamSource(xmlStream);
         Source xslStreamSource = new StreamSource(xslStream);
         Result result = new StreamResult(outputStream);
-        Transformer transformer = TransformerFactory.newInstance().newTransformer(xslStreamSource);
+        Transformer transformer = getSecureTransformerFactory().newTransformer(xslStreamSource);
         transformer.transform(xmlStreamSource, result);
     }
 
