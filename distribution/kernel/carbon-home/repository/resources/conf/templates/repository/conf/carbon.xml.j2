@@ -425,6 +425,9 @@
       Enable following config to allow Emails as usernames.
     -->
     <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
+    {% if password_trim.enable is defined %}
+      <EnablePasswordTrim>{{password_trim.enable}}</EnablePasswordTrim>
+    {% endif %}
 
     <!--
       Security configurations
