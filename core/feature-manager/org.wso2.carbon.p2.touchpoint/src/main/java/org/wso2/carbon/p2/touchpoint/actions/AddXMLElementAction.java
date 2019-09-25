@@ -56,7 +56,7 @@ public class AddXMLElementAction extends ProvisioningAction{
                 nodes.item(0).appendChild(imported);
 
 
-                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                TransformerFactory transformerFactory = getSecureTransformerFactory();
                 Transformer transformer = transformerFactory.newTransformer();
                 transformer.transform(new DOMSource(document), new StreamResult(file));
 

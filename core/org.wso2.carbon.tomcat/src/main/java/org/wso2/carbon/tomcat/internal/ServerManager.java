@@ -59,6 +59,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import static org.wso2.carbon.utils.CarbonUtils.getSecureTransformerFactory;
+
 /**
  * Configuring,initialization and stopping the carbon tomcat instance
  */
@@ -315,7 +317,7 @@ public class ServerManager {
         Result outputTarget = new StreamResult(outputStream);
 
         try{
-            Transformer t = TransformerFactory.newInstance().newTransformer();
+            Transformer t = getSecureTransformerFactory().newTransformer();
             t.transform(new DOMSource(root), outputTarget);
             return new ByteArrayInputStream(outputStream.toByteArray());
         } catch (TransformerConfigurationException e) {
