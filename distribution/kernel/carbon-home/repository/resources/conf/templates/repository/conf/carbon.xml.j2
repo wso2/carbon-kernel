@@ -520,7 +520,7 @@
 	<!--Option to disable storing of tokens issued by STS-->
 	<DisableTokenStore>false</DisableTokenStore>
 
-    <STSCallBackHandlerName>{{sts_call_back_handler.name | default('org.wso2.carbon.identity.provider.AttributeCallbackHandler')}}</STSCallBackHandlerName>
+    <STSCallBackHandlerName>{{sts.callback_handler}}</STSCallBackHandlerName>
 	<!--
 	 Security token store class name. If this is not set, default class will be
 	 org.wso2.carbon.security.util.SecurityTokenStore
