@@ -149,6 +149,11 @@ public class SqlBuilder {
         }
     }
 
+    /**
+     * Get sql statement part only.
+     *
+     * @return SQL string.
+     */
     public String getSql() {
 
         return sql.toString();
