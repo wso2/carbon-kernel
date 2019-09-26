@@ -171,18 +171,18 @@
       "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RuleBasedLocationResolver"
     }
   },
-  "registory.static_configuration.enable": {
+  "registry.versioning_configuration.enable": {
     "true": {
-      "static_configuration.versioning_properties.enable": true,
-      "static_configuration.versioning_comments.enable": true,
-      "static_configuration.versioning_tags.enable": true,
-      "static_configuration.versioning_ratings.enable": true
+      "versioning_configuration.enable_versioning_properties": true,
+      "versioning_configuration.enable_versioning_comments": true,
+      "versioning_configuration.enable_versioning_tags": true,
+      "versioning_configuration.enable_versioning_ratings": true
     },
     "false": {
-      "static_configuration.versioning_properties.enable": false,
-      "static_configuration.versioning_comments.enable": false,
-      "static_configuration.versioning_tags.enable": false,
-      "static_configuration.versioning_ratings.enable": false
+      "versioning_configuration.enable_versioning_properties": false,
+      "versioning_configuration.enable_versioning_comments": false,
+      "versioning_configuration.enable_versioning_tags": false,
+      "versioning_configuration.enable_versioning_ratings": false
     }
   }
 }

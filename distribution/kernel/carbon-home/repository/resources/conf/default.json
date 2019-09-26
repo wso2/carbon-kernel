@@ -183,11 +183,11 @@
   "monitoring.jmx.rmi_server_port": "11111",
   "monitoring.jmx.rmi_server_start": true,
   "monitoring.jmx.rmi_hostname": "$ref{server.hostname}",
-  "static_configuration.versioning_properties.enable": false,
-  "static_configuration.versioning_comments.enable": false,
-  "static_configuration.versioning_tags.enable": false,
-  "static_configuration.versioning_ratings.enable": false,
-  "version_resources.on_change" : false,
+  "versioning_configuration.enable_versioning_properties": false,
+  "versioning_configuration.enable_versioning_comments": false,
+  "versioning_configuration.enable_versioning_tags": false,
+  "versioning_configuration.enable_versioning_ratings": false,
+  "versioning_configuration.enable_version_resources_on_change" : false,
   "sts.callback_handler" : "org.wso2.carbon.identity.provider.AttributeCallbackHandler"
 
 }
