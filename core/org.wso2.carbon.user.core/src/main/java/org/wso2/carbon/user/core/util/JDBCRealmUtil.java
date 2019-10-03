@@ -92,6 +92,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_USERS_IN_ROLE,
                     JDBCRealmConstants.GET_USERS_IN_ROLE_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER)) {
+            properties.put(JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER,
+                    JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_IS_USER_EXISTING)) {
             properties.put(JDBCRealmConstants.GET_IS_USER_EXISTING,
                     JDBCRealmConstants.GET_IS_USER_EXISTING_SQL);
@@ -258,6 +262,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE)) {
             properties.put(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE,
                     JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER)) {
+            properties.put(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER,
+                    JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER_SQL);
         }
 
         if (!properties.containsKey(JDBCRealmConstants.GET_USERS_ROLE)) {
