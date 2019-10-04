@@ -4256,8 +4256,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     public final String[] getUserListOfRole(String roleName, String filter, int maxItemLimit) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("getUserListOfRole", new Object[]{roleName, filter}, argTypes);
+            Class argTypes[] = new Class[]{String.class, String.class, int.class};
+            Object object = callSecure("getUserListOfRole", new Object[]{roleName, filter, maxItemLimit}, argTypes);
             return (String[]) object;
         }
 
