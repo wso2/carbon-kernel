@@ -217,6 +217,19 @@ public interface AuthorizationManager {
             throws UserStoreException;
 
     /**
+     * Returns the complete set of resources allowed for Role.
+     *
+     * @param roleName
+     * @return
+     * @throws UserStoreException
+     */
+    default String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException{
+        //This is new API addition and giving default empty implementation to give the backward compatibility.
+        return new String[0];
+    }
+
+    /**
      * This will get the tenant id associated with the user authorization
      * manager
      *
@@ -234,4 +247,11 @@ public interface AuthorizationManager {
     void resetPermissionOnUpdateRole(String roleName, String newRoleName)
             throws UserStoreException;
 
+    /**
+     * This method used to refresh the existing resource permissions which cached in the memory
+     *
+     * @param resourceId resource id path
+     * @throws UserStoreException if something went wrong
+     */
+    void refreshAllowedRolesForResource(String resourceId) throws UserStoreException;
 }

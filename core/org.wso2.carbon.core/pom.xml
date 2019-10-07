@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -43,11 +43,11 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
@@ -80,6 +80,10 @@
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -91,6 +95,10 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.crypto</groupId>
+            <artifactId>org.wso2.carbon.crypto.api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
@@ -99,8 +107,8 @@
             <artifactId>axis2</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.apache.neethi</groupId>
@@ -115,6 +123,10 @@
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
             <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -143,11 +155,52 @@
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.metatype.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -162,19 +215,14 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/component.xml</include>
+                    <include>**/**.xml</include>
                 </includes>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -211,6 +259,7 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
@@ -223,6 +272,13 @@
                         <exclude>**/PersistenceUtilsTest.java</exclude>
                         <exclude>**/PersistenceManagerTest.java</exclude>
                     </excludes>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-log4j2</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>

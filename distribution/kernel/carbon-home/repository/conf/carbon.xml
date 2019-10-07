@@ -260,6 +260,15 @@
                    <Include>*,!foo.com,!bar.com</Include>
             </EagerLoading>-->
         </LoadingPolicy>
+
+        <!-- Flag to enable or disable tenant deletion. By default tenant deletion is enabled-->
+        <TenantDelete>true</TenantDelete>
+
+        <!-- Configurations related to listener invocation by tenant admin service-->
+        <ListenerInvocationPolicy>
+            <!-- Flag to enable or disable listener invocation on tenant delete. This is disabled by default-->
+            <InvokeOnDelete>false</InvokeOnDelete>
+        </ListenerInvocationPolicy>
     </Tenant>
 
     <!--
@@ -268,6 +277,9 @@
     <Cache>
         <!-- Default cache timeout in minutes -->
         <DefaultCacheTimeout>15</DefaultCacheTimeout>
+        <!-- Force all caches to act as local -->
+        <ForceLocalCache>true</ForceLocalCache>
+        <DiscardEmptyCaches>false</DiscardEmptyCaches>
     </Cache>
 
     <!--
@@ -345,12 +357,39 @@
             <Description>Default User Role</Description>
         </Role>
     </ServiceUserRoles>
-    
+
+    <!--
+       Configurations related to Carbon Crypto Service which is a crypto framework used inside Carbon products.
+    -->
+    <CryptoService>
+
+        <Enabled>true</Enabled>
+
+        <!-- The crypto provider which is used for internal data encryption and decryption -->
+        <InternalCryptoProviderClassName>org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider</InternalCryptoProviderClassName>
+
+        <!--
+            The crypto provider which is used for the crypto needs which come when communicating with external parties.
+            e.g. Signing, Decrypting.
+        -->
+        <ExternalCryptoProviderClassName>org.wso2.carbon.core.encryption.KeyStoreBasedExternalCryptoProvider</ExternalCryptoProviderClassName>
+
+        <!--
+            The list of key resolvers which will be used based on the context when handling crypto with external parties.
+
+            e.g. Resolving the public key of an external entity.
+        -->
+        <KeyResolvers>
+            <KeyResolver className="org.wso2.carbon.crypto.defaultProvider.resolver.ContextIndependentKeyResolver" priority="-1"/>
+        </KeyResolvers>
+
+    </CryptoService>
+
     <!-- 
       Enable following config to allow Emails as usernames. 	
     -->	    	
-    <!--EnableEmailUserName>true</EnableEmailUserName-->	
-
+    <!--EnableEmailUserName>true</EnableEmailUserName-->
+    <!--EnablePasswordTrim>false</EnablePasswordTrim-->
     <!--
       Security configurations
     -->
@@ -371,6 +410,23 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
+
+        <!--
+            The KeyStore which is used for encrypting/decrypting internal data.
+            This block is read by Carbon Crypto Service.
+        -->
+        <InternalKeyStore>
+            <!-- Keystore file location-->
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>JKS</Type>
+            <!-- Keystore password-->
+            <Password>wso2carbon</Password>
+            <!-- Private Key alias-->
+            <KeyAlias>wso2carbon</KeyAlias>
+            <!-- Private Key password-->
+            <KeyPassword>wso2carbon</KeyPassword>
+        </InternalKeyStore>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all
@@ -416,13 +472,9 @@
         </NetworkAuthenticatorConfig>
 
         <!--
-         The Tomcat realm to be used for hosted Web applications. Allowed values are;
-         1. UserManager
-         2. Memory
-
+         The Tomcat realm to be used for hosted Web applications. Allowed value is UserManager.
          If this is set to 'UserManager', the realm will pick users & roles from the system's
-         WSO2 User Manager. If it is set to 'memory', the realm will pick users & roles from
-         CARBON_HOME/repository/conf/tomcat/tomcat-users.xml
+         WSO2 User Manager.
         -->
         <TomcatRealm>UserManager</TomcatRealm>
 
@@ -664,4 +716,5 @@
 	
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
+
 </Server>

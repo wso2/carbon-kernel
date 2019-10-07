@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -32,31 +32,27 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.http.servlet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>javax.servlet</artifactId>
+            <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.tomcat</groupId>
+            <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
             <artifactId>tomcat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.tomcat.ha</groupId>
+            <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina-ha</artifactId>
             <exclusions>
                 <exclusion>
@@ -66,8 +62,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -105,14 +101,27 @@
             <artifactId>powermock-module-testng</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.metatype.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -128,8 +137,17 @@
                         </Export-Package>
                         <Import-Package>
                             org.apache.tomcat.*
-                        </Import-Package>
-                        <Import-Package>
+                            org.apache.commons.logging,
+                            org.slf4j,
+                            javax.servlet,
+                            javax.servlet.http,
+                            com.google.gson,
+                            org.apache.catalina.valves.*,
+                            org.apache.catalina,
+                            org.apache.catalina.connector,
+                            org.apache.commons.lang,
+                            org.osgi.framework.*; version="${import.osgi.framework.version.range}",
+                            org.osgi.service.component.*; version="${import.osgi.service.component.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>

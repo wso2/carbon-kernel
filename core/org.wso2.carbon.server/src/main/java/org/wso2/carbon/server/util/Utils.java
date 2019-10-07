@@ -102,22 +102,25 @@ public class Utils {
         System.out.println("system-properties:");
         String confPath = System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH);
         System.out.println("\t-DosgiConsole=[port]\t\tStart Carbon with Equinox OSGi console. " +
-                           "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
+                "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
         if (confPath == null) {
             System.out.println("\t-DosgiDebugOptions=[options-file]" +
-                               "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
-                               "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
+                    "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
+                    "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
         } else {
             String relativeConfDirPath = Paths.get(System.getProperty(LauncherConstants.CARBON_HOME)).relativize(Paths.get(confPath)).toString();
             System.out.println("\t-DosgiDebugOptions=[options-file]" +
-                               "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
-                               "\n\t\t\t\t\tDebug options are loaded from the file " + relativeConfDirPath + "/etc/osgi-debug.options.");
+                    "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
+                    "\n\t\t\t\t\tDebug options are loaded from the file " + relativeConfDirPath + "/etc/osgi-debug.options.");
         }
         System.out.println("\t-Dsetup\t\t\t\tClean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon");
         System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
         System.out.println("\t-DserverRoles=<roles>\t\tA comma separated list of roles. Used in deploying cApps");
         System.out.println("\t-DworkerNode\t\t\tSet this system property when starting as a worker node.");
         System.out.println("\t-Dprofile=<profileName>\t\tStarts the server as the specified profile. e.g. worker profile.");
+        System.out.println("\t-DencryptSecrets=true\t\tEncrypt the secrets in deployment Configuration");
+        System.out.println("\t-DforceConfigUpdate=true\t\t Overwrite the Configurations");
+
         System.out.println("\t-Dtenant.idle.time=<time>\tIf a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.");
         System.out.println("\t\t\t\t\tThis is required in clustered setups with master and worker nodes.");
         System.out.println();
@@ -707,7 +710,7 @@ public class Utils {
         }
         File bundleConfigDir = new File(bundleConfigDirLocation);
         if(!bundleConfigDir.exists()) {
-          return null;
+            return null;
         }
         return bundleConfigDir;
     }

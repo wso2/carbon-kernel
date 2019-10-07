@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.server.extensions;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
@@ -40,6 +38,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -61,7 +61,7 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
         }
     }
 
-    private static final Log log = LogFactory.getLog(AxisServiceDeployerBundleCreator.class);
+    private static final Logger logger= Logger.getLogger(AxisServiceDeployerBundleCreator.class.getName());
 
     private static final int ENTITY_EXPANSION_LIMIT = 0;
 
@@ -154,9 +154,8 @@ public class AxisServiceDeployerBundleCreator implements CarbonLaunchExtension {
             dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
             dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
         } catch (ParserConfigurationException e) {
-            log.error(
-                    "Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
-                            Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
+            logger.log(Level.SEVERE,"Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
+                    Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE);
         }
 
         SecurityManager securityManager = new SecurityManager();

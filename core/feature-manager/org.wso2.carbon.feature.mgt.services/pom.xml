@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>feature-manager</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -32,8 +32,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -54,23 +54,23 @@
             <artifactId>org.wso2.carbon.feature.mgt.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.engine</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
     </dependencies>

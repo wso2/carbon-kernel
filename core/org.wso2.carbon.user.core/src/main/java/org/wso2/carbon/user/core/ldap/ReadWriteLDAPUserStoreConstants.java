@@ -63,7 +63,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 "uid", UserStoreConfigConstants.userNameAttributeDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
-                "(&amp;(objectClass=person)(uid=?))", UserStoreConfigConstants
+                "(&(objectClass=person)(uid=?))", UserStoreConfigConstants
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
@@ -81,7 +81,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 UserStoreConfigConstants.groupEntryObjectClassDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn",
                 UserStoreConfigConstants.groupNameAttributeDescription);
-        setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=groupOfNames)(cn=?))",
+        setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&(objectClass=groupOfNames)(cn=?))",
                 UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
@@ -104,7 +104,8 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.roleNameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty("UniqueID", "", "", "");
-
+        setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
+                "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

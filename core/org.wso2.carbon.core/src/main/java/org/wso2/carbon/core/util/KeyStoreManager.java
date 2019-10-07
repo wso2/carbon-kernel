@@ -48,6 +48,7 @@ public class KeyStoreManager {
 
     private KeyStore primaryKeyStore = null;
     private KeyStore registryKeyStore = null;
+    private KeyStore internalKeyStore = null;
     private static ConcurrentHashMap<String, KeyStoreManager> mtKeyStoreManagers =
             new ConcurrentHashMap<String, KeyStoreManager>();
     private static Log log = LogFactory.getLog(KeyStoreManager.class);
@@ -334,7 +335,43 @@ public class KeyStoreManager {
             }
             return primaryKeyStore;
         } else {
-            throw new CarbonException("Permission denied for accessing primary key store");
+            throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
+                    "available only for the super tenant.");
+        }
+    }
+
+    /**
+     * Load the internal key store, this is allowed only for the super tenant
+     *
+     * @return internal key store object
+     * @throws Exception Carbon Exception when trying to call this method from a tenant other
+     *                   than tenant 0
+     */
+    public KeyStore getInternalKeyStore() throws Exception {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            if (internalKeyStore == null) {
+                ServerConfigurationService config = this.getServerConfigService();
+                if (config.
+                        getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_FILE) == null) {
+                    return null;
+                }
+                String file = new File(config
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_FILE))
+                        .getAbsolutePath();
+                KeyStore store = KeyStore.getInstance(config
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_TYPE));
+                String password = config
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_PASSWORD);
+                try (FileInputStream in = new FileInputStream(file)) {
+                    store.load(in, password.toCharArray());
+                    internalKeyStore = store;
+                }
+            }
+            return internalKeyStore;
+        } else {
+            throw new CarbonException("Permission denied for accessing internal key store. The internal key store is " +
+                    "available only for the super tenant.");
         }
     }
     
@@ -375,7 +412,8 @@ public class KeyStoreManager {
             }
             return registryKeyStore;
         } else {
-            throw new CarbonException("Permission denied for accessing registry key store");
+            throw new CarbonException("Permission denied for accessing registry key store. The registry key store is" +
+                    " available only for the super tenant.");
         }
     }
 
@@ -394,7 +432,8 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
             return (PrivateKey) primaryKeyStore.getKey(alias, password.toCharArray());
         }
-        throw new CarbonException("Permission denied for accessing primary key store");
+        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
+                "available only for the super tenant.");
     }
 
     /**
@@ -410,7 +449,8 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
             return (PublicKey) primaryKeyStore.getCertificate(alias).getPublicKey();
         }
-        throw new CarbonException("Permission denied for accessing primary key store");
+        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
+                "available only for the super tenant.");
     }
 
     /**
@@ -425,7 +465,8 @@ public class KeyStoreManager {
             return config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
         }
-        throw new CarbonException("Permission denied for accessing primary key store");
+        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
+                "available only for the super tenant.");
     }
 
     /**
@@ -441,7 +482,8 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
             return (X509Certificate) getPrimaryKeyStore().getCertificate(alias);
         }
-        throw new CarbonException("Permission denied for accessing primary key store");
+        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
+                "available only for the super tenant.");
     }
 
     private boolean isCachedKeyStoreValid(String keyStoreName) {

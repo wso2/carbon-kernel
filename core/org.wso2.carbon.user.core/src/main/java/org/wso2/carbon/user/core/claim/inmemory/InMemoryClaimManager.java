@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.claim.ClaimKey;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.DefaultClaimManager;
@@ -62,7 +63,11 @@ public class InMemoryClaimManager implements ClaimManager {
 
 
     public InMemoryClaimManager() throws UserStoreException {
-        claimMapping = claimConfig.getClaims();
+        //Convert the new data structure to the existing model to make this backward compatible.
+        Map<ClaimKey, ClaimMapping> tmpClaimMap = claimConfig.getClaimMap();
+        for (Map.Entry<ClaimKey, ClaimMapping> entry : tmpClaimMap.entrySet()) {
+            claimMapping.put(entry.getKey().getClaimUri(), entry.getValue());
+        }
     }
 
     /**
@@ -186,7 +191,7 @@ public class InMemoryClaimManager implements ClaimManager {
     @Override
     public void addNewClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping)
             throws UserStoreException{
-        claimMapping.put(mapping.getClaim().getClaimUri(), (ClaimMapping) claimMapping);
+        claimMapping.put(mapping.getClaim().getClaimUri(), (ClaimMapping) mapping);
     }
 
     /**
@@ -194,13 +199,13 @@ public class InMemoryClaimManager implements ClaimManager {
      */
     public void updateClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping)
             throws UserStoreException{
-        claimMapping.remove(mapping);
-        claimMapping.put(mapping.getClaim().getClaimUri(), (ClaimMapping) claimMapping);
+        claimMapping.remove(mapping.getClaim().getClaimUri());
+        claimMapping.put(mapping.getClaim().getClaimUri(), (ClaimMapping) mapping);
     }
     /**
      * {@inheritDoc}
      */
     public void deleteClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping) throws UserStoreException {
-        claimMapping.remove(mapping);
+        claimMapping.remove(mapping.getClaim().getClaimUri());
     }
 }

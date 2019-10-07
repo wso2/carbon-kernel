@@ -38,6 +38,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.CarbonAxisConfigurator;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.deployment.CarbonDeploymentSchedulerTask;
 import org.wso2.carbon.core.deployment.DeploymentInterceptor;
 import org.wso2.carbon.core.deployment.RegistryBasedRepository;
@@ -528,7 +529,8 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
     protected void startSearch(RepositoryListener listener) {
         schedulerTask = new CarbonDeploymentSchedulerTask(listener, axisConfig,
                                                           tenantId, tenantDomain);
-        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors
+                .newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("TenantDeploymentSchedulerThread")));
         String deploymentInterval =
                 CarbonCoreDataHolder.getInstance().
                         getServerConfigurationService().getFirstProperty("Axis2Config.DeploymentUpdateInterval");

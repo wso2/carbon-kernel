@@ -21,14 +21,26 @@ import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringConstants;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent;
 
 /**
  *
  */
 public class ClusteringUtil {
+    private static final Log log = LogFactory.getLog(ClusteringUtil.class);
     private static boolean isClusteringAgentInitialized;
 
+    /**
+     *
+     * @param configContext
+     * @throws AxisFault
+     * @Depricated usage of this method has been moved to OSGI component activation and deactivation.
+     */
+    @Deprecated
     public static void enableClustering(ConfigurationContext configContext) throws AxisFault {
+        log.warn("ClusteringUtil.enableClustering(ConfigurationContext) will not be supported in future.");
         AxisConfiguration axisConfig = configContext.getAxisConfiguration();
         ClusteringAgent clusteringAgent = axisConfig.getClusteringAgent();
         if (clusteringAgent != null) {

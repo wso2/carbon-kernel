@@ -32,14 +32,22 @@ import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstan
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
+import org.wso2.carbon.utils.xml.StringUtils;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.sql.DataSource;
+
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 
 public class HybridRoleManager {
 
@@ -122,7 +130,14 @@ public class HybridRoleManager {
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            throw new UserStoreException(errorMessage, e);
+            if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(((UserStoreException) e)
+                    .getErrorCode())) {
+                // Duplicate entry
+                throw new UserStoreException(e.getMessage(), ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), e);
+            } else {
+                // Other SQL Exception
+                throw new UserStoreException(e.getMessage(), e);
+            }
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting database type from DB connection";
             if (log.isDebugEnabled()) {
@@ -232,8 +247,9 @@ public class HybridRoleManager {
             }
 
             dbConnection.setAutoCommit(false);
-            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-
+            if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+                dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, filter);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -320,6 +336,9 @@ public class HybridRoleManager {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
+        if (!isCaseSensitiveUsername()) {
+            sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE;
+        }
         Connection dbConnection = null;
 
         try {
@@ -384,33 +403,52 @@ public class HybridRoleManager {
      */
     public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
 
-        String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
         String sqlStmt;
-        if (isCaseSensitiveUsername()) {
-            sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-        } else {
-            sqlStmt = JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
-        }
-
-        if (getRoleListOfUserSQLConfig != null && !getRoleListOfUserSQLConfig.equals("")) {
-            sqlStmt = getRoleListOfUserSQLConfig;
-        }
-
         Connection dbConnection = null;
+        String[] roles;
+        userName = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+        String domain = UserCoreUtil.extractDomainFromName(userName);
+        // ########### Domain-less Roles and Domain-aware Users from here onwards #############
         try {
-
-            userName = UserCoreUtil.addDomainToName(userName, getMyDomainName());
-            String domain = UserCoreUtil.extractDomainFromName(userName);
-            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
-
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
+            if (filter.equals("*") || StringUtils.isEmpty(filter)) {
+                sqlStmt = getHybridRoleListSqlStatement(
+                        realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER),
+                        HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL,
+                        JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE);
+                roles = DatabaseUtil
+                        .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
+                                tenantId, tenantId, tenantId, domain);
+            } else if (filter.contains("*") || filter.contains("?")) {
+                filter = filter.trim();
+                filter = filter.replace("*", "%");
+                filter = filter.replace("?", "_");
+                sqlStmt = getHybridRoleListSqlStatement(
+                        realmConfig.getRealmProperty(HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
+                        HybridJDBCConstants.GET_ROLE_OF_USER_SQL,
+                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
 
-            String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
-                    UserCoreUtil.removeDomainFromName(userName), tenantId, tenantId, tenantId, domain);
+                // If the filter contains the internal domain, then here we remove the internal domain from the filter
+                // as the database only has the role name without the internal domain.
+                filter = truncateInternalDomainFromFilter(filter);
+                roles = DatabaseUtil
+                        .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
+                                tenantId, tenantId, tenantId, domain, filter);
+            } else {
+                sqlStmt = getHybridRoleListSqlStatement(
+                        realmConfig.getRealmProperty(HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
+                        HybridJDBCConstants.GET_USER_ROLE_NAME_SQL,
+                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
+
+                filter = truncateInternalDomainFromFilter(filter);
+                roles = DatabaseUtil
+                        .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
+                                tenantId, tenantId, tenantId, domain, filter);
+            }
 
             if (!CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                 // Adding everyone role
@@ -420,16 +458,14 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    if(!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                               + role;
+                    if (!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR + role;
                     }
                     if (role.equals(realmConfig.getEveryOneRoleName())) {
                         isEveryone = true;
                     }
                     allRoles.add(role);
                 }
-
                 if (!isEveryone) {
                     allRoles.add(realmConfig.getEveryOneRoleName());
                 }
@@ -449,6 +485,115 @@ public class HybridRoleManager {
     }
 
     /**
+     * If the filter contains the internal domain, then here we remove the internal domain from the filter
+     * as the database only has the role name without the internal domain.
+     *
+     * @param filter raw filter
+     * @return truncated filter without the internal domain
+     */
+    private String truncateInternalDomainFromFilter(String filter) {
+
+        String filterLowerCased = filter.toLowerCase();
+
+        if (filterLowerCased.contains(UserCoreConstants.INTERNAL_DOMAIN_LOWER_CASED)
+                && filterLowerCased.indexOf(UserCoreConstants.INTERNAL_DOMAIN_LOWER_CASED) == 0) {
+            int index;
+            if ((index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
+                filter = filter.substring(index + 1);
+            }
+        }
+        return filter;
+    }
+
+    /**
+     * Get hybrid role list of users
+     *
+     * @param userNames user name list
+     * @return map of hybrid role list of users
+     * @throws UserStoreException userStoreException
+     */
+    public Map<String, List<String>> getHybridRoleListOfUsers(List<String> userNames, String domainName) throws
+            UserStoreException {
+
+        Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
+        String sqlStmt = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
+        StringBuilder usernameParameter = new StringBuilder();
+        if (isCaseSensitiveUsername()) {
+            if (StringUtils.isEmpty(sqlStmt)) {
+                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
+            }
+            for (int i = 0; i < userNames.size(); i++) {
+
+                usernameParameter.append("'").append(userNames.get(i)).append("'");
+
+                if (i != userNames.size() - 1) {
+                    usernameParameter.append(",");
+                }
+            }
+        } else {
+            if (sqlStmt == null) {
+                sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
+            }
+            for (int i = 0; i < userNames.size(); i++) {
+
+                usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
+
+                if (i != userNames.size() - 1) {
+                    usernameParameter.append(",");
+                }
+            }
+        }
+
+        sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+        try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
+                PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
+            prepStmt.setString(4, domainName);
+            try (ResultSet resultSet = prepStmt.executeQuery()) {
+                while (resultSet.next()) {
+                    String userName = resultSet.getString(1);
+                    if (!userNames.contains(userName)) {
+                        continue;
+                    }
+
+                    String roleName = resultSet.getString(2);
+                    List<String> userRoles = hybridRoleListOfUsers.get(userName);
+                    if (userRoles == null) {
+                        userRoles = new ArrayList<>();
+                        hybridRoleListOfUsers.put(userName, userRoles);
+                    }
+
+                    if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        roleName = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+                    }
+                    userRoles.add(roleName);
+                }
+            }
+
+            for (String userName : userNames) {
+                List<String> hybridRoles = hybridRoleListOfUsers.get(userName);
+                if (hybridRoles == null) {
+                    hybridRoles = new ArrayList<>();
+                    hybridRoleListOfUsers.put(userName, hybridRoles);
+                }
+                if (!hybridRoles.contains(realmConfig.getEveryOneRoleName())
+                        && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
+                    hybridRoles.add(realmConfig.getEveryOneRoleName());
+                }
+            }
+        } catch (SQLException e) {
+            String errorMessage =
+                    "Error occurred while getting hybrid role list of users : " + Arrays.toString(userNames.toArray())
+                            + " in domain: " + domainName;
+            throw new UserStoreException(errorMessage, e);
+        }
+
+        return hybridRoleListOfUsers;
+    }
+
+    /**
      * @param user
      * @param deletedRoles
      * @param addRoles
@@ -459,6 +604,9 @@ public class HybridRoleManager {
 
         String sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL;
         String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL;
+        if(!isCaseSensitiveUsername()){
+            sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE;
+        }
         Connection dbConnection = null;
 
         try {
@@ -482,12 +630,25 @@ public class HybridRoleManager {
                         tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
             }
             if (addRoles != null && addRoles.length > 0) {
+                ArrayList<String> newRoleList = new ArrayList<>();
+                for (String role : addRoles) {
+                    if(!isExistingRole(role)){
+                        String errorMessage = "The role: " + role + " does not exist.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                    if (!isUserInRole(user, role)) {
+                        newRoleList.add(role);
+                    }
+                }
+
+                String[] rolesToAdd = newRoleList.toArray(new String[newRoleList.size()]);
+
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
-                            tenantId, addRoles, tenantId);
+                            tenantId, rolesToAdd, tenantId);
                 } else {
-                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, addRoles,
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, rolesToAdd,
                             tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
                 }
             }
@@ -612,8 +773,20 @@ public class HybridRoleManager {
         String[] roles = getHybridRoleListOfUser(userName, "*");
         if (roles != null && roleName != null) {
             for (String role : roles) {
-                if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
-                    return true;
+                if (roleName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                    if (role.equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
+                } else {
+                    if (UserCoreUtil.removeDomainFromName(role).equalsIgnoreCase(roleName)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Role: " + roleName + " is already assigned to the user: " + userName);
+                        }
+                        return true;
+                    }
                 }
             }
         }
@@ -675,9 +848,14 @@ public class HybridRoleManager {
             domain = domain.toUpperCase();
         }
 
+        String sqlStmt = HybridJDBCConstants.REMOVE_USER_SQL;
+        if (!isCaseSensitiveUsername()) {
+            sqlStmt = HybridJDBCConstants.REMOVE_USER_SQL_CASE_INSENSITIVE;
+        }
+
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            preparedStatement = dbConnection.prepareStatement(HybridJDBCConstants.REMOVE_USER_SQL);
+            preparedStatement = dbConnection.prepareStatement(sqlStmt);
             preparedStatement.setString(1, UserCoreUtil.removeDomainFromName(userName));
             preparedStatement.setInt(2, tenantId);
             preparedStatement.setInt(3, tenantId);
@@ -740,4 +918,27 @@ public class HybridRoleManager {
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 
+    /**
+     * Get the SQL statement for HybridRole.
+     *
+     * @param getRoleListOfUserSQLConfig    query for getting role set from resource property.
+     * @param caseSensitiveUsernameQuery    query for getting role with case sensitive username.
+     * @param nonCaseSensitiveUsernameQuery query for getting role with non-case sensitive username.
+     * @return sql statement.
+     * @throws UserStoreException
+     */
+    private String getHybridRoleListSqlStatement(String getRoleListOfUserSQLConfig, String caseSensitiveUsernameQuery,
+            String nonCaseSensitiveUsernameQuery) throws UserStoreException {
+
+        String sqlStmt;
+        if (isCaseSensitiveUsername()) {
+            sqlStmt = caseSensitiveUsernameQuery;
+        } else {
+            sqlStmt = nonCaseSensitiveUsernameQuery;
+        }
+        if (!StringUtils.isEmpty(getRoleListOfUserSQLConfig)) {
+            sqlStmt = getRoleListOfUserSQLConfig;
+        }
+        return sqlStmt;
+    }
 }

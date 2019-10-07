@@ -30,13 +30,16 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.startup.Catalina;
+import org.apache.catalina.startup.CatalinaBaseConfigurationSource;
 import org.apache.catalina.startup.Constants;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.coyote.http11.Http11NioProtocol;
+import org.apache.jasper.servlet.JasperInitializer;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.digester.Digester;
+import org.apache.tomcat.util.file.ConfigFileLoader;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.tomcat.CarbonTomcatException;
@@ -51,7 +54,6 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -119,6 +121,10 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
     @SuppressWarnings("unused")
     public void setServer(Server server) {
         this.server = server;
+        initBaseDir();
+
+        // Set configuration source
+        ConfigFileLoader.setSource(new CatalinaBaseConfigurationSource(new File(basedir), null));
     }
 
 
@@ -161,14 +167,11 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
     }
 
     private Host findHost() {
-        if (this.host == null) {
-            Engine engine = findEngine();
-            String defaultHost = engine.getDefaultHost();
-            Container child = engine.findChild(defaultHost);
-            return (Host) child;
-        } else {
-            return this.host;
-        }
+
+        Engine engine = findEngine();
+        String defaultHost = engine.getDefaultHost();
+        Container child = engine.findChild(defaultHost);
+        return (Host) child;
     }
 
     public void init() throws LifecycleException {
@@ -255,13 +258,15 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             ctx.setPath(contextPath);
             ctx.setDocBase(webappFilePath);
             ctx.setRealm(host.getRealm());
-            //We dont need to init the DefaultWebXML since we maintain a web.xml file for a carbon server.
+            // We dont need to init the DefaultWebXML since we maintain a web.xml file for a carbon server.
             // hence removing ctx.addLifecycleListener(new Tomcat.DefaultWebXmlListener()); code
             if (lifecycleListener != null) {
                 ctx.addLifecycleListener(lifecycleListener);
             }
             SCIRegistrarContextConfig sciRegistrarContextConfig = new SCIRegistrarContextConfig();
             ctx.addLifecycleListener(sciRegistrarContextConfig);
+            ctx.addServletContainerInitializer(new JasperInitializer(), null);
+
             // Set global webXml to this context
             if (new File(globalWebXml).exists()) {
                 sciRegistrarContextConfig.setDefaultWebXml(globalWebXml);
@@ -270,7 +275,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             }
 
             if (new File(globalContextXml).exists()) {
-                sciRegistrarContextConfig.setDefaultContextXml(globalContextXml);
+                ((StandardContext) ctx).setDefaultContextXml(globalContextXml);
             }
 
             File f = new File(webappFilePath);

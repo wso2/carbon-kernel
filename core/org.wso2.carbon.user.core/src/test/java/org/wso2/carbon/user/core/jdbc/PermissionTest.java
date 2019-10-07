@@ -78,7 +78,7 @@ public class PermissionTest extends BaseTestCase {
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
-                .getProfileTestData(), 0);
+                .getProfileTestData(), -1234);
     }
 
     public void checkPermission() throws Exception {

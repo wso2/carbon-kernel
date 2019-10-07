@@ -21,11 +21,17 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.bootstrap.logging.DefaultLoggingBridge;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.bootstrap.logging.LoggingBridgeRegister;
+import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 
 import java.util.Enumeration;
 
+/**
+ * @deprecated Replaced by pax-logging Activator
+ */
+@Deprecated
 public class CarbonLoggingActivator  implements BundleActivator{
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -35,9 +41,11 @@ public class CarbonLoggingActivator  implements BundleActivator{
             Appender appender = it.nextElement();
             if(appender instanceof LoggingBridge){
                 LoggingBridgeRegister.addAppender(appender.getName(), (LoggingBridge)appender);
+            } else {
+                LoggingBridgeRegister.addAppender(appender.getName(), new DefaultLoggingBridge());
             }
          }
-
+        LoggingUtils.clear();
     }
 
     @Override

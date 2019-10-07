@@ -18,10 +18,13 @@
 
 package org.wso2.carbon.bootstrap.logging;
 
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @deprecated Pax-logging has an in-built mechanism for bridging to Log4J2.
+ */
+@Deprecated
 public class LoggingBridgeRegister {
 
     private static Map<String, LoggingBridge> loggingBridgeMap = new ConcurrentHashMap<String, LoggingBridge>();

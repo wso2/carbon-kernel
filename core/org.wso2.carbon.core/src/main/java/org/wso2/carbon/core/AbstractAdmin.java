@@ -60,7 +60,13 @@ public abstract class AbstractAdmin {
 
     protected AxisConfiguration getAxisConfig() {
         checkAdminService();
-        return (axisConfig != null) ? axisConfig : getConfigContext().getAxisConfiguration();
+        if (axisConfig != null) {
+            return axisConfig;
+        } else if (getConfigContext() != null) {
+            return getConfigContext().getAxisConfiguration();
+        } else {
+            return null;
+        }
     }
 
     protected ConfigurationContext getConfigContext() {

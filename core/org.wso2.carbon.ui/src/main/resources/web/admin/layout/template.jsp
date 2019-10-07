@@ -24,6 +24,7 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="org.wso2.carbon.utils.multitenancy.MultitenantConstants" %>
 <%@ page import="org.wso2.carbon.base.ServerConfiguration" %>
+<%@ page import="org.owasp.csrfguard.CsrfGuard" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
  <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -113,7 +114,13 @@
     <link rel="icon" href="../admin/images/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="../admin/images/favicon.ico" type="image/x-icon"/>
 
-    <script type="text/javascript" src="../admin/js/csrfPrevention.js"></script>
+    <%
+        if (CsrfGuard.getInstance().isEnabled()) {
+    %>
+            <script type="text/javascript" src="../admin/js/csrfPrevention.js"></script>
+    <%
+        }
+    %>
     <script type="text/javascript" src="../admin/js/jquery-1.6.3.min.js"></script>
     <script type="text/javascript" src="../admin/js/jquery.form.js"></script>
     <script type="text/javascript" src="../dialog/js/jqueryui/jquery-ui.min.js"></script>
@@ -140,9 +147,13 @@
 		<%
 		while (itrCollapsedMenuItems.hasNext()) {
 			String menuItem = (String) itrCollapsedMenuItems.next();
-			out.print("if(getCookie('" + menuItem + "') == null){\n");
-			out.print("  setCookie('" + menuItem + "', 'none');\n");
-			out.print("}\n");
+            out.print("if(getCookie('" + menuItem + "') == null){\n");
+            out.print("if (window.location.protocol == \"https:\"){\n");
+            out.print("  setCookie('" + menuItem + "', 'none','','','secure');\n");
+            out.print("} else {");
+            out.print("  setCookie('" + menuItem + "', 'none');\n");
+            out.print("}\n");
+            out.print("}\n");
 		}
 		%>
 		</script>

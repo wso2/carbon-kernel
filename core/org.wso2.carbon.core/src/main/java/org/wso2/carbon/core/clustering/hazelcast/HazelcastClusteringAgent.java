@@ -17,15 +17,35 @@
 */
 package org.wso2.carbon.core.clustering.hazelcast;
 
-import com.hazelcast.config.*;
-import com.hazelcast.core.*;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MemberAttributeConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.config.XmlConfigBuilder;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastException;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
+import com.hazelcast.core.ILock;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+import com.hazelcast.core.Message;
+import com.hazelcast.core.MessageListener;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.clustering.*;
+import org.apache.axis2.clustering.ClusteringAgent;
+import org.apache.axis2.clustering.ClusteringCommand;
+import org.apache.axis2.clustering.ClusteringConstants;
+import org.apache.axis2.clustering.ClusteringFault;
+import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.clustering.control.ControlCommand;
 import org.apache.axis2.clustering.management.DefaultGroupManagementAgent;
 import org.apache.axis2.clustering.management.GroupManagementAgent;
@@ -41,31 +61,46 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonBaseUtils;
+import org.wso2.carbon.base.api.IdempotentMessage;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.general.GeneralMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import javax.xml.namespace.QName;
 
 /**
  * This is the main ClusteringAgent class which is based on Hazelcast
@@ -99,6 +134,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private HazelcastMembershipScheme membershipScheme;
     private ConfigurationContext configurationContext;
     private ITopic<ClusteringMessage> clusteringMessageTopic;
+    private ITopic<IdempotentWrappedClusteringMessage> idempotentNonReliableMessageTopic;
     private ITopic<GroupManagementCommand> groupManagementTopic;
     private List<ClusteringMessage> sentMsgsBuffer = new CopyOnWriteArrayList<ClusteringMessage>();
 
@@ -123,6 +159,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private boolean clusterManagementMode;
     private String primaryDomain;
     private boolean isCoordinator;
+    private static final String LOCAL_MEMBER_IDENTIFIER = "localMemberIdentifier";
+    private HazelcastDistributedMapProvider distributedMapProvider;
+    private HazelcastCarbonClusterImpl hazelcastCarbonCluster;
+    private ScheduledExecutorService msgCleanupScheduler;
+    private String clusterNodeId;
 
     public void init() throws ClusteringFault {
         MemberUtils.init(parameters, configurationContext);
@@ -132,6 +173,13 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         int configMode = getConfigMode();
         primaryHazelcastConfig = loadHazelcastConfig(configMode);
+
+        Parameter localParameter = getParameter(LOCAL_MEMBER_IDENTIFIER);
+        if (localParameter != null) {
+            MemberAttributeConfig memberAttributeConfig = new MemberAttributeConfig();
+            memberAttributeConfig.setStringAttribute(localParameter.getName(), localParameter.getValue().toString());
+            primaryHazelcastConfig.setMemberAttributeConfig(memberAttributeConfig);
+        }
 
         if (clusterManagementMode) {
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
@@ -144,13 +192,20 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             }
         }
         long start = System.currentTimeMillis();
+        log.info("Hazelcast cluster is initializing...");
         primaryHazelcastInstance = Hazelcast.newHazelcastInstance(primaryHazelcastConfig);
         log.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
-        HazelcastCarbonClusterImpl hazelcastCarbonCluster = new HazelcastCarbonClusterImpl(primaryHazelcastInstance);
+        hazelcastCarbonCluster = new HazelcastCarbonClusterImpl(primaryHazelcastInstance);
+        clusterNodeId = generateLocalNodeId(primaryHazelcastInstance);
 
         clusteringMessageTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
         clusteringMessageTopic.addMessageListener(new HazelcastClusterMessageListener(configurationContext,
-                                                                                      recdMsgsBuffer, sentMsgsBuffer));
+                recdMsgsBuffer, sentMsgsBuffer));
+        idempotentNonReliableMessageTopic = primaryHazelcastInstance.getTopic(
+                HazelcastConstants.CLUSTER_IDEMPOTENT_NON_RELIABLE_MESSAGE_TOPIC);
+        HazelcastIdempotentClusterMessageListener idempotentClusterMessageListener =
+                new HazelcastIdempotentClusterMessageListener(configurationContext, clusterNodeId);
+        idempotentNonReliableMessageTopic.addMessageListener(idempotentClusterMessageListener);
         groupManagementTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.GROUP_MGT_CMD_TOPIC);
         groupManagementTopic.addMessageListener(new GroupManagementCommandListener(configurationContext));
         ITopic<ControlCommand> controlCommandTopic = primaryHazelcastInstance.getTopic(HazelcastConstants.CONTROL_COMMAND_TOPIC);
@@ -229,21 +284,70 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             lock.unlock();
             log.debug("Released the CLUSTER_COORDINATOR_LOCK lock.");
         }
+
+        distributedMapProvider = new HazelcastDistributedMapProvider(primaryHazelcastInstance);
         //-- Coordinator election algorithm ends here.
 
-        BundleContext bundleContext = CarbonCoreDataHolder.getInstance().
-                getBundleContext();
-        bundleContext.registerService(DistributedMapProvider.class,
-                                      new HazelcastDistributedMapProvider(primaryHazelcastInstance),
-                                      null);
-        bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
-        bundleContext.registerService(CarbonCluster.class,
-                                      hazelcastCarbonCluster, null);
-        ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
+        registerOsgiServices();
+        msgCleanupScheduler = Executors
+                .newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("ClusterMsgCleanupThread")));
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
 
         log.info("Cluster initialization completed");
+    }
+
+    /**
+     * Generates the node ID for the cluster node.
+     *
+     * @param hazelcastInstance
+     * @return
+     */
+    private String generateLocalNodeId(HazelcastInstance hazelcastInstance) {
+
+        if (hazelcastInstance != null && hazelcastInstance.getCluster() != null &&
+                hazelcastInstance.getCluster().getLocalMember() != null) {
+            return hazelcastInstance.getCluster().getLocalMember().getUuid();
+        } else {
+            return clusterNodeId != null ? clusterNodeId : UUID.randomUUID().toString();
+        }
+    }
+
+    public DistributedMapProvider getDistributedMapProvider() {
+
+        return distributedMapProvider;
+    }
+
+    public HazelcastInstance getPrimaryHazelcastInstance() {
+
+        return primaryHazelcastInstance;
+    }
+
+    public CarbonCluster getCarbonCluster() {
+
+        return hazelcastCarbonCluster;
+    }
+
+    /**
+     * Registers OSGI services by the agent.
+     *
+     * @deprecated Accessing OSGI environment from other code is bad practice.
+     * This code exists to keep backward compatibility, and will be removed in future. Date 2018-July-26
+     */
+    @Deprecated
+    private void registerOsgiServices() {
+
+        BundleContext bundleContext = CarbonCoreDataHolder.getInstance().
+                getBundleContext();
+        if (bundleContext == null) {
+            return;
+        }
+        bundleContext.registerService(DistributedMapProvider.class,
+                                      distributedMapProvider,
+                                      null);
+        bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
+        bundleContext.registerService(CarbonCluster.class,
+                                      hazelcastCarbonCluster, null);
     }
 
     /**
@@ -504,7 +608,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                 log.error(msg);
                 throw new ClusteringFault(msg);
             }
-        } //TODO: AWS membership scheme support
+        }
     }
 
     private void initiateCustomMembershipScheme(Parameter classNameParameter, Config primaryHazelcastConfig) throws ClusteringFault {
@@ -595,6 +699,9 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         try {
             Hazelcast.shutdownAll();
         } catch (Exception ignored) {
+        }
+        if (msgCleanupScheduler != null) {
+            msgCleanupScheduler.shutdown();
         }
     }
 
@@ -703,22 +810,60 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
     public List<ClusteringCommand> sendMessage(ClusteringMessage clusteringMessage,
                                                boolean isSync) throws ClusteringFault {
-        if (!sentMsgsBuffer.contains(clusteringMessage)) {
-            sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
+
+        if (isIdempotent(clusteringMessage)) {
+            //Wrap with idempotent message and send
+            IdempotentWrappedClusteringMessage idempotentWrappedClusteringMessage = new IdempotentWrappedClusteringMessage(clusteringMessage);
+            idempotentWrappedClusteringMessage.setClusterNodeId(clusterNodeId);
+            sendToTopic(idempotentNonReliableMessageTopic, idempotentWrappedClusteringMessage);
+            return Collections.emptyList();
+        } else {
+
+            if (!sentMsgsBuffer.contains(clusteringMessage)) {
+                sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
+            }
+            sendToTopic(clusteringMessageTopic, clusteringMessage);
+            return new ArrayList<ClusteringCommand>();  // TODO: How to get the response? Send to another topic, and use a correlation ID to correlate
         }
-        if (clusteringMessageTopic != null) {
+    }
+
+
+
+    /**
+     * Send message to selected topic.
+     *
+     * @param topic
+     * @param clusteringMessage
+     */
+    private <T extends ClusteringMessage> void sendToTopic(ITopic<T> topic, T clusteringMessage) {
+
+        if (topic != null) {
             try {
-                clusteringMessageTopic.publish(clusteringMessage);
+                topic.publish(clusteringMessage);
             } catch (HazelcastInstanceNotActiveException e) {
                 String serverStatus = ServerStatus.getCurrentStatus();
                 if (!(ServerStatus.STATUS_SHUTTING_DOWN.equals(serverStatus) ||
-                      ServerStatus.STATUS_RESTARTING.equals(serverStatus))) {
+                        ServerStatus.STATUS_RESTARTING.equals(serverStatus))) {
                     log.error("Could not send cluster message", e);
                 }
                 // Ignoring this exception if the server is shutting down.
             }
         }
-        return new ArrayList<ClusteringCommand>();  // TODO: How to get the response? Send to another topic, and use a correlation ID to correlate
+    }
+
+    /**
+     * Checks if the message is replayable (idempotent).
+     *
+     * @param message
+     * @return
+     */
+    boolean isIdempotent(Object message) {
+        if (message == null) {
+            return true;
+        }
+        Annotation annotation = message.getClass().getAnnotation(IdempotentMessage.class);
+
+        return annotation != null;
     }
 
     private class ClusterMessageCleanupTask implements Runnable {

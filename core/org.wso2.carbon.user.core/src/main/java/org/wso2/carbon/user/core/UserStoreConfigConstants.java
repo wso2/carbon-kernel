@@ -103,4 +103,17 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
+    public static final String lDAPInitialContextFactory = "LDAPInitialContextFactory";
+    public static final String lDAPInitialContextFactoryDescription = "The property to set LDAP Initial Context Factory";
+    // Property to enable TLS connection with LDAP server using StartTLS extended operation.
+    public static final String STARTTLS_ENABLED = "StartTLSEnabled";
+    public static final String STARTTLS_ENABLED_DISPLAY_NAME = "Enable StartTLS";
+    public static final String STARTTLS_ENABLED_DESCRIPTION = "Enable secure connection by using " +
+            "StartTLS extended operation in LDAP";
+    // Property to specify waiting time to re-establish LDAP connection after couple of failure attempts.
+    public static final String CONNECTION_RETRY_DELAY = "ConnectionRetryDelay";
+    public static final String CONNECTION_RETRY_DELAY_DISPLAY_NAME = "Connection Retry Delay";
+    public static final String CONNECTION_RETRY_DELAY_DESCRIPTION = "Specifies waiting time in milliseconds"
+            + " inorder to establish the connection after couple of failure attempts.";
+    public static final int DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS = 120000;
 }

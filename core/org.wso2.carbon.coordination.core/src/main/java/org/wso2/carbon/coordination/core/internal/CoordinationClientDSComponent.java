@@ -21,14 +21,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.wso2.carbon.coordination.core.services.CoordinationService;
 import org.wso2.carbon.coordination.core.services.impl.ZKCoordinationService;
 import org.wso2.carbon.utils.CarbonUtils;
 
-/**
- * This class represents the Coordination declarative service component.
- * @scr.component name="coordination.client.component" immediate="true"
- */
+@Component(name = "coordination.client.component", immediate = true)
 public class CoordinationClientDSComponent {
 	
 	private Log log = LogFactory.getLog(CoordinationClientDSComponent.class);
@@ -39,6 +39,7 @@ public class CoordinationClientDSComponent {
 		return service;
 	}
 	
+	@Activate
 	protected void activate(ComponentContext ctx) {
 		if (log.isDebugEnabled()) {
 			log.debug("Starting Coordination component initialization..");
@@ -60,7 +61,8 @@ public class CoordinationClientDSComponent {
 		}
 	}
 	
-    protected void deactivate(ComponentContext ctx) {
+	@Deactivate
+	protected void deactivate(ComponentContext ctx) {
     	if (log.isDebugEnabled()) {
 			log.debug("Coordination component deactivation start..");
 		}

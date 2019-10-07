@@ -370,6 +370,19 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
     }
 
     /**
+     * Get the allowed UI resources for a role.
+     *
+     * @param roleName
+     * @param permissionRootPath
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException {
+        return getAuthorizationManager().getAllowedUIResourcesForRole(roleName, permissionRootPath);
+    }
+
+    /**
      * Clear the role authorization.
      *
      * @param roleName
@@ -455,6 +468,11 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 	@Override
     public String[] normalizeRoles(String[] roles) {
 	    return roles;
+    }
+
+    @Override
+    public void refreshAllowedRolesForResource(String resourceId) throws org.wso2.carbon.user.api.UserStoreException {
+        getAuthorizationManager().refreshAllowedRolesForResource(resourceId);
     }
 
 }

@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-product</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -77,6 +77,9 @@
                                 <featureArtifactDef>
                                     org.wso2.carbon:org.wso2.carbon.styles.feature:${carbon.kernel.version}
                                 </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.ciphertool:org.wso2.ciphertool.feature:${version.ciphertool}
+                                </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
                     </execution>
@@ -98,6 +101,10 @@
                                 <feature>
                                     <id>org.wso2.carbon.styles.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.ciphertool.feature.group</id>
+                                    <version>${version.ciphertool}</version>
                                 </feature>
                             </features>
                         </configuration>

@@ -19,29 +19,13 @@ package org.wso2.carbon.caching.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender;
 import org.wso2.carbon.caching.impl.eviction.EvictionAlgorithm;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheLoader;
@@ -63,9 +47,27 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.CLEAR_ALL_PREFIX;
 /**
  * TODO: class description
  * <p/>
@@ -73,6 +75,7 @@ import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPT
  */
 @SuppressWarnings("unchecked")
 public class CacheImpl<K, V> implements Cache<K, V> {
+
     private static final Log log = LogFactory.getLog(CacheImpl.class);
     private static final long MAX_CLEANUP_TIME = 60000;
     private static final int CACHE_LOADER_THREADS = 2;
@@ -86,7 +89,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private Map<K, Long> distributedTimestampMap;
     private Map<K, Long> localTimestampMap = new ConcurrentHashMap<K, Long>();
     private long capacity = CachingConstants.DEFAULT_CACHE_CAPACITY;
-    private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<K, CacheEntry<K, V>>((int)capacity, 0.75f, 50);
+    private int initialCapacity = 1000;
+    private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<>(initialCapacity, 0.75f, 50);
     private CacheConfiguration<K, V> cacheConfiguration;
 
     private List<CacheEntryListener> cacheEntryListeners = new ArrayList<CacheEntryListener>();
@@ -102,6 +106,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private long lastAccessed = System.currentTimeMillis();
 
     private EvictionAlgorithm evictionAlgorithm = CachingConstants.DEFAULT_EVICTION_ALGORITHM;
+
+    private boolean forceLocalCache;
 
     public CacheImpl(String cacheName, CacheManager cacheManager) {
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
@@ -120,7 +126,18 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         this.cacheManager = cacheManager;
         DistributedMapProvider distributedMapProvider =
                 DataHolder.getInstance().getDistributedMapProvider();
-        if (isLocalCache(cacheName, distributedMapProvider)) {
+
+        if (ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE) != null &&
+                ServerConfiguration.getInstance().getFirstProperty(CachingConstants.FORCE_LOCAL_CACHE).equals("true")) {
+            isLocalCache = true;
+            forceLocalCache = true;
+            if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+                this.cacheName = cacheName;
+            } else {
+                this.cacheName = CachingConstants.LOCAL_CACHE_PREFIX + cacheName;
+            }
+            cacheEntryListeners.add(clusterCacheInvalidationReqSender);
+        } else if (isLocalCache(cacheName, distributedMapProvider)) {
             if (log.isDebugEnabled()) {
                 log.debug("Using local cache");
             }
@@ -129,6 +146,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             if (log.isDebugEnabled()) {
                 log.debug("Using Hazelcast based distributed cache");
             }
+
             distributedCache = distributedMapProvider.getMap(
                     Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
                     new MapEntryListenerImpl());
@@ -136,8 +154,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                     Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
                             cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
         }
-
-        cacheEntryListeners.add(clusterCacheInvalidationReqSender);
 
         cacheStatistics = new CacheStatisticsImpl();
         registerMBean();
@@ -503,7 +519,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     @Override
     public boolean remove(Object key) {
         boolean removed = removeLocal(key);
-        if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+        if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
             CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) key, null);
             clusterCacheInvalidationReqSender.send(cacheEntryEvent);
         }
@@ -629,6 +645,22 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     @Override
     public void removeAll() {
+
+        removeAllLocal();
+        if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
+            CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) CLEAR_ALL_PREFIX, null);
+            clusterCacheInvalidationReqSender.send(cacheEntryEvent);
+        }
+    }
+
+    /**
+     * This method is added to only remove the cache locally.
+     * This is required since {@link #removeAll()} method
+     * notifies the other nodes in a cluster in addition to removing
+     * the local cache.
+     */
+    public void removeAllLocal() {
+
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
@@ -637,11 +669,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             notifyCacheEntryRemoved(entry.getKey(), entry.getValue().getValue());
         }
         map.clear();
-        if(!isLocalCache){
+        if (!isLocalCache) {
             distributedCache.clear();
             distributedTimestampMap.clear();
         }
-        //TODO: Notify value removed
     }
 
     @Override
@@ -800,7 +831,12 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 log.warn("Exception occurred while expiring item from distributed cache. " + e.getMessage());
             }
         }
-        if (isIdle()) {
+        //keep the empty cache object if discardEmptyCachesProp is false
+        String discardEmptyCachesProp =
+                ServerConfiguration.getInstance().getFirstProperty(CachingConstants.DISCARD_EMPTY_CACHES);
+        boolean discardEmptyCaches =
+                (discardEmptyCachesProp == null) || Boolean.parseBoolean(discardEmptyCachesProp);
+        if (discardEmptyCaches && isIdle()) {
             cacheManager.removeCache(cacheName);
         }
         if (entry != null) {

@@ -544,6 +544,14 @@ public class EmbeddedRegistry implements Registry {
         } finally {
             if (transactionSucceeded) {
                 commitTransaction();
+                if (registryContext.isNoCachePath(path) && realmService != null) {
+                    try {
+                        realmService.getTenantUserRealm(CurrentSession.getCallerTenantId())
+                                                        .getAuthorizationManager().refreshAllowedRolesForResource(path);
+                    } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                        log.error("Error while refresh the allowed roles for resource", e);
+                    }
+                }
             } else {
                 try {
                     registryContext.getHandlerManager(
@@ -1654,6 +1662,9 @@ public class EmbeddedRegistry implements Registry {
                         String author = resource.getAuthorUserName();
                         if (user.equals(author)) {
                             tagsDAO.removeTags(resource, tag);
+                        } else if (userRealm.getAuthorizationManager().isUserAuthorized(user, path,
+                                ActionConstants.DELETE)) {
+                            tagsDAO.removeTags(resource, tag);
                         } else {
                             tagsDAO.removeTags(resource, tag, user);
                         }
@@ -1668,6 +1679,11 @@ public class EmbeddedRegistry implements Registry {
                 // transaction succeeded
                 transactionSucceeded = true;
             }
+        } catch (UserStoreException e) {
+            String msg = "Failed to check if the user is Authorized to perform a delete operation on registry path: "
+                    + path;
+            log.error(msg, e);
+            throw new RegistryException(msg, e);
         } finally {
             if (transactionSucceeded) {
                 commitTransaction();

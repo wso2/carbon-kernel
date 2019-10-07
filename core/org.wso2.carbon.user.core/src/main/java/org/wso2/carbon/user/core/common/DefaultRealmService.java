@@ -180,18 +180,19 @@ public class DefaultRealmService implements RealmService {
                     tenantRealmConfig = realmConfigBuilder.getRealmConfigForTenantToCreateRealm(
                             bootstrapRealmConfig, tenantRealmConfig, tenantId);
                 }
+
+                String lockedString = tenant.getDomain() + "@DefaultRealmService_getTenantUserRealmInternal";
                 userRealm = getCachedUserRealm(tenantId);
                 if (userRealm == null) {
-                    userRealm = getCachedUserRealm(tenantId);
-                    if (userRealm == null) {
-                        synchronized (tenant.getDomain().intern()) {
+                    synchronized (lockedString.intern()) {
+                        userRealm = getCachedUserRealm(tenantId);
+                        if (userRealm == null) {
                             userRealm = initializeRealm(tenantRealmConfig, tenantId);
                             realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
                         }
                     }
                 }
             }
-
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting tenant user realm for tenant id : " + tenantId;
             if (log.isDebugEnabled()) {
@@ -200,6 +201,7 @@ public class DefaultRealmService implements RealmService {
             throw new UserStoreException(errorMessage, e);
         }
         return userRealm;
+
     }
 
     @Override

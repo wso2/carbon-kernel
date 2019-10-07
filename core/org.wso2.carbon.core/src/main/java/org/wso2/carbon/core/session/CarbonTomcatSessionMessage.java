@@ -209,11 +209,6 @@ public class CarbonTomcatSessionMessage extends ClusteringMessage implements Ses
     }
 
     @Override
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    @Override
     public String toString() {
         return getEventTypeString() + "#" + getContextName() + "#" + getSessionID();
     }

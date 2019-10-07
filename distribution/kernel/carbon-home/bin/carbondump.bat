@@ -96,7 +96,7 @@ SET DATE_TIME=%date:~-4,4%-%date:~-10,2%-%date:~-7,2%_%time:~0,2%-%time:~3,2%
 echo %DATE_TIME%
 
 set OUTPUT_ROOT_DIR=%CARBON_DUMP_HOME%\carbondump
-set OUTPUT_DIR=%OUTPUT_ROOT_DIR%\carbondump-%DATE_TIME%
+set OUTPUT_DIR=%OUTPUT_ROOT_DIR%\carbondump_%DATE_TIME%
 set MEMORY_DUMP_DIR=%OUTPUT_DIR%\memoryinfo
 set OS_INFO=%OUTPUT_DIR%\osinfo
 set JAVA_INFO=%OUTPUT_DIR%\javainfo

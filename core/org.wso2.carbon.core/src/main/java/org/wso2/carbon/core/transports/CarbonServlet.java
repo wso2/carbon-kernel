@@ -31,6 +31,7 @@ import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.core.CarbonThreadFactory;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.transports.metering.MeteredServletRequest;
 import org.wso2.carbon.core.transports.metering.MeteredServletResponse;
@@ -41,6 +42,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.*;
@@ -63,8 +65,8 @@ public class CarbonServlet extends AxisServlet {
 
     private static final Log log = LogFactory.getLog(CarbonServlet.class);
 
-    private ScheduledExecutorService requestDataPersisterScheduler =
-            Executors.newScheduledThreadPool(25);
+    private ScheduledExecutorService requestDataPersisterScheduler = Executors
+            .newScheduledThreadPool(25, new CarbonThreadFactory(new ThreadGroup("RequestDataPersisterThread")));
 
     private RequestDataPersisterTask requestDataPersister;
     
@@ -172,6 +174,11 @@ public class CarbonServlet extends AxisServlet {
                             request.getParameter((String) name));
                 }
             }
+
+            HttpSession session = request.getSession();
+            Boolean isAuthenticatedObj = (Boolean) session.getAttribute("authenticated");
+            boolean isAuthenticated = isAuthenticatedObj != null ? isAuthenticatedObj : false;
+            carbonHttpRequest.setParameter("authenticated", String.valueOf(isAuthenticated));
 
             carbonHttpRequest.setContextPath(request.getContextPath());
             carbonHttpRequest.setQueryString(request.getQueryString());

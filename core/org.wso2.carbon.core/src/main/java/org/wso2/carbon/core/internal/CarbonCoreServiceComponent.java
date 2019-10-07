@@ -18,6 +18,12 @@ package org.wso2.carbon.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.CarbonCoreInitializedEvent;
@@ -26,7 +32,11 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.core.encryption.KeyStoreBasedExternalCryptoProvider;
 import org.wso2.carbon.core.init.CarbonServerManager;
+import org.wso2.carbon.crypto.api.CryptoService;
+import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
+import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -37,31 +47,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @scr.component name="carbon.core.dscomponent"" immediate="true"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"  unbind="unsetRealmService"
- * @scr.reference name="registry.service" interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic"  bind="setRegistryService" unbind="unsetRegistryService"
- * @scr.reference name="server.configuration.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
- * cardinality="1..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
- * @scr.reference name="http.service" interface="org.osgi.service.http.HttpService"
- * cardinality="1..1" policy="dynamic"  bind="setHttpService" unbind="unsetHttpService"
- * @scr.reference name="serverShutdownHandler" interface="org.wso2.carbon.core.ServerShutdownHandler"
- * cardinality="0..n" policy="dynamic"  bind="addServerShutdownHandler" unbind="removeServerShutdownHandler"
- * @scr.reference name="serverRestartHandler" interface="org.wso2.carbon.core.ServerRestartHandler"
- * cardinality="0..n" policy="dynamic"  bind="addServerRestartHandler" unbind="removeServerRestartHandler"
- * @scr.reference name="serverStartupHandler" interface="org.wso2.carbon.core.ServerStartupHandler"
- * cardinality="0..n" policy="dynamic"  bind="addServerStartupHandler" unbind="removeServerStartupHandler"
- * @scr.reference name="tenant.registry.loader" interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
- * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unSetTenantRegistryLoader"
- * @scr.reference name="coordinatedActivity" interface="org.wso2.carbon.core.clustering.api.CoordinatedActivity"
- * cardinality="0..n" policy="dynamic" bind="addCoordinatedActivity" unbind="removeCoordinatedActivity"
- * @scr.reference name="serverStartupObserver" interface="org.wso2.carbon.core.ServerStartupObserver"
- * cardinality="0..n" policy="dynamic"  bind="addServerStartupObserver" unbind="removeServerStartupObserver"
- * @scr.reference name="carbonCoreInitializedEventService" interface="org.wso2.carbon.context.CarbonCoreInitializedEvent"
- * cardinality="1..1" policy="dynamic"  bind="setCarbonCoreInitializedEventService" unbind="unsetCarbonCoreInitializedEventService"
-  */
+@Component(name="carbon.core.dscomponent", immediate=true)
 public class CarbonCoreServiceComponent {
 
     private static Log log = LogFactory.getLog(CarbonCoreServiceComponent.class);
@@ -79,7 +65,7 @@ public class CarbonCoreServiceComponent {
     private static boolean serverStarted;
     
     private CarbonServerManager carbonServerManager;
-
+    @Activate
     protected void activate(ComponentContext ctxt) {
         try {
             // for new caching, every thread should has its own populated CC. During the deployment time we assume super tenant
@@ -90,13 +76,18 @@ public class CarbonCoreServiceComponent {
                     new DeploymentServerStartupObserver(), null) ;
             SymmetricEncryption encryption = SymmetricEncryption.getInstance();
             encryption.generateSymmetricKey();
+
+            // Register the external crypto provider which is based on Carbon keystore management service.
+            ctxt.getBundleContext().registerService(ExternalCryptoProvider.class,
+                    new KeyStoreBasedExternalCryptoProvider(), null);
+
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {
             log.error("Failed to activate Carbon Core bundle ", e);
         }
     }
-
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         try {
             // We assume it's super tenant during component deactivate time
@@ -120,6 +111,8 @@ public class CarbonCoreServiceComponent {
         log.debug("Carbon Core bundle is deactivated ");
     }
 
+    @Reference(name = "server.configuration.service", policy = ReferencePolicy.DYNAMIC, 
+            cardinality = ReferenceCardinality.MANDATORY, unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
        dataHolder.setServerConfigurationService(serverConfigurationService);
     }
@@ -128,6 +121,8 @@ public class CarbonCoreServiceComponent {
        dataHolder.setServerConfigurationService(null);
     }
 
+    @Reference(name = "user.realmservice.default", unbind = "unsetRealmService", 
+            cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
     protected void setRealmService(RealmService realmService) {
         dataHolder.setRealmService(realmService);
     }
@@ -136,6 +131,8 @@ public class CarbonCoreServiceComponent {
         dataHolder.setRealmService(null);
     }
 
+    @Reference(name = "http.service", cardinality = ReferenceCardinality.MANDATORY, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetHttpService")
     protected void setHttpService(HttpService httpService) {
         dataHolder.setHttpService(httpService);
     }
@@ -144,6 +141,8 @@ public class CarbonCoreServiceComponent {
         dataHolder.setHttpService(null);
     }
 
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         dataHolder.setRegistryService(registryService);
     }
@@ -152,6 +151,8 @@ public class CarbonCoreServiceComponent {
         dataHolder.setRegistryService(null);
     }
 
+    @Reference(name = "tenant.registry.loader", cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC, unbind = "unSetTenantRegistryLoader")
     protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
         dataHolder.setTenantRegistryLoader(tenantRegistryLoader);
     }
@@ -160,6 +161,18 @@ public class CarbonCoreServiceComponent {
         dataHolder.setTenantRegistryLoader(null);
     }
 
+    @Reference(name = "carbonCryptoService", cardinality = ReferenceCardinality.OPTIONAL, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetCarbonCryptoService")
+    protected void setCarbonCryptoService(CryptoService cryptoService){
+        dataHolder.setCryptoService(cryptoService);
+    }
+
+    protected void unsetCarbonCryptoService(CryptoService cryptoService){
+        dataHolder.setCryptoService(null);
+    }
+
+    @Reference(name = "serverShutdownHandler", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "removeServerShutdownHandler")
     protected void addServerShutdownHandler(ServerShutdownHandler shutdownHandler) {
     	shutdownHandlers.add(shutdownHandler);
     }
@@ -168,6 +181,8 @@ public class CarbonCoreServiceComponent {
         shutdownHandlers.remove(shutdownHandler);
     }
 
+    @Reference(name = "serverRestartHandler", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "removeServerRestartHandler")
     protected void addServerRestartHandler(ServerRestartHandler restartHandler) {
         restartHandlers.add(restartHandler);
     }
@@ -175,7 +190,9 @@ public class CarbonCoreServiceComponent {
     protected void removeServerRestartHandler(ServerRestartHandler restartHandler) {
         restartHandlers.remove(restartHandler);
     }
-    
+
+    @Reference(name = "serverStartupHandler", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "removeServerStartupHandler")
     protected void addServerStartupHandler(ServerStartupHandler startupHandler) {
     	synchronized (this.getClass()) {
     		if (serverStarted) {
@@ -210,6 +227,8 @@ public class CarbonCoreServiceComponent {
         serverStarted = true;
     }
 
+    @Reference(name = "coordinatedActivity", cardinality = ReferenceCardinality.MULTIPLE, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "removeCoordinatedActivity")
     protected void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
         CarbonCoreDataHolder.getInstance().addCoordinatedActivity(coordinatedActivity);
     }
@@ -218,6 +237,7 @@ public class CarbonCoreServiceComponent {
         CarbonCoreDataHolder.getInstance().removeCoordinatedActivity(coordinatedActivity);
     }
 
+    @Reference(name = "serverStartupObserver", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, unbind = "removeServerStartupObserver")
     protected void addServerStartupObserver(ServerStartupObserver startupObserver) {
         synchronized (this.getClass()) {
             if (serverStarted) {
@@ -250,5 +270,7 @@ public class CarbonCoreServiceComponent {
 
     protected void unsetCarbonCoreInitializedEventService(CarbonCoreInitializedEvent carbonCoreInitializedEvent){}
 
+    @Reference(name = "carbonCoreInitializedEventService", cardinality = ReferenceCardinality.MANDATORY, 
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetCarbonCoreInitializedEventService")
     protected void setCarbonCoreInitializedEventService(CarbonCoreInitializedEvent carbonCoreInitializedEventService){}
 }

@@ -15,12 +15,12 @@
  */
 package org.wso2.carbon.ndatasource.core;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.ndatasource.common.DataSourceConstants;
@@ -36,6 +36,9 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -43,10 +46,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class represents the repository which is used to hold the data sources.
@@ -415,12 +414,14 @@ public class DataSourceRepository {
 					return null;
 				}
 			    in = resource.getContentStream();
-                Document doc = DataSourceUtils.convertToDocument(in);
+                OMElement doc = DataSourceUtils.convertToOMElement(in);
                 /* only super tenant will lookup secure vault information for system data sources,
 			     * others are not allowed to */
-                DataSourceUtils.secureResolveDocument(doc, false);
+                DataSourceUtils.secureResolveOMElement(doc, false);
+
                 this.getRegistry().commitTransaction();
-			    return (DataSourceMetaInfo) this.getDSMUnmarshaller().unmarshal(doc);
+                doc.toStringWithConsume();
+			    return (DataSourceMetaInfo) this.getDSMUnmarshaller().unmarshal(doc.getXMLStreamReader());
 		    } else {
 			    return null;
 		    }

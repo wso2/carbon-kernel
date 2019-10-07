@@ -67,7 +67,7 @@ public class ActiveDirectoryUserStoreConstants {
                 "cn", UserStoreConfigConstants.userNameAttributeDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
-                "(&amp;(objectClass=user)(cn=?))", UserStoreConfigConstants
+                "(&(objectClass=user)(cn=?))", UserStoreConfigConstants
                         .usernameSearchFilterDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
@@ -93,7 +93,7 @@ public class ActiveDirectoryUserStoreConstants {
         Property membershipAttribute = new Property(UserStoreConfigConstants.membershipAttribute, "member",
                 "Membership Attribute#" + UserStoreConfigConstants.membershipAttributeDescription, null);
         Property groupNameSearchFilter = new Property(UserStoreConfigConstants.groupNameSearchFilter,
-                "(&amp;(objectClass=group)(cn=?))", "Group Search Filter#" + UserStoreConfigConstants
+                "(&(objectClass=group)(cn=?))", "Group Search Filter#" + UserStoreConfigConstants
                 .groupNameSearchFilterDescription, null);
         readLDAPGroups.setChildProperties(new Property[]{groupSearchBase, groupNameAttribute, groupNameListFilter,
                 membershipAttribute, groupNameSearchFilter});
@@ -107,7 +107,7 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.groupEntryObjectClassDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn",
                 UserStoreConfigConstants.groupNameAttributeDescription);
-        setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=group)(cn=?))",
+        setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&(objectClass=group)(cn=?))",
                 UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectcategory=group)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
@@ -143,8 +143,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$",
                 UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty("UniqueID", "", "", "");
-
-
+        setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
+                "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

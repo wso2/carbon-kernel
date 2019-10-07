@@ -29,21 +29,12 @@
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib/endorsed</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>xerces.wso2:xercesImpl:jar</include>
                 <include>xalan.wso2:xalan:jar</include>
                 <include>xml-apis.wso2:xml-apis:jar</include>
-                <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
-                <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar</include>
-                <include>org.apache.geronimo.specs.wso2:geronimo-jms_1.1_spec:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -53,14 +53,13 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.jsp.jasper:${version.equinox.jsp.jasper}</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.jsp.jasper:${version.equinox.jsp.jasper}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.commons.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui.menu.general:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.i18n:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin.stub:${carbon.kernel.version}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt.stub:${carbon.kernel.version}</bundleDef>

@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1</version>
+        <version>1.2</version>
     </parent>
 
     <groupId>org.wso2.carbon</groupId>
     <artifactId>samples</artifactId>
-    <version>4.4.19-SNAPSHOT</version>
+    <version>4.5.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Samples</name>
     <description>Carbon kernel sample</description>
@@ -19,4 +19,28 @@
     <modules>
         <module>student-manager</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <!--This parameter disables doclint-->
+                            <doclint>none</doclint>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -32,10 +32,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -53,11 +49,12 @@
                             org.wso2.carbon.registry.synchronization.*;version=1.0.1,
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*,
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.apache.ws.commons.schema.*,
                             org.wso2.carbon.user.*,
                             org.wso2.carbon.utils.*,
                             !javax.xml.namespace,
+                            javax.activation.*;version="[0.0.0, 1.0.0)",
                             org.apache.abdera.*; version="${imp.pkg.version.abdera}",
                             javax.xml.namespace; version=0.0.0,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
@@ -75,17 +72,26 @@
                             acegi-security;scope=compile|runtime;inline=false
                         </Embed-Dependency>
                         <Include-Resource>
-                            META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory,
-                            OSGI-INF/serviceComponents.xml=target/scr-plugin-generated/OSGI-INF/serviceComponents.xml,
+                            META-INF/services/org.apache.abdera.factory.ExtensionFactory=src/main/resources/META-INF/services/org.apache.abdera.factory.ExtensionFactory
                         </Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
                     <skip>true</skip>
+
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-log4j2</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
+                    </systemPropertyVariables>
+
                 </configuration>
                 <executions>
                     <execution>
@@ -370,7 +376,7 @@
             <artifactId>annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
@@ -399,10 +405,22 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -416,11 +434,21 @@
                     <groupId>commons-lang</groupId>
                     <artifactId>commons-lang</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.compass-project.wso2</groupId>
@@ -431,11 +459,11 @@
             <artifactId>abdera</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat.wso2</groupId>
+            <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
             <artifactId>jdbc-pool</artifactId>
             <version>${jdbc-pool.version}</version>
         </dependency>
@@ -451,11 +479,57 @@
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.metatype.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+            <version>${version.org.apache.felix.scr.ds-annotations}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

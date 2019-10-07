@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -57,8 +57,20 @@
             <artifactId>org.wso2.carbon.server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jcl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.axis2</groupId>
@@ -82,7 +94,7 @@
             <artifactId>h2</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs.wso2</groupId>
+            <groupId>org.wso2.orbit.org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
         </dependency>
         <dependency>
@@ -116,6 +128,26 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-juli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.istack</groupId>
+            <artifactId>istack-commons-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -254,6 +286,15 @@
                                 </path>
                                 <echo message="########### Create Default Database ##############" />
                                 <sql driver="org.h2.Driver" url="jdbc:h2:${basedir}/target/repository/database/WSO2CARBON_DB" userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
+                                    <classpath>
+                                        <path refid="h2.classpath" />
+                                    </classpath>
+                                    <fileset file="${basedir}/carbon-home/dbscripts/h2.sql" />
+                                </sql>
+                                <echo message="##################### END ########################" />
+
+                                <echo message="########### Create Shared Database ##############" />
+                                <sql driver="org.h2.Driver" url="jdbc:h2:${basedir}/target/repository/database/WSO2SHARED_DB" userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
                                     <classpath>
                                         <path refid="h2.classpath" />
                                     </classpath>

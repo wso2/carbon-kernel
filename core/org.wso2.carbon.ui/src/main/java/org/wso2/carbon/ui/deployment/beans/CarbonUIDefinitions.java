@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.ui.deployment.beans;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -24,9 +25,12 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.MenuAdminClient;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.servlet.http.HttpServletRequest;
 
 public class CarbonUIDefinitions {
     private static Log log = LogFactory.getLog(CarbonUIDefinitions.class);
@@ -224,37 +228,39 @@ public class CarbonUIDefinitions {
                 }
                 if (continueAdding) {
                     String[] requiredPermissions = menu.getRequirePermission();
-                    int grantCount = 0;
-                    for (String requiredPermission : requiredPermissions) {
+                    if (requiredPermissions != null) {int grantCount = 0;
+                    for (String requiredPermission : requiredPermissions) {requiredPermission = StringUtils.trim(requiredPermission);
                         int temp = grantCount;
                         for (String grantedPermission : userPermissions) {
                             if ("*".equals(requiredPermission)) {
                                 grantCount++;
                                 break;
                             } else {
+                                //remove whitespaces before the text
+                                requiredPermission = requiredPermission.replaceAll("\\s", "");
                                 if (!requiredPermission.startsWith("/")) {
                                     grantCount = requiredPermissions.length;
                                     log.error(" Attention :: Permission issue in Menu item "
                                             + menu.getId());
                                     break;
                                 }
-
                                 if (requiredPermission.startsWith(grantedPermission)) {
-                                    grantCount++;
-                                    break;
+                                        grantCount++;
+                                        break;
+                                    }
                                 }
                             }
+                            if (temp == grantCount && !menu.isAtLeastOnePermissionsRequired()) {
+                                grantCount = 0;
+                                break;
+                            }
                         }
-                        if (temp == grantCount && !menu.isAtLeastOnePermissionsRequired()) {
-                            grantCount = 0;
-                            break;
-                        }
-                    }
-                    if (grantCount >= requiredPermissions.length || grantCount > 0 &&
-                            menu.isAtLeastOnePermissionsRequired()) {
-                        filteredMenuDefs.add(menu);
-                    }
 
+                        if (grantCount >= requiredPermissions.length || grantCount > 0 &&
+                                menu.isAtLeastOnePermissionsRequired()) {
+                            filteredMenuDefs.add(menu);
+                        }
+                    }
                 }
             }
             Menu[] filteredMenus = new Menu[filteredMenuDefs.size()];

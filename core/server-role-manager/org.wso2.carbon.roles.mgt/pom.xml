@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>server-role-manager</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -33,7 +33,7 @@
                         </Export-Package>
                         <Import-Package>
                             org.apache.axis2.*,
-                            org.apache.commons.logging.*,
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.osgi.framework,
                             *;resolution:=optional
                         </Import-Package>
@@ -49,11 +49,11 @@
             <artifactId>org.wso2.carbon.base</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
@@ -65,12 +65,8 @@
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
     </dependencies>
 

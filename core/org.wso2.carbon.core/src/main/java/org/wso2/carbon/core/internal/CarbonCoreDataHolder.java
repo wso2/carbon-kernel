@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -47,6 +48,7 @@ public class CarbonCoreDataHolder {
     private TenantRegistryLoader tenantRegistryLoader;
 
     private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
+    private CryptoService cryptoService;
 
     public  static CarbonCoreDataHolder getInstance() {
         return instance;
@@ -153,5 +155,15 @@ public class CarbonCoreDataHolder {
 
     public List<CoordinatedActivity> getCoordinatedActivities() {
         return coordinatedActivities ;
+    }
+
+    public void setCryptoService(CryptoService cryptoService) {
+
+        this.cryptoService = cryptoService;
+    }
+
+    public CryptoService getCryptoService() {
+
+        return cryptoService;
     }
 }

@@ -30,16 +30,15 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.handlers.filters.Filter;
 import org.wso2.carbon.registry.core.session.CurrentSession;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is designed to manage user-defined handlers.
  */
 public class UserDefinedHandlerManager extends HandlerManager {
 
-    private Map<Integer, HandlerManager> userHandlerManagers =
-            new HashMap<Integer, HandlerManager>();
+    private Map<Integer, HandlerManager> userHandlerManagers = new ConcurrentHashMap<Integer, HandlerManager>();
 
     public HandlerManager getUserHandlerManager() {
         HandlerManager hm = userHandlerManagers.get(CurrentSession.getCallerTenantId());

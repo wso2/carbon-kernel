@@ -15,9 +15,14 @@
  */
 package org.wso2.carbon.core.internal;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.clustering.ClusteringAgent;
+import org.apache.axis2.clustering.ClusteringConstants;
+import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.Parameter;
+import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.engine.ListenerManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,17 +34,25 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.caching.impl.DistributedMapProvider;
 import org.wso2.carbon.core.ServerStatus;
+import org.wso2.carbon.core.clustering.api.CarbonCluster;
+import org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent;
 import org.wso2.carbon.core.init.JMXServerManager;
+import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
-import org.wso2.carbon.core.util.ClusteringUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.ServerException;
-import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -56,16 +69,8 @@ import java.util.TimerTask;
  * fact  that requests from external parties should only be serviced after the Axis2 engine
  * & Carbon has  reached a stable and consistent state.
  *
- * @scr.component name="org.wso2.carbon.core.internal.StartupFinalizerServiceComponent"
- * immediate="true"
- * @scr.reference name="org.wso2.carbon.configCtx"
- * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- * policy="dynamic" bind="setConfigurationContext" unbind="unsetConfigurationContext"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"  unbind="unsetRealmService"
- * @scr.reference name="registry.service" interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic"  bind="setRegistryService" unbind="unsetRegistryService"
  **/
+@Component(name = "org.wso2.carbon.core.internal.StartupFinalizerServiceComponent", immediate = true)
 public class StartupFinalizerServiceComponent implements ServiceListener {
     private static final Log log = LogFactory.getLog(StartupFinalizerServiceComponent.class);
     private static final String TRANSPORT_MANAGER =
@@ -79,7 +84,9 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
     private ServiceRegistration listerManagerServiceRegistration;
     private TenantEagerLoader tenantEagerLoader = new TenantEagerLoader();
+    private ClusteringAgent clusteringAgent;
    
+    @Activate
     protected void activate(ComponentContext ctxt) {
         try {
 
@@ -119,6 +126,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         listerManagerServiceRegistration.unregister();
     }
@@ -176,8 +184,8 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         // Need to initialize the cluster after transports are initialized since the transport
         // port information is needed when populating Member information
         try {
-            ClusteringUtil.enableClustering(configCtx);
-        } catch (AxisFault e) {
+            enableClustering(configCtx, bundleContext);
+        } catch (Throwable e) {
             String msg = "Cannot initialize cluster";
             log.error(msg, e);
             throw new RuntimeException(msg, e);
@@ -255,6 +263,8 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         System.getProperties().remove("setup"); // Clear the setup System property
     }
 
+    @Reference(name = "org.wso2.carbon.configCtx", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetConfigurationContext")
     protected void setConfigurationContext(ConfigurationContextService configCtx) {
         this.configCtx = configCtx.getServerConfigContext();
     }
@@ -263,16 +273,42 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         this.configCtx = null;
     }
 
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
     }
 
     protected void unsetRealmService(RealmService realmService) {
     }
 
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
+    }
+
+    private void enableClustering(ConfigurationContext configContext, BundleContext bundleContext)
+            throws ClusteringFault {
+
+        AxisConfiguration axisConfig = configContext.getAxisConfiguration();
+        clusteringAgent = axisConfig.getClusteringAgent();
+        if (clusteringAgent != null) {
+            clusteringAgent.setConfigurationContext(configContext);
+            clusteringAgent.init();
+            configContext.setNonReplicableProperty(ClusteringConstants.CLUSTER_INITIALIZED, "true");
+
+            if (clusteringAgent instanceof HazelcastClusteringAgent) {
+                HazelcastClusteringAgent hazelcastClusteringAgent = (HazelcastClusteringAgent) clusteringAgent;
+                bundleContext.registerService(DistributedMapProvider.class,
+                                              hazelcastClusteringAgent.getDistributedMapProvider(), null);
+                bundleContext.registerService(HazelcastInstance.class,
+                                              hazelcastClusteringAgent.getPrimaryHazelcastInstance(), null);
+                bundleContext.registerService(CarbonCluster.class,
+                                              hazelcastClusteringAgent.getCarbonCluster(), null);
+            }
+        }
     }
 
     public synchronized void serviceChanged(ServiceEvent event) {

@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -122,6 +123,13 @@ public class RealmConfigXMLProcessor {
                 UserCoreConstants.RealmConfig.LOCAL_NAME_EVERYONE_ROLE));
         everyoneRoleNameElem.setText(UserCoreUtil.removeDomainFromName(realmConfig.getEveryOneRoleName()));
         mainConfig.addChild(everyoneRoleNameElem);
+
+        // adding the OverrideUsernameClaimFromInternalUsername
+        OMElement isOverrideUsernameClaimFromInternalUsernameElem = factory.createOMElement(new QName(
+                UserCoreConstants.RealmConfig.OVERRIDE_USERNAME_CLAIM_FROM_INTERNAL_USERNAME));
+        isOverrideUsernameClaimFromInternalUsernameElem.setText(
+                realmConfig.getIsOverrideUsernameClaimFromInternalUsername());
+        mainConfig.addChild(isOverrideUsernameClaimFromInternalUsernameElem);
 
         // add the main config properties
         addPropertyElements(factory, mainConfig, null, realmConfig.getDescription(),
@@ -293,6 +301,7 @@ public class RealmConfigXMLProcessor {
         String everyOneRoleName = null;
         String realmClass = null;
         String description = null;
+        String isOverrideUsernameClaimFromInternalUsername = null;
         Map<String, String> userStoreProperties = null;
         Map<String, String> authzProperties = null;
         Map<String, String> realmProperties = null;
@@ -364,13 +373,9 @@ public class RealmConfigXMLProcessor {
                 .getFirstChildWithName(
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_USER_NAME)).getText()
                 .trim();
-        adminPassword = adminUser
-                .getFirstChildWithName(new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_PASSWORD))
-                .getText().trim();
-        if (secretResolver != null && secretResolver.isInitialized()
-                && secretResolver.isTokenProtected("UserManager.AdminUser.Password")) {
-            adminPassword = secretResolver.resolve("UserManager.AdminUser.Password");
-        }
+        OMElement adminPasswordElement =
+                adminUser.getFirstChildWithName(new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_PASSWORD));
+        adminPassword = MiscellaneousUtil.resolve(adminPasswordElement, secretResolver);
         adminRoleName = mainConfig
                 .getFirstChildWithName(
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_ADMIN_ROLE)).getText()
@@ -379,6 +384,14 @@ public class RealmConfigXMLProcessor {
                 .getFirstChildWithName(
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_EVERYONE_ROLE))
                 .getText().trim();
+
+        OMElement overrideUsernameClaimEle = mainConfig.getFirstChildWithName(
+                new QName(UserCoreConstants.RealmConfig.OVERRIDE_USERNAME_CLAIM_FROM_INTERNAL_USERNAME));
+        if (overrideUsernameClaimEle != null) {
+            isOverrideUsernameClaimFromInternalUsername = overrideUsernameClaimEle.getText().trim();
+        } else {
+            isOverrideUsernameClaimFromInternalUsername = "false";
+        }
 
         OMElement authzConfig = realmElem.getFirstChildWithName(new QName(
                 UserCoreConstants.RealmConfig.LOCAL_NAME_ATHZ_MANAGER));
@@ -462,6 +475,7 @@ public class RealmConfigXMLProcessor {
                     + everyOneRoleName);
             realmConfig.setAdminRoleName(adminRoleName);
             realmConfig.setAdminUserName(adminUserName);
+            realmConfig.setIsOverrideUsernameClaimFromInternalUsername(isOverrideUsernameClaimFromInternalUsername);
             realmConfig.setUserStoreProperties(userStoreProperties);
             realmConfig.setAuthzProperties(authzProperties);
             realmConfig.setRealmProperties(realmProperties);
@@ -569,17 +583,7 @@ public class RealmConfigXMLProcessor {
             OMElement propElem = (OMElement) ite.next();
             String propName = propElem.getAttributeValue(new QName(
                     UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME));
-            String propValue = propElem.getText();
-            if (secretResolver != null && secretResolver.isInitialized()) {
-                if (secretResolver.isTokenProtected("UserManager.Configuration.Property."
-                        + propName)) {
-                    propValue = secretResolver.resolve("UserManager.Configuration.Property."
-                            + propName);
-                }
-                if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName)) {
-                    propValue = secretResolver.resolve("UserStoreManager.Property." + propName);
-                }
-            }
+            String propValue = MiscellaneousUtil.resolve(propElem, secretResolver);
             map.put(propName.trim(), propValue.trim());
         }
         return map;

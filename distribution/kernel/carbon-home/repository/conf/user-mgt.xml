@@ -17,15 +17,17 @@
 <UserManager>
     <Realm>
         <Configuration>
-		<AddAdmin>true</AddAdmin>
+		    <AddAdmin>true</AddAdmin>
             <AdminRole>admin</AdminRole>
             <AdminUser>
                 <UserName>admin</UserName>
                 <Password>admin</Password>
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
+             <!--Enable username claim retrieve from the UM_USER_NAME in JDBC datasources-->
+            <OverrideUsernameClaimFromInternalUsername>true</OverrideUsernameClaimFromInternalUsername>
             <Property name="isCascadeDeleteEnabled">true</Property>
-            <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
+            <Property name="dataSource">jdbc/SHARED_DB</Property>
         </Configuration>
 
 	    <!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC.
@@ -60,6 +62,7 @@
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="UserNameUniqueAcrossTenants">false</Property>
+            <Property name="LeadingOrTrailingSpaceAllowedInUserName">false</Property>
         </UserStoreManager>
 	
 	    <!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
@@ -75,7 +78,7 @@
             <Property name="UserSearchBase">ou=system</Property>
             <Property name="UserNameAttribute">uid</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
-            <Property name="UserNameListFilter">(objectClass=person)</Property>
+            <Property name="UserNameListFilter">(&amp;(objectClass=person)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="GroupSearchBase">ou=system</Property>
@@ -98,6 +101,7 @@
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
             <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
+            <Property name="ConnectionRetryDelay">120000</Property>
         </UserStoreManager-->
 	
 	    <!-- Active directory configuration is as follows.
@@ -120,7 +124,7 @@
             <Property name="UserEntryObjectClass">user</Property>
             <Property name="UserNameAttribute">cn</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=user)(cn=?))</Property>
-            <Property name="UserNameListFilter">(objectClass=user)</Property>
+            <Property name="UserNameListFilter">(&amp;(objectClass=user)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>
@@ -158,6 +162,8 @@
             <Property name="LDAPConnectionTimeout">5000</Property>
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
+            <Property name="StartTLSEnabled">false</Property>
+            <Property name="ConnectionRetryDelay">120000</Property>
         </UserStoreManager-->
 
         <!-- Following user manager is used by Identity Server (IS) as its default user manager.
@@ -177,7 +183,7 @@
             <Property name="UserEntryObjectClass">identityPerson</Property>
             <Property name="UserNameAttribute">uid</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
-            <Property name="UserNameListFilter">(objectClass=person)</Property>
+            <Property name="UserNameListFilter">(&amp;(objectClass=person)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>
@@ -210,6 +216,8 @@
             <Property name="LDAPConnectionTimeout">5000</Property>
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
+            <Property name="StartTLSEnabled">false</Property>
+            <Property name="ConnectionRetryDelay">120000</Property>
         </ISUserStoreManager-->
 
         <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">

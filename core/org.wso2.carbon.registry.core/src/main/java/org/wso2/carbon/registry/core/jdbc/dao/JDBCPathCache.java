@@ -39,6 +39,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * An extension of the {@link PathCache} to store paths of registry resources on a JDBC-based
@@ -129,11 +130,22 @@ public class JDBCPathCache extends PathCache {
                 }
             }
         } catch (SQLException e) {
-            // we have to be expecting an exception with the duplicate value for the path value
-            // which can be further checked from here..
-            String msg = "Failed to insert resource to " + path + ". " + e.getMessage();
-            log.error(msg, e);
-            throw e;
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Failed to insert due to already exist in database : " + path);
+                }
+                // we have to be expecting an exception with the duplicate value for the path value
+                // which can be further checked from here..
+                pathId = getPathID(conn, path);
+                if (pathId > 0) {
+                    success = true;
+                    return pathId;
+                }
+            } else {
+                String msg = "Failed to insert resource to " + path + ". " + e.getMessage();
+                log.error(msg, e);
+                throw e;
+            }
         } finally {
             if (success) {
                 try {

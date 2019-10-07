@@ -47,7 +47,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
@@ -87,7 +87,7 @@
                             org.wso2.carbon.core.*,
                             com.google.gson.*,
                             org.wso2.carbon.caching.*,
-                            org.apache.commons.logging.*
+                            org.apache.commons.logging.*; version="${import.package.version.commons.logging}"
                         </Import-Package>
                     </instructions>
                 </configuration>

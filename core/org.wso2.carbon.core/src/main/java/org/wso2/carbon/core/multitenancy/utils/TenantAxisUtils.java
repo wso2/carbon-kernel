@@ -281,7 +281,9 @@ public final class TenantAxisUtils {
     private static ConfigurationContext
     createTenantConfigurationContext(ConfigurationContext mainConfigCtx,
                                      String tenantDomain) throws Exception {
-        synchronized (tenantDomain.intern()) { // lock based on tenant domain
+
+        String lockedDomain = tenantDomain + "@TenantAxisUtils_createTenantConfigurationContext";
+        synchronized (lockedDomain.intern()) { // lock based on tenant domain
             Map<String, ConfigurationContext> tenantConfigContexts = getTenantConfigurationContexts(mainConfigCtx);
             ConfigurationContext tenantConfigCtx = tenantConfigContexts.get(tenantDomain);
             if (tenantConfigCtx != null) {

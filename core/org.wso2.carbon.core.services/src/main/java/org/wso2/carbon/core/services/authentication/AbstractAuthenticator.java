@@ -20,6 +20,7 @@ package org.wso2.carbon.core.services.authentication;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -35,6 +36,7 @@ import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -158,6 +160,10 @@ public abstract class AbstractAuthenticator extends AbstractAdmin implements Ser
             }
 
             throw e;
+        }
+
+        if (!(tenantLessUserName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) && StringUtils.isNotEmpty(UserCoreUtil.getDomainFromThreadLocal())) {
+            tenantLessUserName = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + tenantLessUserName;
         }
 
         try {

@@ -27,11 +27,8 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.xml.StringUtils;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,8 +39,10 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.sql.DataSource;
 
 public class PermissionTree {
 
@@ -959,6 +958,17 @@ public class PermissionTree {
      * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
      */
     void updatePermissionTree() throws UserStoreException {
+        updatePermissionTree("");
+    }
+
+    /**
+     * Update permission tree from database for a given resource id if permission tree is already cached.
+     * If permission tree isn't cached, then this method will load full permission tree.
+     *
+     * @param resourceId registry resource path
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
+     */
+    void updatePermissionTree(String resourceId) throws UserStoreException {
         Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> permissionCache = this.getPermissionTreeCache();
         if (permissionCache != null) {
             PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
@@ -980,31 +990,89 @@ public class PermissionTree {
                             }
                         }
                     }
+                } else {
+                    if(!StringUtils.isEmpty(resourceId)) {
+                        //If permission tree is cached, only update the permissions of given resource path
+                        synchronized (this) {
+                            updateResourcePermissionsById(resourceId);
+                            cacheEntry.setResource(root);
+                        }
+                    }
                 }
             } else {
                 synchronized (this) {
-                    updatePermissionTreeFromDB();
-                    cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-                    cacheEntry = new GhostResource<TreeNode>(root);
-                    try {
-                        permissionCache.put(cacheKey, cacheEntry);
-                    } catch (IllegalStateException e) {
-                        if (e.getMessage().contains(ILLEGAL_STATE_EXCEPTION_MESSAGE)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Error when trying to put an entry to permissionCache. Retrying..");
-                            }
-                            permissionCache = this.getPermissionTreeCache();
+                    cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
+                    if (cacheEntry == null || cacheEntry.getResource() == null) {
+                        updatePermissionTreeFromDB();
+                        cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+                        cacheEntry = new GhostResource<TreeNode>(root);
+                        try {
                             permissionCache.put(cacheKey, cacheEntry);
-                        } else {
-                            // We only handle a specific IllegalStateException.
-                            throw e;
+                        } catch (IllegalStateException e) {
+                            // There is no harm ignoring cache update. as the local cache is already of no use.
+                            // Mis-penalty is low.
+                            String msg = "Error occurred while adding the permission tree to cache while trying to update" +
+                                    " resource: " + resourceId + " in tenant: " + tenantId;
+                            log.warn(msg);
+                            if (log.isDebugEnabled()) {
+                                log.debug(msg, e);
+                            }
                         }
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded from database");
+                        if (log.isDebugEnabled()) {
+                            log.debug("Permission tree is loaded from database for the resource " + resourceId +
+                                    " in tenant " + tenantId);
+                        }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Update permission tree from cache.
+     *
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
+     */
+    void updateResourcePermissionsById(String resourceId) throws UserStoreException {
+        Connection dbConnection = null;
+        ResultSet rs = null;
+        PreparedStatement statement = null;
+        try {
+            PermissionTree tree = new PermissionTree();
+            tree.root = this.root;
+            dbConnection = getDBConnection();
+            // Populating role permissions
+            if (preserveCaseForResources) {
+                statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID_CASE_SENSITIVE);
+            } else {
+                statement = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_BY_RESOURCE_ID);
+            }
+
+            statement.setInt(1, tenantId);
+            statement.setInt(2, tenantId);
+            statement.setString(3, resourceId);
+            rs = statement.executeQuery();
+            write.lock();
+            try {
+                while (rs.next()) {
+                    short allow = rs.getShort(3);
+                    String roleName = rs.getString(1);
+                    String domain = rs.getString(5);
+                    String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
+                    if (allow == UserCoreConstants.ALLOW) {
+                        tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
+                    }
+                }
+            } finally {
+                this.root = tree.root;
+                write.unlock();
+            }
+        } catch (SQLException e) {
+            throw new UserStoreException(
+                    "Error loading authorizations. Please check the database. Error message is "
+                            + e.getMessage(), e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, statement);
         }
     }
 

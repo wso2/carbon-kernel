@@ -28,6 +28,7 @@ import org.wso2.carbon.utils.component.xml.ComponentConfigFactory;
 import org.wso2.carbon.utils.component.xml.ComponentConstants;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -50,6 +51,8 @@ import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import static org.wso2.carbon.utils.CarbonUtils.getSecureTransformerFactory;
+
 /**
  *
  */
@@ -67,7 +70,9 @@ public class Utils {
         Source xmlStreamSource = new StreamSource(xmlStream);
         Source xslStreamSource = new StreamSource(xslStream);
         Result result = new StreamResult(outputStream);
-        Transformer transformer = TransformerFactory.newInstance().newTransformer(xslStreamSource);
+        TransformerFactory factory = getSecureTransformerFactory();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        Transformer transformer = factory.newTransformer(xslStreamSource);
         transformer.transform(xmlStreamSource, result);
     }
 

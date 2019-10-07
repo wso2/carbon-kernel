@@ -52,7 +52,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "", UserStoreConfigConstants.userNameAttributeDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
-                "(&amp;(objectClass=person)(uid=?))", UserStoreConfigConstants
+                "(&(objectClass=person)(uid=?))", UserStoreConfigConstants
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
@@ -67,7 +67,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 UserStoreConfigConstants.groupSearchBaseDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter",
-                "(&amp;(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
+                "(&(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
 
@@ -81,7 +81,8 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty("Referral", "Referral", "follow", "Guides the requests to a domain controller in the correct domain");
         setProperty("ReplaceEscapeCharactersAtUserLogin", "Enable Escape Characters at User Login", "true", "Whether replace escape character when user login");
         setProperty("UniqueID", "", "", "");
-
+        setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
+                "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

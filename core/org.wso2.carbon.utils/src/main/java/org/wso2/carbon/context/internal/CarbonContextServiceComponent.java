@@ -18,30 +18,33 @@
 package org.wso2.carbon.context.internal;
 
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.context.CarbonCoreInitializedEvent;
 import org.wso2.carbon.context.CarbonCoreInitializedEventImpl;
 import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.api.UserRealmService;
 
-/**
- * @scr.component name="org.wso2.carbon.context.internal.CarbonContextServiceComponent" immediate="true"
- * @scr.reference name="registry.service" interface="org.wso2.carbon.registry.api.RegistryService"
- * cardinality="1..1" policy="dynamic"  bind="setRegistryService" unbind="unsetRegistryService"
- * @scr.reference name="userRealmService" interface="org.wso2.carbon.user.api.UserRealmService"
- * cardinality="1..1" policy="dynamic"  bind="setUserRealmService" unbind="unsetUserRealmService"
- */
+@Component(name = "org.wso2.carbon.context.internal.CarbonContextServiceComponent", immediate = true)
 public class CarbonContextServiceComponent {
     private OSGiDataHolder dataHolder = OSGiDataHolder.getInstance();
 
-
+    @Activate
     protected void activate(ComponentContext componentContext) {
         //register a CarbonCoreInitializedEvent (an empty service) to guarantee the activation order
         componentContext.getBundleContext().registerService(CarbonCoreInitializedEvent.class.getName(), new CarbonCoreInitializedEventImpl(), null);
     }
-
+    
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
     }
 
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         dataHolder.setRegistryService(registryService);
     }
@@ -50,6 +53,8 @@ public class CarbonContextServiceComponent {
         dataHolder.setRegistryService(null);
     }
 
+    @Reference(name = "userRealmService", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetUserRealmService")
     protected void setUserRealmService(UserRealmService userRealmService){
         dataHolder.setUserRealmService(userRealmService);
     }

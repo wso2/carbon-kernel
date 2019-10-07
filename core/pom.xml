@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -80,10 +80,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
         </plugins>
         <testResources>
             <testResource>
@@ -118,7 +114,6 @@
         <module>org.wso2.carbon.user.api</module>
         <module>org.wso2.carbon.osgi.security</module>
         <module>org.wso2.carbon.registry.xboot</module>
-        <module>org.wso2.carbon.logging</module>
         <module>org.wso2.carbon.queuing</module>
         <module>org.wso2.carbon.utils</module>
         <module>org.wso2.carbon.securevault</module>
@@ -153,5 +148,6 @@
         <module>org.wso2.carbon.ndatasource.core</module>
         <module>org.wso2.carbon.ndatasource.rdbms</module>
         <module>org.wso2.carbon.framework.exporter</module>
+        <module>org.wso2.carbon.pax-logging-log4j2-plugins</module>
     </modules>
 </project>

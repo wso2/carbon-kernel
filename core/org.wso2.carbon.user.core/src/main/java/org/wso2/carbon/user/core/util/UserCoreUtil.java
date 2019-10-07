@@ -24,20 +24,20 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.UserStore;
+import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
 
-import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.sql.DataSource;
 
 /**
  * Utility class to handle user kernel utilities.
@@ -70,6 +71,8 @@ public final class UserCoreUtil {
      * belongs to, as a thread local variable.
      */
     private static ThreadLocal<String> threadLocalToSetDomain = new ThreadLocal<String>();
+    private static ThreadLocal<UserMgtContext> threadLocalToSetUserMgtContext = new
+            ThreadLocal<UserMgtContext>();
 
     /**
      * @param arr1
@@ -424,14 +427,13 @@ public final class UserCoreUtil {
      * @param domain
      */
     public static void setDomainInThreadLocal(String domain) {
-        if (domain != null && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domain)) {
-            threadLocalToSetDomain.set(domain.toUpperCase());
-        }
 
-        if (domain == null || (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase
-                (domain) && threadLocalToSetDomain.get() != null)) {
+        if (domain == null || domain.trim().isEmpty() || UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME
+                .equalsIgnoreCase(domain)) {
             // clear the thread local variable.
             threadLocalToSetDomain.remove();
+        } else {
+            threadLocalToSetDomain.set(domain.toUpperCase());
         }
     }
 
@@ -454,6 +456,25 @@ public final class UserCoreUtil {
             name = name.substring(index + 1);
         }
         return name;
+    }
+
+    public static void setUserMgtContextInThreadLocal(UserMgtContext functionalContainer) {
+
+        if (functionalContainer != null) {
+            threadLocalToSetUserMgtContext.set(functionalContainer);
+        } else {
+            threadLocalToSetUserMgtContext.remove();
+        }
+    }
+
+    public static UserMgtContext getUserMgtContextFromThreadLocal() {
+
+        return threadLocalToSetUserMgtContext.get();
+    }
+
+    public static void removeUserMgtContextInThreadLocal() {
+
+        threadLocalToSetUserMgtContext.remove();
     }
 
     /**
@@ -658,13 +679,13 @@ public final class UserCoreUtil {
             if ((!userName.equals(displayName)) && (displayName != null)) {
                 userName = domainName + userName;
                 displayName = domainName + displayName;
-                combinedName = userName + CarbonConstants.NAME_COMBINER + displayName;
+                combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = domainName + userName;
             }
         } else {
             if (!userName.equals(displayName) && displayName != null) {
-                combinedName = userName + CarbonConstants.NAME_COMBINER + displayName;
+                combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = userName;
             }
@@ -823,18 +844,19 @@ public final class UserCoreUtil {
                 domain = domain.toUpperCase();
             }
 
-            if (!isExistingDomain(domain, tenantId, dataSource)) {
-                dbConnection = DatabaseUtil.getDBConnection(dataSource);
-                dbConnection.setAutoCommit(false);
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            dbConnection.setAutoCommit(false);
+            if (!isExistingDomain(domain, tenantId, dbConnection)) {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
-                dbConnection.commit();
             }
+            dbConnection.commit();
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while checking is existing domain : " + domain + " for tenant : " + tenantId;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+            DatabaseUtil.rollBack(dbConnection);
             throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
             String errorMessage =
@@ -858,13 +880,12 @@ public final class UserCoreUtil {
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
-
-            if (isExistingDomain(domain, tenantId, dataSource)) {
-                dbConnection = DatabaseUtil.getDBConnection(dataSource);
-                dbConnection.setAutoCommit(false);
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            dbConnection.setAutoCommit(false);
+            if (isExistingDomain(domain, tenantId, dbConnection)) {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
-                dbConnection.commit();
             }
+            dbConnection.commit();
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while deleting domain : " + domain + " for tenant : " + tenantId;
@@ -897,16 +918,16 @@ public final class UserCoreUtil {
                 newDomain = newDomain.toUpperCase();
             }
 
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             // check for previous domain exists
-            if (isExistingDomain(previousDomain, tenantId, dataSource)) {
+            if (isExistingDomain(previousDomain, tenantId, dbConnection)) {
 
                 // New domain already exists, delete it first
-                if (!isExistingDomain(newDomain, tenantId, dataSource)) {
+                if (!isExistingDomain(newDomain, tenantId, dbConnection)) {
                     deletePersistedDomain(newDomain, tenantId, dataSource);
                 }
 
                 // Now rename the domain name
-                dbConnection = DatabaseUtil.getDBConnection(dataSource);
                 dbConnection.setAutoCommit(false);
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, newDomain, previousDomain, tenantId);
                 dbConnection.commit();
@@ -961,16 +982,14 @@ public final class UserCoreUtil {
 //		}
 //    }
 
-    private static boolean isExistingDomain(String domain, int tenantId, DataSource dataSource)
+    private static boolean isExistingDomain(String domain, int tenantId, Connection connection)
             throws UserStoreException {
-        Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         boolean isExisting = false;
 
         try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            prepStmt = dbConnection.prepareStatement(JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL);
+            prepStmt = connection.prepareStatement(JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL);
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -989,7 +1008,7 @@ public final class UserCoreUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+            DatabaseUtil.closeAllConnections( null, rs, prepStmt );
         }
     }
 

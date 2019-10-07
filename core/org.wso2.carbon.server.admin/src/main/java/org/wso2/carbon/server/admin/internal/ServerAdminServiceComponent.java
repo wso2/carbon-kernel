@@ -25,6 +25,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.services.authentication.BasicAccessAuthenticator;
 import org.wso2.carbon.core.services.authentication.CookieAuthenticator;
@@ -43,21 +49,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Hashtable;
 
-/**
- * @scr.component name="serveradmin.service.component"" immediate="true"
- * @scr.reference name="registry.service"
- * interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic"  bind="setRegistryService" unbind="unsetRegistryService"
- * @scr.reference name="config.context.service"
- * interface="org.wso2.carbon.utils.ConfigurationContextService"
- * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService" unbind="unsetConfigurationContextService"
- * @scr.reference name="server.configuration"
- * interface="org.wso2.carbon.base.api.ServerConfigurationService"
- * cardinality="1..1" policy="dynamic" bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"
- * unbind="unsetRealmService"
- */
+@Component(name = "serveradmin.service.component", immediate = true)
 public class ServerAdminServiceComponent {
 
     private static final Log log = LogFactory.getLog(ServerAdminServiceComponent.class);
@@ -67,6 +59,7 @@ public class ServerAdminServiceComponent {
     private ConfigurationContext configContext;
     private ServerAdminDataHolder dataHolder = ServerAdminDataHolder.getInstance();
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
         try {
             dataHolder.
@@ -116,6 +109,7 @@ public class ServerAdminServiceComponent {
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         log.debug("ServerAdmin bundle is deactivated");
     }
@@ -157,6 +151,8 @@ public class ServerAdminServiceComponent {
         }
     }
 
+    @Reference(name = "registry.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRegistryService")
     protected void setRegistryService(RegistryService registryService) {
         dataHolder.setRegistryService(registryService);
     }
@@ -166,6 +162,8 @@ public class ServerAdminServiceComponent {
         dataHolder.setRegistryDBDriver(null);
     }
 
+    @Reference(name = "user.realmservice.default", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
         dataHolder.setRealmService(realmService);
     }
@@ -175,6 +173,8 @@ public class ServerAdminServiceComponent {
         dataHolder.setUserManagerDBDriver(null);
     }
 
+    @Reference(name = "config.context.service", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetConfigurationContextService")
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
         this.configContext = contextService.getServerConfigContext();
         dataHolder.setConfigContext(contextService.getServerConfigContext());
@@ -182,18 +182,22 @@ public class ServerAdminServiceComponent {
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
         AxisConfiguration axisConf = configContext.getAxisConfiguration();
-        AxisModule statModule = axisConf.getModule(ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
-        if (statModule != null) {
-            try {
-                axisConf.disengageModule(statModule);
-            } catch (AxisFault axisFault) {
-                log.error("Failed disengage module: " + ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
+        if (axisConf != null) {
+            AxisModule statModule = axisConf.getModule(ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
+            if (statModule != null) {
+                try {
+                    axisConf.disengageModule(statModule);
+                } catch (AxisFault axisFault) {
+                    log.error("Failed disengage module: " + ServerAdminServiceComponent.SERVER_ADMIN_MODULE_NAME);
+                }
             }
         }
         this.configContext = null;
         dataHolder.setConfigContext(null);
     }
 
+    @Reference(name = "server.configuration", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC, 
+            unbind = "unsetServerConfigurationService")
     protected void setServerConfigurationService(ServerConfigurationService serverConfiguration) {
         dataHolder.setServerConfig(serverConfiguration);
     }

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>feature-manager</artifactId>
-        <version>4.4.19-SNAPSHOT</version>
+        <version>4.5.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -32,23 +32,23 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.eclipse.osgi</groupId>
+                    <groupId>org.wso2.eclipse.osgi</groupId>
                     <artifactId>org.eclipse.osgi</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.eclipse.osgi</groupId>
+                    <groupId>org.wso2.eclipse.osgi</groupId>
                     <artifactId>org.eclipse.osgi.services</artifactId>
                 </exclusion>
                 <exclusion>
@@ -56,11 +56,11 @@
                     <artifactId>org.eclipse.equinox.http.helper</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.eclipse.osgi</groupId>
+                    <groupId>org.wso2.eclipse.osgi</groupId>
                     <artifactId>org.eclipse.equinox.util</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.eclipse.osgi</groupId>
+                    <groupId>org.wso2.eclipse.osgi</groupId>
                     <artifactId>org.eclipse.equinox.ds</artifactId>
                 </exclusion>
                 <exclusion>
@@ -86,45 +86,62 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.director</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.engine</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
         </dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+	    <artifactId>org.osgi.service.component.annotations</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+	    <artifactId>org.osgi.service.metatype.annotations</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.osgi</groupId>
+	    <artifactId>org.osgi.compendium</artifactId>
+	    <scope>provided</scope>
+	</dependency>
     </dependencies>
 
     <build>
@@ -138,6 +155,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
+                            org.osgi.framework.*; version="${import.osgi.framework.version.range}",
+                            org.osgi.service.component.*; version="${import.osgi.service.component.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
@@ -145,10 +164,6 @@
                         </Export-Package>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

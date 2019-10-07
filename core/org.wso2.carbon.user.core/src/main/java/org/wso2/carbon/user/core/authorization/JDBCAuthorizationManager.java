@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -47,6 +48,8 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 
 public class JDBCAuthorizationManager implements AuthorizationManager {
 
@@ -69,6 +72,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private String isCascadeDeleteEnabled;
     private static final String DELETE_ROLE_PERMISSIONS = "DeleteRolePermissions";
     private static final String DELETE_USER_PERMISSIONS = "DeleteUserPermissions";
+    private static final String DELETE_ROLE_PERMISSIONS_MYSQL = "DeleteRolePermissions-mysql";
+    private static final String DELETE_USER_PERMISSIONS_MYSQL = "DeleteUserPermissions-mysql";
+
     private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
@@ -108,6 +114,16 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if ("false".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_PRESERVE_CASE_FOR_RESOURCES))) {
             preserveCaseForResources = false;
+        }
+
+        if (!realmConfig.getAuthzProperties().containsKey(DELETE_ROLE_PERMISSIONS_MYSQL)) {
+            realmConfig.getAuthzProperties().put(DELETE_ROLE_PERMISSIONS_MYSQL, DBConstants
+                    .ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL_MYSQL);
+        }
+
+        if (!realmConfig.getAuthzProperties().containsKey(DELETE_USER_PERMISSIONS_MYSQL)) {
+            realmConfig.getAuthzProperties().put(DELETE_USER_PERMISSIONS_MYSQL, DBConstants
+                    .ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL_MYSQL);
         }
 
         String userCoreCacheIdentifier = realmConfig.getUserStoreProperty(UserCoreConstants.
@@ -280,6 +296,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 AbstractUserStoreManager manager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
                 for (String role : allowedRoles) {
                     try {
+                        if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
+                            if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equalsIgnoreCase(role)) {
+                                userAllowed = true;
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
                         if (manager.isUserInRole(userName, role)) {
                             if (log.isDebugEnabled()) {
                                 log.debug(userName + " user is in role :  " + role);
@@ -347,6 +371,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
 
         return sr.getAllowedEntities().toArray(new String[sr.getAllowedEntities().size()]);
+    }
+
+    public void refreshAllowedRolesForResource(String resourceId)
+            throws UserStoreException {
+        permissionTree.updatePermissionTree(resourceId);
     }
 
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
@@ -478,6 +507,45 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
             return optimizedList;
         }
+    }
+
+    public String[] getAllowedUIResourcesForRole(String roleName, String permissionRootPath)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getAllowedUIResourcesForRole",
+                    new Object[]{roleName, permissionRootPath}, argTypes);
+            return (String[]) object;
+        }
+
+        List<String> lstPermissions = new ArrayList<String>();
+        List<String> resourceIds = getUIPermissionId();
+        if (resourceIds != null) {
+            for (String resourceId : resourceIds) {
+                if (isRoleAuthorized(roleName, resourceId, CarbonConstants.UI_PERMISSION_ACTION)) {
+                    if (permissionRootPath == null) {
+                        permissionRootPath = "/"; // Assign root path when permission path is null
+                    }
+                    if (resourceId.contains(permissionRootPath)) {
+                        lstPermissions.add(resourceId);
+                    }
+                }//authorization check up
+            }//loop over resource list
+        }//resource ID checkup
+
+        String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+        String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
+
+        if (debug) {
+            log.debug("Allowed UI Resources for Role: " + roleName + " in permissionRootPath: " +
+                    permissionRootPath);
+            for (String resource : optimizedList) {
+                log.debug("Resource: " + resource);
+            }
+        }
+
+        return optimizedList;
     }
 
     public void authorizeRole(String roleName, String resourceId, String action)
@@ -625,6 +693,19 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                         DELETE_ROLE_PERMISSIONS), resourceId, tenantId);
                 DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get(
                         DELETE_USER_PERMISSIONS), resourceId, tenantId);
+                String type = DatabaseCreator.getDatabaseType(dbConnection);
+                if (UserCoreConstants.MYSQL_TYPE.equals(type)
+                        || UserCoreConstants.MSSQL_TYPE.equals(type)) {
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_ROLE_PERMISSIONS_MYSQL), resourceId, tenantId);
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_USER_PERMISSIONS_MYSQL), resourceId, tenantId);
+                } else {
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_ROLE_PERMISSIONS), resourceId, tenantId);
+                    DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
+                            (DELETE_USER_PERMISSIONS), resourceId, tenantId);
+                }
             }
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_PERMISSION_SQL,
                     resourceId, tenantId);
@@ -633,6 +714,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while clearing resource authorizations for resource id : " + resourceId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage =
+                    "Error occurred while clearing resource authorization for resource id : " + resourceId;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -1008,9 +1096,17 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                             + " of domain: " + domain + " to resource: " + resourceId);
                 }
 
-                DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
-                        UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
-                        domain);
+                try {
+                    DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
+                            UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
+                            domain);
+                } catch (UserStoreException e) {
+                    if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                        log.warn("Permission Id: " + permissionId + " is already added to the role: " + roleName);
+                    } else {
+                        throw e;
+                    }
+                }
             }
 
             if (updateCache) {

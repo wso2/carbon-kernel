@@ -22,7 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -34,7 +34,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -49,7 +48,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import javax.cache.Caching;
+import javax.sql.DataSource;
 
 public class JDBCTenantManager implements TenantManager {
     private static Log log = LogFactory.getLog(TenantManager.class);
@@ -61,11 +61,11 @@ public class JDBCTenantManager implements TenantManager {
      * <p/>
      * Key - tenant domain, value - tenantId
      */
-    private Map tenantDomainIdMap = new ConcurrentHashMap<String, Integer>();
+    private TenantIdCache tenantIdCache = TenantIdCache.getInstance();
     /**
      * This is the reverse of the tenantDomainIdMap. Key - tenantId, value - tenant domain
      */
-    private Map tenantIdDomainMap = new ConcurrentHashMap<Integer, String>();
+    private TenantDomainCache tenantDomainCache = TenantDomainCache.getInstance();
 
     public JDBCTenantManager(OMElement omElement, Map<String, Object> properties) throws Exception {
         this.dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
@@ -73,6 +73,8 @@ public class JDBCTenantManager implements TenantManager {
             throw new Exception("Data Source is null");
         }
         this.tenantCacheManager.clear();
+        this.tenantIdCache.clear();
+        this.tenantDomainCache.clear();
     }
 
     //TODO : Remove the unused variable
@@ -119,6 +121,13 @@ public class JDBCTenantManager implements TenantManager {
                 id = result.getInt(1);
             }
             dbConnection.commit();
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully created the tenant, adding tenant domain to cache where tenantDomain: {"
+                        + tenant.getDomain().toLowerCase() + "}");
+            }
+            tenantDomainNameValidation(tenant.getDomain().toLowerCase());
+            tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(tenant.getDomain().toLowerCase()));
+            tenantIdCache.addToCache(new TenantDomainKey(tenant.getDomain().toLowerCase()), new TenantIdEntry(id));
         } catch (Exception e) {
 
             DatabaseUtil.rollBack(dbConnection);
@@ -183,6 +192,13 @@ public class JDBCTenantManager implements TenantManager {
 
             id = tenant.getId();
             dbConnection.commit();
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully created tenant with the provided id, ID: " + tenant.getId() + ", adding "
+                        + "tenant domain to cache where tenantDomain: {" + tenant.getDomain().toLowerCase() + "}");
+            }
+            tenantDomainNameValidation(tenant.getDomain().toLowerCase());
+            tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(tenant.getDomain().toLowerCase()));
+            tenantIdCache.addToCache(new TenantDomainKey(tenant.getDomain().toLowerCase()), new TenantIdEntry(id));
         } catch (Exception e) {
 
             DatabaseUtil.rollBack(dbConnection);
@@ -335,7 +351,14 @@ public class JDBCTenantManager implements TenantManager {
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
 
+                if (log.isDebugEnabled()) {
+                    log.debug("Obtained tenant from database for the given tenant ID: " + tenantId
+                            + ", hence adding tenant to cache where tenantDomain: {" + domain + "}");
+                }
+                tenantDomainNameValidation(domain);
                 tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
+                tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(domain));
+                tenantIdCache.addToCache(new TenantDomainKey(domain), new TenantIdEntry(id));
             }
             dbConnection.commit();
         } catch (SQLException e) {
@@ -405,11 +428,23 @@ public class JDBCTenantManager implements TenantManager {
             return null;
         }
 
-        String tenantDomain = (String) tenantIdDomainMap.get(tenantId);
-        if (tenantDomain != null) {
-            return tenantDomain;
+        TenantIdKey tenantIdKey = new TenantIdKey(tenantId);
+        TenantDomainEntry tenantDomainEntry = tenantDomainCache.getValueFromCache(tenantIdKey);
+        if (tenantDomainEntry != null) {
+            if (tenantDomainEntry.getTenantDomainName() != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Tenant domain from cache: {" + tenantDomainEntry.getTenantDomainName() + "}");
+                }
+                return tenantDomainEntry.getTenantDomainName().trim();
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Tenant domain from cache: {NULL}");
+                }
+                return tenantDomainEntry.getTenantDomainName();
+            }
         }
 
+        String tenantDomain = null;
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet result = null;
@@ -441,10 +476,26 @@ public class JDBCTenantManager implements TenantManager {
 
         if (tenantDomain != null && !tenantDomain.isEmpty() &&
                 tenantId != MultitenantConstants.INVALID_TENANT_ID) {
-            tenantIdDomainMap.put(tenantId, tenantDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Obtained tenant domain from database, tenantDomain: {" + tenantDomain + "} for the given "
+                        + "tenant ID:" + tenantId + ", hence adding tenant domain and tenant ID to cache.");
+            }
+            tenantDomainNameValidation(tenantDomain);
+            tenantDomainCache.addToCache(tenantIdKey, new TenantDomainEntry(tenantDomain));
+            tenantIdCache.addToCache(new TenantDomainKey(tenantDomain), new TenantIdEntry(tenantId));
         }
 
-        return tenantDomain;
+        if (tenantDomain != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Tenant domain from database : {" + tenantDomain + "}");
+            }
+            return tenantDomain.trim();
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Tenant domain from database : {NULL}");
+            }
+            return tenantDomain;
+        }
     }
 
     public Tenant[] getAllTenantsForTenantDomainStr(String tenantDomain) throws UserStoreException {
@@ -502,15 +553,16 @@ public class JDBCTenantManager implements TenantManager {
         } else if (tenantDomain == null) {
             return MultitenantConstants.INVALID_TENANT_ID;
         }
-        Integer tenantId = (Integer) tenantDomainIdMap.get(tenantDomain);
-        if (tenantId != null) {
-            return tenantId;
+        TenantDomainKey tenantDomainKey = new TenantDomainKey(tenantDomain);
+        TenantIdEntry tenantIdEntry = tenantIdCache.getValueFromCache(tenantDomainKey);
+        if (tenantIdEntry != null) {
+            return tenantIdEntry.getTenantDomainName();
         }
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet result = null;
-        tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.GET_TENANT_ID_SQL;
@@ -525,7 +577,14 @@ public class JDBCTenantManager implements TenantManager {
             dbConnection.commit();
             if (tenantDomain != null && !tenantDomain.isEmpty() &&
                     tenantId != MultitenantConstants.INVALID_TENANT_ID) {
-                tenantDomainIdMap.put(tenantDomain, tenantId);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Obtained tenant ID: " + tenantId + " from database for the given tenantDomain: {"
+                            + tenantDomain + "}, hence adding tenant domain and tenant ID to cache.");
+                }
+                tenantDomainNameValidation(tenantDomain);
+                tenantIdCache.addToCache(tenantDomainKey, new TenantIdEntry(tenantId));
+                tenantDomainCache.addToCache(new TenantIdKey(tenantId), new TenantDomainEntry(tenantDomain));
             }
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
@@ -543,7 +602,6 @@ public class JDBCTenantManager implements TenantManager {
     public void activateTenant(int tenantId) throws UserStoreException {
 
         clearTenantCache(tenantId);
-
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -569,7 +627,6 @@ public class JDBCTenantManager implements TenantManager {
     public void deactivateTenant(int tenantId) throws UserStoreException {
 
         // Remove tenant information from the cache.
-        tenantIdDomainMap.remove(tenantId);
         clearTenantCache(tenantId);
 
         Connection dbConnection = null;
@@ -629,13 +686,9 @@ public class JDBCTenantManager implements TenantManager {
     public void deleteTenant(int tenantId, boolean removeFromPersistentStorage)
             throws org.wso2.carbon.user.api.UserStoreException {
         // Remove tenant information from the cache.
-        getDomain(tenantId); //fill the tenantIdDomainMap
-        String tenantDomain = (String) tenantIdDomainMap.remove(tenantId);
-        if (tenantDomain != null) {
-            tenantDomainIdMap.remove(tenantDomain);
-        }
+        String domain = getDomain(tenantId);
         clearTenantCache(tenantId);
-
+        invalidateCacheManager(domain);
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
             PreparedStatement prepStmt = null;
@@ -659,6 +712,20 @@ public class JDBCTenantManager implements TenantManager {
                 DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
             }
         }
+    }
+
+    private void clearTenantCache(int tenantId) throws UserStoreException {
+
+        String domain = getDomain(tenantId);
+        tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
+        tenantIdCache.clearCacheEntry(new TenantDomainKey(domain));
+        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+    }
+
+    private void invalidateCacheManager(String domain) {
+
+        CacheManagerFactoryImpl cacheManagerFactory = (CacheManagerFactoryImpl) Caching.getCacheManagerFactory();
+        cacheManagerFactory.removeCacheManagerMap(domain);
     }
 
     public void setBundleContext(BundleContext bundleContext) {
@@ -724,7 +791,38 @@ public class JDBCTenantManager implements TenantManager {
 
     }
 
-    private void clearTenantCache(int tenantId) {
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+    /**
+     * Check for tenant domain contains any trailing spaces.
+     *
+     * @param tenantDomain
+     */
+    private void tenantDomainNameValidation(String tenantDomain) {
+
+        if (tenantDomain.equals(tenantDomain.trim())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Tenant domain doesn't contain any trailing white spaces, tenantDomain: {" + tenantDomain
+                        + "}");
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Tenant domain contains trailing white spaces, tenantDomain: {" + tenantDomain + "}, "
+                        + "current stack trace: \n" + printCurrentStackTrace().toString());
+            }
+        }
+    }
+
+    /**
+     * Print current stack trace.
+     */
+    private StringBuilder printCurrentStackTrace() {
+
+        StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+        StringBuilder currentStackTraceBuilder = new StringBuilder();
+        for (int i = 1; i < elements.length; i++) {
+            StackTraceElement s = elements[i];
+            currentStackTraceBuilder.append("\tat " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName()
+                    + ":" + s.getLineNumber() + ") \n");
+        }
+        return currentStackTraceBuilder;
     }
 }

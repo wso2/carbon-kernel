@@ -17,30 +17,49 @@
  */
 package org.wso2.carbon.tomcat.internal;
 
-
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.SecurityConstants;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 import org.wso2.securevault.secret.SecretManager;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import javax.naming.Context;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.nio.file.Paths;
+
+import static org.wso2.carbon.utils.CarbonUtils.getSecureTransformerFactory;
 
 /**
  * Configuring,initialization and stopping the carbon tomcat instance
@@ -61,22 +80,33 @@ public class ServerManager {
      * initialization code goes here.i.e : configuring tomcat instance using catalina-server.xml
      */
     public void init() {
+
         bundleCtxtClassLoader = Thread.currentThread().getContextClassLoader();
         String carbonHome = System.getProperty(CarbonBaseConstants.CARBON_HOME);
         String catalinaHome;
         String configPath = System.getProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH);
         String catalinaXML;
+        String catalinaPropertiesXml;
         if (configPath == null) {
             catalinaXML = Paths.get(carbonHome, "repository", "conf", "tomcat", "catalina-server.xml").toString();
+            catalinaPropertiesXml = Paths.get(carbonHome, "repository", "conf", "tomcat", "catalina.properties").toString();
         } else {
             catalinaXML = Paths.get(configPath, "tomcat", "catalina-server.xml").toString();
+            catalinaPropertiesXml = Paths.get(configPath, "tomcat", "catalina.properties").toString();
         }
+        try {
+            System.setProperty("catalina.config", new File(catalinaPropertiesXml).toURI().toURL().toString());
+        } catch (MalformedURLException e) {
+            log.error("could not locate the file catalina.properties", e);
+        }
+
         try {
             inputStream = new FileInputStream(new File(catalinaXML));
         } catch (FileNotFoundException e) {
             log.error("could not locate the file catalina-server.xml", e);
         }
-        //setting catalina.base system property. tomcat configurator refers this property while tomcat instance creation.
+        //setting catalina.base system property. tomcat configurator refers this property while tomcat instance
+        // creation.
         //you can override the property in wso2server.sh
         String internalLibPath = System.getProperty(CarbonBaseConstants.CARBON_INTERNAL_LIB_DIR_PATH);
         if (internalLibPath == null) {
@@ -100,27 +130,30 @@ public class ServerManager {
         }
         System.setProperty(Context.URL_PKG_PREFIXES, value);
 
+        // As of Tomcat 8, TomcatURLStreamHandlerFactory.disable() will disable Tomcat's custom URLStreamHandlerFactory.
+        // If this is disabled, access to resources in JARs in packed WARs will break unless
+        // the WarURLStreamHandler is registered via other means.
+        // In WSO2 as the WARs are always unpacked before loading, there wont't be any issue.
+        TomcatURLStreamHandlerFactory.disable();
         tomcat = new CarbonTomcat();
 
-        if(SecretManager.getInstance().isInitialized()){
+        Element config = inputStreamToDOM(inputStream);
+        if (SecretManager.getInstance().isInitialized()) {
             //creates DOM from input stream
-            Element config = inputStreamToDOM(inputStream);
             //creates Secret resolver
             resolver = SecretResolverFactory.create(config, true);
             //resolves protected passwords
             resolveSecuredConfig(config, null);
-            if (config.getAttributes().getNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
-                    SVNS) != null) {
-                config.getAttributes().removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
-                        SVNS);
-            }
-            // creates new input stream from processed DOM element
-            InputStream newStream = domToInputStream(config);
-            
-            tomcat.configure(catalinaHome, newStream);
-        } else {
-            tomcat.configure(catalinaHome, inputStream);    
         }
+        if (config.getAttributes().getNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
+                SVNS) != null) {
+            config.getAttributes().removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR +
+                    SVNS);
+        }
+        // creates new input stream from processed DOM element
+        InputStream newStream = domToInputStream(config);
+
+        tomcat.configure(catalinaHome, newStream);
     }
 
     /**
@@ -183,13 +216,25 @@ public class ServerManager {
         if (nodeMap != null) {
             for (int j = 0; j < nodeMap.getLength(); j++) {
                 Node node = nodeMap.item(j);
-                if(node != null){
-                    String attributeName = node.getNodeName();
-                    token = tempToken + "." + attributeName;
-                    if(resolver.isTokenProtected(token)){
-                        node.setNodeValue(resolver.resolve(token));
-                        nodeMap.removeNamedItem(
-                                SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                if (node != null) {
+                    String alias = MiscellaneousUtil.getProtectedToken(node.getNodeValue());
+                    if (alias != null && alias.length() > 0) {
+                        node.setNodeValue(MiscellaneousUtil.resolve(alias, resolver));
+                    } else {
+                        String attributeName = node.getNodeName();
+                        token = tempToken + "." + attributeName;
+                        if (resolver.isTokenProtected(token)) {
+                            node.setNodeValue(resolver.resolve(token));
+                            try {
+                                nodeMap.removeNamedItem(
+                                        SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
+                            } catch (DOMException e) {
+                                String msg =
+                                        "Error while removing " + SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS;
+                                // log is ignored
+                                log.debug(msg, e);
+                            }
+                        }
                     }
                 }
             }
@@ -272,7 +317,7 @@ public class ServerManager {
         Result outputTarget = new StreamResult(outputStream);
 
         try{
-            Transformer t = TransformerFactory.newInstance().newTransformer();
+            Transformer t = getSecureTransformerFactory().newTransformer();
             t.transform(new DOMSource(root), outputTarget);
             return new ByteArrayInputStream(outputStream.toByteArray());
         } catch (TransformerConfigurationException e) {

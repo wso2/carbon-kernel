@@ -15,11 +15,6 @@
  */
 package org.wso2.carbon.authenticator.proxy;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -33,6 +28,10 @@ import org.wso2.carbon.authenticator.stub.RememberMeData;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.utils.ServerConstants;
 
+import java.util.Calendar;
+import java.util.Date;
+import javax.servlet.http.HttpSession;
+
 
 /**
  * Authentication admin client. A client proxy for AuthenticationAdmin service.
@@ -40,9 +39,12 @@ import org.wso2.carbon.utils.ServerConstants;
 public class AuthenticationAdminClient {
 
     private static final Log log = LogFactory.getLog(AuthenticationAdminClient.class);
+    private static final String USER_NOT_FOUND_ERROR_CODE = "17001";
+    private static final String ACCOUNT_LOCK_ERROR_CODE = "17003";
     private AuthenticationAdminStub stub;
     private HttpSession session;
     private boolean doManageSession;
+    private static final String ACCOUNT_LOCK_ERROR_MESSAGE = "Cannot login until the account is unlocked.";
 
     public AuthenticationAdminClient(ConfigurationContext ctx, String serverURL, String cookie,
             HttpSession session, boolean doManageSession) throws AxisFault {
@@ -66,7 +68,13 @@ public class AuthenticationAdminClient {
             return result;
         } catch (java.lang.Exception e) {
             String msg = "Error occurred while logging in";
-            log.error(msg, e);
+            if (e.getMessage() != null && (e.getMessage().contains(USER_NOT_FOUND_ERROR_CODE) || e.getMessage()
+                    .contains(ACCOUNT_LOCK_ERROR_CODE) || e.getMessage().contains(ACCOUNT_LOCK_ERROR_MESSAGE))) {
+                //skip loggin these exceptions. These are not server errors, but the errors due to userNotFound and
+                // userLocked.
+            } else {
+                log.error(msg, e);
+            }
             throw new AuthenticationException(e);
         }
     }

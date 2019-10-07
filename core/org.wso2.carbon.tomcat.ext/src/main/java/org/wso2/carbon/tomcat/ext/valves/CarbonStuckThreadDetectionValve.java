@@ -28,11 +28,11 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
 import org.wso2.carbon.tomcat.ext.internal.Utils;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.servlet.ServletException;
 
 /**
  * Tomcat valve for detecting stuck or long running threads
@@ -41,14 +41,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CarbonStuckThreadDetectionValve extends ValveBase {
 
     /**
-     * The descriptive information related to this implementation.
-     */
-    private static final String info =
-        "org.apache.catalina.valves.StuckThreadDetectionValve/1.0";
-    /**
      * Logger
      */
-    private static final Log    log  = LogFactory.getLog(StuckThreadDetectionValve.class);
+    private static final Log log = LogFactory.getLog(StuckThreadDetectionValve.class);
 
     /**
      * The string manager for this package.
@@ -99,14 +94,6 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
                           + threshold
                           + " sec");
         }
-    }
-
-    /**
-     * Return descriptive information about this Valve implementation.
-     */
-    @Override
-    public String getInfo() {
-        return info;
     }
 
     private void handleStuckThread(MonitoredThread monitoredThread,

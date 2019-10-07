@@ -46,7 +46,7 @@ public class RemoveXMLElement extends ProvisioningAction{
                 }
                 nodeToDel.getParentNode().removeChild(nodeToDel);
 
-                TransformerFactory tf = TransformerFactory.newInstance();
+                TransformerFactory tf = getSecureTransformerFactory();
                 Transformer t = tf.newTransformer();
                 t.transform(new DOMSource(document), new StreamResult(file));
 

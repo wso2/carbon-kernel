@@ -229,8 +229,9 @@ public class Breadcrumb extends BodyTagSupport {
 
         content.append("<script type=\"text/javascript\">\n");
 		try {
-			content.append("    setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent, "UTF-8")
-					+ "');\n");
+			content.append("if (window.location.protocol === \"https:\") {" +
+					"setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent, "UTF-8") + "',null,null,';secure')" +
+					";\n}else{setCookie('current-breadcrumb', '" + URLEncoder.encode(cookieContent, "UTF-8") + "');\n}");
 		} catch (UnsupportedEncodingException e) {
 			log.error("Unsupported encoding UTF-8", e);
 		}

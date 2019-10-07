@@ -152,9 +152,6 @@ public class CharacterSetFilterTest {
         Assert.assertTrue(testServletResponse.getCharacterEncoding() != null &&
                 !(testServletResponse.getCharacterEncoding().isEmpty()),
                 "A default character encoding is not set to response");
-        Assert.assertTrue(testServletResponse.getContentType() != null &&
-                !(testServletResponse.getContentType().isEmpty()),
-                "A default content type is not set to response");
     }
 
     /**
@@ -177,7 +174,5 @@ public class CharacterSetFilterTest {
         log.info("Testing doFilter () with case 4");
         Assert.assertTrue(UTF8.equals(testServletResponse.getCharacterEncoding()),
                 "Default character encoding is not set to UTF-8");
-        Assert.assertTrue(CONTENT_TYPE.equals(testServletResponse.getContentType()),
-                "Default content type is not set to 'text/html; charset=UTF-8'");
     }
 }

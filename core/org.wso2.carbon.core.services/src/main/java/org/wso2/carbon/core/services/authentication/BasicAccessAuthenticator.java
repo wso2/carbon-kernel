@@ -142,7 +142,7 @@ public class BasicAccessAuthenticator extends AbstractAuthenticator {
         if (decodedBytes != null) {
             String userNamePassword = new String(decodedBytes);
 
-            return userNamePassword.split(":");
+            return userNamePassword.split(":", 2);
         } else {
             log.debug("Error decoding authorization header. Could not retrieve user name and password.");
             return new String[]{null, null};

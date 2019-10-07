@@ -69,7 +69,7 @@ public class JDBCUserStoreConstants {
                 "Password pattern policy violated.", passwordJavaRegExViolationErrorMsgDescription);
         setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate role names");
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
-        setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
+        setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
         //set Advanced properties
@@ -99,6 +99,95 @@ public class JDBCUserStoreConstants {
                         "SQL SELECT statement that returns at least one row");
         setAdvancedProperty(VALIDATION_INTERVAL, "Validation Interval(time in milliseconds)", "", "Used to avoid " +
                 "excess validation, only run validation at most at this frequency");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_AUTO_COMMIT, "Default Auto commit", "",
+                "The default auto-commit state of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_READ_ONLY, "Default Read Only", "",
+                "The default read-only state of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_TRANSACTION_ISOLATION, "Default Transaction Isolation",
+                "", "The default TransactionIsolation state of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.DEFAULT_CATALOG, "Default Catalog",
+                "", "The default catalog of connections created by this pool");
+
+        setAdvancedProperty(JDBCRealmConstants.INITIAL_SIZE, "Initial Size",
+                "", "The initial number of connections that are created when the pool is started");
+
+        setAdvancedProperty(JDBCRealmConstants.TEST_ON_RETURN, "Test On Return", "false", "The indication of " +
+                "whether objects will be validated before being returned to the pool");
+
+        setAdvancedProperty(JDBCRealmConstants.TEST_ON_BORROW, "Test On Borrow", "false", "The indication of " +
+                "whether objects will be validated before being borrowed from the pool");
+
+        setAdvancedProperty(JDBCRealmConstants.VALIDATOR_CLASS_NAME, "Validator Class Name",
+                "", "The name of a class which implements the org.apache.tomcat.jdbc.pool.Validator interface and " +
+                        "provides a no-arg constructor (may be implicit)");
+
+        setAdvancedProperty(JDBCRealmConstants.NUM_TESTS_PER_EVICTION_RUN, "Num Tests Per Eviction Run", "",
+                " Property not used in tomcat-jdbc-pool");
+
+        setAdvancedProperty(JDBCRealmConstants.ACCESS_TO_UNDERLYING_CONNECTION_ALLOWED, "Access To Underlying " +
+                "Connection Allowed", "", "Property not used. Access can be achieved by calling unwrap on " +
+                "the pooled connection");
+
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_ABANDONED, "Remove Abandoned", "false",
+                "Flag to remove abandoned connections if they exceed the removeAbandonedTimeout");
+
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_ABANDONED_TIMEOUT, "Remove Abandoned Timeout", "",
+                "Timeout in seconds before an abandoned(in use) connection can be removed");
+
+        setAdvancedProperty(JDBCRealmConstants.LOG_ABANDONED, "Log Abandoned", "false",
+                "Flag to log stack traces for application code which abandoned a Connection");
+
+        setAdvancedProperty(JDBCRealmConstants.CONNECTION_PROPERTIES, "Connection Properties", "",
+                "The connection properties that will be sent to our JDBC driver when establishing new connections");
+
+        setAdvancedProperty(JDBCRealmConstants.INIT_SQL, "Init SQL", "",
+                "A custom query to be run when a connection is first created");
+
+        setAdvancedProperty(JDBCRealmConstants.JDBC_INTERCEPTORS, "JDBC Interceptors", "",
+                "JDBC Interceptors");
+
+        setAdvancedProperty(JDBCRealmConstants.JMX_ENABLED, "JMX Enabled", "true",
+                "Register the pool with JMX or not");
+
+        setAdvancedProperty(JDBCRealmConstants.FAIR_QUEUE, "Fiar Queue", "true",
+                "Set to true if you wish that calls to getConnection should be treated fairly in a true FIFO fashion");
+
+        setAdvancedProperty(JDBCRealmConstants.ABANDON_WHEN_PERCENTAGE_FULL, "Abandon when percentage full", "",
+                "Connections that have been abandoned (timed out) wont get closed and reported up unless the number" +
+                        " of connections in use are above the percentage defined by abandonWhenPercentageFull");
+
+        setAdvancedProperty(JDBCRealmConstants.MAX_AGE, "Max Age", "",
+                "Time in milliseconds to keep the connection");
+
+        setAdvancedProperty(JDBCRealmConstants.USE_EQUALS, "Use Equals", "true",
+                "Set to true if you wish the ProxyConnection class to use String.equals and set to false when you " +
+                        "wish to use == when comparing method names");
+
+        setAdvancedProperty(JDBCRealmConstants.SUSPECT_TIMEOUT, "Suspect Timeout", "",
+                "Similar to to the removeAbandonedTimeout value but instead of treating the connection as " +
+                        "abandoned, and potentially closing the connection, this simply logs the warning if " +
+                        "logAbandoned is set to true");
+
+        setAdvancedProperty(JDBCRealmConstants.VALIDATION_QUERY_TIMEOUT, "Validation Query Timeout", "",
+                "The timeout in seconds before a connection validation queries fail");
+
+        setAdvancedProperty(JDBCRealmConstants.ALTERNATE_USERNAME_ALLOWED, "Alternate Username Allowed", "false",
+                "If enabled, the pool size is still managed on a global level, and not on a per schema level");
+
+        setAdvancedProperty(JDBCRealmConstants.COMMIT_ON_RETURN, "Commit On Return", "false",
+                "If autoCommit==false then the pool can complete the transaction by calling commit on the " +
+                        "connection as it is returned to the pool If rollbackOnReturn==true then this attribute is " +
+                        "ignored");
+
+        setAdvancedProperty(JDBCRealmConstants.ROLLBACK_ON_RETURN, "Rollback On Return", "false",
+                "If autoCommit==false then the pool can terminate the transaction by calling rollback on the " +
+                        "connection as it is returned to the pool");
+
+
         setAdvancedProperty("CountRetrieverClass", "Count Implementation",
                 "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
                 "Name of the class that implements the count functionality");
@@ -111,12 +200,22 @@ public class JDBCUserStoreConstants {
                 "UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME", "");
         setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Role List SQP", JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER, "User Filter SQL", JDBCRealmConstants.GET_USER_FILTER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE, "User Filter SQL With Escape",
+                JDBCRealmConstants.GET_USER_FILTER_SQL_WITH_ESCAPE, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE, "User Filter SQL With" +
                         " Case Insensitive Username", JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE,
                 "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE,
+                "User Filter " + "SQL With Case Insensitive Username With Escape",
+                JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE_WITH_ESCAPE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_ROLE, "User Role SQL", JDBCRealmConstants.GET_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_ROLE_EXIST, "User Role Exist SQL",
+                JDBCRealmConstants.GET_IS_USER_ROLE_EXIST_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE, "User Role SQL With " +
                 "Case Insensitive Username", JDBCCaseInsensitiveConstants.GET_USER_ROLE_SQL_CASE_INSENSITIVE, "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_EXIST_CASE_INSENSITIVE,
+                "User Role Exist " + "SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.GET_USER_ROLE_EXIST_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER, "User Shared Role SQL", JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE, "User " +
                 "Shared Role SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
@@ -206,7 +305,7 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE, "Update User " +
                 "Property SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE, "");
-        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY, "Delete User Property SQL", JDBCRealmConstants.UPDATE_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY, "Delete User Property SQL", JDBCRealmConstants.DELETE_USER_PROPERTY_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE, "Delete User " +
                 "Property SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .DELETE_USER_PROPERTY_SQL_CASE_INSENSITIVE, "");

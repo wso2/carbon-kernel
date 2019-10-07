@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,7 @@ import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.api.IdempotentMessage;
 import org.wso2.carbon.caching.impl.CacheImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
@@ -31,6 +32,8 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.CLEAR_ALL_PREFIX;
+
 /**
  * This is the cluster-wide local cache invalidation message that is sent
  * to all the other nodes in a cluster. This invalidates its own cache.
@@ -38,6 +41,7 @@ import javax.cache.Caching;
  * This is based on Axis2 clustering.
  *
  */
+@IdempotentMessage
 public class ClusterCacheInvalidationRequest extends ClusteringMessage {
 
     private static final transient Log log = LogFactory.getLog(ClusterCacheInvalidationRequest.class);
@@ -48,6 +52,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
     private int tenantId;
 
     public ClusterCacheInvalidationRequest(CacheInfo cacheInfo, String tenantDomain, int tenantId) {
+
         this.cacheInfo = cacheInfo;
         this.tenantDomain = tenantDomain;
         this.tenantId = tenantId;
@@ -55,6 +60,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
 
     @Override
     public void execute(ConfigurationContext configurationContext) throws ClusteringFault {
+
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Received [" + this + "] ");
@@ -67,7 +73,11 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(cacheInfo.cacheManagerName);
             Cache<Object, Object> cache = cacheManager.getCache(cacheInfo.cacheName);
             if (cache instanceof CacheImpl) {
-                ((CacheImpl) cache).removeLocal(cacheInfo.cacheKey);
+                if (CLEAR_ALL_PREFIX.equals(cacheInfo.cacheKey)) {
+                    ((CacheImpl) cache).removeAllLocal();
+                } else {
+                    ((CacheImpl) cache).removeLocal(cacheInfo.cacheKey);
+                }
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
@@ -77,6 +87,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
 
     @Override
     public String toString() {
+
         return "ClusterCacheInvalidationRequest{" +
                 "tenantId=" + tenantId +
                 ", tenantDomain='" + tenantDomain + '\'' +
@@ -93,6 +104,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
     }
 
     public static class CacheInfo implements Serializable {
+
         private String cacheManagerName;
         private String cacheName;
         private Object cacheKey;
