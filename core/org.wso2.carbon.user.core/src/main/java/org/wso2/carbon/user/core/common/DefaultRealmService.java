@@ -193,6 +193,7 @@ public class DefaultRealmService implements RealmService {
                     }
                 }
             }
+
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting tenant user realm for tenant id : " + tenantId;
             if (log.isDebugEnabled()) {
@@ -201,7 +202,6 @@ public class DefaultRealmService implements RealmService {
             throw new UserStoreException(errorMessage, e);
         }
         return userRealm;
-
     }
 
     @Override
