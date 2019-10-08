@@ -936,7 +936,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String[] searchBaseArray = searchBases.split("#");
 
             for (String searchBase : searchBaseArray) {
-                answer = searchForUsers( finalFilter.toString(), searchBase, searchBases, maxItemLimit,
+                answer = searchForUsers(finalFilter.toString(), searchBase, searchBases, maxItemLimit,
                         returnedAtts);
                 while (answer.hasMoreElements()) {
                     SearchResult sr = (SearchResult) answer.next();
@@ -1051,7 +1051,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         searchCtls.setCountLimit(maxItemLimit);
         searchCtls.setTimeLimit(searchTime);
-
         searchCtls.setReturningAttributes(returnedAtts);
 
         if (log.isDebugEnabled()) {
@@ -1064,9 +1063,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         dirContext = connectionSource.getContext();
 
         try {
-
             answer = dirContext.search(escapeDNForSearch(searchBase), finalFilter, searchCtls);
-
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while getting user list for filter : " + finalFilter + "max limit : " + maxItemLimit;
@@ -2631,18 +2628,21 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String enableMaxUserLimitForSCIM = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_MAX_USER_LIST_FOR_SCIM);
         try {
-            if (enableMaxUserLimitForSCIM != null && Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
+            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
                 SearchControls searchCtls = new SearchControls();
                 searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
                 if (ArrayUtils.isNotEmpty(returnedAttributes)) {
                     searchCtls.setReturningAttributes(returnedAttributes);
                 }
+                String nameInNamespace = null;
+                try {
+                    nameInNamespace = dirContext.getNameInNamespace();
+                } catch (NamingException e) {
+                    log.error("Error while getting DN of search base", e);
+                }
                 if (log.isDebugEnabled()) {
-                    try {
-                        log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
-                    } catch (NamingException e) {
-                        log.debug("Error while getting DN of search base", e);
-                    }
+                    log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " +
+                            nameInNamespace);
                     if (ArrayUtils.isEmpty(returnedAttributes)) {
                         log.debug("No attributes requested");
                     } else {
@@ -2660,7 +2660,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         break;
                     }
                 }
-
             } else {
                 answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
             }
@@ -4304,6 +4303,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM, UserStoreConfigConstants
+                        .enableMaxUserLimitDisplayName, "false",
+                UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,

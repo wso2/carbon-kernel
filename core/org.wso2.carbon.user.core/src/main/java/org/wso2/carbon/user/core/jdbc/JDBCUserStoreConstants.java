@@ -346,6 +346,9 @@ public class JDBCUserStoreConstants {
                 .ADD_USER_PROPERTY_OPENEDGE_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
                 UserStoreConfigConstants.claimOperationsSupportedDescription);
+        setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM, UserStoreConfigConstants
+                        .enableMaxUserLimitDisplayName, "false",
+                UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
         setProperty("UniqueID", "", "", "");
     }
 

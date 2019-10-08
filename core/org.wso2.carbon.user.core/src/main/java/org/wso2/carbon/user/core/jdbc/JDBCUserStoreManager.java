@@ -2899,18 +2899,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             String enableMaxUserLimitForSCIM = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
                     .PROPERTY_MAX_USER_LIST_FOR_SCIM);
-            if (enableMaxUserLimitForSCIM != null && Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
+            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
                 int givenMax;
                 int searchTime;
                 int maxItemLimit = MAX_ITEM_LIMIT_UNLIMITED;
-
                 try {
                     givenMax = Integer.parseInt(realmConfig
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
                 } catch (Exception e) {
                     givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
                 }
-
                 try {
                     searchTime = Integer.parseInt(realmConfig
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
@@ -2920,7 +2918,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (maxItemLimit < 0 || maxItemLimit > givenMax) {
                     maxItemLimit = givenMax;
                 }
-
                 prepStmt.setMaxRows(maxItemLimit);
                 try {
                     prepStmt.setQueryTimeout(searchTime);
@@ -3604,7 +3601,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             while (rs.next()) {
-
                 String name = rs.getString(1);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(name)) {
                     continue;
