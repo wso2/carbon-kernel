@@ -18,6 +18,7 @@ z * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -747,6 +748,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String roleName = ctx.getRoleName();
         String[] names = null;
         String sqlStmt = null;
+
+        if (maxItemLimit == 0) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
 
         if (maxItemLimit < 0 || maxItemLimit > maximumUserNameListLength) {
             maxItemLimit = maximumUserNameListLength;
