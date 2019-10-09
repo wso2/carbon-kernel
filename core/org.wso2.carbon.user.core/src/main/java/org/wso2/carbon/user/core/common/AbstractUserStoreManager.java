@@ -4272,7 +4272,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         UserStore userStore = getUserStore(roleName);
 
         if (userStore.isRecurssive()) {
-            return userStore.getUserStoreManager().getUserListOfRole(userStore.getDomainFreeName());
+            UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
+            if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
+                return ((AbstractUserStoreManager) resolvedUserStoreManager)
+                        .getUserListOfRole(userStore.getDomainFreeName(), filter, maxItemLimit);
+            } else {
+                return resolvedUserStoreManager.getUserListOfRole(userStore.getDomainFreeName());
+            }
         }
 
 
