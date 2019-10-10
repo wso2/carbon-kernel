@@ -252,9 +252,9 @@ public class DefaultRealmService implements RealmService {
             }
             userRealm = (UserRealm) realmCache.getUserRealm(tenantId, PRIMARY_TENANT_REALM);
             if (userRealm == null) {
-                userRealm = (UserRealm) realmCache.getUserRealm(tenantId, PRIMARY_TENANT_REALM);
-                if (userRealm == null) {
-                    synchronized (tenantDomain.intern()) {
+                synchronized (tenantDomain.intern()) {
+                    userRealm = (UserRealm) realmCache.getUserRealm(tenantId, PRIMARY_TENANT_REALM);
+                    if (userRealm == null) {
                         userRealm = initializeRealm(tenantRealmConfig, tenantId);
                         realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
                     }
