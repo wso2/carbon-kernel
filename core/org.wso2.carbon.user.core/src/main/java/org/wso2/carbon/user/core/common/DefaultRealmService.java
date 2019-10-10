@@ -43,9 +43,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.sql.DataSource;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,6 +56,9 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
+import javax.sql.DataSource;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 public class DefaultRealmService implements RealmService {
 
@@ -180,10 +180,17 @@ public class DefaultRealmService implements RealmService {
                     tenantRealmConfig = realmConfigBuilder.getRealmConfigForTenantToCreateRealm(
                             bootstrapRealmConfig, tenantRealmConfig, tenantId);
                 }
+
                 String lockedString = tenant.getDomain() + "@DefaultRealmService_getTenantUserRealmInternal";
-                synchronized (lockedString.intern()) {
-                    userRealm = initializeRealm(tenantRealmConfig, tenantId);
-                    realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
+                userRealm = getCachedUserRealm(tenantId);
+                if (userRealm == null) {
+                    synchronized (lockedString.intern()) {
+                        userRealm = getCachedUserRealm(tenantId);
+                        if (userRealm == null) {
+                            userRealm = initializeRealm(tenantRealmConfig, tenantId);
+                            realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
+                        }
+                    }
                 }
             }
 
@@ -243,10 +250,15 @@ public class DefaultRealmService implements RealmService {
                 throw new UserStoreException("Error occurred while retrieving tenant domain from tenant Id " +
                         tenantId);
             }
-
-            synchronized (tenantDomain.intern()) {
-                userRealm = initializeRealm(tenantRealmConfig, tenantId);
-                realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
+            userRealm = (UserRealm) realmCache.getUserRealm(tenantId, PRIMARY_TENANT_REALM);
+            if (userRealm == null) {
+                userRealm = (UserRealm) realmCache.getUserRealm(tenantId, PRIMARY_TENANT_REALM);
+                if (userRealm == null) {
+                    synchronized (tenantDomain.intern()) {
+                        userRealm = initializeRealm(tenantRealmConfig, tenantId);
+                        realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
+                    }
+                }
             }
         }
         return userRealm;
