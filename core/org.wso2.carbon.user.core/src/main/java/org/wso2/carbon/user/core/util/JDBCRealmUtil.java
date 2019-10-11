@@ -32,6 +32,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.SELECT_USER, JDBCRealmConstants.SELECT_USER_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.SELECT_USER_ID)) {
+            properties.put(JDBCRealmConstants.SELECT_USER_ID, JDBCRealmConstants.SELECT_USER_ID_SQL);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST)) {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL);
         }
@@ -59,6 +63,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER,
                     JDBCRealmConstants.GET_USER_FILTER_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_ID_FILTER)) {
+            properties.put(JDBCRealmConstants.GET_USER_ID_FILTER,
+                    JDBCRealmConstants.GET_USER_ID_FILTER_SQL);
         }
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE,

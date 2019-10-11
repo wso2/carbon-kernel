@@ -194,12 +194,16 @@ public class JDBCUserStoreConstants {
 
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_ID, "Select User ID SQL",
+                JDBCRealmConstants.SELECT_USER_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, "Select User SQL With " +
                 "Case Insensitivie Username", JDBCCaseInsensitiveConstants.SELECT_USER_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty("GetRoleListSQL", "Get Role List SQL", "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE " +
                 "UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME", "");
         setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Role List SQP", JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER, "User Filter SQL", JDBCRealmConstants.GET_USER_FILTER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_ID_FILTER, "User ID Filter SQL",
+                JDBCRealmConstants.GET_USER_ID_FILTER_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE, "User Filter SQL With Escape",
                 JDBCRealmConstants.GET_USER_FILTER_SQL_WITH_ESCAPE, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE, "User Filter SQL With" +

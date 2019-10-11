@@ -309,4 +309,16 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
 
         return this.abstractUserStoreManager.getRealmConfiguration();
     }
+
+    @Override
+    public String[] getProfileNamesWithID(String userID) throws UserStoreException {
+
+        return this.abstractUserStoreManager.getProfileNamesWithID(userID);
+    }
+
+    @Override
+    public int getTenantIdWithID(String userID) throws UserStoreException {
+
+        return this.abstractUserStoreManager.getTenantIdWithID(userID);
+    }
 }
