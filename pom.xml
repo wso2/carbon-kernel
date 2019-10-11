@@ -1433,17 +1433,6 @@
                 <artifactId>jaxb-api</artifactId>
                 <version>${version.org.wso2.orbit.javax.xml.bind}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.wso2.orbit.javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>${version.org.wso2.orbit.javax.activation}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${version.org.wso2.orbit.javax.xml.bind}</version>
-            </dependency>
             <dependency>
                 <groupId>ua.parser.wso2</groupId>
                 <artifactId>ua-parser</artifactId>
