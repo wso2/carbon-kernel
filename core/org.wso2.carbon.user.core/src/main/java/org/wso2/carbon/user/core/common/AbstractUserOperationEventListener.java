@@ -22,14 +22,17 @@ package org.wso2.carbon.user.core.common;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
+import org.wso2.carbon.user.core.listener.UniqueIDUserOperationEventListener;
+import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  *
  */
-public class AbstractUserOperationEventListener implements UserOperationEventListener {
+public class AbstractUserOperationEventListener implements UniqueIDUserOperationEventListener {
 
     @Override
     public int getExecutionOrderId() {
@@ -37,35 +40,32 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     @Override
-    public boolean doPreAuthenticate(String userName, Object credential,
-                                     UserStoreManager userStoreManager) throws UserStoreException {
-        return true;
-    }
-
-    @Override
-    public boolean doPostAuthenticate(String userName, boolean authenticated,
-                                      UserStoreManager userStoreManager) throws UserStoreException {
-        return true;
-    }
-
-    @Override
-    public boolean doPreAddUser(String userName, Object credential, String[] roleList,
-                                Map<String, String> claims, String profile, UserStoreManager userStoreManager)
+    public boolean doPreAuthenticate(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
     @Override
-    public boolean doPostAddUser(String userName, Object credential, String[] roleList,
-                                 Map<String, String> claims, String profile,
-                                 UserStoreManager userStoreManager)
+    public boolean doPostAuthenticate(String userName, boolean authenticated, UserStoreManager userStoreManager)
             throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profile, UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doPostAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profile, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     @Override
     public boolean doPreUpdateCredential(String userName, Object newCredential, Object oldCredential,
-                                         UserStoreManager userStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -77,32 +77,29 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
 
     @Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
-                                                UserStoreManager userStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     @Override
-    public boolean doPostUpdateCredentialByAdmin(String userName,
-                                                 Object credential,
-                                                 UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostUpdateCredentialByAdmin(String userName, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException {
         return true;
     }
 
     @Override
-    public boolean doPreDeleteUser(String userName,
-                                   UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     @Override
-    public boolean doPostDeleteUser(String userName,
-                                    UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     @Override
-    public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue,
-                                          String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -113,21 +110,20 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
     }
 
     @Override
-    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims,
-                                           String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     @Override
-    public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims,
-                                            String profileName, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName,
-                                              UserStoreManager userStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -139,7 +135,7 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
 
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
-                                             UserStoreManager userStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -160,7 +156,7 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
-                                UserStoreManager userStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -175,7 +171,37 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
     public boolean doPostAddRole(String roleName, String[] userList, Permission[] permissions,
-                                 UserStoreManager userStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    /**
+     * Defines any additional actions before adding an internal role.
+     *
+     * @param roleName         Internal Role Name.
+     * @param userIDs          List of users IDs.
+     * @param permissions      permissions.
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException.
+     */
+    public boolean doPreAddInternalRoleWithID(String roleName, String[] userIDs, Permission[] permissions,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions after adding an internal role.
+     *
+     * @param roleName         Internal Role Name.
+     * @param userIDs          List of users IDs.
+     * @param permissions      permissions
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException
+     */
+    public boolean doPostAddInternalRoleWithID(String roleName, String[] userIDs, Permission[] permissions,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -187,8 +213,7 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -200,8 +225,7 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -213,8 +237,7 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPreUpdateRoleName(String roleName, String newRoleName,
-                                       UserStoreManager userStoreManager)
+    public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
@@ -227,8 +250,7 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPostUpdateRoleName(String roleName, String newRoleName,
-                                        UserStoreManager userStoreManager)
+    public boolean doPostUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
@@ -242,9 +264,8 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers,
-                                             String[] newUsers, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -257,9 +278,8 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
-                                              String[] newUsers, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -273,9 +293,8 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles,
-                                             String[] newRoles, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
+            UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -289,9 +308,278 @@ public class AbstractUserOperationEventListener implements UserOperationEventLis
      * @return
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
-    public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles,
-                                              String[] newRoles, UserStoreManager userStoreManager)
+    public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
+            UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserClaimValueWithID(String userID, String claim, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserClaimValuesWithID(String userID, String[] claims, String profileName,
+            Map<String, String> claimMap, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserClaimValueWithID(String userID, String claim, List<String> claimValue,
+            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserClaimValuesWithID(String userID, String[] claims, String profileName,
+            Map<String, String> claimMap, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserListWithID(String claimUri, String claimValue, final List<User> returnUsersList,
+            UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
+            String sortBy, String sortOrder, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserListWithID(String claimUri, String claimValue, int limit, int offset,
+            final List<User> returnUsersList, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListWithID(String claimUri, String claimValue, final List<User> returnValues,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListWithID(String claimUri, String claimValue, final List<User> returnValues, int limit,
+            int offset, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
+            int offset, String sortBy, String sortOrder, String[] users, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetPaginatedUserListWithID(String claimUri, String claimValue, final List<User> returnValues,
+            UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doPostListUsersWithID(String filter, int limit, int offset, final List<User> returnValues,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetRoleListOfUserWithID(String userName, String filter, String[] roleList,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListOfRoleWithID(String roleName, User[] userList, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUsersClaimValuesWithID(String[] userIDs, String[] claims, String profileName,
+            UserClaimSearchEntry[] userClaimSearchEntries) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreAuthenticateWithID(String userID, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostAuthenticateWithID(String userID, boolean authenticated, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreAddUserWithID(String userID, Object credential, String[] roleList, Map<String, String> claims,
+            String profile, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostAddUserWithID(String userID, Object credential, String[] roleList, Map<String, String> claims,
+            String profile, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateCredentialWithID(String userID, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateCredentialByAdminWithID(String userID, Object newCredential,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateCredentialByAdminWithID(String userID, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostDeleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostSetUserClaimValueWithID(String userID, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostDeleteUserClaimValuesWithID(String userID, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteUserClaimValueWithID(String userID, String claimURI, String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostDeleteUserClaimValueWithID(String userID, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateUserListOfRoleWithID(String roleName, String[] deletedUsers, String[] newUsers,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateUserListOfRoleWithID(String roleName, String[] deletedUsers, String[] newUsers,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 

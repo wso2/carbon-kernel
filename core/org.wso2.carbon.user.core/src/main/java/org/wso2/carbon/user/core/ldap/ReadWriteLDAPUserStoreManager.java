@@ -32,6 +32,7 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -252,7 +253,22 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
-    public void doAddUser(String userName, Object credential, String[] roleList,
+    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            // Assigning unique user ID of the user as the username in the system.
+            String userID = UserCoreUtil.getUserID();
+            // Assign preferredUsername as the username claim.
+            claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+            persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
+        } else {
+            persistUser(userName, credential, roleList, claims, profileName, requirePasswordChange);
+        }
+
+    }
+
+    private void persistUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
 
@@ -507,9 +523,24 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
+    @Override
+    public void doDeleteUserWithID(String userID) throws UserStoreException {
+
+        doDeleteUserInternal(userID);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void doDeleteUser(String userName) throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doDeleteUserInternal(userName);
+    }
+
+    private void doDeleteUserInternal(String userName) throws UserStoreException {
 
         boolean debug = log.isDebugEnabled();
 
@@ -617,7 +648,20 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     @SuppressWarnings("rawtypes")
     @Override
+    public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+        doUpdateCredentialInternal(userID, newCredential, oldCredential);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+        doUpdateCredentialInternal(userName, newCredential, oldCredential);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void doUpdateCredentialInternal(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
         DirContext dirContext = this.connectionSource.getContext();
@@ -683,9 +727,25 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
+    @Override
+    public void doUpdateCredentialByAdminWithID(String userID, Object newCredential)
+            throws UserStoreException {
+
+        doUpdateCredentialByAdminInternal(userID, newCredential);
+    }
 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doUpdateCredentialByAdminInternal(userName, newCredential);
+    }
+
+    private void doUpdateCredentialByAdminInternal(String userName, Object newCredential)
             throws UserStoreException {
 
         DirContext dirContext = this.connectionSource.getContext();
@@ -826,6 +886,22 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
      * of updating user's profile information in LDAP user store.
      *
+     * @param userID
+     * @param claims
+     * @param profileName
+     * @throws UserStoreException
+     */
+    @Override
+    public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        doSetUserClaimValuesInternal(userID, claims, profileName);
+    }
+
+    /**
+     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
+     * of updating user's profile information in LDAP user store.
+     *
      * @param userName
      * @param claims
      * @param profileName
@@ -833,6 +909,16 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      */
     @Override
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doSetUserClaimValuesInternal(userName, claims, profileName);
+    }
+
+    private void doSetUserClaimValuesInternal(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
         // get the LDAP Directory context
@@ -957,7 +1043,24 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String value,
+    public void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        doSetUserClaimValueInternal(userID, claimURI, claimValue, profileName);
+    }
+
+    @Override
+    public void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);
+    }
+
+    private void doSetUserClaimValueInternal(String userName, String claimURI, String value,
                                     String profileName) throws UserStoreException {
 
         // get the LDAP Directory context
@@ -1052,9 +1155,22 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     }
 
-
     @Override
     public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doDeleteUserClaimValueInternal(userName, claimURI, profileName);
+    }
+
+    @Override
+    public void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName) throws UserStoreException {
+        doDeleteUserClaimValueInternal(userID, claimURI, profileName);
+    }
+
+    private void doDeleteUserClaimValueInternal(String userName, String claimURI, String profileName) throws UserStoreException {
 
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -1114,7 +1230,24 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
-    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
+    public void doDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
+            throws UserStoreException {
+
+        doDeleteUserClaimValuesInternal(userID, claims, profileName);
+    }
+
+    @Override
+    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doDeleteUserClaimValuesInternal(userName, claims, profileName);
+    }
+
+    private void doDeleteUserClaimValuesInternal(String userName, String[] claims, String profileName) throws UserStoreException {
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -1296,18 +1429,26 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     }
 
-
-    /**
-     * Update role list of user by writing to LDAP.
-     *
-     * @param userName
-     * @param deletedRoles
-     * @param newRoles
-     * @throws UserStoreException
-     */
     @SuppressWarnings("deprecation")
     @Override
     public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        doUpdateRoleListOfUserInternal(userName, deletedRoles, newRoles);
+    }
+
+    @Override
+    public void doUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+
+        doUpdateRoleListOfUserInternal(userID, deletedRoles, newRoles);
+    }
+
+    private void doUpdateRoleListOfUserInternal(String userName, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
 
         // get the DN of the user entry
@@ -1487,16 +1628,29 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
-    /**
-     * Update the set of users belong to a LDAP role.
-     *
-     * @param roleName
-     * @param deletedUsers
-     * @param newUsers
-     */
+
     @SuppressWarnings("deprecation")
     @Override
     public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            deletedUsers = UserCoreUtil.getUserList(deletedUsers).toArray(String[]::new);
+            newUsers = UserCoreUtil.getUserList(newUsers).toArray(String[]::new);
+        }
+        doUpdateUserListOfRoleInternal(roleName, deletedUsers, newUsers);
+    }
+
+    @Override
+    public void doUpdateUserListOfRoleWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs)
+            throws UserStoreException {
+
+        doUpdateUserListOfRoleInternal(roleName, deletedUserIDs, newUserIDs);
+    }
+
+
+    private void doUpdateUserListOfRoleInternal(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
 
         String errorMessage = null;
