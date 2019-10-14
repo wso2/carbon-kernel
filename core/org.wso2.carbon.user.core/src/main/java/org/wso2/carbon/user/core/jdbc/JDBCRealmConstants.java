@@ -20,9 +20,11 @@ package org.wso2.carbon.user.core.jdbc;
 public final class JDBCRealmConstants {
 
     public static final String SELECT_USER = "SelectUserSQL";
+    public static final String SELECT_USER_ID = "SelectUserIDSQL";
     public static final String GET_ROLE_LIST = "GetRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_USER_FILTER = "UserFilterSQL";
+    public static final String GET_USER_ID_FILTER = "UserIDFilterSQL";
     public static final String GET_USER_FILTER_WITH_ESCAPE = "UserFilterSQLWithEscape";
     public static final String GET_USER_FILTER_PAGINATED = "UserFilterPaginatedSQL";
     public static final String GET_USER_FILTER_PAGINATED_MSSQL = "UserFilterPaginatedSQL-mssql";
@@ -80,9 +82,17 @@ public final class JDBCRealmConstants {
     public static final String DELETE_USER_PROPERTY = "DeleteUserPropertySQL";
     public static final String USER_NAME_UNIQUE = "UserNameUniqueAcrossTenantsSQL";
     public static final String SELECT_USER_SQL = "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
+    public static final String SELECT_USER_ID_SQL =
+            "SELECT U.UM_USER_NAME, U.UM_USER_PASSWORD, U.UM_SALT_VALUE, U.UM_REQUIRE_CHANGE, U.UM_CHANGED_TIME FROM "
+                    + "UM_USER U, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = U.UM_ID AND "
+                    + "UM_USER_ATTRIBUTE.UM_ATTR_NAME =? AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE =? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND U.UM_TENANT_ID=?";
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
     public static final String GET_SHARED_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_SHARED_ROLE ='1' ORDER BY UM_ROLE_NAME";
     public static final String GET_USER_FILTER_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
+    public static final String GET_USER_ID_FILTER_SQL =
+            "SELECT U.UM_USER_NAME FROM UM_USER U, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = U.UM_ID AND "
+                    + "UM_USER_ATTRIBUTE.UM_ATTR_NAME =? AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE LIKE ? AND "
+                    + "UM_USER_ATTRIBUTE.UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND U.UM_TENANT_ID=?";
     public static final String GET_USER_FILTER_SQL_WITH_ESCAPE = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME "
             + "LIKE ? ESCAPE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_PAGINATED_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME " +
