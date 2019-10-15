@@ -31,10 +31,10 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = -8811345359211553015L;
     private String userID;
+    private String username;
     private String preferredUsername;
     private String tenantDomain;
     private String userStoreDomain;
-    private String username;
     private Map<String, String> attributes;
 
     public User() {
@@ -42,7 +42,19 @@ public class User implements Serializable {
     }
 
     public User(String userID) {
+
         this.userID = userID;
+    }
+
+    public User(String userID, String username, String preferredUsername, String tenantDomain, String userStoreDomain,
+            Map<String, String> attributes) {
+
+        this.userID = userID;
+        this.username = username;
+        this.preferredUsername = preferredUsername;
+        this.tenantDomain = tenantDomain;
+        this.userStoreDomain = userStoreDomain;
+        this.attributes = attributes;
     }
 
     public String getUserID() {
@@ -51,6 +63,14 @@ public class User implements Serializable {
 
     public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPreferredUsername() {
@@ -75,14 +95,6 @@ public class User implements Serializable {
 
     public void setUserStoreDomain(String userStoreDomain) {
         this.userStoreDomain = userStoreDomain;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public Map<String, String> getAttributes() {

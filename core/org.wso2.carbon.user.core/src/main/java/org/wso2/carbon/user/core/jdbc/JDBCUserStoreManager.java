@@ -1654,13 +1654,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     password = this.preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        user = new User();
-                        user.setPreferredUsername(preferredUserNameValue);
-                        user.setUserID(userID);
-                        user.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-                        user.setUsername(
-                                getUserClaimValue(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName));
-                        //user.setUserStoreDomain();
+                        user = new User(userID,
+                                getUserClaimValue(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
+                                preferredUserNameValue, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
+                                null, null);
+                        try {
+                            user.setUserStoreDomain(UserCoreUtil.getDomainName(
+                                    CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+                                            .getRealmConfiguration()));
+                        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                            throw new UserStoreException(e);
+                        }
                     }
                 }
             }
@@ -1692,6 +1696,28 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        // Assigning unique user ID of the user as the username in the system.
+        String userID = UserCoreUtil.getUserID();
+        // Assign preferredUsername as the username claim.
+        claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+        persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
+
+        User user = new User(userID, userName, userName, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
+                null, null);
+        try {
+            user.setUserStoreDomain(UserCoreUtil
+                    .getDomainName(CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration()));
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(e);
+        }
+        return user;
+
     }
 
     @Override

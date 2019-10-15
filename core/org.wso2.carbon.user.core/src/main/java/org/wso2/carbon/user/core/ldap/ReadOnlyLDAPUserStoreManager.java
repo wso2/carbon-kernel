@@ -416,11 +416,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (doAuthenticate(users[0], credential)) {
-            user = new User();
-            user.setPreferredUsername(preferredUserNameValue);
-            user.setUserID(users[0]);
-            user.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            //user.setUserStoreDomain();
+            user = new User(users[0],
+                    getUserClaimValue(users[0], UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
+                    preferredUserNameValue, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), null, null);
+            try {
+                user.setUserStoreDomain(UserCoreUtil.getDomainName(
+                        CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration()));
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
         }
         return user;
     }
@@ -3992,6 +3996,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName,
                           boolean requirePasswordChange) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    /**
+     *
+     */
+    public User doAddUserWithID(String userName, Object credential, String[] roleList,
+            Map<String, String> claims, String profileName,
+            boolean requirePasswordChange) throws UserStoreException {
         throw new UserStoreException(
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
