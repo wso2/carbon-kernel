@@ -280,4 +280,5 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      */
     boolean onUpdatePermissionsOfRoleFailureWithID(String errorCode, String errorMessage, String roleName,
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException;
+
 }
