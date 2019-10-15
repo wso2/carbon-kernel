@@ -142,7 +142,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param profileName profile name
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
-    void addUser(String userName, Object credential, String[] roleList, Map<String, String> claims, String profileName)
+    User addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName)
             throws UserStoreException;
 
     /**
@@ -156,7 +157,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param requirePasswordChange whether the user is required to change the password
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
-    void addUser(String userName, Object credential, String[] roleList, Map<String, String> claims, String profileName,
+    User addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName,
             boolean requirePasswordChange) throws UserStoreException;
 
     /**
