@@ -3561,28 +3561,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException(errorCode + " - " + message);
             }
 
-            List<String> internalRoles = new ArrayList<String>();
-            List<String> externalRoles = new ArrayList<String>();
-            int index;
-            if (roleList != null) {
-                for (String role : roleList) {
-                    if (role != null && role.trim().length() > 0) {
-                        index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                        if (index > 0) {
-                            String domain = role.substring(0, index);
-                            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                                internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                                continue;
-                            } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN
-                                    .equalsIgnoreCase(domain)) {
-                                internalRoles.add(role);
-                                continue;
-                            }
-                        }
-                        externalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                    }
-                }
-            }
+            List<String> internalRoles = new ArrayList<>();
+            List<String> externalRoles = new ArrayList<>();
+            filterRoles(roleList, internalRoles, externalRoles);
 
             // check existence of roles and claims before adding user
             for (String internalRole : internalRoles) {
@@ -4128,14 +4109,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                    internalRoleDel.add(deleteRole);
-                } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
-                    internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-                } else {
-                    // This is domain free role name.
-                    roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-                }
+                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
             }
             deletedRoles = roleDel.toArray(new String[roleDel.size()]);
         }
@@ -4154,18 +4128,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     domain = newRole.substring(0, index2);
                 }
 
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                    // If this is an internal role.
-                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                    // If this is an application role or workflow role.
-                    internalRoleNew.add(newRole);
-                } else if (this.isReadOnly()) {
-                    // If this is a readonly user store, we add even normal roles as internal roles.
-                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                } else {
-                    roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                }
+                processNewRoles(internalRoleNew, roleNew, newRole, domain);
             }
             newRoles = roleNew.toArray(new String[roleNew.size()]);
         }
@@ -9773,14 +9736,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                    internalRoleDel.add(deleteRole);
-                } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
-                    internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-                } else {
-                    // This is domain free role name.
-                    roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-                }
+                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
             }
             deletedRoles = roleDel.toArray(String[]::new);
         }
@@ -9800,18 +9756,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     domain = newRole.substring(0, index2);
                 }
 
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                    // If this is an internal role.
-                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                    // If this is an application role or workflow role.
-                    internalRoleNew.add(newRole);
-                } else if (this.isReadOnly()) {
-                    // If this is a readonly user store, we add even normal roles as internal roles.
-                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                } else {
-                    roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                }
+                processNewRoles(internalRoleNew, roleNew, newRole, domain);
             }
             newRoles = roleNew.toArray(String[]::new);
         }
@@ -9883,6 +9828,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
                             ex.getMessage()), userID, deletedRoles, newRoles);
             throw ex;
+        }
+    }
+
+    private void processNewRoles(List<String> internalRoleNew, List<String> roleNew, String newRole, String domain)
+            throws UserStoreException {
+        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+            // If this is an internal role.
+            internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+        } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+            // If this is an application role or workflow role.
+            internalRoleNew.add(newRole);
+        } else if (this.isReadOnly()) {
+            // If this is a readonly user store, we add even normal roles as internal roles.
+            internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+        } else {
+            roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+        }
+    }
+
+    private void processDeletedRoles(List<String> internalRoleDel, List<String> roleDel, String deleteRole,
+            String domain) throws UserStoreException {
+        if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+            internalRoleDel.add(deleteRole);
+        } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
+            internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
+        } else {
+            // This is domain free role name.
+            roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
         }
     }
 
@@ -10225,26 +10198,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             List<String> internalRoles = new ArrayList<>();
             List<String> externalRoles = new ArrayList<>();
-            int index;
-            if (roleList != null) {
-                for (String role : roleList) {
-                    if (role != null && role.trim().length() > 0) {
-                        index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                        if (index > 0) {
-                            String domain = role.substring(0, index);
-                            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                                internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                                continue;
-                            } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN
-                                    .equalsIgnoreCase(domain)) {
-                                internalRoles.add(role);
-                                continue;
-                            }
-                        }
-                        externalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                    }
-                }
-            }
+            filterRoles(roleList, internalRoles, externalRoles);
 
             // check existence of roles and claims before adding user
             for (String internalRole : internalRoles) {
@@ -10338,5 +10292,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Clean the role cache since it contains old role informations
         clearUserRolesCache(userName);
         return user;
+    }
+
+    private void filterRoles(String[] roleList, List<String> internalRoles, List<String> externalRoles) {
+        int index;
+        if (roleList != null) {
+            for (String role : roleList) {
+                if (role != null && role.trim().length() > 0) {
+                    index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                    if (index > 0) {
+                        String domain = role.substring(0, index);
+                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                            internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                            continue;
+                        } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN
+                                .equalsIgnoreCase(domain)) {
+                            internalRoles.add(role);
+                            continue;
+                        }
+                    }
+                    externalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                }
+            }
+        }
     }
 }
