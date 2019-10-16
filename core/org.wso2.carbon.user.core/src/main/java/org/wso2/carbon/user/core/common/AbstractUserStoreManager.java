@@ -19,7 +19,7 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.NotImplementedException;
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -219,10 +219,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param profileName   profile name
      * @return user properties of the given user
      * @throws UserStoreException      Thrown by the underlying UserStoreManager.
-     * @throws NotImplementedException
      */
     protected Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames, String profileName)
-            throws UserStoreException, NotImplementedException {
+            throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("getUserPropertyValuesWithID operation is not implemented in: " + this.getClass());
@@ -305,7 +304,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException An unexpected exception has occurred
      */
     protected User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue, Object credential,
-            String profileName) throws UserStoreException, NotImplementedException {
+            String profileName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAuthenticateWithID operation is not implemented in: " + this.getClass());
@@ -639,12 +638,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
             String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
-                Map<String, String> map = null;
-                try {
-                    map = getUserPropertyValuesWithID(userID, new String[]{userNameAttribute}, null);
-                } catch (NotImplementedException e) {
-                    // do nothing.
-                }
+                Map<String, String> map;
+                map = getUserPropertyValuesWithID(userID, new String[] { userNameAttribute }, null);
                 String tempUserName = map.get(userNameAttribute);
                 if (tempUserName != null) {
                     userID = tempUserName;
@@ -713,7 +708,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     protected String[] doGetExternalRoleListOfUserWithID(String userID, String filter)
-            throws UserStoreException, NotImplementedException {
+            throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doGetExternalRoleListOfUserWithID operation is not implemented in: " + this.getClass());
