@@ -145,6 +145,13 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
     }
 
+    @Override
+    public void doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName) throws UserStoreException {
+
+        this.doAddUserWithID(userName, credential, roleList, claims, profileName, false);
+    }
+
     /**
      *
      */
@@ -564,15 +571,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         return password.getBytes(StandardCharsets.UTF_16LE);
     }
 
-    /**
-     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
-     * of updating user's profile information in LDAP user store.
-     *
-     * @param userID
-     * @param claims
-     * @param profileName
-     * @throws UserStoreException
-     */
     @Override
     public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {

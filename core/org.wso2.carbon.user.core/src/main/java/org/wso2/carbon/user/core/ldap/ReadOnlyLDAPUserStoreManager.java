@@ -396,6 +396,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     @Override
     public User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue, Object credential,
             String profileName) throws UserStoreException {
+
         User user = null;
         String[] users = getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
 
@@ -603,6 +604,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     @Override
     public String[] getProfileNamesWithID(String userID) throws UserStoreException {
+
         return new String[]{UserCoreConstants.DEFAULT_PROFILE};
     }
 
@@ -615,18 +617,19 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
-        return getUserPropertyValuesInternal(userName, propertyNames, profileName);
+        return getUserPropertyValuesInternal(userName, propertyNames);
     }
 
     @Override
     public Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames,
             String profileName) throws UserStoreException {
 
-        return getUserPropertyValuesInternal(userID, propertyNames, profileName);
+        return getUserPropertyValuesInternal(userID, propertyNames);
     }
 
-    private Map<String, String> getUserPropertyValuesInternal(String userName, String[] propertyNames,
-                                                     String profileName) throws UserStoreException {
+    private Map<String, String> getUserPropertyValuesInternal(String userName, String[] propertyNames)
+            throws UserStoreException {
+
         if (userName == null) {
             throw new UserStoreException("userName value is null.");
         }
@@ -1136,11 +1139,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return userNames;
     }
 
-    //TODO
-    /**
-     *
-     */
-    public User[] doListUsersWithID(String filter, int maxItemLimit, String userNameAttribute) throws UserStoreException {
+    @Override
+    public User[] doListUsersWithID(String filter, int maxItemLimit, String userNameAttribute)
+            throws UserStoreException {
+
         boolean debug = log.isDebugEnabled();
         User[] userNames = new User[0];
 
@@ -1148,19 +1150,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             return userNames;
         }
 
-        int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-
+        int givenMax;
+        int searchTime;
         try {
-            givenMax =
-                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+            givenMax = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
         } catch (Exception e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
         }
 
         try {
-            searchTime =
-                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+            searchTime = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
         } catch (Exception e) {
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
@@ -1169,42 +1170,39 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             maxItemLimit = givenMax;
         }
 
-        SearchControls searchCtls = new SearchControls();
-        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        searchCtls.setCountLimit(maxItemLimit);
-        searchCtls.setTimeLimit(searchTime);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setCountLimit(maxItemLimit);
+        searchControls.setTimeLimit(searchTime);
 
         if (filter.contains("?") || filter.contains("**")) {
             throw new UserStoreException(
                     "Invalid character sequence entered for user serch. Please enter valid sequence.");
         }
 
-        StringBuffer searchFilter =
-                new StringBuffer(
-                        realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
+        StringBuilder searchFilter = new StringBuilder(
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
         String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
 
-        String userNameProperty =
-                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
         String serviceNameAttribute = "sn";
 
-        StringBuffer finalFilter = new StringBuffer();
+        StringBuilder finalFilter = new StringBuilder();
 
         // read the display name attribute - if provided
-        String displayNameAttribute =
-                realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+        String displayNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
 
-        String[] returnedAtts = null;
+        String[] returnedAttributes;
 
         if (StringUtils.isNotEmpty(displayNameAttribute)) {
-            returnedAtts =
-                    new String[]{userNameProperty, serviceNameAttribute,
-                                 displayNameAttribute};
-            finalFilter.append("(&").append(searchFilter).append("(").append(displayNameAttribute)
-                    .append("=").append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
+            returnedAttributes = new String[] {
+                    userNameProperty, serviceNameAttribute, displayNameAttribute
+            };
+            finalFilter.append("(&").append(searchFilter).append("(").append(displayNameAttribute).append("=")
+                    .append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
         } else {
-            returnedAtts = new String[]{userNameProperty, serviceNameAttribute};
+            returnedAttributes = new String[] { userNameProperty, serviceNameAttribute };
             finalFilter.append("(&").append(searchFilter).append("(").append(userNameProperty).append("=")
                     .append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
         }
@@ -1214,10 +1212,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             log.debug("Search controls. Max Limit: " + maxItemLimit + " Max Time: " + searchTime);
         }
 
-        searchCtls.setReturningAttributes(returnedAtts);
+        searchControls.setReturningAttributes(returnedAttributes);
         DirContext dirContext = null;
         NamingEnumeration<SearchResult> answer = null;
-        List<User> list = new ArrayList<User>();
+        List<User> list = new ArrayList<>();
 
         try {
             dirContext = connectionSource.getContext();
@@ -1226,10 +1224,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             for (String searchBase : searchBaseArray) {
 
-                answer = dirContext.search(escapeDNForSearch(searchBase), finalFilter.toString(), searchCtls);
+                answer = dirContext.search(escapeDNForSearch(searchBase), finalFilter.toString(), searchControls);
 
                 while (answer.hasMoreElements()) {
-                    SearchResult sr = (SearchResult) answer.next();
+                    SearchResult sr = answer.next();
                     if (sr.getAttributes() != null) {
                         log.debug("Result found ..");
                         Attribute attr = sr.getAttributes().get(userNameProperty);
@@ -1246,8 +1244,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 log.debug(serviceNameAttribute + " : " + attrSurname);
                             }
                             String serviceName = (String) attrSurname.get();
-                            if (serviceName != null
-                                    && serviceName
+                            if (serviceName != null && serviceName
                                     .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
                                 continue;
                             }
@@ -1271,8 +1268,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 display = (String) displayName.get();
                             }
                             // append the domain if exist
-                            String domain = this.getRealmConfiguration().getUserStoreProperty(
-                                    UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                            String domain = this.getRealmConfiguration()
+                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                             // get the name in the format of
                             // domainName/userName|domainName/displayName
                             userID = UserCoreUtil.getCombinedName(domain, userID, display);
@@ -1282,7 +1279,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-            userNames = list.toArray(new User[list.size()]);
+            userNames = list.toArray(User[]::new);
 
             if (debug) {
                 for (User username : userNames) {
@@ -1926,11 +1923,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
 
+    @Override
     public User[] doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
         return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter)).toArray(User[]::new);
     }
 
+    @Override
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
 
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
@@ -1944,9 +1943,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return doGetUserListOfRoleInternal(roleName, filter);
     }
 
-    /**
-     *
-     */
     private String[] doGetUserListOfRoleInternal(String roleName, String filter) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
@@ -3886,9 +3882,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     // ************** NOT GOING TO IMPLEMENT ***************
 
-    /**
-     *
-     */
+    @Override
     public Date  getPasswordExpirationTime(String userName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
@@ -3902,9 +3896,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return null;
     }
 
-    /**
-     *
-     */
+    @Override
     public Date getPasswordExpirationTimeWithID(String userID) throws UserStoreException {
 
         if (userID != null && userID.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
@@ -3921,10 +3913,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         throw new UserStoreException("Invalid operation");
     }
 
-    /**
-     *
-     */
+    @Override
     public int getTenantIdWithID(String userID) throws UserStoreException {
+
         throw new UserStoreException("Invalid operation");
     }
 
@@ -3950,13 +3941,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     }
 
-    /**
-     *
-     */
+    @Override
     public void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName)
             throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
 
     }
 
@@ -3971,8 +3960,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     @Override
     public void doDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
 
     }
 
@@ -3991,6 +3980,22 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
+     * Add a user to the user store.
+     *
+     * @param userName    User name of the user
+     * @param credential  The credential/password of the user
+     * @param roleList    The roles that user belongs
+     * @param claims      Properties of the user
+     * @param profileName profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    public void doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName) throws UserStoreException {
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    /**
      *
      */
     public void doAddUser(String userName, Object credential, String[] roleList,
@@ -4000,14 +4005,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     *
-     */
-    public User doAddUserWithID(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName,
-            boolean requirePasswordChange) throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+    @Override
+    public User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
     }
 
     /**
@@ -4018,12 +4020,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     *
-     */
+    @Override
     public void doDeleteUserWithID(String userID) throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
     }
 
     /**
@@ -4035,13 +4035,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     *
-     */
-    public void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue,
-            String profileName) throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+    @Override
+    public void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
     }
 
     /**
@@ -4063,13 +4061,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     *
-     */
+    @Override
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
     }
 
     /**
@@ -4082,13 +4078,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     }
 
-    /**
-     *
-     */
-    public void doUpdateCredentialByAdminWithID(String userID, Object newCredential)
-            throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+    @Override
+    public void doUpdateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
 
     }
 
@@ -4106,13 +4099,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     *
-     */
+    @Override
     public void doUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
     }
 
     /**
@@ -4124,13 +4115,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     *
-     */
+    @Override
     public void doUpdateUserListOfRoleWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
+
+        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
     }
 
     /**

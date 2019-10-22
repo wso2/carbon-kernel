@@ -473,7 +473,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         User[] users = null;
         Connection dbConnection = null;
-        String sqlStmt = null;
+        String sqlStmt;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
@@ -482,9 +482,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         int givenMax;
-
         int searchTime;
-
         try {
             givenMax = Integer
                     .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
@@ -1135,17 +1133,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return getProperties((Tenant) tenant);
     }
 
-    /**
-     *
-     */
+    @Override
     public int getTenantIdWithID(String userID) throws UserStoreException {
 
         return getTenantIdInternal(userID);
     }
 
-    /**
-     *
-     */
+    @Override
     public int getTenantId(String userName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
@@ -1155,10 +1149,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return getTenantIdInternal(userName);
     }
 
-    /**
-     *
-     */
-    public int getTenantIdInternal(String username) throws UserStoreException {
+
+    private int getTenantIdInternal(String username) throws UserStoreException {
         if (this.tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new UserStoreException("Not allowed to perform this operation");
         }
@@ -1431,7 +1423,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
-
         return doCheckExistingUserInternal(userName);
     }
 
@@ -1570,6 +1561,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     @Override
     public User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue, Object credential,
             String profileName) throws UserStoreException {
+
         User user = null;
         if (!checkUserNameValid(preferredUserNameValue)) {
             if (log.isDebugEnabled()) {
@@ -2142,10 +2134,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         doDeleteUserInternal(userName);
 
     }
-    /**
-     *
-     */
-    public void doDeleteUserInternal(String userName) throws UserStoreException {
+
+    private void doDeleteUserInternal(String userName) throws UserStoreException {
 
         String sqlStmt1;
         if (isCaseSensitiveUsername()) {
@@ -2224,9 +2214,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         doUpdateUserListOfRoleInternal(roleName, deletedUserIDs, newUserIDs);
     }
 
-    /**
-     *
-     */
     private void doUpdateUserListOfRoleInternal(String roleName, String deletedUsers[], String[] newUsers)
             throws UserStoreException {
 
@@ -2594,11 +2581,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);
     }
 
-    /**
-     *
-     */
-    public void doSetUserClaimValueInternal(String userName, String claimURI, String claimValue,
-                                    String profileName) throws UserStoreException {
+    private void doSetUserClaimValueInternal(String userName, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
         if (profileName == null) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
@@ -2664,9 +2649,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         doSetUserClaimValuesInternal(userName, claims, profileName);
     }
 
-    /**
-     *
-     */
     private void doSetUserClaimValuesInternal(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
         Connection dbConnection = null;
@@ -2843,9 +2825,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    /**
-     *
-     */
+    @Override
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
         // no need to check old password here because we already authenticate in super class
@@ -2857,15 +2837,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 		 */
     }
 
-    /**
-     *
-     */
+    @Override
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
+
         // no need to check old password here because we already authenticate in super class
         this.doUpdateCredentialByAdminWithID(userID, newCredential);
     }
 
+    @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
 
         // Get the relevant userID for the given username.
@@ -2875,13 +2855,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         doUpdateCredentialByAdminInternal(userName, newCredential);
     }
 
+    @Override
     public void doUpdateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
+
         doUpdateCredentialByAdminInternal(userID, newCredential);
     }
 
-    /**
-     *
-     */
     private void doUpdateCredentialByAdminInternal(String userName, Object newCredential)
             throws UserStoreException {
 
