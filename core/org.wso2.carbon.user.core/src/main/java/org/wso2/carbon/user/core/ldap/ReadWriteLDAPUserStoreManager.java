@@ -270,6 +270,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
+    public void doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName) throws UserStoreException {
+
+        this.doAddUser(userName, credential, roleList, claims, profileName, false);
+    }
+
+    @Override
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName) throws UserStoreException {
         this.doAddUser(userName, credential, roleList, claims, profileName, false);
@@ -669,10 +676,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
+
         doUpdateCredentialInternal(userID, newCredential, oldCredential);
     }
 
@@ -683,7 +690,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         doUpdateCredentialInternal(userName, newCredential, oldCredential);
     }
 
-    @SuppressWarnings("rawtypes")
     private void doUpdateCredentialInternal(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
@@ -905,15 +911,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         return suffixName.toString().replaceFirst(",", "");
     }
 
-    /**
-     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
-     * of updating user's profile information in LDAP user store.
-     *
-     * @param userID
-     * @param claims
-     * @param profileName
-     * @throws UserStoreException
-     */
     @Override
     public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
@@ -1190,6 +1187,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     @Override
     public void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName) throws UserStoreException {
+
         doDeleteUserClaimValueInternal(userID, claimURI, profileName);
     }
 
