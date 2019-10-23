@@ -182,7 +182,7 @@
   "monitoring.jmx.rmi_registry_port": "9999",
   "monitoring.jmx.rmi_server_port": "11111",
   "monitoring.jmx.rmi_server_start": true,
-  "monitoring.jmx.rmi_hostname": "$ref{server.hostname}",
+  "monitoring.jmx.rmi_hostname": "localhost",
   "versioning_configuration.enable_versioning_properties": false,
   "versioning_configuration.enable_versioning_comments": false,
   "versioning_configuration.enable_versioning_tags": false,
