@@ -233,6 +233,28 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     void updateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException;
 
     /**
+     * Adds a role to the system.
+     *
+     * @param roleName     The role name.
+     * @param userIDList     the list of the user IDs.
+     * @param permissions  The permissions of the role.
+     * @param isSharedRole Whether the added role is a shared role or not
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    void addRoleWithID(String roleName, String[] userIDList, Permission[] permissions, boolean isSharedRole)
+            throws UserStoreException;
+
+    /**
+     * Adds a role to the system.
+     *
+     * @param roleName    The role name.
+     * @param userIDList    the list of the user IDs.
+     * @param permissions The permissions of the role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     */
+    void addRoleWithID(String roleName, String[] userIDList, Permission[] permissions) throws UserStoreException;
+
+    /**
      * Update the user list of a given role.
      *
      * @param roleName     role name

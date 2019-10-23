@@ -1326,6 +1326,26 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
+    @Override
+    public void doAddRoleWithID(String roleName, String[] userList, boolean shared) throws UserStoreException {
+
+        doAddRoleInternal(roleName, userList, shared);
+    }
+
+    @Override
+    public void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            List<String> userIDList = new ArrayList<>();
+            for (String userName : userList) {
+                userIDList.add(getUserIDByUserName(userName, null));
+            }
+            userList = userIDList.toArray(String[]::new);
+        }
+        doAddRoleInternal(roleName, userList, shared);
+    }
+
     /**
      * Add roles by writing groups to LDAP.
      *
@@ -1333,8 +1353,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      * @param userList
      * @throws UserStoreException
      */
-    @Override
-    public void doAddRole(String roleName, String[] userList, boolean shared)
+    private void doAddRoleInternal(String roleName, String[] userList, boolean shared)
             throws UserStoreException {
 
         RoleContext roleContext;

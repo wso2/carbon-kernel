@@ -48,6 +48,8 @@ import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.SecretHandleableListener;
+import org.wso2.carbon.user.core.listener.UniqueIDUserManagementErrorEventListener;
+import org.wso2.carbon.user.core.listener.UniqueIDUserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
@@ -736,6 +738,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     protected abstract void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException;
+
+    /**
+     * Add role with a list of users and permissions provided.
+     *
+     * @param roleName
+     * @param userList
+     * @throws UserStoreException
+     */
+    protected void doAddRoleWithID(String roleName, String[] userList, boolean shared) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doAddRoleWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doAddRoleWithID operation is not implemented in: " + this.getClass());
+
+    }
 
 
     /**
@@ -5225,6 +5243,29 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * This method is responsible for calling relevant listener methods when there is a failure while trying to add
+     * role.
+     *
+     * @param errorCode    Error code.
+     * @param errorMessage Error message.
+     * @param roleName     Name of the role.
+     * @param userList     List of users to be assigned to the role.
+     * @param permissions  Permissions of the role role.
+     * @throws UserStoreException Exception that will be thrown by relevant listeners.
+     */
+    private void handleAddRoleFailureWithID(String errorCode, String errorMessage, String roleName, String[] userList,
+            Permission[] permissions) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
+                    .onAddRoleFailureWithID(errorCode, errorMessage, roleName, userList, permissions, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
      * This method is responsible for calling relevant postAddRole listener methods after successfully adding role.
      *
      * @param roleName       Name of the role.
@@ -5686,11 +5727,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return null;
     }
 
-    private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
-
-        return getUserStoreInternal(userID);
-    }
-
     private UserStore getUserStoreWithPreferredUserNameValue(final String preferredUserNameClaim,
             final String preferredUserNameValue, final String profileName) throws UserStoreException {
 
@@ -5705,15 +5741,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userName = getUserIDByUserName(user, null);
         }
 
-        return getUserStoreInternal(userName);
+        return getUserStoreWithID(userName);
     }
 
-    // TODO: move the logic inside to withID method
-    private UserStore getUserStoreInternal(final String user) throws UserStoreException {
+    private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
 
         try {
             return AccessController.doPrivileged(
-                    (PrivilegedExceptionAction<UserStore>) () -> getUserStoreInternalImpl(user));
+                    (PrivilegedExceptionAction<UserStore>) () -> getUserStoreInternal(userID));
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
         }
@@ -5723,7 +5758,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return
      * @throws UserStoreException
      */
-    private UserStore getUserStoreInternalImpl(String user) throws UserStoreException {
+    private UserStore getUserStoreInternal(String user) throws UserStoreException {
 
         int index;
         index = user.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
@@ -5936,6 +5971,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
         String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), roleName);
         handleAddRoleFailure(errorCode, errorMessage, roleName, userList, permissions);
+        throw new UserStoreException(errorCode + " - " + errorMessage);
+    }
+
+    /**
+     * This method handles role already exists exception.
+     *
+     * @param roleName    Name of teh role.
+     * @param userList    list of users.
+     * @param permissions Relevant permissions added for new role.
+     * @throws UserStoreException User Store Exception.
+     */
+    private void handleRoleAlreadyExistExceptionWithID(String roleName, String[] userList, Permission[] permissions)
+            throws UserStoreException {
+
+        String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), roleName);
+        handleAddRoleFailureWithID(errorCode, errorMessage, roleName, userList, permissions);
         throw new UserStoreException(errorCode + " - " + errorMessage);
     }
 
@@ -10523,6 +10575,267 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Clean the role cache since it contains old role informations
         clearUserRolesCache(userName);
         return user;
+    }
+
+    @Override
+    public void addRoleWithID(String roleName, String[] userIDList, Permission[] permissions)
+            throws UserStoreException {
+
+        addRoleWithID(roleName, userIDList, permissions, false);
+
+    }
+
+    @Override
+    public void addRoleWithID(String roleName, String[] userIDList, Permission[] permissions, boolean isSharedRole)
+            throws UserStoreException {
+
+        if (StringUtils.isEmpty(roleName)) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), roleName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
+        }
+
+        UserStore userStore = getUserStoreWithID(roleName);
+
+        if (isSharedRole && !isSharedGroupEnabled()) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getCode(),
+                    ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getMessage(), roleName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.toString());
+        }
+
+        if (userStore.isHybridRole()) {
+            //Invoke Pre listeners for hybrid roles.
+            if (!handlePreAddRoleWithID(roleName, userIDList, permissions, false)) {
+                return;
+            }
+
+            doAddInternalRoleWithID(roleName, userIDList, permissions);
+
+            // Calling only the audit logger, to maintain the back-ward compatibility
+            handlePostAddRoleWithID(roleName, userIDList, permissions, false);
+            return;
+        }
+
+        if (userStore.isRecurssive()) {
+            ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
+                    .addRoleWithID(userStore.getDomainFreeName(), UserCoreUtil.removeDomainFromNames(userIDList),
+                            permissions, isSharedRole);
+            return;
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        if (userIDList == null) {
+            userIDList = new String[0];
+        }
+        if (permissions == null) {
+            permissions = new Permission[0];
+        }
+        // This happens only once during first startup - adding administrator user/role.
+        if (roleName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+            roleName = userStore.getDomainFreeName();
+            userIDList = UserCoreUtil.removeDomainFromNames(userIDList);
+        }
+
+        // #################### <Listeners> #####################################################
+        if (!handlePreAddRoleWithID(roleName, userIDList, permissions, false)) {
+            return;
+        }
+        // #################### </Listeners> #####################################################
+
+        // Check for validations
+        if (isReadOnly()) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!isRoleNameValid(roleName)) {
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+            String errorMessage = String
+                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), roleName, regEx);
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
+            handleAddRoleFailureWithID(errorCode, errorMessage, roleName, userIDList, permissions);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        if (doCheckExistingRole(roleName)) {
+            handleRoleAlreadyExistExceptionWithID(roleName, userIDList, permissions);
+        }
+
+        String roleWithDomain = null;
+        if (writeGroupsEnabled) {
+            try {
+                // add role in to actual user store
+                doAddRoleWithID(roleName, userIDList, isSharedRole);
+                roleWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
+            } catch (UserStoreException ex) {
+                handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getMessage(), ex.getMessage()),
+                        roleName, userIDList, permissions);
+                throw ex;
+            }
+        } else {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+        }
+
+        // add permission in to the the permission store
+        if (permissions != null) {
+            for (org.wso2.carbon.user.api.Permission permission : permissions) {
+                String resourceId = permission.getResourceId();
+                String action = permission.getAction();
+                if (resourceId == null || resourceId.trim().length() == 0) {
+                    continue;
+                }
+
+                if (action == null || action.trim().length() == 0) {
+                    // default action value // TODO
+                    action = "read";
+                }
+                // This is a special case. We need to pass domain aware name.
+                userRealm.getAuthorizationManager().authorizeRole(roleWithDomain, resourceId, action);
+            }
+        }
+
+        // if existing users are added to role, need to update user role cache
+        if ((userIDList != null) && (userIDList.length > 0)) {
+            clearUserRolesCacheByTenant(tenantId);
+        }
+
+        // #################### <Listeners> #####################################################
+        handlePostAddRoleWithID(roleName, userIDList, permissions, false);
+        // #################### </Listeners> #####################################################
+
+    }
+
+    /**
+     * This method is responsible for calling relevant postAddRole listener methods after successfully adding role.
+     *
+     * @param roleName       Name of the role.
+     * @param userList       List of users.
+     * @param permissions    Permissions that are assigned to the role.
+     * @param isAuditLogOnly To indicate whether to only call the relevant audit logger.
+     * @throws UserStoreException Exception that will be thrown by relevant listeners.
+     */
+    private void handlePostAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
+            boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(roleName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPostAddInternalRoleWithID(roleName, userList, permissions, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!internalRole) {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPostAddRoleWithID(roleName, userList, permissions, this);
+                }
+
+                if (!success) {
+                    handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
+                            permissions);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(), ex.getMessage()),
+                    roleName, userList, permissions);
+            throw ex;
+        }
+    }
+
+    private boolean handlePreAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
+            boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(roleName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPreAddInternalRoleWithID(roleName, userList, permissions, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!internalRole) {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPreAddRoleWithID(roleName, userList, permissions, this);
+                }
+
+                if (!success) {
+                    handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
+                            permissions);
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
+                    roleName, userList, permissions);
+            throw ex;
+        }
+        return true;
+    }
+
+    /**
+     * @param roleName
+     * @param userList
+     * @param permissions
+     * @throws UserStoreException
+     */
+    protected void doAddInternalRoleWithID(String roleName, String[] userList, Permission[] permissions)
+            throws UserStoreException {
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR) && roleName.toLowerCase()
+                .startsWith(APPLICATION_DOMAIN.toLowerCase())) {
+            if (hybridRoleManager.isExistingRole(roleName)) {
+                handleRoleAlreadyExistExceptionWithID(roleName, userList, permissions);
+            }
+
+            hybridRoleManager.addHybridRole(roleName, userList);
+
+        } else {
+            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
+                handleRoleAlreadyExistExceptionWithID(roleName, userList, permissions);
+            }
+
+            hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
+        }
+
+        if (permissions != null) {
+            for (org.wso2.carbon.user.api.Permission permission : permissions) {
+                String resourceId = permission.getResourceId();
+                String action = permission.getAction();
+                // This is a special case. We need to pass domain aware name.
+                userRealm.getAuthorizationManager()
+                        .authorizeRole(UserCoreUtil.addInternalDomainName(roleName), resourceId, action);
+            }
+        }
+
+        if ((userList != null) && (userList.length > 0)) {
+            clearUserRolesCacheByTenant(this.tenantId);
+        }
     }
 
     private void filterRoles(String[] roleList, List<String> internalRoles, List<String> externalRoles) {
