@@ -130,7 +130,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         // Assigning unique user ID of the user as the username in the system.
         String userID = UserCoreUtil.getUserID();
         // Assign preferredUsername as the username claim.
-        claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+        claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
         User user = new User(userID, userName, userName, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
@@ -169,7 +169,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             // Assigning unique user ID of the user as the username in the system.
             String userID = UserCoreUtil.getUserID();
             // Assign preferredUsername as the username claim.
-            claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+            claims = addUserNameAttribute(userName, claims);
             persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
         } else {
             persistUser(userName, credential, roleList, claims, profileName, requirePasswordChange);

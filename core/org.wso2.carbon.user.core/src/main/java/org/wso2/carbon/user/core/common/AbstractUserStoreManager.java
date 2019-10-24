@@ -1834,7 +1834,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             User user = new User(userID);
             users.add(user);
         }
-        return users.toArray(User[]::new);
+        return users.stream().toArray(User[]::new);
     }
 
     /**
@@ -1857,7 +1857,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             for (String userID : userList) {
                 users.add(getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName));
             }
-            return users.toArray(String[]::new);
+            return users.stream().toArray(String[]::new);
         } else {
             return userList;
         }
@@ -8714,7 +8714,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isSystemStore()) {
             String[] userList = systemUserRoleManager.getUserListOfSystemRole(userStore.getDomainFreeName());
-            User[] users = UserCoreUtil.getUserList(userList).toArray(User[]::new);
+            User[] users = UserCoreUtil.getUserList(userList).stream().toArray(User[]::new);
             handleDoPostGetUserListOfRoleWithID(roleName, users);
             return users;
         }
@@ -8759,13 +8759,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     }
                 } else {
-                    User[] usersInHybrid = UserCoreUtil.getUserList(userNamesInHybrid).toArray(User[]::new);
+                    User[] usersInHybrid = UserCoreUtil.getUserList(userNamesInHybrid).stream().toArray(User[]::new);
                     handleDoPostGetUserListOfRoleWithID(roleName, usersInHybrid);
                     return usersInHybrid;
                 }
             }
-            String[] userList = finalNameList.toArray(String[]::new);
-            User[] users = UserCoreUtil.getUserList(userList).toArray(User[]::new);
+            String[] userList = finalNameList.stream().toArray(String[]::new);
+            User[] users = UserCoreUtil.getUserList(userList).stream().toArray(User[]::new);
             handleDoPostGetUserListOfRoleWithID(roleName, users);
             return users;
         }
@@ -9244,6 +9244,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Assume that username will be unique
         return usersFromUserStore.get(0);
 
+    }
+
+    /**
+     * Add username as a user claim.
+     *
+     * @param userName username
+     * @param claims   claims map
+     */
+    public Map<String, String> addUserNameAttribute(String userName, Map<String, String> claims) {
+
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
+        claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+        return claims;
     }
 
     @Override
@@ -10021,7 +10036,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
                 processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
             }
-            deletedRoles = roleDel.toArray(String[]::new);
+            deletedRoles = roleDel.stream().toArray(String[]::new);
         }
 
         if (newRoles != null && newRoles.length > 0) {
@@ -10041,13 +10056,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 processNewRoles(internalRoleNew, roleNew, newRole, domain);
             }
-            newRoles = roleNew.toArray(String[]::new);
+            newRoles = roleNew.stream().toArray(String[]::new);
         }
 
         if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
             hybridRoleManager
-                    .updateHybridRoleListOfUser(userStore.getDomainFreeName(), internalRoleDel.toArray(String[]::new),
-                            internalRoleNew.toArray(String[]::new));
+                    .updateHybridRoleListOfUser(userStore.getDomainFreeName(), internalRoleDel.stream().toArray(String[]::new),
+                            internalRoleNew.stream().toArray(String[]::new));
         }
 
         // #################### <Listeners> #####################################################
@@ -10530,7 +10545,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             try {
-                user = doAddUserWithID(userName, credentialObj, externalRoles.toArray(String[]::new), claims,
+                user = doAddUserWithID(userName, credentialObj, externalRoles.stream().toArray(String[]::new), claims,
                         profileName, requirePasswordChange);
             } catch (UserStoreException ex) {
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_USER.getCode(),
@@ -10540,7 +10555,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (internalRoles.size() > 0) {
-                hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(String[]::new));
+                hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.stream().toArray(String[]::new));
             }
 
             try {
