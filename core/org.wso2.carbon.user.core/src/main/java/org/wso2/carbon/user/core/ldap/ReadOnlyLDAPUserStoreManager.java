@@ -1279,7 +1279,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-            userNames = list.toArray(User[]::new);
+            userNames = list.stream().toArray(User[]::new);
 
             if (debug) {
                 for (User username : userNames) {
@@ -1932,7 +1932,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     @Override
     public User[] doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
-        return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter)).toArray(User[]::new);
+        return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter)).stream().toArray(User[]::new);
     }
 
     @Override
@@ -1944,7 +1944,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             for (String userID : userIDs) {
                 userNames.add(getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, null));
             }
-            return userNames.toArray(String[]::new);
+            return userNames.stream().toArray(String[]::new);
         }
         return doGetUserListOfRoleInternal(roleName, filter);
     }

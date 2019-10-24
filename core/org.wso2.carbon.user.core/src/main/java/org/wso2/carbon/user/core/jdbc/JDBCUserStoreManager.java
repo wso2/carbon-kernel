@@ -568,7 +568,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             rs.close();
 
             if (userList.size() > 0) {
-                users = userList.toArray(User[]::new);
+                users = userList.stream().toArray(User[]::new);
             }
 
         } catch (SQLException e) {
@@ -835,7 +835,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     @Override
     public User[] doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
-        return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter)).toArray(User[]::new);
+        return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter)).stream().toArray(User[]::new);
     }
 
     @Override
@@ -847,7 +847,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             for (String userID : userIDs) {
                 userNames.add(getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, null));
             }
-            return userNames.toArray(String[]::new);
+            return userNames.stream().toArray(String[]::new);
         }
         return doGetUserListOfRoleInternal(roleName, filter);
     }
@@ -1697,7 +1697,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         // Assigning unique user ID of the user as the username in the system.
         String userID = UserCoreUtil.getUserID();
         // Assign preferredUsername as the username claim.
-        claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+        claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
         User user = new User(userID, userName, userName, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
@@ -1721,7 +1721,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             // Assigning unique user ID of the user as the username in the system.
             String userID = UserCoreUtil.getUserID();
             // Assign preferredUsername as the username claim.
-            claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+            claims = addUserNameAttribute(userName, claims);
             persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
         } else {
             persistUser(userName, credential, roleList, claims, profileName, requirePasswordChange);
@@ -1896,7 +1896,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             for (String userName : userList) {
                 userIDList.add(getUserIDByUserName(userName, null));
             }
-            userList = userIDList.toArray(String[]::new);
+            userList = userIDList.stream().toArray(String[]::new);
         }
         doAddRoleInternal(roleName, userList, shared);
     }
@@ -2218,8 +2218,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            deletedUsers = UserCoreUtil.getUserList(deletedUsers).toArray(String[]::new);
-            newUsers = UserCoreUtil.getUserList(newUsers).toArray(String[]::new);
+            deletedUsers = UserCoreUtil.getUserList(deletedUsers).stream().toArray(String[]::new);
+            newUsers = UserCoreUtil.getUserList(newUsers).stream().toArray(String[]::new);
         }
         doUpdateUserListOfRoleInternal(roleName, deletedUsers, newUsers);
     }
