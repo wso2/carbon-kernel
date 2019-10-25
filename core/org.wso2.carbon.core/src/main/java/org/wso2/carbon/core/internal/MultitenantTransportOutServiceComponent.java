@@ -37,6 +37,9 @@ import org.wso2.carbon.core.multitenancy.MultitenantMessageReceiver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This service component is responsible for loading the `tenantOutClientService` Axis2 service and two operations for
  * that service which is used in sending the message out in tenant mode.
@@ -90,6 +93,8 @@ public class MultitenantTransportOutServiceComponent {
         axisCfg.addServiceGroup(superTenantSenderServiceGroup);
 
         superTenantSenderClientService.setClientSide(true);
+        List exposedTransportList = Arrays.asList("http","https","local");
+        superTenantSenderClientService.setExposedTransports(exposedTransportList);
         if (log.isDebugEnabled()) {
             log.debug("Deployed " + MultitenantConstants.MULTITENANT_CLIENT_OUT_SERVICE);
         }
