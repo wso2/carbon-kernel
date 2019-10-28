@@ -6397,9 +6397,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (this.getSecondaryUserStoreManager(domainName) != null) {
                     String errmsg = "Could not initialize new user store manager : " + domainName
                             + " Duplicate domain names not allowed.";
-                    if (log.isDebugEnabled()) {
-                        log.debug(errmsg);
-                    }
                     throw new UserStoreException(errmsg);
                 } else {
                     // Fulfilled requirements for adding UserStore,
