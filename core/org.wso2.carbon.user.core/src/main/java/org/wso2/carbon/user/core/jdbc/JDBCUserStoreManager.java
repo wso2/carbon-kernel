@@ -599,7 +599,22 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     @Override
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
 
-        String[] roles = doGetExternalRoleListOfUser(userName, roleName);
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        return doCheckIsUserInRoleInternal(userName, roleName);
+    }
+
+    @Override
+    public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
+
+        return doCheckIsUserInRoleInternal(userID, roleName);
+    }
+
+    private boolean doCheckIsUserInRoleInternal(String userName, String roleName) throws UserStoreException {
+
+        String[] roles = doGetExternalRoleListOfUserInternal(userName, roleName);
         if (roles != null) {
             for (String role : roles) {
                 if (role.equalsIgnoreCase(roleName)) {
@@ -1421,7 +1436,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            return doCheckExistingUserWithUserNameAttribute(userName);
         }
         return doCheckExistingUserInternal(userName);
     }
@@ -1462,6 +1477,50 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         return isExisting;
+    }
+
+    @Override
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        String mappedAttribute;
+        try {
+            mappedAttribute = claimManager.getAttributeName(claimURI);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while retrieving attribute name for claim: " + claimURI);
+        }
+
+        String[] userIDs = getUserListFromProperties(mappedAttribute, claimValue, profileName);
+
+        if (userIDs.length > 1) {
+            throw new UserStoreException(
+                    "Invalid scenario. Multiple users cannot be found for the given user attribute.");
+        } else if (ArrayUtils.isEmpty(userIDs)) {
+            return null;
+        }
+
+        if (ArrayUtils.isEmpty(userIDs)) {
+            return null;
+        }
+
+        // Assume that username will be unique
+        return userIDs[0];
+    }
+
+    @Override
+    public String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
+
+        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
+    }
+
+    private boolean doCheckExistingUserWithUserNameAttribute(String userName) throws UserStoreException {
+
+        String userIDs = getUserIDByUserName(userName, null);
+
+        if (StringUtils.isEmpty(userIDs)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1582,6 +1641,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return null;
         }
 
+        // add the properties
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
         Connection dbConnection = null;
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
@@ -1618,7 +1682,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (count > 1) {
                     if (log.isDebugEnabled()) {
                         log.debug("Invalid scenario. Multiple users found for the given username property: "
-                                + preferredUserNameValue + " and value: " + preferredUserNameValue);
+                                + preferredUserNameProperty + " and value: " + preferredUserNameValue);
                     }
                     isAuthed = false;
                     user = null;
@@ -1647,7 +1711,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
                         user = new User(userID,
-                                getUserClaimValue(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
+                                getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
                                 preferredUserNameValue, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
                                 null, null);
                         try {
@@ -3521,11 +3585,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             log.debug("Getting roles of user: " + userName + " with filter: " + filter);
         }
 
-        // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            userName = getUserIDByUserName(userName, null);
-        }
-
         String sqlStmt;
         String[] names;
         if (filter.equals("*") || StringUtils.isEmpty(filter)) {
@@ -3779,7 +3838,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected String[] doGetSharedRoleListOfUser(String userName,
+    public String[] doGetSharedRoleListOfUserWithID(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        return doGetSharedRoleListOfUserInternal(userName, tenantDomain, filter);
+    }
+
+    @Override
+    public String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        return doGetSharedRoleListOfUserInternal(userName, tenantDomain, filter);
+    }
+
+    private String[] doGetSharedRoleListOfUserInternal(String userName,
                                                  String tenantDomain, String filter) throws UserStoreException {
 
         if (log.isDebugEnabled()) {

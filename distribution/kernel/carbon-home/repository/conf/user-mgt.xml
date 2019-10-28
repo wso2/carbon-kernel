@@ -44,8 +44,8 @@
             <Property name="ReadOnly">false</Property>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>
-            <Property name="UsernameJavaRegEx">^[\S]{3,1000}$</Property>
-            <Property name="UsernameJavaScriptRegEx">^[\S]{3,1000}$</Property>
+            <Property name="UsernameJavaRegEx">^[\S]{3,30}$</Property>
+            <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
@@ -87,7 +87,7 @@
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="MembershipAttribute">member</Property>
             <Property name="BackLinksEnabled">false</Property>
-            <Property name="UsernameJavaRegEx">^[\S]{3,1000}$</Property>
+            <Property name="UsernameJavaRegEx">^[a-zA-Z0-9._\-|//]{3,30}$</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._\-|//]{3,30}$</Property>
             <Property name="SCIMEnabled">false</Property>
@@ -137,8 +137,8 @@
             <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">true</Property>
             <Property name="Referral">follow</Property>
-            <Property name="UsernameJavaRegEx">^[\S]{3,1000}$</Property>
-            <Property name="UsernameJavaScriptRegEx">^[\S]{3,1000}$</Property>
+            <Property name="UsernameJavaRegEx">[a-zA-Z0-9._\-|//]{3,30}$</Property>
+            <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
@@ -194,8 +194,8 @@
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="MembershipAttribute">member</Property>
             <Property name="BackLinksEnabled">false</Property>
-            <Property name="UsernameJavaRegEx">^[\S]{3,1000}$</Property>
-            <Property name="UsernameJavaScriptRegEx">^[\S]{3,1000}$</Property>
+            <Property name="UsernameJavaRegEx">[a-zA-Z0-9._\-|//]{3,30}$</Property>
+            <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>

@@ -895,7 +895,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            return doCheckExistingUserWithUserNameAttribute(userName);
         }
         return doCheckExistingUserInternal(userName);
     }
@@ -960,6 +960,50 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             log.debug("User: " + userName + " exist: " + bFound);
         }
         return bFound;
+    }
+
+    @Override
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        String mappedAttribute;
+        try {
+            mappedAttribute = claimManager.getAttributeName(claimURI);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while retrieving attribute name for claim: " + claimURI);
+        }
+
+        String[] userIDs = getUserListFromProperties(mappedAttribute, claimValue, profileName);
+
+        if (userIDs.length > 1) {
+            throw new UserStoreException(
+                    "Invalid scenario. Multiple users cannot be found for the given user attribute.");
+        } else if (ArrayUtils.isEmpty(userIDs)) {
+            return null;
+        }
+
+        if (ArrayUtils.isEmpty(userIDs)) {
+            return null;
+        }
+
+        // Assume that username will be unique
+        return userIDs[0];
+    }
+
+    @Override
+    public String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
+
+        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
+    }
+
+    private boolean doCheckExistingUserWithUserNameAttribute(String userName) throws UserStoreException {
+
+        String userIDs = getUserIDByUserName(userName, null);
+
+        if (StringUtils.isEmpty(userIDs)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -2472,9 +2516,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return getLDAPRoleListOfUser(userName, filter, searchBase, false);
     }
 
+    @Override
+    public String[] doGetSharedRoleListOfUserWithID(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        return doGetSharedRoleListOfUserInternal(userName, tenantDomain, filter);
+    }
 
     @Override
-    protected String[] doGetSharedRoleListOfUser(String userName,
+    public String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        return doGetSharedRoleListOfUserInternal(userName, tenantDomain, filter);
+    }
+
+    private String[] doGetSharedRoleListOfUserInternal(String userName,
                                                  String tenantDomain, String filter) throws UserStoreException {
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(true);
@@ -3663,6 +3723,21 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        return doCheckIsUserInRoleInternal(userName, roleName);
+    }
+
+    @Override
+    public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
+
+        return doCheckIsUserInRoleInternal(userID, roleName);
+    }
+
+    private boolean doCheckIsUserInRoleInternal(String userName, String roleName) throws UserStoreException {
 
         boolean debug = log.isDebugEnabled();
         if (userName == null) {

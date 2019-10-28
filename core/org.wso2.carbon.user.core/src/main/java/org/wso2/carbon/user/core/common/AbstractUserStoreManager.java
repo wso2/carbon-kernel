@@ -731,6 +731,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                           String tenantDomain, String filter) throws UserStoreException;
 
     /**
+     * Only gets the shared roles of the user.
+     *
+     * @param userID user ID.
+     * @return roles list.
+     * @throws UserStoreException
+     */
+    protected String[] doGetSharedRoleListOfUserWithID(String userID, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetSharedRoleListOfUserWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetSharedRoleListOfUserWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
      * Add role with a list of users and permissions provided.
      *
      * @param roleName
@@ -1854,8 +1871,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
-                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+        if (!UserCoreUtil.isUniqueUserIDFeatureEnabled() && (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to list users using username");
@@ -3821,7 +3838,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (userStore.isHybridRole()) {
             // Check whether someone is trying to update Everyone role.
@@ -4343,7 +4360,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_UPDATE_EVERYONE_ROLE.toString());
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
         UserStore userStoreNew = getUserStore(newRoleName);
 
         if (!UserCoreUtil.canRoleBeRenamed(userStore, userStoreNew, realmConfig)) {
@@ -4455,7 +4472,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (Boolean) object;
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().isExistingRole(userStore.getDomainFreeName());
@@ -4793,6 +4810,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public abstract boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException;
 
     /**
+     * @param userID user ID.
+     * @param roleName role name.
+     * @return true if user uis in the given role.
+     * @throws UserStoreException
+     */
+    public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doCheckIsUserInRoleWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doCheckIsUserInRoleWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
      * Helper method
      *
      * @param userName
@@ -5004,7 +5036,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return userNames;
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (userStore.isRecurssive()) {
             UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
@@ -5275,7 +5307,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (isSharedRole && !isSharedGroupEnabled()) {
             handleAddRoleFailure(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getCode(),
@@ -5550,7 +5582,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.toString());
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().deleteRole(userStore.getDomainFreeName());
             return;
@@ -5645,7 +5677,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private UserStore getUserStoreWithPreferredUserNameValue(final String preferredUserNameClaim,
             final String preferredUserNameValue, final String profileName) throws UserStoreException {
 
-        return getUserStoreWithID(getUserID(preferredUserNameClaim, preferredUserNameValue, profileName));
+        return getUserStoreWithID(getUserIDFromProperties(preferredUserNameClaim, preferredUserNameValue, profileName));
     }
 
     private UserStore getUserStore(final String user) throws UserStoreException {
@@ -5667,6 +5699,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
         }
+    }
+
+    private UserStore getUserStoreOfRoles(final String role) throws UserStoreException {
+
+        return getUserStoreWithID(role);
     }
 
     /**
@@ -6043,34 +6080,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return roleList;
     }
 
-    private Map<String, String> doGetUserClaimValuesWithID(String userID, String[] claims, String domainName,
-            String profileName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
-            Object object = callSecure("doGetUserClaimValuesWithID", new Object[]{userID, claims, domainName,
-                                                                                    profileName}, argTypes);
-            return (Map<String, String>) object;
-        }
-        return doGetUserClaimValuesInternal(userID, claims, domainName, profileName);
-    }
-
-    private Map<String, String> doGetUserClaimValues(String userName, String[] claims, String domainName,
-            String profileName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
-            Object object = callSecure("doGetUserClaimValues", new Object[]{userName, claims, domainName,
-                                                                                    profileName}, argTypes);
-            return (Map<String, String>) object;
-        }
-        // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            userName = getUserIDByUserName(userName, null);
-        }
-        return doGetUserClaimValuesInternal(userName, claims, domainName, profileName);
-    }
-
     /**
      * @param userName
      * @param claims
@@ -6078,8 +6087,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return
      * @throws UserStoreException
      */
-    private Map<String, String> doGetUserClaimValuesInternal(String userName, String[] claims,
-                                                     String domainName, String profileName) throws UserStoreException {
+    private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
+            String domainName, String profileName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
+            Object object = callSecure("doGetUserClaimValues", new Object[]{userName, claims, domainName,
+                                                                            profileName}, argTypes);
+            return (Map<String, String>) object;
+        }
 
         // Here the user name should be domain-less.
         boolean requireRoles = false;
@@ -6125,10 +6141,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties,
                 profileName);
 
-        List<String> getAgain = new ArrayList<String>();
-        Map<String, String> finalValues = new HashMap<String, String>();
-        boolean isOverrideUsernameClaimEnabled = Boolean.parseBoolean(realmConfig
-                .getIsOverrideUsernameClaimFromInternalUsername());
+        List<String> getAgain = new ArrayList<>();
+        Map<String, String> finalValues = new HashMap<>();
+
+        boolean isOverrideUsernameClaimEnabled = false;
+        if (!UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            isOverrideUsernameClaimEnabled = Boolean
+                    .parseBoolean(realmConfig.getIsOverrideUsernameClaimFromInternalUsername());
+        }
 
         for (String claim : claims) {
             ClaimMapping mapping;
@@ -8209,7 +8229,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
 
                 String preferredUserNameProperty = claimManager
-                        .getAttributeName(extractedDomain, preferredUserNameClaim);
+                        .getAttributeName(preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
                 authenticatedUser = abstractUserStoreManager
                         .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
@@ -8640,8 +8660,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
-            return userStore.getUserStoreManager()
-                    .getUserClaimValues(userStore.getDomainFreeName(), claims, profileName);
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserClaimValuesWithID(userStore.getDomainFreeName(), claims, profileName);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -8659,7 +8679,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         Map<String, String> finalValues;
         try {
-            finalValues = doGetUserClaimValues(userID, claims, userStore.getDomainName(), profileName);
+            finalValues = doGetUserClaimValuesWithID(userID, claims, userStore.getDomainName(), profileName);
         } catch (UserStoreException ex) {
             handleGetUserClaimValuesFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
@@ -8705,7 +8725,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
-            return userStore.getUserStoreManager().getUserClaimValues(userStore.getDomainFreeName(), profileName);
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserClaimValuesWithID(userStore.getDomainFreeName(), profileName);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -8735,6 +8756,160 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, String> values = this.getUserClaimValuesWithID(userID, claims, profileName);
         Claim[] finalValues = new Claim[values.size()];
         addClaimValues(values, finalValues);
+
+        return finalValues;
+    }
+
+    private Map<String, String> doGetUserClaimValuesWithID(String userName, String[] claims,
+            String domainName, String profileName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
+            Object object = callSecure("doGetUserClaimValuesWithID", new Object[]{userName, claims, domainName,
+                                                                            profileName}, argTypes);
+            return (Map<String, String>) object;
+        }
+
+        // Here the user name should be domain-less.
+        boolean requireRoles = false;
+        boolean requireIntRoles = false;
+        boolean requireExtRoles = false;
+        String roleClaim = null;
+
+        if (profileName == null || profileName.trim().length() == 0) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        Set<String> propertySet = new HashSet<>();
+        for (String claim : claims) {
+
+            // There can be cases some claim values being requested for claims
+            // we don't have.
+            String property;
+            try {
+                property = getClaimAtrribute(claim, userName, domainName);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
+            if (property != null
+                    && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
+                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) ||
+                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim))) {
+                propertySet.add(property);
+            }
+
+            if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
+                requireRoles = true;
+                roleClaim = claim;
+            } else if (UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
+                requireIntRoles = true;
+                roleClaim = claim;
+            } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
+                requireExtRoles = true;
+                roleClaim = claim;
+            }
+        }
+
+        String[] properties = propertySet.stream().toArray(String[]::new);
+        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties,
+                profileName);
+
+        List<String> getAgain = new ArrayList<>();
+        Map<String, String> finalValues = new HashMap<>();
+
+        for (String claim : claims) {
+            ClaimMapping mapping;
+            try {
+                mapping = (ClaimMapping) claimManager.getClaimMapping(claim);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
+            String property = null;
+            String value;
+            if (mapping != null) {
+                if (domainName != null) {
+                    Map<String, String> attrMap = mapping.getMappedAttributes();
+                    if (attrMap != null) {
+                        String attr;
+                        if ((attr = attrMap.get(domainName.toUpperCase())) != null) {
+                            property = attr;
+                        } else {
+                            property = mapping.getMappedAttribute();
+                        }
+                    }
+                } else {
+                    property = mapping.getMappedAttribute();
+                }
+
+                value = uerProperties.get(property);
+                if (value != null && value.trim().length() > 0) {
+                    finalValues.put(claim, value);
+                }
+
+            } else {
+                if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
+                    property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+                }
+
+                value = uerProperties.get(property);
+                if (value != null && value.trim().length() > 0) {
+                    finalValues.put(claim, value);
+                }
+            }
+        }
+
+        if (getAgain.size() > 0) {
+            // oh the beautiful recursion
+            Map<String, String> mapClaimValues = this.getUserClaimValues(userName,
+                    getAgain.stream().toArray(String[]::new),
+                    profileName);
+
+            Iterator<Map.Entry<String, String>> ite3 = mapClaimValues.entrySet().iterator();
+            while (ite3.hasNext()) {
+                Map.Entry<String, String> entry = ite3.next();
+                if (entry.getValue() != null) {
+                    finalValues.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+
+        // We treat roles claim in special way.
+        String[] roles = null;
+
+        if (requireRoles) {
+            roles = getRoleListOfUserWithID(userName);
+        } else if (requireIntRoles) {
+            roles = doGetInternalRoleListOfUserWithID(userName, "*");
+        } else if (requireExtRoles) {
+
+            List<String> rolesList = new ArrayList<>();
+            String[] externalRoles = doGetExternalRoleListOfUserWithID(userName, "*");
+            rolesList.addAll(Arrays.asList(externalRoles));
+            //if only shared enable
+            if (isSharedGroupEnabled()) {
+                String[] sharedRoles = doGetSharedRoleListOfUserWithID(userName, null, "*");
+                if (sharedRoles != null) {
+                    rolesList.addAll(Arrays.asList(sharedRoles));
+                }
+            }
+
+            roles = rolesList.stream().toArray(String[]::new);
+        }
+
+        if (roles != null && roles.length > 0) {
+            String userAttributeSeparator = ",";
+            String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                userAttributeSeparator = claimSeparator;
+            }
+            String delim = "";
+            StringBuffer roleBf = new StringBuffer();
+            for (String role : roles) {
+                roleBf.append(delim).append(role);
+                delim = userAttributeSeparator;
+            }
+            finalValues.put(roleClaim, roleBf.toString());
+        }
 
         return finalValues;
     }
@@ -8949,7 +9124,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         List<String> userIDs = new ArrayList<>();
         for (String userName : userNames) {
             try {
-                userIDs.add(getUserID(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName));
+                userIDs.add(getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName));
             } catch (UserStoreException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("Error occurred while resolving the userID for userName: " + userName);
@@ -8962,55 +9137,49 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * provides the unique user ID of the given user.
      *
+     * @param claimURI Claim naURIme.
+     * @param claimValue Claim value.
+     * @param profileName Profile name.
+     * @return user ID.
+     * @throws UserStoreException UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        String mappedAttribute;
+        try {
+            mappedAttribute = claimManager.getAttributeName(claimURI);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while retrieving attribute name for claim: " + claimURI);
+        }
+
+        String[] userIDs = getUserListFromProperties(mappedAttribute, claimValue, profileName);
+
+        if (userIDs.length > 1) {
+            throw new UserStoreException(
+                    "Invalid scenario. Multiple users cannot be found for the given user attribute.");
+        } else if (ArrayUtils.isEmpty(userIDs)) {
+            return null;
+        }
+
+        if (ArrayUtils.isEmpty(userIDs)) {
+            return null;
+        }
+
+        // Assume that username will be unique
+        return userIDs[0];
+    }
+
+    /**
+     * provides the unique user ID of the given user.
+     *
      * @param userName username of the user.
      * @return user ID
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     public String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
 
-        return getUserID(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-    }
-
-    /**
-     * provides the unique user ID of the given user.
-     *
-     * @param claim       Claim name.
-     * @param claimValue  Claim value.
-     * @param profileName Profile name.
-     * @return user ID
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    private String getUserID(String claim, String claimValue, String profileName) throws UserStoreException {
-
-        // Extracting the domain from claimValue.
-        String extractedDomain = null;
-        int index;
-        index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-        if (index > 0) {
-            String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
-            extractedDomain = names[0].trim();
-            claimValue = UserCoreUtil.removeDomainFromName(claimValue);
-        }
-
-        AbstractUserStoreManager userManager = null;
-        if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = (AbstractUserStoreManager) getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
-                        + " for the given domain name.");
-            }
-        }
-
-        // Iterate through user stores and check for users for this claim.
-        List<String> usersFromUserStore = doGetUserList(claim, claimValue, profileName, extractedDomain, userManager);
-        if (usersFromUserStore.size() > 1) {
-            throw new UserStoreException(
-                    "Invalid scenario. Multiple users cannot be found for the given user attribute.");
-        }
-
-        // Assume that username will be unique
-        return usersFromUserStore.get(0);
-
+        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
     }
 
     /**
@@ -9973,7 +10142,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        UserStore userStore = getUserStore(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (userStore.isHybridRole()) {
             // Check whether someone is trying to update Everyone role.
