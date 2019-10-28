@@ -73,7 +73,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         try {
             this.superTenantSenderClientService = superTenantConfigurationContext.getAxisConfiguration()
                     .getService(MultitenantConstants.MULTITENANT_CLIENT_OUT_SERVICE);
-            this.superTenantSenderClientService.setEnableAllTransports(true);
+            if (this.superTenantSenderClientService != null) {
+                this.superTenantSenderClientService.setEnableAllTransports(true);
+            }
         } catch (AxisFault axisFault) {
             log.error("Can't find the " + MultitenantConstants.MULTITENANT_CLIENT_OUT_SERVICE + " service!", axisFault);
         }
