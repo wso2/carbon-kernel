@@ -63,15 +63,15 @@ public class UserStoreDeploymentManager {
                 //tenant admin modified secondary user store configuration
                 if (filePathSegments[filePathSegments.length - 4].equals(UserStoreConfigConstants.TENANTS)) {
                     realmConfiguration.setTenantId(tenantId);
-                    setSecondaryUserStore(userRealm.getRealmConfiguration(), realmConfiguration);
-                    primaryUSM = (AbstractUserStoreManager) userRealm.getUserStoreManager();
-                    primaryUSM.addSecondaryUserStoreManager(realmConfiguration, userRealm);
+                }
 
-                } else {
-                    //super tenant modified secondary user store configuration
-                    setSecondaryUserStore(userRealm.getRealmConfiguration(), realmConfiguration);
-                    primaryUSM = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+                setSecondaryUserStore(userRealm.getRealmConfiguration(), realmConfiguration);
+                primaryUSM = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+                try {
                     primaryUSM.addSecondaryUserStoreManager(realmConfiguration, userRealm);
+                } catch (UserStoreException ex) {
+                    log.warn(ex.getMessage());
+                    throw new DeploymentException(ex.getMessage(), ex);
                 }
 
                 log.info("Realm configuration of tenant:" + CarbonContext.getThreadLocalCarbonContext().getTenantId() + "  modified with " + absoluteFilePath);
@@ -79,7 +79,7 @@ public class UserStoreDeploymentManager {
                 //not a change related to user stores
             }
 
-        } catch (Exception ex) {
+        } catch (UserStoreException ex) {
             String errorMessage = "The deployment of " + userMgtConfigFile.getName() + " is not valid.";
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, ex);
