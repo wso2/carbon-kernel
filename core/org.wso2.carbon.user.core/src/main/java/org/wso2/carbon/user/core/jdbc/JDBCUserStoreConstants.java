@@ -224,7 +224,11 @@ public class JDBCUserStoreConstants {
 
         setAdvancedProperty(JDBCRealmConstants.GET_IS_ROLE_EXISTING, "Is Role Existing SQL", JDBCRealmConstants.GET_IS_ROLE_EXISTING_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_ROLE, "Get User List Of Role SQL", JDBCRealmConstants.GET_USERS_IN_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER, "Get User List Of Role Filter SQL",
+                JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE, "Get User List Of Shared Role SQL", JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER, "Get User List Of Shared Role " +
+                        "Filter SQL", JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER_SQL, "");
 
         setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_EXISTING, "Is User Existing SQL", JDBCRealmConstants.GET_IS_USER_EXISTING_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE, "Is User " +
