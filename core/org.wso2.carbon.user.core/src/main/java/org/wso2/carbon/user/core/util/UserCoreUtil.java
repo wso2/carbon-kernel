@@ -22,10 +22,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -70,6 +70,7 @@ public final class UserCoreUtil {
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
     private static RealmService realmService = null;
+    private static final String UNIQUE_USER_ID_CONFIG = "UniqueUserID.Enabled";
     /*
      * When user authenticates with out domain, need to set the domain of the user store that he
      * belongs to, as a thread local variable.
@@ -1162,8 +1163,19 @@ public final class UserCoreUtil {
         return usersList;
     }
 
-    // TODO: read a config
+    /**
+     * Check whether the unique user ID Feature is enabled.
+     *
+     * @return true if enabled.
+     */
     public static boolean isUniqueUserIDFeatureEnabled() {
+
+        // Read from carbon.xml
+        ServerConfiguration serverConfig = ServerConfiguration.getInstance();
+        String isUniqueUserIDEnabled = serverConfig.getFirstProperty(UNIQUE_USER_ID_CONFIG);
+        if (!StringUtils.isEmpty(isUniqueUserIDEnabled)) {
+            return Boolean.parseBoolean(isUniqueUserIDEnabled);
+        }
         return false;
     }
 
