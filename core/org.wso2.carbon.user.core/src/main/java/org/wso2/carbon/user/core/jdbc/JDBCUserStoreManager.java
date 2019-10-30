@@ -4281,7 +4281,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         for (int i = 0; i < baseSqlBuilder.getWheres().size(); i++) {
 
             if (baseSqlBuilder.getIntegerParameters().containsKey(i + 1)) {
-                newSqlBuilder.where(baseSqlBuilder.getWheres().get(i), baseSqlBuilder.getIntegerParameters().get(i + 1));
+                newSqlBuilder
+                        .where(baseSqlBuilder.getWheres().get(i), baseSqlBuilder.getIntegerParameters().get(i + 1));
 
             } else if (baseSqlBuilder.getStringParameters().containsKey(i + 1)) {
                 newSqlBuilder.where(baseSqlBuilder.getWheres().get(i), baseSqlBuilder.getStringParameters().get(i + 1));
