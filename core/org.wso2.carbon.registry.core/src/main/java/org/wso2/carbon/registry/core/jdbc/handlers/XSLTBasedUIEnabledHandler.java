@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Transformer;
@@ -55,7 +56,13 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
     private TransformerFactory transformerFactory;
 
     public XSLTBasedUIEnabledHandler() {
-        transformerFactory = TransformerFactory.newInstance();
+        try {
+            transformerFactory = CarbonUtils.getSecureTransformerFactory();
+        } catch (TransformerConfigurationException e) {
+            log.error("Error while creating input stream : " , e);
+        } catch (TransformerException e) {
+            log.error("Error while creating input stream : " , e);
+        }
     }
 
     public void setBrowseXSLT(OMElement browseElement) throws RegistryException {
