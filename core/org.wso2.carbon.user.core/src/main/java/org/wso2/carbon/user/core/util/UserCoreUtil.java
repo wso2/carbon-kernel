@@ -53,7 +53,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
@@ -1117,15 +1116,6 @@ public final class UserCoreUtil {
         }
 
         Arrays.fill(bytes, (byte) 0);
-    }
-
-    /**
-     * provides the unique user ID of the user.
-     *
-     * @return unique user ID
-     */
-    public static String getUserID() {
-        return UUID.randomUUID().toString();
     }
 
     public static List<String> getAttributesList(User[] userList, String attributeName) {
