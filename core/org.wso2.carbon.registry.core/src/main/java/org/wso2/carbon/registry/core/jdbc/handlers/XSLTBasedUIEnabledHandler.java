@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Transformer;
@@ -52,10 +53,7 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
     protected List<String> editViews = new ArrayList<String>();
     protected List<String> newViews = new ArrayList<String>();
 
-    private TransformerFactory transformerFactory;
-
     public XSLTBasedUIEnabledHandler() {
-        transformerFactory = TransformerFactory.newInstance();
     }
 
     public void setBrowseXSLT(OMElement browseElement) throws RegistryException {
@@ -303,7 +301,7 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
         }
         Transformer transformer;
         try {
-            transformer = transformerFactory.newTransformer(new StreamSource(xsltStream));
+            transformer = CarbonUtils.getSecureTransformerFactory().newTransformer(new StreamSource(xsltStream));
 
 
         } catch (TransformerConfigurationException e) {
