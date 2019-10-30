@@ -983,11 +983,6 @@
                 <version>${version.findbugs.annotations}</version>
             </dependency>
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${version.commons.logging}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>javax.servlet</artifactId>
                 <version>${version.equinox.javax.servlet}</version>
@@ -1128,11 +1123,6 @@
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>${version.xml-apis}</version>
-            </dependency>
-            <dependency>
-                <groupId>xml-resolver</groupId>
-                <artifactId>xml-resolver</artifactId>
-                <version>${version.xml-resolver}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.woden.wso2</groupId>
@@ -1706,11 +1696,6 @@
                 <version>${carbon.kernel.version}</version>
                 <type>zip</type>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
-                <artifactId>encoder</artifactId>
-                <version>${owasp.encoder.wso2.version}</version>
-            </dependency>
 
 
             <!-- Test integration dependencies -->
@@ -1785,11 +1770,6 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-testng</artifactId>
                 <version>${powermock.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>${version.activation}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
