@@ -53,16 +53,7 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
     protected List<String> editViews = new ArrayList<String>();
     protected List<String> newViews = new ArrayList<String>();
 
-    private TransformerFactory transformerFactory;
-
     public XSLTBasedUIEnabledHandler() {
-        try {
-            transformerFactory = CarbonUtils.getSecureTransformerFactory();
-        } catch (TransformerConfigurationException e) {
-            log.error("Error while creating input stream : " , e);
-        } catch (TransformerException e) {
-            log.error("Error while creating input stream : " , e);
-        }
     }
 
     public void setBrowseXSLT(OMElement browseElement) throws RegistryException {
@@ -310,7 +301,7 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
         }
         Transformer transformer;
         try {
-            transformer = transformerFactory.newTransformer(new StreamSource(xsltStream));
+            transformer = CarbonUtils.getSecureTransformerFactory().newTransformer(new StreamSource(xsltStream));
 
 
         } catch (TransformerConfigurationException e) {
