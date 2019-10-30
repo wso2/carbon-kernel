@@ -79,6 +79,10 @@
   "user_store.kdc_enabled": "user_store.properties.kdcEnabled",
   "user_store.membership_attribute_range": "user_store.properties.MembershipAttributeRange",
 
+  "authorization_manager.admin_role_management_permissions": "authorization_manager.properties.AdminRoleManagementPermissions",
+  "authorization_manager.enable_authorization_cache": "authorization_manager.properties.AuthorizationCacheEnabled",
+  "authorization_manager.get_all_roles_user_enable": "authorization_manager.properties.GetAllRolesOfUserEnabled",
+
   "transport.https.properties.certificate_verification": "transport.https.sslHostConfig.properties.certificateVerification",
   "transport.https.properties.protocols": "transport.https.sslHostConfig.properties.protocols",
   "transport.https.properties.ssl_protocol": "transport.https.sslHostConfig.properties.sslProtocol",
