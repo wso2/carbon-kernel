@@ -5828,6 +5828,57 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     /**
+     * Retrieve the list of users directly from the database,
+     * without using the cache.
+     * @param username username of the user
+     * @param filter filter to be used when searching for roles
+     * @return the list of roles which the specified users belongs to
+     * @throws UserStoreException
+     */
+    public final String[] getRoleListOfUserFromDatabase(String username, String filter)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getRoleListOfUserFromDatabase", new Object[]{username, filter}, argTypes);
+            return (String[]) object;
+        }
+
+        String[] internalRoles = doGetInternalRoleListOfUser(username, filter);
+        String[] modifiedExternalRoleList = new String[0];
+
+        if (readGroupsEnabled && doCheckExistingUser(username)) {
+            List<String> roles = new ArrayList<String>();
+            String[] externalRoles = doGetExternalRoleListOfUser(username, "*");
+            roles.addAll(Arrays.asList(externalRoles));
+            if (isSharedGroupEnabled()) {
+                String[] sharedRoles = doGetSharedRoleListOfUser(username, null, "*");
+                if (sharedRoles != null) {
+                    roles.addAll(Arrays.asList(sharedRoles));
+                }
+            }
+            modifiedExternalRoleList =
+                    UserCoreUtil.addDomainToNames(roles.toArray(new String[roles.size()]),
+                            getMyDomainName());
+        }
+
+        String[] roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
+
+        for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
+                .getUserOperationEventListeners()) {
+            if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
+                if (!((AbstractUserOperationEventListener) userOperationEventListener)
+                        .doPostGetRoleListOfUser(username, filter, roleList, this)) {
+                    break;
+                }
+            }
+        }
+        addToUserRolesCache(this.tenantId, username, roleList);
+
+        return roleList;
+    }
+
+    /**
      * @param filter
      * @return
      * @throws UserStoreException
