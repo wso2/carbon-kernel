@@ -1759,7 +1759,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         // Assigning unique user ID of the user as the username in the system.
-        String userID = UserCoreUtil.getUserID();
+        String userID = getUniqueUserID();
         // Assign preferredUsername as the username claim.
         claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
@@ -1783,7 +1783,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         // Persist the user info. in the database.
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
             // Assigning unique user ID of the user as the username in the system.
-            String userID = UserCoreUtil.getUserID();
+            String userID = getUniqueUserID();
             // Assign preferredUsername as the username claim.
             claims = addUserNameAttribute(userName, claims);
             persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);

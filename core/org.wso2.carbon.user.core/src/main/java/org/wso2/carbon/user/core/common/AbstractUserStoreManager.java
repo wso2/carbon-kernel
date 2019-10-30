@@ -85,6 +85,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -9186,6 +9187,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Assume that username will be unique
         return userIDs[0];
+    }
+
+    /**
+     * provides the unique user ID of the user.
+     *
+     * @return unique user ID.
+     */
+    protected String getUniqueUserID() {
+
+        return UUID.randomUUID().toString();
     }
 
     /**

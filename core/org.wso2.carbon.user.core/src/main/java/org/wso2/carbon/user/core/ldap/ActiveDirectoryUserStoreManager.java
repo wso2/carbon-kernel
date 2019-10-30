@@ -30,7 +30,6 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -128,7 +127,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         // Assigning unique user ID of the user as the username in the system.
-        String userID = UserCoreUtil.getUserID();
+        String userID = getUniqueUserID();
         // Assign preferredUsername as the username claim.
         claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
@@ -167,7 +166,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
             // Assigning unique user ID of the user as the username in the system.
-            String userID = UserCoreUtil.getUserID();
+            String userID = getUniqueUserID();
             // Assign preferredUsername as the username claim.
             claims = addUserNameAttribute(userName, claims);
             persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
