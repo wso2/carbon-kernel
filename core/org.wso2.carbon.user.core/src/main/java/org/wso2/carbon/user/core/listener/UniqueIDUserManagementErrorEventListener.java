@@ -36,11 +36,11 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
     /**
      * Defines any additional actions that need to be done when there is an authentication failure.
      *
-     * @param errorCode        Error code
-     * @param errorMessage     Error Message
+     * @param errorCode        Error code.
+     * @param errorMessage     Error Message.
      * @param userID           Name of the User.
      * @param credential       Relevant credential provided.
-     * @param userStoreManager UserStore Manager
+     * @param userStoreManager UserStore Manager.
      * @return true if the handling succeeded.
      * @throws UserStoreException Exception that will be thrown during erroneous scenarios.
      */
@@ -57,7 +57,7 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @param roleList         List of the roles added for this user.
      * @param claims           Claims added for the user.
      * @param profile          Profile of the User.
-     * @param userStoreManager UserStore Manager
+     * @param userStoreManager UserStore Manager.
      * @return true if the handling succeeded.
      * @throws UserStoreException Exception that would be thrown if there is an erroneous case.
      */
@@ -70,7 +70,7 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * credential of a user.
      *
      * @param errorCode        Error code.
-     * @param errorMessage     Error message relevant particular scenario
+     * @param errorMessage     Error message relevant particular scenario.
      * @param userID           Name of the user.
      * @param newCredential    New credential.
      * @param oldCredential    Old credential.
@@ -243,7 +243,7 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @param errorCode        Error code.
      * @param errorMessage     Error message
      * @param userID           Name of the user
-     * @param claims           Claims
+     * @param claims           Relevant claim that is retrieved.
      * @param profileName      Name of the profile.
      * @param userStoreManager User Store Manager.
      * @return true if the handing succeeded.
@@ -257,8 +257,8 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      *
      * @param errorCode        Error code.
      * @param errorMessage     Error message.
-     * @param claim            Claim URI
-     * @param claimValue       Claim Value
+     * @param claim            Claim URI.
+     * @param claimValue       Claim Value.
      * @param profileName      Name of the profile.
      * @param userStoreManager User Store Manager.
      * @return true if the handing succeeded.

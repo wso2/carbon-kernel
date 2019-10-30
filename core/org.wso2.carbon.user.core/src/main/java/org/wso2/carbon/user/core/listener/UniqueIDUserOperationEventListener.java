@@ -263,38 +263,38 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             throws UserStoreException;
 
     /**
-     * Post listener for get claim values of users
+     * Post listener for get claim values of users.
      *
-     * @param userIDs                user names
-     * @param claims                 claims
-     * @param profileName            profile name
-     * @param userClaimSearchEntries user claim search entries
-     * @return false in case of error
-     * @throws UserStoreException UserStoreException
+     * @param userIDs                user names.
+     * @param claims                 claims.
+     * @param profileName            profile name.
+     * @param userClaimSearchEntries user claim search entries.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException.
      */
     boolean doPostGetUsersClaimValuesWithID(String[] userIDs, String[] claims, String profileName,
             UserClaimSearchEntry[] userClaimSearchEntries) throws UserStoreException;
 
     /**
-     * Define any additional actions before actual authentication is happen
+     * Define any additional actions before actual authentication is happen.
      *
-     * @param userID           User name of User
-     * @param credential       Credential/password of the user
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param credential       Credential/password of the user.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreAuthenticateWithID(String userID, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
-     * Define any additional actions after actual authentication is happen
+     * Define any additional actions after actual authentication is happen.
      *
-     * @param userID           User name of User
-     * @param authenticated    where user is authenticated or not
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param authenticated    where user is authenticated or not.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostAuthenticateWithID(String userID, boolean authenticated, UserStoreManager userStoreManager)
             throws UserStoreException;
@@ -302,14 +302,14 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions before user is added.
      *
-     * @param userID           User name of User
-     * @param credential       Credential/password of the user
-     * @param roleList         role list of user
-     * @param claims           Properties of the user
-     * @param profile          profile name of user
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param credential       Credential/password of the user.
+     * @param roleList         role list of user.
+     * @param claims           Properties of the user.
+     * @param profile          profile name of user.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreAddUserWithID(String userID, Object credential, String[] roleList, Map<String, String> claims,
             String profile, UserStoreManager userStoreManager) throws UserStoreException;
@@ -317,178 +317,178 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions after user is added.
      *
-     * @param userID           User name of User
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostAddUserWithID(String userID, Object credential, String[] roleList, Map<String, String> claims,
             String profile, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Define any additional actions before credential is updated by user
+     * Define any additional actions before credential is updated by user.
      *
-     * @param userID           User name of User
-     * @param newCredential    new credential/password of the user
-     * @param oldCredential    Old credential/password of the user
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param newCredential    new credential/password of the user.
+     * @param oldCredential    Old credential/password of the user.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Define any additional actions after credential is updated by user
+     * Define any additional actions after credential is updated by user.
      *
-     * @param userID           User name of User
-     * @param credential       user credentials
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param credential       user credentials.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostUpdateCredentialWithID(String userID, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
-     * Define any additional actions before credential is updated by Admin
+     * Define any additional actions before credential is updated by Admin.
      *
-     * @param userID           User name of User
-     * @param newCredential    new credential/password of the user
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param newCredential    new credential/password of the user.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreUpdateCredentialByAdminWithID(String userID, Object newCredential, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
-     * Define any additional actions after credential is updated by Admin
+     * Define any additional actions after credential is updated by Admin.
      *
-     * @param userID           User name of User
-     * @param credential       user credentials
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param credential       user credentials.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
 
     boolean doPostUpdateCredentialByAdminWithID(String userID, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
-     * Define any additional actions before user is deleted by Admin
+     * Define any additional actions before user is deleted by Admin.
      *
-     * @param userID           User name of User
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreDeleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions after user is deleted by Admin
+     * Defines any additional actions after user is deleted by Admin.
      *
-     * @param userID           User name of User
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostDeleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions before user attribute is set by Admin
+     * Defines any additional actions before user attribute is set by Admin.
      *
-     * @param userID           User name of User
-     * @param claimURI         claim uri
-     * @param claimValue       claim value
-     * @param profileName      user profile name
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param claimURI         claim uri.
+     * @param claimValue       claim value.
+     * @param profileName      user profile name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions after user attribute is set by Admin
+     * Defines any additional actions after user attribute is set by Admin.
      *
-     * @param userID           User name of User
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostSetUserClaimValueWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions before user attributes are set by Admin
+     * Defines any additional actions before user attributes are set by Admin.
      *
-     * @param userID           User name of User
-     * @param claims           claim uri and claim value map
-     * @param profileName      user profile name
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param claims           claim uri and claim value map.
+     * @param profileName      user profile name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions after user attributes are set by Admin
+     * Defines any additional actions after user attributes are set by Admin.
      *
-     * @param userID           User name of User
-     * @param claims           user claims
-     * @param profileName      user profile name
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param claims           user claims.
+     * @param profileName      user profile name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions before user attributes are deleted by Admin
+     * Defines any additional actions before user attributes are deleted by Admin.
      *
-     * @param userID           User name of User
-     * @param claims           claim uri and claim value map
-     * @param profileName      user profile name
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param claims           claim uri and claim value map.
+     * @param profileName      user profile name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions after user attributes are deleted by Admin
+     * Defines any additional actions after user attributes are deleted by Admin.
      *
-     * @param userID           User name of User
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostDeleteUserClaimValuesWithID(String userID, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
-     * Defines any additional actions before user attribute is deleted by Admin
+     * Defines any additional actions before user attribute is deleted by Admin.
      *
-     * @param userID           User name of User
-     * @param claimURI         claim uri
-     * @param profileName      user profile name
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param claimURI         claim uri.
+     * @param profileName      user profile name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreDeleteUserClaimValueWithID(String userID, String claimURI, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Defines any additional actions after user attribute is deleted by Admin
+     * Defines any additional actions after user attribute is deleted by Admin.
      *
-     * @param userID           User name of User
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           User ID of User.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostDeleteUserClaimValueWithID(String userID, UserStoreManager userStoreManager)
             throws UserStoreException;
@@ -496,12 +496,12 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Defines any additional actions before adding a role.
      *
-     * @param roleName         role names
-     * @param userList         user List
-     * @param permissions      permissions
-     * @param userStoreManager The underlying UserStoreManager
+     * @param roleName         role names.
+     * @param userList         user List.
+     * @param permissions      permissions.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
             UserStoreManager userStoreManager) throws UserStoreException;
@@ -509,12 +509,12 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Defines any additional actions after adding a role.
      *
-     * @param roleName         role names
-     * @param userList         user List
-     * @param permissions      permissions
-     * @param userStoreManager The underlying UserStoreManager
+     * @param roleName         role names.
+     * @param userList         user List.
+     * @param permissions      permissions.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
             UserStoreManager userStoreManager) throws UserStoreException;
@@ -522,11 +522,11 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Defines any additional actions before updating a role.
      *
-     * @param roleName     role names
-     * @param deletedUsers deleted user IDs
-     * @param newUsers     new user IDs
+     * @param roleName     role names.
+     * @param deletedUsers deleted user IDs.
+     * @param newUsers     new user IDs.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreUpdateUserListOfRoleWithID(String roleName, String deletedUsers[], String[] newUsers,
             UserStoreManager userStoreManager) throws UserStoreException;
@@ -534,11 +534,11 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Defines any additional actions after updating a role.
      *
-     * @param roleName     role names
-     * @param deletedUsers deleted user IDs
-     * @param newUsers     new user IDs
+     * @param roleName     role names.
+     * @param deletedUsers deleted user IDs.
+     * @param newUsers     new user IDs.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostUpdateUserListOfRoleWithID(String roleName, String deletedUsers[], String[] newUsers,
             UserStoreManager userStoreManager) throws UserStoreException;
@@ -546,12 +546,12 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions before updating role list of user.
      *
-     * @param userID           user ID
-     * @param deletedRoles     deleted roles
-     * @param newRoles         new roles
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           user ID.
+     * @param deletedRoles     deleted roles.
+     * @param newRoles         new roles.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPreUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException;
@@ -559,12 +559,12 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions after updating role list of user.
      *
-     * @param userID           user ID
-     * @param deletedRoles     deleted roles
-     * @param newRoles         new roles
-     * @param userStoreManager The underlying UserStoreManager
+     * @param userID           user ID.
+     * @param deletedRoles     deleted roles.
+     * @param newRoles         new roles.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException;

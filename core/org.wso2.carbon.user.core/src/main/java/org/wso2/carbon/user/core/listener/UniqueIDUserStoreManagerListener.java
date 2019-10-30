@@ -31,12 +31,11 @@ public interface UniqueIDUserStoreManagerListener extends UserStoreManagerListen
      * Given the user name and a credential object, the implementation code must
      * validate whether the user is authenticated.
      *
-     * @param userName         The user name
-     * @param credential       The credential of a user
-     * @param userStoreManager The underlying UserStoreManager
-     * @return Whether execution of this method of the underlying
-     * UserStoreManager must happen.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @param userName         The user name.
+     * @param credential       The credential of a user.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean authenticateWithID(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException;
@@ -44,15 +43,14 @@ public interface UniqueIDUserStoreManagerListener extends UserStoreManagerListen
     /**
      * Add a user to the user store.
      *
-     * @param userName         User name of the user
-     * @param credential       The credential/password of the user
-     * @param roleList         The roles that user belongs
-     * @param claims           Properties of the user
-     * @param profileName      The name of the profile
-     * @param userStoreManager The underlying UserStoreManager
-     * @return Whether execution of this method of the underlying
-     * UserStoreManager must happen.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @param userName         User name of the user.
+     * @param credential       The credential/password of the user.
+     * @param roleList         The roles that user belongs.
+     * @param claims           Properties of the user.
+     * @param profileName      The name of the profile.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, UserStoreManager userStoreManager) throws UserStoreException;
@@ -60,13 +58,12 @@ public interface UniqueIDUserStoreManagerListener extends UserStoreManagerListen
     /**
      * Update the credential/password of the user.
      *
-     * @param userID           The user ID
-     * @param newCredential    The new credential/password
-     * @param oldCredential    The old credential/password
-     * @param userStoreManager The underlying UserStoreManager
-     * @return Whether execution of this method of the underlying
-     * UserStoreManager must happen.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @param userID           The user ID.
+     * @param newCredential    The new credential/password.
+     * @param oldCredential    The old credential/password.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean updateCredentialWithID(String userID, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException;
@@ -74,12 +71,11 @@ public interface UniqueIDUserStoreManagerListener extends UserStoreManagerListen
     /**
      * Update credential/password by the admin of another user.
      *
-     * @param userID           The user ID
-     * @param newCredential    The new credential
-     * @param userStoreManager The underlying UserStoreManager
-     * @return Whether execution of this method of the underlying
-     * UserStoreManager must happen.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @param userID           The user ID.
+     * @param newCredential    The new credential.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean updateCredentialByAdminWithID(String userID, Object newCredential, UserStoreManager userStoreManager)
             throws UserStoreException;
@@ -87,11 +83,10 @@ public interface UniqueIDUserStoreManagerListener extends UserStoreManagerListen
     /**
      * Delete the user with the given user name.
      *
-     * @param userID           The user ID
-     * @param userStoreManager The underlying UserStoreManager
-     * @return Whether execution of this method of the underlying
-     * UserStoreManager must happen.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager
+     * @param userID           The user ID.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean deleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException;
 

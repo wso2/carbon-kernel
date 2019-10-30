@@ -1118,32 +1118,8 @@ public final class UserCoreUtil {
         Arrays.fill(bytes, (byte) 0);
     }
 
-    public static List<String> getAttributesList(User[] userList, String attributeName) {
-        List<String> attributesList = new ArrayList<>();
-        for (User user : userList) {
-            attributesList.add((user.getAttributes()).get(attributeName));
-        }
-        return attributesList;
-
-    }
-
-    public static List<String> getUserNamesList(User[] userList) {
-        List<String> userNamesList = new ArrayList<>();
-        for (User user : userList) {
-            userNamesList.add((user.getUsername()));
-        }
-        return userNamesList;
-    }
-
-    public static List<String> getUserNamesList(List<User> userList) {
-        List<String> userNamesList = new ArrayList<>();
-        for (User user : userList) {
-            userNamesList.add((user.getUsername()));
-        }
-        return userNamesList;
-    }
-
     public static List<User> getUserList(String[] userList) {
+
         List<User> usersList = new ArrayList<>();
         for (String username : userList) {
             User user = new User();
