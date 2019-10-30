@@ -217,11 +217,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * This method is used by the support system to read properties.
      *
-     * @param userID        user ID
-     * @param propertyNames property names
-     * @param profileName   profile name
-     * @return user properties of the given user
-     * @throws UserStoreException      Thrown by the underlying UserStoreManager.
+     * @param userID        user ID.
+     * @param propertyNames property names.
+     * @param profileName   profile name.
+     * @return user properties of the given user.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     protected Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames, String profileName)
             throws UserStoreException {
@@ -257,7 +257,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Check whether the userID exists in the system.
      *
      * @param userID user ID.
-     * @return Whether the user is existing in the userstore.
+     * @return Whether the user is existing in the user store.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     protected boolean doCheckExistingUserWithID(String userID) throws UserStoreException {
@@ -265,7 +265,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doCheckExistingUserWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doCheckExistingUserWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doCheckExistingUserWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -298,16 +299,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Given the preferred user name and a credential object, the implementation code must
      * validate whether the user is authenticated.
      *
-     * @param preferredUserNameProperty The preferred user name property
-     * @param preferredUserNameValue    The preferred user name value
-     * @param credential                The credential of a user
-     * @return If the value is true the provided credential match with the user
-     * name. False is returned for invalid credential, invalid user name
-     * and mismatching credential with user name.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param preferredUserNameProperty The preferred user name property.
+     * @param preferredUserNameValue    The preferred user name value.
+     * @param credential                The credential of a user.
+     * @return authenticated user.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue, Object credential,
-            String profileName) throws UserStoreException {
+    protected User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
+            Object credential, String profileName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAuthenticateWithID operation is not implemented in: " + this.getClass());
@@ -333,17 +332,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Add a user to the user store.
      *
-     * @param userName              User name of the user
-     * @param credential            The credential/password of the user
-     * @param roleList              The roles that user belongs
-     * @param claims                Properties of the user
+     * @param userName              User name of the user.
+     * @param credential            The credential/password of the user.
+     * @param roleList              The roles that user belongs.
+     * @param claims                Properties of the user.
      * @param profileName           profile name, can be null. If null the default profile is considered.
-     * @param requirePasswordChange whether password required is need
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param requirePasswordChange whether password required is need.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected User  doAddUserWithID(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName, boolean requirePasswordChange)
-            throws UserStoreException {
+    protected User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddUserWithID operation is not implemented in: " + this.getClass());
@@ -365,10 +363,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Update the credential/password of the user.
      *
-     * @param userID        The user ID
-     * @param newCredential The new credential/password
-     * @param oldCredential The old credential/password
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param userID        The user ID.
+     * @param newCredential The new credential/password.
+     * @param oldCredential The old credential/password.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
@@ -376,7 +374,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doUpdateCredentialWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doUpdateCredentialWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doUpdateCredentialWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -392,16 +391,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Update credential/password by the admin of another user.
      *
-     * @param userID        The user ID
-     * @param newCredential The new credential
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param userID        The user ID.
+     * @param newCredential The new credential.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doUpdateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doUpdateCredentialByAdminWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doUpdateCredentialByAdminWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doUpdateCredentialByAdminWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -413,10 +413,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected abstract void doDeleteUser(String userName) throws UserStoreException;
 
     /**
-     * Delete the user with the given user name.
+     * Delete the user with the given user ID.
      *
-     * @param userID The user name
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param userID The user ID.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doDeleteUserWithID(String userID) throws UserStoreException {
 
@@ -441,11 +441,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Set a single user claim value.
      *
-     * @param userID      The user ID
-     * @param claimURI    The claim URI
-     * @param claimValue  The value
+     * @param userID      The user ID.
+     * @param claimURI    The claim URI.
+     * @param claimValue  The value.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
@@ -453,7 +453,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -470,10 +471,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Set many user claim values.
      *
-     * @param userID      The user ID
-     * @param claims      Map of claim URIs against values
+     * @param userID      The user ID.
+     * @param claims      Map of claim URIs against values.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
@@ -497,12 +498,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                    String profileName) throws UserStoreException;
 
     /**
-     * Delete a single user claim value
+     * Delete a single user claim value.
      *
-     * @param userID      The user ID
-     * @param claimURI    Name of the claim
+     * @param userID      The user ID.
+     * @param claimURI    Name of the claim.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName)
             throws UserStoreException {
@@ -510,7 +511,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doDeleteUserClaimValueWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doDeleteUserClaimValueWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doDeleteUserClaimValueWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -527,10 +529,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Delete many user claim values.
      *
-     * @param userID      The user ID
+     * @param userID      The user ID.
      * @param claims      URIs of the claims to be deleted.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
@@ -538,7 +540,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doDeleteUserClaimValuesWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doDeleteUserClaimValuesWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doDeleteUserClaimValuesWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -555,10 +558,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Update user list of a particular role.
      *
-     * @param roleName     The role name
-     * @param deletedUsers Array of user names, that is going to be removed from the role
-     * @param newUsers     Array of user names, that is going to be added to the role
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param roleName     The role name.
+     * @param deletedUsers Array of user IDs, that is going to be removed from the role.
+     * @param newUsers     Array of user IDs, that is going to be added to the role.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doUpdateUserListOfRoleWithID(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
@@ -566,7 +569,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doUpdateUserListOfRoleWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doUpdateUserListOfRoleWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doUpdateUserListOfRoleWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -583,10 +587,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Update role list of a particular user.
      *
-     * @param userID       The user ID
-     * @param deletedRoles Array of role names, that is going to be removed from the user
-     * @param newRoles     Array of role names, that is going to be added to the user
-     * @throws UserStoreException An unexpected exception has occurred
+     * @param userID       The user ID.
+     * @param deletedRoles Array of role names, that is going to be removed from the user.
+     * @param newRoles     Array of role names, that is going to be added to the user.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
@@ -594,7 +598,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doUpdateRoleListOfUserWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doUpdateRoleListOfUserWithID operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doUpdateRoleListOfUserWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -631,11 +636,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Only gets the internal roles of the user with internal domain name
+     * Only gets the internal roles of the user with internal domain name.
      *
-     * @param userID ID of the user - who we need to find roles.
-     * @return
-     * @throws UserStoreException
+     * @param userID ID of the user.
+     * @return internal roles list of the user.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected String[] doGetInternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
         if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
@@ -706,12 +711,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Only gets the external roles of the user.
      *
-     * @param userID Name of the user - who we need to find roles.
-     * @return
-     * @throws UserStoreException
+     * @param userID user ID of the user.
+     * @return external roles list of the user.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected String[] doGetExternalRoleListOfUserWithID(String userID, String filter)
-            throws UserStoreException {
+    protected String[] doGetExternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doGetExternalRoleListOfUserWithID operation is not implemented in: " + this.getClass());
@@ -736,7 +740,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *
      * @param userID user ID.
      * @return roles list.
-     * @throws UserStoreException
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected String[] doGetSharedRoleListOfUserWithID(String userID, String tenantDomain, String filter)
             throws UserStoreException {
@@ -760,9 +764,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Add role with a list of users and permissions provided.
      *
-     * @param roleName
-     * @param userList
-     * @throws UserStoreException
+     * @param roleName role name.
+     * @param userList userIDs list.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doAddRoleWithID(String roleName, String[] userList, boolean shared) throws UserStoreException {
 
@@ -814,12 +818,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException;
 
     /**
-     * @param filter filter.
+     * @param filter       filter.
      * @param maxItemLimit max items limit.
      * @return list of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected User[] doListUsersWithID(String filter, int maxItemLimit, String userNameAttribute) throws UserStoreException {
+    protected User[] doListUsersWithID(String filter, int maxItemLimit, String userNameAttribute)
+            throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doListUsersWithID operation is not implemented in: " + this.getClass());
@@ -1335,7 +1340,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *
      * @param errorCode    Relevant error code.
      * @param errorMessage Relevant error message.
-     * @param userID     ID of the user.
+     * @param userID       ID of the user.
      * @param claims       Claims requested.
      * @param profileName  Name of the profile.
      * @throws UserStoreException Exception that will be thrown by the relevant listeners.
@@ -1546,33 +1551,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param errorMessage Error Message.
      * @param claim        Claim URI.
      * @param claimValue   Claim Value.
-     * @param limit   No of search records.
-     * @param offset   Start index of the search.
+     * @param limit        No of search records.
+     * @param offset       Start index of the search.
      * @param profileName  Name of the profile.
      * @throws UserStoreException Exception that will be thrown by relevant listner methods.
      */
-    private void handleGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue, int
-            limit, int offset, String profileName) throws UserStoreException {
+    private void handleGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue,
+            int limit, int offset, String profileName) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
-                    && !((AbstractUserManagementErrorListener) listener).onGetUserListFailure(errorCode,
-                    errorMessage, claim, claimValue, limit, offset, profileName, this)) {
+                    && !((AbstractUserManagementErrorListener) listener)
+                    .onGetUserListFailure(errorCode, errorMessage, claim, claimValue, limit, offset, profileName,
+                            this)) {
                 return;
             }
         }
     }
 
     private void handleGetUserListFailure(String errorCode, String errorMassage, Condition condition, String domain,
-                                          String profileName, int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException {
+            String profileName, int limit, int offset, String sortBy, String sortOrder) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
-                    && !((AbstractUserManagementErrorListener) listener).onGetUserListFailure(errorCode,
-                    errorMassage, condition, domain, profileName, limit, offset, sortBy, sortOrder, this)) {
+                    && !((AbstractUserManagementErrorListener) listener)
+                    .onGetUserListFailure(errorCode, errorMassage, condition, domain, profileName, limit, offset,
+                            sortBy, sortOrder, this)) {
                 return;
             }
         }
@@ -1849,18 +1855,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    /**
-     * If the claim is domain qualified, search the users respective user store. Else we
-     * return the users in all the user-stores recursively
-     * {@inheritDoc}
-     */
     @Override
     public final User[] getUserListWithID(String claim, String claimValue, String profileName)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, String.class};
-            Object object = callSecure("getUserListWithID", new Object[]{claim, claimValue, profileName}, argTypes);
+            Class argTypes[] = new Class[] { String.class, String.class, String.class };
+            Object object = callSecure("getUserListWithID", new Object[] { claim, claimValue, profileName }, argTypes);
             return (User[]) object;
         }
 
@@ -1873,17 +1874,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return users.stream().toArray(User[]::new);
     }
 
-    /**
-     * If the claim is domain qualified, search the users respective user store. Else we
-     * return the users in all the user-stores recursively
-     * {@inheritDoc}
-     */
     @Override
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, String.class};
-            Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName}, argTypes);
+            Class argTypes[] = new Class[] { String.class, String.class, String.class };
+            Object object = callSecure("getUserList", new Object[] { claim, claimValue, profileName }, argTypes);
             return (String[]) object;
         }
 
@@ -1899,12 +1895,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-
-    /**
-     * If the claim is domain qualified, search the users respective user store. Else we
-     * return the users in all the user-stores recursively
-     * {@inheritDoc}
-     */
     private final String[] getUserListInternal(String claim, String claimValue, String profileName) throws UserStoreException {
 
         if (claim == null) {
@@ -1924,8 +1914,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (!UserCoreUtil.isUniqueUserIDFeatureEnabled() && (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
-                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
+        if (!UserCoreUtil.isUniqueUserIDFeatureEnabled() && (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)
+                || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM2_USERNAME_CLAIM_URI
+                .equalsIgnoreCase(claim))) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to list users using username");
@@ -3219,9 +3210,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * To handle the listener events when there is a failure while trying to delete the user  claim value.
      *
      * @param errorCode    Relevant error code.
-     * @param errorMessage error message
+     * @param errorMessage error message.
      * @param userID       ID of the user.
-     * @param claimURI     Claim URI
+     * @param claimURI     Claim URI.
      * @param profileName  Name of the profile.
      * @throws UserStoreException Exception that will thrown from listeners.
      */
@@ -3351,7 +3342,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param errorCode    Error code.
      * @param errorMessage Error message
      * @param userID       ID of the user.
-     * @param claims       Claims
+     * @param claims       Claims.
      * @param profileName  Name of the profile.
      * @throws UserStoreException User Store Exception that will be thrown from the relevant listeners.
      */
@@ -3770,7 +3761,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param userName     Name of the user.
      * @param credential   Credential
      * @param roleList     List of roles.
-     * @param claims       Claims
+     * @param claims       Claims.
      * @param profileName  Name of the profile.
      * @throws UserStoreException UserStore Exception that could be thrown during the execution.
      */
@@ -4016,7 +4007,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * This method is responsible for calling the listeners after updating user list of role.
      *
      * @param roleName       Name of the role.
-     * @param deletedUserIDs Removed users
+     * @param deletedUserIDs Removed users.
      * @param newUserIDs     Added users.
      * @param isAuditLogOnly Indicate whether to call only the audit log listener.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
@@ -4093,9 +4084,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *
      * @param errorCode    Error code.
      * @param errorMessage Error message.
-     * @param userID       User ID
-     * @param deletedRoles Removed roles
-     * @param newRoles     Assigned roles
+     * @param userID       User ID.
+     * @param deletedRoles Removed roles.
+     * @param newRoles     Assigned roles.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
     private void handleUpdateRoleListOfUserFailureWithID(String errorCode, String errorMessage, String userID,
@@ -4863,10 +4854,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public abstract boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException;
 
     /**
-     * @param userID user ID.
+     * @param userID   user ID.
      * @param roleName role name.
      * @return true if user uis in the given role.
-     * @throws UserStoreException
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
@@ -5798,8 +5789,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
 
         try {
-            return AccessController.doPrivileged(
-                    (PrivilegedExceptionAction<UserStore>) () -> getUserStoreInternal(userID));
+            return AccessController
+                    .doPrivileged((PrivilegedExceptionAction<UserStore>) () -> getUserStoreInternal(userID));
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
         }
@@ -6195,9 +6186,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String domainName, String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
-            Object object = callSecure("doGetUserClaimValues", new Object[]{userName, claims, domainName,
-                                                                            profileName}, argTypes);
+            Class argTypes[] = new Class[] { String.class, String[].class, String.class, String.class };
+            Object object = callSecure("doGetUserClaimValues", new Object[] {
+                    userName, claims, domainName, profileName
+            }, argTypes);
             return (Map<String, String>) object;
         }
 
@@ -6563,9 +6555,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * @param tenantID
-     * @param userName
-     * @return
+     * @param tenantID tenant ID.
+     * @param userName username.
+     * @return roles list of the user.
      */
     protected String[] getRoleListOfUserFromCache(int tenantID, String userName) {
 
@@ -6831,6 +6823,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Return the list of users belong to the given role for the given filter.
+     *
      * @param roleName role name.
      * @param filter   filter.
      * @return user list of the given role.
@@ -6839,9 +6833,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected User[] doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("Operation is not implemented in: " + this.getClass());
+            log.debug("doGetUserListOfRoleWithID operation is not implemented in: " + this.getClass());
         }
-        return new User[0];
+        throw new NotImplementedException(
+                "doGetUserListOfRoleWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -6855,8 +6850,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public String[] doGetRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("doGetRoleListOfUserWithID", new Object[]{userID, filter}, argTypes);
+            Class argTypes[] = new Class[] { String.class, String.class };
+            Object object = callSecure("doGetRoleListOfUserWithID", new Object[] { userID, filter }, argTypes);
             return (String[]) object;
         }
         return doGetRoleListOfUserInternal(userID, filter);
@@ -6873,14 +6868,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public String[] doGetRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("doGetRoleListOfUser", new Object[]{userName, filter}, argTypes);
+            Class argTypes[] = new Class[] { String.class, String.class };
+            Object object = callSecure("doGetRoleListOfUser", new Object[] { userName, filter }, argTypes);
             return (String[]) object;
         }
-        // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            userName = getUserIDByUserName(userName, null);
-        }
+
         return doGetRoleListOfUserInternal(userName, filter);
     }
 
@@ -8383,8 +8375,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
-        UserStore userStore = abstractUserStoreManager.getUserStoreWithPreferredUserNameValue(preferredUserNameClaim,
-                preferredUserNameValue, profileName);
+        UserStore userStore = abstractUserStoreManager
+                .getUserStoreWithPreferredUserNameValue(preferredUserNameClaim, preferredUserNameValue, profileName);
         preferredUserNameValue = UserCoreUtil.removeDomainFromName(preferredUserNameValue);
 
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -8480,8 +8472,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             try {
 
-                String preferredUserNameProperty = claimManager
-                        .getAttributeName(preferredUserNameClaim);
+                String preferredUserNameProperty = claimManager.getAttributeName(preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
                 authenticatedUser = abstractUserStoreManager
                         .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
@@ -8595,7 +8586,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 filter = filter.substring(index + 1);
                 if (secManager instanceof AbstractUserStoreManager) {
 
-                    userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit, attributeName);
+                    userList = ((AbstractUserStoreManager) secManager)
+                            .doListUsersWithID(filter, maxItemLimit, attributeName);
 
                     handlePostGetUserListWithID(null, null, new ArrayList<>(Arrays.asList(userList)), true);
                     return userList;
@@ -9012,13 +9004,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return finalValues;
     }
 
-    private Map<String, String> doGetUserClaimValuesWithID(String userName, String[] claims,
-            String domainName, String profileName) throws UserStoreException {
+    private Map<String, String> doGetUserClaimValuesWithID(String userName, String[] claims, String domainName,
+            String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class, String.class};
-            Object object = callSecure("doGetUserClaimValuesWithID", new Object[]{userName, claims, domainName,
-                                                                            profileName}, argTypes);
+            Class argTypes[] = new Class[] { String.class, String[].class, String.class, String.class };
+            Object object = callSecure("doGetUserClaimValuesWithID", new Object[] {
+                    userName, claims, domainName, profileName
+            }, argTypes);
             return (Map<String, String>) object;
         }
 
@@ -9043,10 +9036,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
-            if (property != null
-                    && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) ||
-                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim))) {
+            if (property != null && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
+                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) || !UserCoreConstants.EXT_ROLE_CLAIM
+                    .equalsIgnoreCase(claim))) {
                 propertySet.add(property);
             }
 
@@ -9063,8 +9055,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] properties = propertySet.stream().toArray(String[]::new);
-        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties,
-                profileName);
+        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties, profileName);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -9112,9 +9103,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (getAgain.size() > 0) {
             // oh the beautiful recursion
-            Map<String, String> mapClaimValues = this.getUserClaimValues(userName,
-                    getAgain.stream().toArray(String[]::new),
-                    profileName);
+            Map<String, String> mapClaimValues = this
+                    .getUserClaimValues(userName, getAgain.stream().toArray(String[]::new), profileName);
 
             Iterator<Map.Entry<String, String>> ite3 = mapClaimValues.entrySet().iterator();
             while (ite3.hasNext()) {
@@ -9368,8 +9358,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * provides the unique user IDs of the given users.
      *
      * @param userNames   username of the user.
-     * @param profileName profile name
-     * @return list of user IDs
+     * @param profileName profile name.
+     * @return list of user IDs.
      */
     public List<String> getUserIDsByUserNames(List<String> userNames, String profileName) {
 
@@ -9389,8 +9379,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * provides the unique user ID of the given user.
      *
-     * @param claimURI Claim naURIme.
-     * @param claimValue Claim value.
+     * @param claimURI    Claim naURIme.
+     * @param claimValue  Claim value.
      * @param profileName Profile name.
      * @return user ID.
      * @throws UserStoreException UserStoreException Thrown by the underlying UserStoreManager.
@@ -10158,6 +10148,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * Update role list of user.
+     */
     private final void updateRoleListOfUserInternalWithID(String userID, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
 
@@ -10258,9 +10251,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
-            hybridRoleManager
-                    .updateHybridRoleListOfUser(userStore.getDomainFreeName(), internalRoleDel.stream().toArray(String[]::new),
-                            internalRoleNew.stream().toArray(String[]::new));
+            hybridRoleManager.updateHybridRoleListOfUser(userStore.getDomainFreeName(),
+                    internalRoleDel.stream().toArray(String[]::new), internalRoleNew.stream().toArray(String[]::new));
         }
 
         // #################### <Listeners> #####################################################
@@ -10377,6 +10369,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * update user list of role.
+     */
     private final void updateUserListOfRoleInternalWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException {
 
@@ -10753,7 +10748,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (internalRoles.size() > 0) {
-                hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.stream().toArray(String[]::new));
+                hybridRoleManager
+                        .updateHybridRoleListOfUser(userName, null, internalRoles.stream().toArray(String[]::new));
             }
 
             try {
@@ -10970,6 +10966,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * Handle pre add role tasks.
+     */
     private boolean handlePreAddRoleWithID(String roleName, String[] userList, Permission[] permissions,
             boolean isAuditLogOnly) throws UserStoreException {
 
@@ -11010,10 +11009,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * @param roleName
-     * @param userList
-     * @param permissions
-     * @throws UserStoreException
+     * Add the internal roles for the users.
+     *
+     * @param roleName    role name.
+     * @param userList    user List.
+     * @param permissions permissions.
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doAddInternalRoleWithID(String roleName, String[] userList, Permission[] permissions)
             throws UserStoreException {
@@ -11051,6 +11052,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * Filter roles.
+     */
     private void filterRoles(String[] roleList, List<String> internalRoles, List<String> externalRoles) {
         int index;
         if (roleList != null) {
@@ -11073,4 +11077,5 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
     }
+
 }
