@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,13 +71,13 @@ public class ICFProviderTool implements CarbonTool {
             "import org.osgi.framework.BundleContext;\n" +
             "import %s;\n" +
             "\n" +
-            "import javax.naming.spi.InitialContextFactory;\n" +
+            "import java.sql.Driver;\n" +
             "\n" +
             "public class CustomBundleActivator implements BundleActivator {\n" +
             "\n" + "    " +
             "@Override\n" +
             "    public void start(BundleContext bundleContext) throws Exception {\n" +
-            "        bundleContext.registerService(new String[] { \"" + InitialContextFactory.class.getName() +
+            "        bundleContext.registerService(new String[] { \"" + Driver.class.getName() +
             "\", \"%s\" }, new %s(), null);\n" +
             "    }\n" +
             "\n" +
