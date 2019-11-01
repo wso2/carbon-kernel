@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,9 +14,8 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- *
  */
+
 package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.core.claim.Claim;
@@ -28,10 +26,11 @@ import java.util.Map;
 
 /**
  * The interface to read data from a user store.
- * <p/>
+ * <p>
  * Implement this interface in your UserStoreManager class and add the class to the class path.
  * Provide the class name in the configuration file and the framework will pick the new code that
  * reads user information from the store.
+ * </p>
  */
 public interface UniqueIDUserStoreManager extends UserStoreManager {
 

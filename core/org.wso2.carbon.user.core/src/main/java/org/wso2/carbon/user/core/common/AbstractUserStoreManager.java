@@ -215,7 +215,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                                  String[] propertyNames, String profileName) throws UserStoreException;
 
     /**
-     * This method is used by the support system to read properties.
+     * This method is used to read properties of the given user.
      *
      * @param userID        user ID.
      * @param propertyNames property names.
@@ -643,11 +643,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException An unexpected exception has occurred.
      */
     protected String[] doGetInternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
+
         if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
             String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
-                Map<String, String> map;
-                map = getUserPropertyValuesWithID(userID, new String[] { userNameAttribute }, null);
+            if (StringUtils.isEmpty(userNameAttribute)) {
+                Map<String, String> map = getUserPropertyValuesWithID(userID, new String[] { userNameAttribute }, null);
                 String tempUserName = map.get(userNameAttribute);
                 if (tempUserName != null) {
                     userID = tempUserName;
