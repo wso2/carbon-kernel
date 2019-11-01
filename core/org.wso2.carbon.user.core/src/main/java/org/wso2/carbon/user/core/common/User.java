@@ -46,6 +46,13 @@ public class User implements Serializable {
         this.userID = userID;
     }
 
+    public User(String userID, String username, String preferredUsername) {
+
+        this.userID = userID;
+        this.username = username;
+        this.preferredUsername = preferredUsername;
+    }
+
     public User(String userID, String username, String preferredUsername, String tenantDomain, String userStoreDomain,
             Map<String, String> attributes) {
 

@@ -260,6 +260,14 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
     }
 
     @Override
+    public boolean onGetUserFailureWithID(String errorCode, String errorMessage, String userID, String[] requestedClaims,
+            String profileName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean onUpdatePermissionsOfRoleFailureWithID(String errorCode, String errorMessage, String roleName,
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
 
