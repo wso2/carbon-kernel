@@ -818,6 +818,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException;
 
     /**
+     * Get the user list as for the given filter and max item limit.
+     *
      * @param filter       filter.
      * @param maxItemLimit max items limit.
      * @return list of users.
@@ -830,6 +832,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("doListUsersWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("doListUsersWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Get the user for the given user ID.
+     *
+     * @param userID userID.
+     * @return list of users.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected User[] doGetUsersWithID(String userID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUsersWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doGetUsersWithID operation is not implemented in: " + this.getClass());
     }
 
     @Override
@@ -1495,7 +1512,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param claim        Claim URI.
      * @param claimValue   Claim Value.
      * @param profileName  Name of the profile.
-     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
      */
     private void handleGetUserListFailureWithID(String errorCode, String errorMessage, String claim, String claimValue,
             String profileName) throws UserStoreException {
@@ -1504,6 +1521,29 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserListFailureWithID(errorCode, errorMessage, claim, claimValue, profileName, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * user.
+     *
+     * @param errorCode       Error Code.
+     * @param errorMessage    Error Message.
+     * @param userID          User ID.
+     * @param requestedClaims Requested Claims.
+     * @param profileName     Profile Name.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleGetUserFailureWithID(String errorCode, String errorMessage, String userID,
+            String[] requestedClaims, String profileName) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
+                    .onGetUserFailureWithID(errorCode, errorMessage, userID, requestedClaims, profileName, this)) {
                 return;
             }
         }
@@ -8415,6 +8455,72 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String[].class, String.class };
+            Object object = callSecure("getUserWithID", new Object[] { userID, requestedClaims, profileName },
+                    argTypes);
+            return (User) object;
+        }
+
+        UserStore userStore = getUserStoreWithID(userID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserWithID(userStore.getDomainFreeName(), requestedClaims, profileName);
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        if (!doCheckExistingUserWithID(userID)) {
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userID,
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+            handleGetUserFailureWithID(errorCode, errorMessage, userID, requestedClaims, profileName);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+        // check for null claim list
+        if (requestedClaims == null) {
+            requestedClaims = new String[0];
+        }
+
+        User user;
+        try {
+            user = doGetUserWithID(userID, requestedClaims, userStore.getDomainName(), profileName);
+        } catch (UserStoreException ex) {
+            handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
+                            ex.getMessage()), userID, requestedClaims, profileName);
+            throw ex;
+        }
+
+        // #################### <Listeners> #####################################################
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener
+                            .doPostGetUserWithID(userStore.getDomainFreeName(), requestedClaims, profileName, user,
+                                    this)) {
+                        handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID,
+                                requestedClaims, profileName);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
+                            ex.getMessage()), userID, requestedClaims, profileName);
+            throw ex;
+        }
+        // #################### </Listeners> #####################################################
+
+        return user;
+    }
+
+    @Override
     public boolean isExistingUserWithID(String userID) throws UserStoreException {
 
         if (!isSecureCall.get()) {
@@ -8771,13 +8877,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return finalValues;
     }
 
-    private Map<String, String> doGetUserClaimValuesWithID(String userName, String[] claims, String domainName,
+    private Map<String, String> doGetUserClaimValuesWithID(String userID, String[] claims, String domainName,
             String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String[].class, String.class, String.class };
             Object object = callSecure("doGetUserClaimValuesWithID", new Object[] {
-                    userName, claims, domainName, profileName
+                    userID, claims, domainName, profileName
             }, argTypes);
             return (Map<String, String>) object;
         }
@@ -8799,7 +8905,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // we don't have.
             String property;
             try {
-                property = getClaimAtrribute(claim, userName, domainName);
+                property = getClaimAtrribute(claim, userID, domainName);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
@@ -8822,7 +8928,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] properties = propertySet.stream().toArray(String[]::new);
-        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties, profileName);
+        Map<String, String> uerProperties = this.getUserPropertyValuesWithID(userID, properties, profileName);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -8871,7 +8977,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (getAgain.size() > 0) {
             // oh the beautiful recursion
             Map<String, String> mapClaimValues = this
-                    .getUserClaimValues(userName, getAgain.stream().toArray(String[]::new), profileName);
+                    .getUserClaimValuesWithID(userID, getAgain.stream().toArray(String[]::new), profileName);
 
             Iterator<Map.Entry<String, String>> ite3 = mapClaimValues.entrySet().iterator();
             while (ite3.hasNext()) {
@@ -8886,17 +8992,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String[] roles = null;
 
         if (requireRoles) {
-            roles = getRoleListOfUserWithID(userName);
+            roles = getRoleListOfUserWithID(userID);
         } else if (requireIntRoles) {
-            roles = doGetInternalRoleListOfUserWithID(userName, "*");
+            roles = doGetInternalRoleListOfUserWithID(userID, "*");
         } else if (requireExtRoles) {
 
             List<String> rolesList = new ArrayList<>();
-            String[] externalRoles = doGetExternalRoleListOfUserWithID(userName, "*");
+            String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
             rolesList.addAll(Arrays.asList(externalRoles));
             //if only shared enable
             if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUserWithID(userName, null, "*");
+                String[] sharedRoles = doGetSharedRoleListOfUserWithID(userID, null, "*");
                 if (sharedRoles != null) {
                     rolesList.addAll(Arrays.asList(sharedRoles));
                 }
@@ -8921,6 +9027,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         return finalValues;
+    }
+
+    private User doGetUserWithID(String userID, String[] claims, String domainName, String profileName)
+            throws UserStoreException {
+
+        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
+        RealmService realmService = UserCoreUtil.getRealmService();
+        String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
+        User user = new User(userID, userName, userName);
+        user.setAttributes(claimValues);
+        try {
+            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(e);
+        }
+
+        return user;
     }
 
     private void addClaimValues(Map<String, String> values, Claim[] finalValues) throws UserStoreException {

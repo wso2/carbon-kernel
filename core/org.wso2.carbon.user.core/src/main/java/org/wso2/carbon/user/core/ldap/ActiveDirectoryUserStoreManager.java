@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
@@ -132,11 +133,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
-        User user = new User(userID, userName, userName, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
-                null, null);
+        RealmService realmService = UserCoreUtil.getRealmService();
+        User user = new User(userID, userName, userName);
         try {
-            user.setUserStoreDomain(UserCoreUtil
-                    .getDomainName(CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration()));
+            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
         }

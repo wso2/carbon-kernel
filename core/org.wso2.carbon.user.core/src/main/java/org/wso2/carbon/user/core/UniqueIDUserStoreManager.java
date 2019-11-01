@@ -50,16 +50,27 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             String profileName) throws UserStoreException;
 
     /**
-     * Retrieves a list of user IDs upto a maximum limit that matches the user name filter.
+     * Retrieves users upto a maximum limit that matches the user name filter.
      *
      * @param filter       The string to filter out user.
      * @param maxItemLimit The max item limit. If -1 then system maximum limit will be used. If the
      *                     given value is greater than the system configured max limit it will be resetted to
      *                     the system configured max limit.
-     * @return An array of user IDs.
+     * @return An array of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     User[] listUsersWithID(String filter, int maxItemLimit) throws UserStoreException;
+
+    /**
+     * Retrieves the user of the given user ID.
+     *
+     * @param userID          user ID.
+     * @param requestedClaims Requested Claims.
+     * @param profileName     Profile Name.
+     * @return the user.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException;
 
     /**
      * Checks whether the user is in the user store.

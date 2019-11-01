@@ -268,6 +268,21 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
             String profileName, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
+     * Defines any additional actions that need to be done if there is a failure retrieving the user.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param userID           user ID.
+     * @param requestedClaims  Requested Claims.
+     * @param profileName      Profile Name.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onGetUserFailureWithID(String errorCode, String errorMessage, String userID, String[] requestedClaims,
+            String profileName, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
      * Defines any additional actions that need to be done if there is a failure while updating permissions of a role.
      *
      * @param errorCode        Error code.
