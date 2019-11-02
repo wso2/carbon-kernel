@@ -211,6 +211,15 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     int getTenantIdWithID(String userID) throws UserStoreException;
 
     /**
+     * This is to retrieve the auto increment user ID created when adding the user in a JDBC user store.
+     *
+     * @param userID The user ID.
+     * @return The auto increment user ID stored in underlying JDBC user store.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    int getUserIdWithID(String userID) throws UserStoreException;
+
+    /**
      * Retrieves a list of users for given user claim value.
      *
      * @param claim       claim uri.

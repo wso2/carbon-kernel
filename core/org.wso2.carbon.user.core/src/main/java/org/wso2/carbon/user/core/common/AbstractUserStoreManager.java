@@ -867,6 +867,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException("getTenantIdWithID operation is not implemented in: " + this.getClass());
     }
 
+    @Override
+    public int getUserIdWithID(String userID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getUserIdWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("getUserIdWithID operation is not implemented in: " + this.getClass());
+    }
+
     /*This is to get the display names of users in hybrid role according to the underlying user store, to be shown in UI*/
     protected abstract String[] doGetDisplayNamesForInternalRole(String[] userNames)
             throws UserStoreException;
