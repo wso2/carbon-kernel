@@ -867,6 +867,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException("getTenantIdWithID operation is not implemented in: " + this.getClass());
     }
 
+    @Override
+    public int getUserIdWithID(String userID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getUserIdWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("getUserIdWithID operation is not implemented in: " + this.getClass());
+    }
+
     /**
      * Count users with claims.
      *
