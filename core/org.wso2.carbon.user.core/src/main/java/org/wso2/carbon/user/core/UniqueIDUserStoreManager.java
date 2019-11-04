@@ -321,4 +321,14 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     Date getPasswordExpirationTimeWithID(String userID) throws UserStoreException;
 
+    /**
+     * Checks whether the user is in the given role.
+     *
+     * @param userID   user ID.
+     * @param roleName role name.
+     * @return Returns true if user ID is in the role else returns false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean isUserInRoleWithID(String userID, String roleName) throws UserStoreException;
+
 }

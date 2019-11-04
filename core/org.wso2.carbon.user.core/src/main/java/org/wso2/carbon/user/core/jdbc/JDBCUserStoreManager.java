@@ -1527,12 +1527,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return userIDs[0];
     }
 
-    @Override
-    public String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
-
-        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-    }
-
     private boolean doCheckExistingUserWithUserNameAttribute(String userName) throws UserStoreException {
 
         String userIDs = getUserIDByUserName(userName, null);
