@@ -1121,9 +1121,9 @@ public final class UserCoreUtil {
     public static List<User> getUserList(String[] userList) {
 
         List<User> usersList = new ArrayList<>();
-        for (String username : userList) {
+        for (String userID : userList) {
             User user = new User();
-            user.setUsername(username);
+            user.setUserID(userID);
             usersList.add((user));
         }
         return usersList;
