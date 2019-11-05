@@ -126,4 +126,32 @@ public class CarbonBaseUtils {
 		}
 		return carbonHome;
 	}
+
+	public static String replaceSystemProperty(String text) {
+		int indexOfStartingChars = -1;
+		int indexOfClosingBrace;
+
+		// The following condition deals with properties.
+		// Properties are specified as ${system.property},
+		// and are assumed to be System properties
+		while (indexOfStartingChars < text.indexOf("${")
+				&& (indexOfStartingChars = text.indexOf("${")) != -1
+				&& (indexOfClosingBrace = text.indexOf('}')) != -1) {
+			String sysProp = text.substring(indexOfStartingChars + 2,
+					indexOfClosingBrace);
+			String propValue = System.getProperty(sysProp);
+			if (propValue == null) {
+				propValue = System.getenv(sysProp);
+			}
+			if (propValue != null) {
+				text = text.substring(0, indexOfStartingChars) + propValue
+						+ text.substring(indexOfClosingBrace + 1);
+			}
+			if (sysProp.equals("carbon.home") && propValue != null
+					&& propValue.equals(".")) {
+				text = new File(".").getAbsolutePath() + File.separator + text;
+			}
+		}
+		return text;
+	}
 }
