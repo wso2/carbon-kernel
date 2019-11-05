@@ -28,7 +28,12 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - New Data Sources Common</name>
     <description>This provides the new data sources common functionality for WSO2 Carbon</description>
-
+    <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
