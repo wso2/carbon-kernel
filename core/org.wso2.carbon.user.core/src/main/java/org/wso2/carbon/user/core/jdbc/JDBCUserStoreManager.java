@@ -104,6 +104,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
 
+    private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
+
     public JDBCUserStoreManager() {
 
     }
@@ -2974,6 +2976,35 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setInt(4, tenantId);
                 prepStmt.setInt(5, tenantId);
             }
+            String enableMaxUserLimitForSCIM = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_MAX_USER_LIST_FOR_SCIM);
+            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
+                int givenMax;
+                int searchTime;
+                int maxItemLimit = MAX_ITEM_LIMIT_UNLIMITED;
+                try {
+                    givenMax = Integer.parseInt(realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+                } catch (Exception e) {
+                    givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+                }
+                try {
+                    searchTime = Integer.parseInt(realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+                } catch (Exception e) {
+                    searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+                }
+                if (maxItemLimit < 0 || maxItemLimit > givenMax) {
+                    maxItemLimit = givenMax;
+                }
+                prepStmt.setMaxRows(maxItemLimit);
+                try {
+                    prepStmt.setQueryTimeout(searchTime);
+                } catch (Exception e) {
+                    // this can be ignored since timeout method is not implemented
+                    log.debug(e);
+                }
+            }
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(1);
@@ -3649,7 +3680,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             while (rs.next()) {
-
                 String name = rs.getString(1);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(name)) {
                     continue;
