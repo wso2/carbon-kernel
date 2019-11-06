@@ -46,6 +46,7 @@ import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
 import org.wso2.carbon.user.core.model.SqlBuilder;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JDBCRealmUtil;
@@ -556,13 +557,19 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             while (rs.next()) {
 
                 String userID = rs.getString(1);
+                String userName = rs.getString(2);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
                     continue;
                 }
-                // append the domain if exist
-                String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-                userID = UserCoreUtil.addDomainToName(userID, domain);
-                User user = new User(userID);
+
+                RealmService realmService = UserCoreUtil.getRealmService();
+                User user = new User(userID, userName, userName);
+                try {
+                    user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+                    user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException(e);
+                }
                 userList.add(user);
             }
             rs.close();
@@ -1057,10 +1064,23 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return names;
     }
 
-    /**
-     *
-     */
-    public int getUserId(String username) throws UserStoreException {
+    @Override
+    public int getUserIdWithID(String userID) throws UserStoreException {
+
+        return getUserIdInternal(userID);
+    }
+
+    @Override
+    public int getUserId(String userName) throws UserStoreException {
+
+        // Get the relevant userID for the given username.
+        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+            userName = getUserIDByUserName(userName, null);
+        }
+        return getUserIdInternal(userName);
+    }
+
+    private int getUserIdInternal(String username) throws UserStoreException {
         String sqlStmt;
         if (isCaseSensitiveUsername()) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERID_FROM_USERNAME);
@@ -1507,12 +1527,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return userIDs[0];
     }
 
-    @Override
-    public String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
-
-        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-    }
-
     private boolean doCheckExistingUserWithUserNameAttribute(String userName) throws UserStoreException {
 
         String userIDs = getUserIDByUserName(userName, null);
@@ -1710,11 +1724,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     password = this.preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
+                        RealmService realmService = UserCoreUtil.getRealmService();
                         user = new User(userID,
                                 getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
-                                preferredUserNameValue, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
-                                null, null);
+                                preferredUserNameValue, null, null, null);
                         try {
+                            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
                             user.setUserStoreDomain(UserCoreUtil.getDomainName(
                                     CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                                             .getRealmConfiguration()));
@@ -1764,11 +1779,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
-        User user = new User(userID, userName, userName, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
-                null, null);
+        RealmService realmService = UserCoreUtil.getRealmService();
+        User user = new User(userID, userName, userName);
         try {
-            user.setUserStoreDomain(UserCoreUtil
-                    .getDomainName(CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration()));
+            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
         }

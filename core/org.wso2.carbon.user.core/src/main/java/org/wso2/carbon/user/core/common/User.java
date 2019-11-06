@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- *
  */
 
 package org.wso2.carbon.user.core.common;
@@ -44,6 +41,13 @@ public class User implements Serializable {
     public User(String userID) {
 
         this.userID = userID;
+    }
+
+    public User(String userID, String username, String preferredUsername) {
+
+        this.userID = userID;
+        this.username = username;
+        this.preferredUsername = preferredUsername;
     }
 
     public User(String userID, String username, String preferredUsername, String tenantDomain, String userStoreDomain,

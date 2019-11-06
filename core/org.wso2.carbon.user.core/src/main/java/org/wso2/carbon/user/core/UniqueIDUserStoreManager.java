@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,9 +14,8 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- *
  */
+
 package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.core.claim.Claim;
@@ -28,10 +26,11 @@ import java.util.Map;
 
 /**
  * The interface to read data from a user store.
- * <p/>
+ * <p>
  * Implement this interface in your UserStoreManager class and add the class to the class path.
  * Provide the class name in the configuration file and the framework will pick the new code that
  * reads user information from the store.
+ * </p>
  */
 public interface UniqueIDUserStoreManager extends UserStoreManager {
 
@@ -50,16 +49,27 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             String profileName) throws UserStoreException;
 
     /**
-     * Retrieves a list of user IDs upto a maximum limit that matches the user name filter.
+     * Retrieves users upto a maximum limit that matches the user name filter.
      *
      * @param filter       The string to filter out user.
      * @param maxItemLimit The max item limit. If -1 then system maximum limit will be used. If the
      *                     given value is greater than the system configured max limit it will be resetted to
      *                     the system configured max limit.
-     * @return An array of user IDs.
+     * @return An array of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     User[] listUsersWithID(String filter, int maxItemLimit) throws UserStoreException;
+
+    /**
+     * Retrieves the user of the given user ID.
+     *
+     * @param userID          user ID.
+     * @param requestedClaims Requested Claims.
+     * @param profileName     Profile Name.
+     * @return the user.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException;
 
     /**
      * Checks whether the user is in the user store.
@@ -201,6 +211,15 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     int getTenantIdWithID(String userID) throws UserStoreException;
 
     /**
+     * This is to retrieve the auto increment user ID created when adding the user in a JDBC user store.
+     *
+     * @param userID The user ID.
+     * @return The auto increment user ID stored in underlying JDBC user store.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    int getUserIdWithID(String userID) throws UserStoreException;
+
+    /**
      * Retrieves a list of users for given user claim value.
      *
      * @param claim       claim uri.
@@ -301,5 +320,15 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     Date getPasswordExpirationTimeWithID(String userID) throws UserStoreException;
+
+    /**
+     * Checks whether the user is in the given role.
+     *
+     * @param userID   user ID.
+     * @param roleName role name.
+     * @return Returns true if user ID is in the role else returns false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean isUserInRoleWithID(String userID, String roleName) throws UserStoreException;
 
 }

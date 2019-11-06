@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- *
  */
 
 package org.wso2.carbon.user.core.listener;
@@ -204,11 +201,39 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @param userStoreManager user store manager.
      * @param users            Filtered user list.
      * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException UserStoreException
+     * @throws UserStoreException User Store Exception.
      */
     boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
             String sortBy, String sortOrder, String[] users, UserStoreManager userStoreManager)
             throws UserStoreException;
+
+    /**
+     * Pre listener for the get user method.
+     *
+     * @param userID           user ID.
+     * @param requestedClaims  Requested claims.
+     * @param profileName      Profile name.
+     * @param user             User.
+     * @param userStoreManager user store manager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException User Store Exception.
+     */
+    boolean doPreGetUserWithID(String userID, String[] requestedClaims, String profileName, User user,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for the get user method.
+     *
+     * @param userID           user ID.
+     * @param requestedClaims  Requested claims.
+     * @param profileName      Profile name.
+     * @param user             User.
+     * @param userStoreManager user store manager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException User Store Exception.
+     */
+    boolean doPostGetUserWithID(String userID, String[] requestedClaims, String profileName, User user,
+            UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Post listener for the get paginated user list method.

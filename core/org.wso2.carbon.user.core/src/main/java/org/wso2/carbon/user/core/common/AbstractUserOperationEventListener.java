@@ -42,106 +42,124 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     @Override
     public boolean doPreAuthenticate(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostAuthenticate(String userName, boolean authenticated, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profile, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profile, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreUpdateCredential(String userName, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostUpdateCredentialByAdmin(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostSetUserClaimValue(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostDeleteUserClaimValues(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     @Override
     public boolean doPostDeleteUserClaimValue(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
@@ -157,6 +175,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -172,6 +191,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPostAddRole(String roleName, String[] userList, Permission[] permissions,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -214,6 +234,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -226,6 +247,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
     public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -239,6 +261,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
@@ -252,6 +275,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPostUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
@@ -266,6 +290,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -280,6 +305,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -295,6 +321,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -310,6 +337,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
@@ -384,8 +412,23 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
+    public boolean doPreGetUserWithID(String userID, String[] requestedClaims, String profileName, User user,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserWithID(String userID, String[] requestedClaims, String profileName, User user,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean doPostGetPaginatedUserListWithID(String claimUri, String claimValue, final List<User> returnValues,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 

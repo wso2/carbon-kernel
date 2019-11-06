@@ -417,12 +417,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (doAuthenticate(users[0], credential)) {
-            user = new User(users[0],
-                    getUserClaimValue(users[0], UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
-                    preferredUserNameValue, CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), null, null);
+
+            RealmService realmService = UserCoreUtil.getRealmService();
+            String userName = getUserClaimValue(users[0], UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
+            user = new User(users[0], userName, preferredUserNameProperty);
             try {
-                user.setUserStoreDomain(UserCoreUtil.getDomainName(
-                        CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration()));
+                user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+                user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
@@ -990,12 +991,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return userIDs[0];
     }
 
-    @Override
-    public String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
-
-        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-    }
-
     private boolean doCheckExistingUserWithUserNameAttribute(String userName) throws UserStoreException {
 
         String userIDs = getUserIDByUserName(userName, null);
@@ -1241,13 +1236,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         if (StringUtils.isNotEmpty(displayNameAttribute)) {
             returnedAttributes = new String[] {
-                    userNameProperty, serviceNameAttribute, displayNameAttribute
+                    userNameProperty, serviceNameAttribute, displayNameAttribute, userNameAttribute
             };
             finalFilter.append("(&").append(searchFilter).append("(").append(displayNameAttribute).append("=")
                     .append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
         } else {
-            returnedAttributes = new String[] { userNameProperty, serviceNameAttribute };
-            finalFilter.append("(&").append(searchFilter).append("(").append(userNameProperty).append("=")
+            returnedAttributes = new String[] { userNameProperty, serviceNameAttribute, userNameAttribute };
+            finalFilter.append("(&").append(searchFilter).append("(").append(userNameAttribute).append("=")
                     .append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
         }
 
@@ -1274,7 +1269,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     SearchResult sr = answer.next();
                     if (sr.getAttributes() != null) {
                         log.debug("Result found ..");
-                        Attribute attr = sr.getAttributes().get(userNameProperty);
+                        Attribute uid = sr.getAttributes().get(userNameProperty);
+                        Attribute un = sr.getAttributes().get(userNameAttribute);
 
                         /*
                          * If this is a service principle, just ignore and
@@ -1297,7 +1293,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         /*
                          * if display name is provided, read that attribute
                          */
-                        Attribute displayName = null;
+                        Attribute displayName;
                         if (StringUtils.isNotEmpty(displayNameAttribute)) {
                             displayName = sr.getAttributes().get(displayNameAttribute);
                             if (debug) {
@@ -1305,19 +1301,22 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             }
                         }
 
-                        if (attr != null) {
-                            String userID = (String) attr.get();
-                            String display = null;
-                            if (displayName != null) {
-                                display = (String) displayName.get();
+                        if (uid != null) {
+                            String userID = (String) uid.get();
+                            String userName = null;
+                            if (un != null) {
+                                userName = (String) un.get();
                             }
-                            // append the domain if exist
-                            String domain = this.getRealmConfiguration()
-                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-                            // get the name in the format of
-                            // domainName/userName|domainName/displayName
-                            userID = UserCoreUtil.getCombinedName(domain, userID, display);
-                            User user = new User(userID);
+                            RealmService realmService = UserCoreUtil.getRealmService();
+                            User user = new User(userID, userName, userName);
+                            try {
+                                user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+                                user.setUserStoreDomain(UserCoreUtil.getDomainName(
+                                        CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+                                                .getRealmConfiguration()));
+                            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                                throw new UserStoreException(e);
+                            }
                             list.add(user);
                         }
                     }

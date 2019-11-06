@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- *
  */
 
 package org.wso2.carbon.user.core.listener;
@@ -265,6 +262,21 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @throws UserStoreException Exception that will be thrown during the execution of the method.
      */
     boolean onGetUserListFailureWithID(String errorCode, String errorMessage, String claim, String claimValue,
+            String profileName, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure retrieving the user.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param userID           user ID.
+     * @param requestedClaims  Requested Claims.
+     * @param profileName      Profile Name.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onGetUserFailureWithID(String errorCode, String errorMessage, String userID, String[] requestedClaims,
             String profileName, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
