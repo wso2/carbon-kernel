@@ -1053,6 +1053,7 @@ public class PermissionTree {
             statement.setString(3, resourceId);
             rs = statement.executeQuery();
             write.lock();
+            getNode(root, PermissionTreeUtil.toComponenets(resourceId)).getLastNode().getRoleAllowPermissions().clear();
             try {
                 while (rs.next()) {
                     short allow = rs.getShort(3);
@@ -1061,6 +1062,8 @@ public class PermissionTree {
                     String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
                     if (allow == UserCoreConstants.ALLOW) {
                         tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
+                    } else  {
+                        tree.denyRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
                     }
                 }
             } finally {
