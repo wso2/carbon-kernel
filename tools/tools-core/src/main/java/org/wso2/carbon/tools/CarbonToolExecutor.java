@@ -75,7 +75,13 @@ public class CarbonToolExecutor {
                 carbonTool = new OSGiLibDeployerTool();
                 break;
             case "icf-provider":
-                carbonTool = new ICFProviderTool();
+                carbonTool = new ICFProviderTool(toolIdentifier);
+                break;
+            case "ba-provider":
+                carbonTool = new ICFProviderTool(toolIdentifier);
+                break;
+            case "jdbc-provider":
+                carbonTool = new ICFProviderTool(toolIdentifier);
                 break;
             case "install-jars":
                 carbonTool = new InstallJarsTool();
