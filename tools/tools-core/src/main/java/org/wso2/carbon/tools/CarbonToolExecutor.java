@@ -82,7 +82,7 @@ public class CarbonToolExecutor {
             case "spi-provider":
                 carbonTool = new SPIProviderTool();
                 break;
-            case "nl-provider":
+            case "jni-provider":
                 carbonTool = new NativeLibraryProvider();
                 break;
             case "install-jars":

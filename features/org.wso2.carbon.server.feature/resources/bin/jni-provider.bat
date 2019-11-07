@@ -1,7 +1,7 @@
 @echo off
 
 REM ---------------------------------------------------------------------------
-REM   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+REM   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 REM
 REM   Licensed under the Apache License, Version 2.0 (the "License");
 REM   you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ set CURRENT_DIR=%cd%
 cd %CARBON_HOME%\bin
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
 echo CARBON_HOME environment variable is set to %CARBON_HOME%
-java -cp ".\*;..\bin\tools\*" -Dcarbon.home="%CARBON_HOME" -Dwso2.carbon.tool="nl-provider" org.wso2.carbon.tools.CarbonToolExecutor %1 %2 %3 %4
+java -cp ".\*;..\bin\tools\*" -Dcarbon.home="%CARBON_HOME" -Dwso2.carbon.tool="jni-provider" org.wso2.carbon.tools.CarbonToolExecutor %1 %2 %3 %4
 
 :end
 goto endlocal

@@ -1,6 +1,6 @@
 #!/bin/sh
 # ---------------------------------------------------------------------------
-#  Copyright (c) 2015, WSO7 Inc. (http://www.wso2.org) All Rights Reserved.
+#  Copyright (c) 2019, WSO7 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -121,4 +121,4 @@ echo CARBON_HOME environment variable is set to $CARBON_HOME
 CURRENT_DIR=${PWD};
 
 cd "$CARBON_HOME/bin/";
-java -cp "../bin/tools/*" -Dcarbon.home="$CARBON_HOME" -Dwso2.carbon.tool="nl-provider" org.wso2.carbon.tools.CarbonToolExecutor $1 $2 $3 $4
+java -cp "../bin/tools/*" -Dcarbon.home="$CARBON_HOME" -Dwso2.carbon.tool="jni-provider" org.wso2.carbon.tools.CarbonToolExecutor $1 $2 $3 $4
