@@ -23,6 +23,8 @@ import org.wso2.carbon.tools.spi.ICFProviderTool;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.wso2.carbon.tools.spi.NativeLibraryProvider;
+import org.wso2.carbon.tools.spi.SPIProviderTool;
 
 /**
  * This Java class defines the WSO2 Carbon-kernel tool executor, which manages the execution of numerous
@@ -76,6 +78,12 @@ public class CarbonToolExecutor {
                 break;
             case "icf-provider":
                 carbonTool = new ICFProviderTool();
+                break;
+            case "spi-provider":
+                carbonTool = new SPIProviderTool();
+                break;
+            case "jni-provider":
+                carbonTool = new NativeLibraryProvider();
                 break;
             case "install-jars":
                 carbonTool = new InstallJarsTool();
