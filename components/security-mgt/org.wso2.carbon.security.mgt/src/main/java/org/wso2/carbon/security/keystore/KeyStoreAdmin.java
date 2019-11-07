@@ -150,10 +150,12 @@ public class KeyStoreAdmin {
                             String fileName = generatePubCertFileName(ks[i],
                                     pubKeyResource.getProperty(
                                             SecurityConstants.PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
-                            String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
-                                    MessageContext.getCurrentMessageContext().getConfigurationContext(),
-                                    (byte[]) pubKeyResource.getContent(), fileName);
-                            data.setPubKeyFilePath(pubKeyFilePath);
+                            if (MessageContext.getCurrentMessageContext() != null) {
+                                String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
+                                        MessageContext.getCurrentMessageContext().getConfigurationContext(),
+                                        (byte[]) pubKeyResource.getContent(), fileName);
+                                data.setPubKeyFilePath(pubKeyFilePath);
+                            }
                         }
                     }
                     lst.add(data);
@@ -362,7 +364,8 @@ public class KeyStoreAdmin {
             if (ks.getCertificateAlias(cert) != null) {
                 // We already have this certificate in the key store - ignore
                 // adding it twice
-                return;
+                throw new SecurityConfigException("Certificate already exists in the keystore with alias: " +
+                        ks.getCertificateAlias(cert));
             }
 
             ks.setCertificateEntry(fileName, cert);
@@ -809,7 +812,7 @@ public class KeyStoreAdmin {
      * @return trust store object
      * @throws Exception
      */
-    private KeyStore getTrustStore() throws SecurityConfigException {
+    public KeyStore getTrustStore() throws SecurityConfigException {
         //Allow only the super tenant to access the default trust store.
         if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new SecurityConfigException("Permission denied for accessing trust store");
