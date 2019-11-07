@@ -19,12 +19,12 @@ import org.wso2.carbon.tools.converter.BundleGeneratorTool;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 import org.wso2.carbon.tools.osgilib.OSGiLibDeployerTool;
 import org.wso2.carbon.tools.spi.ICFProviderTool;
+import org.wso2.carbon.tools.spi.NativeLibraryProvider;
+import org.wso2.carbon.tools.spi.SPIProviderTool;
 
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.wso2.carbon.tools.spi.NativeLibraryProvider;
-import org.wso2.carbon.tools.spi.SPIProviderTool;
 
 /**
  * This Java class defines the WSO2 Carbon-kernel tool executor, which manages the execution of numerous
