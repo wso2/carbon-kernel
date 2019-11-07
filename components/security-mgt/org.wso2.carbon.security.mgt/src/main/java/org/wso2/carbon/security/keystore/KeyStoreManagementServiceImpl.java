@@ -65,15 +65,14 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
             (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE));
 
     @Override
-    public List<String> getKeyStoreCertificateAliases(String filter)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException {
+    public List<String> getKeyStoreCertificateAliases(String filter) throws KeyStoreManagementException {
 
         KeyStoreData keyStoreInfo = getKeystoreData(getKeyStoreName());
         return filterAlias(getAliasList(keyStoreInfo), filter);
     }
 
     @Override
-    public Map<String, X509Certificate> getPublicCertificate() throws KeyStoreManagementServerException {
+    public Map<String, X509Certificate> getPublicCertificate() throws KeyStoreManagementException {
 
         Map<String, X509Certificate> certData = new HashMap<>();
         KeyStoreData keyStoreInfo = getKeystoreData(getKeyStoreName());
@@ -83,8 +82,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     @Override
-    public X509Certificate getKeyStoreCertificate(String alias) throws KeyStoreManagementServerException,
-            KeyStoreManagementClientException {
+    public X509Certificate getKeyStoreCertificate(String alias) throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(alias)) {
             handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
@@ -107,16 +105,14 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     @Override
-    public List<String> getClientTrustStoreCertificateAliases(String filter)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException {
+    public List<String> getClientCertificateAliases(String filter) throws KeyStoreManagementException {
 
         KeyStoreData truststoreInfo = getKeystoreData(getTrustStoreName());
         return filterAlias(getAliasList(truststoreInfo), filter);
     }
 
     @Override
-    public X509Certificate getClientTrustStoreCertificate(String alias)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException {
+    public X509Certificate getClientCertificate(String alias) throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(alias)) {
             handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
@@ -132,7 +128,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         if (trustStore != null) {
             try {
                 if (trustStore.containsAlias(alias)) {
-                    return  (X509Certificate) trustStore.getCertificate(alias);
+                    return (X509Certificate) trustStore.getCertificate(alias);
                 }
             } catch (KeyStoreException e) {
                 handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE, alias, e);
@@ -142,8 +138,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     @Override
-    public void addCertificate(String alias, String certificate)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException {
+    public void addCertificate(String alias, String certificate) throws KeyStoreManagementException {
 
         if (getKeyStoreCertificate(alias) != null) {
             handleClientException(ERROR_CODE_CERTIFICATE_EXISTS, alias);
@@ -157,7 +152,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     @Override
-    public void deleteCertificate(String alias) throws KeyStoreManagementServerException {
+    public void deleteCertificate(String alias) throws KeyStoreManagementException {
 
         try {
             keyStoreAdmin.removeCertFromStore(alias, getKeyStoreName());
@@ -166,7 +161,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         }
     }
 
-    private String getKeyStoreName() throws KeyStoreManagementServerException {
+    private String getKeyStoreName() throws KeyStoreManagementException {
 
         KeyStoreData[] keyStoreDataArray = new KeyStoreData[0];
         try {
@@ -196,7 +191,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         return null;
     }
 
-    private KeyStoreData getKeystoreData(String keyStoreName) throws KeyStoreManagementServerException {
+    private KeyStoreData getKeystoreData(String keyStoreName) throws KeyStoreManagementException {
 
         KeyStoreData keyStoreData = null;
         keyStoreAdmin.setIncludeCert(true);
@@ -226,7 +221,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         return aliasList;
     }
 
-    private List<String> filterAlias(List<String> aliases, String filter) throws KeyStoreManagementClientException {
+    private List<String> filterAlias(List<String> aliases, String filter) throws KeyStoreManagementException {
 
         if (filter != null) {
             filter = filter.replace(" ", "+");
@@ -288,22 +283,21 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     private void handleServerException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data)
-            throws KeyStoreManagementServerException {
+            throws KeyStoreManagementException {
 
         String message = includeData(error, data);
         throw new KeyStoreManagementServerException(error.getCode(), message);
     }
 
     private void handleServerException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data,
-                                       Throwable e)
-            throws KeyStoreManagementServerException {
+                                       Throwable e) throws KeyStoreManagementException {
 
         String message = includeData(error, data);
         throw new KeyStoreManagementServerException(error.getCode(), message, e);
     }
 
     private void handleClientException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data)
-            throws KeyStoreManagementClientException {
+            throws KeyStoreManagementException {
 
         String message = includeData(error, data);
         throw new KeyStoreManagementClientException(error.getCode(), message);

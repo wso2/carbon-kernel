@@ -16,12 +16,10 @@
 
 package org.wso2.carbon.security.keystore;
 
-import org.wso2.carbon.identity.base.IdentityException;
-
 /**
  * Handles the Keystore Management client level errors.
  */
-public class KeyStoreManagementClientException extends IdentityException {
+public class KeyStoreManagementClientException extends KeyStoreManagementException {
 
     public KeyStoreManagementClientException(String errorCode, String message) {
         super(errorCode, message);

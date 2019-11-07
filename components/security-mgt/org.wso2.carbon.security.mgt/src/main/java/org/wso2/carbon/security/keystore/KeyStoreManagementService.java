@@ -30,69 +30,59 @@ public interface KeyStoreManagementService {
      *
      * @param filter used to filter the result. Supports sw, ew, eq & co. eg:filter=alias+sw+wso2.
      * @return the {@link List} of alias.
-     * @throws KeyStoreManagementServerException when retrieving the certificate aliases failed.
-     * @throws KeyStoreManagementClientException when retrieving the certificate aliases failed due to a client error.
+     * @throws KeyStoreManagementException when retrieving the certificate aliases failed.
      */
-    List<String> getKeyStoreCertificateAliases(String filter)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException;
+    List<String> getKeyStoreCertificateAliases(String filter) throws KeyStoreManagementException;
 
     /**
      * Retrieves the public certificate from the keystore.
      *
      * @return a {@link Map} with public key alias and {@link X509Certificate}.
-     * @throws KeyStoreManagementServerException when retrieving the public certificate failed due to a server error.
+     * @throws KeyStoreManagementException when retrieving the public certificate.
      */
-    Map<String, X509Certificate> getPublicCertificate() throws KeyStoreManagementServerException;
+    Map<String, X509Certificate> getPublicCertificate() throws KeyStoreManagementException;
 
     /**
      * Retrieves the certificate of the given alias from the keystore.
      *
      * @param alias of the certificate.
      * @return the {@link X509Certificate}
-     * @throws KeyStoreManagementServerException when retrieving the certificate failed due to a server error.
-     * @throws KeyStoreManagementClientException when retrieving the certificate failed due to a client error.
+     * @throws KeyStoreManagementException when retrieving the certificate failed.
      */
-    X509Certificate getKeyStoreCertificate(String alias) throws KeyStoreManagementServerException,
-            KeyStoreManagementClientException;
+    X509Certificate getKeyStoreCertificate(String alias) throws KeyStoreManagementException;
 
     /**
      * Retrieves the list of certificate aliases from the client truststore.
      *
      * @param filter used to filter the result. Supports sw, ew, eq & co. eg:filter=alias+sw+wso2.
      * @return the {@link List} of alias
-     * @throws KeyStoreManagementServerException when retrieving the certificate aliases failed due to a server error.
-     * @throws KeyStoreManagementClientException when retrieving the certificate aliases failed due to a client error.
+     * @throws KeyStoreManagementException when retrieving the certificate aliases failed.
      */
-    List<String> getClientTrustStoreCertificateAliases(String filter)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException;
+    List<String> getClientCertificateAliases(String filter) throws KeyStoreManagementException;
 
     /**
      * Retrieves the certificate of the given alias from the client truststore.
      *
      * @param alias of the certificate.
      * @return the {@link X509Certificate}
-     * @throws KeyStoreManagementServerException when retrieving the certificate failed due to a server error.
-     * @throws KeyStoreManagementClientException when retrieving the certificate failed due to a server error.
+     * @throws KeyStoreManagementException when retrieving the certificate failed.
      */
-    X509Certificate getClientTrustStoreCertificate(String alias)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException;
+    X509Certificate getClientCertificate(String alias) throws KeyStoreManagementException;
 
     /**
      * Imports the certificate to the keystore.
      *
      * @param alias of the certificate.
      * @param certificate the certificate to be imported.
-     * @throws KeyStoreManagementServerException when importing the certificate failed due to a server error.
-     * @throws KeyStoreManagementClientException when importing the certificate failed due to a client error.
+     * @throws KeyStoreManagementException when importing the certificate failed.
      */
-    void addCertificate(String alias, String certificate)
-            throws KeyStoreManagementServerException, KeyStoreManagementClientException;
+    void addCertificate(String alias, String certificate) throws KeyStoreManagementException;
 
     /**
      * Deletes the certificate from the keystore.
      *
      * @param alias of the certificate.
-     * @throws KeyStoreManagementServerException when importing the certificate failed due to a server error.
+     * @throws KeyStoreManagementException when importing the certificate failed.
      */
-    void deleteCertificate(String alias) throws KeyStoreManagementServerException;
+    void deleteCertificate(String alias) throws KeyStoreManagementException;
 }
