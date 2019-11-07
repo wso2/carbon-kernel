@@ -15,6 +15,10 @@
  */
 package org.wso2.carbon.tools.spi;
 
+import org.wso2.carbon.tools.CarbonTool;
+import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
+import org.wso2.carbon.tools.exception.CarbonToolException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,17 +43,16 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.spi.InitialContextFactory;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import org.wso2.carbon.tools.CarbonTool;
-import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
-import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import static org.wso2.carbon.tools.Constants.BUNDLE_ACTIVATOR;
 import static org.wso2.carbon.tools.Constants.JAR_MANIFEST_FOLDER;
 import static org.wso2.carbon.tools.Constants.MANIFEST_FILE_NAME;
 
+/**
+ * This class allow to register spi services as OSGi services
+ */
 public class SPIProviderTool implements CarbonTool {
     private static final Logger logger = Logger.getLogger(SPIProviderTool.class.getName());
     private static final String ACTIVATOR_CLASS_FILE = "CustomBundleActivator.class";
@@ -58,33 +61,34 @@ public class SPIProviderTool implements CarbonTool {
     private static final String ACTIVATOR_FULL_QUALIFIED_NAME = "internal.CustomBundleActivator";
 
     private static final String CLASS_TEMPLATE =
-            "package internal;\n" +
-                    "import org.osgi.framework.BundleActivator;\n" +
-                    "import org.osgi.framework.BundleContext;\n" +
-                    "import %s;\n" +
-                    "\n" +
-                    "import %s;\n" +
-                    "\n" +
-                    "public class CustomBundleActivator implements BundleActivator {\n" +
-                    "\n" + "    " +
-                    "@Override\n" +
-                    "    public void start(BundleContext bundleContext) throws Exception {\n" +
-                    "        bundleContext.registerService(new String[] { \"%s\", \"%s\" }, new %s(), null);\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void stop(BundleContext bundleContext) throws Exception {\n" +
-                    "\n" +
+            "package internal;%n" +
+                    "import org.osgi.framework.BundleActivator;%n" +
+                    "import org.osgi.framework.BundleContext;%n" +
+                    "import %s;%n" +
+                    "%n" +
+                    "import %s;%n" +
+                    "%n" +
+                    "public class CustomBundleActivator implements BundleActivator {%n" +
+                    "%n" + "    " +
+                    "@Override%n" +
+                    "    public void start(BundleContext bundleContext) throws Exception {%n" +
+                    "        bundleContext.registerService(new String[] { \"%s\", \"%s\" }, new %s(), null);%n" +
+                    "    }%n" +
+                    "%n" +
+                    "    @Override%n" +
+                    "    public void stop(BundleContext bundleContext) throws Exception {%n" +
+                    "%n" +
                     "    " +
-                    "}\n" +
-                    "}\n";
+                    "}%n" +
+                    "}%n";
 
     @Override
     public void execute(String... toolArgs) {
 
         if (toolArgs.length < 4 || toolArgs.length > 5) {
             String message = "Improper usage detected. " +
-                    "Usage: spi-provider.sh|bat [ICF Impl class] [Interface class name] [jar file] [destination] [OSGi jar path]" +
+                    "Usage: spi-provider.sh|bat [ICF Impl class] [Interface class name] [jar file] [destination]" +
+                    " [OSGi jar path]" +
                     "First 4 arguments are compulsory.";
             logger.log(Level.INFO, message);
             return;
@@ -125,8 +129,8 @@ public class SPIProviderTool implements CarbonTool {
 
                 List<String> compilerArgs = new ArrayList<>();
                 compilerArgs.add("-cp");
-                String separator =
-                        System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows") ? ";" : ":";
+                String separator = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows") ?
+                        ";" : ":";
                 compilerArgs.add(jarFile.toString() + separator + osgiJar);
                 compilerArgs.add(sourceFile.getPath());
                 fileOutputStream = new FileOutputStream(internal.resolve(ACTIVATOR_CLASS_FILE).toFile());
@@ -143,7 +147,8 @@ public class SPIProviderTool implements CarbonTool {
                         .append(" -C ")
                         .append(tmpDir.toString())
                         .append(" ")
-                        .append(internal.resolve(ACTIVATOR_CLASS_FILE).toString().replace(tmpDir.toString(), ""));
+                        .append(internal.resolve(ACTIVATOR_CLASS_FILE).toString().replace(tmpDir.toString(),
+                                ""));
                 logger.log(Level.INFO, "Executing '" + command.toString() + "'");
                 process = Runtime.getRuntime().exec(command.toString());
                 process.waitFor(5, TimeUnit.SECONDS);
