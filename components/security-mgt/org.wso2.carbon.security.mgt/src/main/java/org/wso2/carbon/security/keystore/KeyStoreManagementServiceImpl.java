@@ -22,6 +22,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConstants;
@@ -29,7 +30,7 @@ import org.wso2.carbon.security.keystore.service.CertData;
 import org.wso2.carbon.security.keystore.service.CertDataDetail;
 import org.wso2.carbon.security.keystore.service.KeyStoreData;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_ADD_CERTIFICATE;
+import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_ALIAS_EXISTS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_BAD_VALUE_FOR_FILTER;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_CERTIFICATE_EXISTS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_DELETE_CERTIFICATE;
@@ -49,6 +51,7 @@ import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.Er
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION;
+import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_VALIDATE_CERTIFICATE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.FILTER_FIELD_ALIAS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.FILTER_OPERATION_CONTAINS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.FILTER_OPERATION_ENDS_WITH;
@@ -61,34 +64,33 @@ import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.SE
  */
 public class KeyStoreManagementServiceImpl implements KeyStoreManagementService {
 
-    private KeyStoreAdmin keyStoreAdmin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId(),
-            (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE));
-
     @Override
-    public List<String> getKeyStoreCertificateAliases(String filter) throws KeyStoreManagementException {
+    public List<String> getKeyStoreCertificateAliases(String tenantDomain, String filter)
+            throws KeyStoreManagementException {
 
-        KeyStoreData keyStoreInfo = getKeystoreData(getKeyStoreName());
+        KeyStoreData keyStoreInfo = getKeystoreData(tenantDomain, getKeyStoreName(tenantDomain));
         return filterAlias(getAliasList(keyStoreInfo), filter);
     }
 
     @Override
-    public Map<String, X509Certificate> getPublicCertificate() throws KeyStoreManagementException {
+    public Map<String, X509Certificate> getPublicCertificate(String tenantDomain) throws KeyStoreManagementException {
 
         Map<String, X509Certificate> certData = new HashMap<>();
-        KeyStoreData keyStoreInfo = getKeystoreData(getKeyStoreName());
+        KeyStoreData keyStoreInfo = getKeystoreData(tenantDomain, getKeyStoreName(tenantDomain));
         CertData key = keyStoreInfo.getKey();
         certData.put(key.getAlias(), ((CertDataDetail) key).getCertificate());
         return certData;
     }
 
     @Override
-    public X509Certificate getKeyStoreCertificate(String alias) throws KeyStoreManagementException {
+    public X509Certificate getKeyStoreCertificate(String tenantDomain, String alias)
+            throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(alias)) {
             handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
         }
 
-        KeyStoreData keyStoreInfo = getKeystoreData(getKeyStoreName());
+        KeyStoreData keyStoreInfo = getKeystoreData(tenantDomain, getKeyStoreName(tenantDomain));
         CertData key = keyStoreInfo.getKey();
         if (key != null && StringUtils.equals(key.getAlias(), alias)) {
             return ((CertDataDetail) key).getCertificate();
@@ -105,14 +107,15 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     @Override
-    public List<String> getClientCertificateAliases(String filter) throws KeyStoreManagementException {
+    public List<String> getClientCertificateAliases(String tenantDomain, String filter)
+            throws KeyStoreManagementException {
 
-        KeyStoreData truststoreInfo = getKeystoreData(getTrustStoreName());
+        KeyStoreData truststoreInfo = getKeystoreData(tenantDomain, getTrustStoreName());
         return filterAlias(getAliasList(truststoreInfo), filter);
     }
 
     @Override
-    public X509Certificate getClientCertificate(String alias) throws KeyStoreManagementException {
+    public X509Certificate getClientCertificate(String tenantDomain, String alias) throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(alias)) {
             handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
@@ -120,9 +123,9 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
 
         KeyStore trustStore = null;
         try {
-            trustStore = keyStoreAdmin.getTrustStore();
+            trustStore = getKeyStoreAdmin(tenantDomain).getTrustStore();
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE, getTenantDomain(), e);
+            handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE, tenantDomain, e);
         }
 
         if (trustStore != null) {
@@ -138,36 +141,52 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     @Override
-    public void addCertificate(String alias, String certificate) throws KeyStoreManagementException {
+    public void addCertificate(String tenantDomain, String alias, String certificate)
+            throws KeyStoreManagementException {
 
-        if (getKeyStoreCertificate(alias) != null) {
-            handleClientException(ERROR_CODE_CERTIFICATE_EXISTS, alias);
-        }
-
+        KeyStoreAdmin keyStoreAdmin = getKeyStoreAdmin(tenantDomain);
+        String keyStoreName = getKeyStoreName(tenantDomain);
+        KeyStore keyStore;
+        String certAlias = null;
+        boolean isAliasExists = false;
         try {
-            keyStoreAdmin.importCertToStore(alias, certificate, getKeyStoreName());
+            keyStore = keyStoreAdmin.getKeyStore(keyStoreName);
+            X509Certificate cert = keyStoreAdmin.extractCertificate(certificate);
+            isAliasExists = keyStore.containsAlias(alias);
+            certAlias = keyStore.getCertificateAlias(cert);
+        } catch (Exception e) {
+            handleServerException(ERROR_CODE_VALIDATE_CERTIFICATE, null, e);
+        }
+        if (isAliasExists) {
+            handleClientException(ERROR_CODE_ALIAS_EXISTS, alias);
+        }
+        if (certAlias != null) {
+            handleClientException(ERROR_CODE_CERTIFICATE_EXISTS, certAlias);
+        }
+        try {
+            keyStoreAdmin.importCertToStore(alias, certificate, keyStoreName);
         } catch (SecurityConfigException e) {
             handleServerException(ERROR_CODE_ADD_CERTIFICATE, alias, e);
         }
     }
 
     @Override
-    public void deleteCertificate(String alias) throws KeyStoreManagementException {
+    public void deleteCertificate(String tenantDomain, String alias) throws KeyStoreManagementException {
 
         try {
-            keyStoreAdmin.removeCertFromStore(alias, getKeyStoreName());
+            getKeyStoreAdmin(tenantDomain).removeCertFromStore(alias, getKeyStoreName(tenantDomain));
         } catch (SecurityConfigException e) {
             handleServerException(ERROR_CODE_DELETE_CERTIFICATE, alias, e);
         }
     }
 
-    private String getKeyStoreName() throws KeyStoreManagementException {
+    private String getKeyStoreName(String tenantDomain) throws KeyStoreManagementException {
 
         KeyStoreData[] keyStoreDataArray = new KeyStoreData[0];
         try {
-            keyStoreDataArray = keyStoreAdmin.getKeyStores(isSuperTenant());
+            keyStoreDataArray = getKeyStoreAdmin(tenantDomain).getKeyStores(isSuperTenant(tenantDomain));
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, getTenantDomain(), e);
+            handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain, e);
         }
 
         for (KeyStoreData keyStoreData : keyStoreDataArray) {
@@ -175,24 +194,24 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
                 break;
             }
             String keyStoreName = keyStoreData.getKeyStoreName();
-            if (isSuperTenant()) {
+            if (isSuperTenant(tenantDomain)) {
                 if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
                     return keyStoreName;
                 }
             } else {
-                String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
                 String tenantKeyStoreName = tenantDomain.trim().replace(".", "-") + ".jks";
                 if (StringUtils.equals(keyStoreName, tenantKeyStoreName)) {
                     return keyStoreName;
                 }
             }
         }
-        handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, getTenantDomain());
+        handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain);
         return null;
     }
 
-    private KeyStoreData getKeystoreData(String keyStoreName) throws KeyStoreManagementException {
+    private KeyStoreData getKeystoreData(String tenantDomain, String keyStoreName) throws KeyStoreManagementException {
 
+        KeyStoreAdmin keyStoreAdmin = getKeyStoreAdmin(tenantDomain);
         KeyStoreData keyStoreData = null;
         keyStoreAdmin.setIncludeCert(true);
         try {
@@ -253,33 +272,22 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         return aliases;
     }
 
-    private String getTenantDomain() {
+    private KeyStoreAdmin getKeyStoreAdmin(String tenantDomain) {
 
-        return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        return new KeyStoreAdmin(IdentityTenantUtil.getTenantId(tenantDomain),
+                (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE));
     }
 
-    private boolean isSuperTenant() {
+    private boolean isSuperTenant(String tenantDomain) {
 
-        return CarbonContext.getThreadLocalCarbonContext().getTenantId() == MultitenantConstants.SUPER_TENANT_ID;
+        return IdentityTenantUtil.getTenantId(tenantDomain) == MultitenantConstants.SUPER_TENANT_ID;
     }
 
     private String getTrustStoreName() {
 
         ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
-        String fileName = serverConfiguration.getFirstProperty(SERVER_TRUSTSTORE_FILE);
-        int index = fileName.lastIndexOf('/');
-        String name;
-        if (index != -1) {
-            name = fileName.substring(index + 1);
-        } else {
-            index = fileName.lastIndexOf(File.separatorChar);
-            if (index != -1) {
-                name = fileName.substring(fileName.lastIndexOf(File.separatorChar));
-            } else {
-                name = fileName;
-            }
-        }
-        return name;
+        String filePath = serverConfiguration.getFirstProperty(SERVER_TRUSTSTORE_FILE);
+        return Paths.get(filePath).getFileName().toString();
     }
 
     private void handleServerException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data)

@@ -23,7 +23,6 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoUtil;
@@ -349,23 +348,12 @@ public class KeyStoreAdmin {
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
-
-            byte[] bytes = Base64.decode(certData);
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate cert;
-            try {
-                cert = (X509Certificate) factory
-                        .generateCertificate(new ByteArrayInputStream(bytes));
-            } catch (CertificateException e) {
-                log.error(e.getMessage(), e);
-                throw new SecurityConfigException("Invalid format of the provided certificate file");
-            }
+            X509Certificate cert = extractCertificate(certData);
 
             if (ks.getCertificateAlias(cert) != null) {
                 // We already have this certificate in the key store - ignore
                 // adding it twice
-                throw new SecurityConfigException("Certificate already exists in the keystore with alias: " +
-                        ks.getCertificateAlias(cert));
+                return;
             }
 
             ks.setCertificateEntry(fileName, cert);
@@ -396,16 +384,7 @@ public class KeyStoreAdmin {
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
-
-            byte[] bytes = Base64.decode(certData);
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate cert;
-            try {
-                cert = (X509Certificate) factory
-                        .generateCertificate(new ByteArrayInputStream(bytes));
-            } catch (Exception e) {
-                throw new SecurityConfigException("Invalid format of the provided certificate file", e);
-            }
+            X509Certificate cert = extractCertificate(certData);
 
             if (ks.getCertificateAlias(cert) != null) {
                 // We already have this certificate in the key store - ignore
@@ -807,10 +786,10 @@ public class KeyStoreAdmin {
     }
 
     /**
-     * Load the default trust store (allowed only for super tenant)
+     * Load the default trust store (allowed only for super tenant).
      *
      * @return trust store object
-     * @throws Exception
+     * @throws SecurityConfigException if retrieving the truststore fails.
      */
     public KeyStore getTrustStore() throws SecurityConfigException {
         //Allow only the super tenant to access the default trust store.
@@ -872,7 +851,15 @@ public class KeyStoreAdmin {
         return false;
     }
 
-    private KeyStore getKeyStore(String keyStoreName) throws Exception {
+    /**
+     * Retrieves the {@link KeyStore} object of the given keystore name.
+     *
+     * @param keyStoreName name of the keystore.
+     * @return {@link KeyStore} object.
+     * @throws Exception if retrieving the keystore fails.
+     */
+    public KeyStore getKeyStore(String keyStoreName) throws Exception {
+
         if (isTrustStore(keyStoreName)) {
             return getTrustStore();
         } else {
@@ -903,5 +890,27 @@ public class KeyStoreAdmin {
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             keyStoreManager.updateKeyStore(name, keyStore);
         }
+    }
+
+    /**
+     * Extract the encoded certificate into {@link X509Certificate}.
+     *
+     * @param certData encoded certificate.
+     * @return {@link X509Certificate} object.
+     * @throws SecurityConfigException if extracting the certificate fails.
+     */
+    public X509Certificate extractCertificate(String certData) throws SecurityConfigException {
+
+        byte[] bytes = Base64.decode(certData);
+        X509Certificate cert;
+        try {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            cert = (X509Certificate) factory
+                    .generateCertificate(new ByteArrayInputStream(bytes));
+        } catch (CertificateException e) {
+            log.error(e.getMessage(), e);
+            throw new SecurityConfigException("Invalid format of the provided certificate file");
+        }
+        return cert;
     }
 }

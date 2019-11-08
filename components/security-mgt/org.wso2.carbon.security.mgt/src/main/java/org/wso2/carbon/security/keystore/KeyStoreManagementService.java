@@ -28,61 +28,68 @@ public interface KeyStoreManagementService {
     /**
      * Retrieves the list of certificate aliases from the keystore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @param filter used to filter the result. Supports sw, ew, eq & co. eg:filter=alias+sw+wso2.
      * @return the {@link List} of alias.
      * @throws KeyStoreManagementException when retrieving the certificate aliases failed.
      */
-    List<String> getKeyStoreCertificateAliases(String filter) throws KeyStoreManagementException;
+    List<String> getKeyStoreCertificateAliases(String tenantDomain, String filter) throws KeyStoreManagementException;
 
     /**
      * Retrieves the public certificate from the keystore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @return a {@link Map} with public key alias and {@link X509Certificate}.
      * @throws KeyStoreManagementException when retrieving the public certificate.
      */
-    Map<String, X509Certificate> getPublicCertificate() throws KeyStoreManagementException;
+    Map<String, X509Certificate> getPublicCertificate(String tenantDomain) throws KeyStoreManagementException;
 
     /**
      * Retrieves the certificate of the given alias from the keystore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @param alias of the certificate.
      * @return the {@link X509Certificate}
      * @throws KeyStoreManagementException when retrieving the certificate failed.
      */
-    X509Certificate getKeyStoreCertificate(String alias) throws KeyStoreManagementException;
+    X509Certificate getKeyStoreCertificate(String tenantDomain, String alias) throws KeyStoreManagementException;
 
     /**
      * Retrieves the list of certificate aliases from the client truststore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @param filter used to filter the result. Supports sw, ew, eq & co. eg:filter=alias+sw+wso2.
      * @return the {@link List} of alias
      * @throws KeyStoreManagementException when retrieving the certificate aliases failed.
      */
-    List<String> getClientCertificateAliases(String filter) throws KeyStoreManagementException;
+    List<String> getClientCertificateAliases(String tenantDomain, String filter) throws KeyStoreManagementException;
 
     /**
      * Retrieves the certificate of the given alias from the client truststore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @param alias of the certificate.
      * @return the {@link X509Certificate}
      * @throws KeyStoreManagementException when retrieving the certificate failed.
      */
-    X509Certificate getClientCertificate(String alias) throws KeyStoreManagementException;
+    X509Certificate getClientCertificate(String tenantDomain, String alias) throws KeyStoreManagementException;
 
     /**
      * Imports the certificate to the keystore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @param alias of the certificate.
      * @param certificate the certificate to be imported.
      * @throws KeyStoreManagementException when importing the certificate failed.
      */
-    void addCertificate(String alias, String certificate) throws KeyStoreManagementException;
+    void addCertificate(String tenantDomain, String alias, String certificate) throws KeyStoreManagementException;
 
     /**
      * Deletes the certificate from the keystore.
      *
+     * @param tenantDomain tenant domain of the keystore.
      * @param alias of the certificate.
      * @throws KeyStoreManagementException when importing the certificate failed.
      */
-    void deleteCertificate(String alias) throws KeyStoreManagementException;
+    void deleteCertificate(String tenantDomain, String alias) throws KeyStoreManagementException;
 }
