@@ -34,6 +34,7 @@ import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
+import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
@@ -87,6 +88,9 @@ public class UserStoreMgtDSComponent {
 
             UserStoreManager jdbcUserStoreManager = new JDBCUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), jdbcUserStoreManager, null);
+
+            UserStoreManager uniqueIDjdbcUserStoreManager = new UniqueIDJDBCUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDjdbcUserStoreManager, null);
 
             UserStoreManager readWriteLDAPUserStoreManager = new ReadWriteLDAPUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager, null);

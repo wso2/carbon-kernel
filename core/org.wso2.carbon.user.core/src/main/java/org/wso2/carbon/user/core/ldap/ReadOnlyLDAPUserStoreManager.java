@@ -1179,11 +1179,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    public User[] doListUsersWithID(String filter, int maxItemLimit, String userNameAttribute)
+    public User[] doListUsersWithID(String filter, int maxItemLimit)
             throws UserStoreException {
 
         boolean debug = log.isDebugEnabled();
         User[] userNames = new User[0];
+        String userNameAttribute = this.getUserNameMappedAttribute();
 
         if (maxItemLimit == 0) {
             return userNames;

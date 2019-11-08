@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
 import java.sql.Connection;
@@ -665,6 +666,61 @@ public class DatabaseUtil {
             String errorMessage =
                     "Error while getting values from the database using " + getLoggableSqlString(sqlStmt, params) +
                             " and maxRows: " + maxRows + " and queryTimeout: " + queryTimeout;
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(null, rs, prepStmt);
+        }
+    }
+
+    /**
+     * Get {@link User}[] of users from the database for the given SQL query and the constraints.
+     *
+     * @param dbConnection Database {@link Connection}.
+     * @param sqlStmt      {@link String} SQL query.
+     * @param maxRows      Upper limit to the number of rows returned from the database.
+     * @param queryTimeout SQL query timeout limit in seconds. Zero means there is no limit.
+     * @param params       Values passed for the SQL query placeholders.
+     * @return {@link User}[] of results.
+     * @throws UserStoreException
+     **/
+    public static User[] getUsersFromDatabaseWithConstraints(Connection dbConnection, String sqlStmt, int maxRows,
+            int queryTimeout, Object... params) throws UserStoreException {
+
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            User[] values = null;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            if (params != null && params.length > 0) {
+                validateParameterCount(sqlStmt, params);
+                populatePreparedStatementParameters(prepStmt, params);
+            }
+
+            if (maxRows >= 0) {
+                prepStmt.setMaxRows(maxRows);
+            }
+
+            if (queryTimeout >= 0) {
+                prepStmt.setQueryTimeout(queryTimeout);
+            }
+
+            rs = prepStmt.executeQuery();
+            List<User> users = new ArrayList<>();
+
+            while (rs.next()) {
+                String userID = rs.getString(1);
+                String userName = rs.getString(2);
+                User user = new User(userID, userName, userName);
+                users.add(user);
+            }
+            if (users.size() > 0) {
+                values = users.stream().toArray(User[]::new);
+            }
+            return values == null ? new User[0] : values;
+        } catch (SQLException e) {
+            String errorMessage =
+                    "Error while getting values from the database using " + getLoggableSqlString(sqlStmt, params)
+                            + " and maxRows: " + maxRows + " and queryTimeout: " + queryTimeout;
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);

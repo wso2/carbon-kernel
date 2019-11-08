@@ -267,8 +267,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doCheckExistingUserWithID operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException("doCheckExistingUserWithID operation is not implemented in: "
-                + this.getClass());
+        throw new NotImplementedException(
+                "doCheckExistingUserWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -298,6 +298,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected abstract String[] getUserListFromProperties(String property, String value,
                                                           String profileName) throws UserStoreException;
+
+    /**
+     * Retrieves a list of user names for given user's property in user profile
+     *
+     * @param property    user property in user profile
+     * @param value       value of property
+     * @param profileName profile name, can be null. If null the default profile is considered.
+     * @return An array of user names
+     * @throws UserStoreException if the operation failed
+     */
+    protected String[] doGetUserListFromProperties(String property, String value, String profileName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserListFromProperties operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserListFromProperties operation is not implemented in: " + this.getClass());
+    }
 
     /**
      * Given the user name and a credential object, the implementation code must validate whether
@@ -838,7 +857,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return list of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected User[] doListUsersWithID(String filter, int maxItemLimit, String userNameAttribute)
+    protected User[] doListUsersWithID(String filter, int maxItemLimit)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -6873,6 +6892,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Return the list of users belong to the given role for the given filter.
+     *
+     * @param roleName     role name.
+     * @param filter       filter.
+     * @param maxItemLimit Maximum number of users in the returned array. A negative value return all users and zero
+     *                     returns zero users.
+     * @return user list of the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected User[] doGetUserListOfRoleWithID(String roleName, String filter, int maxItemLimit)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserListOfRoleWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserListOfRoleWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
      * This will return the roles list of given user ID.
      *
      * @param userID user ID.
@@ -8521,13 +8560,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         int index;
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         User[] userList;
-        String attributeName;
-
-        try {
-            attributeName = claimManager.getAttributeName(UserCoreClaimConstants.USERNAME_CLAIM_URI);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
-        }
 
         // Check whether we have a secondary UserStoreManager setup.
         if (index > 0) {
@@ -8541,7 +8573,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (secManager instanceof AbstractUserStoreManager) {
 
                     userList = ((AbstractUserStoreManager) secManager)
-                            .doListUsersWithID(filter, maxItemLimit, attributeName);
+                            .doListUsersWithID(filter, maxItemLimit);
 
                     handlePostGetUserListWithID(null, null, new ArrayList<>(Arrays.asList(userList)), true);
                     return userList;
@@ -8552,13 +8584,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } else if (index == 0) {
-            userList = doListUsersWithID(filter.substring(1), maxItemLimit, attributeName);
+            userList = doListUsersWithID(filter.substring(1), maxItemLimit);
             handlePostGetUserListWithID(null, null, new ArrayList<>(Arrays.asList(userList)), true);
             return userList;
         }
 
         try {
-            userList = doListUsersWithID(filter, maxItemLimit, attributeName);
+            userList = doListUsersWithID(filter, maxItemLimit);
         } catch (UserStoreException ex) {
             handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(), ex.getMessage()),
@@ -8577,7 +8609,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (storeManager instanceof AbstractUserStoreManager) {
                     try {
                         User[] secondUserList = ((AbstractUserStoreManager) storeManager)
-                                .doListUsersWithID(filter, maxItemLimit, attributeName);
+                                .doListUsersWithID(filter, maxItemLimit);
                         userList = (Stream.concat(Arrays.stream(userList), Arrays.stream(secondUserList)))
                                 .toArray(User[]::new);
                     } catch (UserStoreException ex) {
@@ -9426,15 +9458,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        String mappedAttribute;
-        try {
-            mappedAttribute = claimManager.getAttributeName(claimURI);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException("Error occurred while retrieving attribute name for claim: " + claimURI);
-        }
-
-        // TODO: Make sure this returns the user ID with user store domain.
-        String[] userIDs = getUserListFromProperties(mappedAttribute, claimValue, profileName);
+        String[] userIDs = getUserListInternal(claimURI, claimValue, profileName);
 
         if (userIDs.length > 1) {
             throw new UserStoreException(
@@ -9450,6 +9474,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * provides the unique user ID of the user.
+     *
+     * @return unique user ID.
+     */
+    protected String getUniqueUserID() {
+
+        return UUID.randomUUID().toString();
+    }
+
+    /**
      * provides the unique user ID of the given user.
      *
      * @param userName username of the user.
@@ -9458,8 +9492,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
 
+        // return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
         UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
         return userUniqueIDManger.getUniqueId(userName, profileName, this);
+    }
+
+    /**
+     * Get the mapped user store attribute name for the user name.
+     *
+     * @return mapped attribute for the user name.
+     * @throws UserStoreException
+     */
+    protected String getUserNameMappedAttribute() throws UserStoreException {
+
+        try {
+            return claimManager.getAttributeName(UserCoreClaimConstants.USERNAME_CLAIM_URI);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(e);
+        }
     }
 
     /**
