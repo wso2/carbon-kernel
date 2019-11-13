@@ -119,4 +119,76 @@ public class SecurityConstants {
 
     private SecurityConstants(){}
 
+    /**
+     * Contains the Keystore management service related constants.
+     */
+    public static class KeyStoreMgtConstants {
+
+        public static final String FILTER_FIELD_ALIAS = "alias";
+        public static final String FILTER_OPERATION_EQUALS = "eq";
+        public static final String FILTER_OPERATION_STARTS_WITH = "sw";
+        public static final String FILTER_OPERATION_ENDS_WITH = "ew";
+        public static final String FILTER_OPERATION_CONTAINS = "co";
+
+        public static final String SERVER_TRUSTSTORE_FILE = "Security.TrustStore.Location";
+
+        /**
+         * Enum for Keystore management service related errors.
+         */
+        public enum ErrorMessage {
+
+            /**
+             * Server errors.
+             */
+            ERROR_CODE_RETRIEVE_KEYSTORE("KSS-65001",
+                    "Unable to retrieve the keystore for tenant: %s."),
+            ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION("KSS-65002",
+                    "Unable to retrieve keystore information for keystore: %s"),
+            ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE("KSS-65003",
+                    "Unable to retrieve client truststore for tenant: %s"),
+            ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_ALIASES("KSS-65004",
+                    "Unable to retrieve the client truststore aliases for tenant: %s."),
+            ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE("KSS-65005",
+                    "Unable to retrive the client truststore certificate for alias: %s."),
+            ERROR_CODE_ADD_CERTIFICATE("KSS-65006",
+                    "Unable to add certificate with alias: %s"),
+            ERROR_CODE_DELETE_CERTIFICATE("KSS-65007",
+                    "Unable to delete certificate with alias: %s"),
+            ERROR_CODE_VALIDATE_CERTIFICATE("KSS-65008", "Error occurred while validating the " +
+                    "certificate."),
+            /**
+             * Client error.
+             */
+            ERROR_CODE_CERTIFICATE_EXISTS("KSS-60001",
+                    "Provided certificate already exists with the alias: %s"),
+            ERROR_CODE_ALIAS_EXISTS("KSS-60002",
+                    "Provided alias '%s' is already available in the keystore."),
+            ERROR_CODE_BAD_VALUE_FOR_FILTER("KSS-60003",
+                    "Unsupported filter: %s."),
+            ERROR_CODE_UNSUPPORTED_FILTER_OPERATION("KSS-60004",
+                    "Unsupported filter operation %s."),
+            ERROR_CODE_EMPTY_ALIAS("KSS-60005", "Alias value can not be null.");
+
+            private final String code;
+            private final String message;
+
+            ErrorMessage(String code, String message) {
+                this.code = code;
+                this.message = message;
+            }
+
+            public String getCode() {
+                return code;
+            }
+
+            public String getMessage() {
+                return message;
+            }
+
+            @Override
+            public String toString() {
+                return code + " : " + message;
+            }
+        }
+    }
 }
