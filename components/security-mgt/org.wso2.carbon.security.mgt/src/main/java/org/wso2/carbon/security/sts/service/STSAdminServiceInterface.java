@@ -33,6 +33,10 @@ public interface STSAdminServiceInterface {
     public void addTrustedService(String serviceAddress, String certAlias)
             throws SecurityConfigException;
 
+    default void removeTrustedService(String serviceAddress) throws SecurityConfigException {
+
+    }
+
     /**
      * @return
      * @throws SecurityConfigException
