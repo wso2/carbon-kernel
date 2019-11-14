@@ -730,6 +730,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return hybridRoleManager.getHybridRoleListOfUsers(userNames, domainName);
     }
 
+    protected Map<String, List<String>> doGetInternalRoleListOfUsersWithID(List<String> userIDs, String domainName)
+            throws UserStoreException {
+
+        if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
+            List<String> updatedUserNameList = new ArrayList<>();
+            for (String userID : userIDs) {
+                String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
+                    Map<String, String> map = getUserPropertyValues(userID, new String[] { userNameAttribute }, null);
+                    String tempUserName = map.get(userNameAttribute);
+                    if (tempUserName != null) {
+                        updatedUserNameList.add(tempUserName);
+                        if (log.isDebugEnabled()) {
+                            log.debug(
+                                    "Replaced user name : " + userID + " from user property value : " + tempUserName);
+                        }
+                    } else {
+                        updatedUserNameList.add(userID);
+                    }
+                } else {
+                    updatedUserNameList.add(userID);
+                }
+            }
+            userIDs = updatedUserNameList;
+        }
+
+        return hybridRoleManager.getHybridRoleListOfUsers(userIDs, domainName);
+    }
+
     /**
      * Only gets the external roles of the user.
      *
@@ -1641,6 +1670,33 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * user list.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param claim        Claim URI.
+     * @param claimValue   Claim Value.
+     * @param limit        No of search records.
+     * @param offset       Start index of the search.
+     * @param profileName  Name of the profile.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleGetUserListFailureWithID(String errorCode, String errorMessage, String claim, String claimValue,
+            int limit, int offset, String profileName) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener)
+                    .onGetUserListFailureWithID(errorCode, errorMessage, claim, claimValue, limit, offset, profileName,
+                            this)) {
+                return;
+            }
+        }
+    }
+
     private void handleGetUserListFailure(String errorCode, String errorMassage, Condition condition, String domain,
             String profileName, int limit, int offset, String sortBy, String sortOrder) throws UserStoreException {
 
@@ -1649,6 +1705,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
                     && !listener
                     .onGetUserListFailure(errorCode, errorMassage, condition, domain, profileName, limit, offset,
+                            sortBy, sortOrder, this)) {
+                return;
+            }
+        }
+    }
+
+    private void handleGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition,
+            String domain, String profileName, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener)
+                    .onGetUserListFailureWithID(errorCode, errorMassage, condition, domain, profileName, limit, offset,
                             sortBy, sortOrder, this)) {
                 return;
             }
@@ -1680,6 +1751,31 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * paginated user list.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param claim        Claim URI.
+     * @param claimValue   Claim Value.
+     * @param profileName  Name of the profile.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleGetPaginatedUserListFailureWithID(String errorCode, String errorMessage, String claim,
+            String claimValue, String profileName) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener)
+                    .onGetPaginatedUserListFailureWithID(errorCode, errorMessage, claim, claimValue, profileName,
+                            this)) {
+                return;
+            }
+        }
+    }
+
+    /**
      * This method is responsible for calling the relevant methods when there is a failure while trying to list the
      * paginated users.
      *
@@ -1697,6 +1793,30 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
                     && !listener.onListUsersFailure(errorCode, errorMessage, filter, limit, offset, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to list the
+     * paginated users.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param filter       Username Filter.
+     * @param limit        No of search results.
+     * @param offset       Start index of the search.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleListPaginatedUsersFailureWithID(String errorCode, String errorMessage, String filter, int limit,
+            int offset) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                    && !((AbstractUserManagementErrorListener) listener)
+                    .onListUsersFailureWithID(errorCode, errorMessage, filter, limit, offset, this)) {
                 return;
             }
         }
@@ -1803,6 +1923,42 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * To call the postGetUserList of relevant listeners.
+     *
+     * @param claim            Claim requested.
+     * @param claimValue       Claim values.
+     * @param filteredUserList List of filtered users.
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param isAuditLogOnly   To indicate whether to call only audit log listener.
+     * @throws UserStoreException User Store Exception.
+     */
+    private void handlePostGetUserListWithID(String claim, String claimValue, List<User> filteredUserList, int limit,
+            int offset, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isAuditLogOnly && !listener.getClass().getName()
+                            .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                        continue;
+                    }
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener
+                            .doPostGetUserListWithID(claim, claimValue, filteredUserList, limit, offset, this)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_LIST.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_LIST.getMessage(),
+                            ex.getMessage()), claim, claimValue, limit, offset, null);
+            throw ex;
+        }
+    }
+
     private void handlePostGetUserList(Condition condition, String domain, String profileName, int limit, int offset,
                                        String sortBy, String sortOrder, String[] users, boolean isAuditLogOnly)
             throws UserStoreException {
@@ -1829,6 +1985,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    private void handlePostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
+            int offset, String sortBy, String sortOrder, User[] users, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isAuditLogOnly && !listener.getClass().getName()
+                            .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                        continue;
+                    }
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener
+                            .doPostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder,
+                                    users, this)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserListFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST.getMessage(),
+                            ex.getMessage()), condition, domain, profileName, limit, offset, sortBy, sortOrder);
+            throw ex;
+        }
+    }
+
     private void handlePreGetUserList(Condition condition, String domain, String profileName, int limit, int offset,
                                       String sortBy, String sortOrder) throws UserStoreException {
 
@@ -1844,6 +2028,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                         .getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST
                                                 .getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), condition, domain,
+                                profileName, limit, offset, sortBy, sortOrder);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getMessage(),
+                            ex.getMessage()), condition, domain,
+                    profileName, limit, offset, sortBy, sortOrder);
+            throw ex;
+        }
+    }
+
+    private void handlePreGetUserListWithID(Condition condition, String domain, String profileName, int limit,
+            int offset,
+            String sortBy, String sortOrder) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent
+                    .getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPreGetUserListWithID(condition, domain, profileName, limit, offset, sortBy,
+                            sortOrder, this)) {
+
+                        handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getMessage(),
                                         UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), condition, domain,
                                 profileName, limit, offset, sortBy, sortOrder);
                         break;
@@ -1915,6 +2128,40 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
                     if (!newListener.doPostListUsers(filter, limit, offset, filteredUserList, this)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleListPaginatedUsersFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_LIST_PAGINATED_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_LIST_PAGINATED_USER.getMessage(),
+                            ex.getMessage()), filter, limit, offset);
+            throw ex;
+        }
+    }
+
+    /**
+     * To call the List paginated users of relevant listeners.
+     *
+     * @param filter           Username filter.
+     * @param limit            No of search results.
+     * @param offset           start index of the search.
+     * @param filteredUserList List of filtered users.
+     * @param isAuditLogOnly   To indicate whether to call only audit log listener.
+     * @throws UserStoreException User Store Exception.
+     */
+    private void handlePostListPaginatedUsersWithID(String filter, int limit, int offset, List<User> filteredUserList,
+            boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isAuditLogOnly && !listener.getClass().getName()
+                            .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                        continue;
+                    }
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPostListUsersWithID(filter, limit, offset, filteredUserList, this)) {
                         break;
                     }
                 }
@@ -7838,6 +8085,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return externalRoleListOfUsers;
     }
 
+    protected Map<String, List<String>> doGetExternalRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException {
+
+        Map<String, List<String>> externalRoleListOfUsers = new HashMap<>();
+        for (String userID : userIDs) {
+            String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, null);
+            if (!ArrayUtils.isEmpty(externalRoles)) {
+                externalRoleListOfUsers.put(userID, Arrays.asList(externalRoles));
+            }
+        }
+        return externalRoleListOfUsers;
+    }
+
     @Override
     public UserClaimSearchEntry[] getUsersClaimValues(String[] userNames, String[] claims, String profileName) throws
             UserStoreException {
@@ -8235,6 +8494,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return new PaginatedSearchResult();
     }
 
+    protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
+            int offset, String sortBy, String sortOrder) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserListWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doGetUserListWithID operation is not implemented in: " + this.getClass());
+    }
+
 
     @Override
     public String[] listUsers(String filter, int limit, int offset) throws UserStoreException {
@@ -8334,6 +8602,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return new PaginatedSearchResult();
     }
 
+    protected UniqueIDPaginatedSearchResult doListUsersWithID(String filter, int limit, int offset)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doListUsersWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doListUsersWithID operation is not implemented in: " + this.getClass());
+    }
+
     /**
      * Get the count of Roles having a matching user name for the filter.
      *
@@ -8349,6 +8626,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             limit, int offset) throws UserStoreException {
 
         return new PaginatedSearchResult();
+    }
+
+    protected UniqueIDPaginatedSearchResult doGetUserListFromPropertiesWithID(String property, String value, String profileName,
+            int limit, int offset) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserListFromPropertiesWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserListFromPropertiesWithID operation is not implemented in: " + this.getClass());
     }
 
     private void validateCondition(Condition condition) throws UserStoreException {
@@ -11535,6 +11822,552 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             addToIsUserHasRole(modifiedUserName, roleName, roles);
         }
         return success;
+    }
+
+    @Override
+    public User[] listUsersWithID(String filter, int limit, int offset) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, int.class, int.class };
+            Object object = callSecure("listUsersWithID", new Object[] { filter, limit, offset }, argTypes);
+            return (User[]) object;
+        }
+
+        int index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        UniqueIDPaginatedSearchResult userList;
+        User[] users = new User[0];
+
+        if (offset <= 0) {
+            offset = 1;
+        }
+
+        if (index > 0) {
+            String domain = filter.substring(0, index);
+
+            UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+            if (secManager != null) {
+                // Secondary UserStoreManager registered for this domain.
+                filter = filter.substring(index + 1);
+                if (secManager instanceof AbstractUserStoreManager) {
+                    userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, limit, offset);
+                    handlePostListPaginatedUsersWithID(filter, limit, offset,
+                            new ArrayList<>(Arrays.asList(userList.getUsers())), true);
+                    return userList.getUsers();
+                }
+            }
+        } else if (index == 0) {
+            userList = doListUsersWithID(filter.substring(1), limit, offset);
+            handlePostListPaginatedUsersWithID(filter, limit, offset,
+                    new ArrayList<>(Arrays.asList(userList.getUsers())), true);
+            return userList.getUsers();
+        }
+
+        try {
+            userList = doListUsersWithID(filter, limit, offset);
+            users = (Stream.concat(Arrays.stream(users), Arrays.stream(userList.getUsers()))).toArray(User[]::new);
+            limit = limit - users.length;
+        } catch (UserStoreException ex) {
+            handleGetPaginatedUserListFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getMessage(),
+                            ex.getMessage()), null, null, null);
+            throw ex;
+        }
+
+        String primaryDomain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+        int nonPaginatedUserCount = userList.getSkippedUserCount();
+        if (this.getSecondaryUserStoreManager() != null) {
+            for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+                if (limit <= 0) {
+                    return users;
+                }
+                if (entry.getKey().equalsIgnoreCase(primaryDomain)) {
+                    continue;
+                }
+                UserStoreManager storeManager = entry.getValue();
+                if (storeManager instanceof AbstractUserStoreManager) {
+                    try {
+
+                        if (userList.getUsers().length > 0) {
+                            offset = 1;
+                        } else {
+                            offset = offset - nonPaginatedUserCount;
+                        }
+                        UniqueIDPaginatedSearchResult secondUserList = ((AbstractUserStoreManager) storeManager)
+                                .doListUsersWithID(filter, limit, offset);
+                        nonPaginatedUserCount = secondUserList.getSkippedUserCount();
+                        users = (Stream.concat(Arrays.stream(users), Arrays.stream(secondUserList.getUsers())))
+                                .toArray(User[]::new);
+                        limit = limit - users.length;
+                    } catch (UserStoreException ex) {
+                        handleGetPaginatedUserListFailure(
+                                ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_LISTING_PAGINATED_USERS.getMessage(),
+                                        ex.getMessage()), null, null, null);
+
+                        // We can ignore and proceed. Ignore the results from this user store.
+                        log.error(ex);
+                    }
+                }
+            }
+        }
+
+        handlePostListPaginatedUsersWithID(filter, limit, offset, new ArrayList<>(Arrays.asList(users)), true);
+        return users;
+    }
+
+    @Override
+    public User[] getUserListWithID(String claim, String claimValue, String profileName, int limit, int offset)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class, String.class, int.class, int.class };
+            Object object = callSecure("getUserListWithID",
+                    new Object[] { claim, claimValue, profileName, limit, offset }, argTypes);
+            return (User[]) object;
+        }
+
+        if (claim == null) {
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getMessage(), "");
+            handleGetUserListFailureWithID(errorCode, errorMessage, null, claimValue, limit, offset, profileName);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.toString());
+        }
+
+        if (claimValue == null) {
+            handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_INVALID_CLAIM_VALUE.getCode(), ErrorMessages.
+                    ERROR_CODE_INVALID_CLAIM_VALUE.getMessage(), claim, null, limit, offset, profileName);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_INVALID_CLAIM_VALUE.toString());
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Listing and paginate users who having value as " + claimValue + " for the claim " + claim);
+        }
+
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)
+                || SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)) {
+
+            if (log.isDebugEnabled()) {
+                log.debug("Switching to paginate users using username");
+            }
+
+            User[] filteredUsers = listUsersWithID(claimValue, limit, offset);
+            return filteredUsers;
+        }
+
+        // Extracting the domain from claimValue.
+        String extractedDomain = null;
+        int index;
+        index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index > 0) {
+            String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
+            extractedDomain = names[0].trim();
+        }
+
+        UserStoreManager userManager = null;
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            userManager = getSecondaryUserStoreManager(extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                        + " for the given domain name.");
+            }
+        }
+
+        claimValue = UserCoreUtil.removeDomainFromName(claimValue);
+
+        final List<User> filteredUserList = new ArrayList<>();
+
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            try {
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    if (listener instanceof AbstractUserOperationEventListener) {
+                        AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                        if (!newListener.doPreGetUserListWithID(claim, claimValue, limit, offset, filteredUserList,
+                                userManager)) {
+                            handleGetUserListFailureWithID(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), claim,
+                                    claimValue, limit, offset, profileName);
+                            break;
+                        }
+                    }
+                }
+            } catch (UserStoreException ex) {
+                handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                ex.getMessage()), claim, claimValue, limit, offset, profileName);
+                throw ex;
+            }
+        }
+
+        // Iterate through user stores and check for users for this claim.
+        List<User> usersFromUserStore = doGetUserListWithID(claim, claimValue, profileName, limit, offset,
+                extractedDomain, userManager);
+        if (log.isDebugEnabled()) {
+            log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore);
+        }
+        filteredUserList.addAll(usersFromUserStore);
+
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            handlePostGetUserListWithID(claim, claimValue, filteredUserList, limit, offset, false);
+        }
+
+        return filteredUserList.stream().toArray(User[]::new);
+    }
+
+    @Override
+    public User[] getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
+            String sortBy, String sortOrder) throws UserStoreException {
+
+        validateCondition(condition);
+        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
+            throw new UserStoreException("Sorting is not supported.");
+        }
+
+        if (StringUtils.isEmpty(domain)) {
+            domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+
+        if (StringUtils.isEmpty(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        handlePreGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Pre listener get conditional  user list for domain: " + domain);
+        }
+
+        User[] filteredUsers = new User[0];
+        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+        if (secManager != null) {
+            if (secManager instanceof AbstractUserStoreManager) {
+                UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
+                        .doGetUserListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
+                filteredUsers = users.getUsers();
+            }
+        }
+
+        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
+                false);
+
+        if (log.isDebugEnabled()) {
+            log.debug("post listener get conditional  user list for domain: " + domain);
+        }
+        return filteredUsers;
+    }
+
+    private List<User> doGetUserListWithID(String claim, String claimValue, String profileName, int limit, int offset,
+            String extractedDomain, UserStoreManager userManager) throws UserStoreException {
+
+        String property;
+
+        // If domain is present, then we search within that domain only.
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+
+            if (userManager == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No user store manager found for domain: " + extractedDomain);
+                }
+                return Collections.emptyList();
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Domain found in claim value. Searching only in the " + extractedDomain + " for possible "
+                        + "matches");
+            }
+
+            try {
+                property = claimManager.getAttributeName(extractedDomain, claim);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                e.getMessage()), claim, claimValue, limit, offset, profileName);
+                throw new UserStoreException(
+                        "Error occurred while retrieving attribute name for domain : " + extractedDomain + " and claim "
+                                + claim, e);
+            }
+            if (property == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not find matching property for\n" + "claim :" + claim + "domain :"
+                            + extractedDomain);
+                }
+                return Collections.emptyList();
+            }
+
+            if (userManager instanceof AbstractUserStoreManager) {
+                // Get the user list and return with domain appended.
+                try {
+                    AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
+                    UniqueIDPaginatedSearchResult result = userStoreManager
+                            .doGetUserListFromPropertiesWithID(property, claimValue, profileName, limit, offset);
+                    if (log.isDebugEnabled()) {
+                        log.debug("List of filtered paginated users for: " + extractedDomain + " : " + Arrays
+                                .asList(result.getUsers()));
+                    }
+                    return Arrays.asList(result.getUsers());
+                } catch (UserStoreException ex) {
+                    handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
+                                    ex.getMessage()), claim, claimValue, limit, offset, profileName);
+                    throw ex;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "getUserListFromProperties is not supported by this user store: " + userManager.getClass());
+                }
+                return Collections.emptyList();
+            }
+        }
+
+        // If domain is not given then search all the user stores.
+        if (log.isDebugEnabled()) {
+            log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
+        }
+
+        List<User> usersFromAllStoresList = new ArrayList<>();
+        List<UserStoreManager> userStoreManagers = getUserStoreMangers();
+        int nonPaginatedUserCount = 0;
+
+        // Iterate through all of available user store managers.
+        for (UserStoreManager userStoreManager : userStoreManagers) {
+
+            // If this is not an instance of Abstract User Store Manger we can ignore the flow since we can't get the
+            // domain name.
+            if (!(userStoreManager instanceof AbstractUserStoreManager)) {
+                continue;
+            }
+
+            if (limit <= 0) {
+                return usersFromAllStoresList;
+            }
+
+            // For all the user stores append the domain name to the claim and pass it recursively (Including PRIMARY).
+            String domainName = ((AbstractUserStoreManager) userStoreManager).getMyDomainName();
+
+            try {
+                property = claimManager.getAttributeName(domainName, claim);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                e.getMessage()), claim, claimValue, limit, offset, profileName);
+                throw new UserStoreException(
+                        "Error occurred while retrieving attribute name for domain : " + extractedDomain + " and claim "
+                                + claim, e);
+            }
+
+            // Recursively call the getUserList method appending the domain to claim value.
+            UniqueIDPaginatedSearchResult userList = doGetUserListFromPropertiesWithID(property, claimValue,
+                    profileName, limit, offset);
+            if (log.isDebugEnabled()) {
+                log.debug("Secondary user list for domain: " + domainName + " : " + userList);
+            }
+            limit = limit - userList.getUsers().length;
+            nonPaginatedUserCount = userList.getSkippedUserCount();
+
+            if (userList.getUsers().length > 0) {
+                offset = 1;
+            } else {
+                offset = offset - nonPaginatedUserCount;
+            }
+
+            usersFromAllStoresList.addAll(Arrays.asList(userList.getUsers()));
+        }
+
+        // Done with all user store processing. Return the user array if not empty.
+        return usersFromAllStoresList;
+    }
+
+    @Override
+    public UserClaimSearchEntry[] getUsersClaimValuesWithID(String[] userIDs, String[] claims, String profileName)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String[].class, String[].class, String.class };
+            Object object = callSecure("getUsersClaimValuesWithID", new Object[] { userIDs, claims, profileName },
+                    argTypes);
+            return (UserClaimSearchEntry[]) object;
+        }
+
+        if (StringUtils.isEmpty(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        UserClaimSearchEntry[] allUsers = new UserClaimSearchEntry[0];
+        Map<String, List<String>> domainFreeUsers = getDomainFreeUsersWithID(userIDs);
+
+        for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
+            if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                        .doGetUsersClaimValuesWithID(entry.getValue(), claims, entry.getKey(), profileName);
+                allUsers = (UserClaimSearchEntry[]) ArrayUtils.addAll(users, allUsers);
+            }
+        }
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof AbstractUserOperationEventListener) {
+                AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                if (!newListener.doPostGetUsersClaimValuesWithID(userIDs, claims, profileName, allUsers)) {
+                    break;
+                }
+            }
+        }
+
+        return allUsers;
+    }
+
+    public UserClaimSearchEntry[] doGetUsersClaimValuesWithID(List<String> userIDs, String[] claims, String domainName,
+            String profileName) throws UserStoreException {
+
+        Set<String> propertySet = new HashSet<>();
+        Map<String, String> claimToAttributeMap = new HashMap<>();
+        List<UserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
+        for (String claim : claims) {
+            String property;
+            try {
+                property = getClaimAtrribute(claim, null, domainName);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
+            propertySet.add(property);
+            claimToAttributeMap.put(claim, property);
+        }
+
+        String[] properties = propertySet.toArray(new String[0]);
+        Map<String, Map<String, String>> userProperties = this
+                .getUsersPropertyValuesWithID(userIDs, properties, profileName);
+
+        for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
+            UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
+            userClaimSearchEntry.setUserName(UserCoreUtil.addDomainToName(entry.getKey(), domainName));
+            Map<String, String> userClaims = new HashMap<>();
+
+            for (String claim : claims) {
+                for (Map.Entry<String, String> userAttribute : entry.getValue().entrySet()) {
+                    if (claimToAttributeMap.get(claim) != null && claimToAttributeMap.get(claim)
+                            .equals(userAttribute.getKey())) {
+                        userClaims.put(claim, userAttribute.getValue());
+                    }
+                }
+            }
+            userClaimSearchEntry.setClaims(userClaims);
+            userClaimSearchEntryList.add(userClaimSearchEntry);
+
+        }
+
+        return userClaimSearchEntryList.stream().toArray(UserClaimSearchEntry[]::new);
+    }
+
+    private Map<String, List<String>> getDomainFreeUsersWithID(String[] userIDs) {
+
+        Map<String, List<String>> domainAwareUsers = new HashMap<>();
+        if (ArrayUtils.isNotEmpty(userIDs)) {
+            for (String userID : userIDs) {
+                String domainName = UserCoreUtil.extractDomainFromName(userID);
+                if (StringUtils.isEmpty(domainName)) {
+                    domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+
+                List<String> users = domainAwareUsers.get(domainName);
+                if (users == null) {
+                    users = new ArrayList<>();
+                    domainAwareUsers.put(domainName.toUpperCase(), users);
+                }
+                users.add(UserCoreUtil.removeDomainFromName(userID));
+            }
+        }
+
+        return domainAwareUsers;
+    }
+
+    protected Map<String, Map<String, String>> getUsersPropertyValuesWithID(List<String> userIDs,
+            String[] propertyNames, String profileName) throws UserStoreException {
+
+        Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
+        for (String userID : userIDs) {
+            Map<String, String> propertyValuesMap = getUserPropertyValuesWithID(userID, propertyNames, profileName);
+            if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
+                usersPropertyValuesMap.put(userID, propertyValuesMap);
+            }
+        }
+        return usersPropertyValuesMap;
+    }
+
+    @Override
+    public Map<String, List<String>> getRoleListOfUsersWithID(String[] userIDs) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String[].class };
+            Object object = callSecure("getRoleListOfUsersWithID", new Object[] { userIDs }, argTypes);
+            return (Map<String, List<String>>) object;
+        }
+
+        Map<String, List<String>> allRoleNames = new HashMap<>();
+        Map<String, List<String>> domainFreeUsers = getDomainFreeUsersWithID(userIDs);
+
+        for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
+            if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                Map<String, List<String>> roleNames = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                        .doGetRoleListOfUsersWithID(entry.getValue(), entry.getKey());
+                allRoleNames.putAll(roleNames);
+            }
+        }
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof AbstractUserOperationEventListener) {
+                AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                if (!newListener.doPostGetRoleListOfUsersWithID(userIDs, allRoleNames)) {
+                    break;
+                }
+            }
+        }
+
+        return allRoleNames;
+    }
+
+    public Map<String, List<String>> doGetRoleListOfUsersWithID(List<String> userIDs, String domainName)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { List.class, String.class };
+            Object object = callSecure("doGetRoleListOfUsersWithID", new Object[] { userIDs, domainName }, argTypes);
+            return (Map<String, List<String>>) object;
+        }
+
+        Map<String, List<String>> internalRoles = doGetInternalRoleListOfUsersWithID(userIDs, domainName);
+
+        Map<String, List<String>> externalRoles = new HashMap<>();
+        if (readGroupsEnabled) {
+            externalRoles = doGetExternalRoleListOfUsers(userIDs);
+        }
+
+        Map<String, List<String>> combinedRoles = new HashMap<>();
+        if (!internalRoles.isEmpty() && !externalRoles.isEmpty()) {
+            for (String userName : userIDs) {
+                List<String> roles = new ArrayList<>();
+                if (internalRoles.get(userName) != null) {
+                    roles.addAll(internalRoles.get(userName));
+                }
+                if (externalRoles.get(userName) != null) {
+                    roles.addAll(externalRoles.get(userName));
+                }
+                if (!roles.isEmpty()) {
+                    combinedRoles.put(userName, roles);
+                }
+            }
+        } else if (!internalRoles.isEmpty()) {
+            combinedRoles = internalRoles;
+        } else if (!externalRoles.isEmpty()) {
+            combinedRoles = externalRoles;
+        }
+
+        return combinedRoles;
     }
 
 }

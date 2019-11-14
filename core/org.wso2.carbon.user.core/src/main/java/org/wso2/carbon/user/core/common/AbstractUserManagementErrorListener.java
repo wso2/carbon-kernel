@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserManagementErrorEventListener;
+import org.wso2.carbon.user.core.model.Condition;
 
 import java.util.Map;
 
@@ -260,9 +261,23 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
     }
 
     @Override
-    public boolean onGetUserFailureWithID(String errorCode, String errorMessage, String userID, String[] requestedClaims,
-            String profileName,
+    public boolean onGetUserListFailureWithID(String errorCode, String errorMessage, String claim, String claimValue,
+            int limit, int offset, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition, String domain,
+            String profileName, int limit, int offset, String sortBy, String sortOrder,
             UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onGetUserFailureWithID(String errorCode, String errorMessage, String userID,
+            String[] requestedClaims, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -270,6 +285,20 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
     @Override
     public boolean onUpdatePermissionsOfRoleFailureWithID(String errorCode, String errorMessage, String roleName,
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onGetPaginatedUserListFailureWithID(String errorCode, String errorMessage, String claim,
+            String claimValue, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onListUsersFailureWithID(String errorCode, String errorMessage, String filter, int limit, int offset,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
