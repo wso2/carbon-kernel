@@ -21,7 +21,7 @@ public class UniqueIDPaginatedSearchResult {
 
     private User[] users;
 
-    //This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
+    // This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
     // required to know how many users skipped in that user store to identify the start index of next user store.
     private int skippedUserCount;
 

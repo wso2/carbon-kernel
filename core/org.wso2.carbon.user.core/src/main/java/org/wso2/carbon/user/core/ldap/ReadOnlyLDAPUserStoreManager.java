@@ -37,6 +37,8 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.FailureReason;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
@@ -394,30 +396,40 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    public User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue, Object credential,
-            String profileName) throws UserStoreException {
+    public AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
+                                                     Object credential, String profileName) throws UserStoreException {
 
+        AuthenticationResult authenticationResult;
         User user = null;
         String[] users = getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
 
         if (ArrayUtils.isEmpty(users)) {
-
             if (log.isDebugEnabled()) {
                 log.debug("Invalid scenario. No users found for the given username property: " + preferredUserNameValue
                         + " and value: " + preferredUserNameValue);
             }
-            return null;
-        } else if (users.length > 1) {
 
+            FailureReason failureReason = new FailureReason();
+            failureReason.setFailureReason("Invalid scenario. No users found for the given username property: "
+                    + preferredUserNameValue + " and value: " + preferredUserNameValue);
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(failureReason);
+            return authenticationResult;
+        } else if (users.length > 1) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid scenario. Multiple users found for the given username property: "
                         + preferredUserNameValue + " and value: " + preferredUserNameValue);
             }
-            return null;
+
+            FailureReason failureReason = new FailureReason();
+            failureReason.setFailureReason("Invalid scenario. Multiple users found for the given username property: "
+                    + preferredUserNameValue + " and value: " + preferredUserNameValue);
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(failureReason);
+            return authenticationResult;
         }
 
         if (doAuthenticate(users[0], credential)) {
-
             RealmService realmService = UserCoreUtil.getRealmService();
             String userName = getUserClaimValue(users[0], UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
             user = new User(users[0], userName, preferredUserNameProperty);
@@ -428,7 +440,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 throw new UserStoreException(e);
             }
         }
-        return user;
+
+        authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
+        authenticationResult.setAuthenticatedUser(user);
+        return authenticationResult;
     }
 
     /**
@@ -615,7 +630,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String profileName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         return getUserPropertyValuesInternal(userName, propertyNames);
@@ -895,7 +910,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public boolean doCheckExistingUser(String userName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             return doCheckExistingUserWithUserNameAttribute(userName);
         }
         return doCheckExistingUserInternal(userName);
@@ -1982,7 +1997,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     @Override
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
 
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             String[] userIDs = doGetUserListOfRoleInternal(roleName, filter);
             List<String> userNames = new ArrayList<>();
             for (String userID : userIDs) {
@@ -2322,7 +2337,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
 
@@ -2503,7 +2518,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         return doGetExternalRoleListOfUserInternal(userName, filter);
@@ -2528,7 +2543,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         return doGetSharedRoleListOfUserInternal(userName, tenantDomain, filter);
@@ -3725,7 +3740,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         return doCheckIsUserInRoleInternal(userName, roleName);
@@ -3967,7 +3982,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public Date  getPasswordExpirationTime(String userName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         if (userName != null && userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {

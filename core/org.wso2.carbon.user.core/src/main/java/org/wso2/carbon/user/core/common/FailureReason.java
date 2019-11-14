@@ -25,6 +25,10 @@ public class FailureReason implements Serializable {
     private static final long serialVersionUID = -6145060819120072849L;
     private String failureReason;
 
+    public FailureReason(String failureReason) {
+        this.failureReason = failureReason;
+    }
+
     public String getFailureReason() {
 
         return failureReason;
