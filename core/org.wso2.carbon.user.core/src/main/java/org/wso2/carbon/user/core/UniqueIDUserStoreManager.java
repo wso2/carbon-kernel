@@ -21,8 +21,11 @@ package org.wso2.carbon.user.core;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -331,5 +334,68 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean isUserInRoleWithID(String userID, String roleName) throws UserStoreException;
+
+    /**
+     * Retrieves a list of paginated user names.
+     *
+     * @param filter The string to filter out user.
+     * @param limit  No of search results. If the given value is greater than the system configured max limit
+     *               it will be reset to the system configured max limit.
+     * @param offset Start index of the user search.
+     * @return An array of user names.
+     * @throws UserStoreException User Store Exception.
+     */
+    User[] listUsersWithID(String filter, int limit, int offset) throws UserStoreException;
+
+    /**
+     * Retrieves a list of paginated user names from user claims.
+     *
+     * @param claim       Claim URI. If the claim uri is domain qualified, search the users respective user store. Else
+     *                    search recursively.
+     * @param claimValue  Claim value.
+     * @param profileName User profile name.
+     * @param limit       No of search results. If the given value is greater than the system configured max limit
+     *                    it will be reset to the system configured max limit.
+     * @param offset      Start index of the user search.
+     * @return An array of user names.
+     * @throws UserStoreException User Store Exception.
+     */
+    User[] getUserListWithID(String claim, String claimValue, String profileName, int limit, int offset)
+            throws UserStoreException;
+
+    /**
+     * Retrieves a list of paginated user names conditionally.
+     *
+     * @param condition   Conditional filter.
+     * @param profileName User profile name.
+     * @param domain      User Store Domain.
+     * @param limit       No of search results. If the given value is greater than the system configured max limit
+     *                    it will be reset to the system configured max limit.
+     * @param offset      Start index of the user search.
+     * @return An array of user names.
+     * @throws UserStoreException User Store Exception.
+     */
+    User[] getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
+            String sortBy, String sortOrder) throws UserStoreException;
+
+    /**
+     * Get claim values of users.
+     *
+     * @param userIDs User IDs.
+     * @param claims  Required claims.
+     * @return User claim search entry set.
+     * @throws UserStoreException User Store Exception.
+     */
+    UserClaimSearchEntry[] getUsersClaimValuesWithID(String[] userIDs, String[] claims, String profileName)
+            throws UserStoreException;
+
+    /**
+     * Get roles of a users.
+     *
+     * @param userIDs user IDs.
+     * @return A map contains a list of role names each user belongs.
+     * @throws UserStoreException User Store Exception.
+     */
+    Map<String, List<String>> getRoleListOfUsersWithID(String[] userIDs) throws UserStoreException;
 
 }

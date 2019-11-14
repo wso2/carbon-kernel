@@ -194,33 +194,45 @@ public class JDBCUserStoreConstants {
 
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "");
-        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_ID, "Select User ID SQL",
-                JDBCRealmConstants.SELECT_USER_ID_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_WITH_ID, "Select User ID SQL",
+                JDBCRealmConstants.SELECT_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, "Select User SQL With " +
-                "Case Insensitivie Username", JDBCCaseInsensitiveConstants.SELECT_USER_SQL_CASE_INSENSITIVE, "");
+                "Case Insensitive Username", JDBCCaseInsensitiveConstants.SELECT_USER_SQL_CASE_INSENSITIVE, "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_CASE_INSENSITIVE,
+                "Select User With ID SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty("GetRoleListSQL", "Get Role List SQL", "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE " +
                 "UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME", "");
         setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Role List SQP", JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER, "User Filter SQL", JDBCRealmConstants.GET_USER_FILTER_SQL, "");
-        setAdvancedProperty(JDBCRealmConstants.GET_USER_ID_FILTER, "User ID Filter SQL",
-                JDBCRealmConstants.GET_USER_ID_FILTER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ID, "User ID Filter SQL",
+                JDBCRealmConstants.GET_USER_FILTER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE, "User Filter SQL With Escape",
                 JDBCRealmConstants.GET_USER_FILTER_SQL_WITH_ESCAPE, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE, "User Filter SQL With" +
                         " Case Insensitive Username", JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE,
                 "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE,
+                "User Filter With " + "ID SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE,
                 "User Filter " + "SQL With Case Insensitive Username With Escape",
                 JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE_WITH_ESCAPE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USER_ROLE, "User Role SQL", JDBCRealmConstants.GET_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_ROLE_WITH_ID, "User Role With ID SQL",
+                JDBCRealmConstants.GET_USER_ROLE_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_ROLE_EXIST, "User Role Exist SQL",
                 JDBCRealmConstants.GET_IS_USER_ROLE_EXIST_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_ROLE_EXIST_WITH_ID, "User Role Exist With ID SQL",
+                JDBCRealmConstants.GET_IS_USER_ROLE_EXIST_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE, "User Role SQL With " +
                 "Case Insensitive Username", JDBCCaseInsensitiveConstants.GET_USER_ROLE_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_EXIST_CASE_INSENSITIVE,
                 "User Role Exist " + "SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.GET_USER_ROLE_EXIST_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER, "User Shared Role SQL", JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_WITH_ID, "User Shared Role With ID SQL",
+                JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE, "User " +
                 "Shared Role SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_SHARED_ROLES_FOR_USER_SQL_CASE_INSENSITIVE, "");
@@ -230,63 +242,103 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_ROLE, "Get User List Of Role SQL", JDBCRealmConstants.GET_USERS_IN_ROLE_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER, "Get User List Of Role Filter SQL",
                 JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER_WITH_ID,
+                "Get User List Of Role Filter SQL With ID", JDBCRealmConstants.GET_USERS_IN_ROLE_FILTER_WITH_ID_SQL,
+                "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE, "Get User List Of Shared Role SQL", JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER, "Get User List Of Shared Role " +
                         "Filter SQL", JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER_SQL, "");
-
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER_WITH_ID, "Get User List Of Shared Role " +
+                "Filter With ID SQL", JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_EXISTING, "Is User Existing SQL", JDBCRealmConstants.GET_IS_USER_EXISTING_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_EXISTING_WITH_ID, "Is User Existing SQL With ID",
+                JDBCRealmConstants.GET_IS_USER_EXISTING_WITH_ID_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_NAME_EXISTING, "Is User name Existing SQL",
+                JDBCRealmConstants.GET_IS_USER_NAME_EXISTING_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE, "Is User " +
                 "Existing SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_IS_USER_EXISTING_SQL_CASE_INSENSITIVE, "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE, "Is User name "
+                + "Existing SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
+                .GET_IS_USER_NAME_EXISTING_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROPS_FOR_PROFILE, "Get User Properties for Profile SQL", JDBCRealmConstants.GET_PROPS_FOR_PROFILE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROPS_FOR_PROFILE_WITH_ID,
+                "Get User Properties for Profile SQL With ID", JDBCRealmConstants.GET_PROPS_FOR_PROFILE_WITH_ID_SQL,
+                "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE, "Get User " +
                 "Properties for Profile SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROP_FOR_PROFILE, "Get User Property for Profile SQL", JDBCRealmConstants.GET_PROP_FOR_PROFILE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROP_FOR_PROFILE_WITH_ID,
+                "Get User Property for Profile With ID SQL", JDBCRealmConstants.GET_PROP_FOR_PROFILE_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_PROP_FOR_PROFILE_CASE_INSENSITIVE, "Get User " +
                 "Property for Profile SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_PROP_FOR_PROFILE_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP, "Get User List for Property SQL", JDBCRealmConstants.GET_USERS_FOR_PROP_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID, "Get User List for Property With ID SQL",
+                JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES, "Get Profile Names SQL", JDBCRealmConstants.GET_PROFILE_NAMES_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER, "Get User Profile Names SQL", JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER_WITH_ID, "Get User Profile Names SQL With ID",
+                JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE, "Get User " +
                 "Profile Names SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_PROFILE_NAMES_FOR_USER_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERID_FROM_USERNAME, "Get User ID From Username SQL", JDBCRealmConstants.GET_USERID_FROM_USERNAME_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERID_FROM_USERNAME_WITH_ID, "Get User ID From Username SQL With ID",
+                JDBCRealmConstants.GET_USERID_FROM_USERNAME_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE, "Get User ID" +
                 " From Username SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_USERID_FROM_USERNAME_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERNAME_FROM_TENANT_ID, "Get Username From Tenant ID SQL", JDBCRealmConstants.GET_USERNAME_FROM_TENANT_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME, "Get Tenant ID From Username SQL", JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID,
+                "Get Tenant ID From Username With ID SQL", JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID_SQL,
+                "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE, "Get " +
                 "Tenant ID From Username SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_TENANT_ID_FROM_USERNAME_SQL_CASE_INSENSITIVE, "");
 
         setAdvancedProperty(JDBCRealmConstants.ADD_USER, "Add User SQL", JDBCRealmConstants.ADD_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_WITH_ID, "Add User With ID SQL",
+                JDBCRealmConstants.ADD_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_USER_TO_ROLE, "Add User To Role SQL", JDBCRealmConstants.ADD_USER_TO_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID, "Add User To Role With ID SQL",
+                JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE, "Add User To Role " +
                 "SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .ADD_USER_TO_ROLE_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_ROLE, "Add Role SQL", JDBCRealmConstants.ADD_ROLE_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_SHARED_ROLE, "Add Shared Role SQL", JDBCRealmConstants.ADD_SHARED_ROLE_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_ROLE_TO_USER, "Add Role To User SQL", JDBCRealmConstants.ADD_ROLE_TO_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_ROLE_TO_USER_WITH_ID, "Add Role To User With ID SQL",
+                JDBCRealmConstants.ADD_ROLE_TO_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER, "Add Shared Role To User SQL",
                 JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER_WITH_ID, "Add Shared Role To User With ID SQL",
+                JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_CASE_INSENSITIVE, "Add Shared " +
                 "Role To User SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .ADD_SHARED_ROLE_TO_USER_SQL_CASE_INSENSITIVE, "");
 
         setAdvancedProperty(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE, "Remove User From Shared Roles SQL", JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE_WITH_ID,
+                "Remove User From Shared Roles With ID SQL",
+                JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE, "Remove User " +
                 "From Role SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE, "");
 
         setAdvancedProperty(JDBCRealmConstants.REMOVE_USER_FROM_ROLE, "Remove User From Role SQL", JDBCRealmConstants.REMOVE_USER_FROM_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_USER_FROM_ROLE_WITH_ID, "Remove User From Role With ID SQL",
+                JDBCRealmConstants.REMOVE_USER_FROM_ROLE_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE, "Remove User " +
                 "From Role SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE, "");
 
         setAdvancedProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER, "Remove Role From User SQL", JDBCRealmConstants.REMOVE_ROLE_FROM_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER_WITH_ID, "Remove Role From User With ID SQL",
+                JDBCRealmConstants.REMOVE_ROLE_FROM_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_CASE_INSENSITIVE, "Remove Role " +
                 "From User SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE, "");
@@ -297,30 +349,53 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.DELETE_USER_CASE_INSENSITIVE, "Delete User SQL With " +
                 "Case Insensitive Username", JDBCCaseInsensitiveConstants.DELETE_USER_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE, "On Delete User Remove User Role Mapping SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_WITH_ID,
+                "On Delete User Remove User " + "Role Mapping SQL With ID",
+                JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE, "On Delete User Remove User Attribute SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID,
+                "On Delete User Remove User Attribute SQL With ID",
+                JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_WITH_ID, "Delete User With ID",
+                JDBCRealmConstants.DELETE_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_CASE_INSENSITIVE, "On " +
                         "Delete User Remove User Attribute SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL_CASE_INSENSITIVE, "");
 
         setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD, "Update User Password SQL", JDBCRealmConstants.UPDATE_USER_PASSWORD_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD_WITH_ID, "Update User Password With ID SQL",
+                JDBCRealmConstants.UPDATE_USER_PASSWORD_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE, "Update User " +
                 "Password SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .UPDATE_USER_PASSWORD_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.UPDATE_ROLE_NAME, "Update Role Name SQL", JDBCRealmConstants.UPDATE_ROLE_NAME_SQL, "");
 
         setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY, "Add User Property SQL", JDBCRealmConstants.ADD_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY_WITH_ID, "Add User Property With ID SQL",
+                JDBCRealmConstants.ADD_USER_PROPERTY_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY, "Update User Property SQL", JDBCRealmConstants.UPDATE_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID, "Update User Property With ID SQL",
+                JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE, "Update User " +
                 "Property SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY, "Delete User Property SQL", JDBCRealmConstants.DELETE_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY_WITH_ID, "Delete User Property With ID SQL",
+                JDBCRealmConstants.DELETE_USER_PROPERTY_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE, "Delete User " +
                 "Property SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .DELETE_USER_PROPERTY_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.USER_NAME_UNIQUE, "User Name Unique Across Tenant SQL", JDBCRealmConstants.USER_NAME_UNIQUE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.USER_ID_UNIQUE_WITH_ID, "User ID Unique Across Tenant SQL With ID",
+                JDBCRealmConstants.USER_ID_UNIQUE_SQL_WITH_ID, "");
+        setAdvancedProperty(JDBCRealmConstants.USER_NAME_UNIQUE_WITH_ID, "User Name Unique Across Tenant SQL With ID",
+                JDBCRealmConstants.USER_NAME_UNIQUE_SQL_WITH_ID, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE, "User Name Unique " +
                 "Across Tenant SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .USER_NAME_UNIQUE_SQL_CASE_INSENSITIVE, "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE_WITH_ID,
+                "User Name Unique " + "Across Tenant SQL With Case Insensitive Username With ID",
+                JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_SQL_CASE_INSENSITIVE_WITH_ID, "");
 
         setAdvancedProperty(JDBCRealmConstants.IS_DOMAIN_EXISTING, "Is Domain Existing SQL", JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_DOMAIN, "Add Domain SQL", JDBCRealmConstants.ADD_DOMAIN_SQL, "");

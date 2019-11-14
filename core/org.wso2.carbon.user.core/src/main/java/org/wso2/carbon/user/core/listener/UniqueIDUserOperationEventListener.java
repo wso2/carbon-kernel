@@ -199,6 +199,23 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @param sortBy           sort by attribute.
      * @param sortOrder        sort order.
      * @param userStoreManager user store manager.
+     * @param users            Filtered user list
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
+            String sortBy, String sortOrder, User[] users, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for the get user conditional list method.
+     *
+     * @param condition        condition.
+     * @param domain           user store domain.
+     * @param profileName      profile name.
+     * @param limit            number of search results.
+     * @param offset           start index of the search.
+     * @param sortBy           sort by attribute.
+     * @param sortOrder        sort order.
+     * @param userStoreManager user store manager.
      * @param users            Filtered user list.
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException User Store Exception.
@@ -593,5 +610,16 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      */
     boolean doPostUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for get role list of users.
+     *
+     * @param userIDs       user IDs.
+     * @param rolesOfUsersMap map of roles against users
+     * @return false in case of error
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPostGetRoleListOfUsersWithID(String[] userIDs, Map<String, List<String>> rolesOfUsersMap)
+            throws UserStoreException;
 
 }

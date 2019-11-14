@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.model.Condition;
 
 import java.util.Map;
 
@@ -265,6 +266,41 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
             String profileName, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
+     * Defines any additional actions that need to be done if there is a failure retrieving user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param claim            Claim URI
+     * @param claimValue       Claim Value
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param profileName      Name of the profile.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onGetUserListFailureWithID(String errorCode, String errorMessage, String claim, String claimValue,
+            int limit, int offset, String profileName, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure on retrieving conditional user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMassage     Error Message.
+     * @param domain           user store domain.
+     * @param profileName      profile name.
+     * @param limit            number of search results.
+     * @param offset           start index of the search.
+     * @param sortBy           sort by attribute.
+     * @param sortOrder        sort order.
+     * @param userStoreManager user store domain.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean onGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition, String domain,
+            String profileName, int limit, int offset, String sortBy, String sortOrder,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
      * Defines any additional actions that need to be done if there is a failure retrieving the user.
      *
      * @param errorCode        Error code.
@@ -292,5 +328,35 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      */
     boolean onUpdatePermissionsOfRoleFailureWithID(String errorCode, String errorMessage, String roleName,
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure retrieving paginated user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param claim            Claim URI
+     * @param claimValue       Claim Value
+     * @param profileName      Name of the profile.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onGetPaginatedUserListFailureWithID(String errorCode, String errorMessage, String claim, String claimValue,
+            String profileName, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure retrieving paginated user list.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param filter           Username filter.
+     * @param limit            No of search results.
+     * @param offset           Start index of the search.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of the method.
+     */
+    boolean onListUsersFailureWithID(String errorCode, String errorMessage, String filter, int limit, int offset,
+            UserStoreManager userStoreManager) throws UserStoreException;
 
 }
