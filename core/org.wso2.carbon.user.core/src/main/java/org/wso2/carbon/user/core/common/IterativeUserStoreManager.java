@@ -29,6 +29,7 @@ import java.util.Map;
  * This class is used to create a user store chain.
  */
 public class IterativeUserStoreManager extends AbstractUserStoreManager {
+
     AbstractUserStoreManager abstractUserStoreManager;
     private IterativeUserStoreManager nextUserStoreManager;
 

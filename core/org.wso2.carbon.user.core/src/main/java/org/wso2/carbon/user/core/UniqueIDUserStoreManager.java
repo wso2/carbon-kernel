@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.User;
 
 import java.util.Date;
@@ -45,8 +46,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return authnticated user.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    User authenticateWithID(String preferredUserNameClaim, String preferredUserNameValue, Object credential,
-            String profileName) throws UserStoreException;
+    AuthenticationResult authenticateWithID(String preferredUserNameClaim, String preferredUserNameValue, Object credential,
+                                            String profileName) throws UserStoreException;
 
     /**
      * Retrieves users upto a maximum limit that matches the user name filter.
