@@ -69,7 +69,7 @@ public final class UserCoreUtil {
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
     private static RealmService realmService = null;
-    private static final String UNIQUE_USER_ID_CONFIG = "UniqueUserID.Enabled";
+
     /*
      * When user authenticates with out domain, need to set the domain of the user store that he
      * belongs to, as a thread local variable.
@@ -1127,22 +1127,6 @@ public final class UserCoreUtil {
             usersList.add((user));
         }
         return usersList;
-    }
-
-    /**
-     * Check whether the unique user ID Feature is enabled.
-     *
-     * @return true if enabled.
-     */
-    public static boolean isUniqueUserIDFeatureEnabled() {
-
-        // Read from carbon.xml
-        ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-        String isUniqueUserIDEnabled = serverConfig.getFirstProperty(UNIQUE_USER_ID_CONFIG);
-        if (!StringUtils.isEmpty(isUniqueUserIDEnabled)) {
-            return Boolean.parseBoolean(isUniqueUserIDEnabled);
-        }
-        return false;
     }
 
     // TODO: read a config
