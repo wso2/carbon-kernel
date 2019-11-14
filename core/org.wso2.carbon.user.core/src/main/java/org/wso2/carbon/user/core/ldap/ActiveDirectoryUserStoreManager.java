@@ -165,7 +165,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             // Assigning unique user ID of the user as the username in the system.
             String userID = getUniqueUserID();
             // Assign preferredUsername as the username claim.
@@ -415,7 +415,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doUpdateCredentialByAdminInternal(userName, newCredential);
@@ -591,7 +591,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, profileName);
         }
         doSetUserClaimValuesInternal(userName, claims, profileName);
@@ -737,7 +737,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);

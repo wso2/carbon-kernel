@@ -29,6 +29,8 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.FailureReason;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
@@ -786,27 +788,39 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public User doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue, Object credential,
-            String profileName) throws UserStoreException {
+    public AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
+                                                     Object credential, String profileName) throws UserStoreException {
 
+        AuthenticationResult authenticationResult = new AuthenticationResult(AuthenticationResult
+                .AuthenticationStatus.FAIL);
         User user = null;
+
         if (!checkUserNameValid(preferredUserNameValue)) {
+            String reason = "Username validation failed";
             if (log.isDebugEnabled()) {
-                log.debug("Username validation failed");
+                log.debug(reason);
             }
-            return null;
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason(reason));
+            return authenticationResult;
         }
 
         if (!checkUserPasswordValid(credential)) {
+            String reason ="Password validation failed";
             if (log.isDebugEnabled()) {
-                log.debug("Password validation failed");
+                log.debug(reason);
             }
-            return null;
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason(reason));
+            return authenticationResult;
         }
 
         if (UserCoreUtil.isRegistryAnnonymousUser(preferredUserNameValue)) {
-            log.error("Anonymous user trying to login");
-            return null;
+            String reason = "Anonymous user trying to login";
+            log.error(reason);
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason(reason));
+            return authenticationResult;
         }
 
         // add the properties
@@ -854,12 +868,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 // Handle multiple matching users.
                 count++;
                 if (count > 1) {
+                    String reason = "Invalid scenario. Multiple users found for the given username property: "
+                            + preferredUserNameProperty + " and value: " + preferredUserNameValue;
                     if (log.isDebugEnabled()) {
-                        log.debug("Invalid scenario. Multiple users found for the given username property: "
-                                + preferredUserNameProperty + " and value: " + preferredUserNameValue);
+                        log.debug(reason);
                     }
+                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason(reason));
                     isAuthed = false;
-                    user = null;
                     break;
                 }
 
@@ -880,6 +896,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
                 if (requireChange && changedTime.before(date)) {
                     isAuthed = false;
+                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason("Password change required."));
                 } else {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
@@ -896,6 +914,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
                             throw new UserStoreException(e);
                         }
+                        authenticationResult = new AuthenticationResult(AuthenticationResult
+                                .AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
                     }
                 }
             }
@@ -914,8 +935,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             log.debug("User " + preferredUserNameValue + " login attempt. Login success :: " + isAuthed);
         }
 
-        return user;
-
+        return authenticationResult;
     }
 
     @Override
@@ -2099,7 +2119,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userNames = getUserIDsByUserNames(userNames, null);
         }
 

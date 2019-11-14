@@ -287,7 +287,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             // Assigning unique user ID of the user as the username in the system.
             String userID = getUniqueUserID();
             // Assign preferredUsername as the username claim.
@@ -565,7 +565,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doDeleteUser(String userName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doDeleteUserInternal(userName);
@@ -769,7 +769,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doUpdateCredentialByAdminInternal(userName, newCredential);
@@ -933,7 +933,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doSetUserClaimValuesInternal(userName, claims, profileName);
@@ -1075,7 +1075,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);
@@ -1180,7 +1180,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doDeleteUserClaimValueInternal(userName, claimURI, profileName);
@@ -1263,7 +1263,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doDeleteUserClaimValuesInternal(userName, claims, profileName);
@@ -1337,7 +1337,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             List<String> userIDList = new ArrayList<>();
             for (String userName : userList) {
                 userIDList.add(getUserIDByUserName(userName, null));
@@ -1476,7 +1476,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(userName, null);
         }
         doUpdateRoleListOfUserInternal(userName, deletedRoles, newRoles);
@@ -1676,7 +1676,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
+        if (isUniqueUserIdEnabled()) {
             deletedUsers = UserCoreUtil.getUserList(deletedUsers).stream().toArray(String[]::new);
             newUsers = UserCoreUtil.getUserList(newUsers).stream().toArray(String[]::new);
         }
