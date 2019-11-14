@@ -93,6 +93,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED,
                     JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID,
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_DB2)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_DB2,
                     JDBCRealmConstants.GET_USER_FILTER_PAGINATED_SQL_DB2);
@@ -172,6 +176,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP)) {
             properties.put(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP,
                     JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_WITH_ID)) {
+            properties.put(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_WITH_ID,
+                    JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_WITH_ID_SQL);
         }
         if (!properties.containsKey(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_DB2)) {
             properties.put(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP_DB2,

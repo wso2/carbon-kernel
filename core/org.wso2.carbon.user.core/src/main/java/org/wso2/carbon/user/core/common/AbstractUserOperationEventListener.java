@@ -405,6 +405,14 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
     @Override
     public boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
+            int offset, String sortBy, String sortOrder, User[] users, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
             int offset, String sortBy, String sortOrder, String[] users, UserStoreManager userStoreManager)
             throws UserStoreException {
 
@@ -622,6 +630,13 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     @Override
     public boolean doPostUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetRoleListOfUsersWithID(String[] userIDs, Map<String, List<String>> rolesOfUsersMap)
+            throws UserStoreException {
 
         return true;
     }
