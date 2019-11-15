@@ -283,7 +283,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs.close();
 
             if (userList.size() > 0) {
-                users = userList.stream().toArray(User[]::new);
+                users = userList.toArray(new User[0]);
             }
 
         } catch (SQLException e) {
@@ -1312,11 +1312,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         RoleBreakdown breakdown = new RoleBreakdown();
 
         // Non shared roles and tenant ids
-        breakdown.setRoles(roles.stream().toArray(String[]::new));
+        breakdown.setRoles(roles.toArray(new String[0]));
         breakdown.setTenantIds(tenantIds.stream().toArray(Integer[]::new));
 
         // Shared roles and tenant ids
-        breakdown.setSharedRoles(sharedRoles.stream().toArray(String[]::new));
+        breakdown.setSharedRoles(sharedRoles.toArray(new String[0]));
         breakdown.setSharedTenantids(sharedTenantIds.stream().toArray(Integer[]::new));
 
         return breakdown;
@@ -1384,7 +1384,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     }
                 }
 
-                String[] rolesToAdd = newRoleList.stream().toArray(String[]::new);
+                String[] rolesToAdd = newRoleList.toArray(new String[0]);
                 // if user name and role names are prefixed with domain name,
                 // remove the domain name
                 RoleBreakdown breakdown = getSharedRoleBreakdown(rolesToAdd);
@@ -1988,7 +1988,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (list.size() > 0) {
-                users = list.stream().toArray(String[]::new);
+                users = list.toArray(new String[0]);
             }
 
         } catch (SQLException e) {
@@ -2045,7 +2045,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         Collections.addAll(roles, names);
-        return roles.stream().toArray(String[]::new);
+        return roles.toArray(new String[0]);
     }
 
     @Override
@@ -2585,7 +2585,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs.close();
 
             if (list.size() > 0) {
-                users = list.stream().toArray(User[]::new);
+                users = list.toArray(new User[0]);
             }
 
             Arrays.sort(users);
@@ -2689,7 +2689,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (list.size() > 0) {
-                users = list.stream().toArray(User[]::new);
+                users = list.toArray(new User[0]);
             }
             result.setUsers(users);
         } catch (Exception e) {
@@ -2812,7 +2812,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (list.size() > 0) {
-                users = list.stream().toArray(User[]::new);
+                users = list.toArray(new User[0]);
             } result.setUsers(users);
 
         } catch (Exception e) {

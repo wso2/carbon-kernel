@@ -404,28 +404,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String[] users = getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
 
         if (ArrayUtils.isEmpty(users)) {
+            String reason =
+                    "Invalid scenario. No users found for the given username property: " + preferredUserNameValue
+                            + " and value: " + preferredUserNameValue;
             if (log.isDebugEnabled()) {
-                log.debug("Invalid scenario. No users found for the given username property: " + preferredUserNameValue
-                        + " and value: " + preferredUserNameValue);
+                log.debug(reason);
             }
-
-            FailureReason failureReason = new FailureReason();
-            failureReason.setFailureReason("Invalid scenario. No users found for the given username property: "
-                    + preferredUserNameValue + " and value: " + preferredUserNameValue);
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(failureReason);
+            authenticationResult.setFailureReason(new FailureReason(reason));
             return authenticationResult;
-        } else if (users.length > 1) {
-            if (log.isDebugEnabled()) {
-                log.debug("Invalid scenario. Multiple users found for the given username property: "
-                        + preferredUserNameValue + " and value: " + preferredUserNameValue);
-            }
 
-            FailureReason failureReason = new FailureReason();
-            failureReason.setFailureReason("Invalid scenario. Multiple users found for the given username property: "
-                    + preferredUserNameValue + " and value: " + preferredUserNameValue);
+        } else if (users.length > 1) {
+            String reason =
+                    "Invalid scenario. Multiple users found for the given username property: " + preferredUserNameValue
+                            + " and value: " + preferredUserNameValue;
+            if (log.isDebugEnabled()) {
+                log.debug(reason);
+            }
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(failureReason);
+            authenticationResult.setFailureReason(new FailureReason(reason));
             return authenticationResult;
         }
 

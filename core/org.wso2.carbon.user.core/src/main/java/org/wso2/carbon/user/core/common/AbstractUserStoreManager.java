@@ -5381,7 +5381,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             for (String userID : userList) {
                 userNamesList.add(getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, null));
             }
-            userList = userNamesList.stream().toArray(String[]::new);
+            userList = userNamesList.toArray(new String[0]);
         }
         return userList;
     }
@@ -6323,7 +6323,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             for (String userName : userList) {
                 userIDList.add(getUserIDByUserName(userName, null));
             }
-            userList = userIDList.stream().toArray(String[]::new);
+            userList = userIDList.toArray(new String[0]);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -9084,7 +9084,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isSystemStore()) {
             String[] userList = systemUserRoleManager.getUserListOfSystemRole(userStore.getDomainFreeName());
-            User[] users = UserCoreUtil.getUserList(userList).stream().toArray(User[]::new);
+            User[] users = UserCoreUtil.getUserList(userList).toArray(new User[0]);
             handleDoPostGetUserListOfRoleWithID(roleName, users);
             return users;
         }
@@ -9129,13 +9129,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     }
                 } else {
-                    User[] usersInHybrid = UserCoreUtil.getUserList(userNamesInHybrid).stream().toArray(User[]::new);
+                    User[] usersInHybrid = UserCoreUtil.getUserList(userNamesInHybrid).toArray(new User[0]);
                     handleDoPostGetUserListOfRoleWithID(roleName, usersInHybrid);
                     return usersInHybrid;
                 }
             }
-            String[] userList = finalNameList.stream().toArray(String[]::new);
-            User[] users = UserCoreUtil.getUserList(userList).stream().toArray(User[]::new);
+            String[] userList = finalNameList.toArray(new String[0]);
+            User[] users = UserCoreUtil.getUserList(userList).toArray(new User[0]);
             handleDoPostGetUserListOfRoleWithID(roleName, users);
             return users;
         }
@@ -9393,7 +9393,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        String[] properties = propertySet.stream().toArray(String[]::new);
+        String[] properties = propertySet.toArray(new String[0]);
         Map<String, String> uerProperties = this.getUserPropertyValuesWithID(userID, properties, profileName);
 
         List<String> getAgain = new ArrayList<>();
@@ -9443,7 +9443,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (getAgain.size() > 0) {
             // oh the beautiful recursion
             Map<String, String> mapClaimValues = this
-                    .getUserClaimValuesWithID(userID, getAgain.stream().toArray(String[]::new), profileName);
+                    .getUserClaimValuesWithID(userID, getAgain.toArray(new String[0]), profileName);
 
             Iterator<Map.Entry<String, String>> ite3 = mapClaimValues.entrySet().iterator();
             while (ite3.hasNext()) {
@@ -9474,7 +9474,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-            roles = rolesList.stream().toArray(String[]::new);
+            roles = rolesList.toArray(new String[0]);
         }
 
         if (roles != null && roles.length > 0) {
@@ -10592,7 +10592,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
                 processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
             }
-            deletedRoles = roleDel.stream().toArray(String[]::new);
+            deletedRoles = roleDel.toArray(new String[0]);
         }
 
         if (newRoles != null && newRoles.length > 0) {
@@ -10612,12 +10612,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 processNewRoles(internalRoleNew, roleNew, newRole, domain);
             }
-            newRoles = roleNew.stream().toArray(String[]::new);
+            newRoles = roleNew.toArray(new String[0]);
         }
 
         if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
             hybridRoleManager.updateHybridRoleListOfUser(userStore.getDomainFreeName(),
-                    internalRoleDel.stream().toArray(String[]::new), internalRoleNew.stream().toArray(String[]::new));
+                    internalRoleDel.toArray(new String[0]), internalRoleNew.toArray(new String[0]));
         }
 
         // #################### <Listeners> #####################################################
@@ -11156,7 +11156,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             if (internalRoles.size() > 0) {
                 hybridRoleManager
-                        .updateHybridRoleListOfUser(userName, null, internalRoles.stream().toArray(String[]::new));
+                        .updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
             }
 
             // #################### <Post-Listeners> #####################################################
@@ -11782,7 +11782,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handlePostGetUserListWithID(claim, claimValue, filteredUserList, limit, offset, false);
         }
 
-        return filteredUserList.stream().toArray(User[]::new);
+        return filteredUserList.toArray(new User[0]);
     }
 
     @Override
