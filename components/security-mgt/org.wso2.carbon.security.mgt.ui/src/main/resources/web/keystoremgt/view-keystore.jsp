@@ -96,8 +96,7 @@
             certData = Util.doPaging(pageNumberInt - startingPage, filteredCerts);
             numberOfPages = (int) Math.ceil((double) filteredCerts.length / SecurityUIConstants.DEFAULT_ITEMS_PER_PAGE);
         }
-	
-	    paginatedKeyData = keyStoreData.getPaginatedKeyData();
+        paginatedKeyData = keyStoreData.getPaginatedKeyData();
 	
 	    if (paginatedKeyData != null) {
 		    CertData[] filteredCerts = Util.doFilter(filter, paginatedKeyData.getCertDataSet());
@@ -186,7 +185,6 @@
 	            </td>
 	            <td><%=cert.getVersion()%>
 	            </td>
-
             </tr>
             <%
 			            }

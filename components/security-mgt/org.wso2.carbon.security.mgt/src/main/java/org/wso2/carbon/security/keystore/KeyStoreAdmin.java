@@ -788,9 +788,9 @@ public class KeyStoreAdmin {
                 }
             }
 
-            // Create a cert array
+            // Create a cert array.
             CertData[] keyCerts = keyDataList.toArray(new CertData[keyDataList.size()]);
-            // Create a KeyStoreData bean, set the name and fill in the cert information
+            // Create a KeyStoreData bean, set the name and fill in the cert information.
             keyStoreData.setPaginatedKeyData(doPaging(pageNumber, keyCerts));
 
             return keyStoreData;
