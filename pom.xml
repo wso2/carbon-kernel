@@ -1891,7 +1891,7 @@
         <opensaml.version>3.3.1</opensaml.version>
         <shibboleth.version>7.3.0</shibboleth.version>
         <opensaml2.wso2.version>3.3.1.wso2v1</opensaml2.wso2.version>
-        <opensaml2.wso2.osgi.version.range>[3.3.1,4.0.0)</opensaml2.wso2.osgi.version.range>
+        <opensaml2.wso2.osgi.version.range>[3.3.1,3.4.0)</opensaml2.wso2.osgi.version.range>
         <joda.version>2.9.4</joda.version>
         <joda.wso2.version>2.9.4.wso2v1</joda.wso2.version>
         <joda.wso2.osgi.version.range>[2.8.2,3.0.0)</joda.wso2.osgi.version.range>
