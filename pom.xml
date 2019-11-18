@@ -1860,7 +1860,7 @@
         <version.equinox.osgi>3.9.1.v20130814-1242</version.equinox.osgi>
         <equinox.osgi.stax-api.imp.pkg.version.range>[1.0.1,2.0.0)</equinox.osgi.stax-api.imp.pkg.version.range>
 
-        <saml.common.util.version>1.0.1</saml.common.util.version>
+        <saml.common.util.version>1.0.3</saml.common.util.version>
         <saml.common.util.version.range>[1.0.0,2.0.0)</saml.common.util.version.range>
 
         <!-- Commons -->
