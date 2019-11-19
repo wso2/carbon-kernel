@@ -63,6 +63,7 @@
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="LeadingOrTrailingSpaceAllowedInUserName">false</Property>
+            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager>
 	
 	    <!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
