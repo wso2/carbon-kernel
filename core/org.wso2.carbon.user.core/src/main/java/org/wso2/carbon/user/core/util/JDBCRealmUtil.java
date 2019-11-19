@@ -221,10 +221,6 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME,
                     JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_SQL);
         }
-        if (!properties.containsKey(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID)) {
-            properties.put(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID,
-                    JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID_SQL);
-        }
         if (!properties.containsKey(JDBCRealmConstants.ADD_USER)) {
             properties.put(JDBCRealmConstants.ADD_USER, JDBCRealmConstants.ADD_USER_SQL);
         }

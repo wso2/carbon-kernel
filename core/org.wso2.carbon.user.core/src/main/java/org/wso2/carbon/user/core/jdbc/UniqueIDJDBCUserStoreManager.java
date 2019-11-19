@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
@@ -49,9 +50,9 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.sql.DataSource;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -84,6 +85,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
+    public static final String QUERY_BINDING_SYMBOL = "?";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
 
@@ -101,51 +103,21 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
-    /**
-     * @param realmConfig
-     * @param tenantId
-     * @throws UserStoreException
-     */
     public UniqueIDJDBCUserStoreManager(RealmConfiguration realmConfig, int tenantId) throws UserStoreException {
         super(realmConfig, tenantId);
     }
 
-    /**
-     * This constructor is used by the support IS
-     *
-     * @param ds
-     * @param realmConfig
-     * @param tenantId
-     * @param addInitData
-     * @param tenantId
-     */
     public UniqueIDJDBCUserStoreManager(DataSource ds, RealmConfiguration realmConfig, int tenantId,
             boolean addInitData) throws UserStoreException {
 
         super(ds, realmConfig, tenantId, addInitData);
     }
 
-    /**
-     * This constructor to accommodate PasswordUpdater called from chpasswd script
-     *
-     * @param ds
-     * @param realmConfig
-     * @throws UserStoreException
-     */
     public UniqueIDJDBCUserStoreManager(DataSource ds, RealmConfiguration realmConfig) throws UserStoreException {
 
         super(ds, realmConfig);
     }
 
-    /**
-     * @param realmConfig
-     * @param properties
-     * @param claimManager
-     * @param profileManager
-     * @param realm
-     * @param tenantId
-     * @throws UserStoreException
-     */
     public UniqueIDJDBCUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
             ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
@@ -153,16 +125,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
     }
 
-    /**
-     * @param realmConfig
-     * @param properties
-     * @param claimManager
-     * @param profileManager
-     * @param realm
-     * @param tenantId
-     * @param skipInitData
-     * @throws UserStoreException
-     */
     public UniqueIDJDBCUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
             ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId,
             boolean skipInitData) throws UserStoreException {
@@ -197,14 +159,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             givenMax = Integer
                     .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
         }
 
         try {
             searchTime = Integer
                     .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
 
@@ -250,7 +212,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                log.debug(e);
+                if (log.isDebugEnabled()) {
+                    log.debug(e);
+                }
             }
 
             try {
@@ -337,6 +301,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         return false;
+    }
+
+    @Override
+    public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -466,58 +436,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public int getUserIdWithID(String userID) throws UserStoreException {
+    public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERID_FROM_USERNAME_WITH_ID);
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for retrieving ID is null");
-        }
-        int id;
-        Connection dbConnection = null;
-        try {
-            dbConnection = getDBConnection();
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                id = DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, userID, tenantId);
-            } else {
-                id = DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, userID);
-            }
-        } catch (SQLException e) {
-            String errorMessage = "Error occurred while getting user id from user ID : " + userID;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
-        }
-        return id;
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
-    public int getTenantIdWithID(String userID) throws UserStoreException {
+    public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames, String profileName)
+            throws UserStoreException {
 
-        if (this.tenantId != MultitenantConstants.SUPER_TENANT_ID) {
-            throw new UserStoreException("Not allowed to perform this operation");
-        }
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID);
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for retrieving ID is null");
-        }
-        int id;
-        Connection dbConnection = null;
-        try {
-            dbConnection = getDBConnection();
-            id = DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, userID);
-        } catch (SQLException e) {
-            String errorMessage = "Error occurred while getting tenant ID from username : " + userID;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
-        }
-        return id;
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -565,6 +493,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
+    }
+
+    @Override
+    public boolean doCheckExistingUser(String userName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     private String[] getStringValuesFromDatabase(String sqlStmt, Object... params) throws UserStoreException {
@@ -747,6 +681,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public String[] getUserListFromProperties(String property, String value, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public boolean doCheckExistingUserName(String userName) throws UserStoreException {
 
         String sqlStmt;
@@ -789,10 +730,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
-                                                     Object credential, String profileName) throws UserStoreException {
+            Object credential, String profileName) throws UserStoreException {
 
-        AuthenticationResult authenticationResult = new AuthenticationResult(AuthenticationResult
-                .AuthenticationStatus.FAIL);
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
         User user = null;
 
         if (!checkUserNameValid(preferredUserNameValue)) {
@@ -806,7 +747,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (!checkUserPasswordValid(credential)) {
-            String reason ="Password validation failed";
+            String reason = "Password validation failed";
             if (log.isDebugEnabled()) {
                 log.debug(reason);
             }
@@ -914,8 +855,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
                             throw new UserStoreException(e);
                         }
-                        authenticationResult = new AuthenticationResult(AuthenticationResult
-                                .AuthenticationStatus.SUCCESS);
+                        authenticationResult = new AuthenticationResult(
+                                AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     }
                 }
@@ -939,6 +880,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
@@ -951,6 +899,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         User user = getUser(userID, userName);
         return user;
 
+    }
+
+    @Override
+    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     /*
@@ -1009,7 +964,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 String[] roles = breakdown.getRoles();
 
                 String[] sharedRoles = breakdown.getSharedRoles();
-                Integer[] sharedTenantIds = breakdown.getSharedTenantids();
+                Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 String sqlStmt2;
                 String type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -1046,7 +1001,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (claims != null) {
-                // add the properties
+                // Add user properties.
                 if (profileName == null) {
                     profileName = UserCoreConstants.DEFAULT_PROFILE;
                 }
@@ -1148,6 +1103,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public void doDeleteUserWithID(String userID) throws UserStoreException {
 
         String sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_WITH_ID);
@@ -1187,6 +1148,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+    }
+
+    @Override
+    public void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -1272,6 +1240,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
+    @Override
+    public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
     /**
      * Break the provided role list based on whether roles are shared or not
      *
@@ -1313,11 +1288,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         // Non shared roles and tenant ids
         breakdown.setRoles(roles.toArray(new String[0]));
-        breakdown.setTenantIds(tenantIds.stream().toArray(Integer[]::new));
+        breakdown.setTenantIds(tenantIds.toArray(new Integer[0]));
 
         // Shared roles and tenant ids
         breakdown.setSharedRoles(sharedRoles.toArray(new String[0]));
-        breakdown.setSharedTenantids(sharedTenantIds.stream().toArray(Integer[]::new));
+        breakdown.setSharedTenantIDs(sharedTenantIds.toArray(new Integer[0]));
 
         return breakdown;
 
@@ -1344,7 +1319,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 // Integer[] tenantIds = breakdown.getTenantIds();
 
                 String[] sharedRoles = breakdown.getSharedRoles();
-                Integer[] sharedTenantIds = breakdown.getSharedTenantids();
+                Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 String sqlStmt1;
 
@@ -1390,7 +1365,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 RoleBreakdown breakdown = getSharedRoleBreakdown(rolesToAdd);
                 String[] roles = breakdown.getRoles();
                 String[] sharedRoles = breakdown.getSharedRoles();
-                Integer[] sharedTenantIds = breakdown.getSharedTenantids();
+                Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 if (roles.length > 0) {
                     sqlStmt2 = realmConfig
@@ -1451,6 +1426,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
@@ -1498,6 +1479,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+    }
+
+    @Override
+    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -1577,6 +1565,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName)
             throws UserStoreException {
 
@@ -1616,6 +1610,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public void doDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
 
@@ -1648,11 +1649,24 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
         // no need to check old password here because we already authenticate in super class
         this.doUpdateCredentialByAdminWithID(userID, newCredential);
+    }
+
+    @Override
+    public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -1679,6 +1693,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } else {
             updateStringValuesToDatabase(null, sqlStmt, password, saltValue, false, new Date(), userID);
         }
+    }
+
+    @Override
+    public void doDeleteUser(String userName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -1945,7 +1965,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public String[] doGetUserListFromProperties(String property, String value, String profileName)
+    public String[] doGetUserListFromPropertiesWithID(String property, String value, String profileName)
             throws UserStoreException {
 
         if (profileName == null) {
@@ -2007,6 +2027,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public String[] doGetExternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -2046,6 +2072,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         Collections.addAll(roles, names);
         return roles.toArray(new String[0]);
+    }
+
+    @Override
+    protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -2228,6 +2261,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             return sharedNames;
         }
         return new String[0];
+    }
+
+    @Override
+    public void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     /**
@@ -2555,7 +2594,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                log.debug(e);
+                if (log.isDebugEnabled()) {
+                    log.debug(e);
+                }
             }
 
             try {
@@ -2813,7 +2854,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             if (list.size() > 0) {
                 users = list.toArray(new User[0]);
-            } result.setUsers(users);
+            }
+            result.setUsers(users);
 
         } catch (Exception e) {
             String msg = "Error occur while doGetUserList for multi attribute searching";
@@ -3153,6 +3195,221 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
             getExpressionConditions(rightCondition, expressionConditions);
         }
+    }
+
+    @Override
+    public String[] getProfileNames(String userName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    public int getUserId(String username) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    public int getTenantId(String username) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    /**
+     * Prepare the password including the salt, and hashes if hash algorithm is provided
+     *
+     * @param password  original password value
+     * @param saltValue salt value
+     * @return hashed password or plain text password as a String
+     * @throws UserStoreException
+     */
+    protected String preparePassword(Object password, String saltValue) throws UserStoreException {
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(password);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        try {
+            String passwordString;
+            if (saltValue != null) {
+                credentialObj.addChars(saltValue.toCharArray());
+            }
+
+            String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
+            if (digestFunction != null) {
+                if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                    passwordString = new String(credentialObj.getChars());
+                    return passwordString;
+                }
+
+                MessageDigest digest = MessageDigest.getInstance(digestFunction);
+                byte[] byteValue = digest.digest(credentialObj.getBytes());
+                passwordString = Base64.encode(byteValue);
+            } else {
+                passwordString = new String(credentialObj.getChars());
+            }
+
+            return passwordString;
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Error occurred while preparing password.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            credentialObj.clear();
+        }
+    }
+
+    /**
+     * Get the SQL statement for ExternalRoles.
+     *
+     * @param caseSensitiveUsernameQuery    query for getting role with case sensitive username.
+     * @param nonCaseSensitiveUsernameQuery query for getting role with non-case sensitive username.
+     * @return sql statement.
+     * @throws UserStoreException
+     */
+    private String getExternalRoleListSqlStatement(String caseSensitiveUsernameQuery,
+            String nonCaseSensitiveUsernameQuery) throws UserStoreException {
+        String sqlStmt;
+        if (isCaseSensitiveUsername()) {
+            sqlStmt = caseSensitiveUsernameQuery;
+        } else {
+            sqlStmt = nonCaseSensitiveUsernameQuery;
+        }
+        if (sqlStmt == null) {
+            throw new UserStoreException("The sql statement for retrieving user roles is null");
+        }
+        return sqlStmt;
+    }
+
+    private int getMaxUserNameListLength() {
+
+        int maxUserList;
+        try {
+            maxUserList = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        } catch (Exception e) {
+            // The user store property might not be configured. Therefore logging as debug.
+            if (log.isDebugEnabled()) {
+                log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST
+                        + " from the realm configuration. The default value: " + UserCoreConstants.MAX_USER_ROLE_LIST
+                        + " is used instead.", e);
+            }
+            maxUserList = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        return maxUserList;
+    }
+
+    protected int doGetListUsersCount(String filter) throws UserStoreException {
+
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        int count = 0;
+
+        try {
+
+            if (filter != null && StringUtils.isNotEmpty(filter.trim())) {
+                filter = filter.trim().replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            dbConnection = getDBConnection();
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users count for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+        return count;
+
+    }
+
+    protected int getUserListFromPropertiesCount(String property, String value, String profileName)
+            throws UserStoreException {
+
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException("Filter value cannot be null");
+        }
+        if (value.contains(QUERY_FILTER_STRING_ANY)) {
+            // This is to support LDAP like queries. Value having only * is restricted except one *.
+            if (!value.matches("(\\*)\\1+")) {
+                // Convert all the * to % except \*.
+                value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
+            }
+        }
+
+        int count = 0;
+        Connection dbConnection = null;
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            dbConnection = getDBConnection();
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP);
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, property);
+            prepStmt.setString(2, value);
+            prepStmt.setString(3, profileName);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(4, tenantId);
+                prepStmt.setInt(5, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Database error occurred while paginating users count for a property : " + property + " & "
+                    + "value :" + " " + value + "& profile name : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        return count;
     }
 
 }
