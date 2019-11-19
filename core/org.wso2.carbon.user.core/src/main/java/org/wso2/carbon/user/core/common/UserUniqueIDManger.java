@@ -23,7 +23,10 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -90,8 +93,7 @@ public class UserUniqueIDManger {
     public String getUniqueId(String username, String profile, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String userUniqueId = userStoreManager.getUserClaimValue(username, USER_ID_CLAIM, profile);
-        return userUniqueId;
+        return userStoreManager.getUserClaimValue(username, USER_ID_CLAIM, profile);
     }
 
     /**
@@ -111,6 +113,60 @@ public class UserUniqueIDManger {
         return usernames.length != 0;
     }
 
+    /**
+     * Get paginated user list from paginated search result.
+     * @param paginatedSearchResult Paginated search result.
+     * @param userStoreManager User store manger instance.
+     * @return @see UniqueIDPaginatedSearchResult
+     */
+    public UniqueIDPaginatedSearchResult listUsers(PaginatedSearchResult paginatedSearchResult,
+                                                   UserStoreManager userStoreManager) throws UserStoreException {
+
+        UniqueIDPaginatedSearchResult uniqueIDPaginatedSearchResult = new UniqueIDPaginatedSearchResult();
+        List<User> users = new ArrayList<>();
+        for (String username : paginatedSearchResult.getUsers()) {
+            User user = new User();
+            String uniqueId = getUniqueId(username, null, userStoreManager);
+            user.setUsername(username);
+            user.setUserID(uniqueId);
+            users.add(user);
+        }
+        uniqueIDPaginatedSearchResult.setUsers(users);
+        uniqueIDPaginatedSearchResult.setSkippedUserCount(paginatedSearchResult.getSkippedUserCount());
+        return uniqueIDPaginatedSearchResult;
+    }
+
+    /**
+     * Get list of user's from array of user names.
+     * @param listUsers List of user names.
+     * @param userStoreManager User store manger instance.
+     * @return List of @see User objects.
+     */
+    public List<User> listUsers(String[] listUsers, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return listUsers(Arrays.asList(listUsers), userStoreManager);
+    }
+
+    /**
+     * Get list of user's from list of user names.
+     * @param listUsers List of user names.
+     * @param userStoreManager User store manger instance.
+     * @return List of @see User objects.
+     */
+    public List<User> listUsers(List<String> listUsers, UserStoreManager userStoreManager) throws UserStoreException {
+
+        List<User> users = new ArrayList<>();
+        for (String username : listUsers) {
+            User user = new User();
+            String uniqueId = getUniqueId(username, null, userStoreManager);
+            user.setUsername(username);
+            user.setUserID(uniqueId);
+            users.add(user);
+        }
+
+        return users;
+    }
+
     protected String generateUniqueId() {
 
         return UUID.randomUUID().toString();
@@ -126,5 +182,4 @@ public class UserUniqueIDManger {
         }
         return domainNameProperty;
     }
-
 }

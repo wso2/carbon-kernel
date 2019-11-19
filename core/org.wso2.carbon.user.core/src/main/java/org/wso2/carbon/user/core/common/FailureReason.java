@@ -20,10 +20,19 @@ package org.wso2.carbon.user.core.common;
 
 import java.io.Serializable;
 
+/**
+ * Represent an authentication failure reason.
+ * @since 4.5.4
+ */
 public class FailureReason implements Serializable {
 
     private static final long serialVersionUID = -6145060819120072849L;
     private String failureReason;
+    private int id;
+
+    public FailureReason() {
+        super();
+    }
 
     public FailureReason(String failureReason) {
         this.failureReason = failureReason;
@@ -37,5 +46,15 @@ public class FailureReason implements Serializable {
     public void setFailureReason(String failureReason) {
 
         this.failureReason = failureReason;
+    }
+
+    public int getId() {
+
+        return id;
+    }
+
+    public void setId(int id) {
+
+        this.id = id;
     }
 }

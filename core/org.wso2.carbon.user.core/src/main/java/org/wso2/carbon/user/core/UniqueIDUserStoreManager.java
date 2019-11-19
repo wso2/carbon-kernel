@@ -301,7 +301,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of user names.
      * @throws UserStoreException User Store Exception.
      */
-    User[] listUsersWithID(String filter, int limit, int offset) throws UserStoreException;
+    List<User> listUsersWithID(String filter, int limit, int offset) throws UserStoreException;
 
     /**
      * Retrieves a list of paginated user names from user claims.
@@ -316,23 +316,23 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of user names.
      * @throws UserStoreException User Store Exception.
      */
-    User[] getUserListWithID(String claim, String claimValue, String profileName, int limit, int offset)
+    List<User> getUserListWithID(String claim, String claimValue, String profileName, int limit, int offset)
             throws UserStoreException;
 
     /**
      * Retrieves a list of paginated user names conditionally.
      *
      * @param condition   Conditional filter.
-     * @param profileName User profile name.
      * @param domain      User Store Domain.
+     * @param profileName User profile name.
      * @param limit       No of search results. If the given value is greater than the system configured max limit
      *                    it will be reset to the system configured max limit.
      * @param offset      Start index of the user search.
      * @return An array of user names.
      * @throws UserStoreException User Store Exception.
      */
-    User[] getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
-            String sortBy, String sortOrder) throws UserStoreException;
+    List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
+                                 String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Get claim values of users.
@@ -342,7 +342,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return User claim search entry set.
      * @throws UserStoreException User Store Exception.
      */
-    UserClaimSearchEntry[] getUsersClaimValuesWithID(String[] userIDs, String[] claims, String profileName)
+    List<UserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims, String profileName)
             throws UserStoreException;
 
     /**
@@ -352,6 +352,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return A map contains a list of role names each user belongs.
      * @throws UserStoreException User Store Exception.
      */
-    Map<String, List<String>> getRoleListOfUsersWithID(String[] userIDs) throws UserStoreException;
+    Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException;
 
 }
