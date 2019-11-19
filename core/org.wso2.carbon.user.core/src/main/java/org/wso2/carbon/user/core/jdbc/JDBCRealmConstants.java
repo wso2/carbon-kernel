@@ -73,11 +73,19 @@ public final class JDBCRealmConstants {
     public static final String ON_DELETE_USER_DELETE_PERMISSION = "OnDeleteUserRemovePermissionsSQL";
     public static final String IS_DOMAIN_EXISTING = "IsDomainExistingSQL";
     public static final String ADD_DOMAIN = "AddDomainSQL";
+    public static final String APPLICATION_DOMAIN = "Application";
     public static final String UPDATE_USER_PASSWORD = "UpdateUserPasswordSQL";
     public static final String UPDATE_ROLE_NAME = "UpdateRoleNameSQL";
     public static final String ADD_USER_PROPERTY = "AddUserPropertySQL";
     public static final String UPDATE_USER_PROPERTY = "UpdateUserPropertySQL";
     public static final String DELETE_USER_PROPERTY = "DeleteUserPropertySQL";
+    public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME " +
+            "LIKE ? AND " +"UM_TENANT_ID = ?";
+    public static final String COUNT_ROLES_SQL = "SELECT COUNT(UM_ROLE_NAME) AS RESULT FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND " +
+            "UM_TENANT_ID = ?";
+    public static final String COUNT_USERS_WITH_CLAIM_SQL = "SELECT COUNT(UM_USER_ID) AS RESULT FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? " +
+            "AND UM_TENANT_ID = ? AND UM_ATTR_VALUE LIKE ? AND UM_PROFILE_ID = ?";
+    public static final String COUNT_USERS_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME LIKE ? " + "AND UM_TENANT_ID = ?";
     public static final String USER_NAME_UNIQUE = "UserNameUniqueAcrossTenantsSQL";
     public static final String SELECT_USER_SQL = "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
@@ -188,6 +196,8 @@ public final class JDBCRealmConstants {
     public static final String DELETE_ROLE_SQL = "DELETE FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID=?";
     public static final String ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL = "DELETE FROM UM_USER_ROLE WHERE UM_ROLE_ID=(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?";
     public static final String ON_DELETE_ROLE_DELETE_PERMISSION_SQL = "OnDeleteRoleRemovePermissionsSQL";
+    public static final String COUNT_APPLICATION_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
+            "UM_ROLE_NAME NOT LIKE '" + APPLICATION_DOMAIN + "%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
     public static final String DELETE_USER_SQL = "DELETE FROM UM_USER WHERE UM_USER_NAME = ? AND UM_TENANT_ID=?";
     public static final String ON_DELETE_USER_REMOVE_USER_ROLE_SQL = "DELETE FROM UM_USER_ROLE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?";
     public static final String ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL = "DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?";

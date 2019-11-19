@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
@@ -490,6 +489,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      */
     protected abstract String[] doListUsers(String filter, int maxItemLimit)
             throws UserStoreException;
+
+    /**
+     * Count users with claims.
+     *
+     * @param claimURI Claim uri
+     * @param valueFilter Filter
+     * @throws UserStoreException UserStoreException
+     */
+    public long doCountUsersWithClaims(String claimURI, String valueFilter) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported");
+    }
 
     /*This is to get the display names of users in hybrid role according to the underlying user store, to be shown in UI*/
     protected abstract String[] doGetDisplayNamesForInternalRole(String[] userNames)
@@ -1066,6 +1077,28 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @param errorMessage Error Message.
      * @param claim        Claim URI.
      * @param claimValue   Claim Value.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleGetUserCountFailure(String errorCode, String errorMessage, String claim, String claimValue
+    ) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !listener
+                    .onGetUserCountFailure(errorCode, errorMessage, claim, claimValue, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * user list.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param claim        Claim URI.
+     * @param claimValue   Claim Value.
      * @param limit   No of search records.
      * @param offset   Start index of the search.
      * @param profileName  Name of the profile.
@@ -1342,7 +1375,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * {@inheritDoc}
      */
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
-
+        getUserCountWithClaims(claim,claimValue);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName}, argTypes);
@@ -4211,6 +4244,69 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     /**
+     * Count roles in user stores
+     *
+     * @param filter The string to filter out roles
+     * @return countRoles
+     * @throws UserStoreException UserStoreException
+     */
+    public final long countRoles(String filter) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class};
+            Object object = callSecure("countRoles", new Object[]{filter}, argTypes);
+            return (Long) object;
+        }
+
+        int index;
+        Long countRoles;
+        String domain = null;
+        index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+
+        // Check whether we have a secondary UserStoreManager setup.
+        if (index > 0) {
+            domain = filter.substring(0, index);
+            filter = filter.substring(index + 1);
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(domain);
+            if (secondaryUserStoreManager != null) {
+                // We have a secondary UserStoreManager registered for this domain.
+                if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
+                    return ((AbstractUserStoreManager) secondaryUserStoreManager).doCountRoles(filter);
+                } else {
+                    throw new UserStoreException ("Error while getting user store");
+                }
+            }
+        } else if (index == 0) {
+            return doCountRoles(filter.substring(1));
+        }
+
+        try {
+                if (domain.equals("Internal") || domain.equals("Application")) {
+                    filter = domain + "%" + filter;
+                }
+            countRoles = doCountRoles(filter);
+
+        } catch (UserStoreException ex) {
+            handleGetUserCountFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT.getMessage(),
+                            ex.getMessage()), null, null);
+            throw ex;
+        }
+        return countRoles;
+    }
+
+    /**
+     * Count Claims in user stores
+     *
+     * @return claim count value
+     * @throws UserStoreException
+     */
+    public final long countUsersWithClaims(String claimURI, String valueFilter) throws UserStoreException {
+
+        return doCountUsersWithClaims(claimURI, valueFilter);
+    }
+
+    /**
      * This is to call the relevant post methods in listeners after successful retrieval of user list of a role.
      *
      * @param roleName Name of the role.
@@ -6874,6 +6970,162 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         return filteredUserList.toArray(new String[0]);
     }
 
+    /**
+     * Get the user count with claim value as a filter
+     *
+     * @param claimUri              claim uri
+     * @param filterValueWithDomain filter value with domain name
+     * @return usersCountInUserStore
+     * @throws UserStoreException UserStoreException
+     */
+    public final long getUserCountWithClaims(String claimUri, String filterValueWithDomain) throws UserStoreException {
+
+        Long usersCountInUserStore;
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getUserCountWithClaims", new Object[]{claimUri,
+                    filterValueWithDomain}, argTypes);
+            return (Long) object;
+        }
+
+        if (claimUri == null) {
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getMessage(), "");
+            handleGetUserCountFailure(errorCode, errorMessage, null, filterValueWithDomain);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.toString());
+        }
+
+        if (filterValueWithDomain == null) {
+            handleGetUserCountFailure(ErrorMessages.ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY.getCode(),
+                    ErrorMessages.ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY.getMessage(), claimUri, null);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY.toString());
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Count users who having filter and domain " + filterValueWithDomain + " for the claim "
+                    + claimUri);
+        }
+
+        // Extracting the domain from claimValue.
+        String extractedDomain = null;
+        int index;
+        index = filterValueWithDomain.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index > 0) {
+            String names[] = filterValueWithDomain.split(CarbonConstants.DOMAIN_SEPARATOR);
+            extractedDomain = names[0].trim();
+        }
+
+        UserStoreManager userManager = null;
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            userManager = getSecondaryUserStoreManager(extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Domain: " + extractedDomain +
+                        " is passed with the claim and user store manager is loaded" + " for the given domain name.");
+            }
+        }
+
+        String filterValue = UserCoreUtil.removeDomainFromName(filterValueWithDomain);
+
+        // Iterate through user stores and check for users for this claim.
+        usersCountInUserStore = doGetCountUsers(claimUri, filterValue, extractedDomain, userManager);
+        if (log.isDebugEnabled()) {
+            log.debug("Users from user store: " + extractedDomain + " : " + usersCountInUserStore);
+        }
+
+        return usersCountInUserStore;
+    }
+
+    private long doGetCountUsers(String claimUri, String filterValue, String extractedDomain,
+                                 UserStoreManager userManager)
+            throws UserStoreException {
+
+        String claim;
+        long countUsersWithClaimAndDomain = 0;
+        String claimValueWithDomain;
+        // If domain is present, then we search within that domain only.
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            if (userManager == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No user store manager found for domain: " + extractedDomain);
+                }
+                throw new UserStoreException("No user store manager found for domain: " + extractedDomain);
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Domain found . Searching only in the " + extractedDomain + " for possible "
+                        + "matches");
+            }
+
+            try {
+                claim = claimManager.getAttributeName(extractedDomain, claimUri);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                handleGetUserCountFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
+                                e.getMessage()), claimUri, filterValue);
+                throw new UserStoreException(
+                        "Error occurred while retrieving attribute name for domain : " + extractedDomain + " and claim "
+                                + claimUri, e);
+            }
+            if (claim == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not find matching claim for\n" +
+                            "claim :" + claimUri +
+                            "domain :" + extractedDomain);
+                }
+                throw new UserStoreException("Could not find matching claim for\n" + "claim :" + claimUri + "domain :"
+                        + extractedDomain);
+            }
+
+            if (userManager instanceof AbstractUserStoreManager) {
+                try {
+                    countUsersWithClaimAndDomain = ((AbstractUserStoreManager) userManager)
+                            .countUsersWithClaims(claimUri, filterValue);
+                    return countUsersWithClaimAndDomain;
+                } catch (UserStoreException ex) {
+                    handleGetUserCountFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
+                                    ex.getMessage()), claimUri, filterValue);
+                    throw ex;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("getUserListFromProperties is not supported by this user store: " +
+                            userManager.getClass());
+                }
+                throw new UserStoreException("getUserListFromProperties is not supported by this user store: " +
+                        userManager.getClass());
+            }
+        }
+
+        // If domain is not given then search all the user stores.
+        if (log.isDebugEnabled()) {
+            log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
+        }
+
+        List<UserStoreManager> userStoreManagers = getUserStoreMangers();
+
+        // Iterate through all of available user store managers.
+
+        for (UserStoreManager userStoreManager : userStoreManagers) {
+            // If this is not an instance of Abstract User Store Manger we can ignore the flow since we can't get the
+            // domain name.
+            if (!(userStoreManager instanceof AbstractUserStoreManager)) {
+                continue;
+            }
+
+            // For all the user stores append the domain name to the claim and pass it recursively (Including PRIMARY).
+            String domainName = ((AbstractUserStoreManager) userStoreManager).getMyDomainName();
+            claimValueWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + filterValue;
+            long UsersWithClaimAndDomain = getUserCountWithClaims(claimUri, claimValueWithDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Invoking the get user list for domain: " + domainName + " for claim: " + claimUri +
+                        " value: " + claimValueWithDomain);
+            }
+            countUsersWithClaimAndDomain += UsersWithClaimAndDomain;
+        }
+        return countUsersWithClaimAndDomain;
+    }
+
     @Override
     public String[] getUserList(Condition condition, String domain, String profileName, int limit, int offset, String sortBy, String
             sortOrder) throws UserStoreException {
@@ -7018,6 +7270,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             log.debug("Operation is not supported in: " + this.getClass());
         }
         return new PaginatedSearchResult();
+    }
+
+    /**
+     * Get the count of Roles having a matching user name for the filter
+     *
+     * @param filter the filter for the user name. Use '*' to have all.
+     * @throws  UserStoreException UserStoreException
+     */
+    protected long doCountRoles(String filter) throws UserStoreException{
+
+        throw new UserStoreException("Operation is not supported");
     }
 
     protected PaginatedSearchResult getUserListFromProperties(String property, String value, String profileName, int

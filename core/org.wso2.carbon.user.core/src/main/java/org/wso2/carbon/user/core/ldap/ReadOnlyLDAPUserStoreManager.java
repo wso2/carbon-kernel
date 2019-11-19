@@ -1023,6 +1023,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return userNames;
     }
 
+    public long doCountUsersWithClaims(String claimURI, String valueFilter) throws UserStoreException {
+
+        throw new UserStoreException("Error occurred while getting users count with claims ");
+    }
+
     private NamingEnumeration<SearchResult> searchForUsers(String finalFilter,
                                                            String searchBase, String
                                                                    searchBases, int maxItemLimit, String[] returnedAtts)
@@ -2782,6 +2787,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             JNDIUtil.closeContext(dirContext);
             JNDIUtil.closeContext(ldapContext);
         }
+    }
+
+    @Override
+    protected long doCountRoles(String filter) throws UserStoreException {
+
+        throw new UserStoreException("Error occurred while getting roles count");
     }
 
     /**

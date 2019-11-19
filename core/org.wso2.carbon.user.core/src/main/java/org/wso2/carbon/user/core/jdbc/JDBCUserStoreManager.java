@@ -3713,6 +3713,144 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return result;
     }
 
+    /**
+     * Count users
+     *
+     * @param claimUri claim uri.
+     * @param valueFilter The filter for the user name. Use '*' to have all.
+     * @return Count of the users.
+     * @throws UserStoreException UserStoreException
+     */
+    public long doCountUsersWithClaims(String claimUri, String valueFilter) throws UserStoreException {
+
+        String sqlStmt;
+        boolean DefaultClaimUri = claimUri.equals("http://wso2.org/claims/userName");
+        if (DefaultClaimUri) {
+            sqlStmt = JDBCRealmConstants.COUNT_USERS_SQL;
+        } else {
+            sqlStmt = JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL;
+        }
+        String mappedAttribute = null;
+
+        if (valueFilter.equals("*")) {
+            valueFilter = "%";
+        }
+
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)
+        ) {
+            String domainName = getMyDomainName();
+            if (StringUtils.isEmpty(domainName)) {
+                domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+
+            if (StringUtils.isNotEmpty(claimUri)) {
+                mappedAttribute = userRealm.getClaimManager().getAttributeName(domainName, claimUri);
+            }
+
+            if (DefaultClaimUri) {
+                valueFilter = valueFilter.replace("?", "_");
+                prepStmt.setString(1, valueFilter);
+                prepStmt.setInt(2, tenantId);
+
+            } else {
+                prepStmt.setString(1, mappedAttribute);
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setString(3, "%" + valueFilter + "%");
+                prepStmt.setString(4, UserCoreConstants.DEFAULT_PROFILE);
+            }
+
+            try (ResultSet resultSet = prepStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("RESULT");
+                } else {
+                    log.error("No claim count is retrieved from the user store.");
+                    return Long.valueOf(-1);
+                }
+            }
+        } catch (SQLException e) {
+            String msg = "No claim count is retrieved from the user store from SQL" + sqlStmt;
+            if (log.isDebugEnabled()) {
+                log.debug("Using sql : " + sqlStmt);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            throw new UserStoreException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Count roles in user stores.
+     *
+     * @param filter the filter for the user name. Use '*' to have all.
+     * @return user count
+     * @throws UserStoreException UserStoreException
+     */
+    public long doCountRoles(String filter) throws UserStoreException {
+
+        Long usersCount = null;
+        String sqlStmt = null;
+
+        if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+            sqlStmt = JDBCRealmConstants.COUNT_APPLICATION_ROLES_SQL;
+            filter = filter.replace(UserCoreConstants.INTERNAL_DOMAIN, "");
+        } else if (filter.startsWith(UserCoreConstants.APPLICATION_DOMAIN)) {
+            sqlStmt = JDBCRealmConstants.COUNT_INTERNAL_ROLES_SQL;
+        } else {
+            sqlStmt = JDBCRealmConstants.COUNT_ROLES_SQL;
+        }
+
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            if (StringUtils.isNotEmpty(filter)) {
+                filter = filter.trim();
+                filter = filter.replace("*", "%");
+            } else {
+                filter = "%";
+            }
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+            filter = filter.replace("?", "_");
+            prepStmt.setString(1, filter);
+            if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
+                prepStmt.setString(2, SQL_FILTER_CHAR_ESCAPE);
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(3, tenantId);
+                }
+            } else {
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(2, tenantId);
+                }
+            }
+
+            try (ResultSet resultSets = prepStmt.executeQuery()) {
+                while (resultSets.next()) {
+                    return resultSets.getLong(1);
+                }
+            } catch (SQLException e) {
+                if (e instanceof SQLTimeoutException) {
+                    log.error("The cause might be a time out. Hence ignored", e);
+                    return usersCount;
+                }
+                String errorMessage =
+                        "Error while fetching users according to filter : " + filter;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users for filter : " + filter + " & max Item limit : ";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
+        return usersCount;
+    }
+
     protected int doGetListUsersCount(String filter) throws UserStoreException {
 
         Connection dbConnection = null;
