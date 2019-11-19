@@ -4092,7 +4092,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     protected boolean isUniqueUserIdEnabled() {
 
-        return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.IS_USER_ID_ENABLED));
+        return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_ID_ENABLED));
     }
 
     /**
@@ -7535,8 +7535,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             } else if (addAdmin) {
                 try {
-                    this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
-                            null, null, null, false);
+                    if (isUniqueUserIdEnabled()) {
+                        // Ignore the return value as we don't need it.
+                        doAddUserWithID(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
+                    } else {
+                        // Call the old API since this user store does not support the unique user id related APIs.
+                        this.doAddUser(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
+                    }
                 } catch (Exception e) {
                     String message = "Admin user has not been created. " +
                             "Error occurs while creating Admin user in primary user store.";
