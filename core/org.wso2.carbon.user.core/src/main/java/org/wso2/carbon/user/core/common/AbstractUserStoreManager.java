@@ -308,14 +308,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return An array of user names
      * @throws UserStoreException if the operation failed
      */
-    protected String[] doGetUserListFromProperties(String property, String value, String profileName)
+    protected String[] doGetUserListFromPropertiesWithID(String property, String value, String profileName)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("doGetUserListFromProperties operation is not implemented in: " + this.getClass());
+            log.debug("doGetUserListFromPropertiesWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "doGetUserListFromProperties operation is not implemented in: " + this.getClass());
+                "doGetUserListFromPropertiesWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -917,24 +917,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("getProfileNamesWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("getProfileNamesWithID operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public int getTenantIdWithID(String userID) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getTenantIdWithID operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("getTenantIdWithID operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public int getUserIdWithID(String userID) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getUserIdWithID operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("getUserIdWithID operation is not implemented in: " + this.getClass());
     }
 
     /*This is to get the display names of users in hybrid role according to the underlying user store, to be shown in UI*/
@@ -9749,7 +9731,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userIDs.length > 1) {
             throw new UserStoreException(
-                    "Invalid scenario. Multiple users cannot be found for the given user attribute.");
+                    "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of the "
+                            + "claim: " + claimURI);
         }
 
         if (ArrayUtils.isEmpty(userIDs)) {
@@ -10860,23 +10843,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public User addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName) throws UserStoreException {
-        return this.addUserWithID(userName, credential, roleList, claims, profileName, false);
-    }
-
-    @Override
     public final User addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+            String profileName) throws UserStoreException {
 
         // We have to make sure this call is going through the Java Security Manager.
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{
+            Class[] argTypes = new Class[] {
                     String.class, Object.class, String[].class, Map.class, String.class, boolean.class
             };
             Object object = callSecure("addUserWithID", new Object[] {
-                    userName, credential, roleList, claims, profileName, requirePasswordChange
-            }, argTypes);
+                    userName, credential, roleList, claims, profileName,
+                    }, argTypes);
             return (User) object;
         }
 
@@ -10897,8 +10874,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         UserStore userStore = getUserStoreWithID(userName);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
-                    .addUserWithID(userStore.getDomainFreeName(), credential, roleList, claims, profileName,
-                            requirePasswordChange);
+                    .addUserWithID(userStore.getDomainFreeName(), credential, roleList, claims, profileName);
         }
 
         // Convert the credential (Password) to a Secret.
@@ -11139,13 +11115,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // If unique user id property is enabled, then we can call the new methods in the user store.
                 if (isUniqueUserIdEnabled) {
                     user = doAddUserWithID(userName, credentialObj, externalRoles.toArray(new String[0]), claims,
-                            profileName, requirePasswordChange);
+                            profileName, false);
                 } else {
                     // If the underlying user store does not support the unique ID generation, then we have to generate
                     // the ID and keep the mapping in our side.
                     user = userUniqueIDManger.addUser(userStore.getDomainFreeName(), profileName, this);
                     doAddUser(userName, credentialObj, externalRoles.toArray(new String[0]), claims,
-                            profileName, requirePasswordChange);
+                            profileName, false);
                 }
             } catch (UserStoreException ex) {
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_USER.getCode(),
@@ -11193,14 +11169,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Clean the role cache since it contains old role information.
         clearUserRolesCacheWithID(userName);
         return user;
-    }
-
-    @Override
-    public void addRoleWithID(String roleName, String[] userIDList, Permission[] permissions)
-            throws UserStoreException {
-
-        addRoleWithID(roleName, userIDList, permissions, false);
-
     }
 
     @Override

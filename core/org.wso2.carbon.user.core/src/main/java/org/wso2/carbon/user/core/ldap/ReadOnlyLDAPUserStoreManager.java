@@ -4006,12 +4006,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         throw new UserStoreException("Invalid operation");
     }
 
-    @Override
-    public int getTenantIdWithID(String userID) throws UserStoreException {
-
-        throw new UserStoreException("Invalid operation");
-    }
-
     /**
      * //TODO:remove this method
      *

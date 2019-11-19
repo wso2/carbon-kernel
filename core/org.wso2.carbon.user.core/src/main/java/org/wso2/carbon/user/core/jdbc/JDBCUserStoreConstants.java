@@ -292,9 +292,6 @@ public class JDBCUserStoreConstants {
                 .GET_USERID_FROM_USERNAME_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_USERNAME_FROM_TENANT_ID, "Get Username From Tenant ID SQL", JDBCRealmConstants.GET_USERNAME_FROM_TENANT_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME, "Get Tenant ID From Username SQL", JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_SQL, "");
-        setAdvancedProperty(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID,
-                "Get Tenant ID From Username With ID SQL", JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_WITH_ID_SQL,
-                "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE, "Get " +
                 "Tenant ID From Username SQL With Case Insensitive Username", JDBCCaseInsensitiveConstants
                 .GET_TENANT_ID_FROM_USERNAME_SQL_CASE_INSENSITIVE, "");
