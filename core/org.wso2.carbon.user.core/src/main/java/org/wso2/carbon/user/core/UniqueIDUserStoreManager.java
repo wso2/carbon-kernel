@@ -159,21 +159,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             String profileName) throws UserStoreException;
 
     /**
-     * Add a user to the user store.
-     *
-     * @param userName              User name of the user.
-     * @param credential            The credential/password of the user.
-     * @param roleList              The roles that user belongs.
-     * @param claims                Properties of the user.
-     * @param profileName           profile name.
-     * @param requirePasswordChange whether the user is required to change the password.
-     * @return added user.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    User addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException;
-
-    /**
      * Delete the user with the given user name.
      *
      * @param userID The user ID.
@@ -203,25 +188,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     void setUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException;
-
-    /**
-     * This method works only if the tenant is super tenant. If the realm is not super tenant's this
-     * method should throw exception.
-     *
-     * @param userID The user ID.
-     * @return tenant ID.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    int getTenantIdWithID(String userID) throws UserStoreException;
-
-    /**
-     * This is to retrieve the auto increment user ID created when adding the user in a JDBC user store.
-     *
-     * @param userID The user ID.
-     * @return The auto increment user ID stored in underlying JDBC user store.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    int getUserIdWithID(String userID) throws UserStoreException;
 
     /**
      * Retrieves a list of users for given user claim value.
@@ -266,24 +232,14 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             throws UserStoreException;
 
     /**
-     * Adds a role to the system.
-     *
-     * @param roleName    The role name.
-     * @param userIDList  the list of the user IDs.
-     * @param permissions The permissions of the role.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    void addRoleWithID(String roleName, String[] userIDList, Permission[] permissions) throws UserStoreException;
-
-    /**
      * Update the user list of a given role.
      *
-     * @param roleName     role name.
-     * @param deletedUsers deleted users.
-     * @param newUsers     new users.
+     * @param roleName       role name.
+     * @param deletedUserIDs deleted users.
+     * @param newUserIDs     new user IDs.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    void updateUserListOfRoleWithID(String roleName, String deletedUsers[], String[] newUsers)
+    void updateUserListOfRoleWithID(String roleName, String deletedUserIDs[], String[] newUserIDs)
             throws UserStoreException;
 
     /**
