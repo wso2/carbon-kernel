@@ -679,7 +679,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
             String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            if (StringUtils.isEmpty(userNameAttribute)) {
+            if (StringUtils.isNotEmpty(userNameAttribute)) {
                 Map<String, String> map = getUserPropertyValuesWithID(userID, new String[] { userNameAttribute }, null);
                 String tempUserName = map.get(userNameAttribute);
                 if (tempUserName != null) {
@@ -738,7 +738,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             List<String> updatedUserNameList = new ArrayList<>();
             for (String userID : userIDs) {
                 String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-                if (userNameAttribute != null && userNameAttribute.trim().length() > 0) {
+                if (StringUtils.isNotEmpty(userNameAttribute)) {
                     Map<String, String> map = getUserPropertyValues(userID, new String[] { userNameAttribute }, null);
                     String tempUserName = map.get(userNameAttribute);
                     if (tempUserName != null) {
