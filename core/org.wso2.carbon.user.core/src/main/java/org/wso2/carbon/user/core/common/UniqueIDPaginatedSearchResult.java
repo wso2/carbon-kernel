@@ -23,6 +23,7 @@ import java.util.List;
 public class UniqueIDPaginatedSearchResult {
 
     private List<User> users;
+    private PaginatedSearchResult paginatedSearchResult;
 
     // This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
     // required to know how many users skipped in that user store to identify the start index of next user store.
@@ -49,5 +50,15 @@ public class UniqueIDPaginatedSearchResult {
     public void setSkippedUserCount(int skippedUserCount) {
 
         this.skippedUserCount = skippedUserCount;
+    }
+
+    public PaginatedSearchResult getPaginatedSearchResult() {
+
+        return paginatedSearchResult;
+    }
+
+    public void setPaginatedSearchResult(PaginatedSearchResult paginatedSearchResult) {
+
+        this.paginatedSearchResult = paginatedSearchResult;
     }
 }
