@@ -62,7 +62,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    User[] listUsersWithID(String filter, int maxItemLimit) throws UserStoreException;
+    List<User> listUsersWithID(String filter, int maxItemLimit) throws UserStoreException;
 
     /**
      * Retrieves the user of the given user ID.
@@ -100,7 +100,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of role names that user belongs.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    String[] getRoleListOfUserWithID(String userID) throws UserStoreException;
+    List<String> getRoleListOfUserWithID(String userID) throws UserStoreException;
 
     /**
      * Get user list of role.
@@ -109,7 +109,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of users that belongs to the given role.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    User[] getUserListOfRoleWithID(String roleName) throws UserStoreException;
+    List<User> getUserListOfRoleWithID(String roleName) throws UserStoreException;
 
     /**
      * Get user claim value in the profile.
@@ -142,7 +142,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of claims.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    Claim[] getUserClaimValuesWithID(String userID, String profileName) throws UserStoreException;
+    List<Claim> getUserClaimValuesWithID(String userID, String profileName) throws UserStoreException;
 
     /**
      * Add a user to the user store.
@@ -239,7 +239,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param newUserIDs     new user IDs.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    void updateUserListOfRoleWithID(String roleName, String deletedUserIDs[], String[] newUserIDs)
+    void updateUserListOfRoleWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException;
 
     /**
