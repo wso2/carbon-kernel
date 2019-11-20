@@ -301,7 +301,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException UserStore Exception.
      */
-    boolean doPostGetUserListOfRoleWithID(String roleName, User[] userList, UserStoreManager userStoreManager)
+    boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**

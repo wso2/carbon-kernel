@@ -455,7 +455,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostGetUserListOfRoleWithID(String roleName, User[] userList, UserStoreManager userStoreManager)
+    public boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;

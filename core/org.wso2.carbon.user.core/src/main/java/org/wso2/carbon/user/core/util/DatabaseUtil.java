@@ -34,6 +34,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.naming.InitialContext;
@@ -683,13 +684,13 @@ public class DatabaseUtil {
      * @return {@link User}[] of results.
      * @throws UserStoreException
      **/
-    public static User[] getUsersFromDatabaseWithConstraints(Connection dbConnection, String sqlStmt, int maxRows,
+    public static List<User> getUsersFromDatabaseWithConstraints(Connection dbConnection, String sqlStmt, int maxRows,
             int queryTimeout, Object... params) throws UserStoreException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         try {
-            User[] values = null;
+            List<User> values = null;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (params != null && params.length > 0) {
                 validateParameterCount(sqlStmt, params);
@@ -714,9 +715,9 @@ public class DatabaseUtil {
                 users.add(user);
             }
             if (users.size() > 0) {
-                values = users.stream().toArray(User[]::new);
+                values = users;
             }
-            return values == null ? new User[0] : values;
+            return values == null ? Collections.emptyList() : values;
         } catch (SQLException e) {
             String errorMessage =
                     "Error while getting values from the database using " + getLoggableSqlString(sqlStmt, params)
