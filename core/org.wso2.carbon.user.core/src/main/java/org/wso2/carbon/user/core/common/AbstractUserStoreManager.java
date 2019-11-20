@@ -2360,7 +2360,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Get the user list and return with domain appended.
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
-                    String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
+                    String[] userArray;
+                    if (isUniqueUserIdEnabled()) {
+                        userArray = userStoreManager
+                                .doGetUserListFromPropertiesWithID(property, claimValue, profileName);
+                    } else {
+                        userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
+                    }
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
                     }
@@ -6199,6 +6205,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
+    // TODO: write in uniqeID LDAP classes
     /**
      * Method to get the password expiration time.
      *
@@ -7556,7 +7563,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         try {
-            userExist = doCheckExistingUser(adminUserName);
+            if (isUniqueUserIdEnabled()) {
+                userExist = doCheckExistingUserName(adminUserName);
+            } else {
+                userExist = doCheckExistingUser(adminUserName);
+            }
         } catch (Exception e) {
             //ignore
         }
@@ -11420,6 +11431,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (User) object;
         }
 
+        // If user unique id feature is not enabled, we have to call the legacy methods.
+        if (!isUniqueUserIdEnabled()) {
+            UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
+            addUser(userName, credential, roleList, claims, profileName);
+            return userUniqueIDManger.addUser(userName, profileName, this);
+        }
+
         // If we don't have a username, we cannot proceed.
         if (StringUtils.isEmpty(userName)) {
             String regEx = realmConfig
@@ -12773,7 +12791,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         Map<String, List<String>> externalRoles = new HashMap<>();
         if (readGroupsEnabled) {
-            externalRoles = doGetExternalRoleListOfUsers(userIDs);
+            externalRoles = doGetExternalRoleListOfUsersWithID(userIDs);
         }
 
         Map<String, List<String>> combinedRoles = new HashMap<>();
