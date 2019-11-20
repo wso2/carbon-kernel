@@ -4306,6 +4306,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM, UserStoreConfigConstants
                         .enableMaxUserLimitDisplayName, "false",
                 UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
+        setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationDisabled, "Disable SSL certificate" +
+                " validation", "false", UserStoreConfigConstants.SSLCertificateValidationDisabledDescription);
+
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value,
