@@ -7349,6 +7349,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         boolean roleExist = false;
         boolean isInternalRole = false;
         String adminUserID = null;
+        User user = null;
 
         try {
             if (Boolean.parseBoolean(this.getRealmConfiguration().getUserStoreProperty(
@@ -7390,7 +7391,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     if (isUniqueUserIdEnabled()) {
                         // Ignore the return value as we don't need it.
-                        doAddUserWithID(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
+                        user = doAddUserWithID(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
                     } else {
                         // Call the old API since this user store does not support the unique user id related APIs.
                         this.doAddUser(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
@@ -7424,12 +7425,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
+        if (isUniqueUserIdEnabled()) {
+            if (user != null) {
+                adminUserID = user.getUserID();
+            } else {
+                adminUserID = getUserIDByUserName(adminUserName, null);
+            }
+        }
 
         if (!roleExist) {
             if (addAdmin) {
                 if (!isReadOnly() && writeGroupsEnabled) {
                     try {
-                        this.doAddRole(adminRoleName, new String[]{adminUserName}, false);
+                        if (isUniqueUserIdEnabled()) {
+                            this.doAddRoleWithID(adminRoleName, new String[] { adminUserID }, false);
+                        } else {
+                            this.doAddRole(adminRoleName, new String[] { adminUserName }, false);
+                        }
                     } catch (org.wso2.carbon.user.api.UserStoreException e) {
                         String message = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
@@ -7449,7 +7461,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // creates internal role
                     try {
                         if (isUniqueUserIdEnabled()) {
-                            adminUserID = getUserIDByUserName(adminUserName, null);
                             hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserID });
                         } else {
                             hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserName });
@@ -7483,7 +7494,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-
         if (isInternalRole) {
 
             if (isUniqueUserIdEnabled()) {
@@ -7493,11 +7503,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             realmConfig.setAdminRoleName(UserCoreUtil.addInternalDomainName(adminRoleName));
         } else if (!isReadOnly() && writeGroupsEnabled) {
-            if (!this.doCheckIsUserInRole(adminUserName, adminRoleName)) {
+            
+            boolean doCheckIsUserInRole;
+            if (isUniqueUserIdEnabled()) {
+                doCheckIsUserInRole = this.doCheckIsUserInRoleWithID(adminUserID, adminRoleName);
+            } else {
+                doCheckIsUserInRole = this.doCheckIsUserInRole(adminUserName, adminRoleName);
+            }
+            if (doCheckIsUserInRole) {
                 if (addAdmin) {
                     try {
-                        this.doUpdateRoleListOfUser(adminUserName, null,
-                                new String[]{adminRoleName});
+                        if (isUniqueUserIdEnabled()) {
+                            this.doUpdateRoleListOfUserWithID(adminUserID, null, new String[] { adminRoleName });
+                        } else {
+                            this.doUpdateRoleListOfUser(adminUserName, null, new String[] { adminRoleName });
+                        }
                     } catch (Exception e) {
                         String message = "Admin user has not been assigned to Admin role. " +
                                 "Error while assignment is done";
@@ -9767,9 +9787,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
 
-        // return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-        UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
-        return userUniqueIDManger.getUniqueId(userName, profileName, this);
+        String userID = getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
+        if (StringUtils.isEmpty(userID)) {
+            UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
+            userID = userUniqueIDManger.getUniqueId(userName, profileName, this);
+        }
+        return userID;
     }
 
     /**

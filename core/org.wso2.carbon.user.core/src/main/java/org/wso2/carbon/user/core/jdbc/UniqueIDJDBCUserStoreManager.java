@@ -71,7 +71,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
@@ -84,15 +83,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
-    public static final String QUERY_BINDING_SYMBOL = "?";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
-
-    protected DataSource jdbcds = null;
-    protected Random random = new Random();
-    protected int maximumUserNameListLength = -1;
-    protected int queryTimeout = -1;
-
     private static final String DB2 = "db2";
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
@@ -129,14 +121,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             boolean skipInitData) throws UserStoreException {
 
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId, skipInitData);
-    }
-
-    // Loading JDBC data store on demand.
-    private DataSource getJDBCDataSource() throws UserStoreException {
-        if (jdbcds == null) {
-            jdbcds = loadUserStoreSpacificDataSoruce();
-        }
-        return jdbcds;
     }
 
     @Override
@@ -263,16 +247,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
-    private User getUser(String userID, String userName) throws UserStoreException {
+    private User getUser(String userID, String userName) {
 
-        RealmService realmService = UserCoreUtil.getRealmService();
         User user = new User(userID, userName, userName);
-        try {
-            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
-            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
-        }
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        user.setTenantDomain(tenantDomain);
+        user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
         return user;
     }
 
@@ -287,7 +267,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             }
         }
-
         return false;
     }
 
@@ -1293,7 +1272,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String errorMessage = "The role: " + role + " does not exist.";
                         throw new UserStoreException(errorMessage);
                     }
-                    if (!isUserInRole(userID, role)) {
+                    if (!isUserInRoleWithID(userID, role)) {
                         newRoleList.add(role);
                     }
                 }
