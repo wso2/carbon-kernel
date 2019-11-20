@@ -60,7 +60,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     public static final String SECURE_VAULT_SECRET_KEY = "Axis2.clustering.aws.secretKey";
     private final Map<String, Parameter> parameters;
     private final String primaryDomain;
-    private final NetworkConfig nwConfig;
+    protected final NetworkConfig nwConfig;
     private HazelcastInstance primaryHazelcastInstance;
     private final List<ClusteringMessage> messageBuffer;
     private HazelcastCarbonClusterImpl carbonCluster;

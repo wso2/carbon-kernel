@@ -69,6 +69,7 @@ import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
+import org.wso2.carbon.core.clustering.hazelcast.aws.AWSECSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.general.GeneralMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
@@ -598,6 +599,12 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                                                            primaryHazelcastInstance,
                                                            sentMsgsBuffer);
             membershipScheme.init();
+        } else if (scheme.equals(HazelcastConstants.AWS_ECS_MEMBERSHIP_SCHEME)) {
+            membershipScheme = new AWSECSBasedMembershipScheme(parameters, primaryDomain,
+                    primaryHazelcastConfig,
+                    primaryHazelcastInstance,
+                    sentMsgsBuffer);
+            membershipScheme.init();
         } else {
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter != null) {
@@ -654,7 +661,8 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
         if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED) &&
             !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
-            !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
+            !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME) &&
+                !mbrScheme.equals(HazelcastConstants.AWS_ECS_MEMBERSHIP_SCHEME)) {
 
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter == null) {
