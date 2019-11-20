@@ -1621,10 +1621,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+
+        return getPasswordExpirationTimeWithID(getUserIDByUserName(userName, null));
+    }
+
+    @Override
     public Date getPasswordExpirationTimeWithID(String userID) throws UserStoreException {
 
         if (userID != null && userID.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
-            return super.getPasswordExpirationTime(userID);
+            return super.getPasswordExpirationTimeWithID(userID);
         }
 
         Connection dbConnection = null;
@@ -1637,7 +1643,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             dbConnection = getDBConnection();
             dbConnection.setAutoCommit(false);
 
-            sqlstmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_WITH_ID);
+            sqlstmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_ID_WITH_ID);
             if (log.isDebugEnabled()) {
                 log.debug(sqlstmt);
             }
@@ -1651,8 +1657,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs = prepStmt.executeQuery();
 
             if (rs.next()) {
-                boolean requireChange = rs.getBoolean(5);
-                Timestamp changedTime = rs.getTimestamp(6);
+                boolean requireChange = rs.getBoolean(1);
+                Timestamp changedTime = rs.getTimestamp(2);
                 if (requireChange) {
                     GregorianCalendar gc = new GregorianCalendar();
                     gc.setTime(changedTime);
@@ -2061,13 +2067,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     protected Map<String, List<String>> doGetExternalRoleListOfUsers(List<String> userNames) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Getting roles of users: " + userNames);
-        }
+        throw new UserStoreException("Operation is not supported.");
+    }
 
-        // Get the relevant userID for the given username.
-        if (isUniqueUserIdEnabled()) {
-            userNames = getUserIDsByUserNames(userNames, null);
+    @Override
+    protected Map<String, List<String>> doGetExternalRoleListOfUsersWithID(List<String> userIDs)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting roles of users: " + userIDs);
         }
 
         String sqlStmt;
@@ -2081,16 +2089,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             StringBuilder usernameParameter = new StringBuilder();
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_ROLE_WITH_ID);
             if (sqlStmt == null) {
-                throw new UserStoreException("The sql statement for retrieving users roles is null");
+                throw new UserStoreException("The sql statement for retrieving users roles is null.");
             }
-            for (int i = 0; i < userNames.size(); i++) {
+            for (int i = 0; i < userIDs.size(); i++) {
 
-                usernameParameter.append("'").append(userNames.get(i)).append("'");
+                usernameParameter.append("'").append(userIDs.get(i)).append("'");
 
-                if (i != userNames.size() - 1) {
+                if (i != userIDs.size() - 1) {
                     usernameParameter.append(",");
                 }
             }
+
             sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -2113,9 +2122,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             return rolesListOfUsersMap;
         } catch (SQLException e) {
-            String errorMessage = "Error Occurred while getting role lists of users";
+            String errorMessage = "Error Occurred while getting role lists of users.";
             if (log.isDebugEnabled()) {
-                errorMessage = errorMessage + ": " + userNames;
+                errorMessage = errorMessage + ": " + userIDs;
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
