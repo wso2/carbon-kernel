@@ -340,6 +340,31 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     void addSecondaryUserStoreManager(String userDomain, UserStoreManager userStoreManager);
 
     /**
+     * Default implementation for get users count with claims.
+     *
+     * @param claimUri claim uri
+     * @param filterValueWithDomain filter value with domain
+     * @return count users
+     * @throws UserStoreException UserStoreException
+     */
+    default long getUserCountWithClaims(String claimUri, String filterValueWithDomain) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported");
+    }
+
+    /**
+     * Default implementation for count roles in user stores.
+     *
+     * @param filter The string to filter out roles
+     * @return count roles
+     * @throws UserStoreException UserStoreException
+     */
+    default long countRoles(String filter) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported");
+    }
+
+    /**
      * Get the RealmConfiguration belonging to this user store
      *
      * @return RealmConfiguration

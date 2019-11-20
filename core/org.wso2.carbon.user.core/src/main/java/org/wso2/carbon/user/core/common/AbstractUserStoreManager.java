@@ -4250,7 +4250,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @return countRoles
      * @throws UserStoreException UserStoreException
      */
-    public final long countRoles(String filter) throws UserStoreException {
+    public long countRoles(String filter) throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[]{String.class};
@@ -6978,7 +6978,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @return usersCountInUserStore
      * @throws UserStoreException UserStoreException
      */
-    public final long getUserCountWithClaims(String claimUri, String filterValueWithDomain) throws UserStoreException {
+    public long getUserCountWithClaims(String claimUri, String filterValueWithDomain) throws UserStoreException {
 
         Long usersCountInUserStore;
         if (!isSecureCall.get()) {
