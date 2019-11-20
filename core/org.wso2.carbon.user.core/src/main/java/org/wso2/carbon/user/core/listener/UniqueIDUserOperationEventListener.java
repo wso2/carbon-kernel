@@ -203,7 +203,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @throws UserStoreException UserStoreException
      */
     boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
-            String sortBy, String sortOrder, User[] users, UserStoreManager userStoreManager) throws UserStoreException;
+            String sortBy, String sortOrder, List<User> users, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Post listener for the get user conditional list method.
@@ -301,7 +301,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException UserStore Exception.
      */
-    boolean doPostGetUserListOfRoleWithID(String roleName, User[] userList, UserStoreManager userStoreManager)
+    boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
@@ -314,8 +314,8 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @return false in case of error.
      * @throws UserStoreException UserStoreException.
      */
-    boolean doPostGetUsersClaimValuesWithID(String[] userIDs, String[] claims, String profileName,
-            UserClaimSearchEntry[] userClaimSearchEntries) throws UserStoreException;
+    boolean doPostGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims, String profileName,
+            List<UserClaimSearchEntry> userClaimSearchEntries) throws UserStoreException;
 
     /**
      * Define any additional actions before actual authentication is happen.
@@ -619,7 +619,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @return false in case of error
      * @throws UserStoreException UserStoreException
      */
-    boolean doPostGetRoleListOfUsersWithID(String[] userIDs, Map<String, List<String>> rolesOfUsersMap)
+    boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap)
             throws UserStoreException;
 
 }

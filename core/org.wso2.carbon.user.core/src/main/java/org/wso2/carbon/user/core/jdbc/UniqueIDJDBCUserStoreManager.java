@@ -64,6 +64,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -124,9 +125,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public User[] doListUsersWithID(String filter, int maxItemLimit) throws UserStoreException {
+    public List<User> doListUsersWithID(String filter, int maxItemLimit) throws UserStoreException {
 
-        User[] users = null;
+        List<User> users = null;
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
@@ -134,7 +135,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         String userNameAttribute = this.getUserNameMappedAttribute();
 
         if (maxItemLimit == 0) {
-            return new User[0];
+            return Collections.emptyList();
         }
 
         int givenMax;
@@ -230,7 +231,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs.close();
 
             if (userList.size() > 0) {
-                users = userList.toArray(new User[0]);
+                users = userList;
             }
 
         } catch (SQLException e) {
@@ -277,19 +278,19 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public User[] doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
+    public List<User> doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
         return getUserListOfJDBCRoleWithID(roleContext, filter);
     }
 
-    public User[] getUserListOfJDBCRoleWithID(RoleContext ctx, String filter) throws UserStoreException {
+    public List<User> getUserListOfJDBCRoleWithID(RoleContext ctx, String filter) throws UserStoreException {
 
         return getUserListOfJDBCRoleWithID(ctx, filter, QUERY_MAX_ITEM_LIMIT_ANY);
     }
 
     @Override
-    public User[] doGetUserListOfRoleWithID(String roleName, String filter, int maxItemLimit)
+    public List<User> doGetUserListOfRoleWithID(String roleName, String filter, int maxItemLimit)
             throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
@@ -306,16 +307,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @return The list of users matching the provided constraints.
      * @throws UserStoreException
      */
-    public User[] getUserListOfJDBCRoleWithID(RoleContext ctx, String filter, int maxItemLimit)
+    public List<User> getUserListOfJDBCRoleWithID(RoleContext ctx, String filter, int maxItemLimit)
             throws UserStoreException {
 
         String roleName = ctx.getRoleName();
-        User[] users = null;
+        List<User> users = null;
         String sqlStmt;
         String mappedAttribute = this.getUserNameMappedAttribute();
 
         if (maxItemLimit == 0) {
-            return new User[0];
+            return Collections.emptyList();
         }
 
         if (maxItemLimit < 0 || maxItemLimit > maximumUserNameListLength) {
@@ -507,7 +508,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @return {@link User}[] of results.
      * @throws UserStoreException
      */
-    private User[] getUsersFromDatabaseWithConstraints(String sqlStmt, int maxRows, int queryTimeout, Object... params)
+    private List<User> getUsersFromDatabaseWithConstraints(String sqlStmt, int maxRows, int queryTimeout, Object... params)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -517,7 +518,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             log.debug(msg);
         }
 
-        User[] values;
+        List<User> values;
         try (Connection dbConnection = getDBConnection()) {
             values = DatabaseUtil
                     .getUsersFromDatabaseWithConstraints(dbConnection, sqlStmt, maxRows, queryTimeout, params);
@@ -2405,7 +2406,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     protected UniqueIDPaginatedSearchResult doListUsersWithID(String filter, int limit, int offset)
             throws UserStoreException {
 
-        User[] users = new User[0];
+        List<User> users = new ArrayList<>();
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
@@ -2532,10 +2533,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs.close();
 
             if (list.size() > 0) {
-                users = list.toArray(new User[0]);
+                users = list;
             }
-
-            Arrays.sort(users);
+            users.sort(Comparator.comparing(User::getUsername));
         } catch (Exception e) {
             String msg = "Error occurred while retrieving users for filter : " + filter + " & limit : " + limit;
             if (log.isDebugEnabled()) {
@@ -2547,7 +2547,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
         result.setUsers(users);
 
-        if (users.length == 0) {
+        if (users.size() == 0) {
             result.setSkippedUserCount(doGetListUsersCount(filter));
         }
         return result;
@@ -2579,7 +2579,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
-        User[] users = new User[0];
+        List<User> users = new ArrayList<>();
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
@@ -2636,7 +2636,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (list.size() > 0) {
-                users = list.toArray(new User[0]);
+                users = list;
             }
             result.setUsers(users);
         } catch (Exception e) {
@@ -2650,7 +2650,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
 
-        if (users.length == 0) {
+        if (users.size() == 0) {
             result.setSkippedUserCount(getUserListFromPropertiesCount(property, value, profileName));
         }
         return result;
@@ -2686,7 +2686,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
-        User[] users = new User[0];
+        List<User> users = new ArrayList<>();
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -2759,7 +2759,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (list.size() > 0) {
-                users = list.toArray(new User[0]);
+                users = list;
             }
             result.setUsers(users);
 

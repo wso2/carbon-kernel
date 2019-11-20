@@ -1191,11 +1191,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    public User[] doListUsersWithID(String filter, int maxItemLimit)
+    public List<User> doListUsersWithID(String filter, int maxItemLimit)
             throws UserStoreException {
 
         boolean debug = log.isDebugEnabled();
-        User[] userNames = new User[0];
+        List<User> userNames = new ArrayList<>();
         String userNameAttribute = this.getUserNameMappedAttribute();
 
         if (maxItemLimit == 0) {
@@ -1335,7 +1335,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-            userNames = list.stream().toArray(User[]::new);
+            userNames = list;
 
             if (debug) {
                 for (User username : userNames) {
@@ -1986,9 +1986,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
 
     @Override
-    public User[] doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
+    public List<User> doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
-        return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter)).stream().toArray(User[]::new);
+        return UserCoreUtil.getUserList(doGetUserListOfRoleInternal(roleName, filter));
     }
 
     @Override

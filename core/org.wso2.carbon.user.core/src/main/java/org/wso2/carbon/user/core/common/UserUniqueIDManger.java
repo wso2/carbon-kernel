@@ -21,9 +21,11 @@ package org.wso2.carbon.user.core.common;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,7 +41,7 @@ public class UserUniqueIDManger {
      * @param username Username in the user store.
      * @return User object with unique user id.
      */
-    public User addUser(String username, String profileName, UserStoreManager userStoreManager)
+    public User addUser(String username, String profileName, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
         Map<String, String> claims = new HashMap<>();
@@ -61,7 +63,8 @@ public class UserUniqueIDManger {
      * @param uniqueId User's unique id.
      * @return User object if user presents for the unique id. Null otherwise.
      */
-    public User getUser(String uniqueId, String profile, UserStoreManager userStoreManager) throws UserStoreException {
+    public User getUser(String uniqueId, String profile, AbstractUserStoreManager userStoreManager)
+            throws UserStoreException {
 
         String[] usernames = userStoreManager.getUserList(USER_ID_CLAIM, uniqueId, profile);
 
@@ -81,17 +84,34 @@ public class UserUniqueIDManger {
     }
 
     /**
+     * Get list of uesr's from the provided user id list.
+     * @param userIds List of user ids'
+     * @param userStoreManager User store manger.
+     * @return List of users.
+     */
+    public List<User> getUsers(List<String> userIds, AbstractUserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        List<User> users = new ArrayList<>();
+        for (String userId : userIds) {
+            User user = userStoreManager.getUserWithID(userId, new String[0], null);
+            users.add(user);
+        }
+
+        return users;
+    }
+
+    /**
      * Get user's unique id from the claims.
      * @param username Username of the user.
      * @param profile Profile name of the user.
      * @param userStoreManager User store manger to use.
      * @return User's unique id.
      */
-    public String getUniqueId(String username, String profile, UserStoreManager userStoreManager)
+    public String getUniqueId(String username, String profile, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String userUniqueId = userStoreManager.getUserClaimValue(username, USER_ID_CLAIM, profile);
-        return userUniqueId;
+        return userStoreManager.getUserClaimValue(username, USER_ID_CLAIM, profile);
     }
 
     /**
@@ -99,7 +119,7 @@ public class UserUniqueIDManger {
      * @param uniqueId user id.
      * @return True if user exists.
      */
-    public boolean checkUserExist(String uniqueId, String profile, UserStoreManager userStoreManager)
+    public boolean checkUserExist(String uniqueId, String profile, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
         String[] usernames = userStoreManager.getUserList(USER_ID_CLAIM, uniqueId, profile);
@@ -111,12 +131,69 @@ public class UserUniqueIDManger {
         return usernames.length != 0;
     }
 
+    /**
+     * Get paginated user list from paginated search result.
+     * @param paginatedSearchResult Paginated search result.
+     * @param userStoreManager User store manger instance.
+     * @return @see UniqueIDPaginatedSearchResult
+     */
+    public UniqueIDPaginatedSearchResult listUsers(PaginatedSearchResult paginatedSearchResult,
+                                                   AbstractUserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        UniqueIDPaginatedSearchResult uniqueIDPaginatedSearchResult = new UniqueIDPaginatedSearchResult();
+        List<User> users = new ArrayList<>();
+        for (String username : paginatedSearchResult.getUsers()) {
+            User user = new User();
+            String uniqueId = getUniqueId(username, null, userStoreManager);
+            user.setUsername(username);
+            user.setUserID(uniqueId);
+            users.add(user);
+        }
+        uniqueIDPaginatedSearchResult.setUsers(users);
+        uniqueIDPaginatedSearchResult.setSkippedUserCount(paginatedSearchResult.getSkippedUserCount());
+        return uniqueIDPaginatedSearchResult;
+    }
+
+    /**
+     * Get list of user's from array of user names.
+     * @param listUsers List of user names.
+     * @param userStoreManager User store manger instance.
+     * @return List of @see User objects.
+     */
+    public List<User> listUsers(String[] listUsers, AbstractUserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return listUsers(Arrays.asList(listUsers), userStoreManager);
+    }
+
+    /**
+     * Get list of user's from list of user names.
+     * @param listUsers List of user names.
+     * @param userStoreManager User store manger instance.
+     * @return List of @see User objects.
+     */
+    public List<User> listUsers(List<String> listUsers, AbstractUserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        List<User> users = new ArrayList<>();
+        for (String username : listUsers) {
+            User user = new User();
+            String uniqueId = getUniqueId(username, null, userStoreManager);
+            user.setUsername(username);
+            user.setUserID(uniqueId);
+            users.add(user);
+        }
+
+        return users;
+    }
+
     protected String generateUniqueId() {
 
         return UUID.randomUUID().toString();
     }
 
-    private String getUserStoreDomainName(UserStoreManager userStoreManager) {
+    private String getUserStoreDomainName(AbstractUserStoreManager userStoreManager) {
 
         String domainNameProperty;
         domainNameProperty = userStoreManager.getRealmConfiguration()
@@ -126,5 +203,4 @@ public class UserUniqueIDManger {
         }
         return domainNameProperty;
     }
-
 }
