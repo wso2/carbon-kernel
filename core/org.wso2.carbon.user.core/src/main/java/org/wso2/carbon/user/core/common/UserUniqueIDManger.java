@@ -146,8 +146,12 @@ public class UserUniqueIDManger {
         for (String username : paginatedSearchResult.getUsers()) {
             User user = new User();
             String uniqueId = getUniqueId(username, null, userStoreManager);
+            if (StringUtils.isEmpty(uniqueId)) {
+                user = addUser(username, null, userStoreManager);
+            } else {
+                user.setUserID(uniqueId);
+            }
             user.setUsername(username);
-            user.setUserID(uniqueId);
             users.add(user);
         }
         uniqueIDPaginatedSearchResult.setUsers(users);
