@@ -6976,8 +6976,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("getUserCountWithClaims", new Object[]{claimUri,
-                    filter}, argTypes);
+            Object object = callSecure("getUserCountWithClaims", new Object[]{claimUri,filter}, argTypes);
             return (long) object;
         }
 
@@ -6995,8 +6994,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Count users who having filter and domain " + filter + " for the claim "
-                    + claimUri);
+            log.debug("Count users who having filter and domain " + filter + " for the claim " + claimUri);
         }
 
         String extractedDomain = null;

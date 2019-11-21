@@ -220,7 +220,7 @@ public final class JDBCRealmConstants {
     public static final String DIGEST_FUNCTION = "PasswordDigest";
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";
     public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
-            "UM_ROLE_NAME NOT LIKE '" + APPLICATION_DOMAIN + "%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";;
+            "UM_ROLE_NAME NOT LIKE '" + APPLICATION_DOMAIN + "%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
     // properties
     public static final String DATASOURCE = "dataSource";
     public static final String URL = "url";
