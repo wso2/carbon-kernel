@@ -896,21 +896,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException("doListUsersWithID operation is not implemented in: " + this.getClass());
     }
 
-    /**
-     * Get the user for the given user ID.
-     *
-     * @param userID userID.
-     * @return list of users.
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    protected User[] doGetUsersWithID(String userID) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doGetUsersWithID operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doGetUsersWithID operation is not implemented in: " + this.getClass());
-    }
-
     @Override
     public String[] getProfileNamesWithID(String userID) throws UserStoreException {
 
