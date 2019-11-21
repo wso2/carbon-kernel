@@ -1296,20 +1296,56 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-        // If user does not exist, throw an exception
+        // If user does not exist, throw an
 
-        if (!doCheckExistingUser(userName)) {
-            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
-                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
-            handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+        User user = null;
+        if (isUniqueUserIdEnabled()) {
+            String uniqueId = userUniqueIDManger.getUniqueId(userName, profileName, this);
+            user = userUniqueIDManger.getUser(uniqueId, profileName, this);
+        }
+
+        if (!isUniqueUserIdEnabled()) {
+            if (!doCheckExistingUser(userName)) {
+                String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                        realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
+                throw new UserStoreException(errorCode + " - " + errorMessage);
+            }
+        } else {
+            if (user != null) {
+                if (!doCheckExistingUserWithID(user.getUserID())) {
+                    String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                    handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
+                    throw new UserStoreException(errorCode + " - " + errorMessage);
+                }
+            } else {
+                if (!doCheckExistingUserWithID(userName)) {
+                    String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                    handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
+                    throw new UserStoreException(errorCode + " - " + errorMessage);
+                }
+            }
         }
 
         Map<String, String> finalValues;
         try {
-            finalValues = doGetUserClaimValues(userName, new String[] { claim }, userStore.getDomainName(),
-                    profileName);
+            if (!isUniqueUserIdEnabled()) {
+                finalValues = doGetUserClaimValues(userName, new String[]{claim}, userStore.getDomainName(),
+                        profileName);
+            } else {
+                if (user != null) {
+                    finalValues = doGetUserClaimValuesWithID(user.getUserID(), new String[]{claim},
+                            userStore.getDomainName(), profileName);
+                } else {
+                    finalValues = doGetUserClaimValuesWithID(userName, new String[]{claim},
+                            userStore.getDomainName(), profileName);
+                }
+            }
         } catch (UserStoreException ex) {
             handleGetUserClaimValueFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getMessage(),
@@ -1425,12 +1461,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw exception
-        if (!doCheckExistingUser(userName)) {
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
-                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
-            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
-            handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+        if (!isUniqueUserIdEnabled()) {
+            if (!doCheckExistingUser(userName)) {
+                String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                        realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+                throw new UserStoreException(errorCode + " - " + errorMessage);
+            }
+        } else {
+            String uniqueId = userUniqueIDManger.getUniqueId(userName, profileName, this);
+            User user = userUniqueIDManger.getUser(uniqueId, profileName, this);
+            if (user != null) {
+                if (!doCheckExistingUserWithID(user.getUserID())) {
+                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                    String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                    handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+                    throw new UserStoreException(errorCode + " - " + errorMessage);
+                }
+            } else {
+                if (!doCheckExistingUserWithID(userName)) {
+                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                    String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                    handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+                    throw new UserStoreException(errorCode + " - " + errorMessage);
+                }
+            }
         }
 
         if (profileName == null || profileName.trim().length() == 0) {
@@ -1472,14 +1530,38 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     userStore.getDomainFreeName(), claims, profileName);
         }
 
+        User user = null;
         // #################### Domain Name Free Zone Starts Here ################################
-        if (!doCheckExistingUser(userName)) {
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
-                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
-            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
-            handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+        if (!isUniqueUserIdEnabled()) {
+            if (!doCheckExistingUser(userName)) {
+                String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                        realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+                throw new UserStoreException(errorCode + " - " + errorMessage);
+            }
+        } else {
+            String uniqueId = userUniqueIDManger.getUniqueId(userName, profileName, this);
+            user = userUniqueIDManger.getUser(uniqueId, profileName, this);
+            if (user != null) {
+                if (!doCheckExistingUserWithID(user.getUserID())) {
+                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                    String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                    handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+                    throw new UserStoreException(errorCode + " - " + errorMessage);
+                }
+            } else {
+                if (!doCheckExistingUserWithID(userName)) {
+                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+                    String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+                    handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+                    throw new UserStoreException(errorCode + " - " + errorMessage);
+                }
+            }
         }
+
         // check for null claim list
         if (claims == null) {
             claims = new String[0];
@@ -1487,7 +1569,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         Map<String, String> finalValues;
         try {
-            finalValues = doGetUserClaimValues(userName, claims, userStore.getDomainName(), profileName);
+            if (!isUniqueUserIdEnabled()) {
+                finalValues = doGetUserClaimValues(userName, claims, userStore.getDomainName(), profileName);
+            } else {
+                if (user != null) {
+                    finalValues = doGetUserClaimValuesWithID(user.getUserID(), claims, userStore.getDomainName(),
+                            profileName);
+                } else {
+                    finalValues = doGetUserClaimValuesWithID(userName, claims, userStore.getDomainName(), profileName);
+                }
+            }
         } catch (UserStoreException ex) {
             handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
@@ -3943,12 +4034,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException(errorCode + " - " + message);
             }
 
+            // Property to check whether this user store supports new APIs with unique user id.
+            boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
+
             // Check whether this user already exists.
-            if (doCheckExistingUser(userStore.getDomainFreeName())) {
-                String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
-                String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
-                handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
-                throw new UserStoreException(errorCode + " - " + message);
+            if (!isUniqueUserIdEnabled) {
+                if (doCheckExistingUser(userStore.getDomainFreeName())) {
+                    String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
+                    String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
+                    handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
+                    throw new UserStoreException(errorCode + " - " + message);
+                }
+            } else {
+                String uniqueId = userUniqueIDManger.getUniqueId(userName, profileName, this);
+                User user = userUniqueIDManger.getUser(uniqueId, profileName, this);
+                if (user != null) {
+                    if (doCheckExistingUserWithID(userStore.getDomainFreeName())) {
+                        String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
+                        String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
+                        handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
+                        throw new UserStoreException(errorCode + " - " + message);
+                    }
+                } else {
+                    if (doCheckExistingUserWithID(userName)) {
+                        String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
+                        String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
+                        handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
+                        throw new UserStoreException(errorCode + " - " + message);
+                    }
+                }
             }
 
             // Categorize roles according to the internal and external roles.
@@ -4002,18 +4116,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-            // Property to check whether this user store supports new APIs with unique user id.
-            boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-
             // Call the do add user method of the underlying user store to add the user.
             try {
                 // If this is an user store that that supports the APIs with unique user ID, then we can call the new
                 // APIs. However, we don't need the returned values as this API does not require those values.
                 // Ex. Generated unique id.
                 if (isUniqueUserIdEnabled) {
+                    // We need to create a user ID and keep it in our side.
+                    userUniqueIDManger.addUser(userName, profileName, this);
                     // Ignore the return value as we don't need it.
-                    doAddUserWithID(userName, credential, externalRoles.toArray(new String[0]), claims, profileName,
-                            requirePasswordChange);
+                    doAddUserWithID(userName, credential, externalRoles.toArray(new String[0]), claims,
+                            profileName, requirePasswordChange);
                 } else {
                     // Call the old API since this user store does not support the unique user id related APIs.
                     doAddUser(userName, credentialObj, externalRoles.toArray(new String[0]), claims, profileName,
@@ -4028,7 +4141,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             if (internalRoles.size() > 0) {
                 if (isUniqueUserIdEnabled) {
-                    String userID = getUserIDByUserName(userName, null);
+                    String userID = userUniqueIDManger.getUniqueId(userName, null, this);
                     hybridRoleManager.updateHybridRoleListOfUser(userID, null, internalRoles.toArray(new String[0]));
                 } else {
                     hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
@@ -5761,9 +5874,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      *
      */
-    public void addRole(String roleName, String[] userList,
-                        org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
-            throws org.wso2.carbon.user.api.UserStoreException {
+    public void addRole(String roleName, String[] userList, org.wso2.carbon.user.api.Permission[] permissions,
+                        boolean isSharedRole) throws org.wso2.carbon.user.api.UserStoreException {
 
         if (StringUtils.isEmpty(roleName)) {
             handleAddRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
@@ -5786,7 +5898,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 return;
             }
 
-            doAddInternalRole(roleName, userList, permissions);
+            if (!isUniqueUserIdEnabled()) {
+                doAddInternalRole(roleName, userList, permissions);
+            } else {
+                doAddInternalRoleWithID(roleName, userList, (Permission[]) permissions);
+            }
 
             // Calling only the audit logger, to maintain the back-ward compatibility
             handlePostAddRole(roleName, userList, permissions, false);
@@ -5843,7 +5959,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (writeGroupsEnabled) {
             try {
                 // add role in to actual user store
-                doAddRole(roleName, userList, isSharedRole);
+                if (!isUniqueUserIdEnabled()) {
+                    doAddRole(roleName, userList, isSharedRole);
+                } else {
+                    doAddRoleWithID(roleName, userList, isSharedRole);
+                }
                 roleWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
             } catch (UserStoreException ex) {
                 handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getCode(),
