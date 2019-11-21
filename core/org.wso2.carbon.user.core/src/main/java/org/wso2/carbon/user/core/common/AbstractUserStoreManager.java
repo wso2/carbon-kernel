@@ -1375,7 +1375,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * {@inheritDoc}
      */
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
-
+        getUserCountWithClaims(claim,claimValue);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName}, argTypes);
@@ -4274,18 +4274,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                 if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
                     return ((AbstractUserStoreManager) secondaryUserStoreManager).doCountRoles(filter);
                 } else {
-                    throw new UserStoreException("Error while getting user store");
+                    throw new UserStoreException("User store not supported");
                 }
             }
         } else if (index == 0) {
             return doCountRoles(filter.substring(1));
         }
         return doCountRoles(filter);
-    }
-
-    private boolean isInternalRole(String domain) {
-
-        return domain.equals("Internal") || domain.equals("Application");
     }
 
     /**
@@ -7290,5 +7285,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             }
             throw new UserStoreException(msg + userManager.getClass());
         }
+    }
+
+    private boolean isInternalRole(String domain) {
+
+        return domain.equals("Internal") || domain.equals("Application");
     }
 }

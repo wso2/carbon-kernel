@@ -3788,7 +3788,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                             ex.getMessage()), claimUri, value);
             throw ex;
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String ErrorMsg = "Error while getting attribute name from " + claimUri ;
+            throw new UserStoreException(ErrorMsg, e);
         }
     }
 
