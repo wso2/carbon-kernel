@@ -192,6 +192,10 @@ public class UserUniqueIDManger {
         return users;
     }
 
+    /**
+     * Generate an unique identifier.
+     * @return String representation of the unique identifier.
+     */
     protected String generateUniqueId() {
 
         return UUID.randomUUID().toString();
