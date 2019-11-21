@@ -1156,7 +1156,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Let's authenticate with the primary UserStoreManager.
                 // Get the relevant userID for the given username.
                 if (isUniqueUserIdEnabled()) {
-                    userName = getUserIDByUserName(userName, null);
+                    userName = userUniqueIDManger.getUniqueId(userName, null, this);
                 }
 
                 authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
@@ -4133,21 +4133,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Property to check whether this user store supports new APIs with unique user id.
             boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
+            String uniqueId = null;
             if (isUniqueUserIdEnabled) {
-                if (getUserIDByUserName(userName, profileName) != null) {
-                    String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(),
-                            userName);
-                    String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
-                    handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
-                    throw new UserStoreException(errorCode + " - " + message);
-                }
+                uniqueId = getUserIDByUserName(userName, profileName);
+            }
+
+            boolean isUserExists;
+
+            // Check whether this user already exists.
+            if (!isUniqueUserIdEnabled) {
+                isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
             } else {
-                if (doCheckExistingUser(userName)) {
-                    String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
-                    String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
-                    handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
-                    throw new UserStoreException(errorCode + " - " + message);
-                }
+                isUserExists = doCheckExistingUserWithID(uniqueId);
+            }
+
+            if (!isUserExists) {
+                String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(),
+                        userName);
+                String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
+                handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
+                throw new UserStoreException(errorCode + " - " + message);
             }
 
             // Categorize roles according to the internal and external roles.
@@ -4208,8 +4213,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Ex. Generated unique id.
                 if (isUniqueUserIdEnabled) {
                     // Ignore the return value as we don't need it.
-                    user = doAddUserWithID(userName, credential, externalRoles.toArray(new String[0]), claims,
-                            profileName,
+                    doAddUserWithID(uniqueId, credential, externalRoles.toArray(new String[0]), claims, profileName,
                             requirePasswordChange);
                 } else {
                     // Call the old API since this user store does not support the unique user id related APIs.
@@ -4225,8 +4229,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             if (internalRoles.size() > 0) {
                 if (isUniqueUserIdEnabled) {
-                    hybridRoleManager.updateHybridRoleListOfUser(user.getUserID(), null,
-                            internalRoles.toArray(new String[0]));
+                    hybridRoleManager.updateHybridRoleListOfUser(uniqueId, null, internalRoles.toArray(new String[0]));
                 } else {
                     hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
                 }
@@ -7244,6 +7247,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param userName user name.
      */
     protected void clearUserRolesCache(String userName) throws UserStoreException {
+
+        if (isUniqueUserIdEnabled()) {
+            userName = userUniqueIDManger.getUniqueId(userName, null, this);
+        }
         clearUserRolesCacheInternal(userName);
     }
 
