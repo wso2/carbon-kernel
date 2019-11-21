@@ -3766,14 +3766,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setString(4, UserCoreConstants.DEFAULT_PROFILE);
             }
 
-            try (ResultSet resultSet = prepStmt.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getLong("RESULT");
-                } else {
-                    log.warn("No result for the filter" + value );
-                    return 0;
-                }
+            ResultSet resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("RESULT");
+            } else {
+                log.warn("No result for the filter" + value);
+                return 0;
             }
+
         } catch (SQLException e) {
             String msg = "Error while executing the SQL " + sqlStmt;
             if (log.isDebugEnabled()) {
@@ -3820,6 +3820,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } else {
             filter = "%";
         }
+
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
 
@@ -3835,21 +3836,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            try (ResultSet resultSets = prepStmt.executeQuery()) {
+            ResultSet resultSets = prepStmt.executeQuery();
                 while (resultSets.next()) {
                     return resultSets.getLong(1);
                 }
-            } catch (SQLException e) {
-                if (e instanceof SQLTimeoutException) {
-                    log.error("The cause might be a time out. Hence ignored", e);
-                    return usersCount;
-                }
-                String errorMessage = "Error while fetching users according to filter : " + filter;
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMessage, e);
-                }
-                throw new UserStoreException(errorMessage, e);
-            }
 
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving users for filter : " + filter;

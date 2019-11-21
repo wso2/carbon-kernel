@@ -4280,7 +4280,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         } else if (index == 0) {
             return doCountRoles(filter.substring(1));
         }
-
         return doCountRoles(filter);
     }
 
@@ -6965,7 +6964,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     /**
-     * Get the user count with claim value as a filter
+     * Get the user count with claim value as a filter.
      *
      * @param claimUri  claim uri
      * @param filter filter or filter value with domain name (PRIMARY/* or *)
@@ -7165,7 +7164,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     /**
-     * Get the count of Roles having a matching user name for the filter
+     * Get the count of Roles having a matching user name for the filter.
      *
      * @param filter the filter for the user name. Use '*' to have all.
      * @throws  UserStoreException UserStoreException

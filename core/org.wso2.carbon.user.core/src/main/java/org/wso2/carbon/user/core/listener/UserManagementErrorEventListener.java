@@ -404,5 +404,4 @@ public interface UserManagementErrorEventListener {
 
         return true;
     }
-
 }
