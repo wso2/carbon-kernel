@@ -278,6 +278,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public String[] doGetUserListOfRole(String roleName, String filter, int maxItemLimit) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public List<User> doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
