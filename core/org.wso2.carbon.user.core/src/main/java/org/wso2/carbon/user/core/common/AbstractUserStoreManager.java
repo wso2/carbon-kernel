@@ -1375,7 +1375,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * {@inheritDoc}
      */
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
-        getUserCountWithClaims(claim,claimValue);
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName}, argTypes);
@@ -5232,7 +5232,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     public final String[] getRoleNames(String filter, int maxItemLimit, boolean noInternalRoles,
                                        boolean noSystemRole, boolean noSharedRoles)
             throws UserStoreException {
-        countRoles(filter);
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, int.class, boolean.class, boolean.class, boolean.class};
             Object object = callSecure("getRoleNames", new Object[]{filter, maxItemLimit, noInternalRoles,

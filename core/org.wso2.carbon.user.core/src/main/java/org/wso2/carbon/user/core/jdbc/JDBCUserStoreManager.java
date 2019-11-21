@@ -3807,13 +3807,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_INTERNAL_ROLES);
             String names[] = filter.split(UserCoreConstants.DOMAIN_SEPARATOR);
             filter = names[1].trim();
-
         } else if (filter.startsWith(UserCoreConstants.APPLICATION_DOMAIN)) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_APPLICATION_ROLES);
-
         } else {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_ROLES);
-
         }
 
         if (StringUtils.isNotEmpty(filter)) {
@@ -3823,7 +3820,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } else {
             filter = "%";
         }
-
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
 
