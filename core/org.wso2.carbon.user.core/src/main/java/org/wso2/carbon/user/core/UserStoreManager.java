@@ -109,6 +109,12 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      */
     String[] getRoleListOfUser(String userName) throws UserStoreException;
 
+    /**
+     * Get Users for the role.
+     * @param roleName Name of the role.
+     * @return Array of usernames.
+     * @throws UserStoreException
+     */
     String[] getUserListOfRole(String roleName) throws UserStoreException;
 
     /**
@@ -172,6 +178,16 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     void addUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                  String profileName) throws UserStoreException;
 
+    /**
+     * Add a user to the user store.
+     * @param userName              User name of the user
+     * @param credential            The credential/password of the user
+     * @param roleList              The roles that user belongs
+     * @param claims                Properties of the user
+     * @param profileName           The name of the profile where claims should be added
+     * @param requirePasswordChange Require the password change within next 24 hours
+     * @throws UserStoreException
+     */
     void addUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                  String profileName, boolean requirePasswordChange) throws UserStoreException;
 
@@ -211,9 +227,23 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      */
     void deleteRole(String roleName) throws UserStoreException;
 
+    /**
+     * Update user list of the role.
+     * @param roleName     The role name to be updated
+     * @param deletedUsers The array of user names to be deleted
+     * @param newUsers     The array of of user names to be added
+     * @throws UserStoreException
+     */
     void updateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException;
 
+    /**
+     * Update role list of the user.
+     * @param userName     The user name of the user where role list is updated
+     * @param deletedRoles The array of role names to be added
+     * @param newRoles     The array of role names to be added
+     * @throws UserStoreException
+     */
     void updateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
             throws UserStoreException;
 
