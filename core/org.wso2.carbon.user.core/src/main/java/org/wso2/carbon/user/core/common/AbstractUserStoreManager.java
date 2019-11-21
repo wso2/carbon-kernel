@@ -1144,7 +1144,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Let's authenticate with the primary UserStoreManager.
                 // Get the relevant userID for the given username.
                 if (isUniqueUserIdEnabled()) {
-                    userName = userUniqueIDManger.getUniqueId(userName, null, this);
+                    userName = getUserIDByUserName(userName, null);
                 }
 
                 authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
