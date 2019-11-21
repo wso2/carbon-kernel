@@ -10164,11 +10164,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
 
-        String userID = getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-        if (StringUtils.isEmpty(userID)) {
-            userID = userUniqueIDManger.getUniqueId(userName, profileName, this);
-        }
-        return userID;
+        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
     }
 
     /**
