@@ -5464,12 +5464,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 .toArray(String[]::new);
                     }
                     handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-                    userList = getUserNamesList(userList);
                     return userList;
                 } else {
                     userList = secManager.listUsers(filter, maxItemLimit);
                     handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-                    userList = getUserNamesList(userList);
                     return userList;
                 }
             }
@@ -5483,7 +5481,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .toArray(String[]::new);
             }
             handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-            userList = getUserNamesList(userList);
             return userList;
         }
 
@@ -5542,7 +5539,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-        userList = getUserNamesList(userList);
         return userList;
     }
 
