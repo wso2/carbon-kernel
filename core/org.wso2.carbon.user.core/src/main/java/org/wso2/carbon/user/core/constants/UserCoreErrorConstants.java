@@ -36,7 +36,6 @@ public class UserCoreErrorConstants {
         ERROR_CODE_USER_ALREADY_EXISTS("30004", EXISTING_USER + "Username %s already exists in the system. Please pick "
                 + "another username."),
         ERROR_CODE_INVALID_CLAIM_URI("30005", "Claim URI is invalid, %s"),
-        ERROR_CODE_NULL_CLAIM_URI("30005", "Claim URI is null, %s"),
         ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH("30006", INVALID_PASSWORD + " Old credential does not match with the "
                 + "existing credentials."),
         ERROR_CODE_NON_EXISTING_USER("30007", USER_NOT_FOUND + ": User %s does not exist in: %s"),
@@ -54,7 +53,7 @@ public class UserCoreErrorConstants {
                 + "user store"),
         ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE("30015", "Constrain violation while writing to database."),
         ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY("34012", "Filter value with domain is null"),
-
+        ERROR_CODE_NULL_CLAIM_URI("30018", "Claim URI is not provided"),
         // Error code related with authentication
         ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating"),
         ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION("31002", "Un-expected error while pre-authenticating, %s"),

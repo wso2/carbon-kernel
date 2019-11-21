@@ -6983,7 +6983,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         if (claimUri == null) {
             String errorCode = ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.getCode();
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.getMessage(), "");
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.getMessage());
             handleGetUserCountFailure(errorCode, errorMessage, null, filter);
             throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.toString());
         }
@@ -7017,7 +7017,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         String filterValue = UserCoreUtil.removeDomainFromName(filter);
-        return doGetCountUsers(claimUri, filterValue, userManager);
+        return getCountUsers(claimUri, filterValue, userManager);
     }
 
     @Override
@@ -7279,7 +7279,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         return initialUserStoreManager.authenticate(userName, credential);
     }
 
-    private long doGetCountUsers(String claimUri, String filterValue, UserStoreManager userManager)
+    private long getCountUsers(String claimUri, String filterValue, UserStoreManager userManager)
             throws UserStoreException {
 
         if (userManager instanceof AbstractUserStoreManager) {
