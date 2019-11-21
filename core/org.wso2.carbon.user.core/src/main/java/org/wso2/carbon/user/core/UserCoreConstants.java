@@ -70,7 +70,6 @@ public class UserCoreConstants {
     public static final String IS_USER_IN_ROLE_CACHE_IDENTIFIER = "@__isUserHasTheRole__@";
 
     public static final String DOMAIN_SEPARATOR;
-    public static final String DEFAULT_CLAIM_URI = "http://wso2.org/claims/userName";
 
     static {
         String userDomainSeparator = ServerConfiguration.getInstance().getFirstProperty("UserDomainSeparator");

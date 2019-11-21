@@ -103,7 +103,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static final String SCIM_USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
     private static final String SCIM2_USERNAME_CLAIM_URI = "urn:ietf:params:scim:schemas:core:2.0:User:userName";
-    private static final String USERNAME_CLAIM_URI = "http://wso2.org/claims/username";
+    protected static final String USERNAME_CLAIM_URI = "http://wso2.org/claims/username";
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
@@ -1071,7 +1071,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
     /**
      * This method is responsible for calling the relevant methods when there is a failure while trying to get the
-     * user list.
+     * user count.
      *
      * @param errorCode    Error Code.
      * @param errorMessage Error Message.
@@ -1079,7 +1079,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * @param claimValue   Claim Value.
      * @throws UserStoreException Exception that will be thrown by relevant listner methods.
      */
-    private void handleGetUserCountFailure(String errorCode, String errorMessage, String claim, String claimValue
+    protected void handleGetUserCountFailure(String errorCode, String errorMessage, String claim, String claimValue
     ) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
@@ -1375,7 +1375,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
      * {@inheritDoc}
      */
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
-
+        getUserCountWithClaims(claim,claimValue);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName}, argTypes);
@@ -4259,17 +4259,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         }
 
         int index;
-        long countRoles;
-        String domain;
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
 
         // Check whether we have a secondary UserStoreManager setup.
         if (index > 0) {
-            domain = filter.substring(0, index);
-            filter = filter.substring(index + 1);
-            if (domain.equals("Internal") || domain.equals("Application")) {
-                filter = domain + "%" + filter;
+            String domain = filter.substring(0, index);
+            if (isInternalRole(domain)) {
+                return doCountRoles(filter);
             }
+            filter = filter.substring(index + 1);
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(domain);
             if (secondaryUserStoreManager != null) {
                 // We have a secondary UserStoreManager registered for this domain.
@@ -4283,16 +4281,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return doCountRoles(filter.substring(1));
         }
 
-        try {
-            countRoles = doCountRoles(filter);
+        return doCountRoles(filter);
+    }
 
-        } catch (UserStoreException ex) {
-            handleGetUserCountFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT.getMessage(),
-                            ex.getMessage()), null, null);
-            throw ex;
-        }
-        return countRoles;
+    private boolean isInternalRole(String domain) {
+
+        return domain.equals("Internal") || domain.equals("Application");
     }
 
     /**
@@ -5238,7 +5232,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     public final String[] getRoleNames(String filter, int maxItemLimit, boolean noInternalRoles,
                                        boolean noSystemRole, boolean noSharedRoles)
             throws UserStoreException {
-
+        countRoles(filter);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, int.class, boolean.class, boolean.class, boolean.class};
             Object object = callSecure("getRoleNames", new Object[]{filter, maxItemLimit, noInternalRoles,
@@ -6973,43 +6967,43 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     /**
      * Get the user count with claim value as a filter
      *
-     * @param claimUri              claim uri
-     * @param filterValueWithDomain filter value with domain name
+     * @param claimUri  claim uri
+     * @param filter filter or filter value with domain name (PRIMARY/* or *)
      * @return usersCountInUserStore
      * @throws UserStoreException UserStoreException
      */
-    public long getUserCountWithClaims(String claimUri, String filterValueWithDomain) throws UserStoreException {
+    public long getUserCountWithClaims(String claimUri, String filter) throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
             Object object = callSecure("getUserCountWithClaims", new Object[]{claimUri,
-                    filterValueWithDomain}, argTypes);
+                    filter}, argTypes);
             return (long) object;
         }
 
         if (claimUri == null) {
-            String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getMessage(), "");
-            handleGetUserCountFailure(errorCode, errorMessage, null, filterValueWithDomain);
-            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.toString());
+            String errorCode = ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.getCode();
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.getMessage(), "");
+            handleGetUserCountFailure(errorCode, errorMessage, null, filter);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.toString());
         }
 
-        if (filterValueWithDomain == null) {
+        if (filter == null) {
             handleGetUserCountFailure(ErrorMessages.ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY.getCode(),
                     ErrorMessages.ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY.getMessage(), claimUri, null);
             throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY.toString());
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Count users who having filter and domain " + filterValueWithDomain + " for the claim "
+            log.debug("Count users who having filter and domain " + filter + " for the claim "
                     + claimUri);
         }
 
         String extractedDomain = null;
         int index;
-        index = filterValueWithDomain.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         if (index > 0) {
-            String names[] = filterValueWithDomain.split(CarbonConstants.DOMAIN_SEPARATOR);
+            String names[] = filter.split(CarbonConstants.DOMAIN_SEPARATOR);
             extractedDomain = names[0].trim();
         }
 
@@ -7022,7 +7016,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
                     + " for the given domain name.");
         }
 
-        String filterValue = UserCoreUtil.removeDomainFromName(filterValueWithDomain);
+        String filterValue = UserCoreUtil.removeDomainFromName(filter);
         return doGetCountUsers(claimUri, filterValue, userManager);
     }
 
@@ -7289,15 +7283,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             throws UserStoreException {
 
         if (userManager instanceof AbstractUserStoreManager) {
-            try {
-                return ((AbstractUserStoreManager) userManager).countUsersWithClaims(claimUri, filterValue);
 
-            } catch (UserStoreException ex) {
-                handleGetUserCountFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS.getMessage(),
-                                ex.getMessage()), claimUri, filterValue);
-                throw ex;
-            }
+            return ((AbstractUserStoreManager) userManager).countUsersWithClaims(claimUri, filterValue);
+
         } else {
             String msg = "Get user count is not supported by this user store: ";
             if (log.isDebugEnabled()) {

@@ -36,6 +36,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_USER_ALREADY_EXISTS("30004", EXISTING_USER + "Username %s already exists in the system. Please pick "
                 + "another username."),
         ERROR_CODE_INVALID_CLAIM_URI("30005", "Claim URI is invalid, %s"),
+        ERROR_CODE_NULL_CLAIM_URI("30005", "Claim URI is null, %s"),
         ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH("30006", INVALID_PASSWORD + " Old credential does not match with the "
                 + "existing credentials."),
         ERROR_CODE_NON_EXISTING_USER("30007", USER_NOT_FOUND + ": User %s does not exist in: %s"),

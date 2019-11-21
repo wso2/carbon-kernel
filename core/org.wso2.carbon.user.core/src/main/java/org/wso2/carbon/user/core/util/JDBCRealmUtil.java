@@ -215,6 +215,26 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE,
                     JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.COUNT_USERS_WITH_CLAIM)) {
+            properties.put(JDBCRealmConstants.COUNT_USERS_WITH_CLAIM,
+                    JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.COUNT_USERS)) {
+            properties.put(JDBCRealmConstants.COUNT_USERS,
+                    JDBCRealmConstants.COUNT_USERS_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.COUNT_INTERNAL_ROLES)) {
+            properties.put(JDBCRealmConstants.COUNT_INTERNAL_ROLES,
+                    JDBCRealmConstants.COUNT_INTERNAL_ROLES_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.COUNT_APPLICATION_ROLES)) {
+            properties.put(JDBCRealmConstants.COUNT_APPLICATION_ROLES,
+                    JDBCRealmConstants.COUNT_APPLICATION_ROLES_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.COUNT_ROLES)) {
+            properties.put(JDBCRealmConstants.COUNT_ROLES,
+                    JDBCRealmConstants.COUNT_ROLES_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE)) {
             properties.put(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE,
                     JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL);

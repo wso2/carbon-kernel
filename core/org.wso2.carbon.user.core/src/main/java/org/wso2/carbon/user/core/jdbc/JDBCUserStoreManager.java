@@ -34,6 +34,7 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
@@ -3734,7 +3735,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         String sqlStmt;
         if (isUserNameClaim(claimUri)) {
-            sqlStmt = JDBCRealmConstants.COUNT_USERS_SQL;
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS);
+
         } else {
             sqlStmt = JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL;
         }
@@ -3778,6 +3780,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(msg + sqlStmt);
             }
             throw new UserStoreException(msg, e);
+        } catch (UserStoreException ex) {
+            handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
+                            .getCode(),
+                    String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
+                                    .getMessage(),
+                            ex.getMessage()), claimUri, value);
+            throw ex;
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e.getMessage(), e);
         }
@@ -3795,12 +3804,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         long usersCount = 0;
         String sqlStmt;
         if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-            sqlStmt = JDBCRealmConstants.COUNT_APPLICATION_ROLES_SQL;
-            filter = filter.replace(UserCoreConstants.INTERNAL_DOMAIN, "");
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_INTERNAL_ROLES);
+            String names[] = filter.split(UserCoreConstants.DOMAIN_SEPARATOR);
+            filter = names[1].trim();
+
         } else if (filter.startsWith(UserCoreConstants.APPLICATION_DOMAIN)) {
-            sqlStmt = JDBCRealmConstants.COUNT_INTERNAL_ROLES_SQL;
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_APPLICATION_ROLES);
+
         } else {
-            sqlStmt = JDBCRealmConstants.COUNT_ROLES_SQL;
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_ROLES);
+
         }
 
         if (StringUtils.isNotEmpty(filter)) {
@@ -3814,9 +3827,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
 
-            if (dbConnection == null) {
-                throw new UserStoreException("null connection");
-            }
             prepStmt.setString(1, filter);
             if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
                 prepStmt.setString(2, SQL_FILTER_CHAR_ESCAPE);
@@ -3851,6 +3861,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+
+        } catch (UserStoreException ex) {
+            handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
+                            .getCode(),
+                    String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
+                                    .getMessage(),
+                            ex.getMessage()), null, null);
+            throw ex;
         }
         return usersCount;
     }
@@ -4637,6 +4655,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     private boolean isUserNameClaim(String claim) {
 
-        return UserCoreConstants.DEFAULT_CLAIM_URI.equals(claim);
+        return AbstractUserStoreManager.USERNAME_CLAIM_URI.equals(claim);
     }
 }
