@@ -7178,10 +7178,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("doGetUserListOfRoleWithID operation is not implemented in: " + this.getClass());
+            log.debug("Using the default implementation of retrieving users in the role: " + roleName + " only with "
+                    + "the filter: " + filter + ". The provided value: " + maxItemLimit + " for the maximum limit "
+                    + "of returning users is ignored");
         }
-        throw new NotImplementedException(
-                "doGetUserListOfRoleWithID operation is not implemented in: " + this.getClass());
+        return doGetUserListOfRoleWithID(roleName, filter);
     }
 
     /**
@@ -9182,39 +9183,54 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final List<User> getUserListOfRoleWithID(String roleName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { User.class };
+            Class argTypes[] = new Class[] { String.class };
             Object object = callSecure("getUserListOfRoleWithID", new Object[] { roleName }, argTypes);
             return (List<User>) object;
         }
 
-        // If unique id feature is not enabled, we have to call the legacy methods.
-        if (!isUniqueUserIdEnabled()) {
-            return userUniqueIDManger.listUsers(getUserListOfRole(roleName), this);
+        return getUserListOfRoleWithID(roleName, QUERY_FILTER_STRING_ANY, QUERY_MAX_ITEM_LIMIT_ANY);
+    }
+
+    @Override
+    public final List<User> getUserListOfRoleWithID(String roleName, String filter, int maxItemLimit)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class, int.class };
+            Object object = callSecure("getUserListOfRoleWithID", new Object[] { roleName, filter, maxItemLimit },
+                    argTypes);
+            return (List<User>) object;
         }
 
-       List<User> userNames = new ArrayList<>();
+        List<User> users = new ArrayList<>();
 
         // If role does not exit, just return
         if (!isExistingRole(roleName)) {
-            handleDoPostGetUserListOfRoleWithID(roleName, userNames);
-            return userNames;
+            handleDoPostGetUserListOfRoleWithID(roleName, users);
+            return users;
         }
 
-        UserStore userStore = getUserStoreWithID(roleName);
+        UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (userStore.isRecurssive()) {
-            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
-                    .getUserListOfRoleWithID(userStore.getDomainFreeName());
+            UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
+            if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
+                return ((AbstractUserStoreManager) resolvedUserStoreManager)
+                        .getUserListOfRoleWithID(userStore.getDomainFreeName(), filter, maxItemLimit);
+            } else {
+                return ((UniqueIDUserStoreManager) resolvedUserStoreManager)
+                        .getUserListOfRoleWithID(userStore.getDomainFreeName());
+            }
         }
 
         // #################### Domain Name Free Zone Starts Here
         // ################################
 
         if (userStore.isSystemStore()) {
-            String[] userList = systemUserRoleManager.getUserListOfSystemRole(userStore.getDomainFreeName());
-            List<User> users = UserCoreUtil.getUserList(userList);
-            handleDoPostGetUserListOfRoleWithID(roleName, users);
-            return users;
+            String[] userArray = systemUserRoleManager.getUserListOfSystemRole(userStore.getDomainFreeName());
+            List<User> userList = UserCoreUtil.getUserList(userArray);
+            handleDoPostGetUserListOfRoleWithID(roleName, userList);
+            return userList;
         }
 
         String[] userNamesInHybrid;
@@ -9262,22 +9278,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     return usersInHybrid;
                 }
             }
-            String[] userList = finalNameList.toArray(new String[0]);
-            List<User> users = UserCoreUtil.getUserList(userList);
-            handleDoPostGetUserListOfRoleWithID(roleName, users);
-            return users;
+            String[] userArray = finalNameList.toArray(new String[0]);
+            List<User> usersList = UserCoreUtil.getUserList(userArray);
+            handleDoPostGetUserListOfRoleWithID(roleName, usersList);
+            return usersList;
         }
-
         if (readGroupsEnabled) {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabled()) {
-                userNames = userUniqueIDManger.listUsers(doGetUserListOfRole(roleName, "*"), this);
+                users = userUniqueIDManger.listUsers(doGetUserListOfRole(roleName, filter, maxItemLimit), this);
             } else {
-                userNames = doGetUserListOfRoleWithID(roleName, "*");
+                users = doGetUserListOfRoleWithID(roleName, filter, maxItemLimit);
             }
-            handleDoPostGetUserListOfRoleWithID(roleName, userNames);
+            handleDoPostGetUserListOfRoleWithID(roleName, users);
         }
-        return userNames;
+        return users;
     }
 
     @Override
