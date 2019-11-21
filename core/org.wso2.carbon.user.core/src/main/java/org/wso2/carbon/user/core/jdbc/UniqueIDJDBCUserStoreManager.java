@@ -186,6 +186,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, userNameAttribute);
             prepStmt.setString(2, filter);
+            prepStmt.setString(3, UserCoreConstants.DEFAULT_PROFILE);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
                 prepStmt.setInt(5, tenantId);
@@ -273,6 +274,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    public String[] doGetUserListOfRole(String roleName, String filter, int maxItemLimit) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
     }

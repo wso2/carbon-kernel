@@ -112,6 +112,17 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     List<User> getUserListOfRoleWithID(String roleName) throws UserStoreException;
 
     /**
+     * Get user list of role.
+     *
+     * @param roleName     role name.
+     * @param filter       filter.
+     * @param maxItemLimit max user count.
+     * @return An array of users that belongs to the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    List<User> getUserListOfRoleWithID(String roleName, String filter, int maxItemLimit) throws UserStoreException;
+
+    /**
      * Get user claim value in the profile.
      *
      * @param userID      The user ID.
