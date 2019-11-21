@@ -2011,7 +2011,7 @@
         <snakeyaml.version>1.11</snakeyaml.version>
         <h2database.version>1.4.199</h2database.version>
 
-        <maven.checkstyleplugin.version>2.17</maven.checkstyleplugin.version>
+        <maven.checkstyleplugin.version>3.1.0</maven.checkstyleplugin.version>
     </properties>
 
     <build>
@@ -2066,10 +2066,10 @@
                             <phase>validate</phase>
                             <configuration>
                                 <configLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml
                                 </configLocation>
                                 <suppressionsLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml
                                 </suppressionsLocation>
                                 <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
