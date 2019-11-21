@@ -151,4 +151,10 @@ public class AbstractUserManagementErrorListener implements UserManagementErrorE
         return true;
     }
 
+    @Override
+    public boolean onGetUserCountFailure(String errorCode, String errorMessage, String claim, String claimValue,
+                                        AbstractUserStoreManager abstractUserStoreManager) {
+        return true;
+    }
+
 }

@@ -34,6 +34,7 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
@@ -3713,6 +3714,152 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return result;
     }
 
+    /**
+     * Count users with claim.
+     *
+     * @param claimUri claim uri.
+     * @param value The filter for the user name. Use '*' to have all.
+     * @return Count of the users.
+     * @throws UserStoreException UserStoreException
+     */
+    public long doCountUsersWithClaims(String claimUri, String value) throws UserStoreException {
+
+        if (claimUri == null) {
+            throw new IllegalArgumentException("Error while getting the claim uri");
+        }
+
+        String valueFilter = value;
+        if (valueFilter == null) {
+            throw new IllegalArgumentException("Error while getting the claim filter");
+        }
+
+        String sqlStmt;
+        if (isUserNameClaim(claimUri)) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS);
+
+        } else {
+            sqlStmt = JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL;
+        }
+
+        if (valueFilter.equals("*")) {
+            valueFilter = "%";
+        } else {
+            valueFilter = valueFilter.trim();
+            valueFilter = valueFilter.replace("*", "%");
+            valueFilter = valueFilter.replace("?", "_");
+        }
+
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            String domainName = getMyDomainName();
+            if (StringUtils.isEmpty(domainName)) {
+                domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+
+            if (isUserNameClaim(claimUri)) {
+                prepStmt.setString(1, valueFilter);
+                prepStmt.setInt(2, tenantId);
+            } else {
+                prepStmt.setString(1, userRealm.getClaimManager().getAttributeName(domainName, claimUri));
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setString(3, valueFilter);
+                prepStmt.setString(4, UserCoreConstants.DEFAULT_PROFILE);
+            }
+
+            ResultSet resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("RESULT");
+            } else {
+                log.warn("No result for the filter" + value);
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            String msg = "Error while executing the SQL " + sqlStmt;
+            if (log.isDebugEnabled()) {
+                log.debug(msg + sqlStmt);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (UserStoreException ex) {
+            handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
+                            .getCode(),
+                    String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
+                                    .getMessage(),
+                            ex.getMessage()), claimUri, value);
+            throw ex;
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String ErrorMsg = "Error while getting attribute name from " + claimUri ;
+            throw new UserStoreException(ErrorMsg, e);
+        }
+    }
+
+    /**
+     * Count roles in user stores.
+     *
+     * @param filter the filter for the user name. Use '*' to have all.
+     * @return user count
+     * @throws UserStoreException UserStoreException
+     */
+    public long doCountRoles(String filter) throws UserStoreException {
+
+        long usersCount = 0;
+        String sqlStmt;
+        if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_INTERNAL_ROLES);
+            String names[] = filter.split(UserCoreConstants.DOMAIN_SEPARATOR);
+            filter = names[1].trim();
+        } else if (filter.startsWith(UserCoreConstants.APPLICATION_DOMAIN)) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_APPLICATION_ROLES);
+        } else {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_ROLES);
+        }
+
+        if (StringUtils.isNotEmpty(filter)) {
+            filter = filter.trim();
+            filter = filter.replace("*", "%");
+            filter = filter.replace("?", "_");
+        } else {
+            filter = "%";
+        }
+
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+
+            prepStmt.setString(1, filter);
+            if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
+                prepStmt.setString(2, SQL_FILTER_CHAR_ESCAPE);
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(3, tenantId);
+                }
+            } else {
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(2, tenantId);
+                }
+            }
+
+            ResultSet resultSets = prepStmt.executeQuery();
+                while (resultSets.next()) {
+                    return resultSets.getLong(1);
+                }
+
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+
+        } catch (UserStoreException ex) {
+            handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
+                            .getCode(),
+                    String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
+                                    .getMessage(),
+                            ex.getMessage()), null, null);
+            throw ex;
+        }
+        return usersCount;
+    }
+
     protected int doGetListUsersCount(String filter) throws UserStoreException {
 
         Connection dbConnection = null;
@@ -4491,5 +4638,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
         return searchTime;
+    }
+
+    private boolean isUserNameClaim(String claim) {
+
+        return AbstractUserStoreManager.USERNAME_CLAIM_URI.equals(claim);
     }
 }

@@ -22,6 +22,7 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.model.Condition;
 
 import java.util.Map;
@@ -398,4 +399,9 @@ public interface UserManagementErrorEventListener {
         return true;
     }
 
+    default boolean onGetUserCountFailure(String errorCode, String errorMessage, String claim, String claimValue,
+                                          AbstractUserStoreManager abstractUserStoreManager) {
+
+        return true;
+    }
 }

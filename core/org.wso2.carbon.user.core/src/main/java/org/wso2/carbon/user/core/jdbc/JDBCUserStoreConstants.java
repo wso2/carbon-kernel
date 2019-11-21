@@ -293,6 +293,11 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.DELETE_USER_CASE_INSENSITIVE, "Delete User SQL With " +
                 "Case Insensitive Username", JDBCCaseInsensitiveConstants.DELETE_USER_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE, "On Delete User Remove User Role Mapping SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.COUNT_USERS_WITH_CLAIM, "Count Users With Claim SQL", JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.COUNT_INTERNAL_ROLES, "Count Internal Roles SQL", JDBCRealmConstants.COUNT_INTERNAL_ROLES_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.COUNT_APPLICATION_ROLES, "Count Application Roles SQL", JDBCRealmConstants.COUNT_APPLICATION_ROLES_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.COUNT_ROLES, "Count Roles SQL", JDBCRealmConstants.COUNT_ROLES_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.COUNT_USERS, "Count Users SQL", JDBCRealmConstants.COUNT_USERS_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE, "On Delete User Remove User Attribute SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_CASE_INSENSITIVE, "On " +
                         "Delete User Remove User Attribute SQL With Case Insensitive Username",

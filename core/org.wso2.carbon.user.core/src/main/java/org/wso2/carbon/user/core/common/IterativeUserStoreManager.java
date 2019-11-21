@@ -203,6 +203,12 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
+    public long doCountUsersWithClaims(String claimURI, String valueFilter) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doCountUsersWithClaims(claimURI, valueFilter);
+    }
+
+    @Override
     protected String[] doGetDisplayNamesForInternalRole(String[] userNames) throws UserStoreException {
 
         return this.abstractUserStoreManager.doGetDisplayNamesForInternalRole(userNames);
@@ -224,6 +230,12 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     protected String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
 
         return this.abstractUserStoreManager.doGetUserListOfRole(roleName, filter);
+    }
+
+    @Override
+    protected long doCountRoles(String filter) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doCountRoles(filter);
     }
 
     @Override
