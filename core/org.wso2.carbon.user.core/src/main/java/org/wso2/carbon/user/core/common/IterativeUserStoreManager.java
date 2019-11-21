@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -309,6 +310,152 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     public RealmConfiguration getRealmConfiguration() {
 
         return this.abstractUserStoreManager.getRealmConfiguration();
+    }
+
+    @Override
+    protected Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames, String profileName)
+            throws UserStoreException {
+
+        return this.abstractUserStoreManager.getUserPropertyValuesWithID(userID, propertyNames, profileName);
+    }
+
+    @Override
+    protected boolean doCheckExistingUserWithID(String userID) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doCheckExistingUserWithID(userID);
+    }
+
+    @Override
+    protected boolean doCheckExistingUserName(String userName) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doCheckExistingUserName(userName);
+    }
+
+    @Override
+    protected String[] doGetUserListFromPropertiesWithID(String property, String value, String profileName)
+            throws UserStoreException {
+
+        return this.abstractUserStoreManager.doGetUserListFromPropertiesWithID(property, value, profileName);
+    }
+
+    @Override
+    protected AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
+            Object credential, String profileName) throws UserStoreException {
+
+        return this.abstractUserStoreManager
+                .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credential, profileName);
+    }
+
+    @Override
+    protected User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        return this.abstractUserStoreManager
+                .doAddUserWithID(userName, credential, roleList, claims, profileName, requirePasswordChange);
+    }
+
+    @Override
+    protected void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doUpdateCredentialWithID(userID, newCredential, oldCredential);
+    }
+
+    @Override
+    protected void doUpdateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
+
+        this.abstractUserStoreManager.doUpdateCredentialByAdminWithID(userID, newCredential);
+    }
+
+    @Override
+    protected void doDeleteUserWithID(String userID) throws UserStoreException {
+
+        this.abstractUserStoreManager.doDeleteUserWithID(userID);
+    }
+
+    @Override
+    protected void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doSetUserClaimValueWithID(userID, claimURI, claimValue, profileName);
+    }
+
+    @Override
+    protected void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doSetUserClaimValuesWithID(userID, claims, profileName);
+    }
+
+    @Override
+    protected void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doDeleteUserClaimValueWithID(userID, claimURI, profileName);
+    }
+
+    @Override
+    protected void doDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doDeleteUserClaimValuesWithID(userID, claims, profileName);
+    }
+
+    @Override
+    protected void doUpdateUserListOfRoleWithID(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doUpdateUserListOfRoleWithID(roleName, deletedUsers, newUsers);
+    }
+
+    @Override
+    protected void doUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+
+        this.abstractUserStoreManager.doUpdateRoleListOfUserWithID(userID, deletedRoles, newRoles);
+    }
+
+    @Override
+    protected String[] doGetExternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doGetExternalRoleListOfUserWithID(userID, filter);
+    }
+
+    @Override
+    protected String[] doGetSharedRoleListOfUserWithID(String userID, String tenantDomain, String filter)
+            throws UserStoreException {
+
+        return this.abstractUserStoreManager.doGetSharedRoleListOfUserWithID(userID, tenantDomain, filter);
+    }
+
+    @Override
+    protected void doAddRoleWithID(String roleName, String[] userList, boolean shared) throws UserStoreException {
+
+        this.abstractUserStoreManager.doAddRoleWithID(roleName, userList, shared);
+    }
+
+    @Override
+    protected List<User> doListUsersWithID(String filter, int maxItemLimit) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doListUsersWithID(filter, maxItemLimit);
+    }
+
+    @Override
+    public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doCheckIsUserInRoleWithID(userID, roleName);
+    }
+
+    @Override
+    protected List<User> doGetUserListOfRoleWithID(String roleName, String filter) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doGetUserListOfRoleWithID(roleName, filter);
+    }
+
+    @Override
+    public String[] getProfileNamesWithID(String userID) throws UserStoreException {
+
+        return this.abstractUserStoreManager.getProfileNamesWithID(userID);
     }
 
 }
