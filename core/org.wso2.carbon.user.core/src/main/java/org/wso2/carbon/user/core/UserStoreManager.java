@@ -211,7 +211,7 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      */
     void deleteRole(String roleName) throws UserStoreException;
 
-    void updateUserListOfRole(String roleName, String deletedUsers[], String[] newUsers)
+    void updateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException;
 
     void updateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
