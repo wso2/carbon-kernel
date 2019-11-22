@@ -1284,7 +1284,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 String sqlStmt1;
 
                 if (roles.length > 0) {
-                    sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER);
+                    sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER_WITH_ID);
                     if (sqlStmt1 == null) {
                         throw new UserStoreException("The sql statement for remove user from role is null.");
                     }
