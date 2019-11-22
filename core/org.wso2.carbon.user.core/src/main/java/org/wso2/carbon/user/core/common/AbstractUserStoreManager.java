@@ -3031,7 +3031,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.toString());
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
+            throw new UserStoreException(e.getMessage(), e);
         } finally {
             newCredentialObj.clear();
             oldCredentialObj.clear();
@@ -3462,9 +3462,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             uniqueId = getUserIDByUserName(userName);
         }
 
-        boolean isUserExists;
+        boolean isUserExists = false;
         if (isUniqueUserIdEnabled) {
-            isUserExists = doCheckExistingUserWithID(uniqueId);
+            if (uniqueId != null) {
+                isUserExists = true;
+            }
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -8000,7 +8002,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isUniqueUserIdEnabled()) {
-            if (user != null) {
+            if (user != null && user.getUserID() != null) {
                 adminUserID = user.getUserID();
             } else {
                 adminUserID = getUserIDByUserName(adminUserName);

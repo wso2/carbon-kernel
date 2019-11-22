@@ -128,7 +128,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public List<User> doListUsersWithID(String filter, int maxItemLimit) throws UserStoreException {
 
-        List<User> users = null;
+        List<User> users = new ArrayList<>();
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
