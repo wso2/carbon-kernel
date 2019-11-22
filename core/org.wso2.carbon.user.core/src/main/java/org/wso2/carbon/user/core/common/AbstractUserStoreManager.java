@@ -6045,7 +6045,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isUniqueUserIdEnabled()) {
-            roleNames = doGetRoleListOfUserWithID(userName, "*").toArray(new String[0]);
+            roleNames = doGetRoleListOfUserWithID(getUserIDByUserName(userName, null), "*").toArray(new String[0]);
         } else {
             roleNames = doGetRoleListOfUser(userName, "*");
         }
@@ -7674,7 +7674,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         List<String> roleList = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, userID));
-        if (roleList != null && roleList.isEmpty()) {
+        if (!roleList.isEmpty()) {
             return roleList;
         }
 
