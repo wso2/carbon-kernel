@@ -68,12 +68,7 @@ public class TestTenantManager extends BaseTestCase{
                 .openStream();
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
-        try {
-            realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil.getProfileTestData(), -1234);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
-
+        realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil.getProfileTestData(), -1234);
         tenantMan = new JDBCTenantManager(ds, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
         DefaultRealmService defaultRealmService = new DefaultRealmService(realmConfig,tenantMan);
