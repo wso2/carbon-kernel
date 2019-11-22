@@ -28,7 +28,6 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.authman.AdvancedPermissionTreeTest;
 import org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
