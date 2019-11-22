@@ -164,6 +164,12 @@
 				<Description>Full Name</Description>
 				<SupportedByDefault />				
 		    </Claim>
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/username</ClaimURI>
+                <DisplayName>Username</DisplayName>
+                <AttributeID>uid</AttributeID>
+                <Description>Username</Description>
+            </Claim>
 		    <!--Claim> 
 				<ClaimURI>http://wso2.org/claims/primaryChallengeQuestion</ClaimURI> 
 				<DisplayName>Primary Challenge Question</DisplayName> 

@@ -6333,8 +6333,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(user, null);
         }
-
-        return getUserStoreWithID(userName);
+        if (userName == null) {
+            return getUserStoreWithID(user);
+        } else {
+            return getUserStoreWithID(userName);
+        }
     }
 
     private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
