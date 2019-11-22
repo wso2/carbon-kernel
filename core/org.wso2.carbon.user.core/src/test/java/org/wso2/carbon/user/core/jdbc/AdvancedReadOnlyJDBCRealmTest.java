@@ -266,7 +266,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     private void addIntialData(DataSource ds) throws Exception {
-        String sql = "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
+        String sql = "INSERT INTO UM_USER (UM_USER_ID, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
                 "?, ?, ?)";
         Connection dbCon = ds.getConnection();
         dbCon.setAutoCommit(false);
