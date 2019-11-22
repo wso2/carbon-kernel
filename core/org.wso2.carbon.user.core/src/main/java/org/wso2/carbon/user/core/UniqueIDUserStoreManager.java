@@ -209,7 +209,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    User[] getUserListWithID(String claim, String claimValue, String profileName) throws UserStoreException;
+    List<User> getUserListWithID(String claim, String claimValue, String profileName) throws UserStoreException;
 
     /**
      * Update the credential/password of the user.
