@@ -1001,7 +1001,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIDList, roleName);
                 }
-
             }
             dbConnection.commit();
         } catch (SQLException e) {
