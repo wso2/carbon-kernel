@@ -1886,12 +1886,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
-    private DataSource loadUserStoreSpacificDataSoruce() throws UserStoreException {
-        return DatabaseUtil.createUserStoreDataSource(realmConfig);
-    }
-
     @Override
-    public String[] doGetUserListFromPropertiesWithID(String property, String value, String profileName)
+    public List<String> doGetUserListFromPropertiesWithID(String property, String value, String profileName)
             throws UserStoreException {
 
         if (profileName == null) {
@@ -1909,13 +1905,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
-        String[] users = new String[0];
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-
-        List<String> list = new ArrayList<>();
+        List<String> userList = new ArrayList<>();
         try {
             dbConnection = getDBConnection();
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
@@ -1929,12 +1923,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             rs = prepStmt.executeQuery();
             while (rs.next()) {
-                String name = rs.getString(1);
-                list.add(name);
-            }
-
-            if (list.size() > 0) {
-                users = list.toArray(new String[0]);
+                String userID = rs.getString(1);
+                userList.add(userID);
             }
 
         } catch (SQLException e) {
@@ -1949,7 +1939,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
 
-        return users;
+        return userList;
     }
 
     @Override

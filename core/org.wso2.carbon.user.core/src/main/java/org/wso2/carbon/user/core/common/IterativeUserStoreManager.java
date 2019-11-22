@@ -332,7 +332,7 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected String[] doGetUserListFromPropertiesWithID(String property, String value, String profileName)
+    protected List<String> doGetUserListFromPropertiesWithID(String property, String value, String profileName)
             throws UserStoreException {
 
         return this.abstractUserStoreManager.doGetUserListFromPropertiesWithID(property, value, profileName);

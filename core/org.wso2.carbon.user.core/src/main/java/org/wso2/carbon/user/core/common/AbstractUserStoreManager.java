@@ -309,7 +309,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return An array of user names
      * @throws UserStoreException if the operation failed
      */
-    protected String[] doGetUserListFromPropertiesWithID(String property, String value, String profileName)
+    protected List<String> doGetUserListFromPropertiesWithID(String property, String value, String profileName)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -2162,46 +2162,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public final User[] getUserListWithID(String claim, String claimValue, String profileName)
-            throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, String.class, String.class};
-            Object object = callSecure("getUserListWithID", new Object[] { claim, claimValue, profileName }, argTypes);
-            return (User[]) object;
-        }
-
-        String[] userIDs = getUserListInternal(claim, claimValue, profileName);
-        List<User> users = new ArrayList<>();
-        for (String userID : userIDs) {
-            User user = new User(userID);
-            users.add(user);
-        }
-        return users.toArray(new User[0]);
-    }
-
-    @Override
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, String.class, String.class};
+            Class argTypes[] = new Class[] { String.class, String.class, String.class };
             Object object = callSecure("getUserList", new Object[] { claim, claimValue, profileName }, argTypes);
             return (String[]) object;
         }
-
-        String[] userList = getUserListInternal(claim, claimValue, profileName);
-        if (isUniqueUserIdEnabled()) {
-            List<String> users = new ArrayList<>();
-            for (String userID : userList) {
-                users.add(getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName));
-            }
-            return users.toArray(new String[0]);
-        } else {
-            return userList;
-        }
-    }
-
-    private String[] getUserListInternal(String claim, String claimValue, String profileName) throws UserStoreException {
 
         if (claim == null) {
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
@@ -2220,9 +2187,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
         }
 
-        if (!isUniqueUserIdEnabled() && (USERNAME_CLAIM_URI.equalsIgnoreCase(claim)
-                || SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM2_USERNAME_CLAIM_URI
-                .equalsIgnoreCase(claim))) {
+        if (!isUniqueUserIdEnabled() && (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI
+                .equalsIgnoreCase(claim) || SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
 
             if (log.isDebugEnabled()) {
                 log.debug("Switching to list users using username");
@@ -2250,17 +2216,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (StringUtils.isNotEmpty(extractedDomain)) {
             userManager = getSecondaryUserStoreManager(extractedDomain);
             if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded" +
-                        " for the given domain name.");
+                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                        + " for the given domain name.");
             }
         }
 
-        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
-                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
+        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim)
+                || SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
             if (userManager.isExistingUser(claimValue)) {
-                return new String[] {claimValue};
+                return new String[] { claimValue };
             } else {
-                return new String [0];
+                return new String[0];
             }
         }
 
@@ -2296,11 +2262,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Iterate through user stores and check for users for this claim.
-        List<String> usersFromUserStore = doGetUserList(claim, claimValue, profileName, extractedDomain, userManager);
-        if (log.isDebugEnabled()) {
-            log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore);
+        List<User> usersFromUserStore;
+        List<String> userNamesFromUserStore;
+        if (isUniqueUserIdEnabled()) {
+            usersFromUserStore = doGetUserListWithID(claim, claimValue, profileName, extractedDomain, userManager);
+            userNamesFromUserStore = usersFromUserStore.stream().map(User::getUsername).collect(Collectors.toList());
+        } else {
+            userNamesFromUserStore = doGetUserList(claim, claimValue, profileName, extractedDomain, userManager);
+            if (log.isDebugEnabled()) {
+                log.debug("Users from user store: " + extractedDomain + " : " + userNamesFromUserStore);
+            }
         }
-        filteredUserList.addAll(usersFromUserStore);
+        filteredUserList.addAll(userNamesFromUserStore);
 
         if (StringUtils.isNotEmpty(extractedDomain)) {
             handlePostGetUserList(claim, claimValue, filteredUserList, false);
@@ -2358,13 +2331,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Get the user list and return with domain appended.
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
-                    String[] userArray;
-                    if (isUniqueUserIdEnabled()) {
-                        userArray = userStoreManager
-                                .doGetUserListFromPropertiesWithID(property, claimValue, profileName);
-                    } else {
-                        userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
-                    }
+                    String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
                     }
@@ -2417,6 +2384,228 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Recursively call the getUserList method appending the domain to claim value.
             List<String> userList = Arrays.asList(getUserList(claim, claimValueWithDomain, profileName));
+            if (log.isDebugEnabled()) {
+                log.debug("Secondary user list for domain: " + domainName + " : " + userList);
+            }
+
+            usersFromAllStoresList.addAll(userList);
+        }
+
+        // Done with all user store processing. Return the user array if not empty.
+        return usersFromAllStoresList;
+    }
+
+    @Override
+    public final List<User> getUserListWithID(String claim, String claimValue, String profileName)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class, String.class };
+            Object object = callSecure("getUserListWithID", new Object[] { claim, claimValue, profileName }, argTypes);
+            return (List<User>) object;
+        }
+
+        if (claim == null) {
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getMessage(), "");
+            handleGetUserListFailureWithID(errorCode, errorMessage, null, claimValue, profileName);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.toString());
+        }
+
+        if (claimValue == null) {
+            handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_INVALID_CLAIM_VALUE.getCode(),
+                    ErrorMessages.ERROR_CODE_INVALID_CLAIM_VALUE.getMessage(), claim, null, profileName);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_CODE_INVALID_CLAIM_VALUE.toString());
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
+        }
+
+        // Extracting the domain from claimValue.
+        String extractedDomain = null;
+        int index;
+        index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index > 0) {
+            String[] names = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
+            extractedDomain = names[0].trim();
+        }
+
+        UserStoreManager userManager = null;
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            userManager = getSecondaryUserStoreManager(extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                        + " for the given domain name.");
+            }
+        }
+
+        // TODO: Need to check whether this is applicable
+        //        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
+        //                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
+        //            if (userManager.isExistingUser(claimValue)) {
+        //                return new String[] {claimValue};
+        //            } else {
+        //                return new String [0];
+        //            }
+        //        }
+
+        claimValue = UserCoreUtil.removeDomainFromName(claimValue);
+
+        final List<User> filteredUserList = new ArrayList<>();
+
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            try {
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    if (listener instanceof AbstractUserOperationEventListener) {
+                        AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                        if (!newListener.doPreGetUserListWithID(claim, claimValue, filteredUserList, userManager)) {
+                            handleGetUserListFailureWithID(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), claim,
+                                    claimValue, profileName);
+                            break;
+                        }
+                    }
+                }
+            } catch (UserStoreException ex) {
+                handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                ex.getMessage()), claim, claimValue, profileName);
+                throw ex;
+            }
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+        }
+
+        // Iterate through user stores and check for users for this claim.
+        List<User> usersFromUserStore;
+        if (isUniqueUserIdEnabled()) {
+            usersFromUserStore = doGetUserListWithID(claim, claimValue, profileName, extractedDomain, userManager);
+        } else {
+            List<String> userNamesFromUserStore = doGetUserList(claim, claimValue, profileName, extractedDomain,
+                    userManager);
+            usersFromUserStore = userUniqueIDManger
+                    .listUsers(userNamesFromUserStore, (AbstractUserStoreManager) userManager);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore.stream()
+                    .map(User::getUsername).collect(Collectors.toList()));
+        }
+        filteredUserList.addAll(usersFromUserStore);
+
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+            handlePostGetUserListWithID(claim, claimValue, filteredUserList, false);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Post listener user list: " + filteredUserList.stream().map(User::getUsername)
+                    .collect(Collectors.toList()) + " for domain: " + extractedDomain);
+        }
+
+        return filteredUserList;
+    }
+
+    private List<User> doGetUserListWithID(String claim, String claimValue, String profileName, String extractedDomain,
+            UserStoreManager userManager) throws UserStoreException {
+
+        String property;
+        // If domain is present, then we search within that domain only.
+        if (StringUtils.isNotEmpty(extractedDomain)) {
+
+            if (userManager == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No user store manager found for domain: " + extractedDomain);
+                }
+                return Collections.emptyList();
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Domain found in claim value. Searching only in the " + extractedDomain + " for possible "
+                        + "matches");
+            }
+
+            try {
+                property = claimManager.getAttributeName(extractedDomain, claim);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
+                                e.getMessage()), claim, claimValue, profileName);
+                throw new UserStoreException(
+                        "Error occurred while retrieving attribute name for domain : " + extractedDomain + " and claim "
+                                + claim, e);
+            }
+            if (property == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not find matching property for\n" + "claim :" + claim + "domain :"
+                            + extractedDomain);
+                }
+                return Collections.emptyList();
+            }
+
+            if (userManager instanceof AbstractUserStoreManager) {
+                // Get the user list and return with domain appended.
+                try {
+                    AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
+                    List<String> userIDs = userStoreManager
+                            .doGetUserListFromPropertiesWithID(property, claimValue, profileName);
+                    if (log.isDebugEnabled()) {
+                        log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userIDs));
+                    }
+                    return getUsersFromIDs(userIDs, null, extractedDomain, profileName);
+
+                } catch (UserStoreException ex) {
+                    handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
+                                    ex.getMessage()), claim, claimValue, profileName);
+                    throw ex;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("doGetUserListFromPropertiesWithID is not supported by this user store: " + userManager
+                            .getClass());
+                }
+                return Collections.emptyList();
+            }
+        }
+
+        // If domain is not given then search all the user stores.
+        if (log.isDebugEnabled()) {
+            log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
+        }
+
+        List<User> usersFromAllStoresList = new ArrayList<>();
+        List<UserStoreManager> userStoreManagers = getUserStoreMangers();
+
+        // Iterate through all of available user store managers.
+        for (UserStoreManager userStoreManager : userStoreManagers) {
+
+            // If this is not an instance of Abstract User Store Manger we can ignore the flow since we can't get the
+            // domain name.
+            if (!(userStoreManager instanceof AbstractUserStoreManager)) {
+                continue;
+            }
+
+            // For all the user stores append the domain name to the claim and pass it recursively (Including PRIMARY).
+            String domainName = ((AbstractUserStoreManager) userStoreManager).getMyDomainName();
+            String claimValueWithDomain;
+            if (StringUtils.equalsIgnoreCase(domainName, UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
+                claimValueWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + claimValue;
+            } else {
+                claimValueWithDomain = UserCoreUtil.addDomainToName(claimValue, domainName);
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Invoking the get user list for domain: " + domainName + " for claim: " + claim + " value: "
+                        + claimValueWithDomain);
+            }
+
+            // Recursively call the getUserList method appending the domain to claim value.
+            List<User> userList = getUserListWithID(claim, claimValueWithDomain, profileName);
             if (log.isDebugEnabled()) {
                 log.debug("Secondary user list for domain: " + domainName + " : " + userList);
             }
@@ -3509,7 +3698,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = doCheckExistingUser(uniqueId);
+            isUserExists = doCheckExistingUserWithID(uniqueId);
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -9858,11 +10047,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private User doGetUserWithID(String userID, String[] claims, String domainName, String profileName)
             throws UserStoreException {
 
-        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
+        //TODO: Need to fix doGetUserClaimValuesWithID
+        //Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
         RealmService realmService = UserCoreUtil.getRealmService();
         String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
         User user = new User(userID, userName, userName);
-        user.setAttributes(claimValues);
+        //user.setAttributes(claimValues);
         try {
             user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
             user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
@@ -10149,21 +10339,42 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        String[] userIDs = getUserListInternal(claimURI, claimValue, profileName);
+        List<User> users = getUserListWithID(claimURI, claimValue, profileName);
 
-        if (userIDs.length > 1) {
+        if (users.size() > 1) {
             throw new UserStoreException(
                     "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of the "
                             + "claim: " + claimURI);
         }
 
-        if (ArrayUtils.isEmpty(userIDs)) {
+        if (users.isEmpty()) {
             return null;
         }
 
         // Assume that username will be unique
-        return userIDs[0];
+        return users.get(0).getUserID();
     }
+
+    /**
+     * Get Users list from userIDs.
+     *
+     * @param userIDs     user IDs.
+     * @param claims      Requested claims.
+     * @param domainName  Domain name.
+     * @param profileName Profile name.
+     * @return User list.
+     * @throws UserStoreException UserStoreException.
+     */
+    protected List<User> getUsersFromIDs(List<String> userIDs, String[] claims, String domainName, String profileName)
+            throws UserStoreException {
+
+        List<User> users = new ArrayList<>();
+        for (String userID : userIDs) {
+            users.add(doGetUserWithID(userID, claims, domainName, profileName));
+        }
+        return users;
+    }
+
 
     /**
      * Get the mapped user store attribute name for the user name.
