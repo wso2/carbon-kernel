@@ -2076,8 +2076,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM, UserStoreConfigConstants
                         .enableMaxUserLimitDisplayName, "false",
                 UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
-        setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationDisabled, "Disable SSL certificate" +
-                " validation", "false", UserStoreConfigConstants.SSLCertificateValidationDisabledDescription);
+        setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
+                " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
     }
 
 //	/**

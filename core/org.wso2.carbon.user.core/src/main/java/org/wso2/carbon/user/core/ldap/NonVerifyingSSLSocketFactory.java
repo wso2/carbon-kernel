@@ -30,64 +30,78 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
+/**
+ * This socket factory will be used to ignore SSL certificate validation, using a dummy trust manager.
+ */
 public class NonVerifyingSSLSocketFactory extends SocketFactory {
+
     private static SocketFactory nonVerifyingSSLSocketFactory;
 
-    static {
-        TrustManager [] distrustManager = new TrustManager [] {new X509ExtendedTrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate [] chain, String authType, Socket socket) {
-
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate [] chain, String authType, Socket socket) {
-
-            }
-
-            @Override
-            public void checkClientTrusted(X509Certificate [] chain, String authType, SSLEngine engine) {
-
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate [] chain, String authType, SSLEngine engine) {
-
-            }
-
-            public X509Certificate [] getAcceptedIssuers() {
-                return null;
-            }
-
-            public void checkClientTrusted(X509Certificate [] c, String a) {
-            }
-
-            public void checkServerTrusted(X509Certificate [] c, String a) {
-            }
-        }};
-
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, distrustManager, new java.security.SecureRandom());
-            nonVerifyingSSLSocketFactory = sc.getSocketFactory();
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
-     * This method is called by the LDAP Context to create the connection
+     * This method is called by the LDAP Context to create the connection.
      *
      * @see SocketFactory#getDefault()
      */
     @SuppressWarnings ("unused")
     public static SocketFactory getDefault() {
+
+        if (nonVerifyingSSLSocketFactory == null) {
+            synchronized (NonVerifyingSSLSocketFactory.class) {
+                if (nonVerifyingSSLSocketFactory == null) {
+
+                    TrustManager[] distrustManager = new TrustManager[]{new X509ExtendedTrustManager() {
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] x509Certificates, String s, Socket socket) {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] x509Certificates, String s, Socket socket) {
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] x509Certificates, String s, SSLEngine sslEngine) {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] x509Certificates, String s, SSLEngine sslEngine) {
+                        }
+                    }};
+
+                    try {
+                        SSLContext sc = SSLContext.getInstance("SSL");
+                        sc.init(null, distrustManager, new java.security.SecureRandom());
+                        nonVerifyingSSLSocketFactory = sc.getSocketFactory();
+                    } catch (GeneralSecurityException e) {
+                        throw new RuntimeException("Error while instantiating SSL context", e);
+                    }
+                }
+            }
+        }
+
         return new NonVerifyingSSLSocketFactory();
+    }
+
+    private NonVerifyingSSLSocketFactory() {
     }
 
     /**
      * @see SocketFactory#createSocket(String, int)
      */
+    @Override
     public Socket createSocket(String arg0, int arg1) throws IOException {
         return nonVerifyingSSLSocketFactory.createSocket(arg0, arg1);
     }
@@ -95,6 +109,7 @@ public class NonVerifyingSSLSocketFactory extends SocketFactory {
     /**
      * @see SocketFactory#createSocket(java.net.InetAddress, int)
      */
+    @Override
     public Socket createSocket(InetAddress arg0, int arg1) throws IOException {
         return nonVerifyingSSLSocketFactory.createSocket(arg0, arg1);
     }
@@ -102,6 +117,7 @@ public class NonVerifyingSSLSocketFactory extends SocketFactory {
     /**
      * @see SocketFactory#createSocket(String, int, InetAddress, int)
      */
+    @Override
     public Socket createSocket(String arg0, int arg1, InetAddress arg2, int arg3) throws IOException {
         return nonVerifyingSSLSocketFactory.createSocket(arg0, arg1, arg2, arg3);
     }
@@ -109,6 +125,7 @@ public class NonVerifyingSSLSocketFactory extends SocketFactory {
     /**
      * @see SocketFactory#createSocket(InetAddress, int, InetAddress, int)
      */
+    @Override
     public Socket createSocket(InetAddress arg0, int arg1, InetAddress arg2,
                                 int arg3) throws IOException {
         return nonVerifyingSSLSocketFactory.createSocket(arg0, arg1, arg2, arg3);
@@ -117,6 +134,7 @@ public class NonVerifyingSSLSocketFactory extends SocketFactory {
     /**
      * @see SocketFactory#createSocket()
      */
+    @Override
     public Socket createSocket() throws IOException {
         return nonVerifyingSSLSocketFactory.createSocket();
     }
