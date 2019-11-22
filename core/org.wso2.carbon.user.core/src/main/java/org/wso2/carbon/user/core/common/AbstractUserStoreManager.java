@@ -4395,10 +4395,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-
                 updateUserListOfHybridRoleInternal(roleName, deletedUsers, newUsers, userStore.getDomainFreeName());
             } else {
-
                 updateUserListOfHybridRoleInternal(roleName, deletedUsers, newUsers, userStore.getDomainAwareName());
             }
             clearUserRolesCacheByTenant(this.tenantId);
@@ -4450,9 +4448,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if ((deletedUsers != null && deletedUsers.length > 0) || (newUsers != null && newUsers.length > 0)) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 try {
-                    doUpdateUserListOfRole(userStore.getDomainFreeName(),
-                            UserCoreUtil.removeDomainFromNames(deletedUsers),
-                            UserCoreUtil.removeDomainFromNames(newUsers));
+                    if (isUniqueUserIdEnabled()) {
+                        List<String> userIds = getUserIDsFromUserNames(Arrays.asList(newUsers));
+                        doUpdateUserListOfRoleWithID(userStore.getDomainFreeName(),
+                                UserCoreUtil.removeDomainFromNames(deletedUsers),
+                                UserCoreUtil.removeDomainFromNames(userIds.toArray(new String[0])));
+                    } else {
+                        doUpdateUserListOfRole(userStore.getDomainFreeName(),
+                                UserCoreUtil.removeDomainFromNames(deletedUsers),
+                                UserCoreUtil.removeDomainFromNames(newUsers));
+                    }
                 } catch (UserStoreException ex) {
                     handleUpdateUserListOfRoleFailure(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_UPDATE_USERS_OF_ROLE.getCode(),
@@ -10168,6 +10173,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
 
         return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
+    }
+
+    /**
+     * Get list of unique ids from a list of usernames.
+     * @param usernames List of usernames.
+     * @return List of unique ids.
+     * @throws UserStoreException
+     */
+    protected List<String> getUserIDsFromUserNames(List<String> usernames) throws UserStoreException {
+
+        List<String> userIDs = new ArrayList<>();
+        for (String username : usernames) {
+            String userID = getUserIDByUserName(username, null);
+            userIDs.add(userID);
+        }
+        return userIDs;
     }
 
     /**
