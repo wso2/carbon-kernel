@@ -216,7 +216,7 @@ public class UserCoreErrorConstants {
                 + "updating user list of role, %s"),
         ERROR_CODE_ERROR_WHILE_POST_UPDATE_USERS_OF_ROLE("31903", "Un-expected error during post-step of "
                 + "updating user list of role, %s"),
-
+        ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL("31603", "Un-expected error while executing the sql, %s"),
         // Error code related with updating permissions of role.
         ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_ROLE("32101", "Un-expected error while updating permissions of  "
                 + "updating role,  %s");

@@ -81,6 +81,7 @@ import javax.sql.DataSource;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL;
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
@@ -3779,7 +3780,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (log.isDebugEnabled()) {
                 log.debug(msg + sqlStmt);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
         } catch (UserStoreException ex) {
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
                             .getCode(),
@@ -3847,7 +3848,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
 
         } catch (UserStoreException ex) {
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
