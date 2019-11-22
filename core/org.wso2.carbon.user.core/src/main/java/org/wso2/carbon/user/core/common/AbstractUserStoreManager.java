@@ -1339,7 +1339,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### <Listeners> #####################################################
 
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         if (value != null) {
             list.add(value);
         }
@@ -4432,9 +4432,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                updateUserListOfHybridRoleInternal(roleName, deletedUsers, newUsers, userStore.getDomainFreeName());
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsers, newUsers);
+                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
             } else {
-                updateUserListOfHybridRoleInternal(roleName, deletedUsers, newUsers, userStore.getDomainAwareName());
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(), deletedUsers, newUsers);
+                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
             }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
@@ -4486,10 +4488,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isReadOnly() && writeGroupsEnabled) {
                 try {
                     if (isUniqueUserIdEnabled()) {
-                        List<String> userIds = getUserIDsFromUserNames(Arrays.asList(newUsers));
+                        List<String> newUserIds = getUserIDsByUserNames(Arrays.asList(newUsers), null);
+                        List<String> deletedUserIds = getUserIDsByUserNames(Arrays.asList(newUsers), null);
                         doUpdateUserListOfRoleWithID(userStore.getDomainFreeName(),
-                                UserCoreUtil.removeDomainFromNames(deletedUsers),
-                                UserCoreUtil.removeDomainFromNames(userIds.toArray(new String[0])));
+                                UserCoreUtil.removeDomainFromNames(deletedUserIds.toArray(new String[0])),
+                                UserCoreUtil.removeDomainFromNames(newUserIds.toArray(new String[0])));
                     } else {
                         doUpdateUserListOfRole(userStore.getDomainFreeName(),
                                 UserCoreUtil.removeDomainFromNames(deletedUsers),
@@ -4514,33 +4517,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Call relevant listeners after updating user list of role.
         handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false);
-    }
-
-    private void updateUserListOfHybridRoleInternal(String roleName, String[] deletedUsers, String[] newUsers,
-            String domainFreeName) throws UserStoreException {
-
-        if (isUniqueUserIdEnabled()) {
-
-            String[] deletedUserIDs = deletedUsers;
-            String[] newUserIDs = deletedUsers;
-            // Get the relevant userID for the given username.
-            List<String> deletedUserIDList = new ArrayList<>();
-            for (String userName : deletedUserIDs) {
-                deletedUserIDList.add(getUserIDByUserName(userName, null));
-            }
-            deletedUserIDs = deletedUserIDList.toArray(new String[0]);
-            List<String> newUserIDList = new ArrayList<>();
-            for (String userName : newUserIDs) {
-                newUserIDList.add(getUserIDByUserName(userName, null));
-            }
-            newUserIDs = newUserIDList.toArray(new String[0]);
-
-            hybridRoleManager.updateUserListOfHybridRole(domainFreeName, deletedUserIDs, newUserIDs);
-        } else {
-            hybridRoleManager.updateUserListOfHybridRole(domainFreeName, deletedUsers, newUsers);
-
-        }
-        handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
     }
 
     /**
@@ -10357,23 +10333,39 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * provides the unique user ID of the user.
+     *
+     * @return unique user ID.
+     */
+    protected String getUniqueUserID() {
+
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * provides the unique user ID of the given user.
+     *
+     * @param userName username of the user.
+     * @return user ID
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
+
+        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
+    }
+
+    /**
      * provides the unique user IDs of the given users.
      *
      * @param userNames   username of the user.
      * @param profileName profile name.
      * @return list of user IDs.
      */
-    protected List<String> getUserIDsByUserNames(List<String> userNames, String profileName) {
+    protected List<String> getUserIDsByUserNames(List<String> userNames, String profileName) throws UserStoreException {
 
         List<String> userIDs = new ArrayList<>();
         for (String userName : userNames) {
-            try {
-                userIDs.add(getUserIDByUserName(userName, profileName));
-            } catch (UserStoreException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Error occurred while resolving the userID for userName: " + userName);
-                }
-            }
+            userIDs.add(getUserIDByUserName(userName, profileName));
         }
         return userIDs;
     }
@@ -10404,44 +10396,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Assume that username will be unique
         return userIDs[0];
-    }
-
-    /**
-     * provides the unique user ID of the user.
-     *
-     * @return unique user ID.
-     */
-    protected String getUniqueUserID() {
-
-        return UUID.randomUUID().toString();
-    }
-
-    /**
-     * provides the unique user ID of the given user.
-     *
-     * @param userName username of the user.
-     * @return user ID
-     * @throws UserStoreException Thrown by the underlying UserStoreManager.
-     */
-    protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
-
-        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
-    }
-
-    /**
-     * Get list of unique ids from a list of usernames.
-     * @param usernames List of usernames.
-     * @return List of unique ids.
-     * @throws UserStoreException
-     */
-    protected List<String> getUserIDsFromUserNames(List<String> usernames) throws UserStoreException {
-
-        List<String> userIDs = new ArrayList<>();
-        for (String username : usernames) {
-            String userID = getUserIDByUserName(username, null);
-            userIDs.add(userID);
-        }
-        return userIDs;
     }
 
     /**
