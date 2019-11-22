@@ -212,8 +212,25 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         count = stmt.executeBatch();
         assertEquals(2, count.length);
+
+        sql = "INSERT INTO UM_USER_ATTRIBUTE (UM_ATTR_NAME,UM_ATTR_VALUE,UM_TENANT_ID,UM_USER_ID,UM_PROFILE_ID) " +
+                "VALUES (?,?,?,?,?)";
+        stmt = dbCon.prepareStatement(sql);
+        stmt.setString(1, "uid");
+        stmt.setString(2, "adminx");
+        stmt.setInt(3, -1234);
+        stmt.setInt(4, 2);
+        stmt.setString(5, "default");
+        stmt.addBatch();
+        stmt.setString(1, "uid");
+        stmt.setString(2, "saman");
+        stmt.setInt(3, -1234);
+        stmt.setInt(4, 4);
+        stmt.setString(5, "default");
+        stmt.addBatch();
+        stmt.executeBatch();
+
         dbCon.commit();
-        
         dbCon.close();
     }
 }

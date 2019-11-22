@@ -30,13 +30,13 @@ import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
+import javax.sql.DataSource;
 
 public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
 
@@ -313,6 +313,24 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         count = stmt.executeBatch();
         assertEquals(2, count.length);
+
+        sql = "INSERT INTO UM_USER_ATTRIBUTE (UM_ATTR_NAME,UM_ATTR_VALUE,UM_TENANT_ID,UM_USER_ID,UM_PROFILE_ID) " +
+                "VALUES (?,?,?,?,?)";
+        stmt = dbCon.prepareStatement(sql);
+        stmt.setString(1, "uid");
+        stmt.setString(2, "adminx");
+        stmt.setInt(3, -1234);
+        stmt.setInt(4, 2);
+        stmt.setString(5, "default");
+        stmt.addBatch();
+        stmt.setString(1, "uid");
+        stmt.setString(2, "saman");
+        stmt.setInt(3, -1234);
+        stmt.setInt(4, 4);
+        stmt.setString(5, "default");
+        stmt.addBatch();
+        stmt.executeBatch();
+
         dbCon.commit();
         
         dbCon.close();
