@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -51,7 +52,6 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
-import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -72,6 +72,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
@@ -774,7 +775,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
                                 preferredUserNameValue, null, null, null);
                         try {
-                            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
+                            user.setTenantDomain(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain());
                             user.setUserStoreDomain(UserCoreUtil.getDomainName(
                                     CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                                             .getRealmConfiguration()));
@@ -963,6 +964,40 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
+
+    protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
+
+        try {
+            String property = claimManager.getAttributeName(getMyDomainName(), claimURI);
+            if (property == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not find the matching property for claim URI: " + claimURI + " in user " +
+                            "domain: " + getMyDomainName());
+                }
+                return null;
+            }
+            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, profileName);
+            if (userIds.size() == 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No UserID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:" +
+                            " " + getMyDomainName());
+                }
+                return null;
+            } else if (userIds.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of the "
+                                + "claim: " + claimURI);
+            } else {
+                // username can have only one userId. Take the first element.
+                return userIds.get(0);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " +
+                    "claim" + claimURI + " value: " + claimValue, e);
+        }
+    }
+
 
     @Override
     public void doAddRoleWithID(String roleName, String[] userIDList, boolean shared) throws UserStoreException {
@@ -1249,7 +1284,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 String sqlStmt1;
 
                 if (roles.length > 0) {
-                    sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER);
+                    sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER_WITH_ID);
                     if (sqlStmt1 == null) {
                         throw new UserStoreException("The sql statement for remove user from role is null.");
                     }
