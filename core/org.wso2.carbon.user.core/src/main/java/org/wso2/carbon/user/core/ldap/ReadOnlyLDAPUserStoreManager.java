@@ -628,7 +628,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            userName = getUserIDByUserName(userName);
         }
         return getUserPropertyValuesInternal(userName, propertyNames);
     }
@@ -1005,7 +1005,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     private boolean doCheckExistingUserWithUserNameAttribute(String userName) throws UserStoreException {
 
-        String userIDs = getUserIDByUserName(userName, null);
+        String userIDs = getUserIDByUserName(userName);
 
         if (StringUtils.isEmpty(userIDs)) {
             return false;
@@ -2335,7 +2335,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            userName = getUserIDByUserName(userName);
         }
 
         boolean debug = log.isDebugEnabled();
@@ -2516,7 +2516,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            userName = getUserIDByUserName(userName);
         }
         return doGetExternalRoleListOfUserInternal(userName, filter);
     }
@@ -2541,7 +2541,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            userName = getUserIDByUserName(userName);
         }
         return doGetSharedRoleListOfUserInternal(userName, tenantDomain, filter);
     }
@@ -3738,7 +3738,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            userName = getUserIDByUserName(userName);
         }
         return doCheckIsUserInRoleInternal(userName, roleName);
     }
@@ -3980,7 +3980,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
+            userName = getUserIDByUserName(userName);
         }
         if (userName != null && userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             return super.getPasswordExpirationTime(userName);
