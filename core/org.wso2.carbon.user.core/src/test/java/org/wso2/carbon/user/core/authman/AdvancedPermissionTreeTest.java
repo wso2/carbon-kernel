@@ -80,9 +80,6 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
     }
 
     public void dorolestuff() throws Exception {
-        Map<String, String> getClaims = new HashMap<String, String>();
-        getClaims.put(ClaimTestUtil.CLAIM_URI1, "1claim1Value");
-        getClaims.put(ClaimTestUtil.CLAIM_URI2, "2claim2Value");
 
         Permission[] permisions = new Permission[2];
         permisions[0] = new Permission("high security", "read");

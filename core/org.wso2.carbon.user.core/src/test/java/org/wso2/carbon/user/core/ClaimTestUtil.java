@@ -29,6 +29,7 @@ public class ClaimTestUtil {
     public static final String CLAIM_URI1 = "http://wso2.org/givenname";
     public static final String CLAIM_URI2 = "http://wso2.org2/givenname2";
     public static final String CLAIM_URI3 = "http://wso2.org/givenname3";
+    public static final String CLAIM_URI4 = "http://wso2.org/claims/username";
     public static final String HOME_PROFILE_NAME = "HomeProfile";
 
     public static Map<String, ClaimMapping> getClaimTestData() {
@@ -71,6 +72,18 @@ public class ClaimTestUtil {
         cm3.setClaim(claim3);
         cm3.setMappedAttribute("attr3");
         claims.put("http://wso2.org/givenname3", cm3);
+
+        Claim claim4 = new Claim();
+        claim3.setClaimUri(CLAIM_URI4);
+        claim3.setDescription("Username Claim URI");
+        claim3.setDialectURI("http://wso2.org/");
+        claim3.setDisplayTag("Username");
+        claim3.setRequired(true);
+        claim3.setSupportedByDefault(true);
+        ClaimMapping cm4 = new ClaimMapping();
+        cm4.setClaim(claim4);
+        cm4.setMappedAttribute("uid");
+        claims.put(CLAIM_URI4, cm4);
      
         return claims;
         
