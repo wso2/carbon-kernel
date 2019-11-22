@@ -132,9 +132,7 @@ public class JDBCRealmTest extends BaseTestCase {
         admin.addUser("dimuthu", "credential", null, null, null, false);
         admin.addRole("role1", new String[] { "dimuthu" }, permisions);
         admin.addUser("vajira", "credential", new String[] { "role1" }, userProps, null, false);
-        int id = admin.getUserId("dimuthu");
-        int tenatId = admin.getTenantId("dimuthu");
-        
+
         // authenticate
         assertTrue(admin.authenticate("dimuthu", "credential"));
 
@@ -158,6 +156,7 @@ public class JDBCRealmTest extends BaseTestCase {
         // delete
         admin.deleteUser("vajira");
         assertFalse(admin.authenticate("vajira", "credential"));
+
         admin.addUser("vajira", "credential", new String[] { "role1" }, userProps, null, false);
         admin.deleteRole("role1");
         admin.addRole("role1", new String[] { "dimuthu" }, permisions);

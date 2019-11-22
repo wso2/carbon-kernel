@@ -5573,8 +5573,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean success = false;
         if (readGroupsEnabled) {
-            success = doCheckIsUserInRole(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromName(roleName));
+            if (isUniqueUserIdEnabled()) {
+                success = doCheckIsUserInRoleWithID(getUserIDByUserName(userName, null),
+                        UserCoreUtil.removeDomainFromName(roleName));
+            } else {
+                success = doCheckIsUserInRole(userStore.getDomainFreeName(),
+                        UserCoreUtil.removeDomainFromName(roleName));
+            }
         }
 
         // add to cache
@@ -6582,7 +6587,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private UserStore getUserStoreWithPreferredUserNameValue(final String preferredUserNameClaim,
-            final String preferredUserNameValue, final String profileName) throws UserStoreException {
+                                                             final String preferredUserNameValue, final String profileName) throws UserStoreException {
 
         return getUserStoreWithID(getUserIDFromProperties(preferredUserNameClaim, preferredUserNameValue, profileName));
     }
@@ -6623,8 +6628,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private UserStore getUserStoreInternal(String user) throws UserStoreException {
 
         int index;
-        index = user.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         UserStore userStore = new UserStore();
+        if (user == null) {
+            userStore.setUserStoreManager(this);
+            userStore.setRecurssive(false);
+            userStore.setDomainName(getMyDomainName());
+            return userStore;
+        }
+        index = user.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         String domainFreeName = null;
 
         // Check whether we have a secondary UserStoreManager setup.
@@ -10541,7 +10552,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String getUserIDByUserName(String userName, String profileName) throws UserStoreException {
 
-        return getUserIDFromProperties(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName, profileName);
+        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, profileName);
     }
 
     /**
@@ -10572,20 +10583,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        List<User> users = getUserListWithID(claimURI, claimValue, profileName);
-
-        if (users.size() > 1) {
-            throw new UserStoreException(
-                    "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of the "
-                            + "claim: " + claimURI);
-        }
-
-        if (users.isEmpty()) {
-            return null;
-        }
-
-        // Assume that username will be unique
-        return users.get(0).getUserID();
+        throw new NotImplementedException(
+                "getUserIDFromProperties operation is not implemented in: " + this.getClass());
     }
 
     /**
