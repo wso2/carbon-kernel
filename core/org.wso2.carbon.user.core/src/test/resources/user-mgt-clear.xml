@@ -36,7 +36,7 @@
 	     set property <Property name="PasswordsExternallyManaged">true</Property>. Furthermore properties, IsEmailUserName and DomainCalculation
 	     are readonly properties.
 	     Note: Do not comment within UserStoreManager tags. Cause, specific tag names are used as tokens when building configurations for products. -->	
-        <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
+        <UserStoreManager class="org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager">
 	        <Property name="ReadOnly">false</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="IsEmailUserName">false</Property>
@@ -47,6 +47,7 @@
             <Property name="PasswordJavaRegEx">[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">[\\S]{5,30}</Property>
             <Property name="TenantManager">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
+            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager>
 
         <!-- Active directory configuration follows. This only operates under read mode. -->
