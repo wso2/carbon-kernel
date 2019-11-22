@@ -360,15 +360,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (users != null) {
-
             for (User user : users) {
-                RealmService realmService = UserCoreUtil.getRealmService();
-                try {
-                    user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
-                    user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    throw new UserStoreException(e);
-                }
+                user.setTenantDomain(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+                user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
             }
         }
         log.debug("Roles are not defined for the role name " + roleName);
@@ -1664,7 +1658,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public Date getPasswordExpirationTime(String userName) throws UserStoreException {
 
-        return getPasswordExpirationTimeWithID(getUserIDByUserName(userName, null));
+        return getPasswordExpirationTimeWithID(getUserIDByUserName(userName));
     }
 
     @Override
