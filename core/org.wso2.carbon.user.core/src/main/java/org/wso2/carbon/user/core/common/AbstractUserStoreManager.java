@@ -4230,7 +4230,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Clean the role cache since it contains old role information.
         if (isUniqueUserIdEnabled()) {
-            clearUserRolesCacheWithID(user.getUserID());
+            clearUserRolesCache(user.getUserID());
         } else {
             clearUserRolesCache(userName);
         }
@@ -5684,7 +5684,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return userList;
         }
 
-        String[] userNamesInHybrid = new String[0];
+        String[] userNamesInHybrid;
         if (userStore.isHybridRole()) {
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
@@ -5693,7 +5693,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // remove domain
-            List<String> finalNameList = new ArrayList<String>();
+            List<String> finalNameList = new ArrayList<>();
             String displayNameAttribute = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
 
             if (userNamesInHybrid != null && userNamesInHybrid.length > 0) {
@@ -5725,23 +5725,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 } else {
                     handleDoPostGetUserListOfRole(roleName, userNamesInHybrid);
-                    userNamesInHybrid = getUserNamesList(userNamesInHybrid);
                     return userNamesInHybrid;
                 }
             }
-            String[] userList = finalNameList.toArray(new String[finalNameList.size()]);
+            String[] userList = finalNameList.toArray(new String[0]);
             handleDoPostGetUserListOfRole(roleName, userList);
-            userList = getUserNamesList(userList);
             return userList;
-            // return
-            // hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
         }
 
         if (readGroupsEnabled) {
-            userNames = doGetUserListOfRole(roleName, filter, maxItemLimit);
+            if (isUniqueUserIdEnabled()) {
+                List<User> users = doGetUserListOfRoleWithID(roleName, filter, maxItemLimit);
+                userNames = users.stream().map(User::getUsername).toArray(String[]::new);
+            } else {
+                userNames = doGetUserListOfRole(roleName, filter, maxItemLimit);
+            }
             handleDoPostGetUserListOfRole(roleName, userNames);
         }
-        userNames = getUserNamesList(userNames);
         return userNames;
 
     }
@@ -5754,8 +5754,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (String[]) object;
         }
 
-        String[] roleNames = null;
-
+        String[] roleNames;
+        String userID;
 
         // anonymous user is only assigned to  anonymous role
         if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
@@ -5763,7 +5763,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isUniqueUserIdEnabled()) {
-            String userID = getUserIDByUserName(userName, null);
+            userID = getUserIDByUserName(userName, null);
             String userIDWithDomain = UserCoreUtil.addDomainToName(userID, getMyDomainName());
             // Check whether roles exist in cache
             roleNames = getRoleListOfUserFromCache(this.tenantId, userIDWithDomain);
@@ -5786,8 +5786,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### Domain Name Free Zone Starts Here ################################
 
-        roleNames = doGetRoleListOfUser(userName, "*");
-
+        if (isUniqueUserIdEnabled()) {
+            roleNames = doGetRoleListOfUserWithID(userName, "*").toArray(new String[0]);
+        } else {
+            roleNames = doGetRoleListOfUser(userName, "*");
+        }
         return roleNames;
     }
 
@@ -6338,8 +6341,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabled()) {
             userName = getUserIDByUserName(user, null);
         }
-
-        return getUserStoreWithID(userName);
+        if (userName == null) {
+            return getUserStoreWithID(user);
+        } else {
+            return getUserStoreWithID(userName);
+        }
     }
 
     private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
@@ -7119,28 +7125,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    /**
-     * Clear user role cache.
-     *
-     * @param userName user name.
-     */
-    protected void clearUserRolesCache(String userName) throws UserStoreException {
-        clearUserRolesCacheInternal(userName);
-    }
+    protected void clearUserRolesCache(String userIdentifier) {
 
-    /**
-     * Clear user role cache.
-     *
-     * @param userID user ID.
-     */
-    protected void clearUserRolesCacheWithID(String userID) {
-
-        clearUserRolesCacheInternal(userID);
-    }
-
-    private void clearUserRolesCacheInternal(String userName) {
-
-        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+        String usernameWithDomain = UserCoreUtil.addDomainToName(userIdentifier, getMyDomainName());
         if (userRolesCache != null) {
             userRolesCache.clearCacheEntry(cacheIdentifier, tenantId, usernameWithDomain);
         }
@@ -7382,7 +7369,46 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             Object object = callSecure("doGetRoleListOfUserWithID", new Object[] { userID, filter }, argTypes);
             return (List<String>) object;
         }
-        return Arrays.asList(doGetRoleListOfUserInternal(userID, filter));
+
+        List<String> roleList = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, userID));
+        if (roleList != null && roleList.isEmpty()) {
+            return roleList;
+        }
+
+        return getUserRolesWithID(userID, filter);
+    }
+
+    private List<String> getUserRolesWithID(String userID, String filter) throws UserStoreException {
+
+        List<String> internalRoles = doGetInternalRoleListOfUserWithID(userID, filter);
+        String[] modifiedExternalRoleList = new String[0];
+
+        if (readGroupsEnabled && doCheckExistingUserWithID(userID)) {
+            List<String> roles = new ArrayList<>();
+            String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
+            roles.addAll(Arrays.asList(externalRoles));
+            if (isSharedGroupEnabled()) {
+                String[] sharedRoles = doGetSharedRoleListOfUserWithID(userID, null, "*");
+                if (sharedRoles != null) {
+                    roles.addAll(Arrays.asList(sharedRoles));
+                }
+            }
+            modifiedExternalRoleList = UserCoreUtil.addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
+        }
+
+        String[] roleList = UserCoreUtil.combine(modifiedExternalRoleList, internalRoles);
+
+        for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
+                .getUserOperationEventListeners()) {
+            if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
+                if (!((AbstractUserOperationEventListener) userOperationEventListener)
+                        .doPostGetRoleListOfUserWithID(userID, filter, roleList, this)) {
+                    break;
+                }
+            }
+        }
+        addToUserRolesCache(this.tenantId, userID, roleList);
+        return Arrays.asList(roleList);
     }
 
     /**
@@ -7393,7 +7419,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user list of the given role.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    public String[] doGetRoleListOfUser(String userName, String filter) throws UserStoreException {
+    public final String[] doGetRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String.class };
@@ -7401,54 +7427,48 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (String[]) object;
         }
 
-        if(isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName, null);
-        }
-        return doGetRoleListOfUserInternal(userName, filter);
-    }
-
-    private final String[] doGetRoleListOfUserInternal(String userName, String filter)
-            throws UserStoreException {
-
         String[] roleList = getRoleListOfUserFromCache(this.tenantId, userName);
         if (roleList != null && roleList.length > 0) {
             return roleList;
         }
 
-        String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
+        return getUserRoles(userName, filter);
+    }
 
+    private String[] getUserRoles(String username, String filter) throws UserStoreException {
+
+        String[] internalRoles = doGetInternalRoleListOfUser(username, filter);
         String[] modifiedExternalRoleList = new String[0];
 
-        if (readGroupsEnabled && doCheckExistingUser(userName)) {
+        if (readGroupsEnabled && doCheckExistingUser(username)) {
             List<String> roles = new ArrayList<String>();
-            String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
+            String[] externalRoles = doGetExternalRoleListOfUser(username, "*");
             roles.addAll(Arrays.asList(externalRoles));
             if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUser(userName, null, "*");
+                String[] sharedRoles = doGetSharedRoleListOfUser(username, null, "*");
                 if (sharedRoles != null) {
                     roles.addAll(Arrays.asList(sharedRoles));
                 }
             }
-            modifiedExternalRoleList =
-                    UserCoreUtil.addDomainToNames(roles.toArray(new String[roles.size()]),
-                            getMyDomainName());
+            modifiedExternalRoleList = UserCoreUtil
+                    .addDomainToNames(roles.toArray(new String[roles.size()]), getMyDomainName());
         }
 
-        roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
+        String[] roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
 
         for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
             if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
                 if (!((AbstractUserOperationEventListener) userOperationEventListener)
-                        .doPostGetRoleListOfUser(userName, filter, roleList, this)) {
+                        .doPostGetRoleListOfUser(username, filter, roleList, this)) {
                     break;
                 }
             }
         }
-        addToUserRolesCache(this.tenantId, userName, roleList);
-
+        addToUserRolesCache(this.tenantId, username, roleList);
         return roleList;
     }
+
 
     /**
      * @param filter
@@ -10338,7 +10358,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Needs to clear roles cache upon deletion of a user
-        clearUserRolesCacheWithID(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
+        clearUserRolesCache(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
 
         // #################### <Listeners> #####################################################
         try {
@@ -11187,7 +11207,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        clearUserRolesCacheWithID(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
+        clearUserRolesCache(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
 
         // Call the relevant listeners after updating the role list of user.
         try {
@@ -11717,7 +11737,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Clean the role cache since it contains old role information.
-        clearUserRolesCacheWithID(userName);
+        clearUserRolesCache(userName);
         return user;
     }
 
