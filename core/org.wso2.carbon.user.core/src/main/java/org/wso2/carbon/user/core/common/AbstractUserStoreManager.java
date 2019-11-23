@@ -1299,7 +1299,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isUniqueUserIdEnabled()) {
             isUserExist = doCheckExistingUser(userName);
         } else {
-            isUserExist = userID != null;
+            isUserExist = uniqueId != null;
         }
 
         if (!isUserExist) {
@@ -1440,7 +1440,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isUniqueIdEnabled) {
             isUserExists = doCheckExistingUser(userName);
         } else {
-            isUserExists = userID != null;
+            isUserExists = uniqueId != null;
         }
 
         if (!isUserExists) {
@@ -3219,7 +3219,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             boolean isUserExists;
             if (isUniqueUserIdEnabled) {
-                isUserExists = userID != null;
+                isUserExists = uniqueId != null;
             } else {
                 isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
             }
@@ -3455,7 +3455,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists = false;
         if (isUniqueUserIdEnabled) {
-            isUserExists = userID != null;
+            isUserExists = uniqueId != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3579,7 +3579,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = userID != null;
+            isUserExists = uniqueId != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3723,7 +3723,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = userID != null;
+            isUserExists = uniqueId != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3884,7 +3884,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = userID != null;
+            isUserExists = uniqueId != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -4030,7 +4030,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = userID != null;
+            isUserExists = uniqueId != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
