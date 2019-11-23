@@ -577,6 +577,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public boolean doCheckExistingUserWithID(String userID) throws UserStoreException {
 
+        // If the user ID is null, no need to check further.
+        if(userID == null) {
+            return false;
+        }
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_USER_EXISTING_WITH_ID);
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for is user existing null.");
@@ -611,6 +615,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public boolean doCheckExistingUserName(String userName) throws UserStoreException {
 
+        // If the user name is null, no need to check further.
+        if(userName == null) {
+            return false;
+        }
         String sqlStmt;
         String mappedAttribute = this.getUserNameMappedAttribute();
 
