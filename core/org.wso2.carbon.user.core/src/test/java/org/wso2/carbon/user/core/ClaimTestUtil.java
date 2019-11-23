@@ -74,12 +74,12 @@ public class ClaimTestUtil {
         claims.put("http://wso2.org/givenname3", cm3);
 
         Claim claim4 = new Claim();
-        claim3.setClaimUri(CLAIM_URI4);
-        claim3.setDescription("Username Claim URI");
-        claim3.setDialectURI("http://wso2.org/");
-        claim3.setDisplayTag("Username");
-        claim3.setRequired(true);
-        claim3.setSupportedByDefault(true);
+        claim4.setClaimUri(CLAIM_URI4);
+        claim4.setDescription("Username Claim URI");
+        claim4.setDialectURI("http://wso2.org/");
+        claim4.setDisplayTag("Username");
+        claim4.setRequired(true);
+        claim4.setSupportedByDefault(true);
         ClaimMapping cm4 = new ClaimMapping();
         cm4.setClaim(claim4);
         cm4.setMappedAttribute("uid");
