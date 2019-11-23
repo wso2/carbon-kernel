@@ -1052,7 +1052,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
         }
 
-        boolean authenticated = false;
+        boolean authenticated;
 
         UserStore userStore = abstractUserStoreManager.getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -1142,11 +1142,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // domain name provided with user name.
             try {
                 // Let's authenticate with the primary UserStoreManager.
-                // Get the relevant userID for the given username.
-                if (isUniqueUserIdEnabled()) {
-                    userName = getUserIDByUserName(userName);
-                }
-
                 authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
             } catch (Exception e) {
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
@@ -1283,16 +1278,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw an
 
-        String uniqueId = null;
+        String userID = null;
         if (isUniqueUserIdEnabled()) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         boolean isUserExist;
         if (!isUniqueUserIdEnabled()) {
             isUserExist = doCheckExistingUser(userName);
         } else {
-            isUserExist = uniqueId != null;
+            isUserExist = userID != null;
         }
 
         if (!isUserExist) {
@@ -1309,7 +1304,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 finalValues = doGetUserClaimValues(userName, new String[]{claim}, userStore.getDomainName(),
                         profileName);
             } else {
-                finalValues = doGetUserClaimValuesWithID(uniqueId, new String[]{claim},
+                finalValues = doGetUserClaimValuesWithID(userID, new String[]{claim},
                         userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
@@ -1428,12 +1423,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw exception
         boolean isUniqueIdEnabled = isUniqueUserIdEnabled();
-        String uniqueId = getUserIDByUserName(userName);
+        String userID = getUserIDByUserName(userName);
         boolean isUserExists;
         if (!isUniqueIdEnabled) {
             isUserExists = doCheckExistingUser(userName);
         } else {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         }
 
         if (!isUserExists) {
@@ -1483,15 +1478,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     userStore.getDomainFreeName(), claims, profileName);
         }
 
-        String uniqueId = null;
+        String userID = null;
         boolean isUniqueIdEnabled = isUniqueUserIdEnabled();
         if (isUniqueIdEnabled) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
         if (isUniqueIdEnabled) {
-            if (uniqueId == null) {
+            if (userID == null) {
                 String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
                         realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
                 String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
@@ -1515,8 +1510,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         Map<String, String> finalValues;
         try {
-            if (isUniqueUserIdEnabled()) {
-                finalValues = doGetUserClaimValuesWithID(uniqueId, claims, userStore.getDomainName(), profileName);
+            if (isUniqueIdEnabled) {
+                finalValues = doGetUserClaimValuesWithID(userID, claims, userStore.getDomainName(), profileName);
             } else {
                 finalValues = doGetUserClaimValues(userName, claims, userStore.getDomainName(), profileName);
             }
@@ -2910,9 +2905,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Property to check whether this user store supports new APIs with unique user id.
             boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-            String uniqueId = null;
+            String userID = null;
             if (isUniqueUserIdEnabled) {
-                uniqueId = getUserIDByUserName(userName);
+                userID = getUserIDByUserName(userName);
             }
 
             boolean isAuth;
@@ -2946,8 +2941,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 try {
-                    if (isUniqueUserIdEnabled) {
-                        this.doUpdateCredentialWithID(uniqueId, newCredential, oldCredential);
+                    if (isUniqueUserIdEnabled()) {
+                        this.doUpdateCredentialWithID(userID, newCredential, oldCredential);
                     } else {
                         this.doUpdateCredential(userName, newCredentialObj, oldCredentialObj);
                     }
@@ -3183,14 +3178,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Property to check whether this user store supports new APIs with unique user id.
             boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-            String uniqueId = null;
+            String userID = null;
             if (isUniqueUserIdEnabled) {
-                uniqueId = getUserIDByUserName(userName);
+                userID = getUserIDByUserName(userName);
             }
 
             boolean isUserExists;
             if (isUniqueUserIdEnabled) {
-                isUserExists = uniqueId != null;
+                isUserExists = userID != null;
             } else {
                 isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
             }
@@ -3205,7 +3200,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             try {
                 if (isUniqueUserIdEnabled) {
-                    doUpdateCredentialByAdminWithID(uniqueId, newCredentialObj);
+                    doUpdateCredentialByAdminWithID(userID, newCredentialObj);
                 } else {
                     doUpdateCredentialByAdmin(userName, newCredentialObj);
                 }
@@ -3419,14 +3414,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Property to check whether this user store supports new APIs with unique user id.
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-        String uniqueId = null;
+        String userID = null;
         if (isUniqueUserIdEnabled) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         boolean isUserExists = false;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3442,8 +3437,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Remove users from internal role mapping
         try {
             if (isUniqueUserIdEnabled) {
-                hybridRoleManager.deleteUser(UserCoreUtil.addDomainToName(uniqueId, getMyDomainName()));
-                doDeleteUserWithID(uniqueId);
+                hybridRoleManager.deleteUser(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
+                doDeleteUserWithID(userID);
             } else {
                 hybridRoleManager.deleteUser(UserCoreUtil.addDomainToName(userName, getMyDomainName()));
                 doDeleteUser(userName);
@@ -3543,14 +3538,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Property to check whether this user store supports new APIs with unique user id.
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-        String uniqueId = null;
+        String userID = null;
         if (isUniqueUserIdEnabled) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3593,7 +3588,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             if (isUniqueUserIdEnabled) {
-                doSetUserClaimValueWithID(uniqueId, claimURI, claimValue, profileName);
+                doSetUserClaimValueWithID(userID, claimURI, claimValue, profileName);
             } else {
                 doSetUserClaimValue(userName, claimURI, claimValue, profileName);
             }
@@ -3687,14 +3682,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Property to check whether this user store supports new APIs with unique user id.
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-        String uniqueId = null;
+        String userID = null;
         if (isUniqueUserIdEnabled) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3742,7 +3737,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             if (!isReadOnly()) {
                 if (isUniqueUserIdEnabled) {
-                    doSetUserClaimValuesWithID(uniqueId, claims, profileName);
+                    doSetUserClaimValuesWithID(userID, claims, profileName);
                 } else {
                     doSetUserClaimValues(userName, claims, profileName);
                 }
@@ -3848,14 +3843,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Property to check whether this user store supports new APIs with unique user id.
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-        String uniqueId = null;
+        String userID = null;
         if (isUniqueUserIdEnabled) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3891,7 +3886,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             if (isUniqueUserIdEnabled) {
-                doDeleteUserClaimValueWithID(getUserIDByUserName(userName), claimURI, profileName);
+                doDeleteUserClaimValueWithID(userID, claimURI, profileName);
             } else {
                 doDeleteUserClaimValue(userName, claimURI, profileName);
             }
@@ -3994,14 +3989,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Property to check whether this user store supports new APIs with unique user id.
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-        String uniqueId = null;
+        String userID = null;
         if (isUniqueUserIdEnabled) {
-            uniqueId = getUserIDByUserName(userName);
+            userID = getUserIDByUserName(userName);
         }
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -4040,7 +4035,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             if (isUniqueUserIdEnabled) {
-                doDeleteUserClaimValuesWithID(uniqueId, claims, profileName);
+                doDeleteUserClaimValuesWithID(userID, claims, profileName);
             } else {
                 doDeleteUserClaimValues(userName, claims, profileName);
             }
@@ -4930,8 +4925,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // Property to check whether this user store supports new APIs with unique user id.
                     boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
                     if (isUniqueUserIdEnabled) {
-                        String uniqueId = getUserIDByUserName(userName);
-                        doUpdateRoleListOfUserWithID(uniqueId, deletedRoles, newRoles);
+                        String userID = getUserIDByUserName(userName);
+                        doUpdateRoleListOfUserWithID(userID, deletedRoles, newRoles);
                     } else {
                         doUpdateRoleListOfUser(userName, deletedRoles, newRoles);
                     }
@@ -5624,8 +5619,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isUniqueUserIdEnabled()) {
             return doCheckExistingUser(userStore.getDomainFreeName());
         } else {
-            String uniqueId = getUserIDByUserName(userName);
-            return doCheckExistingUserWithID(userStore.getDomainFreeName());
+            return doCheckExistingUserWithID(getUserIDByUserName(userName));
         }
     }
 
@@ -5925,7 +5919,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] roleNames;
-        String userID;
+        String userID = null;
 
         // anonymous user is only assigned to  anonymous role
         if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
@@ -5961,7 +5955,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isUniqueUserIdEnabled()) {
-            roleNames = doGetRoleListOfUserWithID(getUserIDByUserName(userName), "*").toArray(new String[0]);
+            roleNames = doGetRoleListOfUserWithID(userID, "*").toArray(new String[0]);
         } else {
             roleNames = doGetRoleListOfUser(userName, "*");
         }
@@ -6489,8 +6483,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStore userStore;
         if (isUniqueUserIdEnabled()) {
-            String uniqueId = getUserIDByUserName(userName);
-            userStore = getUserStoreWithID(uniqueId);
+            userStore = getUserStoreWithID(getUserIDByUserName(userName));
         } else {
             userStore = getUserStore(userName);
         }
@@ -9886,7 +9879,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
-        if (profileName == null || profileName.trim().length() == 0) {
+        if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
@@ -9924,7 +9917,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         boolean requireExtRoles = false;
         String roleClaim = null;
 
-        if (profileName == null || profileName.trim().length() == 0) {
+        if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
