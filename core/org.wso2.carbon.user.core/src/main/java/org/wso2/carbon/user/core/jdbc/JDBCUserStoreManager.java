@@ -3776,7 +3776,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (SQLException e) {
-            String msg = "Error while executing the SQL " + sqlStmt;
+            String msg = "Error while executing the SQL ";
             if (log.isDebugEnabled()) {
                 log.debug(msg + sqlStmt);
             }
