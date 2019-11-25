@@ -228,7 +228,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     continue;
                 }
 
-                User user = getUser(userID, userName);
+                User user = getUser(userID, userName, null);
                 userList.add(user);
             }
             rs.close();
@@ -353,7 +353,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         if (users != null) {
             for (User user : users) {
-                user.setTenantDomain(getTenantDomain());
+                user.setTenantDomain(getTenantDomain(tenantId));
                 user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
             }
         }
@@ -769,7 +769,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
                                 preferredUserNameValue, null, null, null);
                         try {
-                            user.setTenantDomain(getTenantDomain());
+                            user.setTenantDomain(getTenantDomain(tenantId));
                             user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
                             throw new UserStoreException(e);
@@ -815,7 +815,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
-        User user = getUser(userID, userName);
+        User user = getUser(userID, userName, profileName);
         return user;
 
     }
@@ -2562,7 +2562,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                     continue;
                 }
-                User user = getUser(userID, userName);
+                User user = getUser(userID, userName, profileName);
                 list.add(user);
             }
             rs.close();
@@ -2666,7 +2666,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 String userID = rs.getString(1);
                 String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
                         profileName);
-                User user = getUser(userID, userName);
+                User user = getUser(userID, userName, profileName);
                 list.add(user);
             }
 
@@ -2768,7 +2768,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String userID = rs.getString(1);
                         String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
                                 profileName);
-                        User user = getUser(userID, userName);
+                        User user = getUser(userID, userName, profileName);
                         tempUserList.add(user);
                     }
 
@@ -2788,7 +2788,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     String userID = rs.getString(1);
                     String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
                             profileName);
-                    User user = getUser(userID, userName);
+                    User user = getUser(userID, userName, profileName);
                     list.add(user);
                 }
             }
