@@ -69,6 +69,7 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -89,7 +90,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
@@ -10284,19 +10284,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private User doGetUserWithID(String userID, String[] claims, String domainName, String profileName)
             throws UserStoreException {
 
-        //TODO: Need to fix doGetUserClaimValuesWithID
-        //Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
-        RealmService realmService = UserCoreUtil.getRealmService();
+        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
         String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
-        User user = new User(userID, userName, userName);
-        //user.setAttributes(claimValues);
-        try {
-            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
-            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
-        }
-
+        User user = getUser(userID, userName);
+        user.setAttributes(claimValues);
         return user;
     }
 
@@ -10524,6 +10515,44 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             newCredentialObj.clear();
             oldCredentialObj.clear();
         }
+    }
+
+    /**
+     * Get the user.
+     *
+     * @param userID   user ID.
+     * @param userName user name.
+     * @return User.
+     * @throws UserStoreException User Store Exception.
+     */
+    protected User getUser(String userID, String userName) throws UserStoreException {
+
+        User user = new User(userID, userName, userName);
+        user.setTenantDomain(getTenantDomain());
+        user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
+        return user;
+    }
+
+    /**
+     * Get the tenant domain.
+     *
+     * @return tenant domain.
+     * @throws UserStoreException User Store Exception.
+     */
+    protected String getTenantDomain() throws UserStoreException {
+
+        String tenantDomain;
+        RealmService realmService = UserCoreUtil.getRealmService();
+        try {
+            if (realmService != null) {
+                tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+            } else {
+                tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occured while getting the tenant domain.", e);
+        }
+        return tenantDomain;
     }
 
     /**
