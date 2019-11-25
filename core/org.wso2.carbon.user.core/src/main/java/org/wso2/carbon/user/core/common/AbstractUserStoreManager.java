@@ -9435,7 +9435,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isUniqueUserIdEnabled()) {
                 user = userUniqueIDManger.getUser(userID, profileName, this);
             } else {
-                user = doGetUserWithID(userID, requestedClaims, userStore.getDomainName(), profileName);
+                user = getUserFromID(userID, requestedClaims, userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
             handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
@@ -10052,12 +10052,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return finalValues;
     }
 
-    private User doGetUserWithID(String userID, String[] claims, String domainName, String profileName)
+    private User getUserFromID(String userID, String[] requestedClaims, String domainName, String profileName)
             throws UserStoreException {
 
-        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
-        String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
-        User user = getUser(userID, userName);
+        User user = getUser(userID, null, profileName);
+        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, requestedClaims, domainName, profileName);
         user.setAttributes(claimValues);
         return user;
     }
@@ -10291,15 +10290,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Get the user.
      *
-     * @param userID   user ID.
-     * @param userName user name.
+     * @param userID      user ID.
+     * @param userName    user name.
+     * @param profileName profile name.
      * @return User.
      * @throws UserStoreException User Store Exception.
      */
-    protected User getUser(String userID, String userName) throws UserStoreException {
+    protected User getUser(String userID, String userName, String profileName) throws UserStoreException {
+
+        if (userID == null && userName == null) {
+            throw new UserStoreException("Both userID and UserName cannot be null.");
+        }
+
+        if (userID == null) {
+            userID = getUserIDByUserName(userName);
+        }
+
+        if (userName == null) {
+            Map<String, String> claims = doGetUserClaimValuesWithID(userID,
+                    new String[] { UserCoreClaimConstants.USERNAME_CLAIM_URI }, getMyDomainName(), profileName);
+            if (claims.containsKey(UserCoreClaimConstants.USERNAME_CLAIM_URI)
+                    && claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI) != null) {
+                userName = claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI);
+            } else {
+                throw new UserStoreException("No user found for the given userID: " + userID);
+            }
+        }
 
         User user = new User(userID, userName, userName);
-        user.setTenantDomain(getTenantDomain());
+        user.setTenantDomain(getTenantDomain(tenantId));
         user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
         return user;
     }
@@ -10310,13 +10329,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return tenant domain.
      * @throws UserStoreException User Store Exception.
      */
-    protected String getTenantDomain() throws UserStoreException {
+    protected String getTenantDomain(int tenantID) throws UserStoreException {
 
         String tenantDomain;
         RealmService realmService = UserCoreUtil.getRealmService();
         try {
             if (realmService != null) {
-                tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+                tenantDomain = realmService.getTenantManager().getDomain(tenantID);
             } else {
                 tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             }
@@ -10395,7 +10414,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         List<User> users = new ArrayList<>();
         for (String userID : userIDs) {
-            users.add(doGetUserWithID(userID, claims, domainName, profileName));
+            users.add(getUserFromID(userID, claims, domainName, profileName));
         }
         return users;
     }
