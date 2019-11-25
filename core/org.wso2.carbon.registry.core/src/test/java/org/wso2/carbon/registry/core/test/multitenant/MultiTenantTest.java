@@ -359,7 +359,7 @@ public class MultiTenantTest extends BaseTestCase {
                 .getResource("user-test" + File.separator + JDBC_TEST_USERMGT_XML).openStream();
         RealmConfiguration realmConfig = buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, MultiTenantTestClaimUtil.getClaimTestData(),
-                MultiTenantTestClaimUtil.getProfileTestData(), 0);
+                MultiTenantTestClaimUtil.getProfileTestData(), -1234);
 
         tenantManager = new JDBCTenantManager(ds, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
