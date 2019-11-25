@@ -292,20 +292,42 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException;
 
+    /**
+     * Get all hybrid roles.
+     * @return Array of hybrid roles.
+     * @throws UserStoreException
+     */
     String[] getHybridRoles() throws UserStoreException;
 
+    /**
+     * Get all roles in the secondary user store.
+     * @return Array of roles.
+     * @throws UserStoreException
+     */
     String[] getAllSecondaryRoles() throws UserStoreException;
 
+    /**
+     * Get password expiration time.
+     * @param username The user name
+     * @return Expiration date.
+     * @throws UserStoreException
+     */
     Date getPasswordExpirationTime(String username) throws UserStoreException;
 
+    /**
+     * Get user id from the username.
+     * @param username The user name
+     * @return Integer user id.
+     * @throws UserStoreException
+     */
     int getUserId(String username) throws UserStoreException;
 
     /**
      * This method works only if the tenant is super tenant. If the realm is not super tenant's this
      * method should throw exception
      *
-     * @param username
-     * @return
+     * @param username Username of the user.
+     * @return Tenant id as integer.
      * @throws UserStoreException
      */
     int getTenantId(String username) throws UserStoreException;
@@ -318,13 +340,19 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      */
     int getTenantId() throws UserStoreException;
 
+    /**
+     * Get user store properties.
+     * @param tenant @see Tenant object.
+     * @return Hash map of user store properties.
+     * @throws UserStoreException
+     */
     Map<String, String> getProperties(Tenant tenant) throws UserStoreException;
 
     /**
      * Update the role name of given role
      *
-     * @param roleName
-     * @param newRoleName
+     * @param roleName Name of the existing role.
+     * @param newRoleName New name that the role should be changed.
      * @throws UserStoreException
      */
     void updateRoleName(String roleName, String newRoleName) throws UserStoreException;
@@ -349,23 +377,30 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
             throws UserStoreException;
 
     /**
-     * @return
+     * Get secondary user store manager associated with this user store manager. This should return the immediate
+     * secondary user store manger that is in the linked list.
+     * @return @see UserStoreManager.
      */
     UserStoreManager getSecondaryUserStoreManager();
 
     /**
-     * @param userStoreManager
+     * Set secondary user store manager associated with this user store manager. This should be the immediate
+     * secondary user store manger that is in the linked list.
+     * @param userStoreManager @see UserStoreManager
      */
     void setSecondaryUserStoreManager(UserStoreManager userStoreManager);
 
     /**
-     * @param userDomain
-     * @return
+     * Get the secondary user store manger associated for the given domain from the given name.
+     * @param userDomain Name of the user store domain.
+     * @return @see UserStoreManager
      */
     UserStoreManager getSecondaryUserStoreManager(String userDomain);
 
     /**
-     * @param userDomain
+     * Add a secondary user store manger under the given domain name.
+     * @param userDomain Domain name.
+     * @param userStoreManager Parent user store manger object.
      */
     void addSecondaryUserStoreManager(String userDomain, UserStoreManager userStoreManager);
 
@@ -375,45 +410,4 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      * @return RealmConfiguration
      */
     RealmConfiguration getRealmConfiguration();
-
-    /**
-     * Check the case sensitivity of user name in user store
-     *
-     * @return
-     */
-
-    /**
-     * Notify the listeners about a change in user store manager
-     * @param domainName
-     */
-    //void notifyListeners(String domainName) ;
-
-    /**
-     * Add listener that is interested in changes of user store manager
-     *
-     * @param newListener
-     */
-    //void addChangeListener(UserStoreManagerConfigurationListener newListener);
-
-//	/**
-//	 * Check whether the role is a shared role or not
-//	 *
-//	 * @param roleName
-//	 * @param roleNameBase
-//	 * @return
-//	 */
-//	boolean isSharedRole(String roleName, String roleNameBase);
-//
-//	/**
-//	 * Checks whether the roles is created by an other tenant. If the role is
-//	 * created by the logged in tenant, then the return value will be false even
-//	 * thought the role is shared for other tenants.
-//	 *
-//	 * @param roleName
-//	 * @param roleNameBase
-//	 * @return true if the role is created by an other tenant and if the role is
-//	 *         a shared role
-//	 */
-//	boolean isOthersSharedRole(String roleName, String roleNameBase);
-
 }
