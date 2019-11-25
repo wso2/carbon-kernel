@@ -31,7 +31,7 @@
             <Property name="minIdle">5</Property>
         </Configuration>
         <UserStoreManager
-            class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
+            class="org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager">
             <Property name="url">jdbc:h2:./target/ReadOnlyTest/CARBON_TEST</Property>
             <Property name="driverName">org.h2.Driver</Property>
             <Property name="maxActive">50</Property>
@@ -50,7 +50,8 @@
             <Property name="GetUserPropertyForProfileSQL">SELECT UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND UM_USER.UM_USER_NAME=? AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?</Property>
             <Property name="GetUserPropertiesForProfileSQL">SELECT UM_ATTR_NAME, UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND UM_USER.UM_USER_NAME=? AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?</Property>
             <Property name="GetProfileNamesSQL">SELECT DISTINCT UM_PROFILE_ID FROM UM_USER_ATTRIBUTE WHERE UM_TENANT_ID=?</Property>
-            <Property name="PasswordDigest">SHA-256</Property>           
+            <Property name="PasswordDigest">SHA-256</Property>
+            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager>
         <AuthorizationManager
             class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
