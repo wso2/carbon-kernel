@@ -372,6 +372,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
+    // TODO: Need to add this for new LDAPUserStoreManagers
+    @Override
+    public String[] getProfileNames(String userName) throws UserStoreException {
+
+        String userID = getUserIDByUserName(userName);
+        return getProfileNamesWithID(userID);
+    }
+
     @Override
     public String[] getProfileNamesWithID(String userID) throws UserStoreException {
 
@@ -3134,12 +3142,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
             getExpressionConditions(rightCondition, expressionConditions);
         }
-    }
-
-    @Override
-    public String[] getProfileNames(String userName) throws UserStoreException {
-
-        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
