@@ -52,6 +52,7 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
+import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -72,7 +73,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
@@ -251,15 +251,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
-    private User getUser(String userID, String userName) {
-
-        User user = new User(userID, userName, userName);
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        user.setTenantDomain(tenantDomain);
-        user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-        return user;
-    }
-
     @Override
     public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
@@ -362,7 +353,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         if (users != null) {
             for (User user : users) {
-                user.setTenantDomain(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+                user.setTenantDomain(getTenantDomain());
                 user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
             }
         }
@@ -777,9 +768,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         user = new User(userID,
                                 getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
                                 preferredUserNameValue, null, null, null);
-                        user.setTenantDomain(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-                        user.setUserStoreDomain(getMyDomainName());
-
+                        try {
+                            user.setTenantDomain(getTenantDomain());
+                            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
+                        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                            throw new UserStoreException(e);
+                        }
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
