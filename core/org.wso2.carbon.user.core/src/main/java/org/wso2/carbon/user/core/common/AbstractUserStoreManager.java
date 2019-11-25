@@ -5619,7 +5619,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isUniqueUserIdEnabled()) {
             return doCheckExistingUser(userStore.getDomainFreeName());
         } else {
-            return doCheckExistingUserWithID(getUserIDByUserName(userName));
+            return getUserIDByUserName(userName) != null;
         }
     }
 
