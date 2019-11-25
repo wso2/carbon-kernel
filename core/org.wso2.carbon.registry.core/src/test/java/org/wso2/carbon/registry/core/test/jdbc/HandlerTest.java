@@ -60,7 +60,7 @@ public class HandlerTest extends BaseTestCase {
             registry = embeddedRegistryService.getUserRegistry("admin", "admin");
             systemRegistry = embeddedRegistryService.getSystemRegistry();
         } catch (RegistryException e) {
-                fail("Failed to initialize the registry. Caused by: " + e.getMessage());
+            fail("Failed to initialize the registry. Caused by: " + e.getMessage());
         }
     }
 

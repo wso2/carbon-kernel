@@ -1052,7 +1052,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
         }
 
-        boolean authenticated;
+        boolean authenticated = false;
 
         UserStore userStore = abstractUserStoreManager.getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
