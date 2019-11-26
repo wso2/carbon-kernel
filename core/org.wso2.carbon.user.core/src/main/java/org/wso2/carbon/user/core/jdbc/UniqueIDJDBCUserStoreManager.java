@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -367,7 +366,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
 
-        String userID = getUserIDByUserName(userName);
+        String userID = getUserIDFromUserName(userName);
         return getProfileNamesWithID(userID);
     }
 
@@ -1656,7 +1655,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public Date getPasswordExpirationTime(String userName) throws UserStoreException {
 
-        return getPasswordExpirationTimeWithID(getUserIDByUserName(userName));
+        return getPasswordExpirationTimeWithID(getUserIDFromUserName(userName));
     }
 
     @Override
