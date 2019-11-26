@@ -82,11 +82,11 @@ public class User implements Serializable {
 
     public String getFullQualifiedUsername() {
 
-        String domainSeparator = UserCoreConstants.DOMAIN_SEPARATOR;
-        if (!StringUtils.isEmpty(userStoreDomain)) {
-            return userStoreDomain + domainSeparator + username;
+        // Append the primary domain if the domain name is not present.
+        if (StringUtils.isEmpty(userStoreDomain)) {
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME + UserCoreConstants.DOMAIN_SEPARATOR + username;
         }
-        return username;
+        return userStoreDomain + UserCoreConstants.DOMAIN_SEPARATOR + username;
     }
 
     public String getPreferredUsername() {
@@ -121,4 +121,19 @@ public class User implements Serializable {
         this.attributes = attributes;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj instanceof User) {
+            return this.getFullQualifiedUsername().equals(((User)obj).getFullQualifiedUsername());
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return this.getFullQualifiedUsername().hashCode();
+    }
 }
