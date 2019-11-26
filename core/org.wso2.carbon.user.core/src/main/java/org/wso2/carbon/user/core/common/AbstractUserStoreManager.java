@@ -10440,7 +10440,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String getUserNameMappedAttribute() throws UserStoreException {
 
         try {
-            return claimManager.getAttributeName(UserCoreClaimConstants.USERNAME_CLAIM_URI);
+            return claimManager.getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
         }
