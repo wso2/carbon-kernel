@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -82,7 +83,10 @@ public class User implements Serializable {
     public String getFullQualifiedUsername() {
 
         String domainSeparator = UserCoreConstants.DOMAIN_SEPARATOR;
-        return userStoreDomain + domainSeparator + username;
+        if (!StringUtils.isEmpty(userStoreDomain)) {
+            return userStoreDomain + domainSeparator + username;
+        }
+        return username;
     }
 
     public String getPreferredUsername() {
