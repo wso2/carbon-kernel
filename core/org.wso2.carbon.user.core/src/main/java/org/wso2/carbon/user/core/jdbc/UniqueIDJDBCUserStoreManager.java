@@ -1305,7 +1305,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String errorMessage = "The role: " + role + " does not exist.";
                         throw new UserStoreException(errorMessage);
                     }
-                    if (!isUserInRoleWithID(userID, role)) {
+                    if (!doCheckIsUserInRoleWithID(userID, role)) {
                         newRoleList.add(role);
                     }
                 }
