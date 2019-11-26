@@ -33,6 +33,7 @@ public class User implements Serializable {
     private String userID;
     private String username;
     private String preferredUsername;
+    private String displayName;
     private String tenantDomain;
     private String userStoreDomain;
     private Map<String, String> attributes;
@@ -53,12 +54,13 @@ public class User implements Serializable {
         this.preferredUsername = preferredUsername;
     }
 
-    public User(String userID, String username, String preferredUsername, String tenantDomain, String userStoreDomain,
-            Map<String, String> attributes) {
+    public User(String userID, String username, String preferredUsername, String displayName, String tenantDomain,
+            String userStoreDomain, Map<String, String> attributes) {
 
         this.userID = userID;
         this.username = username;
         this.preferredUsername = preferredUsername;
+        this.displayName = displayName;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
         this.attributes = attributes;
@@ -95,6 +97,14 @@ public class User implements Serializable {
 
     public void setPreferredUsername(String preferredUsername) {
         this.preferredUsername = preferredUsername;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public String getTenantDomain() {
