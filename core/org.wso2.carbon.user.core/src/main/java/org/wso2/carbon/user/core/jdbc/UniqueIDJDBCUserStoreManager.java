@@ -766,7 +766,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         RealmService realmService = UserCoreUtil.getRealmService();
                         user = new User(userID,
                                 getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
-                                preferredUserNameValue, null, null, null);
+                                preferredUserNameValue, null, null, null, null);
                         try {
                             user.setTenantDomain(getTenantDomain(tenantId));
                             user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));

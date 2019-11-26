@@ -566,7 +566,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doDeleteUserInternal(userName);
     }
@@ -770,7 +770,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doUpdateCredentialByAdminInternal(userName, newCredential);
     }
@@ -934,7 +934,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doSetUserClaimValuesInternal(userName, claims, profileName);
     }
@@ -1076,7 +1076,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);
     }
@@ -1181,7 +1181,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doDeleteUserClaimValueInternal(userName, claimURI, profileName);
     }
@@ -1264,7 +1264,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doDeleteUserClaimValuesInternal(userName, claims, profileName);
     }
@@ -1340,7 +1340,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (isUniqueUserIdEnabled()) {
             List<String> userIDList = new ArrayList<>();
             for (String userName : userList) {
-                userIDList.add(getUserIDByUserName(userName));
+                userIDList.add(getUserIDFromUserName(userName));
             }
             userList = userIDList.stream().toArray(String[]::new);
         }
@@ -1477,7 +1477,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doUpdateRoleListOfUserInternal(userName, deletedRoles, newRoles);
     }
