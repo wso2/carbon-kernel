@@ -1737,8 +1737,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.5.2</carbon.kernel.version>
-        <carbon.kernel.feature.version>4.5.2</carbon.kernel.feature.version>
+        <carbon.kernel.version>4.5.3</carbon.kernel.version>
+        <carbon.kernel.feature.version>4.5.3</carbon.kernel.feature.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
         <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 3.0.0)</carbon.consent.mgt.imp.pkg.version.range>
@@ -1751,7 +1751,7 @@
         <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.7.17</carbon.commons.version>
+        <carbon.commons.version>4.7.18</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.7.2, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <org.wso2.carbon.database.utils.version>2.0.7</org.wso2.carbon.database.utils.version>
@@ -1763,7 +1763,7 @@
         <carbon.identity.package.import.version.range>[5.14.0, 6.0.0)</carbon.identity.package.import.version.range>
 
         <!--Carbon registry version-->
-        <org.wso2.carbon.registry.version>4.7.19</org.wso2.carbon.registry.version>
+        <org.wso2.carbon.registry.version>4.7.20</org.wso2.carbon.registry.version>
         <carbon.registry.common.imp.pkg.version.range>[0.0.0,1.0.0)</carbon.registry.common.imp.pkg.version.range>
         <carbon.registry.indexing.imp.pkg.version.range>[4.7.3,5.0.0)</carbon.registry.indexing.imp.pkg.version.range>
 
@@ -1776,7 +1776,7 @@
         <axis2.osgi.version.range>[1.6.1.wso2v38, 2.0.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
-        <axis2-transports.version>2.0.0-wso2v41</axis2-transports.version>
+        <axis2-transports.version>2.0.0-wso2v42</axis2-transports.version>
         <axis2-transports.version.range>[2.0.0-wso2v38,3.0.0)</axis2-transports.version.range>
         <org.apache.axis2.transport.mail.version.range>[0.0.0,1.0.0)</org.apache.axis2.transport.mail.version.range>
 
@@ -1854,7 +1854,7 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.wso2.version>1.6.1-wso2v40</rampart.wso2.version>
+        <rampart.wso2.version>1.6.1-wso2v41</rampart.wso2.version>
         <rampart.wso2.osgi.version.range>[1.6.1,2.0.0)</rampart.wso2.osgi.version.range>
 
         <!-- Balana -->
