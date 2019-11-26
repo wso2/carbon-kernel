@@ -5572,15 +5572,99 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     }
 
     /**
+     * Validate credential object.
+     *
+     * @param credential credentials object to be validated
+     * @return is valid credentials object
+     * @throws UserStoreException
+     */
+    protected boolean isValidCredentials(Object credential) throws UserStoreException {
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { Object.class };
+            Object object = callSecure("isValidCredentials", new Object[] { credential }, argTypes);
+            return (Boolean) object;
+        }
+
+        if (credential == null) {
+            return false;
+        }
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        return credentialObj.getChars().length >= 1;
+    }
+
+    /**
      * @param userName
      * @return
      * @throws UserStoreException
      */
     protected boolean checkUserNameValid(String userName) throws UserStoreException {
 
+        if (isValidUserName(userName)) {
+            String regularExpression = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                regularExpression = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+            }
+
+            if (MultitenantUtils.isEmailUserName()) {
+                regularExpression = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
+
+                if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                    regularExpression = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+                }
+
+                //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
+                if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                    regularExpression = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
+                }
+
+                if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
+                    regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
+                }
+            }
+
+            if (regularExpression != null) {
+                regularExpression = regularExpression.trim();
+            }
+
+            if (StringUtils.isNotEmpty(regularExpression)) {
+                if (isFormatCorrect(regularExpression, userName)) {
+                    return true;
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Username " + userName + " does not match with the regex " + regularExpression);
+                    }
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validate username. It should be non-null, non-blank value which should not equal to REGISTRY_SYSTEM_USERNAME.
+     *
+     * @param userName username to be validated
+     * @return is username valid
+     * @throws UserStoreException when checking the call is secure or not
+     */
+    protected boolean isValidUserName(String userName) throws UserStoreException {
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("checkUserNameValid", new Object[]{userName}, argTypes);
+            Class argTypes[] = new Class[] { String.class };
+            Object object = callSecure("isValidUserName", new Object[] { userName }, argTypes);
             return (Boolean) object;
         }
 
@@ -5588,65 +5672,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             return false;
         }
 
-        String leadingOrTrailingSpaceAllowedInUserName = realmConfig.getUserStoreProperty(UserCoreConstants
-                .RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
+        String leadingOrTrailingSpaceAllowedInUserName = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME);
         if (StringUtils.isEmpty(leadingOrTrailingSpaceAllowedInUserName)) {
             // Keeping old behavior for backward-compatibility.
             userName = userName.trim();
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : " +
-                        leadingOrTrailingSpaceAllowedInUserName + ". Hence username trimming will be skipped during " +
-                        "validation for the username: " + userName);
+                log.debug("'LeadingOrTrailingSpaceAllowedInUserName' property is set to : "
+                        + leadingOrTrailingSpaceAllowedInUserName + ". Hence username trimming will be skipped during "
+                        + "validation for the username: " + userName);
             }
         }
 
-        if (userName.length() < 1) {
-            return false;
-        }
-
-        String regularExpression = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-        //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
-        if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
-            regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
-        }
-
-        if (MultitenantUtils.isEmailUserName()) {
-            regularExpression = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
-
-            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
-                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
-                        .PROPERTY_USER_NAME_JAVA_REG_EX);
-            }
-
-            //Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
-            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
-                regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG);
-            }
-
-            if (StringUtils.isEmpty(regularExpression) || StringUtils.isEmpty(regularExpression.trim())) {
-                regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
-            }
-        }
-
-        if (regularExpression != null) {
-            regularExpression = regularExpression.trim();
-        }
-
-        if (StringUtils.isNotEmpty(regularExpression)) {
-            if (isFormatCorrect(regularExpression, userName)) {
-                return true;
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Username " + userName + " does not match with the regex "
-                            + regularExpression);
-                }
-                return false;
-            }
-        }
-        return true;
+        return !userName.isEmpty();
     }
 
     /**
