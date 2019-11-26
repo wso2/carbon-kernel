@@ -416,7 +416,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doUpdateCredentialByAdminInternal(userName, newCredential);
     }
@@ -592,7 +592,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             throws UserStoreException {
 
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doSetUserClaimValuesInternal(userName, claims, profileName);
     }
@@ -738,7 +738,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         // Get the relevant userID for the given username.
         if (isUniqueUserIdEnabled()) {
-            userName = getUserIDByUserName(userName);
+            userName = getUserIDFromUserName(userName);
         }
         doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);
     }
