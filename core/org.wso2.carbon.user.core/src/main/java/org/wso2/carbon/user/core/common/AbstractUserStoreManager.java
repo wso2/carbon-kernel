@@ -69,7 +69,6 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -90,6 +89,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
@@ -2912,8 +2912,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             boolean isAuth;
             if (isUniqueUserIdEnabled) {
-                String preferredUserNameProperty = claimManager.getAttributeName(UserCoreClaimConstants
-                        .USERNAME_CLAIM_URI);
+                String preferredUserNameProperty = claimManager.getAttributeName(getMyDomainName(),
+                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 isAuth = this.doAuthenticateWithID(preferredUserNameProperty, userName, oldCredentialObj, null)
                         .getAuthenticationStatus() == AuthenticationResult.AuthenticationStatus.SUCCESS;
             } else {
@@ -3265,7 +3265,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         : realmConfig.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME))
                         : domainName;
         String attributeName = null;
-        if (domainName != null && !domainName.equals(UserStoreConfigConstants.PRIMARY)) {
+        if (domainName != null) {
             attributeName = claimManager.getAttributeName(domainName, claimURI);
         }
         if (attributeName == null || attributeName.isEmpty()) {
@@ -7669,7 +7669,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         claimIter = claimList.iterator();
         while (claimIter.hasNext()) {
             try {
-                attributeList.add(claimManager.getAttributeName(claimIter.next()));
+                attributeList.add(claimManager.getAttributeName(getMyDomainName(), claimIter.next()));
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
@@ -9203,7 +9203,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             try {
 
-                String preferredUserNameProperty = claimManager.getAttributeName(preferredUserNameClaim);
+                String preferredUserNameProperty = claimManager.getAttributeName(getMyDomainName(),
+                        preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
                 if (isUniqueUserIdEnabled()) {
@@ -10193,7 +10194,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
                             AuthenticationResult.AuthenticationStatus.FAIL);
                 } else {
-                    authenticationResult = this.doAuthenticateWithID(claimManager.getAttributeName(
+                    authenticationResult = this.doAuthenticateWithID(claimManager.getAttributeName(getMyDomainName(),
                             UserCoreClaimConstants.USERNAME_CLAIM_URI), userID, oldCredentialObj, null);
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {

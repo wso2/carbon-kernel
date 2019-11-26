@@ -985,7 +985,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         String mappedAttribute;
         try {
-            mappedAttribute = claimManager.getAttributeName(claimURI);
+            mappedAttribute = claimManager.getAttributeName(getMyDomainName(), claimURI);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException("Error occurred while retrieving attribute name for claim: " + claimURI);
         }
