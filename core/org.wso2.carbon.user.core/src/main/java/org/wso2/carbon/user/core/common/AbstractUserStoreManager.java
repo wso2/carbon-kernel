@@ -69,6 +69,7 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -89,7 +90,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
@@ -1052,7 +1052,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
         }
 
-        boolean authenticated;
+        boolean authenticated = false;
 
         UserStore userStore = abstractUserStoreManager.getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -9435,7 +9435,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isUniqueUserIdEnabled()) {
                 user = userUniqueIDManger.getUser(userID, profileName, this);
             } else {
-                user = doGetUserWithID(userID, requestedClaims, userStore.getDomainName(), profileName);
+                user = getUserFromID(userID, requestedClaims, userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
             handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
@@ -10052,22 +10052,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return finalValues;
     }
 
-    private User doGetUserWithID(String userID, String[] claims, String domainName, String profileName)
+    private User getUserFromID(String userID, String[] requestedClaims, String domainName, String profileName)
             throws UserStoreException {
 
-        //TODO: Need to fix doGetUserClaimValuesWithID
-        //Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, claims, domainName, profileName);
-        RealmService realmService = UserCoreUtil.getRealmService();
-        String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName);
-        User user = new User(userID, userName, userName);
-        //user.setAttributes(claimValues);
-        try {
-            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
-            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
-        }
-
+        User user = getUser(userID, null, profileName);
+        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, requestedClaims, domainName, profileName);
+        user.setAttributes(claimValues);
         return user;
     }
 
@@ -10298,6 +10288,64 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Get the user.
+     *
+     * @param userID      user ID.
+     * @param userName    user name.
+     * @param profileName profile name.
+     * @return User.
+     * @throws UserStoreException User Store Exception.
+     */
+    protected User getUser(String userID, String userName, String profileName) throws UserStoreException {
+
+        if (userID == null && userName == null) {
+            throw new UserStoreException("Both userID and UserName cannot be null.");
+        }
+
+        if (userID == null) {
+            userID = getUserIDByUserName(userName);
+        }
+
+        if (userName == null) {
+            Map<String, String> claims = doGetUserClaimValuesWithID(userID,
+                    new String[] { UserCoreClaimConstants.USERNAME_CLAIM_URI }, getMyDomainName(), profileName);
+            if (claims.containsKey(UserCoreClaimConstants.USERNAME_CLAIM_URI)
+                    && claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI) != null) {
+                userName = claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI);
+            } else {
+                throw new UserStoreException("No user found for the given userID: " + userID);
+            }
+        }
+
+        User user = new User(userID, userName, userName);
+        user.setTenantDomain(getTenantDomain(tenantId));
+        user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
+        return user;
+    }
+
+    /**
+     * Get the tenant domain.
+     *
+     * @return tenant domain.
+     * @throws UserStoreException User Store Exception.
+     */
+    protected String getTenantDomain(int tenantID) throws UserStoreException {
+
+        String tenantDomain;
+        RealmService realmService = UserCoreUtil.getRealmService();
+        try {
+            if (realmService != null) {
+                tenantDomain = realmService.getTenantManager().getDomain(tenantID);
+            } else {
+                tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occured while getting the tenant domain.", e);
+        }
+        return tenantDomain;
+    }
+
+    /**
      * provides the unique user ID of the user.
      *
      * @return unique user ID.
@@ -10366,7 +10414,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         List<User> users = new ArrayList<>();
         for (String userID : userIDs) {
-            users.add(doGetUserWithID(userID, claims, domainName, profileName));
+            users.add(getUserFromID(userID, claims, domainName, profileName));
         }
         return users;
     }

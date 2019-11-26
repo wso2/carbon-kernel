@@ -52,6 +52,7 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
+import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -72,7 +73,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
@@ -97,11 +97,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     public UniqueIDJDBCUserStoreManager(RealmConfiguration realmConfig, int tenantId) throws UserStoreException {
+
         super(realmConfig, tenantId);
     }
 
     public UniqueIDJDBCUserStoreManager(DataSource ds, RealmConfiguration realmConfig, int tenantId,
-            boolean addInitData) throws UserStoreException {
+                                        boolean addInitData) throws UserStoreException {
 
         super(ds, realmConfig, tenantId, addInitData);
     }
@@ -112,15 +113,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     public UniqueIDJDBCUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
-            ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
+                                        ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
 
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
     }
 
     public UniqueIDJDBCUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
-            ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId,
-            boolean skipInitData) throws UserStoreException {
+                                        ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId,
+                                        boolean skipInitData) throws UserStoreException {
 
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId, skipInitData);
     }
@@ -227,7 +228,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     continue;
                 }
 
-                User user = getUser(userID, userName);
+                User user = getUser(userID, userName, null);
                 userList.add(user);
             }
             rs.close();
@@ -248,15 +249,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
         return users;
 
-    }
-
-    private User getUser(String userID, String userName) {
-
-        User user = new User(userID, userName, userName);
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        user.setTenantDomain(tenantDomain);
-        user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-        return user;
     }
 
     @Override
@@ -361,7 +353,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         if (users != null) {
             for (User user : users) {
-                user.setTenantDomain(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+                user.setTenantDomain(getTenantDomain(tenantId));
                 user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
             }
         }
@@ -395,7 +387,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             names = getStringValuesFromDatabase(sqlStmt, userID);
         }
         if (names.length == 0) {
-            names = new String[] { UserCoreConstants.DEFAULT_PROFILE };
+            names = new String[]{UserCoreConstants.DEFAULT_PROFILE};
         } else {
             Arrays.sort(names);
             if (Arrays.binarySearch(names, UserCoreConstants.DEFAULT_PROFILE) < 0) {
@@ -659,7 +651,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
-            Object credential, String profileName) throws UserStoreException {
+                                                     Object credential, String profileName) throws UserStoreException {
 
         AuthenticationResult authenticationResult = new AuthenticationResult(
                 AuthenticationResult.AuthenticationStatus.FAIL);
@@ -777,10 +769,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
                                 preferredUserNameValue, null, null, null);
                         try {
-                            user.setTenantDomain(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-                            user.setUserStoreDomain(UserCoreUtil.getDomainName(
-                                    CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-                                            .getRealmConfiguration()));
+                            user.setTenantDomain(getTenantDomain(tenantId));
+                            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
                             throw new UserStoreException(e);
                         }
@@ -810,14 +800,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+                          String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
     public User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+                                String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         // Assigning unique user ID of the user as the username in the system.
         String userID = getUniqueUserID();
@@ -825,7 +815,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         claims = addUserNameAttribute(userName, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
-        User user = getUser(userID, userName);
+        User user = getUser(userID, userName, profileName);
         return user;
 
     }
@@ -841,7 +831,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * This method persists the user information in the database.
      */
     protected void persistUser(String userID, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+                               String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         Connection dbConnection;
         try {
@@ -999,7 +989,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     "claim" + claimURI + " value: " + claimValue, e);
         }
     }
-
 
     @Override
     public void doAddRoleWithID(String roleName, String[] userIDList, boolean shared) throws UserStoreException {
@@ -1216,6 +1205,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @return
      */
     private RoleBreakdown getSharedRoleBreakdown(String[] rolesList) {
+
         List<String> roles = new ArrayList<>();
         List<Integer> tenantIds = new ArrayList<>();
 
@@ -1743,6 +1733,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private void updateStringValuesToDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
+
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
@@ -1802,7 +1793,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     public void addPropertyWithID(Connection dbConnection, String userID, String propertyName, String value,
-            String profileName) throws UserStoreException {
+                                  String profileName) throws UserStoreException {
 
         try {
             String type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -1837,7 +1828,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     protected void updatePropertyWithID(Connection dbConnection, String userID, String propertyName, String value,
-            String profileName) throws UserStoreException {
+                                        String profileName) throws UserStoreException {
 
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID);
         if (sqlStmt == null) {
@@ -2036,7 +2027,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     protected Map<String, Map<String, String>> getUsersPropertyValuesWithID(List<String> users, String[] propertyNames,
-            String profileName) throws UserStoreException {
+                                                                            String profileName) throws UserStoreException {
 
         Connection dbConnection = null;
         String sqlStmt;
@@ -2235,7 +2226,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @throws org.wso2.carbon.user.api.UserStoreException
      */
     private void addPropertiesWithID(Connection dbConnection, String userID, Map<String, String> properties,
-            String profileName) throws org.wso2.carbon.user.api.UserStoreException {
+                                     String profileName) throws org.wso2.carbon.user.api.UserStoreException {
 
         String type;
         try {
@@ -2331,7 +2322,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @throws org.wso2.carbon.user.api.UserStoreException
      */
     private void updateProperties(Connection dbConnection, String userID, Map<String, String> properties,
-            String profileName) throws org.wso2.carbon.user.api.UserStoreException {
+                                  String profileName) throws org.wso2.carbon.user.api.UserStoreException {
 
         String type;
         try {
@@ -2412,6 +2403,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private void batchUpdateStringValuesToDatabase(PreparedStatement prepStmt, Object... params)
             throws UserStoreException {
+
         try {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -2440,6 +2432,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private boolean isCaseSensitiveUsername() {
+
         String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
@@ -2569,7 +2562,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                     continue;
                 }
-                User user = getUser(userID, userName);
+                User user = getUser(userID, userName, profileName);
                 list.add(user);
             }
             rs.close();
@@ -2598,7 +2591,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public UniqueIDPaginatedSearchResult doGetUserListFromPropertiesWithID(String property, String value,
-            String profileName, int limit, int offset) throws UserStoreException {
+                                                                           String profileName, int limit, int offset) throws UserStoreException {
 
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
 
@@ -2673,7 +2666,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 String userID = rs.getString(1);
                 String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
                         profileName);
-                User user = getUser(userID, userName);
+                User user = getUser(userID, userName, profileName);
                 list.add(user);
             }
 
@@ -2700,7 +2693,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-            int offset, String sortBy, String sortOrder) throws UserStoreException {
+                                                                int offset, String sortBy, String sortOrder) throws UserStoreException {
 
         boolean isGroupFiltering = false;
         boolean isClaimFiltering = false;
@@ -2775,7 +2768,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String userID = rs.getString(1);
                         String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
                                 profileName);
-                        User user = getUser(userID, userName);
+                        User user = getUser(userID, userName, profileName);
                         tempUserList.add(user);
                     }
 
@@ -2795,7 +2788,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     String userID = rs.getString(1);
                     String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
                             profileName);
-                    User user = getUser(userID, userName);
+                    User user = getUser(userID, userName, profileName);
                     list.add(user);
                 }
             }
@@ -2819,7 +2812,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void populatePrepareStatement(SqlBuilder sqlBuilder, PreparedStatement prepStmt, int startIndex,
-            int endIndex) throws SQLException {
+                                          int endIndex) throws SQLException {
 
         Map<Integer, Integer> integerParameters = sqlBuilder.getIntegerParameters();
         Map<Integer, String> stringParameters = sqlBuilder.getStringParameters();
@@ -2845,8 +2838,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isClaimFiltering,
-            List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy, String sortOrder,
-            String profileName, String dbType, int totalMultiGroupFilters, int totalMulitClaimFitlers)
+                                        List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy, String sortOrder,
+                                        String profileName, String dbType, int totalMultiGroupFilters, int totalMulitClaimFitlers)
             throws UserStoreException {
 
         StringBuilder sqlStatement;
@@ -3007,7 +3000,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void multiGroupQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
-            ExpressionCondition expressionCondition) {
+                                        ExpressionCondition expressionCondition) {
 
         if (hitFirstRound) {
             sqlBuilder.updateSql(" INTERSECT " + header.getSql());
@@ -3034,7 +3027,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void multiGroupMySqlQueryBuilder(SqlBuilder sqlBuilder, int groupFilterCount,
-            ExpressionCondition expressionCondition) {
+                                             ExpressionCondition expressionCondition) {
 
         if (groupFilterCount == 0) {
             buildGroupWhereConditions(sqlBuilder, expressionCondition.getOperation(),
@@ -3059,7 +3052,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void multiClaimQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
-            ExpressionCondition expressionCondition) {
+                                        ExpressionCondition expressionCondition) {
 
         if (hitFirstRound) {
             sqlBuilder.updateSql(" INTERSECT " + header.getSql());
@@ -3073,7 +3066,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void buildClaimWhereConditions(SqlBuilder sqlBuilder, String attributeName, String operation,
-            String attributeValue) {
+                                           String attributeValue) {
 
         sqlBuilder.where("UA.UM_ATTR_NAME = ?", attributeName);
 
@@ -3089,7 +3082,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void multiClaimMySqlQueryBuilder(SqlBuilder sqlBuilder, int claimFilterCount,
-            ExpressionCondition expressionCondition) {
+                                             ExpressionCondition expressionCondition) {
 
         if (claimFilterCount == 0) {
             buildClaimWhereConditions(sqlBuilder, expressionCondition.getAttributeName(),
@@ -3101,7 +3094,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     private void buildClaimConditionWithOROperator(SqlBuilder sqlBuilder, String attributeName, String operation,
-            String attributeValue) {
+                                                   String attributeValue) {
 
         sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_NAME = ?", attributeName);
 
