@@ -9773,7 +9773,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String[].class, String.class };
-            Object object = callSecure("getUserClaimValues", new Object[] { userID, claims, profileName }, argTypes);
+            Object object = callSecure("getUserClaimValuesWithID", new Object[] { userID, claims, profileName },
+                    argTypes);
             return (Map<String, String>) object;
         }
 
