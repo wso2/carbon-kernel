@@ -78,6 +78,7 @@
             <Property name="AnonymousBind">false</Property>
             <Property name="UserSearchBase">ou=system</Property>
             <Property name="UserNameAttribute">uid</Property>
+            <Property name="UserIDAttribute">scimId</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameListFilter">(&amp;(objectClass=person)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
@@ -184,6 +185,7 @@
             <Property name="UserSearchBase">ou=Users,dc=wso2,dc=org</Property>
             <Property name="UserEntryObjectClass">identityPerson</Property>
             <Property name="UserNameAttribute">uid</Property>
+            <Property name="UserIDAttribute">scimId</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameListFilter">(&amp;(objectClass=person)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
