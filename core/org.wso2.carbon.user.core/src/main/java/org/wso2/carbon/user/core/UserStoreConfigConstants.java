@@ -39,6 +39,10 @@ public class UserStoreConfigConstants {
     public static final String claimOperationsSupported = "ClaimOperationsSupported";
     public static final String claimOperationsSupportedDescription = "Whether the userstore supports claim read and write";
     public static final String getClaimOperationsSupportedDisplayName = "Claim Operations Supported";
+    public static final String enableMaxUserLimitForSCIM = "EnableMaxUserLimitForSCIM";
+    public static final String enableMaxUserLimitForSCIMDescription = "Whether to include max user limit during SCIM " +
+            "user list operation";
+    public static final String enableMaxUserLimitDisplayName = "Enable MaxUserLimit For SCIM";
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";

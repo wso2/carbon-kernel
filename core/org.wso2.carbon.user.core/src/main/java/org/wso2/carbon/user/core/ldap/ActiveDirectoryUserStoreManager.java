@@ -20,7 +20,6 @@ package org.wso2.carbon.user.core.ldap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -29,11 +28,8 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
-import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
@@ -123,64 +119,18 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         checkRequiredUserStoreConfigurations();
     }
 
-    @Override
-    public User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
-
-        // Assigning unique user ID of the user as the username in the system.
-        String userID = getUniqueUserID();
-        // Assign preferredUsername as the username claim.
-        claims = addUserNameAttribute(userName, claims);
-        persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
-
-        RealmService realmService = UserCoreUtil.getRealmService();
-        User user = new User(userID, userName, userName);
-        try {
-            user.setTenantDomain(realmService.getTenantManager().getDomain(tenantId));
-            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
-        }
-        return user;
-
-    }
-
-    @Override
-    public void doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName) throws UserStoreException {
-
-        this.doAddUserWithID(userName, credential, roleList, claims, profileName, false);
-    }
-
     /**
      *
      */
-    @Override
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName) throws UserStoreException {
         this.addUser(userName, credential, roleList, claims, profileName, false);
     }
 
-    @Override
-    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
-
-        if (isUniqueUserIdEnabled()) {
-            // Assigning unique user ID of the user as the username in the system.
-            String userID = getUniqueUserID();
-            // Assign preferredUsername as the username claim.
-            claims = addUserNameAttribute(userName, claims);
-            persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
-        } else {
-            persistUser(userName, credential, roleList, claims, profileName, requirePasswordChange);
-        }
-
-    }
-
     /**
      *
      */
-    private void persistUser(String userName, Object credential, String[] roleList,
+    public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
 
@@ -304,22 +254,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         }
     }
 
-    @Override
-    public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
-            throws UserStoreException {
-        doUpdateCredentialInternal(userID, newCredential, oldCredential);
-    }
-
-    @Override
-    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
-            throws UserStoreException {
-        doUpdateCredentialInternal(userName, newCredential, oldCredential);
-    }
-
     /**
      *
      */
-    private void doUpdateCredentialInternal(String userName, Object newCredential, Object oldCredential)
+    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
         if (!isSSLConnection) {
@@ -404,24 +342,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    public void doUpdateCredentialByAdminWithID(String userID, Object newCredential)
-            throws UserStoreException {
-
-        doUpdateCredentialByAdminInternal(userID, newCredential);
-    }
-
-    @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
-            throws UserStoreException {
-
-        // Get the relevant userID for the given username.
-        if (isUniqueUserIdEnabled()) {
-            userName = getUserIDFromUserName(userName);
-        }
-        doUpdateCredentialByAdminInternal(userName, newCredential);
-    }
-
-    private void doUpdateCredentialByAdminInternal(String userName, Object newCredential)
             throws UserStoreException {
         if (!isSSLConnection) {
             logger.warn("Unsecured connection is being used. Password operations will fail");
@@ -571,13 +492,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         return password.getBytes(StandardCharsets.UTF_16LE);
     }
 
-    @Override
-    public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-
-        doSetUserClaimValuesInternal(userID, claims, profileName);
-    }
-
     /**
      * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
      * of updating user's profile information in LDAP user store.
@@ -585,19 +499,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
      * @param userName
      * @param claims
      * @param profileName
-     * @throws UserStoreException
+     * @throws org.wso2.carbon.user.core.UserStoreException
      */
     @Override
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-
-        if (isUniqueUserIdEnabled()) {
-            userName = getUserIDFromUserName(userName);
-        }
-        doSetUserClaimValuesInternal(userName, claims, profileName);
-    }
-
-    private void doSetUserClaimValuesInternal(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -726,24 +631,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    public void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
-            throws UserStoreException {
-
-        doSetUserClaimValueInternal(userID, claimURI, claimValue, profileName);
-    }
-
-    @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
-            throws UserStoreException {
-
-        // Get the relevant userID for the given username.
-        if (isUniqueUserIdEnabled()) {
-            userName = getUserIDFromUserName(userName);
-        }
-        doSetUserClaimValueInternal(userName, claimURI, claimValue, profileName);
-    }
-
-    private void doSetUserClaimValueInternal(String userName, String claimURI, String value,
+    public void doSetUserClaimValue(String userName, String claimURI, String value,
                                     String profileName) throws UserStoreException {
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -1054,6 +942,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM, UserStoreConfigConstants
+                        .enableMaxUserLimitDisplayName, "false",
+                UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
     }
 
 
