@@ -301,7 +301,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                           String profileName) throws UserStoreException;
 
     /**
-     * Retrieves a list of user names for given user's property in user profile
+     * Retrieves a list of user IDs for given user's property in user profile.
      *
      * @param property    user property in user profile
      * @param value       value of property
@@ -476,6 +476,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected abstract void doSetUserClaimValue(String userName, String claimURI,
                                                 String claimValue, String profileName) throws UserStoreException;
 
+    /**
+     * Set the user attribute of the user.
+     *
+     * @param userName      user name.
+     * @param attributeName Attribute name.
+     * @param value         Attribute value.
+     * @param profileName   profile name.
+     */
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttribute operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doSetUserAttribute operation is not implemented in: " + this.getClass());
+    }
     /**
      * Set a single user claim value.
      *
@@ -7941,6 +7957,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             if (isUniqueUserIdEnabled()) {
                 userExist = doCheckExistingUserName(adminUserName);
+                if (userExist) {
+                    String userIDFromUserName = getUserIDFromUserName(adminUserName);
+                    String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                    String userID = getUniqueUserID();
+                    if (StringUtils.isEmpty(userIDFromUserName) && !this.isReadOnly()) {
+                        doSetUserAttribute(adminUserName, userIDAttribute, userID, null);
+                    }
+                }
             } else {
                 userExist = doCheckExistingUser(adminUserName);
             }
@@ -8081,7 +8105,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else {
                 doCheckIsUserInRole = this.doCheckIsUserInRole(adminUserName, adminRoleName);
             }
-            if (doCheckIsUserInRole) {
+            if (!doCheckIsUserInRole) {
                 if (addAdmin) {
                     try {
                         if (isUniqueUserIdEnabled()) {
@@ -10135,7 +10159,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return finalValues;
     }
 
-    private Map<String, String> doGetUserClaimValuesWithID(String userID, String[] claims, String domainName,
+    protected Map<String, String> doGetUserClaimValuesWithID(String userID, String[] claims, String domainName,
             String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
@@ -10610,20 +10634,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
-        Map<String, String> claims = doGetUserClaimValuesWithID(userID,
-                new String[] { UserCoreClaimConstants.USERNAME_CLAIM_URI }, getMyDomainName(), profileName);
-        if (claims.containsKey(UserCoreClaimConstants.USERNAME_CLAIM_URI)
-                && claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI) != null) {
-            return claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI);
-        } else {
-            throw new UserStoreException("No user found for the given userID: " + userID);
-        }
+        throw new NotImplementedException("getUserNameFromUserID operation is not implemented in: " + this.getClass());
     }
 
     /**
      * provides the unique user IDs of the given users.
      *
-     * @param userNames   username of the user.
+     * @param userIDs   userIDs of the users.
+     * @return list of user IDs.
+     */
+    protected List<String> getUserNamesFromUserIDs(List<String> userIDs) throws UserStoreException {
+
+        List<String> userNames = new ArrayList<>();
+        for (String userID : userIDs) {
+            userNames.add(getUserNameFromUserID(userID, null));
+        }
+        return userNames;
+    }
+
+    /**
+     * provides the unique user IDs of the given users.
+     *
+     * @param userNames   user names of the users.
      * @return list of user IDs.
      */
     protected List<String> getUserIDsFromUserNames(List<String> userNames) throws UserStoreException {

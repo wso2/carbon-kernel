@@ -71,7 +71,7 @@
 		     In case if user core cache domain is needed to identify uniquely set property
 		     <Property name="UserCoreCacheIdentifier">domain</Property>
  	    -->
-        <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager">
+        <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="ConnectionURL">ldap://localhost:10389</Property>
             <Property name="ConnectionName">uid=admin,ou=system</Property>
@@ -105,6 +105,7 @@
             <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
             <Property name="ConnectionRetryDelay">120000</Property>
             <Property name="EnableMaxUserLimitForSCIM">false</Property>
+            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager-->
 	
 	    <!-- Active directory configuration is as follows.
@@ -177,7 +178,7 @@
              service password formats. In case if user core cache domain is needed to identify uniquely set property
              <Property name="UserCoreCacheIdentifier">domain</Property>
         -->
-        <!--ISUserStoreManager class="org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager">
+        <!--ISUserStoreManager class="org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="ConnectionURL">ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}</Property>
             <Property name="ConnectionName">uid=admin,ou=system</Property>
@@ -223,6 +224,7 @@
             <Property name="StartTLSEnabled">false</Property>
             <Property name="ConnectionRetryDelay">120000</Property>
             <Property name="EnableMaxUserLimitForSCIM">false</Property>
+            <Property name="UserIDEnabled">true</Property>
         </ISUserStoreManager-->
 
         <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
