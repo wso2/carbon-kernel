@@ -31,4 +31,5 @@ public class AWSConstants {
     public static final String TAG_KEY = "tagKey";
     public static final String TAG_VALUE = "tagValue";
     public static final String IAM_ROLE = "iamRole";
+    public static final String NETWORK_INTERFACE = "networkInterface";
 }
