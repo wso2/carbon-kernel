@@ -42,7 +42,6 @@
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
-
     },
     "read_write_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager",
@@ -187,6 +186,14 @@
       "versioning_configuration.enable_versioning_comments": false,
       "versioning_configuration.enable_versioning_tags": false,
       "versioning_configuration.enable_versioning_ratings": false
+    }
+  },
+  "clustering.membership_scheme": {
+    "aws-ecs": {
+      "clustering.local_member_port": 5701,
+      "clustering.properties.tagKey": "aws:cloudformation:stack-name",
+      "clustering.properties.tagValue": "EC2ContainerService-$ref{clustering.properties.clusterName}",
+      "clustering.properties.networkInterface": "$ref{clustering.properties.vpcCidrBlock}"
     }
   }
 }

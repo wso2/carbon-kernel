@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -53,24 +53,25 @@ public class AWSECSBasedMembershipScheme extends AWSBasedMembershipScheme {
         if (networkInterface == null) {
             throw new ClusteringFault("Required parameter for AWS ECS membership scheme: networkInterface " +
                     "is not defined");
-        } else {
-            nwConfig.getInterfaces().setEnabled(true).addInterface(((String) networkInterface.getValue()).trim());
-
-            if (log.isDebugEnabled()) {
-                log.debug("\"" + networkInterface + "\" has been set set as the networkInterface for " +
-                        "AWS ECS membership scheme.");
-            }
-        }
-        nwConfig.getJoin().getMulticastConfig().setEnabled(false);
-
-        if (log.isDebugEnabled()) {
-            log.debug(networkInterface + "Multicast configuration has been disabled for AWS ECS membership scheme.");
         }
 
-        nwConfig.setPublicAddress(null);
+        getNetworkConfig().getInterfaces().setEnabled(true).addInterface(((String) networkInterface.getValue()).trim());
 
         if (log.isDebugEnabled()) {
-            log.debug(networkInterface + "Public address has been unset for AWS ECS membership scheme.");
+            log.debug("\"" + networkInterface + "\" has been set set as the networkInterface for " +
+                    "AWS ECS membership scheme.");
+        }
+
+        getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Multicast configuration has been disabled for AWS ECS membership scheme.");
+        }
+
+        getNetworkConfig().setPublicAddress(null);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Public address has been unset for AWS ECS membership scheme.");
         }
     }
 }
