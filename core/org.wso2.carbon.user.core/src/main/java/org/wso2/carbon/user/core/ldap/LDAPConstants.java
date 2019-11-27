@@ -26,6 +26,7 @@ public class LDAPConstants {
     public static final String GROUP_SEARCH_BASE = "GroupSearchBase";
     public static final String USER_NAME_LIST_FILTER = "UserNameListFilter";
     public static final String USER_NAME_ATTRIBUTE = "UserNameAttribute";
+    public static final String USER_ID_ATTRIBUTE = "UserIDAttribute";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
     public static final String DEFAULT_TENANT_USER_FILTER = "DefaultTenantUserFilter";
     public static final String USER_DN_PATTERN = "UserDNPattern";

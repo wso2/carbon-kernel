@@ -38,6 +38,8 @@ import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -89,9 +91,6 @@ public class UserStoreMgtDSComponent {
             UserStoreManager jdbcUserStoreManager = new JDBCUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), jdbcUserStoreManager, null);
 
-            UserStoreManager uniqueIDjdbcUserStoreManager = new UniqueIDJDBCUserStoreManager();
-            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDjdbcUserStoreManager, null);
-
             UserStoreManager readWriteLDAPUserStoreManager = new ReadWriteLDAPUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager, null);
 
@@ -100,6 +99,15 @@ public class UserStoreMgtDSComponent {
 
             UserStoreManager activeDirectoryUserStoreManager = new ActiveDirectoryUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager, null);
+
+            UserStoreManager uniqueIDjdbcUserStoreManager = new UniqueIDJDBCUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDjdbcUserStoreManager, null);
+
+            UserStoreManager uniqueIDreadWriteLDAPUserStoreManager = new UniqueIDReadWriteLDAPUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDreadWriteLDAPUserStoreManager, null);
+
+            UserStoreManager uniqueIDreadOnlyLDAPUserStoreManager = new UniqueIDReadOnlyLDAPUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDreadOnlyLDAPUserStoreManager, null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 
