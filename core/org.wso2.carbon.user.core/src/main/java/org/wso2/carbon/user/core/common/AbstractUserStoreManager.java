@@ -3269,7 +3269,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             attributeName = claimManager.getAttributeName(domainName, claimURI);
         }
         if (attributeName == null || attributeName.isEmpty()) {
-            attributeName = claimManager.getAttributeName(claimURI);
+            attributeName = claimManager.getAttributeName(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, claimURI);
         }
 
         if (attributeName == null) {
@@ -9912,6 +9912,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (Map<String, String>) object;
         }
 
+        if (ArrayUtils.isEmpty(claims)) {
+            return new HashMap<>();
+        }
+
         // Here the user name should be domain-less.
         boolean requireRoles = false;
         boolean requireIntRoles = false;
@@ -10057,8 +10061,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         User user = getUser(userID, null, profileName);
-        Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, requestedClaims, domainName, profileName);
-        user.setAttributes(claimValues);
+        if (ArrayUtils.isNotEmpty(requestedClaims)) {
+            Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, requestedClaims, domainName, profileName);
+            user.setAttributes(claimValues);
+        }
         return user;
     }
 
