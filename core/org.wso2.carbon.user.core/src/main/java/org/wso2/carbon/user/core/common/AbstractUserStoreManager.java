@@ -4453,7 +4453,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    protected boolean isUniqueUserIdEnabled() {
+    /**
+     * Checks whether this user store supports new user unique id feature.
+     * @return True if this user store supports unique user id feature.
+     */
+    public boolean isUniqueUserIdEnabled() {
 
         return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_ID_ENABLED));
     }
@@ -11877,7 +11881,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // We have to make sure this call is going through the Java Security Manager.
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[]{
-                    String.class, Object.class, String[].class, Map.class, String.class, boolean.class
+                    String.class, Object.class, String[].class, Map.class, String.class
             };
             Object object = callSecure("addUserWithID",
                     new Object[]{userName, credential, roleList, claims, profileName}, argTypes);
