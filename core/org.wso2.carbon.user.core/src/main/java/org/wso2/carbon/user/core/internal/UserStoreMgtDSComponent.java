@@ -38,6 +38,7 @@ import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -108,6 +109,9 @@ public class UserStoreMgtDSComponent {
 
             UserStoreManager uniqueIDreadOnlyLDAPUserStoreManager = new UniqueIDReadOnlyLDAPUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDreadOnlyLDAPUserStoreManager, null);
+
+            UserStoreManager uniqueIDactiveDirectoryUserStoreManager = new UniqueIDActiveDirectoryUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDactiveDirectoryUserStoreManager, null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 
