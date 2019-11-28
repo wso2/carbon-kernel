@@ -12210,7 +12210,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
 
                     if (!((AbstractUserOperationEventListener) listener)
-                            .doPostAddUserWithID(userName, credentialArgument, roleList, claims, profileName, this)) {
+                            .doPostAddUserWithID(user.getUserID(), credentialArgument, roleList, claims, profileName,
+                                    this)) {
                         handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getMessage(),
                                         UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName,
