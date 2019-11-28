@@ -6010,7 +6010,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (readGroupsEnabled) {
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
                 List<User> users = doGetUserListOfRoleWithID(roleName, filter, maxItemLimit);
-                userNames = users.stream().map(User::getUsername).toArray(String[]::new);
+                userNames = users.stream().map(User::getDomainQualifiedUsername).toArray(String[]::new);
             } else {
                 userNames = doGetUserListOfRole(roleName, filter, maxItemLimit);
             }

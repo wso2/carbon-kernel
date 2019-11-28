@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.io.Serializable;
@@ -82,13 +83,18 @@ public class User implements Serializable {
         this.username = username;
     }
 
-    public String getFullQualifiedUsername() {
+    public String getDomainQualifiedUsername() {
 
-        // Append the primary domain if the domain name is not present.
         if (StringUtils.isEmpty(userStoreDomain)) {
             return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME + UserCoreConstants.DOMAIN_SEPARATOR + username;
         }
         return userStoreDomain + UserCoreConstants.DOMAIN_SEPARATOR + username;
+    }
+
+    public String getFullQualifiedUsername() {
+
+        String domainQualifiedUsername = getDomainQualifiedUsername();
+        return UserCoreUtil.addTenantDomainToEntry(domainQualifiedUsername, tenantDomain);
     }
 
     public String getPreferredUsername() {
