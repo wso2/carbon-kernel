@@ -13102,7 +13102,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                                 String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String[].class, String[].class, String.class};
+            Class[] argTypes = new Class[]{List.class, List.class, String.class};
             Object object = callSecure("getUsersClaimValuesWithID", new Object[] { userIDs, claims, profileName },
                     argTypes);
             return (List<UserClaimSearchEntry>) object;
@@ -13233,7 +13233,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String[].class };
+            Class argTypes[] = new Class[] { List.class };
             Object object = callSecure("getRoleListOfUsersWithID", new Object[] { userIDs }, argTypes);
             return (Map<String, List<String>>) object;
         }
