@@ -6,14 +6,12 @@
   "server.file_upload.file_size_limit": "100",
   "user_store.type": "database",
   "super_admin.admin_role": "admin",
-  "authorization_manager": {
-    "class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
-    "properties": {
-      "AdminRoleManagementPermissions": "/permission",
-      "AuthorizationCacheEnabled": "true",
-      "GetAllRolesOfUserEnabled": "false"
-    }
-  },
+
+  "authorization_manager.class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
+  "authorization_manager.properties.AdminRoleManagementPermissions": "/permission",
+  "authorization_manager.properties.AuthorizationCacheEnabled": true,
+  "authorization_manager.properties.GetAllRolesOfUserEnabled": false,
+
   "realm_manager": {
     "data_source": "SHARED_DB",
     "properties": {
@@ -174,9 +172,8 @@
   "tasks.server_password": "admin",
   "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver",
   "server.base_path" : "${carbon.protocol}://${carbon.host}:${carbon.management.port}",
-  "system.parameter": {
-    "org.wso2.CipherTransformation": "RSA/ECB/OAEPwithSHA1andMGF1Padding"
-  },
+
+  "system.parameter.'org.wso2.CipherTransformation'": "RSA/ECB/OAEPwithSHA1andMGF1Padding",
 
   "admin_service.wsdl.enable": false,
   "monitoring.jmx.rmi_registry_port": "9999",
