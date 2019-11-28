@@ -5668,7 +5668,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // We have a secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
                 if (secManager instanceof AbstractUserStoreManager) {
-                    if (!isUniqueUserIdEnabled()) {
+                    if (!((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                         userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, maxItemLimit);
                     } else {
                         userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit)
@@ -5725,7 +5725,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (storeManager instanceof AbstractUserStoreManager) {
                     try {
                         String[] secondUserList;
-                        if (!isUniqueUserIdEnabled()) {
+                        if (!((AbstractUserStoreManager) storeManager).isUniqueUserIdEnabled()) {
                             secondUserList = ((AbstractUserStoreManager) storeManager)
                                     .doListUsers(filter, maxItemLimit);
                         } else {
@@ -8787,7 +8787,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
                 if (secManager instanceof AbstractUserStoreManager) {
-                    if (!isUniqueUserIdEnabled()) {
+                    if (!((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                         userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, limit, offset);
                     } else {
                         userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, limit, offset)
@@ -8845,7 +8845,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
 
                         PaginatedSearchResult secondUserList;
-                        if (!isUniqueUserIdEnabled()) {
+                        if (!((AbstractUserStoreManager) storeManager).isUniqueUserIdEnabled()) {
                           secondUserList  = ((AbstractUserStoreManager) storeManager)
                                     .doListUsers(filter, limit, offset);
                         } else {
@@ -12459,7 +12459,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
                 if (secManager instanceof AbstractUserStoreManager) {
-                    if (isUniqueUserIdEnabled()) {
+                    if (((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                         userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, limit, offset);
                         handlePostListPaginatedUsersWithID(filter, limit, offset, userList.getUsers(), true);
                     } else {
@@ -12522,9 +12522,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         } else {
                             offset = offset - nonPaginatedUserCount;
                         }
-                        UniqueIDPaginatedSearchResult secondUserList = ((AbstractUserStoreManager) storeManager)
-                                .doListUsersWithID(filter, limit, offset);
-                        nonPaginatedUserCount = secondUserList.getSkippedUserCount();
+
+                        UniqueIDPaginatedSearchResult secondUserList;
+                        if (((AbstractUserStoreManager) storeManager).isUniqueUserIdEnabled()) {
+                            secondUserList = ((AbstractUserStoreManager) storeManager).doListUsersWithID(filter, limit, offset);
+                            nonPaginatedUserCount = secondUserList.getSkippedUserCount();
+                        } else {
+                            PaginatedSearchResult paginatedSearchResult =
+                                    ((AbstractUserStoreManager) storeManager).doListUsers(filter.substring(1), limit, offset);
+                            secondUserList = userUniqueIDManger.listUsers(paginatedSearchResult, this);
+                        }
                         users.addAll(secondUserList.getUsers());
                         limit = limit - users.size();
                     } catch (UserStoreException ex) {
