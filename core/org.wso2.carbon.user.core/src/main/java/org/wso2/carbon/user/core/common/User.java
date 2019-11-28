@@ -88,7 +88,7 @@ public class User implements Serializable {
         if (StringUtils.isEmpty(userStoreDomain)) {
             return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME + UserCoreConstants.DOMAIN_SEPARATOR + username;
         }
-        return userStoreDomain + UserCoreConstants.DOMAIN_SEPARATOR + username;
+        return userStoreDomain.toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + username;
     }
 
     public String getFullQualifiedUsername() {
