@@ -119,7 +119,7 @@
 	         In which role is stored at user level. Depending on this value we need to change the Search Base within code.
 	         isADLDSRole - (Do not comment) Set to true if connecting to an AD LDS instance else set to false.
 	    -->
-        <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager">
+        <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="ConnectionURL">ldaps://10.100.1.100:636</Property> 
             <Property name="ConnectionName">CN=admin,CN=Users,DC=WSO2,DC=Com</Property>
@@ -128,6 +128,7 @@
             <Property name="UserSearchBase">CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="UserEntryObjectClass">user</Property>
             <Property name="UserNameAttribute">cn</Property>
+            <Property name="UserIDAttribute">scimId</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=user)(cn=?))</Property>
             <Property name="UserNameListFilter">(&amp;(objectClass=user)(!(sn=Service)))</Property>
             <Property name="DisplayNameAttribute"/>
@@ -170,6 +171,7 @@
             <Property name="StartTLSEnabled">false</Property>
             <Property name="ConnectionRetryDelay">120000</Property>
             <Property name="EnableMaxUserLimitForSCIM">false</Property>
+            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager-->
 
         <!-- Following user manager is used by Identity Server (IS) as its default user manager.

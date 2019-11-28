@@ -204,11 +204,6 @@
         </Restrictions>
     </JNDI>
 
-    <!-- Unique user ID feature related configurations -->
-    <UniqueUserID>
-        <Enabled>false</Enabled>
-    </UniqueUserID>
-
     <!--
         Property to determine if the server is running an a cloud deployment environment.
         This property should only be used to determine deployment specific details that are
