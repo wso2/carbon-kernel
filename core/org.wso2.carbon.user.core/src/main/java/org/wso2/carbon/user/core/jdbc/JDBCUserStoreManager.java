@@ -2426,9 +2426,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     *
+     * Get the password exiparation time of the user.
+     * @param userName username.
+     * @return date.
+     * @throws UserStoreException
      */
-    public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+    public Date doGetPasswordExpirationTime(String userName) throws UserStoreException {
 
         if (userName != null && userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             return super.getPasswordExpirationTime(userName);
