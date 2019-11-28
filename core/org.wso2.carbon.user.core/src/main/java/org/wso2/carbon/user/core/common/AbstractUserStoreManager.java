@@ -5712,7 +5712,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } else {
                         userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit)
                                 .stream()
-                                .map(User::getUsername)
+                                .map(User::getDomainQualifiedUsername)
                                 .toArray(String[]::new);
                     }
                     handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
@@ -5729,7 +5729,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else {
                 userList = doListUsersWithID(filter.substring(1), maxItemLimit)
                         .stream()
-                        .map(User::getUsername)
+                        .map(User::getDomainQualifiedUsername)
                         .toArray(String[]::new);
             }
             handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
@@ -5742,7 +5742,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else {
                 userList = doListUsersWithID(filter, maxItemLimit)
                         .stream()
-                        .map(User::getUsername)
+                        .map(User::getDomainQualifiedUsername)
                         .toArray(String[]::new);
             }
         } catch (UserStoreException ex) {
@@ -5771,7 +5771,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             secondUserList = ((AbstractUserStoreManager) storeManager)
                                     .doListUsersWithID(filter, maxItemLimit)
                                     .stream()
-                                    .map(User::getUsername)
+                                    .map(User::getDomainQualifiedUsername)
                                     .toArray(String[]::new);
                         }
                         userList = UserCoreUtil.combineArrays(userList, secondUserList);
@@ -11814,8 +11814,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     List<User> deletedUsers = userUniqueIDManger.listUsers(deletedUserIDs, this);
                     List<User> newUsers = userUniqueIDManger.listUsers(newUserIDs, this);
                     // If we don't have a record for this user, let's try to call directly using the user id.
-                    updateUserListOfRoleInternal(roleName, deletedUsers.stream().map(User::getUsername)
-                            .toArray(String[]::new), newUsers.stream().map(User::getUsername).toArray(String[]::new));
+                    updateUserListOfRoleInternal(roleName, deletedUsers.stream().map(User::getDomainQualifiedUsername)
+                            .toArray(String[]::new), newUsers.stream().map(User::getDomainQualifiedUsername).toArray(String[]::new));
                     return null;
                 }
                 updateUserListOfRoleInternalWithID(roleName, deletedUserIDs, newUserIDs);
