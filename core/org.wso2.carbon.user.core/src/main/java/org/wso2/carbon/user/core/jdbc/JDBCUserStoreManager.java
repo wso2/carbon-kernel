@@ -893,23 +893,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return names;
     }
 
-    @Override
-    public int getUserIdWithID(String userID) throws UserStoreException {
-
-        return getUserIdInternal(userID);
-    }
-
-    @Override
-    public int getUserId(String userName) throws UserStoreException {
-
-        // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            userName = getUserIDByUserName(userName, null);
-        }
-        return getUserIdInternal(userName);
-    }
-
-    private int getUserIdInternal(String username) throws UserStoreException {
+    /**
+     *
+     */
+    public int getUserId(String username) throws UserStoreException {
         String sqlStmt;
         if (isCaseSensitiveUsername()) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERID_FROM_USERNAME);
@@ -1554,28 +1541,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    @Override
-    public void doAddRoleWithID(String roleName, String[] userList, boolean shared) throws UserStoreException {
-
-        doAddRoleInternal(roleName, userList, shared);
-    }
-
-    @Override
     public void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException {
-
-        // Get the relevant userID for the given username.
-        if (UserCoreUtil.isUniqueUserIDFeatureEnabled()) {
-            List<String> userIDList = new ArrayList<>();
-            for (String userName : userList) {
-                userIDList.add(getUserIDByUserName(userName, null));
-            }
-            userList = userIDList.toArray(String[]::new);
-        }
-        doAddRoleInternal(roleName, userList, shared);
-    }
-
-    private void doAddRoleInternal(String roleName, String[] userList, boolean shared) throws UserStoreException {
-
 
         if (shared && isSharedGroupEnabled()) {
             doAddSharedRole(roleName, userList);

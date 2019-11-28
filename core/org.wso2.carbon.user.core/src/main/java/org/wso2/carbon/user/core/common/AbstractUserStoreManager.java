@@ -1315,7 +1315,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isUniqueUserIdEnabled()) {
             isUserExist = doCheckExistingUser(userName);
         } else {
-            isUserExist = uniqueId != null;
+            isUserExist = userID != null;
         }
 
         if (!isUserExist) {
@@ -1456,7 +1456,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isUniqueIdEnabled) {
             isUserExists = doCheckExistingUser(userName);
         } else {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         }
 
         if (!isUserExists) {
@@ -3235,7 +3235,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             boolean isUserExists;
             if (isUniqueUserIdEnabled) {
-                isUserExists = uniqueId != null;
+                isUserExists = userID != null;
             } else {
                 isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
             }
@@ -3471,7 +3471,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists = false;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3595,7 +3595,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3739,7 +3739,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -3900,7 +3900,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -4046,7 +4046,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         boolean isUserExists;
         if (isUniqueUserIdEnabled) {
-            isUserExists = uniqueId != null;
+            isUserExists = userID != null;
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -4333,7 +4333,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Property to check whether this user store supports new APIs with unique user id.
             boolean isUniqueUserIdEnabled = isUniqueUserIdEnabled();
-            String uniqueId = null;
+            String userID = null;
             if (isUniqueUserIdEnabled) {
                 if (getUserIDFromUserName(userName) != null) {
                     String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(),
@@ -4409,7 +4409,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Ex. Generated unique id.
                 if (isUniqueUserIdEnabled) {
                     // Ignore the return value as we don't need it.
-                    doAddUserWithID(uniqueId, credential, externalRoles.toArray(new String[0]), claims, profileName,
+                    doAddUserWithID(userID, credential, externalRoles.toArray(new String[0]), claims, profileName,
                             requirePasswordChange);
                 } else {
                     // Call the old API since this user store does not support the unique user id related APIs.
@@ -4425,7 +4425,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             if (internalRoles.size() > 0) {
                 if (isUniqueUserIdEnabled) {
-                    hybridRoleManager.updateHybridRoleListOfUser(uniqueId, null, internalRoles.toArray(new String[0]));
+                    hybridRoleManager.updateHybridRoleListOfUser(userID, null, internalRoles.toArray(new String[0]));
                 } else {
                     hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
                 }
@@ -9475,8 +9475,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
                             AuthenticationResult.AuthenticationStatus.FAIL);
                     if (status) {
-                        String uniqueId = userUniqueIDManger.getUniqueId(preferredUserNameValue, profileName, this);
-                        User user = userUniqueIDManger.getUser(uniqueId, profileName, this);
+                        String userID = userUniqueIDManger.getUniqueId(preferredUserNameValue, profileName, this);
+                        User user = userUniqueIDManger.getUser(userID, profileName, this);
                         authenticationResult.setAuthenticatedUser(user);
                     } else {
                         authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));

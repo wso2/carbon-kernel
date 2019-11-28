@@ -1032,7 +1032,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         throw new UserStoreException("Error occurred while getting users count with claims ");
     }
 
-    private NamingEnumeration<SearchResult> searchForUsers(String finalFilter,
+    protected NamingEnumeration<SearchResult> searchForUsers(String finalFilter,
                                                            String searchBase, String
                                                                    searchBases, int maxItemLimit, String[] returnedAtts)
             throws UserStoreException {
