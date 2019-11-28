@@ -2876,7 +2876,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isClaimFiltering,
             List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy, String sortOrder,
             String profileName, String dbType, int totalMultiGroupFilters, int totalMulitClaimFitlers)
-            throws UserStoreException {
+            throws org.wso2.carbon.user.api.UserStoreException {
 
         StringBuilder sqlStatement;
         SqlBuilder sqlBuilder;
@@ -2972,31 +2972,39 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
+                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_ID = ?", expressionCondition.getAttributeValue());
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = ?", expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("U.UM_USER_ID = LOWER(?)", expressionCondition.getAttributeValue());
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = LOWER(?)", expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
+                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_ID LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder.where("U.UM_USER_ID LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue() + "%");
                 }
             } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
+                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_ID LIKE ?", "%" + expressionCondition.getAttributeValue());
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?", "%" + expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("U.UM_USER_ID LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
+                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_ID LIKE ?", expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?", expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder.where("U.UM_USER_ID LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
                 }
             } else {
                 // Claim filtering
