@@ -4340,7 +4340,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Property to check whether this user store supports new APIs with unique user id.
-            String userID = null;
             if (isUniqueUserIdEnabled) {
                 if (getUserIDFromUserName(userName) != null) {
                     String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(),
@@ -4416,8 +4415,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Ex. Generated unique id.
                 if (isUniqueUserIdEnabled) {
                     // Ignore the return value as we don't need it.
-                    doAddUserWithID(userID, credential, externalRoles.toArray(new String[0]), claims, profileName,
-                            requirePasswordChange);
+                    user = doAddUserWithID(userName, credential, externalRoles.toArray(new String[0]), claims,
+                            profileName, requirePasswordChange);
                 } else {
                     // Call the old API since this user store does not support the unique user id related APIs.
                     doAddUser(userName, credentialObj, externalRoles.toArray(new String[0]), claims, profileName,
@@ -4432,7 +4431,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             if (internalRoles.size() > 0) {
                 if (isUniqueUserIdEnabled) {
-                    hybridRoleManager.updateHybridRoleListOfUser(userID, null, internalRoles.toArray(new String[0]));
+                    hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
                 } else {
                     hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
                 }
@@ -6602,7 +6601,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (userIDFromUserName == null) {
                 throw new UserStoreException("No UserId found for user:" + userName);
             }
-            return doGetPasswordExpirationTimeWithId(getUserIDFromUserName(userName));
+            return doGetPasswordExpirationTimeWithID(getUserIDFromUserName(userName));
         } else {
             return doGetPasswordExpirationTime(userName);
         }
@@ -6616,7 +6615,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException("doGetPasswordExpirationTime operation is not implemented in: " + this.getClass());
     }
 
-    protected Date doGetPasswordExpirationTimeWithId(String userName) throws UserStoreException {
+    protected Date doGetPasswordExpirationTimeWithID(String userName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doGetPasswordExpirationTimeWithId operation is not implemented in: " + this.getClass());

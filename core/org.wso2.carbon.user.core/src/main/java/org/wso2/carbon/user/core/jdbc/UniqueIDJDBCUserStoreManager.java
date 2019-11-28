@@ -1674,8 +1674,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         throw new UserStoreException("Operation is not supported.");
     }
 
-        @Override
-    public Date doGetPasswordExpirationTime(String userID) throws UserStoreException {
+    @Override
+    public Date doGetPasswordExpirationTimeWithID(String userID) throws UserStoreException {
 
         if (userID != null && userID.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             return super.getPasswordExpirationTimeWithID(userID);
