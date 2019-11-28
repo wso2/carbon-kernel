@@ -1675,13 +1675,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public Date getPasswordExpirationTime(String userName) throws UserStoreException {
-
-        return getPasswordExpirationTimeWithID(getUserIDFromUserName(userName));
-    }
-
-    @Override
-    public Date getPasswordExpirationTimeWithID(String userID) throws UserStoreException {
+    public Date doGetPasswordExpirationTimeWithID(String userID) throws UserStoreException {
 
         if (userID != null && userID.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             return super.getPasswordExpirationTimeWithID(userID);

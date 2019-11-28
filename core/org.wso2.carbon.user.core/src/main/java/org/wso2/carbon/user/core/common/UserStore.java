@@ -10,6 +10,10 @@ public class UserStore {
 
     private String domainFreeName;
 
+    private String domainAwareUserId;
+
+    private String domainFreeUserId;
+
     private String domainName;
 
     private boolean recurssive;
@@ -73,5 +77,25 @@ public class UserStore {
 
     public void setSystemStore(boolean systemStore) {
         this.systemStore = systemStore;
+    }
+
+    public String getDomainAwareUserId() {
+
+        return domainAwareUserId;
+    }
+
+    public void setDomainAwareUserId(String domainAwareUserId) {
+
+        this.domainAwareUserId = domainAwareUserId;
+    }
+
+    public String getDomainFreeUserId() {
+
+        return domainFreeUserId;
+    }
+
+    public void setDomainFreeUserId(String domainFreeUserId) {
+
+        this.domainFreeUserId = domainFreeUserId;
     }
 }
