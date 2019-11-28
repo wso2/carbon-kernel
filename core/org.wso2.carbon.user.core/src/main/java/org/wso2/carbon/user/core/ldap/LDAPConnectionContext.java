@@ -202,8 +202,11 @@ public class LDAPConnectionContext {
             environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
         }
 
+        // Set readTimeout value if provided in configuration. Otherwise set it to default value.
         if (StringUtils.isNotEmpty(readTimeout)) {
             environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
+        } else {
+            environment.put("com.sun.jndi.ldap.read.timeout", "5000");
         }
 
         // Set StartTLS option if provided in the configuration. Otherwise normal connection.
