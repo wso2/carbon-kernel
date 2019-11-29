@@ -206,6 +206,18 @@ public class LDAPConnectionContext {
             environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
         }
 
+        // Set socket factory for not verifying SSL certificate.
+        boolean isSSLCertificateValidationEnabled = true;
+        String valueForSSLCertificateValidationEnabled = realmConfig.getUserStoreProperty(UserStoreConfigConstants.
+                SSLCertificateValidationEnabled);
+        if (StringUtils.isNotEmpty(valueForSSLCertificateValidationEnabled)) {
+            isSSLCertificateValidationEnabled = Boolean.parseBoolean(valueForSSLCertificateValidationEnabled);
+        }
+
+        if (!isSSLCertificateValidationEnabled) {
+            environment.put("java.naming.ldap.factory.socket", NonVerifyingSSLSocketFactory.class.getName());
+        }
+
         // Set StartTLS option if provided in the configuration. Otherwise normal connection.
         startTLSEnabled = Boolean.parseBoolean(realmConfig.getUserStoreProperty(
                 UserStoreConfigConstants.STARTTLS_ENABLED));

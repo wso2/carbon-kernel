@@ -78,6 +78,7 @@
   "user_store.empty_roles_allowed": "user_store.properties.empty_roles_allowed",
   "user_store.kdc_enabled": "user_store.properties.kdcEnabled",
   "user_store.membership_attribute_range": "user_store.properties.MembershipAttributeRange",
+  "user_store.ssl_certificate_validation_enabled": "user_store.properties.SSLCertificateValidationEnabled",
 
   "transport.https.properties.certificate_verification": "transport.https.sslHostConfig.properties.certificateVerification",
   "transport.https.properties.protocols": "transport.https.sslHostConfig.properties.protocols",
