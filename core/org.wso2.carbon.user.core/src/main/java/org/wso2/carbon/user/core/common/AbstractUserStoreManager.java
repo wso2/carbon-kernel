@@ -90,6 +90,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 
 public abstract class AbstractUserStoreManager implements UserStoreManager, PaginatedUserStoreManager {
 
@@ -5151,23 +5152,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             throws UserStoreException {
 
         // #################### Domain Name Free Zone Starts Here ################################
-
-        if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)
-                && roleName.toLowerCase().startsWith(APPLICATION_DOMAIN.toLowerCase())) {
-            if (hybridRoleManager.isExistingRole(roleName)) {
-                handleRoleAlreadyExistException(roleName, userList, permissions);
-            }
-
-            hybridRoleManager.addHybridRole(roleName, userList);
-
-        } else {
-            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
-                handleRoleAlreadyExistException(roleName, userList, permissions);
-            }
-
-            hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
-        }
-
+        String domainModeratedRoleName = removeDomainIfNotApplicationRole(roleName);
+        createHybridRole(domainModeratedRoleName, userList, permissions);
 
         if (permissions != null) {
             for (org.wso2.carbon.user.api.Permission permission : permissions) {
@@ -5906,11 +5892,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             handleAddRoleFailure(errorCode, errorMessage, roleName, userList, permissions);
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
-
-        if (systemUserRoleManager.isExistingRole(roleName)) {
-            handleRoleAlreadyExistException(roleName, userList, permissions);
-        }
-        systemUserRoleManager.addSystemRole(roleName, userList);
+        createSystemRole(roleName, userList, permissions);
     }
 
 
@@ -7329,5 +7311,59 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
     private boolean isInternalRole(String domain) {
 
         return domain.equals("Internal") || domain.equals("Application");
+    }
+
+    private String removeDomainIfNotApplicationRole(String roleName) {
+
+        String formattedRoleName;
+        if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)
+                && roleName.toLowerCase().startsWith(APPLICATION_DOMAIN.toLowerCase())) {
+            formattedRoleName = roleName;
+        } else {
+            formattedRoleName = UserCoreUtil.removeDomainFromName(roleName);
+        }
+        return formattedRoleName;
+    }
+
+    private void createHybridRole(String roleName, String[] userList, org.wso2.carbon.user.api.Permission[] permissions)
+            throws UserStoreException {
+
+        // It is possible that the adding role could already exists at the table. But if concurrent requests were made,
+        // it is possible that the adding role does not exists at this moment, but it still could exists at the
+        // moment when DB query is called.
+        try {
+            hybridRoleManager.addHybridRole(roleName, userList);
+        } catch (UserStoreException e) {
+            // Could be already existing error or unique constraint violation, either of them could point to already
+            // existing role issue.
+            if (hybridRoleManager.isExistingRole(roleName)) {
+                handleRoleAlreadyExistException(roleName, userList, permissions);
+            }
+
+            // Otherwise, the error is propagated.
+            throw e;
+        }
+    }
+
+    private void createSystemRole(String roleName, String[] userList, Permission[] permissions) throws UserStoreException {
+
+        if (systemUserRoleManager.isExistingRole(roleName)) {
+            handleRoleAlreadyExistException(roleName, userList, permissions);
+        }
+
+        // It is possible that the adding role could already exists at the table. But if concurrent requests were made,
+        // it is possible that the adding role does not exists at this moment, but it still could exists at the
+        // moment when DB query is called.
+        try {
+            systemUserRoleManager.addSystemRole(roleName, userList);
+        } catch (UserStoreException e) {
+            if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE.getCode().contains(e.getErrorCode())) {
+                // Could be a possible unique constraint violation due to already existing role.
+                if (systemUserRoleManager.isExistingRole(roleName)) {
+                    handleRoleAlreadyExistException(roleName, userList, permissions);
+                }
+            }
+            throw e;
+        }
     }
 }

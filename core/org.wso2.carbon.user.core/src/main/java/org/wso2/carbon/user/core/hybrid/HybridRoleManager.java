@@ -27,6 +27,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -106,8 +107,8 @@ public class HybridRoleManager {
                         roleName, tenantId);
                 dbConnection.commit();
             } else {
-                throw new UserStoreException("Role name: " + roleName
-                        + " in the system. Please pick another role name.");
+                String errMsg = getRoleAlreadyExistsErrorMessage(roleName);
+                throw new UserStoreException(errMsg);
             }
             if (userList != null) {
                 String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
@@ -940,5 +941,13 @@ public class HybridRoleManager {
             sqlStmt = getRoleListOfUserSQLConfig;
         }
         return sqlStmt;
+    }
+
+    private String getRoleAlreadyExistsErrorMessage(String roleName) {
+
+        String errorCode = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS
+                .getMessage(), roleName);
+        return errorCode + " - " + errorMessage;
     }
 }
