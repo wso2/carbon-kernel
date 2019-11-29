@@ -1016,9 +1016,10 @@ public final class CarbonServerManager implements Controllable {
      */
     private void setJULConsoleHandler() throws IOException {
 
-        Handler consoleHandler = new ConsoleHandler (){
+        Handler consoleHandler = new ConsoleHandler() {
             @Override
             protected synchronized void setOutputStream(OutputStream out) throws SecurityException {
+
                 super.setOutputStream(System.out);
             }
         };
