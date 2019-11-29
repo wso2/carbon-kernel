@@ -1458,13 +1458,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw exception
-        boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
-        String userID = getUserIDFromUserName(userName);
+        // Property to check whether this user store supports new APIs with unique user id.
+        boolean isUniqueUserIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
+        String userID = null;
+        if (isUniqueUserIdEnabled) {
+            userID = getUserIDFromUserName(userName);
+        }
+
         boolean isUserExists;
-        if (!isUniqueIdEnabled) {
-            isUserExists = doCheckExistingUser(userName);
-        } else {
+        if (isUniqueUserIdEnabled) {
             isUserExists = userID != null;
+        } else {
+            isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
         }
 
         if (!isUserExists) {
@@ -3475,7 +3480,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userID = getUserIDFromUserName(userName);
         }
 
-        boolean isUserExists = false;
+        boolean isUserExists;
         if (isUniqueUserIdEnabled) {
             isUserExists = userID != null;
         } else {
