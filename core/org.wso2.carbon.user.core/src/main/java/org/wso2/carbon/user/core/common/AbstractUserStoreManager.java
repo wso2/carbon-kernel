@@ -1458,13 +1458,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw exception
-        boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
-        String userID = getUserIDFromUserName(userName);
+        // Property to check whether this user store supports new APIs with unique user id.
+        boolean isUniqueUserIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
+        String userID = null;
+        if (isUniqueUserIdEnabled) {
+            userID = getUserIDFromUserName(userName);
+        }
+
         boolean isUserExists;
-        if (!isUniqueIdEnabled) {
-            isUserExists = doCheckExistingUser(userName);
-        } else {
+        if (isUniqueUserIdEnabled) {
             isUserExists = userID != null;
+        } else {
+            isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
         }
 
         if (!isUserExists) {
@@ -3475,7 +3480,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userID = getUserIDFromUserName(userName);
         }
 
-        boolean isUserExists = false;
+        boolean isUserExists;
         if (isUniqueUserIdEnabled) {
             isUserExists = userID != null;
         } else {
@@ -13127,7 +13132,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                                 String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String[].class, String[].class, String.class};
+            Class[] argTypes = new Class[]{List.class, List.class, String.class};
             Object object = callSecure("getUsersClaimValuesWithID", new Object[] { userIDs, claims, profileName },
                     argTypes);
             return (List<UserClaimSearchEntry>) object;
@@ -13250,7 +13255,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String[].class };
+            Class argTypes[] = new Class[] { List.class };
             Object object = callSecure("getRoleListOfUsersWithID", new Object[] { userIDs }, argTypes);
             return (Map<String, List<String>>) object;
         }

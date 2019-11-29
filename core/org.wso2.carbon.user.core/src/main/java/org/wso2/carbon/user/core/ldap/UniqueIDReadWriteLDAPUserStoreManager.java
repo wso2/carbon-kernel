@@ -198,7 +198,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             ProfileConfigurationManager profileManager) throws UserStoreException {
 
         super(realmConfig, claimManager, profileManager);
-        // checkRequiredUserStoreConfiguration();
     }
 
     @Override
@@ -240,6 +239,20 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
 
         return builder.toString().toUpperCase(Locale.ENGLISH);
+    }
+
+    @Override
+    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -594,14 +607,14 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
-    private String[] doGetSharedRolesListOfUser(String userName,
-            String tenantDomain, String filter) throws UserStoreException {
+    private String[] doGetSharedRolesListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(true);
         if (tenantDomain != null && tenantDomain.trim().length() > 0) {
             if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain.trim())) {
-                String groupNameAttributeName =
-                        realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
+                String groupNameAttributeName = realmConfig
+                        .getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
                 if (groupNameAttributeName == null || groupNameAttributeName.trim().length() == 0) {
                     groupNameAttributeName = "ou";
                 }
@@ -933,6 +946,21 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
+    public void doSetUserClaimValueWithID(String userID, String claimURI, String value, String profileName)
+            throws UserStoreException {
+
+        String userName = getUserNameFromUserID(userID, profileName);
+        try {
+            String attributeName = getClaimAtrribute(claimURI, userName, null);
+            doSetUserAttribute(userName, attributeName, value, profileName);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
+                            + userName);
+        }
+    }
+
+    @Override
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
@@ -973,11 +1001,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
-            // if there is no attribute for profile configuration in LDAP, skip
-            // updating it.
-            // get the claimMapping related to this claimURI
-
-
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
             /* if updated attribute value is null, remove its values. */
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
@@ -1016,21 +1039,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
-        }
-    }
-
-    @Override
-    public void doSetUserClaimValueWithID(String userID, String claimURI, String value, String profileName)
-            throws UserStoreException {
-
-        String userName = getUserNameFromUserID(userID, profileName);
-        try {
-            String attributeName = getClaimAtrribute(claimURI, userName, null);
-            doSetUserAttribute(userName, attributeName, value, profileName);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(
-                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
-                            + userName);
         }
     }
 
