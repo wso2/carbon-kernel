@@ -20,14 +20,14 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.12.393-SNAPSHOT</version>
+    <version>5.15.21-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1</version>
+        <version>1.2</version>
     </parent>
 
     <scm>
@@ -61,6 +61,7 @@
         <module>components/functions-library-mgt</module>
         <module>components/template-mgt</module>
         <module>components/configuration-mgt</module>
+        <module>components/captcha-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -199,11 +200,6 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core.services</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.logging</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
@@ -447,22 +443,15 @@
                 <artifactId>org.wso2.carbon.securevault</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.wso2.orbit.org.apache.directory</groupId>
-                <artifactId>apacheds</artifactId>
-                <version>${orbit.version.apacheds}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.directory.shared</groupId>
-                <artifactId>shared-ldap-schema</artifactId>
-                <version>${version.apacheds.shared.ldap}</version>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.api.version}</version>
             </dependency>
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>xerces.wso2</groupId>
@@ -520,11 +509,15 @@
                 <version>${wsdl4j.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons-logging.version}</version>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-log4j2</artifactId>
+                <version>${pax.logging.log4j2.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.opensaml</groupId>
                 <artifactId>opensaml</artifactId>
@@ -898,11 +891,111 @@
                 <artifactId>javax.servlet</artifactId>
                 <version>${version.javax.servlet}</version>
             </dependency>
+
+            <!--OpenSAML3 dependencies-->
             <dependency>
                 <groupId>org.opensaml</groupId>
-                <artifactId>opensaml</artifactId>
+                <artifactId>opensaml-core</artifactId>
                 <version>${opensaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-soap-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-soap-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-profile-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-profile-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-saml-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-saml-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-messaging-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-messaging-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-security-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-security-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-storage-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-storage-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xacml-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xacml-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xacml-saml-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xacml-saml-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+
+            <!--Shibboleth dependencies-->
+            <dependency>
+                <groupId>net.shibboleth.utilities</groupId>
+                <artifactId>java-support</artifactId>
+                <version>${shibboleth.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
@@ -927,6 +1020,13 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.idp.mgt.stub</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <!--SAML Common Util dependency-->
+            <dependency>
+                <groupId>org.wso2.carbon.identity.saml.common</groupId>
+                <artifactId>org.wso2.carbon.identity.saml.common.util</artifactId>
+                <version>${saml.common.util.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -957,9 +1057,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
-                <version>${carbon.captcha.mgt.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1244,6 +1344,12 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.mgt.endpoint.util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
@@ -1404,26 +1510,6 @@
                 <version>${json-smart.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.directory.server</groupId>
-                <artifactId>apacheds-protocol-ldap</artifactId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>apacheds-protocol-kerberos</artifactId>
-                <groupId>org.apache.directory.server</groupId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>apacheds-interceptor-kerberos</artifactId>
-                <groupId>org.apache.directory.server</groupId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>apacheds-core-annotations</artifactId>
-                <groupId>org.apache.directory.server</groupId>
-                <version>${apacheds.core.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.yubico</groupId>
                 <artifactId>u2flib-server-core</artifactId>
                 <version>${com.yubico.version}</version>
@@ -1448,6 +1534,27 @@
                 <groupId>net.sf.ehcache.wso2</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.orbit.javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${version.org.wso2.orbit.javax.activation}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${version.org.wso2.orbit.javax.xml.bind}</version>
+            </dependency>
+            <dependency>
+                <groupId>ua.parser.wso2</groupId>
+                <artifactId>ua-parser</artifactId>
+                <version>${ua_parser.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections.wso2</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${apache.common.collection.version}</version>
             </dependency>
 
             <!--Dependencies requires for rest client-->
@@ -1622,7 +1729,7 @@
     <properties>
         <apache.tomcat-catalina.version>9.0.11</apache.tomcat-catalina.version>
         <apache.cxf-rt-frontend-jaxrs.version>2.7.16</apache.cxf-rt-frontend-jaxrs.version>
-        <apache.cxf-rt-rs-service-description.version>3.1.4</apache.cxf-rt-rs-service-description.version>
+        <apache.cxf-rt-rs-service-description.version>3.3.1</apache.cxf-rt-rs-service-description.version>
         <codehaus.jettison.version>1.4.0</codehaus.jettison.version>
         <springframework.spring-web.version>5.1.1.RELEASE</springframework.spring-web.version>
         <jaxrx.jsr311.api.version>1.1.1</jaxrx.jsr311.api.version>
@@ -1630,8 +1737,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.4.40</carbon.kernel.version>
-        <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
+        <carbon.kernel.version>4.5.2</carbon.kernel.version>
+        <carbon.kernel.feature.version>4.5.2</carbon.kernel.feature.version>
+        <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
         <carbon.consent.mgt.imp.pkg.version.range>[1.0.0, 3.0.0)</carbon.consent.mgt.imp.pkg.version.range>
 
@@ -1643,8 +1751,8 @@
         <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.5.2</carbon.commons.version>
-        <carbon.commons.imp.pkg.version>[4.4.0, 5.0.0)</carbon.commons.imp.pkg.version>
+        <carbon.commons.version>4.7.18</carbon.commons.version>
+        <carbon.commons.imp.pkg.version>[4.7.2, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <org.wso2.carbon.database.utils.version>2.0.7</org.wso2.carbon.database.utils.version>
         <org.wso2.carbon.database.utils.version.range>[2.0.0,2.1.0)</org.wso2.carbon.database.utils.version.range>
@@ -1652,32 +1760,29 @@
         <!--Carbon identity version-->
         <identity.framework.version>${project.version}</identity.framework.version>
         <carbon.identity.package.export.version>${project.version}</carbon.identity.package.export.version>
-        <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
+        <carbon.identity.package.import.version.range>[5.14.0, 6.0.0)</carbon.identity.package.import.version.range>
 
         <!--Carbon registry version-->
-        <org.wso2.carbon.registry.version>4.6.19</org.wso2.carbon.registry.version>
+        <org.wso2.carbon.registry.version>4.7.20</org.wso2.carbon.registry.version>
         <carbon.registry.common.imp.pkg.version.range>[0.0.0,1.0.0)</carbon.registry.common.imp.pkg.version.range>
-        <carbon.registry.indexing.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.registry.indexing.imp.pkg.version.range>
+        <carbon.registry.indexing.imp.pkg.version.range>[4.7.3,5.0.0)</carbon.registry.indexing.imp.pkg.version.range>
 
         <!--Carbon component version-->
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
         <carbon.base.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.base.imp.pkg.version.range>
-        <carbon.logging.imp.pkg.version.range>[1.2.17, 2.0.0)</carbon.logging.imp.pkg.version.range>
-        <carbon.captcha.mgt.version>4.5.2</carbon.captcha.mgt.version>
-        <carbon.captcha.mgt.imp.pkg.version.range>[4.5.0,5.0.0)</carbon.captcha.mgt.imp.pkg.version.range>
 
         <!-- Axis2 Version -->
-        <axis2.wso2.version>1.6.1.wso2v12</axis2.wso2.version>
-        <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
+        <axis2.wso2.version>1.6.1-wso2v40</axis2.wso2.version>
+        <axis2.osgi.version.range>[1.6.1.wso2v38, 2.0.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
-        <axis2-transports.version>2.0.0-wso2v21</axis2-transports.version>
-        <axis2-transports.version.range>[2.0.0-wso2v21,3.0.0)</axis2-transports.version.range>
+        <axis2-transports.version>2.0.0-wso2v42</axis2-transports.version>
+        <axis2-transports.version.range>[2.0.0-wso2v38,3.0.0)</axis2-transports.version.range>
         <org.apache.axis2.transport.mail.version.range>[0.0.0,1.0.0)</org.apache.axis2.transport.mail.version.range>
 
         <!-- Axiom Version -->
-        <axiom.version>1.2.11-wso2v10</axiom.version>
-        <axiom.wso2.version>1.2.11.wso2v10</axiom.wso2.version>
+        <axiom.version>1.2.11-wso2v16</axiom.version>
+        <axiom.wso2.version>1.2.11-wso2v16</axiom.wso2.version>
         <axiom.osgi.version.range>[1.2.11, 2.0.0)</axiom.osgi.version.range>
         <axiom.javax.mail.imp.pkg.version.range>[1.4.0, 2.0.0)</axiom.javax.mail.imp.pkg.version.range>
         <axiom.org.jaxen.imp.pkg.version.range>[1.1.1, 2.0.0)</axiom.org.jaxen.imp.pkg.version.range>
@@ -1721,15 +1826,17 @@
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
-        <apacheds.core.version>1.5.7</apacheds.core.version>
-        <apacheds.imp.pkg.version.range>[1.5.7,2.0.0)</apacheds.imp.pkg.version.range>
         <bcprov.version>1.49.0.wso2v2</bcprov.version>
         <swagger.jaxrs.version>1.5.2</swagger.jaxrs.version>
 
         <!-- Orbits -->
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
         <orbit.version.infinispan>5.1.2.wso2v1</orbit.version.infinispan>
-        <orbit.version.h2.engine>1.2.140.wso2v3</orbit.version.h2.engine>
+        <orbit.version.h2.engine>1.4.199.wso2v1</orbit.version.h2.engine>
+        <version.org.wso2.orbit.javax.xml.bind>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind>
+        <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
+        <ua_parser.version>1.3.0.wso2v2</ua_parser.version>
+        <apache.common.collection.version>3.2.0.wso2v1</apache.common.collection.version>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -1747,13 +1854,20 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.wso2.version>1.6.1-wso2v34</rampart.wso2.version>
+        <rampart.wso2.version>1.6.1-wso2v41</rampart.wso2.version>
         <rampart.wso2.osgi.version.range>[1.6.1,2.0.0)</rampart.wso2.osgi.version.range>
+
+        <!-- Balana -->
+        <balana.version>1.2.1</balana.version>
+        <balana.imp.pkg.version.range>[1.1.0,2.0.0)</balana.imp.pkg.version.range>
 
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20130513-1956</version.equinox.osgi.services>
         <version.equinox.osgi>3.9.1.v20130814-1242</version.equinox.osgi>
         <equinox.osgi.stax-api.imp.pkg.version.range>[1.0.1,2.0.0)</equinox.osgi.stax-api.imp.pkg.version.range>
+
+        <saml.common.util.version>1.0.3</saml.common.util.version>
+        <saml.common.util.version.range>[1.0.0,2.0.0)</saml.common.util.version.range>
 
         <!-- Commons -->
         <commons-beanutils.version>1.8.0</commons-beanutils.version>
@@ -1766,25 +1880,24 @@
         <commons-httpclient.wso2.version>3.1.0.wso2v2</commons-httpclient.wso2.version>
         <commons-httpclient.wso2.osgi.version>[3.1.0,4.0.0)</commons-httpclient.wso2.osgi.version>
         <commons-dbcp.version>1.2.2</commons-dbcp.version>
-        <commons-logging.version>1.2</commons-logging.version>
-        <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <commons-lang.version.range>[2.6.0,3.0.0)</commons-lang.version.range>
         <commons-lang.wso2.osgi.version.range>[2.6.0,3.0.0)</commons-lang.wso2.osgi.version.range>
         <commons-pool.wso2.osgi.version.range>[1.5.6,2.0.0)</commons-pool.wso2.osgi.version.range>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
         <commons-collections.wso2.osgi.version.range>[3.2.0,4.0.0)</commons-collections.wso2.osgi.version.range>
+        <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
 
         <neethi.osgi.version>2.0.4.wso2v5</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4,3.0.0)</neethi.osgi.version.range>
         <libthrift.wso2.version>0.12.0.wso2v1</libthrift.wso2.version>
         <!--Change major version to minor version which is 0.9.0 due to 0.8.x and 0.9.x incompatibility-->
         <libthrift.wso2.osgi.version.range>[0.12.0.wso2v1,0.15.0)</libthrift.wso2.osgi.version.range>
-        <log4j.version>1.2.13</log4j.version>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
-        <opensaml.version>2.6.4</opensaml.version>
-        <opensaml2.wso2.version>2.6.4.wso2v5</opensaml2.wso2.version>
-        <opensaml2.wso2.osgi.version.range>[2.6.0,3.0.0)</opensaml2.wso2.osgi.version.range>
+        <opensaml.version>3.3.1</opensaml.version>
+        <shibboleth.version>7.3.0</shibboleth.version>
+        <opensaml2.wso2.version>3.3.1.wso2v1</opensaml2.wso2.version>
+        <opensaml2.wso2.osgi.version.range>[3.3.1,3.4.0)</opensaml2.wso2.osgi.version.range>
         <joda.version>2.9.4</joda.version>
         <joda.wso2.version>2.9.4.wso2v1</joda.wso2.version>
         <joda.wso2.osgi.version.range>[2.8.2,3.0.0)</joda.wso2.osgi.version.range>
@@ -1792,6 +1905,7 @@
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
 
         <httpcore.version>4.3.3.wso2v1</httpcore.version>
+        <httpcore.version.osgi.import.range>[4.3.0, 5.0.0)</httpcore.version.osgi.import.range>
         <com.google.code.gson.version>2.3.1</com.google.code.gson.version>
         <com.google.code.gson.osgi.version.range>[2.3.1,3.0.0)</com.google.code.gson.osgi.version.range>
         <com.google.guava.version>27.0-jre</com.google.guava.version>
@@ -1809,16 +1923,13 @@
         <openid4java.version>1.0.0</openid4java.version>
         <openid4java.wso2.version>1.0.0.wso2v4</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
-        <balana.version>1.1.14</balana.version>
-        <balana.imp.pkg.version.range>[1.1.0,2.0.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,2.0.0)</gdata-core.imp.pkg.version.range>
-        <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
-        <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
-        <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
+        <org.wso2.securevault.version>1.1.3</org.wso2.securevault.version>
+        <org.wso2.securevault.import.version.range>[1.1.0, 2.0.0)</org.wso2.securevault.import.version.range>
         <hector-core.wso2.version>1.1.4.wso2v1</hector-core.wso2.version>
         <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,2.0.0)</hector-core.imp.pkg.version.range>
         <waffle.imp.pkg.version.range>[1.6.wso2v4, 2.0)</waffle.imp.pkg.version.range>
@@ -1833,17 +1944,12 @@
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
         <json.wso2.version.range>[3.0.0.wso2v1, 4.0.0)</json.wso2.version.range>
         <com.fasterxml.jackson.version>2.9.7</com.fasterxml.jackson.version>
-        <com.fasterxml.jackson.annotation.version>2.9.7</com.fasterxml.jackson.annotation.version>
+        <com.fasterxml.jackson.annotation.version>2.9.8</com.fasterxml.jackson.annotation.version>
         <com.fasterxml.jackson.jaxrs-json-provider-version>2.9.7</com.fasterxml.jackson.jaxrs-json-provider-version>
 
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
         <openspml.version>192-20100413</openspml.version>
-        <testng.version>6.9.10</testng.version>
-        <msf4j.version>2.6.2</msf4j.version>
-        <jacoco.version>0.7.9</jacoco.version>
-        <jmockit.version>1.35</jmockit.version>
-        <powermock.version>1.6.6</powermock.version>
-        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+        <msf4j.version>2.7.0</msf4j.version>
         <thetransactioncompany.cors-filter.wso2.version>1.7.0.wso2v1</thetransactioncompany.cors-filter.wso2.version>
         <thetransactioncompany.utils.wso2.version>1.9.0.wso2v1</thetransactioncompany.utils.wso2.version>
         <jsr311-api.version>1.1.1</jsr311-api.version>
@@ -1852,18 +1958,19 @@
         <jdom.wso2.version>1.0.0.wso2v1</jdom.wso2.version>
         <json-smart.version>1.3</json-smart.version>
         <cxf-bundle.wso2.version>2.7.16.wso2v1</cxf-bundle.wso2.version>
-        <org.apache.cxf.version>3.2.8</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.1</org.apache.cxf.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
-        <encoder-jsp.version>1.2.1</encoder-jsp.version>
+        <encoder.wso2.import.version.range>[1.2.0, 2.0.0)</encoder.wso2.import.version.range>
+        <encoder-jsp.version>1.2.2</encoder-jsp.version>
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
         <ehcache.version>1.5.0.wso2v3</ehcache.version>
         <com.fasterxml.core.version2>2.5.4</com.fasterxml.core.version2>
         <io.swagger.version>1.5.20</io.swagger.version>
-        <carbon.consent.mgt.version>2.0.19</carbon.consent.mgt.version>
+        <carbon.consent.mgt.version>2.2.4</carbon.consent.mgt.version>
 
         <javax.xml.range>[0.0.0,1.0.0)</javax.xml.range>
         <org.apache.xml.security.range>[0.0.0,2.0.0)</org.apache.xml.security.range>
@@ -1871,20 +1978,27 @@
 
 
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
+        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <swagger2cxf-maven-plugin.version>1.0-SNAPSHOT</swagger2cxf-maven-plugin.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
 
         <jersey-version>1.19.1</jersey-version>
 
+        <!-- Pax Logging Version -->
+        <pax.logging.api.version>1.10.1</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.10.1</pax.logging.log4j2.version>
+
+        <!-- Log4j -->
+        <log4j.api.version>2.12.0</log4j.api.version>
+        <log4j.core.version>2.12.0</log4j.core.version>
+
         <!-- Unit test versions -->
         <testng.version>6.9.10</testng.version>
-        <jacoco.version>0.7.9</jacoco.version>
-        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
-        <slf4j.api.version>1.7.12</slf4j.api.version>
-        <org.powermock.version>1.7.3</org.powermock.version>
+        <jacoco.version>0.8.2</jacoco.version>
+        <jmockit.version>1.44</jmockit.version>
+        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
+        <org.powermock.version>1.7.4</org.powermock.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
@@ -1895,7 +2009,10 @@
         <disruptor.orbit.version>3.3.2.wso2v2</disruptor.orbit.version>
         <antlr.version>4.5</antlr.version>
         <snakeyaml.version>1.11</snakeyaml.version>
-        <h2database.version>1.3.175</h2database.version>
+        <h2database.version>1.4.199</h2database.version>
+
+        <maven.checkstyleplugin.version>3.1.0</maven.checkstyleplugin.version>
+        <maven.findbugsplugin.version>3.0.5</maven.findbugsplugin.version>
     </properties>
 
     <build>
@@ -1911,24 +2028,10 @@
                         </inputSpec>
                     </configuration>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-scr-plugin</artifactId>
-                    <version>${maven.scr.plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>generate-scr-scrdescriptor</id>
-                            <goals>
-                                <goal>scr</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.4.0</version>
+                    <version>3.2.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>
@@ -1953,6 +2056,52 @@
                         <doCheck>false</doCheck>
                         <doUpdate>false</doUpdate>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven.checkstyleplugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <configLocation>
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml
+                                </configLocation>
+                                <suppressionsLocation>
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml
+                                </suppressionsLocation>
+                                <encoding>UTF-8</encoding>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            </configuration>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>${maven.findbugsplugin.version}</version>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <xmlOutput>true</xmlOutput>
+                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>analyze-compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1983,6 +2132,34 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <!--This parameter disables doclint-->
+                            <doclint>none</doclint>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

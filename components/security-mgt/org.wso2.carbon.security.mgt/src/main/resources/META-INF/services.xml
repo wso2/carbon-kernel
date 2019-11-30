@@ -72,11 +72,11 @@
             org.wso2.carbon.security.config.service.SecurityConfigAdminService
         </parameter>
         <operation name="activateUsernameTokenAuthentication">
-            <parameter name="AuthorizationAction" locked="true">permission/admin/manage/identity/securitymgt/update
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/securitymgt/update
             </parameter>
         </operation>
         <operation name="disableSecurityOnService">
-            <parameter name="AuthorizationAction" locked="true">permission/admin/manage/identity/securitymgt/update
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/securitymgt/update
             </parameter>
         </operation>
         <operation name="applySecurity">

@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class KeyStoreMgtUtil {
 
-    private static Log log = LogFactory.getLog(KeyStoreMgtUtil.class);
+    private static final Log log = LogFactory.getLog(KeyStoreMgtUtil.class);
 
     private KeyStoreMgtUtil(){}
 

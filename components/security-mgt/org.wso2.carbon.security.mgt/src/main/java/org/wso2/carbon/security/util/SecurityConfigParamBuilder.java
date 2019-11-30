@@ -65,7 +65,7 @@ public class SecurityConfigParamBuilder {
             SecurityConstants.AUTHORIZATION);
     private static QName kerberosQName = new QName(SecurityConstants.SECURITY_NAMESPACE, SecurityConstants.KERBEROS);
 
-    private static Log log = LogFactory.getLog(SecurityConfigParamBuilder.class);
+    private static final Log log = LogFactory.getLog(SecurityConfigParamBuilder.class);
 
     private SecurityConfigParamBuilder(){}
 

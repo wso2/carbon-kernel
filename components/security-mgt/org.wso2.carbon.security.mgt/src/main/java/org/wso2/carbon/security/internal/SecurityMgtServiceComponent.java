@@ -36,6 +36,10 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
+import org.wso2.carbon.security.keystore.KeyStoreManagementService;
+import org.wso2.carbon.security.keystore.KeyStoreManagementServiceImpl;
+import org.wso2.carbon.security.sts.service.STSAdminServiceImpl;
+import org.wso2.carbon.security.sts.service.STSAdminServiceInterface;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -46,7 +50,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 )
 public class SecurityMgtServiceComponent {
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
-    private static Log log = LogFactory.getLog(SecurityMgtServiceComponent.class);
+    private static final Log log = LogFactory.getLog(SecurityMgtServiceComponent.class);
     private static ConfigurationContextService configContextService = null;
     private static RealmService realmService;
     private static RegistryService registryService;
@@ -73,6 +77,9 @@ public class SecurityMgtServiceComponent {
                     new SecurityConfigAdmin(mainAxisConfig, registryService.getConfigSystemRegistry(), null), null);
             bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
                     new SecurityAxis2ConfigurationContextObserver(), null);
+            bundleCtx.registerService(STSAdminServiceInterface.class, new STSAdminServiceImpl(), null);
+            bundleCtx.registerService(KeyStoreManagementService.class.getName(), new KeyStoreManagementServiceImpl(),
+                    null);
             log.debug("Security Mgt bundle is activated");
         } catch (Throwable e) {
             log.error("Failed to activate SecurityMgtServiceComponent", e);

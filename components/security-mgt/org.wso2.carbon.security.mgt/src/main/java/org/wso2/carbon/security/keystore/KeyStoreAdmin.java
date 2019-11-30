@@ -23,7 +23,6 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoUtil;
@@ -75,7 +74,7 @@ public class KeyStoreAdmin {
     public static final String SERVER_TRUSTSTORE_PASSWORD = "Security.TrustStore.Password";
     public static final String SERVER_TRUSTSTORE_TYPE = "Security.TrustStore.Type";
 
-    private static Log log = LogFactory.getLog(KeyStoreAdmin.class);
+    private static final Log log = LogFactory.getLog(KeyStoreAdmin.class);
     private Registry registry = null;
     private int tenantId;
     private boolean includeCert = false;
@@ -150,10 +149,12 @@ public class KeyStoreAdmin {
                             String fileName = generatePubCertFileName(ks[i],
                                     pubKeyResource.getProperty(
                                             SecurityConstants.PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
-                            String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
-                                    MessageContext.getCurrentMessageContext().getConfigurationContext(),
-                                    (byte[]) pubKeyResource.getContent(), fileName);
-                            data.setPubKeyFilePath(pubKeyFilePath);
+                            if (MessageContext.getCurrentMessageContext() != null) {
+                                String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
+                                        MessageContext.getCurrentMessageContext().getConfigurationContext(),
+                                        (byte[]) pubKeyResource.getContent(), fileName);
+                                data.setPubKeyFilePath(pubKeyFilePath);
+                            }
                         }
                     }
                     lst.add(data);
@@ -234,12 +235,7 @@ public class KeyStoreAdmin {
             while (enumeration.hasMoreElements()) {
                 String alias = (String) enumeration.nextElement();
                 if (keyStore.isKeyEntry(alias)) {
-                    if (pvtKeyAlias == null) {
-                        pvtKeyAlias = alias;
-                    } else {
-                        // more than one private key
-                        throw new SecurityConfigException("more than one private key");
-                    }
+                    pvtKeyAlias = alias;
                 }
             }
 
@@ -352,17 +348,7 @@ public class KeyStoreAdmin {
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
-
-            byte[] bytes = Base64.decode(certData);
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate cert;
-            try {
-                cert = (X509Certificate) factory
-                        .generateCertificate(new ByteArrayInputStream(bytes));
-            } catch (CertificateException e) {
-                log.error(e.getMessage(), e);
-                throw new SecurityConfigException("Invalid format of the provided certificate file");
-            }
+            X509Certificate cert = extractCertificate(certData);
 
             if (ks.getCertificateAlias(cert) != null) {
                 // We already have this certificate in the key store - ignore
@@ -398,16 +384,7 @@ public class KeyStoreAdmin {
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
-
-            byte[] bytes = Base64.decode(certData);
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate cert;
-            try {
-                cert = (X509Certificate) factory
-                        .generateCertificate(new ByteArrayInputStream(bytes));
-            } catch (Exception e) {
-                throw new SecurityConfigException("Invalid format of the provided certificate file", e);
-            }
+            X509Certificate cert = extractCertificate(certData);
 
             if (ks.getCertificateAlias(cert) != null) {
                 // We already have this certificate in the key store - ignore
@@ -783,24 +760,21 @@ public class KeyStoreAdmin {
             keyStoreData.setPaginatedCertData(doPaging(pageNumber, certs));
             keyStoreData.setKeyStoreType(keyStoreType);
 
+            List<CertData> keyDataList = new ArrayList<>();
             aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
-                // There be only one entry in WSAS related keystores
                 if (keyStore.isKeyEntry(alias)) {
                     X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-                    keyStoreData.setKey(fillCertData(cert, alias, formatter));
-                    PrivateKey key = (PrivateKey) keyStore.getKey(alias, keyStorePassword
-                            .toCharArray());
-                    String pemKey;
-                    pemKey = "-----BEGIN PRIVATE KEY-----\n";
-                    pemKey += Base64.encode(key.getEncoded());
-                    pemKey += "\n-----END PRIVATE KEY-----";
-                    keyStoreData.setKeyValue(pemKey);
-                    break;
-
+                    keyDataList.add(fillCertData(cert, alias, formatter));
                 }
             }
+
+            // Create a cert array.
+            CertData[] keyCerts = keyDataList.toArray(new CertData[keyDataList.size()]);
+            // Create a KeyStoreData bean, set the name and fill in the cert information.
+            keyStoreData.setPaginatedKeyData(doPaging(pageNumber, keyCerts));
+
             return keyStoreData;
         } catch (Exception e) {
             String msg = "Error has encounted while loading the keystore to the given keystore name "
@@ -812,12 +786,12 @@ public class KeyStoreAdmin {
     }
 
     /**
-     * Load the default trust store (allowed only for super tenant)
+     * Load the default trust store (allowed only for super tenant).
      *
      * @return trust store object
-     * @throws Exception
+     * @throws SecurityConfigException if retrieving the truststore fails.
      */
-    private KeyStore getTrustStore() throws SecurityConfigException {
+    public KeyStore getTrustStore() throws SecurityConfigException {
         //Allow only the super tenant to access the default trust store.
         if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new SecurityConfigException("Permission denied for accessing trust store");
@@ -877,7 +851,15 @@ public class KeyStoreAdmin {
         return false;
     }
 
-    private KeyStore getKeyStore(String keyStoreName) throws Exception {
+    /**
+     * Retrieves the {@link KeyStore} object of the given keystore name.
+     *
+     * @param keyStoreName name of the keystore.
+     * @return {@link KeyStore} object.
+     * @throws Exception if retrieving the keystore fails.
+     */
+    public KeyStore getKeyStore(String keyStoreName) throws Exception {
+
         if (isTrustStore(keyStoreName)) {
             return getTrustStore();
         } else {
@@ -908,5 +890,27 @@ public class KeyStoreAdmin {
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             keyStoreManager.updateKeyStore(name, keyStore);
         }
+    }
+
+    /**
+     * Extract the encoded certificate into {@link X509Certificate}.
+     *
+     * @param certData encoded certificate.
+     * @return {@link X509Certificate} object.
+     * @throws SecurityConfigException if extracting the certificate fails.
+     */
+    public X509Certificate extractCertificate(String certData) throws SecurityConfigException {
+
+        byte[] bytes = Base64.decode(certData);
+        X509Certificate cert;
+        try {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            cert = (X509Certificate) factory
+                    .generateCertificate(new ByteArrayInputStream(bytes));
+        } catch (CertificateException e) {
+            log.error(e.getMessage(), e);
+            throw new SecurityConfigException("Invalid format of the provided certificate file");
+        }
+        return cert;
     }
 }

@@ -81,7 +81,7 @@ public class ServerCrypto implements Crypto {
     public static final String PROP_ID_TENANT_ID = "org.wso2.stratos.tenant.id";
     public static final String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
     private static final String SKI_OID = "2.5.29.14";
-    private static Log log = LogFactory.getLog(ServerCrypto.class);
+    private static final Log log = LogFactory.getLog(ServerCrypto.class);
     private static CertificateFactory certFact = null;
     private Properties properties = null;
     private KeyStore keystore = null;

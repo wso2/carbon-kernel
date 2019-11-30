@@ -72,7 +72,7 @@ public class POXSecurityHandler implements Handler {
 
     public static final String POX_CACHE_MANAGER = "POX_CACHE_MANAGER";
     public static final String POX_ENABLED = "pox-security";
-    private static Log log = LogFactory.getLog(POXSecurityHandler.class);
+    private static final Log log = LogFactory.getLog(POXSecurityHandler.class);
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
     private HandlerDescription description;
     private static final String MESSAGE_TYPE = "messageType";
@@ -175,7 +175,14 @@ public class POXSecurityHandler implements Handler {
                     if (faultCodeObject instanceof SOAP11FaultCodeImpl) {
                         faultCode = ((SOAP11FaultCodeImpl) faultCodeObject).getTextContent();
                     } else if (faultCodeObject instanceof SOAP12FaultCodeImpl) {
-                        faultCode = ((SOAP12FaultSubCodeImpl) ((SOAP12FaultCodeImpl) faultCodeObject).getSubCode()).getTextContent();
+                        // Checking if SubCode is null since it can be optional according to the
+                        // SOAP 1.2 specification - https://www.w3.org/TR/soap12-part1/#faultsubcodeelement
+                        if (((SOAP12FaultCodeImpl) faultCodeObject).getSubCode() == null) {
+                            faultCode = ((SOAP12FaultCodeImpl) faultCodeObject).getTextContent();
+                        } else {
+                            faultCode = ((SOAP12FaultSubCodeImpl) ((SOAP12FaultCodeImpl) faultCodeObject)
+                                    .getSubCode()).getTextContent();
+                        }
                     }
 
                     if (faultCode != null  && faultCode.contains("FailedAuthentication")) {  // this is standard error code according to the WS-Sec

@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class XmlConfiguration {
 
-    private static Log log = LogFactory.getLog(XmlConfiguration.class);
+    private static final Log log = LogFactory.getLog(XmlConfiguration.class);
 
     private StAXOMBuilder builder;
 
