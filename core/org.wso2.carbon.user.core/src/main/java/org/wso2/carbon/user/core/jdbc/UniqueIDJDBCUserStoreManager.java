@@ -3194,7 +3194,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         Property[] advancedProperties = defaultUserStoreProperties.getAdvancedProperties();
         Property property = new Property(UserStoreConfigConstants.UserIDEnabled, "true",
                 "Enable User ID" + "#" + UserStoreConfigConstants.UserIDEnabledDescription, null);
-        ArrayUtils.add(advancedProperties, property);
+        advancedProperties = (Property[]) ArrayUtils.add(advancedProperties, property);
+        defaultUserStoreProperties.setAdvancedProperties(advancedProperties);
         return defaultUserStoreProperties;
     }
 
