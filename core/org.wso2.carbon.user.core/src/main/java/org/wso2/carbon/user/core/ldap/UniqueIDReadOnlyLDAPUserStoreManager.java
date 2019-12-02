@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -82,7 +83,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
             "This is the separator for multiple claim " + "values";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final ArrayList<Property> RO_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<>();
+    private static final ArrayList<Property> UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<>();
     private static final String PROPERTY_REFERRAL_IGNORE = "ignore";
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
@@ -1551,10 +1552,22 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         return false;
     }
 
+    @Override
+    public Properties getDefaultUserStoreProperties() {
+
+        Properties properties = new Properties();
+        properties.setMandatoryProperties(
+                ReadOnlyLDAPUserStoreConstants.ROLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
+        properties.setOptionalProperties(
+                ReadOnlyLDAPUserStoreConstants.OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
+        properties.setAdvancedProperties(UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
+        return properties;
+    }
+
     private static void setAdvancedProperties() {
 
         // Set Advanced Properties.
-        RO_LDAP_UM_ADVANCED_PROPERTIES.clear();
+        UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.clear();
         setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
                 UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
@@ -1609,7 +1622,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
 
         Property property = new Property(name, value, displayName + "#" + description, null);
-        RO_LDAP_UM_ADVANCED_PROPERTIES.add(property);
+        UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.add(property);
 
     }
 

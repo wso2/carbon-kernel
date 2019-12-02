@@ -85,7 +85,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             "This is the separator for multiple claim " + "values";
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final ArrayList<Property> RW_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<>();
+    private static final List<Property> UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<>();
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
     private static final String readTimeout = "ReadTimeout";
@@ -1968,7 +1968,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     private static void setAdvancedProperties() {
 
         // Set Advanced Properties.
-        RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
+        UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
         setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
                 UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
@@ -2034,7 +2034,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
         properties.setOptionalProperties(
                 ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
-        properties.setAdvancedProperties(RW_LDAP_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
+        properties.setAdvancedProperties(UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
         return properties;
     }
 
@@ -2198,7 +2198,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
 
         Property property = new Property(name, value, displayName + "#" + description, null);
-        RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
+        UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
     }
 
 }

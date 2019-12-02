@@ -19,14 +19,18 @@
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.user.api.Properties;
+import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
@@ -38,6 +42,8 @@ import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
+import org.wso2.carbon.user.core.ldap.LDAPConstants;
+import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
@@ -90,6 +96,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final List<Property> UNIQUE_ID_JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
 
     public UniqueIDJDBCUserStoreManager() {
 
@@ -3175,6 +3185,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
             getExpressionConditions(rightCondition, expressionConditions);
         }
+    }
+
+    @Override
+    public Properties getDefaultUserStoreProperties() {
+
+        Properties defaultUserStoreProperties = super.getDefaultUserStoreProperties();
+        Property[] advancedProperties = defaultUserStoreProperties.getAdvancedProperties();
+        Property property = new Property(UserStoreConfigConstants.UserIDEnabled, "true",
+                "Enable User ID" + "#" + UserStoreConfigConstants.UserIDEnabledDescription, null);
+        ArrayUtils.add(advancedProperties, property);
+        return defaultUserStoreProperties;
     }
 
     @Override
