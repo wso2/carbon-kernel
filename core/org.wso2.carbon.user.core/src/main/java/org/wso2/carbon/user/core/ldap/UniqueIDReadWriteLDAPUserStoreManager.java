@@ -85,7 +85,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             "This is the separator for multiple claim " + "values";
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final ArrayList<Property> RW_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
+    private static final ArrayList<Property> RW_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<>();
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
     private static final String readTimeout = "ReadTimeout";
@@ -1969,6 +1969,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         // Set Advanced Properties.
         RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
+        setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
+                UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
                 UserStoreConfigConstants.SCIMEnabledDescription);
 
