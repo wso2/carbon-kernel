@@ -84,5 +84,6 @@
   "transport.https.properties.ssl_protocol": "transport.https.sslHostConfig.properties.sslProtocol",
 
   "clustering.shutdown_hook_enable": "hazelcast.'hazelcast.shutdownhook.enabled'",
-  "clustering.logging_type": "hazelcast.'hazelcast.logging.type'"
+  "clustering.logging_type": "hazelcast.'hazelcast.logging.type'",
+  "clustering.properties.vpcCidrBlock": "clustering.properties.networkInterface"
 }
