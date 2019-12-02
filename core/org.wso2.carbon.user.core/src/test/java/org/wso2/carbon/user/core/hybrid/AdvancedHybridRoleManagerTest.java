@@ -20,6 +20,8 @@ package org.wso2.carbon.user.core.hybrid;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -36,6 +38,7 @@ public class AdvancedHybridRoleManagerTest extends BaseTestCase {
     public void testHybridRoleManager() throws Exception {
         initRealmStuff();
         doHybridRoleStugg();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
 
@@ -51,8 +54,13 @@ public class AdvancedHybridRoleManagerTest extends BaseTestCase {
         ds.setUrl("jdbc:h2:./target/hybridroletest/UM_ADV_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
- //       hybridRoleMan = new HybridRoleManager(ds, 0);
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
+        ds.close();
     }
 
 

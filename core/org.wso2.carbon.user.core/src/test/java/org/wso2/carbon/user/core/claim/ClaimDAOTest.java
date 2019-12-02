@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.dao.ProfileConfigDAO;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -67,6 +68,7 @@ public class ClaimDAOTest extends BaseTestCase {
         checkCliamPersistStuff();
         checkProfilePersistStuff();
         checkDeleteDialectStuff();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void checkCliamPersistStuff() throws Exception {

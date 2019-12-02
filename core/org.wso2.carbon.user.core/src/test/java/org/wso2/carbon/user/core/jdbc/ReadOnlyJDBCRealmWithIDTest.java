@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,13 +17,16 @@
 */
 package org.wso2.carbon.user.core.jdbc;
 
+import junit.framework.TestCase;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Assert;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
@@ -37,9 +40,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.sql.DataSource;
 
-public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
+public class ReadOnlyJDBCRealmWithIDTest extends BaseTestCase {
 
     private UserRealm realm;
 
@@ -51,6 +56,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         doRoleStuff();
+        doUserClaimValuesStuff();
         DatabaseUtil.closeDatabasePoolConnection();
         /*commenting out following since
          1. earlier cached stuff by other test cases causes test failure.
@@ -59,33 +65,28 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     public void initRealmStuff() throws Exception {
-        String dbFolder = "target/advjdbcrotest";
+        String dbFolder = "target/ReadOnlyTestID";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
 
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
-        ds.setUrl("jdbc:h2:./target/advjdbcrotest/CARBON_TEST");
+        ds.setUrl("jdbc:h2:./target/ReadOnlyTestID/CARBON_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String resourcesPath = new File("src/test/resources").getAbsolutePath();
-        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         this.addIntialData(ds);
         RealmConfigXMLProcessor builder = new RealmConfigXMLProcessor();
         InputStream inStream = this.getClass().getClassLoader().getResource(
-                "adv-jdbc-readonly-test.xml").openStream();
+                "jdbc-readonly-test-uniqueid.xml").openStream();
         RealmConfiguration realmConfig = builder.buildRealmConfiguration(inStream);
         inStream.close();
         realm = new DefaultRealm();
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
         assertTrue(realm.getUserStoreManager().isExistingRole("adminx"));
-        ds.close();
     }
 
     public void doRoleStuff() throws Exception {
@@ -94,49 +95,50 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         admin.addRole("Internal/role2", null, null);
         admin.addRole("Internal/role3", null, null);
         admin.addRole("Internal/role4", null, null);
-        try{
-           admin.addRole(null, null, null);
-           fail("Exception at Null role name");
-        }catch(Exception e){
-            //caught Exception
-        }
 
         admin.updateRoleListOfUser("saman", null, new String[] { "Internal/role2" });
-        admin.updateRoleListOfUser("saman", new String[] { "Internal/role2" }, new String[] { "Internal/role4",
-                "Internal/role3" });
-        try{
-           admin.updateRoleListOfUser(null, null, new String[] { "Internal/role2" });
-           fail("Exceptions at missing user name");
-        }catch(Exception ex){
-           //expected user
-        }
+		admin.updateRoleListOfUser("saman", new String[] { "Internal/role2" }, new String[] {
+				"Internal/role4", "Internal/role3" });
 
-        assertEquals(3, admin.getRoleListOfUser("saman").length);
+        String[] rolesOfSaman = admin.getRoleListOfUser("saman");
+        assertEquals(3, rolesOfSaman.length);
 
         // negative
         admin.updateUserListOfRole("Internal/role2", new String[] { "saman" }, null);
         admin.updateUserListOfRole("Internal/role3", null, new String[] { "amara", "sunil" });
+
+        // negative
         try {
-            admin.updateUserListOfRole(null, null, new String[] { "d" });
-            fail("Exception thrown at null Roll name failed");
-        }catch (Exception e) {
-         // exptected error in negative testing
-        }
-        try {
-            admin.updateUserListOfRole("rolexx", null, new String[] { "amara", "sunil" });
-            fail("Exception thrown at invalid Roll names failed");
+            //wrong roles
+            admin.updateRoleListOfUser("saman", new String[] { "x" }, new String[] { "y" });
+            TestCase.assertTrue(false);
         } catch (Exception e) {
             // exptected error in negative testing
-        }
-        try{
-            admin.updateRoleListOfUser("saman", new String[] { "x" }, new String[] { "y" });
-            fail("Exception thrown at invalid Roll names failed");
-         } catch (Exception e) {
-            // exptected error in negative testing
-         }
 
+        }
         //wrong users - must pass because we don't know the external users.
         admin.updateUserListOfRole("Internal/role2", null, new String[] { "d" });
+    }
+
+    public void doUserClaimValuesStuff() throws Exception {
+
+        UserStoreManager userStoreManager = realm.getUserStoreManager();
+        Map<String, String> claimsMap = new HashMap<>();
+        claimsMap.put(ClaimTestUtil.CLAIM_URI1, "John");
+
+        try {
+            userStoreManager.setUserClaimValues("saman", claimsMap, ClaimTestUtil.HOME_PROFILE_NAME);
+        } catch (UserStoreException e) {
+            Assert.assertTrue("Failed to receive the expected invalid operation exception.",
+                    e.getMessage().contains("InvalidOperation"));
+        }
+        try {
+            userStoreManager.setUserClaimValues("saman", new HashMap<String, String>(),
+                    ClaimTestUtil.HOME_PROFILE_NAME);
+            Assert.assertTrue(true);
+        } catch (UserStoreException e) {
+            Assert.fail("Unexpected error while updating user claims with empty claims map.");
+        }
     }
 
     public void doAuthorizationStuff() throws Exception {
@@ -147,125 +149,17 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         usWriter.addRole("roley", null, null);
         authMan.authorizeRole("rolex", "wall", "write");
         authMan.authorizeRole("roley", "table", "write");
-        try {
-          authMan.authorizeRole(null, "wall", "write");
-          fail("Exception at authorizing a role with Null role");
-        } catch (Exception e) {
-          // caught exception
-        }
-        try {
-          authMan.authorizeRole("rollee", null, "write");
-          fail("Exception at authorizing a role with Null resourceID");
-        } catch (Exception e) {
-          // caught exception
-        }
-        try {
-          authMan.authorizeRole("rollee","wall",null);
-          fail("Exception at authorizing a role with Null action");
-        } catch (Exception e) {
-          // caught exception
-        }
-        try {
-          authMan.authorizeRole("rolleex","wall","run");
-          fail("Exception at authorizing a role with Invalid action");
-        } catch (Exception e) {
-          // caught exception
-        }
-
         authMan.authorizeUser("sunil", "wall", "read");
-        try {
-          authMan.authorizeUser(null, "wall", "read");
-          fail("Exception at authorizing a user with Null name");
-        } catch (Exception e) {
-          //caught exception
-        }
-        try {
-          authMan.authorizeUser("isuru", null, "read");
-          fail("Exception at authorizing a user with Null resourceID");
-        } catch (Exception e) {
-          //caught exception
-        }
-        try {
-          authMan.authorizeUser("isuru","wall",null);
-          fail("Exception at authorizing a user with Null action");
-        } catch (Exception e) {
-          //caught exception
-        }
-        try {
-          authMan.authorizeUser("isuru","wall","run");
-          fail("Exception at authorizing a user with Invalid action");
-        } catch (Exception e) {
-          //caught exception
-        }
 
         assertTrue(authMan.isUserAuthorized("saman", "wall", "write"));
         assertTrue(authMan.isUserAuthorized("sunil", "wall", "read"));
         assertTrue(authMan.isRoleAuthorized("roley", "table", "write"));
-        assertFalse(authMan.isRoleAuthorized("roley", "chair", "write"));
         assertFalse(authMan.isUserAuthorized("saman", "wall", "read"));
         assertFalse(authMan.isUserAuthorized("sunil", "wall", "write"));
-        assertFalse(authMan.isUserAuthorized("isuru", "wall", "write"));
-        try {
-          boolean b=authMan.isUserAuthorized("isuru", "wall", "run");
-          fail("Exception at check authorization of a user with Invalid action");
-        } catch (Exception e) {
-          //caught exception
-        }
 
         authMan.clearUserAuthorization("sunil", "wall", "read");
-        try{
-            authMan.clearUserAuthorization("isuru", "wall", "run");
-            fail("Exception at clear user authorization");
-        }catch(Exception e){
-
-        }
-        try{
-            authMan.clearUserAuthorization(null, "wall", "read");
-            fail("Exception at clear user authorization");
-        }catch(Exception e){
-
-        }
-        try{
-            authMan.clearUserAuthorization("isuru", null, "read");
-            fail("Exception at clear user authorization");
-        }catch(Exception e){
-
-        }
-        try{
-            authMan.clearUserAuthorization("isuru","wall", null);
-            fail("Exception at clear user authorization");
-        }catch(Exception e){
-
-        }
-
         authMan.clearRoleAuthorization("roley", "table", "write");
-        try{
-            authMan.clearRoleAuthorization(null, "table", "write");
-            fail("Exception at clear role authorization");
-        }catch(Exception e){
-            //caught exception
-        }
-        try{
-            authMan.clearRoleAuthorization("roleee", null, "write");
-            fail("Exception at clear role authorization");
-        }catch(Exception e){
-           //caught exception
-        }
-        try{
-            authMan.clearRoleAuthorization("roleee", "table", null);
-            fail("Exception at clear role authorization");
-        }catch(Exception e){
-           //caught exception
-        }
-        //authMan.isRoleAuthorized("roley", "table", "write");
-
         authMan.clearResourceAuthorizations("wall");
-        try{
-            authMan.clearResourceAuthorizations(null);
-            fail("Exception at clear Resource Authorizations");
-        }catch(Exception e){
-
-        }
 
         assertFalse(authMan.isUserAuthorized("saman", "wall", "write"));
         assertFalse(authMan.isUserAuthorized("sunil", "wall", "read"));
@@ -273,7 +167,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     private void addIntialData(DataSource ds) throws Exception {
-        String sql = "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
+        String sql = "INSERT INTO UM_USER (UM_USER_ID, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
                 "?, ?, ?)";
         Connection dbCon = ds.getConnection();
         dbCon.setAutoCommit(false);
@@ -321,9 +215,24 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         count = stmt.executeBatch();
         assertEquals(2, count.length);
 
-        dbCon.commit();
+        sql = "INSERT INTO UM_USER_ATTRIBUTE (UM_ATTR_NAME,UM_ATTR_VALUE,UM_TENANT_ID,UM_USER_ID,UM_PROFILE_ID) " +
+                "VALUES (?,?,?,?,?)";
+        stmt = dbCon.prepareStatement(sql);
+        stmt.setString(1, "uid");
+        stmt.setString(2, "adminx");
+        stmt.setInt(3, -1234);
+        stmt.setInt(4, 2);
+        stmt.setString(5, "default");
+        stmt.addBatch();
+        stmt.setString(1, "uid");
+        stmt.setString(2, "saman");
+        stmt.setInt(3, -1234);
+        stmt.setInt(4, 4);
+        stmt.setString(5, "default");
+        stmt.addBatch();
+        stmt.executeBatch();
 
+        dbCon.commit();
         dbCon.close();
     }
 }
-

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -35,11 +35,11 @@ import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import java.io.File;
 import java.io.InputStream;
 
-public class PermissionTest extends BaseTestCase {
+public class PermissionWithIDTest extends BaseTestCase {
 
     private UserRealm realm;
 
-    private static String TEST_URL = "jdbc:h2:./target/PermissionTest/CARBON_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/PermissionTestID/CARBON_TEST";
 
     private static final String EVERYONE_ROLE = "Internal/everyone";
 
@@ -59,7 +59,7 @@ public class PermissionTest extends BaseTestCase {
     }
 
     public void initRealmStuff() throws Exception {
-        String dbFolder = "target/PermissionTest";
+        String dbFolder = "target/PermissionTestID";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
@@ -71,22 +71,14 @@ public class PermissionTest extends BaseTestCase {
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
         ds.setUrl(TEST_URL);
         DatabaseCreator creator = new DatabaseCreator(ds);
-
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String resourcesPath = new File("src/test/resources").getAbsolutePath();
-        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
-
         realm = new DefaultRealm();
 
-        InputStream inStream = this.getClass().getClassLoader().getResource(
-                JDBCRealmTest.JDBC_TEST_USERMGT_XML).openStream();
+        InputStream inStream = this.getClass().getClassLoader().getResource("user-mgt-test-uniqueId.xml").openStream();
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
-        ds.close();
     }
 
     public void checkPermission() throws Exception {
@@ -216,5 +208,4 @@ public class PermissionTest extends BaseTestCase {
 
         assertTrue(resources.length > 0);
     }
-
 }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -43,13 +43,13 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JDBCRealmTest extends BaseTestCase {
+public class JDBCRealmWithUniqueIDTest extends BaseTestCase {
 
     private UserRealm realm = null;
 
-    public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test.xml";
+    public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test-uniqueId.xml";
 
-    private static String TEST_URL = "jdbc:h2:./target/BasicJDBCDatabaseTest/CARBON_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/BasicJDBCDatabaseTestID/CARBON_TEST";
 
     public void setUp() throws Exception {
         super.setUp();
@@ -68,7 +68,7 @@ public class JDBCRealmTest extends BaseTestCase {
 
     public void initRealmStuff(String dbUrl) throws Exception {
 
-        String dbFolder = "target/BasicJDBCDatabaseTest";
+        String dbFolder = "target/BasicJDBCDatabaseTestID";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
@@ -77,16 +77,10 @@ public class JDBCRealmTest extends BaseTestCase {
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
         ds.setUrl(dbUrl);
         DatabaseCreator creator = new DatabaseCreator(ds);
-
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String resourcesPath = new File("src/test/resources").getAbsolutePath();
-        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
-
         realm = new DefaultRealm();
         InputStream inStream = this.getClass().getClassLoader().getResource(
-                JDBCRealmTest.JDBC_TEST_USERMGT_XML).openStream();
+                JDBCRealmWithUniqueIDTest.JDBC_TEST_USERMGT_XML).openStream();
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
