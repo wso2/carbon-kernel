@@ -617,7 +617,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public boolean doCheckExistingUserName(String userName) throws UserStoreException {
+    public boolean doCheckExistingUserNameWithIDImpl(String userName) throws UserStoreException {
 
         String sqlStmt;
         String mappedAttribute = this.getUserNameMappedAttribute();

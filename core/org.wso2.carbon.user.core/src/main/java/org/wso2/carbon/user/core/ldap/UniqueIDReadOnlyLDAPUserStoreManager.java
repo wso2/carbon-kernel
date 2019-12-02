@@ -385,7 +385,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    public boolean doCheckExistingUserName(String userName) throws UserStoreException {
+    public boolean doCheckExistingUserNameWithIDImpl(String userName) throws UserStoreException {
 
         return super.doCheckExistingUser(userName);
     }

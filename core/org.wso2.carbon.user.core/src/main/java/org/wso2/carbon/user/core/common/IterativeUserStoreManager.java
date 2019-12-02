@@ -338,9 +338,9 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected boolean doCheckExistingUserName(String userName) throws UserStoreException {
+    protected boolean doCheckExistingUserNameWithIDImpl(String userName) throws UserStoreException {
 
-        return this.abstractUserStoreManager.doCheckExistingUserName(userName);
+        return this.abstractUserStoreManager.doCheckExistingUserNameWithIDImpl(userName);
     }
 
     @Override
