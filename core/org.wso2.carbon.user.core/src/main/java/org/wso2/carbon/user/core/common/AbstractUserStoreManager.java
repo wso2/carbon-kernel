@@ -7338,8 +7338,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             hybridRoleManager.addHybridRole(roleName, userList);
         } catch (UserStoreException e) {
             // In case of a unique constraint violation.
-            if (ERROR_CODE_ROLE_ALREADY_EXISTS.getCode().equals(e.getErrorCode())
-                    && hybridRoleManager.isExistingRole(roleName)) {
+            if (ERROR_CODE_ROLE_ALREADY_EXISTS.getCode().equals(e.getErrorCode())) {
                 handleRoleAlreadyExistException(roleName, userList, permissions);
             }
             // Otherwise, the error is propagated.
@@ -7360,10 +7359,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
             systemUserRoleManager.addSystemRole(roleName, userList);
         } catch (UserStoreException e) {
             if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE.getCode().contains(e.getErrorCode())) {
-                // Could be a possible unique constraint violation due to already existing role.
-                if (systemUserRoleManager.isExistingRole(roleName)) {
-                    handleRoleAlreadyExistException(roleName, userList, permissions);
-                }
+                // A unique constraint violation due to already existing role.
+                handleRoleAlreadyExistException(roleName, userList, permissions);
             }
             throw e;
         }
