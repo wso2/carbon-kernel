@@ -1154,6 +1154,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
             int offset, String sortBy, String sortOrder) throws UserStoreException {
 
+        // TODO: Need to improve this method to get the userID as well.
         PaginatedSearchResult userNames = super.doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
         UniqueIDPaginatedSearchResult userList = new UniqueIDPaginatedSearchResult();
         userList.setPaginatedSearchResult(userNames);

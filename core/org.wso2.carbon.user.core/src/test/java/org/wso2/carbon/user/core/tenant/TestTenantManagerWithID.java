@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -38,9 +38,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-public class TestTenantManager extends BaseTestCase{
+public class TestTenantManagerWithID extends BaseTestCase{
     private TenantManager tenantMan;
-    private static String TEST_URL = "jdbc:h2:./target/Tenanttest/TEN_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/TenanttestID/TEN_TEST";
     DefaultRealm realm = new DefaultRealm();
 
     public void setUp() throws Exception {
@@ -53,7 +53,7 @@ public class TestTenantManager extends BaseTestCase{
     }
 
     public void tenantDbStuff() throws Exception{
-        String dbFolder = "target/Tenanttest";
+        String dbFolder = "target/TenanttestID";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
@@ -64,12 +64,8 @@ public class TestTenantManager extends BaseTestCase{
 
         DatabaseCreator creator = new DatabaseCreator(ds);
 
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String resourcesPath = new File("src/test/resources").getAbsolutePath();
-        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
-
+        
         InputStream inStream = this.getClass().getClassLoader().getResource(JDBCRealmTest.JDBC_TEST_USERMGT_XML)
                 .openStream();
         RealmConfiguration realmConfig = TestRealmConfigBuilder
@@ -132,7 +128,5 @@ public class TestTenantManager extends BaseTestCase{
         //delete tenant
         tenantMan.deleteTenant(3);
         assertEquals(2,tenantMan.getAllTenants().length);
-
     }
-
 }

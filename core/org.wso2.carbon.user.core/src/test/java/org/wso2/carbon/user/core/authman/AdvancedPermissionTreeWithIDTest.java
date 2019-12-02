@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -36,14 +36,12 @@ import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
-public class AdvancedPermissionTreeTest extends BaseTestCase {
+public class AdvancedPermissionTreeWithIDTest extends BaseTestCase {
     private UserRealm realm = null;
     private UserStoreManager admin = null;
     AuthorizationManager authMan = null;
-    private String TEST_URL = "jdbc:h2:./target/permTreetest/CARBON_TEST";
+    private String TEST_URL = "jdbc:h2:./target/permTreetestId/CARBON_TEST";
 
     public void setUp() throws Exception {
         super.setUp();
@@ -61,7 +59,7 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
     }
 
     public void initRealmStuff() throws Exception {
-        String dbFolder = "target/permTreetest";
+        String dbFolder = "target/permTreetestId";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
@@ -71,15 +69,10 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
         ds.setUrl(TEST_URL);
 
         DatabaseCreator creator = new DatabaseCreator(ds);
-
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String resourcesPath = new File("src/test/resources").getAbsolutePath();
-        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         realm = new DefaultRealm();
-        InputStream inStream = this.getClass().getClassLoader().getResource(JDBCRealmTest.JDBC_TEST_USERMGT_XML).openStream();
+        InputStream inStream = this.getClass().getClassLoader().getResource("user-mgt-test-uniqueId.xml").openStream();
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
@@ -141,7 +134,4 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
         admin.deleteRole("Internal/role1");
         assertFalse(authMan.isUserAuthorized("indunil", "/s/t/u/v/w/x/y", "read"));
     }
-
 }
-
-

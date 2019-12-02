@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import javax.sql.DataSource;
@@ -52,10 +53,11 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     public void testStuff() throws Exception {
-        DatabaseUtil.closeDatabasePoolConnection();         
+        DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         doRoleStuff();
         doUserClaimValuesStuff();
+        DatabaseUtil.closeDatabasePoolConnection();
         /*commenting out following since
          1. earlier cached stuff by other test cases causes test failure.
          2. there is no way to clear authorization cache from the test case*/
@@ -73,8 +75,13 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         ds.setUrl("jdbc:h2:./target/ReadOnlyTest/CARBON_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
+
         this.addIntialData(ds);
         RealmConfigXMLProcessor builder = new RealmConfigXMLProcessor();
         InputStream inStream = this.getClass().getClassLoader().getResource(
@@ -85,6 +92,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
         assertTrue(realm.getUserStoreManager().isExistingRole("adminx"));
+        ds.close();
     }
 
     public void doRoleStuff() throws Exception {
@@ -165,7 +173,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     private void addIntialData(DataSource ds) throws Exception {
-        String sql = "INSERT INTO UM_USER (UM_USER_ID, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
+        String sql = "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, " +
                 "?, ?, ?)";
         Connection dbCon = ds.getConnection();
         dbCon.setAutoCommit(false);
@@ -202,7 +210,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         int[] count = stmt.executeBatch();
         assertEquals(6, count.length);
-        
+
 
         sql = "INSERT INTO UM_HYBRID_ROLE (UM_ROLE_NAME) VALUES (?)";
         stmt = dbCon.prepareStatement(sql);
@@ -212,23 +220,6 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         count = stmt.executeBatch();
         assertEquals(2, count.length);
-
-        sql = "INSERT INTO UM_USER_ATTRIBUTE (UM_ATTR_NAME,UM_ATTR_VALUE,UM_TENANT_ID,UM_USER_ID,UM_PROFILE_ID) " +
-                "VALUES (?,?,?,?,?)";
-        stmt = dbCon.prepareStatement(sql);
-        stmt.setString(1, "uid");
-        stmt.setString(2, "adminx");
-        stmt.setInt(3, -1234);
-        stmt.setInt(4, 2);
-        stmt.setString(5, "default");
-        stmt.addBatch();
-        stmt.setString(1, "uid");
-        stmt.setString(2, "saman");
-        stmt.setInt(3, -1234);
-        stmt.setInt(4, 4);
-        stmt.setString(5, "default");
-        stmt.addBatch();
-        stmt.executeBatch();
 
         dbCon.commit();
         dbCon.close();
