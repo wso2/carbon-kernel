@@ -21,7 +21,6 @@ package org.wso2.carbon.user.core.common;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserStoreManagerListener;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Map;
 
@@ -29,29 +28,35 @@ public abstract class AbstractUserStoreManagerListener implements UniqueIDUserSt
 
     public boolean authenticate(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     public boolean addUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     public boolean updateCredential(String userName, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     public boolean updateCredentialByAdmin(String userName, Object newCredential, UserStoreManager userStoreManager)
             throws UserStoreException {
+
         return true;
     }
 
     public boolean deleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 
     public boolean updateRoleName(String roleName, String newRoleName) throws UserStoreException {
+
         return true;
     }
 
@@ -59,9 +64,6 @@ public abstract class AbstractUserStoreManagerListener implements UniqueIDUserSt
     public boolean authenticateWithID(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (UserCoreUtil.isNewEventListenersEnabled()) {
-            return true;
-        }
         return authenticate(userName, credential, userStoreManager);
     }
 
@@ -69,9 +71,6 @@ public abstract class AbstractUserStoreManagerListener implements UniqueIDUserSt
     public boolean addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (UserCoreUtil.isNewEventListenersEnabled()) {
-            return true;
-        }
         return addUser(userName, credential, roleList, claims, profileName, userStoreManager);
     }
 
@@ -79,9 +78,6 @@ public abstract class AbstractUserStoreManagerListener implements UniqueIDUserSt
     public boolean updateCredentialWithID(String userID, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (UserCoreUtil.isNewEventListenersEnabled()) {
-            return true;
-        }
         return updateCredential(userID, newCredential, oldCredential, userStoreManager);
     }
 
@@ -89,18 +85,12 @@ public abstract class AbstractUserStoreManagerListener implements UniqueIDUserSt
     public boolean updateCredentialByAdminWithID(String userID, Object newCredential, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (UserCoreUtil.isNewEventListenersEnabled()) {
-            return true;
-        }
         return updateCredentialByAdmin(userID, newCredential, userStoreManager);
     }
 
     @Override
     public boolean deleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (UserCoreUtil.isNewEventListenersEnabled()) {
-            return true;
-        }
         return deleteUser(userID, userStoreManager);
     }
 }

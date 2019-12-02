@@ -362,7 +362,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
-    // TODO: Need to add this for new LDAPUserStoreManagers
     @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
 
@@ -1282,13 +1281,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 // Break the provided role list based on whether roles are shared or not
                 RoleBreakdown breakdown = getSharedRoleBreakdown(deletedRoles);
                 String[] roles = breakdown.getRoles();
-                // Integer[] tenantIds = breakdown.getTenantIds();
-
                 String[] sharedRoles = breakdown.getSharedRoles();
                 Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 String sqlStmt1;
-
                 if (roles.length > 0) {
                     sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER_WITH_ID);
                     if (sqlStmt1 == null) {
@@ -1326,8 +1322,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
 
                 String[] rolesToAdd = newRoleList.toArray(new String[0]);
-                // if user name and role names are prefixed with domain name,
-                // remove the domain name
+                // If user name and role names are prefixed with domain name, remove the domain name
                 RoleBreakdown breakdown = getSharedRoleBreakdown(rolesToAdd);
                 String[] roles = breakdown.getRoles();
                 String[] sharedRoles = breakdown.getSharedRoles();
@@ -1632,7 +1627,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        // no need to check old password here because we already authenticate in super class
+        // No need to check old password here because we already authenticate in super class
         this.doUpdateCredentialByAdminWithID(userID, newCredential);
     }
 
@@ -2743,7 +2738,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             return result;
         }
 
-        //Since we support only AND operation get expressions as a list.
+        // Since we support only AND operation get expressions as a list.
         List<ExpressionCondition> expressionConditions = new ArrayList<>();
         getExpressionConditions(condition, expressionConditions);
 

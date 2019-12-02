@@ -2496,18 +2496,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        // TODO: Need to check whether this is applicable
-        //        if (userManager instanceof JDBCUserStoreManager && (SCIM_USERNAME_CLAIM_URI.equalsIgnoreCase(claim) ||
-        //                SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
-        //            if (userManager.isExistingUser(claimValue)) {
-        //                return new String[] {claimValue};
-        //            } else {
-        //                return new String [0];
-        //            }
-        //        }
-
         claimValue = UserCoreUtil.removeDomainFromName(claimValue);
-
         final List<User> filteredUserList = new ArrayList<>();
 
         if (StringUtils.isNotEmpty(extractedDomain)) {
@@ -2826,12 +2815,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private void handleUpdateCredentialFailureWithID(String errorCode, String errorMessage, String userID,
             Object newCredential, Object oldCredential) throws UserStoreException {
 
-        if (UserCoreUtil.isNewEventListenersEnabled()) {
-            handleUpdateCredentialFailureInternal(errorCode, errorMessage, userID, newCredential, oldCredential);
-        } else {
-            handleUpdateCredentialFailureInternal(errorCode, errorMessage,
-                    getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, null), newCredential,
-                    oldCredential);
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
+                    .onUpdateCredentialFailureWithID(errorCode, errorMessage, userID, newCredential, oldCredential,
+                            this)) {
+                return;
+            }
         }
     }
 
@@ -2845,12 +2835,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param oldCredential Old credential.
      */
     private void handleUpdateCredentialFailure(String errorCode, String errorMessage, String userName,
-            Object newCredential, Object oldCredential) throws UserStoreException {
-
-        handleUpdateCredentialFailureInternal(errorCode, errorMessage, userName, newCredential, oldCredential);
-    }
-
-    private void handleUpdateCredentialFailureInternal(String errorCode, String errorMessage, String userName,
             Object newCredential, Object oldCredential) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
@@ -3386,7 +3370,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    // TODO: Handle migrated setup scenario
     /**
      * {@inheritDoc}
      */
@@ -4486,7 +4469,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public boolean isUniqueUserIdEnabled() {
 
-        return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_ID_ENABLED));
+        return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_ID_ENABLED));
     }
 
     /**
@@ -6585,7 +6568,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
-    // TODO: write in uniqeID LDAP classes
     /**
      * Method to get the password expiration time.
      *
