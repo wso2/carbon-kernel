@@ -51,6 +51,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -69,7 +70,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
             "This is the separator for multiple claim " + "values";
-    private static final ArrayList<Property> ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES = new ArrayList<>();
+    private static final List<Property> UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES = new ArrayList<>();
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
@@ -746,7 +747,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_PROPERTIES.toArray(new Property[0]));
         properties.setOptionalProperties(
                 ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.toArray(new Property[0]));
-        properties.setAdvancedProperties(ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
+        properties.setAdvancedProperties(UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
         return properties;
     }
 
@@ -901,7 +902,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static void setAdvancedProperties() {
 
         // Set Advanced Properties
-        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
+        UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
         setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
                 UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
@@ -969,7 +970,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
 
         Property property = new Property(name, value, displayName + "#" + description, null);
-        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
+        UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
     }
 
 }
