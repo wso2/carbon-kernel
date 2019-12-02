@@ -23,6 +23,7 @@ import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -37,11 +38,12 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
             super.setUp();
     }
 
+    public void testClaimManger() throws Exception {
 
-     public void testClaimManger() throws Exception{
         initObjStuff();
         doClaimStuff();
-     }
+        DatabaseUtil.closeDatabasePoolConnection();
+    }
 
 
     public void initObjStuff() throws Exception{

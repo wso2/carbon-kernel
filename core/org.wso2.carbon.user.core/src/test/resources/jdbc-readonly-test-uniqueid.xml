@@ -1,5 +1,5 @@
 <!--
- ~ Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -25,15 +25,14 @@
                 <Password>adminy</Password>
             </AdminUser>
             <EveryOneRoleName>everyonex</EveryOneRoleName>
-            <Property name="url">jdbc:h2:./target/ReadOnlyTest/CARBON_TEST</Property>
+            <Property name="url">jdbc:h2:./target/ReadOnlyTestID/CARBON_TEST</Property>
             <Property name="driverName">org.h2.Driver</Property>
             <Property name="maxActive">50</Property>
             <Property name="maxWait">60000</Property>
             <Property name="minIdle">5</Property>
         </Configuration>
-        <UserStoreManager
-                class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
-            <Property name="url">jdbc:h2:./target/ReadOnlyTest/CARBON_TEST</Property>
+        <UserStoreManager class="org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager">
+            <Property name="url">jdbc:h2:./target/ReadOnlyTestID/CARBON_TEST</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="driverName">org.h2.Driver</Property>
             <Property name="maxActive">50</Property>
@@ -54,10 +53,11 @@
             <!--<Property name="GetProfileNamesSQL">SELECT DISTINCT UM_PROFILE_ID FROM UM_USER_ATTRIBUTE WHERE UM_TENANT_ID=?</Property>-->
             <Property name="PasswordDigest">SHA-256</Property>
             <Property name="TenantManager">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
+            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager>
         <AuthorizationManager
-                class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
+            class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
             <Property name="AuthorizationCacheEnabled">true</Property>
-        </AuthorizationManager>
+            </AuthorizationManager>
     </Realm>
 </UserManager>

@@ -40,6 +40,7 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -64,6 +65,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         doUserRoleStuff();
         doAuthorizationStuff();
         doClaimStuff();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void initRealmStuff() throws Exception {
@@ -78,7 +80,12 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         ds.setUrl(TEST_URL);
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         realm = new DefaultRealm();
         InputStream inStream = this.getClass().getClassLoader().getResource(JDBCRealmTest.JDBC_TEST_USERMGT_XML).openStream();
@@ -92,6 +99,7 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         method.setAccessible(true);
         method.invoke(new UMListenerServiceComponent(), sampleAbstractUserManagementErrorListener);
         method.setAccessible(false);
+        ds.close();
     }
 
     public void doUserStuff() throws Exception {
