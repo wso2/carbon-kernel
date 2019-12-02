@@ -91,6 +91,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
 
 public abstract class AbstractUserStoreManager implements UserStoreManager, PaginatedUserStoreManager {
 
@@ -7334,12 +7335,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         try {
             hybridRoleManager.addHybridRole(roleName, userList);
         } catch (UserStoreException e) {
-            // Could be already existing error or unique constraint violation, either of them could point to already
-            // existing role issue.
-            if (hybridRoleManager.isExistingRole(roleName)) {
+            // In case of a unique constraint violation.
+            if (ERROR_CODE_ROLE_ALREADY_EXISTS.getCode().equals(e.getErrorCode())
+                    && hybridRoleManager.isExistingRole(roleName)) {
                 handleRoleAlreadyExistException(roleName, userList, permissions);
             }
-
             // Otherwise, the error is propagated.
             throw e;
         }
