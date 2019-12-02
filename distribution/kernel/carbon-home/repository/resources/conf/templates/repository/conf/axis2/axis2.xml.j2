@@ -627,9 +627,7 @@
         <parameter name="localMemberPort">{{clustering.local_member_port}}</parameter>
 
         {% for property_name,property_value in clustering.properties.items() %}
-        {% if property_name != 'clusterName' and property_name != 'vpcCidrBlock' %}
         <parameter name="{{property_name}}">{{property_value}}</parameter>
-        {% endif %}
         {% endfor %}
         <!--
             The bind port of this member. The difference between localMemberPort & localMemberBindPort
