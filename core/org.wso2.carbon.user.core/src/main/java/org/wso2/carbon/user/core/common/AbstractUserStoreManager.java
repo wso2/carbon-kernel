@@ -90,7 +90,6 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
 
 public abstract class AbstractUserStoreManager implements UserStoreManager, PaginatedUserStoreManager {
@@ -5154,6 +5153,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
 
         // #################### Domain Name Free Zone Starts Here ################################
         String domainModeratedRoleName = removeDomainIfNotApplicationRole(roleName);
+        if (hybridRoleManager.isExistingRole(domainModeratedRoleName)) {
+            handleRoleAlreadyExistException(domainModeratedRoleName, userList, permissions);
+        }
         createHybridRole(domainModeratedRoleName, userList, permissions);
 
         if (permissions != null) {
@@ -5185,7 +5187,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager, Pagi
         String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
         String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), roleName);
         handleAddRoleFailure(errorCode, errorMessage, roleName, userList, permissions);
-        throw new UserStoreException(errorCode + " - " + errorMessage);
+        throw new UserStoreException(errorCode + " - " + errorMessage, errorCode, null);
     }
 
     /**

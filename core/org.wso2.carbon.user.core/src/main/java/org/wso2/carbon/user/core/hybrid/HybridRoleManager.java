@@ -105,8 +105,7 @@ public class HybridRoleManager {
                         roleName, tenantId);
                 dbConnection.commit();
             } else {
-                String errMsg = getRoleAlreadyExistsErrorMessage(roleName);
-                throw new UserStoreException(errMsg);
+                throwRoleAlreadyExistsError(roleName);
             }
             if (userList != null) {
                 String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
@@ -124,20 +123,25 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException | UserStoreException e) {
+        } catch (UserStoreException e) {
             String errorMessage = "Error occurred while adding hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(((UserStoreException) e)
-                    .getErrorCode())) {
-                // Duplicate entry
-                String errMsg = getRoleAlreadyExistsErrorMessage(roleName);
-                throw new UserStoreException(errMsg, e);
-            } else {
-                // Other SQL Exception
-                throw new UserStoreException(e.getMessage(), e);
+            // handle duplicate entry.
+            if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                throwRoleAlreadyExistsError(roleName);
             }
+
+            // Propagate any other.
+            throw e;
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while adding hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            // Other SQL Exception
+            throw new UserStoreException(e.getMessage(), e);
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting database type from DB connection";
             if (log.isDebugEnabled()) {
@@ -942,11 +946,11 @@ public class HybridRoleManager {
         return sqlStmt;
     }
 
-    private String getRoleAlreadyExistsErrorMessage(String roleName) {
+    private void throwRoleAlreadyExistsError(String roleName) throws UserStoreException{
 
         String errorCode = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
         String errorMessage = String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS
                 .getMessage(), roleName);
-        return errorCode + " - " + errorMessage;
+        throw new UserStoreException(errorCode + " - " + errorMessage, errorCode, null);
     }
 }
