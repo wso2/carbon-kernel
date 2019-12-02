@@ -27,6 +27,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -45,8 +46,6 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 
 public class HybridRoleManager {
@@ -106,8 +105,7 @@ public class HybridRoleManager {
                         roleName, tenantId);
                 dbConnection.commit();
             } else {
-                throw new UserStoreException("Role name: " + roleName
-                        + " in the system. Please pick another role name.");
+                throwRoleAlreadyExistsError(roleName);
             }
             if (userList != null) {
                 String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
@@ -125,19 +123,25 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException | UserStoreException e) {
+        } catch (UserStoreException e) {
             String errorMessage = "Error occurred while adding hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(((UserStoreException) e)
-                    .getErrorCode())) {
-                // Duplicate entry
-                throw new UserStoreException(e.getMessage(), ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), e);
-            } else {
-                // Other SQL Exception
-                throw new UserStoreException(e.getMessage(), e);
+            // handle duplicate entry.
+            if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                throwRoleAlreadyExistsError(roleName);
             }
+
+            // Propagate any other.
+            throw e;
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while adding hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            // Other SQL Exception
+            throw new UserStoreException(e.getMessage(), e);
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting database type from DB connection";
             if (log.isDebugEnabled()) {
@@ -940,5 +944,13 @@ public class HybridRoleManager {
             sqlStmt = getRoleListOfUserSQLConfig;
         }
         return sqlStmt;
+    }
+
+    private void throwRoleAlreadyExistsError(String roleName) throws UserStoreException{
+
+        String errorCode = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS
+                .getMessage(), roleName);
+        throw new UserStoreException(errorCode + " - " + errorMessage, errorCode, null);
     }
 }
