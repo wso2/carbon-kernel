@@ -202,8 +202,23 @@ public class LDAPConnectionContext {
             environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
         }
 
+        // Set readTimeout value if provided in configuration. Otherwise set it to default value.
         if (StringUtils.isNotEmpty(readTimeout)) {
             environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
+        } else {
+            environment.put("com.sun.jndi.ldap.read.timeout", "5000");
+        }
+
+        // Set socket factory for not verifying SSL certificate.
+        boolean isSSLCertificateValidationEnabled = true;
+        String valueForSSLCertificateValidationEnabled = realmConfig.getUserStoreProperty(UserStoreConfigConstants.
+                SSLCertificateValidationEnabled);
+        if (StringUtils.isNotEmpty(valueForSSLCertificateValidationEnabled)) {
+            isSSLCertificateValidationEnabled = Boolean.parseBoolean(valueForSSLCertificateValidationEnabled);
+        }
+
+        if (!isSSLCertificateValidationEnabled) {
+            environment.put("java.naming.ldap.factory.socket", NonVerifyingSSLSocketFactory.class.getName());
         }
 
         // Set StartTLS option if provided in the configuration. Otherwise normal connection.

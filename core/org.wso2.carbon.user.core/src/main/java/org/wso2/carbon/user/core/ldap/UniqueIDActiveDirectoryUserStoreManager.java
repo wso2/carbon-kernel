@@ -51,6 +51,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -69,7 +70,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
             "This is the separator for multiple claim " + "values";
-    private static final ArrayList<Property> ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
+    private static final List<Property> UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES = new ArrayList<>();
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
@@ -154,10 +155,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         boolean isUserBinded = false;
 
-        /* getting search base directory context */
+        // getting search base directory context
         DirContext dirContext = getSearchBaseDirectoryContext();
 
-        /* getting add user basic attributes */
+        // getting add user basic attributes
         BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
 
         if (!isADLDSRole) {
@@ -167,7 +168,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             basicAttributes.put(userAccountControl);
         }
 
-        /* setting claims */
+        // setting claims
         setUserClaims(claims, basicAttributes, userID, userName);
 
         Secret credentialObj;
@@ -182,14 +183,14 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             NameParser ldapParser = dirContext.getNameParser("");
             compoundName = ldapParser.parse("cn=" + escapeSpecialCharactersForDN(userName));
 
-            /* bind the user. A disabled user account with no password */
+            // bind the user. A disabled user account with no password
             dirContext.bind(compoundName, null, basicAttributes);
             isUserBinded = true;
 
-            /* update the user roles */
+            // update the user roles
             doUpdateRoleListOfUser(userName, null, roleList);
 
-            /* reset the password and enable the account */
+            // reset the password and enable the account
             if (!isSSLConnection) {
                 logger.warn("Unsecured connection is being used. Enabling user account operation will fail");
             }
@@ -620,9 +621,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 }
                 updatedAttributes.put(currentUpdatedAttribute);
             }
-            // update the attributes in the relevant entry of the directory
-            // store
-
+            // update the attributes in the relevant entry of the directory store
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE, updatedAttributes);
 
@@ -705,7 +704,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             }
 
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-            /* if updated attribute value is null, remove its values. */
+            // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
@@ -727,9 +726,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             }
             updatedAttributes.put(currentUpdatedAttribute);
 
-            // update the attributes in the relevant entry of the directory
-            // store
-
+            // update the attributes in the relevant entry of the directory store
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE, updatedAttributes);
 
@@ -750,7 +747,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_PROPERTIES.toArray(new Property[0]));
         properties.setOptionalProperties(
                 ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.toArray(new Property[0]));
-        properties.setAdvancedProperties(ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
+        properties.setAdvancedProperties(UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
         return properties;
     }
 
@@ -810,7 +807,6 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 logger.debug("Replace escape characters configured to: " + replaceEscapeCharactersAtUserLoginString);
             }
         }
-        //TODO: implement character escaping for *
 
         if (replaceEscapeCharacters) {
             StringBuilder sb = new StringBuilder();
@@ -905,11 +901,12 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
     private static void setAdvancedProperties() {
 
-        //Set Advanced Properties
-        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
+        // Set Advanced Properties
+        UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
+        setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
+                UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
                 UserStoreConfigConstants.SCIMEnabledDescription);
-
         setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
         setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true",
                 UserStoreConfigConstants.emptyRolesAllowedDescription);
@@ -973,7 +970,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
 
         Property property = new Property(name, value, displayName + "#" + description, null);
-        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
+        UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
     }
 
 }

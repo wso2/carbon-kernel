@@ -1129,9 +1129,4 @@ public final class UserCoreUtil {
         return usersList;
     }
 
-    // TODO: read a config
-    public static boolean isNewEventListenersEnabled() {
-        return false;
-    }
-
 }

@@ -19,14 +19,18 @@
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.user.api.Properties;
+import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
@@ -38,6 +42,8 @@ import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
+import org.wso2.carbon.user.core.ldap.LDAPConstants;
+import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
@@ -90,6 +96,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final List<Property> UNIQUE_ID_JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
 
     public UniqueIDJDBCUserStoreManager() {
 
@@ -362,7 +372,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     }
 
-    // TODO: Need to add this for new LDAPUserStoreManagers
     @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
 
@@ -608,7 +617,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public boolean doCheckExistingUserName(String userName) throws UserStoreException {
+    public boolean doCheckExistingUserNameWithIDImpl(String userName) throws UserStoreException {
 
         String sqlStmt;
         String mappedAttribute = this.getUserNameMappedAttribute();
@@ -1282,13 +1291,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 // Break the provided role list based on whether roles are shared or not
                 RoleBreakdown breakdown = getSharedRoleBreakdown(deletedRoles);
                 String[] roles = breakdown.getRoles();
-                // Integer[] tenantIds = breakdown.getTenantIds();
-
                 String[] sharedRoles = breakdown.getSharedRoles();
                 Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 String sqlStmt1;
-
                 if (roles.length > 0) {
                     sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER_WITH_ID);
                     if (sqlStmt1 == null) {
@@ -1326,8 +1332,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
 
                 String[] rolesToAdd = newRoleList.toArray(new String[0]);
-                // if user name and role names are prefixed with domain name,
-                // remove the domain name
+                // If user name and role names are prefixed with domain name, remove the domain name
                 RoleBreakdown breakdown = getSharedRoleBreakdown(rolesToAdd);
                 String[] roles = breakdown.getRoles();
                 String[] sharedRoles = breakdown.getSharedRoles();
@@ -1632,7 +1637,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        // no need to check old password here because we already authenticate in super class
+        // No need to check old password here because we already authenticate in super class
         this.doUpdateCredentialByAdminWithID(userID, newCredential);
     }
 
@@ -2743,7 +2748,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             return result;
         }
 
-        //Since we support only AND operation get expressions as a list.
+        // Since we support only AND operation get expressions as a list.
         List<ExpressionCondition> expressionConditions = new ArrayList<>();
         getExpressionConditions(condition, expressionConditions);
 
@@ -3188,6 +3193,18 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
             getExpressionConditions(rightCondition, expressionConditions);
         }
+    }
+
+    @Override
+    public Properties getDefaultUserStoreProperties() {
+
+        Properties defaultUserStoreProperties = super.getDefaultUserStoreProperties();
+        Property[] advancedProperties = defaultUserStoreProperties.getAdvancedProperties();
+        Property property = new Property(UserStoreConfigConstants.UserIDEnabled, "true",
+                "Enable User ID" + "#" + UserStoreConfigConstants.UserIDEnabledDescription, null);
+        advancedProperties = (Property[]) ArrayUtils.add(advancedProperties, property);
+        defaultUserStoreProperties.setAdvancedProperties(advancedProperties);
+        return defaultUserStoreProperties;
     }
 
     @Override
