@@ -2273,7 +2273,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
-        UserStoreManager userManager = null;
+        UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
             userManager = getSecondaryUserStoreManager(extractedDomain);
             if (log.isDebugEnabled()) {
@@ -2498,7 +2498,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
-        UserStoreManager userManager = null;
+        UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
             userManager = getSecondaryUserStoreManager(extractedDomain);
             if (log.isDebugEnabled()) {
@@ -8848,7 +8848,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
-        UserStoreManager userManager = null;
+        UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
             userManager = getSecondaryUserStoreManager(extractedDomain);
             if (log.isDebugEnabled()) {
@@ -12932,7 +12932,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
-        UserStoreManager userManager = null;
+        UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
             userManager = getSecondaryUserStoreManager(extractedDomain);
             if (log.isDebugEnabled()) {
