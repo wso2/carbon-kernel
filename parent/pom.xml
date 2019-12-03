@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.5.4-SNAPSHOT</version>
+    <version>4.6.0-m1</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -314,9 +314,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.5.4-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.6.0-m1</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
-        <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.6.0)</carbon.kernel.imp.pkg.version>
+        <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.7.0)</carbon.kernel.imp.pkg.version>
 
         <!-- Equinox dependency versions -->
         <version.equinox.simpleconfigurator>1.1.200.v20160504-1450</version.equinox.simpleconfigurator>
@@ -628,7 +628,7 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.8.5</version.com.google.code.gson>
 
-        <test.framework.version>4.4.3</test.framework.version>
+        <test.framework.version>4.4.4</test.framework.version>
         <testng.verson>6.10</testng.verson>
         <org.apacheds.version>1.5.5</org.apacheds.version>
 
