@@ -34,9 +34,13 @@ import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
+import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -96,6 +100,18 @@ public class UserStoreMgtDSComponent {
 
             UserStoreManager activeDirectoryUserStoreManager = new ActiveDirectoryUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager, null);
+
+            UserStoreManager uniqueIDjdbcUserStoreManager = new UniqueIDJDBCUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDjdbcUserStoreManager, null);
+
+            UserStoreManager uniqueIDreadWriteLDAPUserStoreManager = new UniqueIDReadWriteLDAPUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDreadWriteLDAPUserStoreManager, null);
+
+            UserStoreManager uniqueIDreadOnlyLDAPUserStoreManager = new UniqueIDReadOnlyLDAPUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDreadOnlyLDAPUserStoreManager, null);
+
+            UserStoreManager uniqueIDactiveDirectoryUserStoreManager = new UniqueIDActiveDirectoryUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDactiveDirectoryUserStoreManager, null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 

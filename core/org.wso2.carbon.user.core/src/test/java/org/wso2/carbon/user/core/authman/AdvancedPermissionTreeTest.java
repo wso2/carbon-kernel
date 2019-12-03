@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -56,6 +57,7 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
         dorolestuff();
         doAuthorizationstuff();
         doTestUserRoleCachingInCaseInsensitiveUsername();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void initRealmStuff() throws Exception {
@@ -69,7 +71,12 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
         ds.setUrl(TEST_URL);
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         realm = new DefaultRealm();
         InputStream inStream = this.getClass().getClassLoader().getResource(JDBCRealmTest.JDBC_TEST_USERMGT_XML).openStream();
@@ -77,12 +84,10 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
+        ds.close();
     }
 
     public void dorolestuff() throws Exception {
-        Map<String, String> getClaims = new HashMap<String, String>();
-        getClaims.put(ClaimTestUtil.CLAIM_URI1, "1claim1Value");
-        getClaims.put(ClaimTestUtil.CLAIM_URI2, "2claim2Value");
 
         Permission[] permisions = new Permission[2];
         permisions[0] = new Permission("high security", "read");

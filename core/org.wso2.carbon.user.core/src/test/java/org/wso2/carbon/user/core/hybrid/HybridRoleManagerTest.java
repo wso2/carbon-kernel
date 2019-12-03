@@ -27,7 +27,9 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -53,6 +55,8 @@ public class HybridRoleManagerTest extends BaseTestCase {
         initDataSource(TEST_URL);
         initRealmStuff(JDBCRealmTest.JDBC_TEST_USERMGT_XML);
         doHybridRoleOperations();
+        ds.close();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     private void initRealmStuff(String userMgtxml) throws Exception {
@@ -79,7 +83,11 @@ public class HybridRoleManagerTest extends BaseTestCase {
         ds.setUrl(dbUrl);
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
         UserCoreUtil.persistDomain(PRIMARY, MultitenantConstants.SUPER_TENANT_ID, ds);
     }
 

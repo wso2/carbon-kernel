@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
+import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
@@ -1449,7 +1450,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 // Integer[] tenantIds = breakdown.getTenantIds();
 
                 String[] sharedRoles = breakdown.getSharedRoles();
-                Integer[] sharedTenantIds = breakdown.getSharedTenantids();
+                Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 String sqlStmt2 = null;
                 String type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -1540,11 +1541,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    /**
-     *
-     */
     public void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException {
-
 
         if (shared && isSharedGroupEnabled()) {
             doAddSharedRole(roleName, userList);
@@ -2000,7 +1997,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         // Shared roles and tenant ids
         breakdown.setSharedRoles(sharedRoles.toArray(new String[sharedRoles.size()]));
-        breakdown.setSharedTenantids(sharedTenantIds.toArray(new Integer[sharedTenantIds.size()]));
+        breakdown.setSharedTenantIDs(sharedTenantIds.toArray(new Integer[sharedTenantIds.size()]));
 
         return breakdown;
 
@@ -2029,7 +2026,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 // Integer[] tenantIds = breakdown.getTenantIds();
 
                 String[] sharedRoles = breakdown.getSharedRoles();
-                Integer[] sharedTenantIds = breakdown.getSharedTenantids();
+                Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 String sqlStmt1 = null;
 
@@ -2093,7 +2090,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 // Integer[] tenantIds = breakdown.getTenantIds();
 
                 String[] sharedRoles = breakdown.getSharedRoles();
-                Integer[] sharedTenantIds = breakdown.getSharedTenantids();
+                Integer[] sharedTenantIds = breakdown.getSharedTenantIDs();
 
                 if (roles.length > 0) {
 
@@ -2429,9 +2426,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     *
+     * Get the password exiparation time of the user.
+     * @param userName username.
+     * @return date.
+     * @throws UserStoreException
      */
-    public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+    public Date doGetPasswordExpirationTime(String userName) throws UserStoreException {
 
         if (userName != null && userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             return super.getPasswordExpirationTime(userName);
@@ -4534,47 +4534,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         return count;
-    }
-
-    public class RoleBreakdown {
-        private String[] roles;
-        private Integer[] tenantIds;
-
-        private String[] sharedRoles;
-        private Integer[] sharedTenantids;
-
-        public String[] getRoles() {
-            return roles;
-        }
-
-        public void setRoles(String[] roles) {
-            this.roles = roles;
-        }
-
-        public Integer[] getTenantIds() {
-            return tenantIds;
-        }
-
-        public void setTenantIds(Integer[] tenantIds) {
-            this.tenantIds = tenantIds;
-        }
-
-        public String[] getSharedRoles() {
-            return sharedRoles;
-        }
-
-        public void setSharedRoles(String[] sharedRoles) {
-            this.sharedRoles = sharedRoles;
-        }
-
-        public Integer[] getSharedTenantids() {
-            return sharedTenantids;
-        }
-
-        public void setSharedTenantids(Integer[] sharedTenantids) {
-            this.sharedTenantids = sharedTenantids;
-        }
-
     }
 
     private boolean isCaseSensitiveUsername() {

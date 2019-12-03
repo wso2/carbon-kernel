@@ -29,6 +29,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -54,6 +55,7 @@ public class PermissionTest extends BaseTestCase {
         checkCamelCasePermissionsForRoleAfterClearAuthorization();
         checkPrimaryRolePermissionAfterDeletingInternalRole();
         checkCaseSensitivePermissionWithPropertyTrue();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void initRealmStuff() throws Exception {
@@ -69,7 +71,12 @@ public class PermissionTest extends BaseTestCase {
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
         ds.setUrl(TEST_URL);
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         realm = new DefaultRealm();
 
@@ -79,13 +86,14 @@ public class PermissionTest extends BaseTestCase {
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
+        ds.close();
     }
 
     public void checkPermission() throws Exception {
         UserStoreManager usManager = realm.getUserStoreManager();
         usManager.addRole("role1", null, null);
         usManager.addUser("user1", "pass1", new String[] { "role1" }, null, null, false);
-        
+
         AuthorizationManager authManager = realm.getAuthorizationManager();
         authManager.authorizeUser("dish", "/r1/", "read");
         authManager.denyUser("dish", "/r1/r2", "read");
@@ -96,7 +104,7 @@ public class PermissionTest extends BaseTestCase {
         assertFalse(authManager.isRoleAuthorized("role1", "/x1/x2", "read"));
 
         authManager.authorizeUser("user1", "/x1/x2", "read");
-        
+
         assertTrue(authManager.isRoleAuthorized("role1", "/x1", "read"));
         usManager.updateRoleName("role1", "role2");
         assertTrue(authManager.isRoleAuthorized("role2", "/x1", "read"));
@@ -104,16 +112,16 @@ public class PermissionTest extends BaseTestCase {
 
         assertTrue(authManager.isUserAuthorized("user1", "/x1/x2", "read"));
         assertTrue(authManager.isUserAuthorized("user1", "/x1", "read"));
-        
+
         usManager.addRole("bizdevrole", null, null);
         usManager.addUser("bizuser", "pass2", new String[] { "bizdevrole", EVERYONE_ROLE}, null, null, false);
-        
+
         authManager.authorizeRole(EVERYONE_ROLE, "/", "read");
         authManager.denyRole(EVERYONE_ROLE , "/wso2/bizzness", "read");
         authManager.authorizeRole("bizdevrole", "/wso2/bizzness", "read");
         assertTrue(authManager.isUserAuthorized("bizuser", "/wso2/bizzness", "read"));
     }
-    
+
     public void checkRepeatingPermission() throws Exception {
         AuthorizationManager authManager = realm.getAuthorizationManager();
         UserStoreManager usAdmin = realm.getUserStoreManager();

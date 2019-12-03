@@ -222,6 +222,7 @@ public class UserCoreConstants {
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
         public static final String LEADING_OR_TRAILING_SPACE_ALLOWED_IN_USERNAME =
                 "LeadingOrTrailingSpaceAllowedInUserName";
+        public static final String PROPERTY_USER_ID_ENABLED = "UserIDEnabled";
     }
 
     public static final class ClaimTypeURIs {

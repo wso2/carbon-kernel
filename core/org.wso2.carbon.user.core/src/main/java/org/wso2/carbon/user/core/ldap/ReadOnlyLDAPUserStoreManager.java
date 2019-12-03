@@ -615,7 +615,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
                 if (log.isDebugEnabled()) {
                     try {
-                        log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
+                        log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
+                                + dirContext.getNameInNamespace());
                     } catch (NamingException e) {
                         log.debug("Error while getting DN of search base", e);
                     }
@@ -631,7 +632,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     answer = dirContext.search(escapeDNForSearch(userDN), searchFilter, searchCtls);
                 } catch (PartialResultException e) {
                     // can be due to referrals in AD. so just ignore error
-                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN
+                            + " searchFilter : " + searchFilter;
                     if (isIgnorePartialResultException()) {
                         if (log.isDebugEnabled()) {
                             log.debug(errorMessage, e);
@@ -640,7 +642,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         throw new UserStoreException(errorMessage, e);
                     }
                 } catch (NamingException e) {
-                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN
+                            + " searchFilter : " + searchFilter;
                     if (log.isDebugEnabled()) {
                         log.debug(errorMessage, e);
                     }
@@ -649,76 +652,77 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             } else {
                 answer = this.searchForUser(searchFilter, propertyNames, dirContext);
             }
-            while (answer.hasMoreElements()) {
+            while (answer != null && answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
-                if (attributes != null) {
-                    for (String name : propertyNames) {
-                        if (name != null) {
-                            Attribute attribute = attributes.get(name);
-                            if (attribute != null) {
-                                StringBuffer attrBuffer = new StringBuffer();
-                                for (attrs = attribute.getAll(); attrs.hasMore(); ) {
-                                    Object attObject = attrs.next();
-                                    String attr = null;
-                                    if (attObject instanceof String) {
-                                        attr = (String) attObject;
-                                    } else if (attObject instanceof byte[]) {
-                                        // return canonical representation of UUIDs or base64 encoded string of other binary data
-                                        // Active Directory attribute: objectGUID
-                                        // RFC 4530 attribute: entryUUID
-                                        final byte[] bytes = (byte[]) attObject;
-                                        if (bytes.length == 16 && name.endsWith("UID")) {
-                                            // objectGUID byte order is not big-endian
-                                            // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
-                                            // https://community.oracle.com/thread/1157698
-                                            if (name.equals(OBJECT_GUID)) {
-                                                // check the property for objectGUID transformation
-                                                String property =
-                                                        realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+                if (attributes == null) {
+                    continue;
+                }
+                for (String name : propertyNames) {
+                    if (name == null) {
+                        continue;
+                    }
+                    Attribute attribute = attributes.get(name);
+                    if (attribute == null) {
+                        continue;
+                    }
+                    StringBuffer attrBuffer = new StringBuffer();
+                    for (attrs = attribute.getAll(); attrs.hasMore(); ) {
+                        Object attObject = attrs.next();
+                        String attr = null;
+                        if (attObject instanceof String) {
+                            attr = (String) attObject;
+                        } else if (attObject instanceof byte[]) {
+                            // return canonical representation of UUIDs or base64 encoded string of other binary data
+                            // Active Directory attribute: objectGUID
+                            // RFC 4530 attribute: entryUUID
+                            final byte[] bytes = (byte[]) attObject;
+                            if (bytes.length == 16 && name.endsWith("UID")) {
+                                // objectGUID byte order is not big-endian
+                                // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                                // https://community.oracle.com/thread/1157698
+                                if (name.equals(OBJECT_GUID)) {
+                                    // check the property for objectGUID transformation
+                                    String property =
+                                            realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
-                                                boolean transformObjectGuidToUuid = StringUtils.isEmpty(property) ||
-                                                        Boolean.parseBoolean(property);
+                                    boolean transformObjectGuidToUuid = StringUtils.isEmpty(property) ||
+                                            Boolean.parseBoolean(property);
 
-                                                if (transformObjectGuidToUuid) {
-                                                    final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
-                                                    attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
-                                                } else {
-                                                    // Ignore transforming objectGUID to UUID canonical format
-                                                    attr = new String(Base64.encodeBase64((byte[]) attObject));
-                                                }
-                                            }
-                                        } else {
-                                            attr = new String(Base64.encodeBase64((byte[]) attObject));
-                                        }
+                                    if (transformObjectGuidToUuid) {
+                                        final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
+                                        attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+                                    } else {
+                                        // Ignore transforming objectGUID to UUID canonical format
+                                        attr = new String(Base64.encodeBase64((byte[]) attObject));
                                     }
-
-                                    if (attr != null && attr.trim().length() > 0) {
-                                        String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-                                        if (attrSeparator != null && !attrSeparator.trim().isEmpty()) {
-                                            userAttributeSeparator = attrSeparator;
-                                        }
-                                        attrBuffer.append(attr + userAttributeSeparator);
-                                    }
-                                    String value = attrBuffer.toString();
-
-                                /*
-                                 * Length needs to be more than userAttributeSeparator.length() for a valid
-                                 * attribute, since we
-                                 * attach userAttributeSeparator
-                                 */
-                                    if (value != null && value.trim().length() > userAttributeSeparator.length()) {
-                                        value = value.substring(0, value.length() - userAttributeSeparator.length());
-                                        values.put(name, value);
-                                    }
-
                                 }
+                            } else {
+                                attr = new String(Base64.encodeBase64((byte[]) attObject));
                             }
+                        }
+
+                        if (attr != null && attr.trim().length() > 0) {
+                            String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                            if (attrSeparator != null && !attrSeparator.trim().isEmpty()) {
+                                userAttributeSeparator = attrSeparator;
+                            }
+                            attrBuffer.append(attr + userAttributeSeparator);
+                        }
+                        String value = attrBuffer.toString();
+
+                        /*
+                         * Length needs to be more than userAttributeSeparator.length() for a valid
+                         * attribute, since we
+                         * attach userAttributeSeparator
+                         */
+                        if (value != null && value.trim().length() > userAttributeSeparator.length()) {
+                            value = value.substring(0, value.length() - userAttributeSeparator.length());
+                            values.put(name, value);
                         }
                     }
                 }
             }
-
         } catch (NamingException e) {
             String errorMessage = "Error occurred while getting user property values for user : " + userName;
             if (log.isDebugEnabled()) {
@@ -1028,7 +1032,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         throw new UserStoreException("Error occurred while getting users count with claims ");
     }
 
-    private NamingEnumeration<SearchResult> searchForUsers(String finalFilter,
+    protected NamingEnumeration<SearchResult> searchForUsers(String finalFilter,
                                                            String searchBase, String
                                                                    searchBases, int maxItemLimit, String[] returnedAtts)
             throws UserStoreException {

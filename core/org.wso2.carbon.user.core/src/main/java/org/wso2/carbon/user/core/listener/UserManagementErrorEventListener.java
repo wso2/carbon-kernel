@@ -322,8 +322,8 @@ public interface UserManagementErrorEventListener {
      * @return true if the handing succeeded.
      * @throws UserStoreException Exception that will be thrown during the execution of the method.
      */
-    default boolean onGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue, int
-            limit, int offset, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+    default boolean onGetUserListFailure(String errorCode, String errorMessage, String claim, String claimValue,
+            int limit, int offset, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -360,8 +360,8 @@ public interface UserManagementErrorEventListener {
      * @return true if handling succeeded.
      * @throws UserStoreException User Store Exception will be thrown if there is an issue during execution.
      */
-    boolean onUpdatePermissionsOfRoleFailure(String errorCode, String errorMessage, String roleName, Permission[]
-            permissions, UserStoreManager userStoreManager) throws UserStoreException;
+    boolean onUpdatePermissionsOfRoleFailure(String errorCode, String errorMessage, String roleName,
+            Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Defines any additional actions that need to be done if there is a failure retrieving paginated user list.
@@ -375,8 +375,8 @@ public interface UserManagementErrorEventListener {
      * @return true if the handing succeeded.
      * @throws UserStoreException Exception that will be thrown during the execution of the method.
      */
-    default boolean onGetPaginatedUserListFailure(String errorCode, String errorMessage, String claim, String claimValue,
-            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+    default boolean onGetPaginatedUserListFailure(String errorCode, String errorMessage, String claim,
+            String claimValue, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }

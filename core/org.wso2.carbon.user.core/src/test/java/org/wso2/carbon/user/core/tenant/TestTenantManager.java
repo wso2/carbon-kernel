@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -62,14 +63,18 @@ public class TestTenantManager extends BaseTestCase{
         ds.setUrl(TEST_URL);
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         InputStream inStream = this.getClass().getClassLoader().getResource(JDBCRealmTest.JDBC_TEST_USERMGT_XML)
                 .openStream();
         RealmConfiguration realmConfig = TestRealmConfigBuilder
                 .buildRealmConfigWithJDBCConnectionUrl(inStream, TEST_URL);
-        realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil.getProfileTestData(), 0);
-
+        realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil.getProfileTestData(), -1234);
         tenantMan = new JDBCTenantManager(ds, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
         DefaultRealmService defaultRealmService = new DefaultRealmService(realmConfig,tenantMan);

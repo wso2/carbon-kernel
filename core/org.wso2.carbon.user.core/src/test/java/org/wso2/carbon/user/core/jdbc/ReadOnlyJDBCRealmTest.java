@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import javax.sql.DataSource;
@@ -52,10 +53,11 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
     }
 
     public void testStuff() throws Exception {
-        DatabaseUtil.closeDatabasePoolConnection();         
+        DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         doRoleStuff();
         doUserClaimValuesStuff();
+        DatabaseUtil.closeDatabasePoolConnection();
         /*commenting out following since
          1. earlier cached stuff by other test cases causes test failure.
          2. there is no way to clear authorization cache from the test case*/
@@ -73,8 +75,13 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         ds.setUrl("jdbc:h2:./target/ReadOnlyTest/CARBON_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
+
         this.addIntialData(ds);
         RealmConfigXMLProcessor builder = new RealmConfigXMLProcessor();
         InputStream inStream = this.getClass().getClassLoader().getResource(
@@ -85,6 +92,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
         assertTrue(realm.getUserStoreManager().isExistingRole("adminx"));
+        ds.close();
     }
 
     public void doRoleStuff() throws Exception {
@@ -202,7 +210,7 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         int[] count = stmt.executeBatch();
         assertEquals(6, count.length);
-        
+
 
         sql = "INSERT INTO UM_HYBRID_ROLE (UM_ROLE_NAME) VALUES (?)";
         stmt = dbCon.prepareStatement(sql);
@@ -212,8 +220,8 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         count = stmt.executeBatch();
         assertEquals(2, count.length);
+
         dbCon.commit();
-        
         dbCon.close();
     }
 }

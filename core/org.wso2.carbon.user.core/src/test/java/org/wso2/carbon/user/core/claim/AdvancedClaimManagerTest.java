@@ -23,6 +23,7 @@ import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -37,11 +38,12 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
             super.setUp();
     }
 
+    public void testClaimManger() throws Exception {
 
-     public void testClaimManger() throws Exception{
         initObjStuff();
         doClaimStuff();
-     }
+        DatabaseUtil.closeDatabasePoolConnection();
+    }
 
 
     public void initObjStuff() throws Exception{
@@ -84,7 +86,7 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
         
         // get all the claim URIs
         String[] ClmURI = claimMan.getAllClaimUris();
-        assertEquals(3,ClmURI.length);
+        assertEquals(4,ClmURI.length);
         
         // get the attribute name for a given claimURI
         // if the claimURI is null it will return a null value.
@@ -129,12 +131,12 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
         ClaimMapping[] CM2 = (ClaimMapping[]) claimMan.getAllRequiredClaimMappings();
         Arrays.sort(CM2,new ClaimSorter());//sorting C2 array
 
-        assertEquals(3,CM2.length);
+        assertEquals(4,CM2.length);
         Claim C2 = CM2[2].getClaim();
         assertEquals("Given Name3",C2.getDisplayTag());
-        assertEquals(3,claimMan.getAllRequiredClaimMappings().length);
-        assertEquals(3,claimMan.getAllSupportClaimMappingsByDefault().length);
-        assertEquals(3,claimMan.getAllClaimMappings().length);
+        assertEquals(4,claimMan.getAllRequiredClaimMappings().length);
+        assertEquals(4,claimMan.getAllSupportClaimMappingsByDefault().length);
+        assertEquals(4,claimMan.getAllClaimMappings().length);
 
 
         //void addNewClaimMapping(ClaimMapping mapping) add new mappings
@@ -142,9 +144,9 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
         for(ClaimMapping x:NewclaimMapping){
             claimMan.addNewClaimMapping(x);
         }
-        assertEquals(4,claimMan.getAllSupportClaimMappingsByDefault().length);
-        assertEquals(4,claimMan.getAllRequiredClaimMappings().length);
-        assertEquals(6,claimMan.getAllClaimMappings().length);
+        assertEquals(5,claimMan.getAllSupportClaimMappingsByDefault().length);
+        assertEquals(5,claimMan.getAllRequiredClaimMappings().length);
+        assertEquals(7,claimMan.getAllClaimMappings().length);
 
 
         //update an existing mapping
@@ -152,15 +154,15 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
         NewclaimMapping[1].getClaim().setRequired(true);
         claimMan.updateClaimMapping(NewclaimMapping[1]);
 
-        assertEquals(5,claimMan.getAllRequiredClaimMappings().length);
+        assertEquals(6,claimMan.getAllRequiredClaimMappings().length);
         assertEquals("The Update claim5",NewclaimMapping[1].getClaim().getDescription());
 
 
         //delete an existing mapping
         claimMan.deleteClaimMapping(NewclaimMapping[0]);
-        assertEquals(4,claimMan.getAllRequiredClaimMappings().length);
-        assertEquals(4,claimMan.getAllSupportClaimMappingsByDefault().length);
-        assertEquals(5,claimMan.getAllClaimMappings().length);
+        assertEquals(5,claimMan.getAllRequiredClaimMappings().length);
+        assertEquals(5,claimMan.getAllSupportClaimMappingsByDefault().length);
+        assertEquals(6,claimMan.getAllClaimMappings().length);
     }
 
     public Map<String, ClaimMapping> doClaimBuilderStuff() throws Exception{

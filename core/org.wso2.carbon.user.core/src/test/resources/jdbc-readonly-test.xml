@@ -32,7 +32,7 @@
             <Property name="minIdle">5</Property>
         </Configuration>
         <UserStoreManager
-            class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
+                class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
             <Property name="url">jdbc:h2:./target/ReadOnlyTest/CARBON_TEST</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="driverName">org.h2.Driver</Property>
@@ -56,8 +56,8 @@
             <Property name="TenantManager">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
         </UserStoreManager>
         <AuthorizationManager
-            class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
+                class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
             <Property name="AuthorizationCacheEnabled">true</Property>
-            </AuthorizationManager>
+        </AuthorizationManager>
     </Realm>
 </UserManager>

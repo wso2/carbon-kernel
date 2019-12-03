@@ -28,12 +28,12 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.authman.AdvancedPermissionTreeTest;
 import org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -63,6 +63,7 @@ public class JDBCRealmTest extends BaseTestCase {
         doUserRoleStuff();
         doAuthorizationStuff();
         doClaimStuff();
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void initRealmStuff(String dbUrl) throws Exception {
@@ -76,7 +77,12 @@ public class JDBCRealmTest extends BaseTestCase {
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
         ds.setUrl(dbUrl);
         DatabaseCreator creator = new DatabaseCreator(ds);
+
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
 
         realm = new DefaultRealm();
         InputStream inStream = this.getClass().getClassLoader().getResource(
@@ -108,10 +114,10 @@ public class JDBCRealmTest extends BaseTestCase {
 
         String[] roles = jdbcAuthnManager.getAllowedRolesForResource("/permission/admin", "ui.execute");
         assertEquals(roles.length,1);
-        
-        
+
+
         jdbcAuthnManager.clearPermissionTree();
-        
+
         //the tree should automatically be loaded on next call
         roles = jdbcAuthnManager.getAllowedRolesForResource("/permission/admin", "ui.execute");
         assertEquals(roles.length,1);
@@ -132,9 +138,7 @@ public class JDBCRealmTest extends BaseTestCase {
         admin.addUser("dimuthu", "credential", null, null, null, false);
         admin.addRole("role1", new String[] { "dimuthu" }, permisions);
         admin.addUser("vajira", "credential", new String[] { "role1" }, userProps, null, false);
-        int id = admin.getUserId("dimuthu");
-        int tenatId = admin.getTenantId("dimuthu");
-        
+
         // authenticate
         assertTrue(admin.authenticate("dimuthu", "credential"));
 
@@ -158,6 +162,7 @@ public class JDBCRealmTest extends BaseTestCase {
         // delete
         admin.deleteUser("vajira");
         assertFalse(admin.authenticate("vajira", "credential"));
+
         admin.addUser("vajira", "credential", new String[] { "role1" }, userProps, null, false);
         admin.deleteRole("role1");
         admin.addRole("role1", new String[] { "dimuthu" }, permisions);

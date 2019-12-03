@@ -22,8 +22,11 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
@@ -66,6 +69,7 @@ public final class UserCoreUtil {
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
     private static RealmService realmService = null;
+
     /*
      * When user authenticates with out domain, need to set the domain of the user store that he
      * belongs to, as a thread local variable.
@@ -1113,4 +1117,16 @@ public final class UserCoreUtil {
 
         Arrays.fill(bytes, (byte) 0);
     }
+
+    public static List<User> getUserList(String[] userList) {
+
+        List<User> usersList = new ArrayList<>();
+        for (String userID : userList) {
+            User user = new User();
+            user.setUserID(userID);
+            usersList.add((user));
+        }
+        return usersList;
+    }
+
 }

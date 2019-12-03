@@ -1,7 +1,7 @@
 {
   "user_store.type": {
     "database": {
-      "user_store.class": "org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager",
+      "user_store.class": "org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
       "user_store.properties.ReadOnly": false,
       "user_store.properties.WriteGroups": true,
@@ -14,8 +14,9 @@
       "user_store.properties.StoreSaltedPassword": true,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.UserNameUniqueAcrossTenants": false,
-      "tenant_mgt.tenant_manager.type": "jdbc",
-      "user_store.properties.EnableMaxUserLimitForSCIM": "false"
+      "user_store.properties.UserIDEnabled": true,
+      "user_store.properties.EnableMaxUserLimitForSCIM": "false",
+      "tenant_mgt.tenant_manager.type": "jdbc"
     },
     "read_only_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager",

@@ -28,15 +28,16 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
+import javax.sql.DataSource;
 
 public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
 
@@ -50,6 +51,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         doRoleStuff();
+        DatabaseUtil.closeDatabasePoolConnection();
         /*commenting out following since
          1. earlier cached stuff by other test cases causes test failure.
          2. there is no way to clear authorization cache from the test case*/
@@ -67,8 +69,12 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         ds.setUrl("jdbc:h2:./target/advjdbcrotest/CARBON_TEST");
 
         DatabaseCreator creator = new DatabaseCreator(ds);
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String resourcesPath = new File("src/test/resources").getAbsolutePath();
+        System.setProperty(ServerConstants.CARBON_HOME, resourcesPath);
         creator.createRegistryDatabase();
-        
+        System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
+
         this.addIntialData(ds);
         RealmConfigXMLProcessor builder = new RealmConfigXMLProcessor();
         InputStream inStream = this.getClass().getClassLoader().getResource(
@@ -78,9 +84,10 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         realm = new DefaultRealm();
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), -1234);
-        assertTrue(realm.getUserStoreManager().isExistingRole("adminx"));    
+        assertTrue(realm.getUserStoreManager().isExistingRole("adminx"));
+        ds.close();
     }
-    
+
     public void doRoleStuff() throws Exception {
         UserStoreManager admin = realm.getUserStoreManager();
 
@@ -251,7 +258,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
            //caught exception
         }
         //authMan.isRoleAuthorized("roley", "table", "write");
-        
+
         authMan.clearResourceAuthorizations("wall");
         try{
             authMan.clearResourceAuthorizations(null);
@@ -303,7 +310,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         int[] count = stmt.executeBatch();
         assertEquals(6, count.length);
-        
+
 
         sql = "INSERT INTO UM_HYBRID_ROLE (UM_ROLE_NAME) VALUES (?)";
         stmt = dbCon.prepareStatement(sql);
@@ -313,8 +320,9 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         count = stmt.executeBatch();
         assertEquals(2, count.length);
+
         dbCon.commit();
-        
+
         dbCon.close();
     }
 }
