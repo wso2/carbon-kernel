@@ -529,6 +529,7 @@ public class HybridRoleManager {
             }
             for (int i = 0; i < userNames.size(); i++) {
 
+                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                 usernameParameter.append("'").append(userNames.get(i)).append("'");
 
                 if (i != userNames.size() - 1) {
@@ -541,6 +542,7 @@ public class HybridRoleManager {
             }
             for (int i = 0; i < userNames.size(); i++) {
 
+                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                 usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
 
                 if (i != userNames.size() - 1) {
