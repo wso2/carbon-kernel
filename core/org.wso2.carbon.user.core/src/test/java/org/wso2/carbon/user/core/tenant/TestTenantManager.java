@@ -29,6 +29,7 @@ import org.wso2.carbon.user.core.common.DefaultRealmService;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -50,6 +51,7 @@ public class TestTenantManager extends BaseTestCase{
     public void testTenantManager() throws Exception {
         tenantDbStuff(); //create db instance
         doTenantStuff(); // do tenantManager stuff
+        DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void tenantDbStuff() throws Exception{
