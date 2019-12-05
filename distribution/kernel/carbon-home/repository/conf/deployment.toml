@@ -3,7 +3,7 @@ hostname = "localhost"
 node_ip = "127.0.0.1"
 
 [user_store]
-type = "database"
+type = "database_unique_id"
 
 [database.shared_db]
 type = "h2"

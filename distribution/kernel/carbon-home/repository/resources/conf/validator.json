@@ -2,7 +2,7 @@
   "user_store.type": [
     {
       "default_value": "database",
-      "regex": "\\Adatabase\\Z|\\Aread_only_ldap\\Z|\\Aread_write_ldap\\Z|\\Aactive_directory\\Z"
+      "regex": "\\Adatabase\\Z|\\Aread_only_ldap\\Z|\\Aread_write_ldap\\Z|\\Aactive_directory\\Z|\\Adatabase_unique_id\\Z|\\Aread_only_ldap_unique_id\\Z|\\Aread_write_ldap_unique_id\\Z|\\Aactive_directory_unique_id\\Z"
     }
   ],
   "user_store.properties.ConnectionURL": [
