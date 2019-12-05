@@ -76,6 +76,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
@@ -3129,7 +3130,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -3210,7 +3211,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(1, tenantId);

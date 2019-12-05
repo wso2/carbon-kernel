@@ -2769,12 +2769,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         DirContext dirContext = this.connectionSource.getContext();
         LdapContext ldapContext = (LdapContext) dirContext;
         List<String> users;
+        List<String> ldapUsers = new ArrayList<>();
         String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         try {
             ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
                     new SortControl(userNameAttribute, Control.NONCRITICAL)});
             users = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
-            result.setUsers(users.toArray(new String[0]));
+            for (String ldapUser : users) {
+                ldapUsers.add(UserCoreUtil.addDomainToName(ldapUser, getMyDomainName()));
+            }
+            result.setUsers(ldapUsers.toArray(new String[0]));
             return result;
         } catch (NamingException e) {
             log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()));
