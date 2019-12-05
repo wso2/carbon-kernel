@@ -21,10 +21,9 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.Constants;
-import org.apache.catalina.valves.StuckThreadDetectionValve;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
 import org.wso2.carbon.tomcat.ext.internal.Utils;
 
@@ -43,7 +42,7 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
     /**
      * Logger
      */
-    private static final Log log = LogFactory.getLog(StuckThreadDetectionValve.class);
+    private static final Log log = LogFactory.getLog(CarbonStuckThreadDetectionValve.class);
 
     /**
      * The string manager for this package.
