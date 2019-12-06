@@ -8,7 +8,7 @@
       "user_store.properties.UsernameJavaRegEx": "^[\\S]{3,30}$",
       "user_store.properties.RolenameJavaRegEx": "^[\\S]{3,30}$",
       "user_store.properties.CaseInsensitiveUsername": true,
-      "user_store.properties.SCIMEnabled": false,
+      "user_store.properties.SCIMEnabled": true,
       "user_store.properties.IsBulkImportSupported": true,
       "user_store.properties.PasswordDigest": "SHA-256",
       "user_store.properties.StoreSaltedPassword": true,
