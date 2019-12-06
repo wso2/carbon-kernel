@@ -3111,6 +3111,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE);
                 for (int i = 0; i < users.size(); i++) {
 
+                    users.set(i, users.get(i).replaceAll("'", "''"));
                     usernameParameter.append("'").append(users.get(i)).append("'");
 
                     if (i != users.size() - 1) {
@@ -3122,6 +3123,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                         JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
                 for (int i = 0; i < users.size(); i++) {
 
+                    users.set(i, users.get(i).replaceAll("'", "''"));
                     usernameParameter.append("LOWER('").append(users.get(i)).append("')");
 
                     if (i != users.size() - 1) {
@@ -3189,6 +3191,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
                 for (int i = 0; i < userNames.size(); i++) {
 
+                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                     usernameParameter.append("'").append(userNames.get(i)).append("'");
 
                     if (i != userNames.size() - 1) {
@@ -3203,6 +3206,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
                 for (int i = 0; i < userNames.size(); i++) {
 
+                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                     usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
 
                     if (i != userNames.size() - 1) {
