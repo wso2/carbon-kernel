@@ -186,9 +186,6 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         indexPageURL = CarbonUILoginUtil.getIndexPageUrlFromCookie(requestedURI, indexPageURL,
                 request);
 
-        // If a custom index page is used send the login request with the indexpage specified
-        indexPageURL = CarbonUILoginUtil.getCustomIndexPage(request, indexPageURL);
-
         // Reading home page set on product.xml
         // If the params in the servletcontext is null get them from the UTIL
         indexPageURL = updateIndexPageWithHomePage(indexPageURL);

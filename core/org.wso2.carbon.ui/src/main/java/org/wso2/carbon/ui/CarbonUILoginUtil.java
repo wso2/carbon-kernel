@@ -169,6 +169,7 @@ public final class CarbonUILoginUtil {
      * @param indexPageURL
      * @return
      */
+    @Deprecated
     protected static String getCustomIndexPage(HttpServletRequest request, String indexPageURL) {
         // If a custom index page is used send the login request with the index page specified
         if (request.getParameter(CarbonConstants.INDEX_PAGE_URL) != null) {
