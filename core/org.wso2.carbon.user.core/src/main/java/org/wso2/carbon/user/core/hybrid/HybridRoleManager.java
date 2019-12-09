@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -528,6 +529,7 @@ public class HybridRoleManager {
             }
             for (int i = 0; i < userNames.size(); i++) {
 
+                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                 usernameParameter.append("'").append(userNames.get(i)).append("'");
 
                 if (i != userNames.size() - 1) {
@@ -540,6 +542,7 @@ public class HybridRoleManager {
             }
             for (int i = 0; i < userNames.size(); i++) {
 
+                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                 usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
 
                 if (i != userNames.size() - 1) {
@@ -548,7 +551,7 @@ public class HybridRoleManager {
             }
         }
 
-        sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
             prepStmt.setInt(1, tenantId);

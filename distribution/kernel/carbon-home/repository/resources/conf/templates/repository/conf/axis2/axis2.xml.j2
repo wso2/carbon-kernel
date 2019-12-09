@@ -19,7 +19,11 @@
     <!-- ================================================= -->
     <!-- Globally engaged modules -->
     <!-- ================================================= -->
+    {% if server.disable_addressing is sameas true %}
+    <!--module ref="addressing"/-->
+    {% else %}
     <module ref="addressing"/>
+    {% endif %}
 
     <!-- ================================================= -->
     <!-- Parameters -->
