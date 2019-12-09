@@ -77,6 +77,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
@@ -3110,6 +3111,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE);
                 for (int i = 0; i < users.size(); i++) {
 
+                    users.set(i, users.get(i).replaceAll("'", "''"));
                     usernameParameter.append("'").append(users.get(i)).append("'");
 
                     if (i != users.size() - 1) {
@@ -3121,6 +3123,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                         JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
                 for (int i = 0; i < users.size(); i++) {
 
+                    users.set(i, users.get(i).replaceAll("'", "''"));
                     usernameParameter.append("LOWER('").append(users.get(i)).append("')");
 
                     if (i != users.size() - 1) {
@@ -3129,7 +3132,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -3188,6 +3191,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
                 for (int i = 0; i < userNames.size(); i++) {
 
+                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                     usernameParameter.append("'").append(userNames.get(i)).append("'");
 
                     if (i != userNames.size() - 1) {
@@ -3202,6 +3206,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
                 for (int i = 0; i < userNames.size(); i++) {
 
+                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
                     usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
 
                     if (i != userNames.size() - 1) {
@@ -3210,7 +3215,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(1, tenantId);
