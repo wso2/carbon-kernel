@@ -87,6 +87,8 @@ public class Utils {
     /**
      * For a given Zip file, process each entry.
      *
+     * @deprecated Inputs provided to this method are not validated, to mitigate an External Control of
+     * File Name or Path vulnerability. Therefore, this method is deprecated and will be removed in a future release.
      * @param zipFileLocation zipFileLocation
      * @param targetLocation  targetLocation
      * @throws org.wso2.carbon.core.CarbonException
