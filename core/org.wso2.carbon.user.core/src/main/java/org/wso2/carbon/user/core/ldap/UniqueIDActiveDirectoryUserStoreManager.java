@@ -142,8 +142,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         String userID = getUniqueUserID();
         persistUser(userID, userName, credential, roleList, claims);
-        User user = getUser(userID, userName, profileName);
-        return user;
+        return getUser(userID, userName, profileName);
     }
 
     /**
@@ -188,7 +187,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             isUserBinded = true;
 
             // update the user roles
-            doUpdateRoleListOfUser(userName, null, roleList);
+            doUpdateRoleListOfUserWithID(userID, null, roleList);
 
             // reset the password and enable the account
             if (!isSSLConnection) {
@@ -570,7 +569,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
 
-            String domainName = userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > -1 ?
+            String domainName = userName.contains(UserCoreConstants.DOMAIN_SEPARATOR) ?
                     userName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0] :
                     realmConfig.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
             for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
