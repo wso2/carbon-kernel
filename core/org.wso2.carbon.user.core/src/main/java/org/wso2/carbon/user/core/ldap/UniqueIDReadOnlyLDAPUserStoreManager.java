@@ -657,7 +657,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     rangedMembershipProperty =
                             membershipProperty + String.format(";range=%1$d-%2$d", offset, lastRecord);
                 }
-                String returnedAtts[] = { rangedMembershipProperty };
+                String[] returnedAtts = { rangedMembershipProperty };
                 searchCtls.setReturningAttributes(returnedAtts);
 
                 SearchResult sr = null;
@@ -976,7 +976,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                                 log.error("More than element user exist with name");
                                 throw new UserStoreException("More than element user exist with name");
                             }
-                            SearchResult sr = (SearchResult) answer.next();
+                            SearchResult sr = answer.next();
                             count++;
                             list = parseSearchResult(sr, null);
                         }
@@ -1142,7 +1142,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
 
         if (log.isDebugEnabled()) {
-            String[] results = values.toArray(new String[values.size()]);
+            String[] results = values.toArray(new String[0]);
             for (String result : results) {
                 log.debug("result: " + result);
             }

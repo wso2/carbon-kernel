@@ -261,8 +261,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         String userID = getUniqueUserID();
         persistUser(userID, userName, credential, roleList, claims);
-        User user = getUser(userID, userName, profileName);
-        return user;
+        return getUser(userID, userName, profileName);
 
     }
 
@@ -318,7 +317,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (roleList != null && roleList.length > 0) {
             try {
                 /* update the user roles */
-                doUpdateRoleListOfUser(userName, null, roleList);
+                doUpdateRoleListOfUserWithID(userID, null, roleList);
                 if (log.isDebugEnabled()) {
                     log.debug("Roles are added for user  : " + userName + " successfully.");
                 }
@@ -540,7 +539,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             // LDAP roles of user to delete the mapping
 
             List<String> roles = new ArrayList<>();
-            String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
+            String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
             roles.addAll(Arrays.asList(externalRoles));
             if (isSharedGroupEnabled()) {
                 String[] sharedRoles = doGetSharedRolesListOfUser(userName, null, "*");
@@ -562,7 +561,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     searchFilter = ((LDAPRoleContext) context).getSearchFilter();
                     role = context.getRoleName();
 
-                    if (role.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > -1) {
+                    if (role.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
                         role = (role.split(CarbonConstants.DOMAIN_SEPARATOR))[1];
                     }
                     String grpSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
@@ -580,7 +579,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     }
                 }
                 // Delete role list.
-                doUpdateRoleListOfUser(userName, rolesOfUser, new String[] {});
+                doUpdateRoleListOfUserWithID(userID, rolesOfUser, new String[] {});
             }
 
             // Delete user entry if it exist.
