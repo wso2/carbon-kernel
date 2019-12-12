@@ -11494,7 +11494,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user ID
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected String getUserIDFromUserName(String userName) throws UserStoreException {
+    public String getUserIDFromUserName(String userName) throws UserStoreException {
 
         return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
     }
@@ -11506,7 +11506,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user name.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
         throw new NotImplementedException("getUserNameFromUserID operation is not implemented in: " + this.getClass());
     }
@@ -11550,7 +11550,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user ID.
      * @throws UserStoreException UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
         throw new NotImplementedException(
