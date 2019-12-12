@@ -21,8 +21,10 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.model.Condition;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,9 +36,39 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
     /**
      * Defines any additional actions that need to be done when there is an authentication failure.
      *
+     * @param errorCode              Error code.
+     * @param errorMessage           Error Message.
+     * @param preferredUserNameClaim Preferred username claim.
+     * @param preferredUserNameValue Preferred username value.
+     * @param credential             Relevant credential provided.
+     * @param userStoreManager       UserStore Manager.
+     * @return true if the handling succeeded.
+     * @throws UserStoreException Exception that will be thrown during erroneous scenarios.
+     */
+    boolean onAuthenticateFailureWithID(String errorCode, String errorMessage, String preferredUserNameClaim,
+            String preferredUserNameValue, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done when there is an authentication failure.
+     *
      * @param errorCode        Error code.
      * @param errorMessage     Error Message.
-     * @param userID           Name of the User.
+     * @param loginIdentifiers Login identifiers.
+     * @param credential       Relevant credential provided.
+     * @param userStoreManager UserStore Manager.
+     * @return true if the handling succeeded.
+     * @throws UserStoreException Exception that will be thrown during erroneous scenarios.
+     */
+    boolean onAuthenticateFailureWithID(String errorCode, String errorMessage, List<LoginIdentifier> loginIdentifiers,
+            Object credential, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done when there is an authentication failure.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error Message.
+     * @param userID           user ID.
      * @param credential       Relevant credential provided.
      * @param userStoreManager UserStore Manager.
      * @return true if the handling succeeded.

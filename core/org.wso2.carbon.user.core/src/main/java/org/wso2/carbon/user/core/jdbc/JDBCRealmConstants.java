@@ -22,6 +22,7 @@ public final class JDBCRealmConstants {
     public static final String SELECT_USER = "SelectUserSQL";
     public static final String SELECT_USER_ID_WITH_ID = "SelectUserIDWithIDSQL";
     public static final String SELECT_USER_WITH_ID = "SelectUserWithIDSQL";
+    public static final String SELECT_USER_ID = "SelectUserIDSQL";
     public static final String GET_ROLE_LIST = "GetRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_USER_FILTER = "UserFilterSQL";
@@ -126,6 +127,8 @@ public final class JDBCRealmConstants {
             "AND UM_TENANT_ID = ? AND UM_ATTR_VALUE LIKE ? AND UM_PROFILE_ID = ?";
     public static final String COUNT_USERS_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME LIKE ? " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_SQL = "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
+    public static final String SELECT_USER_ID_SQL = "SELECT UM_USER_ID, UM_USER_PASSWORD, UM_SALT_VALUE, "
+            + "UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?";
     public static final String SELECT_USER_ID_WITH_ID_SQL = "SELECT UM_USER.UM_REQUIRE_CHANGE, UM_USER"
             + ".UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?";
     public static final String SELECT_USER_WITH_ID_SQL = "SELECT UM_USER.UM_USER_ID, UM_USER.UM_USER_PASSWORD, "

@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
@@ -320,7 +321,57 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions before actual authentication is happen.
      *
-     * @param userID           User ID of User.
+     * @param preferredUserNameClaim Preferred username claim.
+     * @param preferredUserNameValue Preferred username value.
+     * @param credential             Credential/password of the user.
+     * @param userStoreManager       The underlying UserStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean doPreAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Define any additional actions after actual authentication is happen.
+     *
+     * @param preferredUserNameClaim Preferred username claim.
+     * @param preferredUserNameValue Preferred username value.
+     * @param authenticated          where user is authenticated or not.
+     * @param userStoreManager       The underlying UserStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean doPostAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
+            boolean authenticated, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Define any additional actions before actual authentication is happen.
+     *
+     * @param loginIdentifiers Login identifiers.
+     * @param credential       Credential/password of the user.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean doPreAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Define any additional actions after actual authentication is happen.
+     *
+     * @param loginIdentifiers Login identifiers.
+     * @param authenticated    where user is authenticated or not.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, boolean authenticated,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Define any additional actions before actual authentication is happen.
+     *
+     * @param userID           User ID.
      * @param credential       Credential/password of the user.
      * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
@@ -332,7 +383,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions after actual authentication is happen.
      *
-     * @param userID           User ID of User.
+     * @param userID           User ID.
      * @param authenticated    where user is authenticated or not.
      * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
@@ -340,7 +391,6 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      */
     boolean doPostAuthenticateWithID(String userID, boolean authenticated, UserStoreManager userStoreManager)
             throws UserStoreException;
-
     /**
      * Define any additional actions before user is added.
      *
