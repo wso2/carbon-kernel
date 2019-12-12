@@ -58,6 +58,14 @@
                     <groupId>org.opensaml</groupId>
                     <artifactId>opensaml1</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.opensaml</groupId>
+                    <artifactId>xmltooling</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.opensaml</groupId>
+                    <artifactId>openws</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -75,6 +83,10 @@
                 <exclusion>
                     <groupId>org.opensaml</groupId>
                     <artifactId>xmltooling</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.opensaml</groupId>
+                    <artifactId>openws</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
