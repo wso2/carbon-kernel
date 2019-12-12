@@ -33,7 +33,6 @@ import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -179,12 +178,17 @@ public class JDBCRealmWithUniqueIDTest extends BaseTestCase {
         String[] rolesOfSaman = admin.getRoleListOfUser("saman");
         assertEquals(3, rolesOfSaman.length);
 
+        admin.updateRoleListOfUser("saman", new String[]{"role3"}, null);
+
+        String[] rolesOfSamanNew = admin.getRoleListOfUser("saman");
+        assertEquals(2, rolesOfSamanNew.length);
+
         // negative
         admin.updateUserListOfRole("role2", new String[] { "saman" }, null);
         admin.updateUserListOfRole("role3", null, new String[] { "amara", "sunil" });
 
         String[] users = admin.getUserListOfRole("role3");
-        assertEquals(3, users.length);
+        assertEquals(2, users.length);
 
         // negative
         try {

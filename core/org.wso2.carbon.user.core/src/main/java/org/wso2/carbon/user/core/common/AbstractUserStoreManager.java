@@ -6011,6 +6011,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
+            userID = getUserIDFromUserName(userName);
+            if (userID == null) {
+                // According to implementation, getRoleListOfUser method would return everyone role name for all users.
+                return new String[]{realmConfig.getEveryOneRoleName()};
+            }
             roleNames = doGetRoleListOfUserWithID(userID, "*").toArray(new String[0]);
         } else {
             roleNames = doGetRoleListOfUser(userName, "*");
