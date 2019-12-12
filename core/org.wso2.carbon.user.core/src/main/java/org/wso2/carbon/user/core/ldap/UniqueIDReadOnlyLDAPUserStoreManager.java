@@ -45,6 +45,12 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -61,12 +67,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -263,6 +263,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             Object credential, String profileName) throws UserStoreException {
 
         AuthenticationResult authenticationResult;
+        if (!validateForWildCardCharacters(preferredUserNameValue)) {
+            String reason =
+                    "preferredUserNameValue is not valid. It contains LDAP special character/characters: " + preferredUserNameValue;
+            return handleAuthenticationFailure(reason);
+        }
         User user;
         String[] users = super.getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue,
                 profileName);
@@ -271,23 +276,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             String reason =
                     "Invalid scenario. No users found for the given username property: " + preferredUserNameValue
                             + " and value: " + preferredUserNameValue;
-            if (log.isDebugEnabled()) {
-                log.debug(reason);
-            }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
+            return handleAuthenticationFailure(reason);
 
         } else if (users.length > 1) {
             String reason =
                     "Invalid scenario. Multiple users found for the given username property: " + preferredUserNameValue
                             + " and value: " + preferredUserNameValue;
-            if (log.isDebugEnabled()) {
-                log.debug(reason);
-            }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
+            return handleAuthenticationFailure(reason);
         }
 
         if (super.doAuthenticate(users[0], credential)) {
@@ -298,7 +293,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
             authenticationResult.setAuthenticatedUser(user);
             return authenticationResult;
-
         } else {
             String reason =
                     "Authentication failed for the given username property: " + preferredUserNameValue + " and value: "
@@ -307,6 +301,30 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             authenticationResult.setFailureReason(new FailureReason(reason));
             return authenticationResult;
         }
+    }
+
+    private AuthenticationResult handleAuthenticationFailure(String reason) {
+
+        AuthenticationResult authenticationResult;
+        if (log.isDebugEnabled()) {
+            log.debug(reason);
+        }
+        authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+        authenticationResult.setFailureReason(new FailureReason(reason));
+        return authenticationResult;
+    }
+
+    private boolean validateForWildCardCharacters(String preferredUserNameValue) {
+
+        String[] ldapSpecialCharacters = {"*", "<", ">", "~", "!", ")", "("};
+        if (StringUtils.isNotEmpty(preferredUserNameValue)) {
+            for (String ldapSpecialCharacter : ldapSpecialCharacters) {
+                if (preferredUserNameValue.contains(ldapSpecialCharacter)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
