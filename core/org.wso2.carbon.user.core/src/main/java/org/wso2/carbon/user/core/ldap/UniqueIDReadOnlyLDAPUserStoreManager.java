@@ -554,7 +554,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
         try {
@@ -590,7 +590,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    protected String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
         String[] userNames = super.getUserListFromProperties(userIDAttribute, userID, profileName);

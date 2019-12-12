@@ -9955,7 +9955,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!((AbstractUserStoreManagerListener) listener)
-                        .authenticateWithID((preferredUserNameClaim, preferredUserNameValue, credentialArgument,
+                        .authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
                                 abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), preferredUserNameClaim,
