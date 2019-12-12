@@ -21,7 +21,6 @@ package org.wso2.carbon.user.core.common;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,7 +123,6 @@ public class UserUniqueIDManger {
             throws UserStoreException {
 
         String[] usernames = userStoreManager.getUserList(USER_ID_CLAIM, uniqueId, profile);
-
         if (usernames.length > 1) {
             throw new UserStoreException("More than one user presents with the same user unique id.");
         }

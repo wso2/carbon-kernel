@@ -3468,7 +3468,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Needs to clear roles cache upon deletion of a user
-        clearUserRolesCache(UserCoreUtil.addDomainToName(userName, getMyDomainName()));
+        clearUserRolesCache(userName);
 
         // #################### <Listeners> #####################################################
         try {
@@ -4414,11 +4414,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Clean the role cache since it contains old role information.
-        if (isUniqueUserIdEnabled) {
-            clearUserRolesCache(user.getUserID());
-        } else {
-            clearUserRolesCache(userName);
-        }
+        clearUserRolesCache(userName);
     }
 
     /**
@@ -4949,7 +4945,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        clearUserRolesCache(UserCoreUtil.addDomainToName(userName, getMyDomainName()));
+        clearUserRolesCache(userName);
 
         // Call the relevant listeners after updating the role list of user.
         try {
@@ -6003,20 +5999,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return userStore.getUserStoreManager().getRoleListOfUser(userStore.getDomainFreeName());
         }
 
-        if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            userID = getUserIDFromUserName(userName);
-            if (userID == null) {
-                // according to implementation, getRoleListOfUser method would return everyone role name for all users
-                return new String[]{realmConfig.getEveryOneRoleName()};
-            }
-            String userIDWithDomain = UserCoreUtil.addDomainToName(userID, getMyDomainName());
-            // Check whether roles exist in cache
-            roleNames = getRoleListOfUserFromCache(this.tenantId, userIDWithDomain);
-        } else {
-            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
-            // Check whether roles exist in cache
-            roleNames = getRoleListOfUserFromCache(this.tenantId, usernameWithDomain);
-        }
+        roleNames = getRoleListOfUserFromCache(this.tenantId, userName);
+
         if (roleNames != null && roleNames.length > 0) {
             return roleNames;
         }
@@ -7700,9 +7684,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (List<String>) object;
         }
 
-        List<String> roleList = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, userID));
-        if (!roleList.isEmpty()) {
-            return roleList;
+        String username = getUserNameFromUserID(userID, null);
+        if (username != null) {
+            List<String> roleList = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, username));
+            if (!roleList.isEmpty()) {
+                return roleList;
+            }
         }
 
         return getUserRolesWithID(userID, filter);
@@ -7737,7 +7724,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         }
-        addToUserRolesCache(this.tenantId, userID, roleList);
+
+        // Add to user role cache uisng username.
+        String username = getUserNameFromUserID(userID, null);
+        if (username != null) {
+            addToUserRolesCache(this.tenantId, username, roleList);
+        }
         return Arrays.asList(roleList);
     }
 
@@ -9890,11 +9882,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return new ArrayList<String>(){{ add(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME); }};
         }
 
-        String userIDWithDomain = UserCoreUtil.addDomainToName(userID, getMyDomainName());
         // Check whether roles exist in cache
-        roleNames = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, userIDWithDomain));
-        if (roleNames.size() > 0) {
-            return roleNames;
+        String username = getUserNameFromUserID(userID, null);
+        if (username != null) {
+            roleNames = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, username));
+            if (roleNames.size() > 0) {
+                return roleNames;
+            }
         }
 
         UserStore userStore = getUserStoreWithID(userID);
@@ -10967,7 +10961,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Needs to clear roles cache upon deletion of a user
-        clearUserRolesCache(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
+        clearUserRolesCache(userNameFromUserID != null ? userNameFromUserID : user.getUsername());
 
         // #################### <Listeners> #####################################################
         try {
@@ -11790,7 +11784,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        clearUserRolesCache(UserCoreUtil.addDomainToName(userID, getMyDomainName()));
+        // Clear user role cache from username.
+        String username = getUserNameFromUserID(userID, null);
+        if (username != null) {
+            clearUserRolesCache(username);
+        }
 
         // Call the relevant listeners after updating the role list of user.
         try {
@@ -12655,14 +12653,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         String[] roles = null;
 
-        roles = getRoleListOfUserFromCache(tenantId, userID);
-        if (roles != null && roles.length > 0) {
-            if (UserCoreUtil.isContain(roleName, roles)) {
-                return true;
+        String username = getUserNameFromUserID(userID, null);
+        if (username == null) {
+            roles = getRoleListOfUserFromCache(tenantId, userID);
+            if (roles != null && roles.length > 0) {
+                if (UserCoreUtil.isContain(roleName, roles)) {
+                    return true;
+                }
             }
         }
 
-        String modifiedUserName = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userID;
+        String modifiedUserName = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + username;
         roles = getRoleListOfUserFromCache(tenantId, modifiedUserName);
         if (roles != null && roles.length > 0) {
             if (UserCoreUtil.isContain(roleName, roles)) {
