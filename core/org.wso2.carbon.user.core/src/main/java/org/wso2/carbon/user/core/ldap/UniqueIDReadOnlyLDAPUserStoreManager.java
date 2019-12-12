@@ -35,6 +35,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
@@ -45,12 +46,6 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -67,6 +62,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -264,13 +265,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         AuthenticationResult authenticationResult;
         if (!validateForWildCardCharacters(preferredUserNameValue)) {
-            String reason =
-                    "preferredUserNameValue is not valid. It contains LDAP special character/characters: " + preferredUserNameValue;
+            String reason = "preferredUserNameValue is not valid. It contains LDAP special character/characters: "
+                    + preferredUserNameValue;
             return handleAuthenticationFailure(reason);
         }
         User user;
-        String[] users = super.getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue,
-                profileName);
+        String[] users = super
+                .getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
 
         if (ArrayUtils.isEmpty(users)) {
             String reason =
@@ -293,13 +294,232 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
             authenticationResult.setAuthenticatedUser(user);
             return authenticationResult;
+
         } else {
             String reason =
                     "Authentication failed for the given username property: " + preferredUserNameValue + " and value: "
                             + preferredUserNameValue;
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
+            return handleAuthenticationFailure(reason);
+        }
+    }
+
+    @Override
+    public AuthenticationResult doAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential)
+            throws UserStoreException {
+
+        AuthenticationResult authenticationResult;
+        User user;
+        List<String> users = doGetUserListFromProperties(loginIdentifiers);
+
+        if (users.isEmpty()) {
+            String reason = "Invalid scenario. No users found for the given username properties";
+            return handleAuthenticationFailure(reason);
+
+        } else if (users.size() > 1) {
+            String reason = "Invalid scenario. Multiple users found for the given username properties";
+            return handleAuthenticationFailure(reason);
+        }
+
+        if (super.doAuthenticate(users.get(0), credential)) {
+            String userName = users.get(0);
+            String userID = getUserIDFromUserName(userName);
+            user = getUser(userID, userName, null);
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
+            authenticationResult.setAuthenticatedUser(user);
             return authenticationResult;
+
+        } else {
+            String reason = "Authentication failed for the given username properties";
+            return handleAuthenticationFailure(reason);
+        }
+    }
+
+    protected List<String> doGetUserListFromProperties(List<LoginIdentifier> loginIdentifiers)
+            throws UserStoreException {
+
+        boolean debug = log.isDebugEnabled();
+        String userAttributeSeparator = ",";
+        String serviceNameAttribute = "sn";
+        List<String> results = new ArrayList<>();
+        String searchFilter;
+        String userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        searchFilter = getSearchFilter(loginIdentifiers);
+
+        DirContext dirContext = this.connectionSource.getContext();
+        NamingEnumeration<?> answer = null;
+        NamingEnumeration<?> attrs = null;
+
+        if (debug) {
+            log.debug("Listing users with SearchFilter: " + searchFilter);
+        }
+        String[] returnedAttributes = new String[] { userPropertyName, serviceNameAttribute };
+        String enableMaxUserLimitForSCIM = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST_FOR_SCIM);
+        try {
+            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
+                SearchControls searchCtls = new SearchControls();
+                searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                if (ArrayUtils.isNotEmpty(returnedAttributes)) {
+                    searchCtls.setReturningAttributes(returnedAttributes);
+                }
+                String nameInNamespace = null;
+                try {
+                    nameInNamespace = dirContext.getNameInNamespace();
+                } catch (NamingException e) {
+                    log.error("Error while getting DN of search base", e);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
+                            + nameInNamespace);
+                    if (ArrayUtils.isEmpty(returnedAttributes)) {
+                        log.debug("No attributes requested");
+                    } else {
+                        for (String attribute : returnedAttributes) {
+                            log.debug("Requesting attribute :" + attribute);
+                        }
+                    }
+                }
+                String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+                String[] searchBaseArray = searchBases.split("#");
+
+                for (String searchBase : searchBaseArray) {
+                    answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
+                            returnedAttributes);
+                    if (answer.hasMore()) {
+                        break;
+                    }
+                }
+            } else {
+                answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
+            }
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.next();
+                Attributes attributes = sr.getAttributes();
+                if (attributes != null) {
+                    Attribute attribute = attributes.get(userPropertyName);
+                    if (attribute != null) {
+                        StringBuffer attrBuffer = new StringBuffer();
+                        for (attrs = attribute.getAll(); attrs.hasMore(); ) {
+                            String attr = (String) attrs.next();
+                            if (attr != null && attr.trim().length() > 0) {
+
+                                String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                                if (attrSeparator != null && !attrSeparator.trim().isEmpty()) {
+                                    userAttributeSeparator = attrSeparator;
+                                }
+                                attrBuffer.append(attr + userAttributeSeparator);
+                                if (debug) {
+                                    log.debug(userPropertyName + " : " + attr);
+                                }
+                            }
+                        }
+                        String propertyValue = attrBuffer.toString();
+                        Attribute serviceNameObject = attributes.get(serviceNameAttribute);
+                        String serviceNameAttributeValue = null;
+                        if (serviceNameObject != null) {
+                            serviceNameAttributeValue = (String) serviceNameObject.get();
+                        }
+                        // Length needs to be more than userAttributeSeparator.length() for a valid
+                        // attribute, since we
+                        // attach userAttributeSeparator.
+                        if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
+                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
+                                continue;
+                            }
+                            propertyValue = propertyValue
+                                    .substring(0, propertyValue.length() - userAttributeSeparator.length());
+                            results.add(propertyValue);
+                        }
+                    }
+                }
+            }
+
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while getting user list with SearchFilter: " + searchFilter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            // close the naming enumeration and free up resources
+            JNDIUtil.closeNamingEnumeration(attrs);
+            JNDIUtil.closeNamingEnumeration(answer);
+            // close directory context
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        if (debug) {
+            for (String result : results) {
+                log.debug("result: " + result);
+            }
+        }
+        return results;
+    }
+
+    private String getSearchFilter(List<LoginIdentifier> loginIdentifiers) {
+
+        String userNameListFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+        StringBuilder searchFilter = new StringBuilder("(&" + userNameListFilter);
+
+        for (LoginIdentifier loginIdentifier : loginIdentifiers) {
+
+            String property = loginIdentifier.getLoginKey();
+            String value = loginIdentifier.getLoginValue();
+            if (OBJECT_GUID.equals(property)) {
+                String transformObjectGuidToUuidProperty = realmConfig
+                        .getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+                boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
+                        .parseBoolean(transformObjectGuidToUuidProperty);
+
+                String convertedValue;
+                if (transformObjectGuidToUuid) {
+                    convertedValue = transformUUIDToObjectGUID(value);
+                } else {
+                    byte[] bytes = Base64.decodeBase64(value.getBytes());
+                    convertedValue = convertBytesToHexString(bytes);
+                }
+                searchFilter.append("(").append(property).append("=").append(convertedValue).append(")");
+            } else {
+                searchFilter.append("(").append(property).append("=")
+                        .append(escapeSpecialCharactersForFilterWithStarAsRegex(value)).append(")");
+            }
+        }
+        searchFilter.append(")");
+        return searchFilter.toString();
+    }
+
+    @Override
+    public AuthenticationResult doAuthenticateWithID(String userID, Object credential) throws UserStoreException {
+
+        AuthenticationResult authenticationResult;
+        if (!validateForWildCardCharacters(userID)) {
+            String reason =
+                    "preferredUserNameValue is not valid. It contains LDAP special character/characters: " + userID;
+            return handleAuthenticationFailure(reason);
+        }
+        User user;
+        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String[] users = super.getUserListFromProperties(userIDAttribute, userID, null);
+
+        if (ArrayUtils.isEmpty(users)) {
+            String reason = "Invalid scenario. No users found for the given userID: " + userID;
+            return handleAuthenticationFailure(reason);
+
+        } else if (users.length > 1) {
+            String reason = "Invalid scenario. Multiple users found for the given userID: " + userID;
+            return handleAuthenticationFailure(reason);
+        }
+
+        if (super.doAuthenticate(users[0], credential)) {
+            String userName = users[0];
+            user = getUser(userID, userName, null);
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
+            authenticationResult.setAuthenticatedUser(user);
+            return authenticationResult;
+        } else {
+            String reason = "Authentication failed for the given userID: " + userID;
+            return handleAuthenticationFailure(reason);
         }
     }
 
@@ -316,7 +536,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
     private boolean validateForWildCardCharacters(String preferredUserNameValue) {
 
-        String[] ldapSpecialCharacters = {"*", "<", ">", "~", "!", ")", "("};
+        String[] ldapSpecialCharacters = { "*", "<", ">", "~", "!", ")", "(" };
         if (StringUtils.isNotEmpty(preferredUserNameValue)) {
             for (String ldapSpecialCharacter : ldapSpecialCharacters) {
                 if (preferredUserNameValue.contains(ldapSpecialCharacter)) {
