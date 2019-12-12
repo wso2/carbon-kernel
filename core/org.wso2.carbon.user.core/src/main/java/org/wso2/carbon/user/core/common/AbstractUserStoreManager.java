@@ -694,24 +694,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected List<String> doGetInternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
-        if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
-            String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            if (StringUtils.isNotEmpty(userNameAttribute)) {
-                Map<String, String> map = getUserPropertyValuesWithID(userID, new String[] { userNameAttribute }, null);
-                String tempUserName = map.get(userNameAttribute);
-                if (tempUserName != null) {
-                    userID = tempUserName;
-                    if (log.isDebugEnabled()) {
-                        log.debug("Replaced user name : " + userID + " from user property value : " + tempUserName);
-                    }
-                }
-            }
+        String username = getUserNameFromUserID(userID, null);
+        if (StringUtils.isEmpty(username)) {
+            throw new UserStoreException("No user found with UserID: " + userID);
         }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Retrieving internal roles for user name :  " + userID + " and search filter : " + filter);
-        }
-        return Arrays.asList(hybridRoleManager.getHybridRoleListOfUser(userID, filter));
+        return Arrays.asList(hybridRoleManager.getHybridRoleListOfUser(username, filter));
     }
 
     protected Map<String, List<String>> doGetInternalRoleListOfUsers(List<String> userNames, String domainName)
@@ -739,42 +726,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             userNames = updatedUserNameList;
         }
-
-        // Get the relevant userID for the given username.
-        if (isUniqueUserIdEnabled()) {
-            userNames = getUserIDsFromUserNames(userNames);
-        }
-
         return hybridRoleManager.getHybridRoleListOfUsers(userNames, domainName);
     }
 
     protected Map<String, List<String>> doGetInternalRoleListOfUsersWithID(List<String> userIDs, String domainName)
             throws UserStoreException {
 
-        if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))) {
-            List<String> updatedUserNameList = new ArrayList<>();
-            for (String userID : userIDs) {
-                String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-                if (StringUtils.isNotEmpty(userNameAttribute)) {
-                    Map<String, String> map = getUserPropertyValues(userID, new String[] { userNameAttribute }, null);
-                    String tempUserName = map.get(userNameAttribute);
-                    if (tempUserName != null) {
-                        updatedUserNameList.add(tempUserName);
-                        if (log.isDebugEnabled()) {
-                            log.debug(
-                                    "Replaced user name : " + userID + " from user property value : " + tempUserName);
-                        }
-                    } else {
-                        updatedUserNameList.add(userID);
-                    }
-                } else {
-                    updatedUserNameList.add(userID);
-                }
-            }
-            userIDs = updatedUserNameList;
+        List<String> userNamesFromUserIDs = getUserNamesFromUserIDs(userIDs);
+        Map<String, List<String>> hybridRoleList = new HashMap<>();
+        Map<String, List<String>> hybridRoleListOfUsers =
+                hybridRoleManager.getHybridRoleListOfUsers(userNamesFromUserIDs, domainName);
+        for (Map.Entry<String, List<String>> hybridRoleListOfUser : hybridRoleListOfUsers.entrySet()) {
+            hybridRoleList.put(getUserIDFromUserName(hybridRoleListOfUser.getKey()), hybridRoleListOfUser.getValue());
         }
-
-        return hybridRoleManager.getHybridRoleListOfUsers(userIDs, domainName);
+        return hybridRoleList;
     }
 
     /**
