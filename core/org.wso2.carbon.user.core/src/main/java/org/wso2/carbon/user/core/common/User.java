@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.user.core.common;
 
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.io.Serializable;
 import java.util.Map;
 
 /**
- * User class.
+ * Represents the user.
+ *
+ * @since 4.6.0
  */
 public class User implements Serializable {
 
@@ -40,6 +40,7 @@ public class User implements Serializable {
     private Map<String, String> attributes;
 
     public User() {
+
         super();
     }
 
@@ -95,42 +96,52 @@ public class User implements Serializable {
     }
 
     public String getPreferredUsername() {
+
         return preferredUsername;
     }
 
     public void setPreferredUsername(String preferredUsername) {
+
         this.preferredUsername = preferredUsername;
     }
 
     public void setDisplayName(String displayName) {
+
         this.displayName = displayName;
     }
 
     public String getDisplayName() {
+
         return displayName;
     }
 
     public String getTenantDomain() {
+
         return tenantDomain;
     }
 
     public void setTenantDomain(String tenantDomain) {
+
         this.tenantDomain = tenantDomain;
     }
 
     public String getUserStoreDomain() {
+
         return userStoreDomain;
     }
 
     public void setUserStoreDomain(String userStoreDomain) {
+
         this.userStoreDomain = userStoreDomain;
     }
 
     public Map<String, String> getAttributes() {
+
         return attributes;
     }
 
     public void setAttributes(Map<String, String> attributes) {
+
         this.attributes = attributes;
     }
 
@@ -138,7 +149,7 @@ public class User implements Serializable {
     public boolean equals(Object obj) {
 
         if (obj instanceof User) {
-            return this.getFullQualifiedUsername().equals(((User)obj).getFullQualifiedUsername());
+            return this.getFullQualifiedUsername().equals(((User) obj).getFullQualifiedUsername());
         }
 
         return false;

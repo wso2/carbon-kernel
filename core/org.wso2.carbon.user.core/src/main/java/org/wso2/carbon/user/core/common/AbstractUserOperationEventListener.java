@@ -469,6 +469,34 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
+    public boolean doPreAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
+            Object credential, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
+            boolean authenticated, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, boolean authenticated,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean doPreAuthenticateWithID(String userID, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
 

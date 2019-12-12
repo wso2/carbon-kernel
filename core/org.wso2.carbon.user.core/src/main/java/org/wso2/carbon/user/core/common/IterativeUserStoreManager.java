@@ -359,6 +359,19 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
+    protected AuthenticationResult doAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential)
+            throws UserStoreException {
+
+        return this.abstractUserStoreManager.doAuthenticateWithID(loginIdentifiers, credential);
+    }
+
+    @Override
+    protected AuthenticationResult doAuthenticateWithID(String userID, Object credential) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doAuthenticateWithID(userID, credential);
+    }
+
+    @Override
     protected User doAddUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
