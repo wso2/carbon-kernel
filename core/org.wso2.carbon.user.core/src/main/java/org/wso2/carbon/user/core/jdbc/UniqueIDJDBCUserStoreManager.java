@@ -1192,7 +1192,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
         try {
@@ -1228,7 +1228,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
         Map<String, String> claims = doGetUserClaimValuesWithID(userID,
                 new String[] { UserCoreClaimConstants.USERNAME_CLAIM_URI }, getMyDomainName(), profileName);
