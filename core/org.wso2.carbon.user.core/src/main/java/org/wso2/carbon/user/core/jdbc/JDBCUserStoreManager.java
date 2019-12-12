@@ -38,7 +38,12 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
-import org.wso2.carbon.user.core.model.*;
+import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionAttribute;
+import org.wso2.carbon.user.core.model.ExpressionCondition;
+import org.wso2.carbon.user.core.model.ExpressionOperation;
+import org.wso2.carbon.user.core.model.OperationalCondition;
+import org.wso2.carbon.user.core.model.SqlBuilder;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -49,20 +54,38 @@ import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLTimeoutException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.*;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.sql.DataSource;
 
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.*;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL;
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
-    private static final String ERROR_WHILE_EXECUTING_THE_SQL = "Error while executing the SQL ";
     // private boolean useOnlyInternalRoles;
     private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
 
@@ -3753,9 +3776,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (SQLException e) {
-            String msg = ERROR_WHILE_EXECUTING_THE_SQL;
+            String msg = "Error while executing the SQL ";
             if (log.isDebugEnabled()) {
-                log.debug(msg);
+                log.debug(msg + sqlStmt);
             }
             throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
         } catch (UserStoreException ex) {
