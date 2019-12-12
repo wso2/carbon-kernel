@@ -1166,7 +1166,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
         }
 
-        boolean authenticated;
+        boolean authenticated = false;
 
         UserStore userStore = abstractUserStoreManager.getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -1259,10 +1259,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 // Let's authenticate with the primary UserStoreManager.
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    AuthenticationResult authenticationResult = doAuthenticateWithID(userNameProperty, userName,
-                            credential, null);
-                    authenticated = authenticationResult.getAuthenticationStatus()
-                            == AuthenticationResult.AuthenticationStatus.SUCCESS;
+                    AuthenticationResult authenticationResult = abstractUserStoreManager
+                            .doAuthenticateWithID(userNameProperty, userName, credential, null);
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
                 } else {
                     authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
                 }
@@ -1303,8 +1305,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (userStoreManager.isUniqueUserIdEnabled()) {
                     AuthenticationResult authenticationResult = authenticateWithID(UserCoreClaimConstants
                             .USERNAME_CLAIM_URI, userName, credential, null, domainProvided);
-                    authenticated = authenticationResult.getAuthenticationStatus() == AuthenticationResult
-                            .AuthenticationStatus.SUCCESS;
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
                 } else {
                     authenticated = userStoreManager.authenticate(userName, credential, domainProvided);
                 }
@@ -9619,8 +9623,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
 
-                if (AuthenticationResult.AuthenticationStatus.SUCCESS
-                        .equals(authenticationResult.getAuthenticationStatus())) {
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
                 }
                 if (authenticated) {
@@ -9645,8 +9649,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
 
-                if (AuthenticationResult.AuthenticationStatus.SUCCESS
-                        .equals(authenticationResult.getAuthenticationStatus())) {
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
                 }
                 if (authenticated) {
@@ -9672,8 +9676,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (userStoreManager != null) {
                 if (userStoreManager.isUniqueUserIdEnabled()) {
                     authenticationResult = authenticateWithID(loginIdentifiers, null, credential);
-                    if (AuthenticationResult.AuthenticationStatus.SUCCESS
-                            .equals(authenticationResult.getAuthenticationStatus())) {
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                         authenticated = true;
                     }
                 } else {
@@ -10313,8 +10317,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
 
-                if (AuthenticationResult.AuthenticationStatus.SUCCESS
-                        .equals(authenticationResult.getAuthenticationStatus())) {
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
                 }
                 if (authenticated) {
@@ -10338,8 +10342,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
 
-                if (AuthenticationResult.AuthenticationStatus.SUCCESS
-                        .equals(authenticationResult.getAuthenticationStatus())) {
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
                 }
                 if (authenticated) {
@@ -10378,8 +10382,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
                     }
                 }
-                if (AuthenticationResult.AuthenticationStatus.SUCCESS
-                        .equals(authenticationResult.getAuthenticationStatus())) {
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
                 }
             }

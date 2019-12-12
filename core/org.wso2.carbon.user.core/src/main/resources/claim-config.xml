@@ -171,6 +171,13 @@
                 <Description>Username</Description>
             </Claim>
 			<Claim>
+				<ClaimURI>http://wso2.org/claims/userid</ClaimURI>
+				<DisplayName>User ID</DisplayName>
+				<AttributeID>scimId</AttributeID>
+				<Description>Unique ID of the user</Description>
+				<ReadOnly/>
+			</Claim>
+			<Claim>
 				<ClaimURI>http://wso2.org/claims/identity/uuid</ClaimURI>
 				<DisplayName>Unique user id</DisplayName>
 				<AttributeID>uuid</AttributeID>
