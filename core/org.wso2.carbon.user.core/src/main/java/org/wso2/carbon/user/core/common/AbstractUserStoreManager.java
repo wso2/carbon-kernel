@@ -10509,12 +10509,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
+        User user = null;
         boolean isUserExists;
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            String userNameFromUserID = getUserNameFromUserID(userID, profileName);
-            isUserExists = userNameFromUserID != null;
+            user = userUniqueIDManger.getUser(userID, profileName, this);
+            isUserExists = user != null;
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -10530,11 +10531,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             requestedClaims = new String[0];
         }
 
-        User user;
         try {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                user = userUniqueIDManger.getUser(userID, profileName, this);
+                if (user == null) {
+                    user = userUniqueIDManger.getUser(userID, profileName, this);
+                }
             } else {
                 user = getUserFromID(userID, requestedClaims, userStore.getDomainName(), profileName);
             }
@@ -10623,19 +10625,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return new ArrayList<String>(){{ add(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME); }};
         }
 
-        // Check whether roles exist in cache
-        String username = getUserNameFromUserID(userID, null);
-        if (username != null) {
-            roleNames = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, username));
-            if (roleNames.size() > 0) {
-                return roleNames;
-            }
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getRoleListOfUserWithID(userStore.getDomainFreeUserId());
+        }
+
+        // Check whether roles exist in cache
+        User user = userUniqueIDManger.getUser(userID, null, this);
+        if (user != null) {
+            roleNames = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, user.getUsername()));
+            if (roleNames.size() > 0) {
+                return roleNames;
+            }
         }
 
         if (userStore.isSystemStore()) {
@@ -10645,7 +10647,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            User user = userUniqueIDManger.getUser(userID, null, this);
             if (user == null) {
                 return Arrays.asList(realmConfig.getEveryOneRoleName());
             }
@@ -10790,11 +10791,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
         boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
         boolean isUserExists;
+        User user = null;
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else{
-            String userNameFromUserID = getUserNameFromUserID(userID, profileName);
-            isUserExists = userNameFromUserID != null;
+            user = userUniqueIDManger.getUser(userID, profileName, this);
+            isUserExists = user != null;
         }
 
         if (!isUserExists) {
@@ -10809,7 +10811,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueIdEnabled) {
-                User user = userUniqueIDManger.getUser(userID, profileName, this);
                 finalValues = doGetUserClaimValues(user.getUsername(), new String[]{claim},
                         userStore.getDomainName(), profileName);
             } else {
@@ -10887,11 +10888,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
         boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
         boolean isUserExists;
+        User user = null;
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else{
-            String userNameFromUserID = getUserNameFromUserID(userID, profileName);
-            isUserExists = userNameFromUserID != null;
+            user = userUniqueIDManger.getUser(userID, profileName, this);
+            isUserExists = user != null;
         }
 
         if (!isUserExists) {
@@ -10911,7 +10913,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueIdEnabled) {
-                User user = userUniqueIDManger.getUser(userID, profileName, this);
                 finalValues = doGetUserClaimValues(user.getUsername(), claims, userStore.getDomainName(),
                         profileName);
             } else {
@@ -11782,11 +11783,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
         boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
         boolean isUserExists;
+        User user = null;
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            String userNameFromUserID = getUserNameFromUserID(userID, profileName);
-            isUserExists = userNameFromUserID != null;
+            user = userUniqueIDManger.getUser(userID, profileName, this);
+            isUserExists = user != null;
         }
 
         if (!isUserExists) {
@@ -11831,7 +11833,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                User user = userUniqueIDManger.getUser(userID, null, this);
                 doSetUserClaimValue(user.getUsername(), claimURI, claimValue, profileName);
             } else {
                 doSetUserClaimValueWithID(userID, claimURI, claimValue, profileName);
@@ -13193,7 +13194,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // add role in to actual user store
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    List<User> users = userUniqueIDManger.listUsers(userIDList, this);
+                    List<User> users = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this);
                     doAddRole(roleName, users.stream().map(User::getUsername).toArray(String[]::new), isSharedRole);
                 } else {
                     doAddRoleWithID(roleName, userIDList, isSharedRole);
