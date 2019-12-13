@@ -20,23 +20,39 @@ package org.wso2.carbon.user.core.listener;
 
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UniqueIDUserStoreManagerListener extends UserStoreManagerListener {
 
     /**
-     * Given the user name and a credential object, the implementation code must
+     * Given the login identifiers and a credential object, the implementation code must
      * validate whether the user is authenticated.
      *
-     * @param userName         The user name.
+     * @param preferredUserNameClaim Preferred username claim.
+     * @param preferredUserNameValue Preferred username value.
+     * @param credential             The credential of a user.
+     * @param userStoreManager       The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean authenticateWithID(String preferredUserNameClaim, String preferredUserNameValue, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Given the login identifiers and a credential object, the implementation code must
+     * validate whether the user is authenticated.
+     *
+     * @param loginIdentifiers Login identifiers.
      * @param credential       The credential of a user.
      * @param userStoreManager The underlying UserStoreManager.
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    boolean authenticateWithID(String userName, Object credential, UserStoreManager userStoreManager)
-            throws UserStoreException;
+    boolean authenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Add a user to the user store.

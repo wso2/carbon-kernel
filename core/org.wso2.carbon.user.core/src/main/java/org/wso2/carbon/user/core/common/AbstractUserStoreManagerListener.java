@@ -22,6 +22,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserStoreManagerListener;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractUserStoreManagerListener implements UniqueIDUserStoreManagerListener {
@@ -61,36 +62,43 @@ public abstract class AbstractUserStoreManagerListener implements UniqueIDUserSt
     }
 
     @Override
-    public boolean authenticateWithID(String userName, Object credential, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean authenticateWithID(String preferredUserNameClaim, String preferredUserNameValue, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
-        return authenticate(userName, credential, userStoreManager);
+        return true;
+    }
+
+    @Override
+    public boolean authenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
     }
 
     @Override
     public boolean addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        return addUser(userName, credential, roleList, claims, profileName, userStoreManager);
+        return true;
     }
 
     @Override
     public boolean updateCredentialWithID(String userID, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
 
-        return updateCredential(userID, newCredential, oldCredential, userStoreManager);
+        return true;
     }
 
     @Override
     public boolean updateCredentialByAdminWithID(String userID, Object newCredential, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        return updateCredentialByAdmin(userID, newCredential, userStoreManager);
+        return true;
     }
 
     @Override
     public boolean deleteUserWithID(String userID, UserStoreManager userStoreManager) throws UserStoreException {
 
-        return deleteUser(userID, userStoreManager);
+        return true;
     }
 }

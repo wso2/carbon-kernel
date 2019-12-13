@@ -354,6 +354,41 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Given the login identifiers and a credential object, the implementation code must
+     * validate whether the user is authenticated.
+     *
+     * @param loginIdentifiers The login identifiers.
+     * @param credential       The credential of a user.
+     * @return @see AuthenticationResult.
+     * @throws UserStoreException An unexpected exception has occurred.
+     */
+    protected AuthenticationResult doAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doAuthenticateWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doAuthenticateWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Given the user name and a credential object, the implementation code must validate whether
+     * the user is authenticated.
+     *
+     * @param userID     The user ID.
+     * @param credential The credential of a user.
+     * @return @see AuthenticationResult.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected AuthenticationResult doAuthenticateWithID(String userID, Object credential) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doAuthenticateWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doAuthenticateWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
      * Add a user to the user store.
      *
      * @param userName              User name of the user
@@ -925,6 +960,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return isValid;
     }
 
+    private boolean validateUserIDAndCredential(String userID, Object credential) throws UserStoreException {
+
+        boolean isValid = true;
+        if (userID == null || credential == null) {
+            String message = String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                    "Authentication failure. Either Username or Password is null");
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                    message, userID, credential);
+            log.error(message);
+            isValid = false;
+        }
+        return isValid;
+    }
+
     private boolean validateUserNameAndCredential(String claimURI, String claimValue, Object credential) throws UserStoreException {
 
         boolean isValid = true;
@@ -935,6 +984,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     claimValue, credential);
             log.error(message);
             isValid = false;
+        }
+        return isValid;
+    }
+
+    private boolean validateUserNameAndCredentials(List<LoginIdentifier> loginIdentifiers, Object credential)
+            throws UserStoreException {
+
+        boolean isValid = true;
+        for (LoginIdentifier loginIdentifier : loginIdentifiers) {
+            if (credential == null || loginIdentifier.getLoginKey() == null
+                    || loginIdentifier.getLoginValue() == null) {
+                String message = String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                        "Authentication failure. One of the credential element is null.");
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(), message,
+                        loginIdentifier.getLoginValue(), credential);
+                log.error(message);
+                isValid = false;
+                break;
+            }
         }
         return isValid;
     }
@@ -1021,17 +1089,63 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *
      * @param errorCode    Error Code.
      * @param errorMessage Error Message.
-     * @param userName     Name of the user.
+     * @param userID       Name of the user.
      * @param credential   Relevant credential provided for authentication.
      * @throws UserStoreException Exception that will be thrown by relevant listener methods.
      */
-    private void handleOnAuthenticateFailureWithID(String errorCode, String errorMessage, String userName,
+    private void handleOnAuthenticateFailureWithID(String errorCode, String errorMessage, String userID,
             Object credential) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
-                    .onAuthenticateFailureWithID(errorCode, errorMessage, userName, credential, this)) {
+                    .onAuthenticateFailureWithID(errorCode, errorMessage, userID, credential, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant method from error listeners when there is a failure while
+     * authenticating.
+     *
+     * @param errorCode        Error Code.
+     * @param errorMessage     Error Message.
+     * @param loginIdentifiers Login identifiers.
+     * @param credential       Relevant credential provided for authentication.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleOnAuthenticateFailureWithID(String errorCode, String errorMessage,
+            List<LoginIdentifier> loginIdentifiers, Object credential) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
+                    .onAuthenticateFailureWithID(errorCode, errorMessage, loginIdentifiers, credential, this)) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant method from error listeners when there is a failure while
+     * authenticating.
+     *
+     * @param errorCode              Error Code.
+     * @param errorMessage           Error Message.
+     * @param preferredUserNameClaim Preferred username claim.
+     * @param preferredUserNameValue Preferred username value.
+     * @param credential             Relevant credential provided for authentication.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleOnAuthenticateFailureWithID(String errorCode, String errorMessage, String preferredUserNameClaim,
+            String preferredUserNameValue, Object credential) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
+                    .onAuthenticateFailureWithID(errorCode, errorMessage, preferredUserNameClaim,
+                            preferredUserNameValue, credential, this)) {
                 return;
             }
         }
@@ -1052,7 +1166,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
         }
 
-        boolean authenticated;
+        boolean authenticated = false;
 
         UserStore userStore = abstractUserStoreManager.getUserStore(userName);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -1085,7 +1199,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), userName,
                             credentialArgument);
-                    return true;
+                    return false;
                 }
             }
 
@@ -1143,11 +1257,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // Let's authenticate with the primary UserStoreManager.
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    AuthenticationResult authenticationResult = authenticateWithID(UserCoreClaimConstants
-                                    .USERNAME_CLAIM_URI, userName,
-                            credential, null, domainProvided);
-                    authenticated =  authenticationResult.getAuthenticationStatus() == AuthenticationResult
-                            .AuthenticationStatus.SUCCESS;
+                    String userNameProperty = claimManager
+                            .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                    AuthenticationResult authenticationResult = abstractUserStoreManager
+                            .doAuthenticateWithID(userNameProperty, userName, credential, null);
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
                 } else {
                     authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
                 }
@@ -1185,14 +1302,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
             }
             if (userStoreManager != null) {
-                if (userStoreManager.isUniqueUserIdEnabled()) {
-                    AuthenticationResult authenticationResult = authenticateWithID(UserCoreClaimConstants
-                            .USERNAME_CLAIM_URI, userName, credential, null, domainProvided);
-                    authenticated = authenticationResult.getAuthenticationStatus() == AuthenticationResult
-                            .AuthenticationStatus.SUCCESS;
-                } else {
-                    authenticated = userStoreManager.authenticate(userName, credential, domainProvided);
-                }
+                authenticated = userStoreManager.authenticate(userName, credential, domainProvided);
             }
         }
 
@@ -9328,19 +9438,370 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public final AuthenticationResult authenticateWithID(final List<LoginIdentifier> loginIdentifiers,
+            final String domain, final Object credential) throws UserStoreException {
+
+        try {
+            return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
+                if (!validateUserNameAndCredentials(loginIdentifiers, credential)) {
+                    AuthenticationResult authenticationResult = new AuthenticationResult(
+                            AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
+                    return authenticationResult;
+                }
+
+                List<String> userStorePreferenceOrder = new ArrayList<>();
+                // Check whether user store chain needs to be generated or not.
+                if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User store chain generation is needed hence generating the user store chain using "
+                                + "the user" + " store preference order: " + userStorePreferenceOrder);
+                    }
+                    return generateUserStoreChainWithID(loginIdentifiers, domain, credential, userStorePreferenceOrder);
+                } else {
+                    // Authenticate the user.
+                    return authenticateInternalWithID(loginIdentifiers, domain, credential);
+                }
+
+            });
+        } catch (PrivilegedActionException e) {
+            if (!(e.getException() instanceof UserStoreException)) {
+                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
+                        loginIdentifiers, credential);
+            }
+            throw (UserStoreException) e.getException();
+        }
+    }
+
+    private AuthenticationResult generateUserStoreChainWithID(List<LoginIdentifier> loginIdentifiers, String domain,
+            Object credential, List<String> userStorePreferenceOrder) throws UserStoreException {
+
+        IterativeUserStoreManager initialUserStoreManager = null;
+        IterativeUserStoreManager prevUserStoreManager = null;
+        for (String domainName : userStorePreferenceOrder) {
+            UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(domainName);
+            // If the user store manager is instance of AbstractUserStoreManager then generate a user store chain using
+            // IterativeUserStoreManager.
+            if (userStoreManager instanceof AbstractUserStoreManager) {
+                if (initialUserStoreManager == null) {
+                    prevUserStoreManager = new IterativeUserStoreManager((AbstractUserStoreManager) userStoreManager);
+                    initialUserStoreManager = prevUserStoreManager;
+                } else {
+                    IterativeUserStoreManager currentUserStoreManager = new IterativeUserStoreManager(
+                            (AbstractUserStoreManager) userStoreManager);
+                    prevUserStoreManager.setNextUserStoreManager(currentUserStoreManager);
+                    prevUserStoreManager = currentUserStoreManager;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate the"
+                            + " user through all the available user store list.");
+                }
+                return authenticateInternalWithID(loginIdentifiers, domain, credential);
+            }
+        }
+        // Authenticate using the initial user store from the user store preference list.
+        return initialUserStoreManager.authenticateWithID(loginIdentifiers, domain, credential);
+    }
+
+    private AuthenticationResult authenticateInternalWithID(List<LoginIdentifier> loginIdentifiers, String domain,
+            Object credential) throws UserStoreException {
+
+        AbstractUserStoreManager abstractUserStoreManager = this;
+        if (this instanceof IterativeUserStoreManager) {
+            abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
+        }
+        boolean authenticated = false;
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getCode(),
+                    ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getMessage(), loginIdentifiers, credential);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.toString(), e);
+        }
+
+        try {
+            try {
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    Object credentialArgument;
+                    if (listener instanceof SecretHandleableListener) {
+                        credentialArgument = credentialObj;
+                    } else {
+                        credentialArgument = credential;
+                    }
+
+                    if (!((AbstractUserOperationEventListener) listener)
+                            .doPreAuthenticateWithID(loginIdentifiers, credentialArgument, abstractUserStoreManager)) {
+                        handleOnAuthenticateFailureWithID(
+                                ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), loginIdentifiers,
+                                credentialArgument);
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason(
+                                ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage()));
+                        return authenticationResult;
+                    }
+                }
+            } catch (UserStoreException ex) {
+                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                ex.getMessage()), loginIdentifiers, credential);
+                throw ex;
+            }
+
+            int tenantId = abstractUserStoreManager.getTenantId();
+
+            try {
+
+                for (LoginIdentifier loginIdentifier : loginIdentifiers) {
+                    if (loginIdentifier.getLoginIdentifierType()
+                            .equals(LoginIdentifier.LoginIdentifierType.CLAIM_URI)) {
+                        String mappedAttribute = claimManager
+                                .getAttributeName(getMyDomainName(), loginIdentifier.getLoginKey());
+                        if (mappedAttribute != null) {
+                            loginIdentifier.setLoginIdentifierType(LoginIdentifier.LoginIdentifierType.ATTRIBUTE);
+                            loginIdentifier.setLoginKey(mappedAttribute);
+                        }
+                    }
+                }
+
+                RealmService realmService = UserCoreUtil.getRealmService();
+                if (realmService != null) {
+                    boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
+
+                    if (!tenantActive) {
+                        String errorCode = ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getCode();
+                        String errorMessage = String
+                                .format(ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getMessage(), tenantId);
+                        log.warn(errorCode + " - " + errorMessage);
+                        handleOnAuthenticateFailureWithID(errorCode, errorMessage, loginIdentifiers, credential);
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason("Inactive Tenant: " + tenantId));
+                        return authenticationResult;
+                    }
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                e.getMessage()), loginIdentifiers, credential);
+                throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
+            }
+
+            if (StringUtils.isNotEmpty(domain)) {
+                UserStoreManager secUserStoreManager = abstractUserStoreManager.getSecondaryUserStoreManager(domain);
+                if (isUniqueUserIdEnabled(secUserStoreManager)) {
+                    authenticationResult = ((AbstractUserStoreManager) secUserStoreManager)
+                            .doAuthenticateWithID(loginIdentifiers, credential);
+                } else {
+                    String userName = getUsernameByClaims(loginIdentifiers);
+                    String userID = userUniqueIDManger.getUniqueId(userName, null, this);
+                    boolean status = ((AbstractUserStoreManager) secUserStoreManager)
+                            .doAuthenticate(userName, credential);
+                    if (status) {
+                        User user = getUser(userID, userName, null);
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    } else {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason("Authentication failed."));
+                    }
+                }
+
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+                if (authenticated) {
+                    // Set domain in thread local variable for subsequent operations
+                    UserCoreUtil.setDomainInThreadLocal(domain);
+                }
+            } else {
+                // Domain is not provided. Try to authenticate with the current user store manager.
+                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                    authenticationResult = abstractUserStoreManager.doAuthenticateWithID(loginIdentifiers, credential);
+                } else {
+                    String userName = getUsernameByClaims(loginIdentifiers);
+                    String userID = userUniqueIDManger.getUniqueId(userName, null, abstractUserStoreManager);
+                    boolean status = abstractUserStoreManager.doAuthenticate(userName, credential);
+                    if (status) {
+                        User user = getUser(userID, userName, null);
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    } else {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason("Authentication failed."));
+                    }
+                }
+
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+                if (authenticated) {
+                    // Set domain in thread local variable for subsequent operations
+                    UserCoreUtil
+                            .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
+                }
+            }
+        } finally {
+            credentialObj.clear();
+        }
+
+        // If authentication fails in the previous step and if the user has not specified a
+        // domain- then we need to execute chained UserStoreManagers recursively.
+        if (!authenticated && StringUtils.isEmpty(domain)) {
+            AbstractUserStoreManager userStoreManager;
+            if (this instanceof IterativeUserStoreManager) {
+                IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
+                userStoreManager = iterativeUserStoreManager.nextUserStoreManager();
+            } else {
+                userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
+            }
+            if (userStoreManager != null) {
+                authenticationResult = authenticateWithID(loginIdentifiers, null, credential);
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+            }
+        }
+
+        if (!authenticated) {
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                            "Authentication failed"), loginIdentifiers, credential);
+        }
+
+        try {
+            // You cannot change authentication decision in post handler to TRUE
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!((AbstractUserOperationEventListener) listener)
+                        .doPostAuthenticateWithID(loginIdentifiers, authenticated, abstractUserStoreManager)) {
+                    handleOnAuthenticateFailureWithID(
+                            ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), loginIdentifiers,
+                            credential);
+
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(
+                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage()));
+                    return authenticationResult;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
+                            ex.getMessage()), loginIdentifiers, credential);
+            throw ex;
+        }
+
+        if (log.isDebugEnabled()) {
+            if (!authenticated) {
+                log.debug("Authentication failure. Wrong userID or password is provided.");
+            }
+        }
+
+        return authenticationResult;
+    }
+
+    private String getUsernameByClaims(List<LoginIdentifier> loginIdentifiers) throws UserStoreException {
+
+        if (loginIdentifiers.isEmpty()) {
+            return null;
+        }
+
+        String userName = null;
+        String[] resultedUserList = null;
+        // Need to populate the claim email as the first element in the
+        // passed array.
+        for (LoginIdentifier loginIdentifier : loginIdentifiers) {
+
+            String attribute = loginIdentifier.getLoginKey();
+            String attributeValue = loginIdentifier.getLoginValue();
+
+            if (attribute != null && attributeValue != null) {
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Searching users for " + attribute + " with the value :" + attributeValue);
+                }
+                String[] matchedUserList = getUserListFromProperties(attribute, attributeValue, null);
+
+                if (!ArrayUtils.isEmpty(matchedUserList)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Matched userList : " + Arrays.toString(matchedUserList));
+                    }
+                    // If more than one user find the first matching user list. Hence need to define unique claims
+                    if (resultedUserList != null) {
+                        List<String> users = new ArrayList<>();
+                        for (String user : resultedUserList) {
+                            for (String matchedUser : matchedUserList) {
+                                if (user.equals(matchedUser)) {
+                                    users.add(matchedUser);
+                                }
+                            }
+                        }
+                        if (users.size() > 0) {
+                            resultedUserList = new String[users.size()];
+                            users.toArray(resultedUserList);
+                            if (log.isDebugEnabled()) {
+                                log.debug("Current matching temporary userlist :" + Arrays.toString(resultedUserList));
+                            }
+                        } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug("There are no users for " + attribute + " with the value : " + attributeValue
+                                        + " in the previously filtered user list");
+                            }
+                            return null;
+                        }
+                    } else {
+                        resultedUserList = matchedUserList;
+                        if (log.isDebugEnabled()) {
+                            log.debug("Current matching temporary userlist :" + Arrays.toString(resultedUserList));
+                        }
+                    }
+
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "There are no matching users for " + attribute + " with the value : " + attributeValue);
+                    }
+                    return null;
+                }
+            }
+        }
+
+        if (resultedUserList.length == 1) {
+            userName = resultedUserList[0];
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("There are more than one user in the result set : " + Arrays.toString(resultedUserList));
+            }
+        }
+        return userName;
+    }
+
+    @Override
     public final AuthenticationResult authenticateWithID(final String preferredUserNameClaim,
-                                                         final String preferredUserNameValue, final Object credential,
-                                                         final String profileName) throws UserStoreException {
+            final String preferredUserNameValue, final Object credential, final String profileName)
+            throws UserStoreException {
 
         try {
             return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
                 if (!validateUserNameAndCredential(preferredUserNameClaim, preferredUserNameValue, credential)) {
-                    AuthenticationResult authenticationResult = new AuthenticationResult(AuthenticationResult
-                            .AuthenticationStatus.FAIL);
+                    AuthenticationResult authenticationResult = new AuthenticationResult(
+                            AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
                     return authenticationResult;
                 }
-                int index = preferredUserNameClaim.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                int index = preferredUserNameValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
                 boolean domainProvided = index > 0;
                 return authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credential, profileName,
                         domainProvided);
@@ -9349,7 +9810,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!(e.getException() instanceof UserStoreException)) {
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
-                        preferredUserNameValue, credential);
+                        preferredUserNameClaim, preferredUserNameValue, credential);
             }
             throw (UserStoreException) e.getException();
         }
@@ -9405,11 +9866,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private AuthenticationResult generateUserStoreChainWithID(String preferredUserNameClaim,
-                                                              String preferredUserNameValue,
-                                                              Object credential, String profileName,
-                                                              boolean domainProvided,
-                                                              List<String> userStorePreferenceOrder)
-            throws UserStoreException {
+            String preferredUserNameValue, Object credential, String profileName, boolean domainProvided,
+            List<String> userStorePreferenceOrder) throws UserStoreException {
 
         IterativeUserStoreManager initialUserStoreManager = null;
         IterativeUserStoreManager prevUserStoreManager = null;
@@ -9442,8 +9900,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private AuthenticationResult authenticateInternalWithID(String preferredUserNameClaim,
-                                                            String preferredUserNameValue, Object credential,
-                                                            String profileName, boolean domainProvided)
+            String preferredUserNameValue, Object credential, String profileName, boolean domainProvided)
             throws UserStoreException {
 
         AbstractUserStoreManager abstractUserStoreManager = this;
@@ -9452,8 +9909,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         boolean authenticated = false;
-        AuthenticationResult authenticationResult = new AuthenticationResult(AuthenticationResult
-                .AuthenticationStatus.FAIL);
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
 
         UserStore userStore = getUserStore(preferredUserNameValue);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
@@ -9466,8 +9923,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
             handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getCode(),
-                    ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getMessage(), preferredUserNameValue,
-                    credential);
+                    ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getMessage(), preferredUserNameClaim,
+                    preferredUserNameValue, credential);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.toString(), e);
         }
 
@@ -9484,11 +9941,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!((AbstractUserStoreManagerListener) listener)
-                        .authenticateWithID(preferredUserNameValue, credentialArgument, abstractUserStoreManager)) {
+                        .authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
+                                abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), preferredUserNameValue,
-                            credentialArgument);
-                    return null;
+                            ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), preferredUserNameClaim,
+                            preferredUserNameValue, credentialArgument);
+
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(
+                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage()));
+                    return authenticationResult;
                 }
             }
 
@@ -9503,20 +9965,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
 
                     if (!((AbstractUserOperationEventListener) listener)
-                            .doPreAuthenticateWithID(preferredUserNameValue, credentialArgument,
+                            .doPreAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
                                     abstractUserStoreManager)) {
                         handleOnAuthenticateFailureWithID(
                                 ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                                         UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
-                                preferredUserNameValue, credentialArgument);
-                        return null;
+                                preferredUserNameClaim, preferredUserNameValue, credentialArgument);
+
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason(
+                                ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage()));
+                        return authenticationResult;
                     }
                 }
             } catch (UserStoreException ex) {
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
-                                ex.getMessage()), preferredUserNameValue, credential);
+                                ex.getMessage()), preferredUserNameClaim, preferredUserNameValue, credential);
                 throw ex;
             }
             // #################### </Listeners> #####################################################
@@ -9533,14 +9999,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         String errorMessage = String
                                 .format(ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getMessage(), tenantId);
                         log.warn(errorCode + " - " + errorMessage);
-                        handleOnAuthenticateFailureWithID(errorCode, errorMessage, preferredUserNameValue, credential);
-                        return null;
+                        handleOnAuthenticateFailureWithID(errorCode, errorMessage, preferredUserNameClaim,
+                                preferredUserNameValue, credential);
+
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(
+                                new FailureReason(ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getMessage()));
+                        return authenticationResult;
                     }
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
-                                e.getMessage()), preferredUserNameValue, credential);
+                                e.getMessage()), preferredUserNameClaim, preferredUserNameValue, credential);
                 throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
             }
 
@@ -9548,27 +10019,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // domain name provided with user name.
 
             try {
-                String preferredUserNameProperty = claimManager.getAttributeName(getMyDomainName(),
-                        preferredUserNameClaim);
+                String preferredUserNameProperty = claimManager
+                        .getAttributeName(getMyDomainName(), preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = abstractUserStoreManager.doAuthenticateWithID(preferredUserNameProperty,
-                            preferredUserNameValue, credentialObj, profileName);
+                    authenticationResult = abstractUserStoreManager
+                            .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
+                                    profileName);
                 } else {
                     List<String> users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
                             abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
                     if (users.size() != 1) {
-                        String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: " +
-                                preferredUserNameValue + " is: " + users.size();
+                        String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: "
+                                + preferredUserNameValue + " is: " + users.size();
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(new FailureReason(message));
                         if (log.isDebugEnabled()) {
                             log.debug(message);
                         }
-                        return authenticationResult;
                     }
                     boolean status = abstractUserStoreManager.doAuthenticate(users.get(0), credentialObj);
-
                     authenticationResult = new AuthenticationResult(status ?
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
                             AuthenticationResult.AuthenticationStatus.FAIL);
@@ -9580,14 +10051,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
                     }
                 }
-                if (authenticationResult.getAuthenticationStatus() == AuthenticationResult
-                        .AuthenticationStatus.SUCCESS) {
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
                 }
             } catch (Exception e) {
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
-                        preferredUserNameValue, credential);
+                        preferredUserNameClaim, preferredUserNameValue, credential);
                 // We can ignore and proceed. Ignore the results from this user store.
 
                 if (log.isDebugEnabled()) {
@@ -9618,41 +10089,306 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
             }
             if (userStoreManager != null) {
-                authenticationResult = userStoreManager.authenticateWithID(preferredUserNameClaim,
-                        preferredUserNameValue, credential, profileName,
-                        domainProvided);
+                authenticationResult = userStoreManager
+                        .authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credential, profileName,
+                                domainProvided);
             }
         }
 
         if (!authenticated) {
             handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
-                            "Authentication failed"), preferredUserNameValue, credential);
+                            "Authentication failed"), preferredUserNameClaim, preferredUserNameValue, credential);
         }
 
         try {
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(preferredUserNameValue, authenticated, abstractUserStoreManager)) {
+                        .doPostAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, authenticated,
+                                abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), preferredUserNameValue,
-                            credential);
-                    return null;
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), preferredUserNameClaim,
+                            preferredUserNameValue, credential);
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(
+                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage()));
+                    return authenticationResult;
                 }
             }
         } catch (UserStoreException ex) {
             handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                            ex.getMessage()), preferredUserNameValue, credential);
+                            ex.getMessage()), preferredUserNameClaim, preferredUserNameValue, credential);
             throw ex;
         }
 
         if (log.isDebugEnabled()) {
             if (!authenticated) {
                 log.debug("Authentication failure. Wrong username or password is provided.");
+            }
+        }
+        return authenticationResult;
+    }
+
+    @Override
+    public final AuthenticationResult authenticateWithID(final String userID, final String domain,
+            final Object credential) throws UserStoreException {
+
+        try {
+            return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
+                if (!validateUserIDAndCredential(userID, credential)) {
+                    AuthenticationResult authenticationResult = new AuthenticationResult(
+                            AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
+                    return authenticationResult;
+                }
+
+                List<String> userStorePreferenceOrder = new ArrayList<>();
+                // Check whether user store chain needs to be generated or not.
+                if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "User store chain generation is needed hence generating the user store chain using "
+                                        + "the user"
+                                        + " store preference order: " + userStorePreferenceOrder);
+                    }
+                    return generateUserStoreChainWithID(userID, domain, credential, userStorePreferenceOrder);
+                } else {
+                    // Authenticate the user.
+                    return authenticateInternalWithID(userID, domain, credential);
+                }
+
+            });
+        } catch (PrivilegedActionException e) {
+            if (!(e.getException() instanceof UserStoreException)) {
+                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
+                        userID, credential);
+            }
+            throw (UserStoreException) e.getException();
+        }
+    }
+
+    private AuthenticationResult generateUserStoreChainWithID(String userID, String domain, Object credential,
+            List<String> userStorePreferenceOrder) throws UserStoreException {
+
+        IterativeUserStoreManager initialUserStoreManager = null;
+        IterativeUserStoreManager prevUserStoreManager = null;
+        for (String domainName : userStorePreferenceOrder) {
+            UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(domainName);
+            // If the user store manager is instance of AbstractUserStoreManager then generate a user store chain using
+            // IterativeUserStoreManager.
+            if (userStoreManager instanceof AbstractUserStoreManager) {
+                if (initialUserStoreManager == null) {
+                    prevUserStoreManager = new IterativeUserStoreManager((AbstractUserStoreManager) userStoreManager);
+                    initialUserStoreManager = prevUserStoreManager;
+                } else {
+                    IterativeUserStoreManager currentUserStoreManager = new IterativeUserStoreManager(
+                            (AbstractUserStoreManager) userStoreManager);
+                    prevUserStoreManager.setNextUserStoreManager(currentUserStoreManager);
+                    prevUserStoreManager = currentUserStoreManager;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate the"
+                            + " user through all the available user store list.");
+                }
+                return authenticateInternalWithID(userID, domain, credential);
+            }
+        }
+        // Authenticate using the initial user store from the user store preference list.
+        return initialUserStoreManager.authenticateWithID(userID, domain, credential);
+    }
+
+    private AuthenticationResult authenticateInternalWithID(String userID, String domain, Object credential)
+            throws UserStoreException {
+
+        AbstractUserStoreManager abstractUserStoreManager = this;
+        if (this instanceof IterativeUserStoreManager) {
+            abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
+        }
+        boolean authenticated = false;
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getCode(),
+                    ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getMessage(), userID, credential);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.toString(), e);
+        }
+
+        try {
+            try {
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    Object credentialArgument;
+                    if (listener instanceof SecretHandleableListener) {
+                        credentialArgument = credentialObj;
+                    } else {
+                        credentialArgument = credential;
+                    }
+
+                    if (!((AbstractUserOperationEventListener) listener)
+                            .doPreAuthenticateWithID(userID, credentialArgument, abstractUserStoreManager)) {
+                        handleOnAuthenticateFailureWithID(
+                                ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID,
+                                credentialArgument);
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason(
+                                ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage()));
+                        return authenticationResult;
+                    }
+                }
+            } catch (UserStoreException ex) {
+                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                ex.getMessage()), userID, credential);
+                throw ex;
+            }
+
+            int tenantId = abstractUserStoreManager.getTenantId();
+
+            try {
+                RealmService realmService = UserCoreUtil.getRealmService();
+                if (realmService != null) {
+                    boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
+
+                    if (!tenantActive) {
+                        String errorCode = ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getCode();
+                        String errorMessage = String
+                                .format(ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getMessage(), tenantId);
+                        log.warn(errorCode + " - " + errorMessage);
+                        handleOnAuthenticateFailureWithID(errorCode, errorMessage, userID, credential);
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult.setFailureReason(new FailureReason("Inactive Tenant: " + tenantId));
+                        return authenticationResult;
+                    }
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                e.getMessage()), userID, credential);
+                throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
+            }
+
+            if (StringUtils.isNotEmpty(domain)) {
+                UserStoreManager secUserStoreManager = abstractUserStoreManager.getSecondaryUserStoreManager(domain);
+                if (isUniqueUserIdEnabled(secUserStoreManager)) {
+                    authenticationResult = ((AbstractUserStoreManager) secUserStoreManager)
+                            .doAuthenticateWithID(userID, credential);
+                } else {
+                    User user = userUniqueIDManger
+                            .getUser(userID, null, (AbstractUserStoreManager) secUserStoreManager);
+                    boolean status = ((AbstractUserStoreManager) secUserStoreManager)
+                            .doAuthenticate(user.getUsername(), credential);
+                    if (status) {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    } else {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult
+                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
+                    }
+                }
+
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+                if (authenticated) {
+                    // Set domain in thread local variable for subsequent operations
+                    UserCoreUtil.setDomainInThreadLocal(domain);
+                }
+            } else {
+                // Domain is not provided. Try to authenticate with the current user store manager.
+                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                    authenticationResult = abstractUserStoreManager.doAuthenticateWithID(userID, credential);
+                } else {
+                    User user = userUniqueIDManger.getUser(userID, null, abstractUserStoreManager);
+                    boolean status = abstractUserStoreManager.doAuthenticate(user.getUsername(), credential);
+                    if (status) {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    } else {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult
+                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
+                    }
+                }
+
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+                if (authenticated) {
+                    // Set domain in thread local variable for subsequent operations
+                    UserCoreUtil
+                            .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
+                }
+            }
+        } finally {
+            credentialObj.clear();
+        }
+
+        // If authentication fails in the previous step and if the user has not specified a
+        // domain- then we need to execute chained UserStoreManagers recursively.
+        if (!authenticated && StringUtils.isEmpty(domain)) {
+            AbstractUserStoreManager userStoreManager;
+            if (this instanceof IterativeUserStoreManager) {
+                IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
+                userStoreManager = iterativeUserStoreManager.nextUserStoreManager();
+            } else {
+                userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
+            }
+            if (userStoreManager != null) {
+                authenticationResult = authenticateWithID(userID, null, credential);
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+            }
+        }
+
+        if (!authenticated) {
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                            "Authentication failed"), userID, credential);
+        }
+
+        try {
+            // You cannot change authentication decision in post handler to TRUE
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!((AbstractUserOperationEventListener) listener)
+                        .doPostAuthenticateWithID(userID, authenticated, abstractUserStoreManager)) {
+                    handleOnAuthenticateFailureWithID(
+                            ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, credential);
+
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(
+                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage()));
+                    return authenticationResult;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
+                            ex.getMessage()), userID, credential);
+            throw ex;
+        }
+
+        if (log.isDebugEnabled()) {
+            if (!authenticated) {
+                log.debug("Authentication failure. Wrong userID or password is provided.");
             }
         }
 
@@ -10730,7 +11466,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user ID
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected String getUserIDFromUserName(String userName) throws UserStoreException {
+    public String getUserIDFromUserName(String userName) throws UserStoreException {
 
         return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
     }
@@ -10742,7 +11478,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user name.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
         throw new NotImplementedException("getUserNameFromUserID operation is not implemented in: " + this.getClass());
     }
@@ -10786,7 +11522,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user ID.
      * @throws UserStoreException UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
         throw new NotImplementedException(
@@ -10832,8 +11568,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Add username as a user claim.
      *
-     * @param userName username
-     * @param claims   claims map
+     * @param userName username.
+     * @param claims   claims map.
      */
     protected Map<String, String> addUserNameAttribute(String userName, Map<String, String> claims) {
 
@@ -10841,6 +11577,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             claims = new HashMap<>();
         }
         claims.put(UserCoreClaimConstants.USERNAME_CLAIM_URI, userName);
+        return claims;
+    }
+
+    /**
+     * Add username as a user claim.
+     *
+     * @param userID user ID.
+     * @param claims claims map.
+     */
+    protected Map<String, String> addUserIDAttribute(String userID, Map<String, String> claims) {
+
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
+        claims.put(UserCoreClaimConstants.USER_ID_CLAIM_URI, userID);
         return claims;
     }
 

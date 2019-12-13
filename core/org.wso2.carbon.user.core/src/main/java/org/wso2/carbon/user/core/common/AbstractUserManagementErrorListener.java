@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserManagementErrorEventListener;
 import org.wso2.carbon.user.core.model.Condition;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -149,6 +150,21 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
     @Override
     public boolean onUpdatePermissionsOfRoleFailure(String errorCode, String errorMessage, String roleName,
             Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean onAuthenticateFailureWithID(String errorCode, String errorMessage, String preferredUserNameClaim,
+            String preferredUserNameValue, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onAuthenticateFailureWithID(String errorCode, String errorMessage, List<LoginIdentifier> loginIdentifiers, Object credential,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
         return true;
     }
 

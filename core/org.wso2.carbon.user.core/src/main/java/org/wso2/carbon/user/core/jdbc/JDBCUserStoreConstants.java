@@ -194,6 +194,8 @@ public class JDBCUserStoreConstants {
 
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_ID, "Select User ID SQL",
+                JDBCRealmConstants.SELECT_USER_ID_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER_WITH_ID, "Select User ID SQL",
                 JDBCRealmConstants.SELECT_USER_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, "Select User SQL With " +

@@ -35,6 +35,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
@@ -42,8 +43,6 @@ import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
-import org.wso2.carbon.user.core.ldap.LDAPConstants;
-import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
@@ -57,6 +56,7 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
+import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -77,7 +77,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
@@ -97,7 +96,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
+            + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final List<Property> UNIQUE_ID_JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
 
@@ -658,12 +658,145 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    protected AuthenticationResult doAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, Object credential)
+            throws UserStoreException {
+
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
+        User user;
+
+        if (!checkUserPasswordValid(credential)) {
+            String reason = "Password validation failed";
+            if (log.isDebugEnabled()) {
+                log.debug(reason);
+            }
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason(reason));
+            return authenticationResult;
+        }
+
+        Connection dbConnection = null;
+        ResultSet rs = null;
+        PreparedStatement prepStmt = null;
+        String sqlstmt;
+        String password;
+        boolean isAuthed = false;
+
+        try {
+            dbConnection = getDBConnection();
+            dbConnection.setAutoCommit(false);
+            sqlstmt = getSqlQuery(loginIdentifiers.size()).toString();
+            if (log.isDebugEnabled()) {
+                log.debug(sqlstmt);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlstmt);
+
+            // The sql parameters count will be calculated by considering the sql query built by getSqlQuery() method.
+            int count = 1;
+            prepStmt.setInt(count++, tenantId);
+            for (LoginIdentifier loginIdentifier : loginIdentifiers) {
+                prepStmt.setString(count++, loginIdentifier.getLoginKey());
+                prepStmt.setString(count++, loginIdentifier.getLoginValue());
+                prepStmt.setString(count++, loginIdentifier.getProfileName());
+                prepStmt.setInt(count++, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+
+            int resultsCount = 0;
+            while (rs.next()) {
+                // Handle multiple matching users.
+                resultsCount++;
+                if (resultsCount > 1) {
+                    String reason = "Invalid scenario. Multiple users found for the given attribute values: ";
+                    if (log.isDebugEnabled()) {
+                        log.debug(reason);
+                    }
+                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason(reason));
+                    isAuthed = false;
+                    break;
+                }
+
+                String userID = rs.getString(1);
+                String storedPassword = rs.getString(2);
+                String saltValue = null;
+                if ("true".equalsIgnoreCase(
+                        realmConfig.getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
+                    saltValue = rs.getString(3);
+                }
+
+                boolean requireChange = rs.getBoolean(4);
+                Timestamp changedTime = rs.getTimestamp(5);
+
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.add(GregorianCalendar.HOUR, -24);
+                Date date = gc.getTime();
+
+                if (requireChange && changedTime.before(date)) {
+                    isAuthed = false;
+                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason("Password change required."));
+                } else {
+                    password = preparePassword(credential, saltValue);
+                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                        isAuthed = true;
+                        String userName = getUserNameFromUserID(userID, null);
+                        user = new User(userID, userName, userName, null, null, null, null);
+                        try {
+                            user.setTenantDomain(getTenantDomain(tenantId));
+                            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
+                        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                            throw new UserStoreException(e);
+                        }
+                        authenticationResult = new AuthenticationResult(
+                                AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving user authentication info for user : ";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException("Authentication Failure", e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("User login attempt. Login status: " + isAuthed);
+        }
+
+        return authenticationResult;
+    }
+
+    private StringBuilder getSqlQuery(int limit) {
+
+        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER.UM_USER_ID, UM_USER.UM_USER_PASSWORD, UM_USER"
+                + ".UM_SALT_VALUE, UM_USER.UM_REQUIRE_CHANGE, UM_USER.UM_CHANGED_TIME FROM UM_USER WHERE UM_USER"
+                + ".UM_TENANT_ID=? UM_USER.UM_ID IN (");
+
+        for (int i = 1; i <= limit; i++) {
+            sqlStatement.append("SELECT UM_USER_ATTRIBUTE.UM_USER_ID FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? "
+                    + "AND UM_ATTR_VALUE = ? AND UM_PROFILE_ID = ? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=?");
+            if (i < limit) {
+                sqlStatement.append(" AND ");
+            }
+        }
+
+        sqlStatement.append(")");
+        return sqlStatement;
+    }
+
+    @Override
     public AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
             Object credential, String profileName) throws UserStoreException {
 
         AuthenticationResult authenticationResult = new AuthenticationResult(
                 AuthenticationResult.AuthenticationStatus.FAIL);
-        User user = null;
+        User user;
 
         if (!checkUserNameValid(preferredUserNameValue)) {
             String reason = "Username validation failed";
@@ -772,15 +905,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        user = new User(userID,
-                                getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, profileName),
-                                preferredUserNameValue, null, null, null, null);
-                        try {
-                            user.setTenantDomain(getTenantDomain(tenantId));
-                            user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-                        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                            throw new UserStoreException(e);
-                        }
+                        String userName = getUserNameFromUserID(userID, null);
+                        user = getUser(userID, userName, profileName);
+                        user.setPreferredUsername(preferredUserNameProperty);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
@@ -799,7 +926,106 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("User " + preferredUserNameValue + " login attempt. Login success :: " + isAuthed);
+            log.debug("User " + preferredUserNameValue + " login attempt. Login success: " + isAuthed);
+        }
+
+        return authenticationResult;
+    }
+
+    @Override
+    public AuthenticationResult doAuthenticateWithID(String userID, Object credential) throws UserStoreException {
+
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
+        User user;
+
+        if (StringUtils.isEmpty(userID)) {
+            String reason = "Username validation failed";
+            if (log.isDebugEnabled()) {
+                log.debug(reason);
+            }
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason(reason));
+            return authenticationResult;
+        }
+
+        if (!checkUserPasswordValid(credential)) {
+            String reason = "Password validation failed";
+            if (log.isDebugEnabled()) {
+                log.debug(reason);
+            }
+            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason(reason));
+            return authenticationResult;
+        }
+
+        Connection dbConnection = null;
+        ResultSet rs = null;
+        PreparedStatement prepStmt = null;
+        String sqlstmt;
+        String password;
+        boolean isAuthed = false;
+
+        try {
+            dbConnection = getDBConnection();
+            dbConnection.setAutoCommit(false);
+
+            sqlstmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_ID);
+
+            if (log.isDebugEnabled()) {
+                log.debug(sqlstmt);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlstmt);
+            prepStmt.setString(1, userID);
+            if (sqlstmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+
+                String storedPassword = rs.getString(2);
+                String saltValue = null;
+                if ("true".equalsIgnoreCase(
+                        realmConfig.getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
+                    saltValue = rs.getString(3);
+                }
+                boolean requireChange = rs.getBoolean(4);
+                Timestamp changedTime = rs.getTimestamp(5);
+
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.add(GregorianCalendar.HOUR, -24);
+                Date date = gc.getTime();
+
+                if (requireChange && changedTime.before(date)) {
+                    isAuthed = false;
+                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason("Password change required."));
+                } else {
+                    password = preparePassword(credential, saltValue);
+                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                        isAuthed = true;
+                        String userName = getUserNameFromUserID(userID, null);
+                        user = getUser(userID, userName, null);
+                        authenticationResult = new AuthenticationResult(
+                                AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving user authentication info for userID : " + userID;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException("Authentication Failure", e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("UserID " + userID + " login attempt. Login success: " + isAuthed);
         }
 
         return authenticationResult;
@@ -818,12 +1044,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         // Assigning unique user ID of the user as the username in the system.
         String userID = getUniqueUserID();
-        // Assign preferredUsername as the username claim.
+        // Assign preferredUsername to the username claim.
         claims = addUserNameAttribute(userName, claims);
+        // Assign userID to the userid claim.
+        claims = addUserIDAttribute(userID, claims);
         persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
 
-        User user = getUser(userID, userName, profileName);
-        return user;
+        return getUser(userID, userName, profileName);
 
     }
 
@@ -965,7 +1192,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
+    public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
         try {
@@ -1001,7 +1228,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
         Map<String, String> claims = doGetUserClaimValuesWithID(userID,
                 new String[] { UserCoreClaimConstants.USERNAME_CLAIM_URI }, getMyDomainName(), profileName);
@@ -2977,8 +3204,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
-                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                String usernameAttribute = claimManager
+                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = ?",
                             expressionCondition.getAttributeValue());
@@ -2988,36 +3215,37 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
-                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                String usernameAttribute = claimManager
+                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?", "%"
-                            + expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?",
+                            "%" + expressionCondition.getAttributeValue() + "%");
                 } else {
                     sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE LOWER(?)",
                             "%" + expressionCondition.getAttributeValue() + "%");
                 }
             } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
-                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                String usernameAttribute = claimManager
+                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?", "%"
-                            + expressionCondition.getAttributeValue());
+                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?",
+                            "%" + expressionCondition.getAttributeValue());
                 } else {
                     sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE LOWER(?)",
                             "%" + expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager.getAttributeName(getMyDomainName(),
-                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                String usernameAttribute = claimManager
+                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?",
                             expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute
-                            + "' AND UA.UM_ATTR_VALUE = LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder
+                            .where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = LIKE LOWER(?)",
+                                    expressionCondition.getAttributeValue() + "%");
                 }
             } else {
                 // Claim filtering

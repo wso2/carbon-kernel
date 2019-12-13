@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
@@ -46,11 +47,36 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param preferredUserNameValue The preferred user name value.
      * @param credential             The credential of a user.
      * @param profileName            profile name.
-     * @return authnticated user.
+     * @return authenticated result.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    AuthenticationResult authenticateWithID(String preferredUserNameClaim, String preferredUserNameValue, Object credential,
-                                            String profileName) throws UserStoreException;
+    AuthenticationResult authenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
+            Object credential, String profileName) throws UserStoreException;
+
+    /**
+     * Given the identifiers and a credential object, the implementation code must
+     * validate whether the user is authenticated.
+     *
+     * @param loginIdentifiers The login identifiers list that can be used to identify the user.
+     * @param domain           User store domain.
+     * @param credential       The credential of a user.
+     * @return authenticated result.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    AuthenticationResult authenticateWithID(List<LoginIdentifier> loginIdentifiers, String domain, Object credential)
+            throws UserStoreException;
+
+    /**
+     * Given the user ID and a credential object, the implementation code must validate whether
+     * the user is authenticated.
+     *
+     * @param userID     The user ID.
+     * @param domain     User store domain.
+     * @param credential The credential of a user.
+     * @return authenticated result.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    AuthenticationResult authenticateWithID(String userID, String domain, Object credential) throws UserStoreException;
 
     /**
      * Retrieves users upto a maximum limit that matches the user name filter.
@@ -343,7 +369,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException User Store Exception.
      */
     List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
-                                 String sortBy, String sortOrder) throws UserStoreException;
+            String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Get claim values of users.

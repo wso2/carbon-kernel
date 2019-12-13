@@ -23,7 +23,8 @@ import java.util.Optional;
 
 /**
  * Represents an authentication result after a authentication attempt.
- * @since 4.5.3
+ *
+ * @since 4.6.0
  */
 public class AuthenticationResult implements Serializable {
 
