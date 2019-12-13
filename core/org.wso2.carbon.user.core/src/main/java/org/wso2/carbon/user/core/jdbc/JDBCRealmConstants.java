@@ -66,6 +66,7 @@ public final class JDBCRealmConstants {
     public static final String GET_PAGINATED_USERS_FOR_PROP_ORACLE = "GetPaginatedUserLisForPropertySQL-oracle";
     public static final String GET_PAGINATED_USERS_FOR_PROP_DB2 = "GetPaginatedUserLisForPropertySQL-db2";
     public static final String GET_PAGINATED_USERS_COUNT_FOR_PROP = "GetPaginatedUserCountForPropertySQL";
+    public static final String GET_PAGINATED_USERS_COUNT_FOR_PROP_WITH_ID = "GetPaginatedUserCountForPropertyWithIDSQL";
     public static final String GET_PROFILE_NAMES = "GetProfileNamesSQL";
     public static final String GET_PROFILE_NAMES_FOR_USER = "GetUserProfileNamesSQL";
     public static final String GET_PROFILE_NAMES_FOR_USER_WITH_ID = "GetUserProfileNamesWithIDSQL";
