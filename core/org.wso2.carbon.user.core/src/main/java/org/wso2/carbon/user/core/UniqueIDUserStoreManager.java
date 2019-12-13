@@ -67,12 +67,12 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             throws UserStoreException;
 
     /**
-     * Given the user name and a credential object, the implementation code must validate whether
+     * Given the user ID and a credential object, the implementation code must validate whether
      * the user is authenticated.
      *
      * @param userID     The user ID.
      * @param domain     User store domain.
-     * @param credential The credential of a user
+     * @param credential The credential of a user.
      * @return authenticated result.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
