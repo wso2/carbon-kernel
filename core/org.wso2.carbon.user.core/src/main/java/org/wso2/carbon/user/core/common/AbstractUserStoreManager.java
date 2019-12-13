@@ -11468,7 +11468,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public String getUserIDFromUserName(String userName) throws UserStoreException {
 
-        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
+        return userUniqueIDManger.getUniqueId(userName, null, this);
     }
 
     /**
@@ -11480,7 +11480,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
 
-        throw new NotImplementedException("getUserNameFromUserID operation is not implemented in: " + this.getClass());
+        User user = userUniqueIDManger.getUser(userID, profileName, this);
+        return user.getUsername();
     }
 
     /**
@@ -11525,8 +11526,36 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        throw new NotImplementedException(
-                "getUserIDFromProperties operation is not implemented in: " + this.getClass());
+        String domain = this.getMyDomainName();
+        if (isUniqueUserIdEnabled()) {
+            List<User> users = doGetUserListWithID(claimURI, claimValue, profileName, domain, this);
+            if (users.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No userID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:"
+                            + " " + getMyDomainName());
+                }
+                return null;
+            } else if (users.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of "
+                                + "the " + "claim: " + claimURI);
+            }
+            return users.get(0).getUserID();
+        } else {
+            List<String> userNames = doGetUserList(claimURI, claimValue, profileName, domain, this);
+            if (userNames.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No userID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:"
+                            + " " + getMyDomainName());
+                }
+                return null;
+            } else if (userNames.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of "
+                                + "the " + "claim: " + claimURI);
+            }
+            return userUniqueIDManger.getUniqueId(userNames.get(0), profileName, this);
+        }
     }
 
     /**
