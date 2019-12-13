@@ -9083,7 +9083,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                     UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserListWithID(condition,
                             profileName, limit, offset, sortBy, sortOrder);
-                    filteredUsers = users.getPaginatedSearchResult().getUsers();
+                    filteredUsers = users.getUsers().stream().map(User::getUsername).toArray(String[]::new);
                 } else {
                     PaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserList(condition,
                             profileName, limit, offset, sortBy, sortOrder);
@@ -11509,7 +11509,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         List<String> userIDs = new ArrayList<>();
         for (String userName : userNames) {
-            userIDs.add(getUserIDFromUserName(userName));
+            String userId = getUserIDFromUserName(userName);
+            if (userId == null) {
+                throw new UserStoreException("User " + userName + " does not exit in the system.");
+            }
+            userIDs.add(userId);
         }
         return userIDs;
     }
