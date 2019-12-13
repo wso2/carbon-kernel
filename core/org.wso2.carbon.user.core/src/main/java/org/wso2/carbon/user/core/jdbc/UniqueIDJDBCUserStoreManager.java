@@ -1192,6 +1192,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public String getUserIDFromUserName(String userName) throws UserStoreException {
+
+        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
+    }
+
+    @Override
     public String getUserIDFromProperties(String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
@@ -1206,7 +1212,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 return null;
             }
             List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, profileName);
-            if (userIds.size() == 0) {
+            if (userIds.isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.debug("No UserID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:"
                             + " " + getMyDomainName());
