@@ -1199,7 +1199,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), userName,
                             credentialArgument);
-                    return true;
+                    return false;
                 }
             }
 
@@ -1255,10 +1255,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // We are here due to two reason. Either there is no secondary UserStoreManager or no
             // domain name provided with user name.
             try {
-                String userNameProperty = claimManager
-                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 // Let's authenticate with the primary UserStoreManager.
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                    String userNameProperty = claimManager
+                            .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                     AuthenticationResult authenticationResult = abstractUserStoreManager
                             .doAuthenticateWithID(userNameProperty, userName, credential, null);
                     if (authenticationResult.getAuthenticationStatus()
@@ -1302,16 +1302,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
             }
             if (userStoreManager != null) {
-                if (userStoreManager.isUniqueUserIdEnabled()) {
-                    AuthenticationResult authenticationResult = authenticateWithID(UserCoreClaimConstants
-                            .USERNAME_CLAIM_URI, userName, credential, null, domainProvided);
-                    if (authenticationResult.getAuthenticationStatus()
-                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                        authenticated = true;
-                    }
-                } else {
-                    authenticated = userStoreManager.authenticate(userName, credential, domainProvided);
-                }
+                authenticated = userStoreManager.authenticate(userName, credential, domainProvided);
             }
         }
 
@@ -9674,19 +9665,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
             }
             if (userStoreManager != null) {
-                if (userStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = authenticateWithID(loginIdentifiers, null, credential);
-                    if (authenticationResult.getAuthenticationStatus()
-                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                        authenticated = true;
-                    }
-                } else {
-                    String username = getUsernameByClaims(loginIdentifiers);
-                    if (username != null) {
-                        authenticated = userStoreManager.authenticate(username, credential);
-                    } else {
-                        authenticated = false;
-                    }
+                authenticationResult = authenticateWithID(loginIdentifiers, null, credential);
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
                 }
             }
         }
@@ -10367,21 +10349,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
             }
             if (userStoreManager != null) {
-
-                if (userStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = authenticateWithID(userID, null, credential);
-                } else {
-                    User user = userUniqueIDManger.getUser(userID, null, userStoreManager);
-                    boolean status = userStoreManager.authenticate(user.getUsername(), credential);
-                    if (status) {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                        authenticationResult.setAuthenticatedUser(user);
-                    } else {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult
-                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
-                    }
-                }
+                authenticationResult = authenticateWithID(userID, null, credential);
                 if (authenticationResult.getAuthenticationStatus()
                         == AuthenticationResult.AuthenticationStatus.SUCCESS) {
                     authenticated = true;
