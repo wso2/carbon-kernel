@@ -2952,10 +2952,64 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (users.size() == 0) {
-            result.setSkippedUserCount(getUserListFromPropertiesCount(property, value, profileName));
+            result.setSkippedUserCount(getUserListFromPropertiesCountWithID(property, value, profileName));
         }
         return result;
 
+    }
+
+    protected int getUserListFromPropertiesCountWithID(String property, String value, String profileName)
+            throws UserStoreException {
+
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException("Filter value cannot be null");
+        }
+        if (value.contains(QUERY_FILTER_STRING_ANY)) {
+            // This is to support LDAP like queries. Value having only * is restricted except one *.
+            if (!value.matches("(\\*)\\1+")) {
+                // Convert all the * to % except \*.
+                value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
+            }
+        }
+
+        int count = 0;
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            dbConnection = getDBConnection();
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP_WITH_ID);
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, property);
+            prepStmt.setString(2, value);
+            prepStmt.setString(3, profileName);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(4, tenantId);
+                prepStmt.setInt(5, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Database error occurred while paginating users count for a property : " + property + " & "
+                    + "value :" + " " + value + "& profile name : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        return count;
     }
 
     @Override
