@@ -990,6 +990,7 @@ public final class CarbonServerManager implements Controllable {
      * @throws IOException If an error occurs while setting handler
      */
     private void setJULFileHandler() throws IOException {
+
         Handler fileHandler = new FileHandler(LOG_FILES_DIR_PATH);
         fileHandler.setFormatter(new SimpleFormatter() {
 

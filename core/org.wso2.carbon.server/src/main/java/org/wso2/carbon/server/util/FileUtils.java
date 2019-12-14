@@ -258,7 +258,13 @@ public class FileUtils {
         return dir.delete();
     }
 
-
+    /**
+     * Return the file when filename and parent file is given
+     *
+     * @param parentFile parent file
+     * @param fileName the name of the file
+     * @return File
+     */
     public static File getFile(File parentFile, final String fileName) {
         File[] files = parentFile.listFiles();
         for (File file : files) {
