@@ -19,7 +19,6 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 
 import java.util.ArrayList;
@@ -46,6 +45,8 @@ public class UserUniqueIDManger {
 
         Map<String, String> claims = new HashMap<>();
         String uniqueId = generateUniqueId();
+
+        // TODO: 12/12/19 Change the unique id claim to userId when the user store is not readonly.
         claims.put(USER_ID_CLAIM, uniqueId);
 
         userStoreManager.setUserClaimValues(username, claims, profileName);
@@ -53,7 +54,7 @@ public class UserUniqueIDManger {
         User user = new User();
         user.setUserID(uniqueId);
         user.setUsername(username);
-        user.setUserStoreDomain(getUserStoreDomainName(userStoreManager));
+        user.setUserStoreDomain(userStoreManager.getMyDomainName());
 
         return user;
     }
@@ -79,6 +80,7 @@ public class UserUniqueIDManger {
         User user = new User();
         user.setUserID(uniqueId);
         user.setUsername(usernames[0]);
+        user.setUserStoreDomain(userStoreManager.getMyDomainName());
 
         return user;
     }
@@ -111,7 +113,7 @@ public class UserUniqueIDManger {
     public String getUniqueId(String username, String profile, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        return userStoreManager.getUserClaimValue(username, USER_ID_CLAIM, profile);
+        return userStoreManager.getUserClaimValues(username, new String[]{USER_ID_CLAIM}, profile).get(USER_ID_CLAIM);
     }
 
     /**
@@ -185,6 +187,7 @@ public class UserUniqueIDManger {
             String uniqueId = getUniqueId(username, null, userStoreManager);
             user.setUsername(username);
             user.setUserID(uniqueId);
+            user.setUserStoreDomain(userStoreManager.getMyDomainName());
             users.add(user);
         }
 
@@ -198,16 +201,5 @@ public class UserUniqueIDManger {
     protected String generateUniqueId() {
 
         return UUID.randomUUID().toString();
-    }
-
-    private String getUserStoreDomainName(AbstractUserStoreManager userStoreManager) {
-
-        String domainNameProperty;
-        domainNameProperty = userStoreManager.getRealmConfiguration()
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-        if (StringUtils.isEmpty(domainNameProperty)) {
-            domainNameProperty = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-        }
-        return domainNameProperty;
     }
 }
