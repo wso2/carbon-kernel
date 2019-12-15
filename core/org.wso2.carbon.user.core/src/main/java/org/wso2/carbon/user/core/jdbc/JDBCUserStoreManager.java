@@ -54,6 +54,7 @@ import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -77,8 +78,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
-import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -95,6 +96,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public static final String QUERY_BINDING_SYMBOL = "?";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
+    private static final String ERROR_WHILE_EXECUTING_THE_SQL = "Error while executing the SQL";
+    private static final String ERROR_OCCURRED_WHILE_RETRIEVING_USERS_FOR_FILTER = "Error occurred while retrieving " +
+            "users for filter : ";
 
     protected DataSource jdbcds = null;
     protected Random random = new Random();
@@ -3780,11 +3784,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (SQLException e) {
-            String msg = "Error while executing the SQL " + sqlStmt;
+            String msg = ERROR_WHILE_EXECUTING_THE_SQL;
             if (log.isDebugEnabled()) {
-                log.debug(msg + sqlStmt);
+                log.debug(msg);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
         } catch (UserStoreException ex) {
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
                             .getCode(),
@@ -3848,11 +3852,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
 
         } catch (SQLException e) {
-            String msg = "Error occurred while retrieving users for filter : " + filter;
+            String msg = ERROR_OCCURRED_WHILE_RETRIEVING_USERS_FOR_FILTER + filter;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
 
         } catch (UserStoreException ex) {
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
