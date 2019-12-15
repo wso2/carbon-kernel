@@ -483,4 +483,10 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
         return this.abstractUserStoreManager.getProfileNamesWithID(userID);
     }
 
+    @Override
+    protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doGetUserIDFromUserNameWithID(userName);
+    }
+
 }

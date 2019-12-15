@@ -1174,9 +1174,46 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public String getUserIDFromUserName(String userName) throws UserStoreException {
+    protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
 
-        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
+        if (userName == null) {
+            throw new IllegalArgumentException("userName cannot be null.");
+        }
+
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        String userID = null;
+        try {
+            dbConnection = getDBConnection();
+
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE);
+            }
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, userName);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                userID = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            String msg = "Database error occurred while retrieving userID for a UserName : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        return userID;
     }
 
     @Override

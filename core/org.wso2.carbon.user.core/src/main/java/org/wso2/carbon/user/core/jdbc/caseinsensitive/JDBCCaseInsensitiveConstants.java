@@ -21,6 +21,8 @@ package org.wso2.carbon.user.core.jdbc.caseinsensitive;
 public class JDBCCaseInsensitiveConstants {
     public static final String SELECT_USER_CASE_INSENSITIVE = "SelectUserSQLCaseInsensitive";
     public static final String SELECT_USER_WITH_ID_CASE_INSENSITIVE = "SelectUserWithIDSQLCaseInsensitive";
+    public static final String SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE =
+            "SelectUserIDFromUserNameSQLCaseInsensitive";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE = "UserFilterSQLCaseInsensitive";
     public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE = "UserFilterWithIDSQLCaseInsensitive";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE = "UserFilterSQLCaseInsensitiveWithEscape";
@@ -68,6 +70,8 @@ public class JDBCCaseInsensitiveConstants {
             "UserNameUniqueAcrossTenantsSQLCaseInsensitiveWithID";
     public static final String SELECT_USER_SQL_CASE_INSENSITIVE = "SELECT * FROM UM_USER WHERE LOWER(UM_USER_NAME)" +
             "=LOWER(?) AND UM_TENANT_ID=?";
+    public static final String SELECT_USER_ID_FROM_USER_NAME_SQL_CASE_INSENSITIVE =
+            "SELECT UM_USER_ID FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=?";
     public static final String SELECT_USER_WITH_ID_SQL_CASE_INSENSITIVE = "SELECT UM_USER.UM_USER_ID, UM_USER"
             + ".UM_USER_NAME, UM_USER.UM_USER_PASSWORD, UM_USER.UM_SALT_VALUE, UM_USER.UM_REQUIRE_CHANGE, UM_USER"
             + ".UM_CHANGED_TIME FROM UM_USER, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID "

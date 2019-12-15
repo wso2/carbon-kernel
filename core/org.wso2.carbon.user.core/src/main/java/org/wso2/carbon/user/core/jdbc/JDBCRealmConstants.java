@@ -22,6 +22,7 @@ public final class JDBCRealmConstants {
     public static final String SELECT_USER = "SelectUserSQL";
     public static final String SELECT_USER_ID_WITH_ID = "SelectUserIDWithIDSQL";
     public static final String SELECT_USER_WITH_ID = "SelectUserWithIDSQL";
+    public static final String SELECT_USER_ID_FROM_USER_NAME = "SelectUserIDFromUserNameSQL";
     public static final String SELECT_USER_ID = "SelectUserIDSQL";
     public static final String GET_ROLE_LIST = "GetRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
@@ -138,6 +139,8 @@ public final class JDBCRealmConstants {
             + "UM_USER, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE"
             + ".UM_ATTR_NAME =? AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE =? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? AND "
             + "UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+    public static final String SELECT_USER_ID_FROM_USER_NAME_SQL = "SELECT UM_USER_ID FROM UM_USER WHERE "
+            + "UM_USER_NAME=? AND UM_TENANT_ID=?";
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
     public static final String GET_SHARED_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_SHARED_ROLE ='1' ORDER BY UM_ROLE_NAME";
     public static final String GET_USER_FILTER_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
