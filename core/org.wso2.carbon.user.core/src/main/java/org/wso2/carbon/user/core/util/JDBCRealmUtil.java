@@ -121,6 +121,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT,
                     JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_WITH_ID)) {
+            properties.put(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_WITH_ID,
+                    JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_WITH_ID_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_IS_ROLE_EXISTING)) {
             properties.put(JDBCRealmConstants.GET_IS_ROLE_EXISTING,
                     JDBCRealmConstants.GET_IS_ROLE_EXISTING_SQL);
@@ -515,6 +519,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL);
         }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_PAGINATED)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_PAGINATED,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_WITH_ID_SQL);
+        }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_DB2)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_DB2,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL_DB2);
@@ -530,6 +538,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_SQL);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_WITH_ID)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_WITH_ID,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_WITH_ID_SQL);
         }
 
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE)) {

@@ -10496,7 +10496,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class };
+            Class[] argTypes = new Class[] { String.class, String[].class, String.class };
             Object object = callSecure("getUserWithID", new Object[] { userID, requestedClaims, profileName },
                     argTypes);
             return (User) object;
@@ -11408,7 +11408,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return User.
      * @throws UserStoreException User Store Exception.
      */
-    protected User getUser(String userID, String userName, String profileName) throws UserStoreException {
+    public User getUser(String userID, String userName, String profileName) throws UserStoreException {
 
         if (userID == null && userName == null) {
             throw new UserStoreException("Both userID and UserName cannot be null.");
@@ -14091,7 +14091,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { List.class, String.class };
+            Class[] argTypes = new Class[] { List.class, String.class };
             Object object = callSecure("doGetRoleListOfUsersWithID", new Object[] { userIDs, domainName }, argTypes);
             return (Map<String, List<String>>) object;
         }

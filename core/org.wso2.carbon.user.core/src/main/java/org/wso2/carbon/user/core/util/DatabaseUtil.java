@@ -23,6 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
@@ -684,8 +686,9 @@ public class DatabaseUtil {
      * @return {@link User}[] of results.
      * @throws UserStoreException
      **/
-    public static List<User> getUsersFromDatabaseWithConstraints(Connection dbConnection, String sqlStmt, int maxRows,
-            int queryTimeout, Object... params) throws UserStoreException {
+    public static List<User> getUsersFromDatabaseWithConstraints(UserStoreManager userStoreManager,
+            Connection dbConnection, String sqlStmt, int maxRows, int queryTimeout, Object... params)
+            throws UserStoreException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -711,7 +714,7 @@ public class DatabaseUtil {
             while (rs.next()) {
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
-                User user = new User(userID, userName, userName);
+                User user = ((AbstractUserStoreManager) userStoreManager).getUser(userID, userName, userName);
                 users.add(user);
             }
             if (users.size() > 0) {
