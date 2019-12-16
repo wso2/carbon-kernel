@@ -9683,7 +9683,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(loginIdentifiers, authenticated, abstractUserStoreManager)) {
+                        .doPostAuthenticateWithID(loginIdentifiers, authenticationResult, abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
@@ -10105,7 +10105,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, authenticated,
+                        .doPostAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, authenticationResult,
                                 abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
@@ -10367,7 +10367,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(userID, authenticated, abstractUserStoreManager)) {
+                        .doPostAuthenticateWithID(userID, authenticationResult, abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
