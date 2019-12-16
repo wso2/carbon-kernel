@@ -372,13 +372,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Given the user name and a credential object, the implementation code must validate whether
+     * Given the user ID and a credential object, the implementation code must validate whether
      * the user is authenticated.
      *
      * @param userID     The user ID.
      * @param credential The credential of a user.
      * @return @see AuthenticationResult.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected AuthenticationResult doAuthenticateWithID(String userID, Object credential) throws UserStoreException {
 

@@ -36,6 +36,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.SELECT_USER_ID, JDBCRealmConstants.SELECT_USER_ID_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.SELECT_USER_NAME)) {
+            properties.put(JDBCRealmConstants.SELECT_USER_NAME, JDBCRealmConstants.SELECT_USER_NAME_SQL);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.SELECT_USER_ID_WITH_ID)) {
             properties.put(JDBCRealmConstants.SELECT_USER_ID_WITH_ID, JDBCRealmConstants.SELECT_USER_ID_WITH_ID_SQL);
         }
@@ -487,6 +491,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
                     .SELECT_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.SELECT_USER_NAME_SQL_CASE_INSENSITIVE);
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants

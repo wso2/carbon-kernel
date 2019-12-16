@@ -54,7 +54,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             Object credential, String profileName) throws UserStoreException;
 
     /**
-     * Given the identifiers and a credential object, the implementation code must
+     * Given the login identifiers and a credential object, the implementation code must
      * validate whether the user is authenticated.
      *
      * @param loginIdentifiers The login identifiers list that can be used to identify the user.
