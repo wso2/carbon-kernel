@@ -44,6 +44,11 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.SELECT_USER_WITH_ID, JDBCRealmConstants.SELECT_USER_WITH_ID_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME)) {
+            properties.put(JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME,
+                    JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME_SQL);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST)) {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL);
         }
@@ -486,6 +491,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
                     .SELECT_USER_WITH_ID_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_SQL_CASE_INSENSITIVE);
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants

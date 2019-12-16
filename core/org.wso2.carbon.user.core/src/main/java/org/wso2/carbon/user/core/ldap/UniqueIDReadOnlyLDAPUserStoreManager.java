@@ -554,7 +554,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    public String getUserIDFromUserName(String userName) throws UserStoreException {
+    protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
 
         return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
     }

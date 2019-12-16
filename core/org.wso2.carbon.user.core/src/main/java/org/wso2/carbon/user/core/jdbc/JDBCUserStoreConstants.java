@@ -203,6 +203,11 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_CASE_INSENSITIVE,
                 "Select User With ID SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_SQL_CASE_INSENSITIVE, "");
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME, "Select User ID From UserName SQL",
+                JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME_SQL, "");
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE,
+                "Select User ID From UserName SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty("GetRoleListSQL", "Get Role List SQL", "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE " +
                 "UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME", "");
         setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Role List SQP", JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL, "");

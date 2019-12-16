@@ -11464,12 +11464,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * provides the unique user ID of the given user.
      *
      * @param userName username of the user.
-     * @return user ID
+     * @return user ID of the user.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     public String getUserIDFromUserName(String userName) throws UserStoreException {
 
+        UserStore userStore = getUserStore(userName);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserIDFromUserName(userStore.getDomainFreeName());
+        }
+
+        if (isUniqueUserIdEnabledInUserStore(userStore)) {
+            return doGetUserIDFromUserNameWithID(userName);
+        }
         return userUniqueIDManger.getUniqueId(userName, null, this);
+    }
+
+    /**
+     * provides the unique user ID of the given user.
+     *
+     * @param userName username of the user.
+     * @return user ID of the user.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserIDFromUserName operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserIDFromUserName operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -13441,7 +13466,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return true;
         }
 
-        String[] roles = null;
+        String[] roles;
 
         String username = getUserNameFromUserID(userID, null);
         if (username == null) {
