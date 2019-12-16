@@ -455,8 +455,8 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -477,7 +477,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
     @Override
     public boolean doPostAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
-            boolean authenticated, UserStoreManager userStoreManager) throws UserStoreException {
+            AuthenticationResult authenticationResult, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -490,8 +490,8 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, boolean authenticated,
-            UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers,
+            AuthenticationResult authenticationResult, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -504,8 +504,8 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostAuthenticateWithID(String userID, boolean authenticated, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostAuthenticateWithID(String userID, AuthenticationResult authenticationResult,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }

@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
@@ -204,7 +205,8 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @throws UserStoreException UserStoreException
      */
     boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
-            String sortBy, String sortOrder, List<User> users, UserStoreManager userStoreManager) throws UserStoreException;
+            String sortBy, String sortOrder, List<User> users, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Post listener for the get user conditional list method.
@@ -336,13 +338,13 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      *
      * @param preferredUserNameClaim Preferred username claim.
      * @param preferredUserNameValue Preferred username value.
-     * @param authenticated          where user is authenticated or not.
+     * @param authenticationResult   Authentication Result.
      * @param userStoreManager       The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     boolean doPostAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
-            boolean authenticated, UserStoreManager userStoreManager) throws UserStoreException;
+            AuthenticationResult authenticationResult, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Define any additional actions before actual authentication is happen.
@@ -359,13 +361,13 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions after actual authentication is happen.
      *
-     * @param loginIdentifiers Login identifiers.
-     * @param authenticated    where user is authenticated or not.
-     * @param userStoreManager The underlying UserStoreManager.
+     * @param loginIdentifiers     Login identifiers.
+     * @param authenticationResult Authentication Result.
+     * @param userStoreManager     The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, boolean authenticated,
+    boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, AuthenticationResult authenticationResult,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
@@ -383,14 +385,15 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions after actual authentication is happen.
      *
-     * @param userID           User ID.
-     * @param authenticated    where user is authenticated or not.
-     * @param userStoreManager The underlying UserStoreManager.
+     * @param userID               User ID.
+     * @param authenticationResult Authentication Result.
+     * @param userStoreManager     The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    boolean doPostAuthenticateWithID(String userID, boolean authenticated, UserStoreManager userStoreManager)
-            throws UserStoreException;
+    boolean doPostAuthenticateWithID(String userID, AuthenticationResult authenticationResult,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
     /**
      * Define any additional actions before user is added.
      *
@@ -664,7 +667,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Post listener for get role list of users.
      *
-     * @param userIDs       user IDs.
+     * @param userIDs         user IDs.
      * @param rolesOfUsersMap map of roles against users
      * @return false in case of error
      * @throws UserStoreException UserStoreException
