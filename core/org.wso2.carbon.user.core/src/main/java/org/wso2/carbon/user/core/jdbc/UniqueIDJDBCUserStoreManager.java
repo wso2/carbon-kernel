@@ -32,6 +32,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
@@ -96,8 +97,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
-            + "values";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
+            "This is the separator for multiple claim " + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final List<Property> UNIQUE_ID_JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
 
@@ -143,7 +144,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         String sqlStmt;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        String userNameAttribute = this.getUserNameMappedAttribute();
 
         if (maxItemLimit == 0) {
             return Collections.emptyList();
@@ -195,12 +195,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, userNameAttribute);
-            prepStmt.setString(2, filter);
-            prepStmt.setString(3, UserCoreConstants.DEFAULT_PROFILE);
+            prepStmt.setString(1, filter);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(4, tenantId);
-                prepStmt.setInt(5, tenantId);
+                prepStmt.setInt(2, tenantId);
             }
 
             prepStmt.setMaxRows(maxItemLimit);
@@ -230,7 +227,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             while (rs.next()) {
-
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
@@ -320,9 +316,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throws UserStoreException {
 
         String roleName = ctx.getRoleName();
-        List<User> users = null;
+        List<User> users;
         String sqlStmt;
-        String mappedAttribute = this.getUserNameMappedAttribute();
 
         if (maxItemLimit == 0) {
             return Collections.emptyList();
@@ -347,29 +342,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                users = getUsersFromDatabaseWithConstraints(sqlStmt, maxItemLimit, queryTimeout, mappedAttribute,
-                        filter, roleName, tenantId, tenantId, tenantId, tenantId);
+                users = getUsersFromDatabaseWithConstraints(this, sqlStmt, maxItemLimit, queryTimeout, filter, roleName,
+                        tenantId, tenantId, tenantId);
             } else {
-                users = getUsersFromDatabaseWithConstraints(sqlStmt, maxItemLimit, queryTimeout, mappedAttribute,
-                        filter, roleName);
+                users = getUsersFromDatabaseWithConstraints(this, sqlStmt, maxItemLimit, queryTimeout, filter,
+                        roleName);
             }
-
-        } else if (ctx.isShared()) {
+        } else {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_FILTER_WITH_ID);
-            users = getUsersFromDatabaseWithConstraints(sqlStmt, maxItemLimit, queryTimeout, mappedAttribute, filter,
-                    roleName);
+            users = getUsersFromDatabaseWithConstraints(this, sqlStmt, maxItemLimit, queryTimeout, filter, roleName);
         }
-
-        if (users != null) {
-            for (User user : users) {
-                user.setTenantDomain(getTenantDomain(tenantId));
-                user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
-            }
-        }
-        log.debug("Roles are not defined for the role name " + roleName);
-
         return users;
-
     }
 
     @Override
@@ -518,8 +501,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @return {@link User}[] of results.
      * @throws UserStoreException
      */
-    private List<User> getUsersFromDatabaseWithConstraints(String sqlStmt, int maxRows, int queryTimeout,
-            Object... params) throws UserStoreException {
+    private List<User> getUsersFromDatabaseWithConstraints(UserStoreManager userStoreManager, String sqlStmt,
+            int maxRows, int queryTimeout, Object... params) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             String loggableSqlString = getLoggableSqlString(sqlStmt, params);
@@ -531,7 +514,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         List<User> values;
         try (Connection dbConnection = getDBConnection()) {
             values = DatabaseUtil
-                    .getUsersFromDatabaseWithConstraints(dbConnection, sqlStmt, maxRows, queryTimeout, params);
+                    .getUsersFromDatabaseWithConstraints(userStoreManager, dbConnection, sqlStmt, maxRows, queryTimeout,
+                            params);
         } catch (SQLException e) {
             String msg = "Error occurred while accessing the database connection.";
             throw new UserStoreException(msg, e);
@@ -620,8 +604,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public boolean doCheckExistingUserNameWithIDImpl(String userName) throws UserStoreException {
 
         String sqlStmt;
-        String mappedAttribute = this.getUserNameMappedAttribute();
-
         if (isCaseSensitiveUsername()) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_USER_NAME_EXISTING);
         } else {
@@ -629,7 +611,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     .getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_IS_USER_NAME_EXISTING_CASE_INSENSITIVE);
         }
         if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for is user existing null.");
+            throw new UserStoreException("The sql statement for is user existing null");
         }
         boolean isExisting;
 
@@ -637,20 +619,20 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (Boolean.parseBoolean(isUnique) && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
             String uniquenesSql;
             if (isCaseSensitiveUsername()) {
-                uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME_UNIQUE_WITH_ID);
+                uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME_UNIQUE);
             } else {
                 uniquenesSql = realmConfig
-                        .getUserStoreProperty(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE_WITH_ID);
+                        .getUserStoreProperty(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE);
             }
-            isExisting = isValueExisting(uniquenesSql, null, mappedAttribute, userName);
+            isExisting = isValueExisting(uniquenesSql, null, userName);
             if (log.isDebugEnabled()) {
                 log.debug("The username should be unique across tenants.");
             }
         } else {
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                isExisting = isValueExisting(sqlStmt, null, mappedAttribute, userName, tenantId);
+                isExisting = isValueExisting(sqlStmt, null, userName, tenantId);
             } else {
-                isExisting = isValueExisting(sqlStmt, null, mappedAttribute, userName);
+                isExisting = isValueExisting(sqlStmt, null, userName);
             }
         }
 
@@ -719,15 +701,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
 
                 String userID = rs.getString(1);
-                String storedPassword = rs.getString(2);
+                String userName = rs.getString(2);
+                String storedPassword = rs.getString(3);
                 String saltValue = null;
                 if ("true".equalsIgnoreCase(
                         realmConfig.getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-                    saltValue = rs.getString(3);
+                    saltValue = rs.getString(4);
                 }
 
-                boolean requireChange = rs.getBoolean(4);
-                Timestamp changedTime = rs.getTimestamp(5);
+                boolean requireChange = rs.getBoolean(5);
+                Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
                 gc.add(GregorianCalendar.HOUR, -24);
@@ -741,7 +724,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        String userName = getUserNameFromUserID(userID, null);
                         user = new User(userID, userName, userName, null, null, null, null);
                         try {
                             user.setTenantDomain(getTenantDomain(tenantId));
@@ -883,15 +865,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
 
                 String userID = rs.getString(1);
-                String storedPassword = rs.getString(2);
+                String userName = rs.getString(2);
+                String storedPassword = rs.getString(3);
                 String saltValue = null;
                 if ("true".equalsIgnoreCase(
                         realmConfig.getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-                    saltValue = rs.getString(3);
+                    saltValue = rs.getString(4);
                 }
 
-                boolean requireChange = rs.getBoolean(4);
-                Timestamp changedTime = rs.getTimestamp(5);
+                boolean requireChange = rs.getBoolean(5);
+                Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
                 gc.add(GregorianCalendar.HOUR, -24);
@@ -905,7 +888,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        String userName = getUserNameFromUserID(userID, null);
                         user = getUser(userID, userName, profileName);
                         user.setPreferredUsername(preferredUserNameProperty);
                         authenticationResult = new AuthenticationResult(
@@ -985,14 +967,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
 
-                String storedPassword = rs.getString(2);
+                String userName = rs.getString(2);
+                String storedPassword = rs.getString(3);
                 String saltValue = null;
                 if ("true".equalsIgnoreCase(
                         realmConfig.getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-                    saltValue = rs.getString(3);
+                    saltValue = rs.getString(4);
                 }
-                boolean requireChange = rs.getBoolean(4);
-                Timestamp changedTime = rs.getTimestamp(5);
+                boolean requireChange = rs.getBoolean(5);
+                Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
                 gc.add(GregorianCalendar.HOUR, -24);
@@ -1006,7 +989,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        String userName = getUserNameFromUserID(userID, null);
                         user = getUser(userID, userName, null);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
@@ -1048,24 +1030,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         claims = addUserNameAttribute(userName, claims);
         // Assign userID to the userid claim.
         claims = addUserIDAttribute(userID, claims);
-        persistUser(userID, credential, roleList, claims, profileName, requirePasswordChange);
+        persistUser(userID, userName, credential, roleList, claims, profileName, requirePasswordChange);
 
         return getUser(userID, userName, profileName);
 
     }
 
-    @Override
-    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
-            throws UserStoreException {
-
-        throw new UserStoreException("Operation is not supported.");
-    }
-
     /*
      * This method persists the user information in the database.
      */
-    protected void persistUser(String userID, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+    protected void persistUser(String userID, String userName, Object credential, String[] roleList,
+            Map<String, String> claims, String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         Connection dbConnection;
         try {
@@ -1098,16 +1073,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             // do all 4 possibilities
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, password, "", requirePasswordChange,
-                        new Date(), tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, userName, password, "",
+                        requirePasswordChange, new Date(), tenantId);
             } else if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue != null)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, password, saltValue,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, userName, password, saltValue,
                         requirePasswordChange, new Date(), tenantId);
             } else if (!sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, password, "", requirePasswordChange,
-                        new Date());
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, userName, password, "",
+                        requirePasswordChange, new Date());
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, password, saltValue,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, userName, password, saltValue,
                         requirePasswordChange, new Date());
             }
 
@@ -1167,13 +1142,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             try {
                 dbConnection.rollback();
             } catch (SQLException e1) {
-                String errorMessage = "Error while rollback add user operation for user : " + userID;
+                String errorMessage = "Error while rollback add user operation for user : " + userName;
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e1);
                 }
                 throw new UserStoreException(errorMessage, e1);
             }
-            String errorMessage = "Error while persisting user : " + userID;
+            String errorMessage = "Error while persisting user : " + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -1189,6 +1164,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             credentialObj.clear();
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+    }
+
+    @Override
+    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -2318,15 +2300,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 if (Arrays.binarySearch(propertyNamesSorted, name) < 0) {
                     continue;
                 }
-                String username = rs.getString(1);
+                String userID = rs.getString(1);
                 String value = rs.getString(3);
 
-                if (usersPropertyValuesMap.get(username) != null) {
-                    usersPropertyValuesMap.get(username).put(name, value);
+                if (usersPropertyValuesMap.get(userID) != null) {
+                    usersPropertyValuesMap.get(userID).put(name, value);
                 } else {
                     Map<String, String> attributes = new HashMap<>();
                     attributes.put(name, value);
-                    usersPropertyValuesMap.put(username, attributes);
+                    usersPropertyValuesMap.put(userID, attributes);
                 }
             }
             return usersPropertyValuesMap;
@@ -2387,14 +2369,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();
             while (rs.next()) {
-                String username = UserCoreUtil.addDomainToName(rs.getString(1), domainName);
+                String userID = UserCoreUtil.addDomainToName(rs.getString(1), domainName);
                 String roleName = UserCoreUtil.addDomainToName(rs.getString(2), domainName);
-                if (rolesListOfUsersMap.get(username) != null) {
-                    rolesListOfUsersMap.get(username).add(roleName);
+                if (rolesListOfUsersMap.get(userID) != null) {
+                    rolesListOfUsersMap.get(userID).add(roleName);
                 } else {
                     List<String> roleNames = new ArrayList<>();
                     roleNames.add(roleName);
-                    rolesListOfUsersMap.put(username, roleNames);
+                    rolesListOfUsersMap.put(userID, roleNames);
                 }
             }
             return rolesListOfUsersMap;
@@ -2708,7 +2690,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         int givenMax;
         int searchTime;
         String profileName = UserCoreConstants.DEFAULT_PROFILE;
-        String userNameAttribute = this.getUserNameMappedAttribute();
 
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
 
@@ -2772,32 +2753,37 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 limit = offset + limit;
             }
 
-            sqlStmt = realmConfig
-                    .getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID + "-" + type);
-            if (sqlStmt == null) {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID);
-            }
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, userNameAttribute);
-            prepStmt.setString(2, filter);
-            prepStmt.setString(3, profileName);
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(4, tenantId);
-                prepStmt.setInt(5, tenantId);
-                prepStmt.setInt(6, limit);
-                prepStmt.setInt(7, offset);
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig
+                        .getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID + "-" + type);
+                if (sqlStmt == null) {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_WITH_ID);
+                }
             } else {
-                prepStmt.setInt(4, limit);
-                prepStmt.setInt(5, offset);
+                sqlStmt = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_PAGINATED + "-" + type);
+                if (sqlStmt == null) {
+                    sqlStmt = realmConfig.getUserStoreProperty(
+                            JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_PAGINATED);
+                }
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setLong(3, limit);
+                prepStmt.setLong(4, offset);
+            } else {
+                prepStmt.setLong(2, limit);
+                prepStmt.setLong(3, offset);
             }
 
             try {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                if (log.isDebugEnabled()) {
-                    log.debug(e);
-                }
+                log.debug(e);
             }
 
             try {
@@ -2842,10 +2828,62 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         result.setUsers(users);
 
         if (users.size() == 0) {
-            result.setSkippedUserCount(doGetListUsersCount(filter));
+            result.setSkippedUserCount(doGetListUsersCountWithID(filter));
         }
         return result;
+    }
 
+    protected int doGetListUsersCountWithID(String filter) throws UserStoreException {
+
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        int count = 0;
+
+        try {
+
+            if (filter != null && StringUtils.isNotEmpty(filter.trim())) {
+                filter = filter.trim().replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            dbConnection = getDBConnection();
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FILTER_PAGINATED_COUNT_WITH_ID);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_WITH_ID);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users count for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+        return count;
     }
 
     @Override
@@ -2930,8 +2968,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String userID = rs.getString(1);
-                String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
-                        profileName);
+                String userName = rs.getString(2);
                 User user = getUser(userID, userName, profileName);
                 list.add(user);
             }
@@ -2955,7 +2992,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             result.setSkippedUserCount(getUserListFromPropertiesCountWithID(property, value, profileName));
         }
         return result;
-
     }
 
     protected int getUserListFromPropertiesCountWithID(String property, String value, String profileName)
@@ -3024,6 +3060,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             int offset, String sortBy, String sortOrder) throws UserStoreException {
 
         boolean isGroupFiltering = false;
+        boolean isUsernameFiltering = false;
         boolean isClaimFiltering = false;
         // To identify Mysql multi group filter and multi claim filter.
         int totalMultiGroupFilters = 0;
@@ -3043,6 +3080,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 isGroupFiltering = true;
                 totalMultiGroupFilters++;
+            } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                isUsernameFiltering = true;
             } else {
                 isClaimFiltering = true;
                 totalMultiClaimFilters++;
@@ -3077,8 +3116,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 limit = initialOffset + 1;
             }
 
-            SqlBuilder sqlBuilder = getQueryString(isGroupFiltering, isClaimFiltering, expressionConditions, limit,
-                    offset, sortBy, sortOrder, profileName, type, totalMultiGroupFilters, totalMultiClaimFilters);
+            SqlBuilder sqlBuilder = getQueryString(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
+                    expressionConditions, limit, offset, sortBy, sortOrder, profileName, type, totalMultiGroupFilters,
+                    totalMultiClaimFilters);
 
             if (MYSQL.equals(type) && totalMultiGroupFilters > 1 && totalMultiClaimFilters > 1) {
                 String fullQuery = sqlBuilder.getQuery();
@@ -3094,8 +3134,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     rs = prepStmt.executeQuery();
                     while (rs.next()) {
                         String userID = rs.getString(1);
-                        String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
-                                profileName);
+                        String userName = rs.getString(2);
                         User user = getUser(userID, userName, profileName);
                         tempUserList.add(user);
                     }
@@ -3114,8 +3153,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 rs = prepStmt.executeQuery();
                 while (rs.next()) {
                     String userID = rs.getString(1);
-                    String userName = getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI,
-                            profileName);
+                    String userName = rs.getString(2);
                     User user = getUser(userID, userName, profileName);
                     list.add(user);
                 }
@@ -3165,10 +3203,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
-    protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isClaimFiltering,
+    protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isUsernameFiltering, boolean isClaimFiltering,
             List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy, String sortOrder,
-            String profileName, String dbType, int totalMultiGroupFilters, int totalMulitClaimFitlers)
-            throws org.wso2.carbon.user.api.UserStoreException {
+            String profileName, String dbType, int totalMultiGroupFilters, int totalMultiClaimFilters)
+            throws UserStoreException {
 
         StringBuilder sqlStatement;
         SqlBuilder sqlBuilder;
@@ -3177,74 +3215,102 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         int groupFilterCount = 0;
         int claimFilterCount = 0;
 
-        if (isGroupFiltering && isClaimFiltering) {
+        if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
 
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                        + "U.UM_USER_ID) AS rn, p.*  FROM (SELECT DISTINCT U.UM_USER_ID  FROM UM_ROLE R INNER JOIN "
-                        + "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID "
-                        + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
+                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
+                        + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
+                        + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT U.UM_USER_ID, ROW_NUMBER() OVER "
-                        + "(ORDER BY U.UM_USER_ID) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID FROM UM_ROLE R INNER "
-                        + "JOIN UM_USER_ROLE UR ON R"
-                        + ".UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
-                        + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, ROW_NUMBER() OVER "
+                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME FROM UM_ROLE "
+                                + "R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
+                                + ".UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else if (ORACLE.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT U.UM_USER_ID, rownum AS rnum FROM "
-                        + "(SELECT  U.UM_USER_ID FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID "
-                        + "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = "
-                        + "UA.UM_USER_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
+                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
+                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
+                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else {
                 sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR"
-                                + " INNER JOIN UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON R.UM_ID = UR.UM_ROLE_ID "
-                                + "AND UR.UM_USER_ID =" + " U.UM_ID AND U.UM_ID = UA.UM_USER_ID");
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
+                                + "UM_USER_ROLE UR INNER JOIN UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON R.UM_ID = "
+                                + "UR.UM_ROLE_ID AND UR.UM_USER_ID =" + " U.UM_ID AND U.UM_ID = UA.UM_USER_ID");
             }
             sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
                     .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId)
                     .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
-        } else if (isGroupFiltering) {
+        } else if (isGroupFiltering && isUsernameFiltering || isGroupFiltering) {
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                        + "U.UM_USER_ID) AS rn, p.*  FROM (SELECT DISTINCT U.UM_USER_ID  FROM UM_ROLE R INNER JOIN "
-                        + "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID ");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
+                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID "
+                                + "=U.UM_ID ");
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT U.UM_USER_ID, ROW_NUMBER() OVER "
-                        + "(ORDER BY U.UM_USER_ID) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID FROM UM_ROLE R INNER "
-                        + "JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U"
-                        + ".UM_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, ROW_NUMBER() OVER "
+                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME FROM UM_ROLE "
+                                + "R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
+                                + ".UM_USER_ID =U.UM_ID");
             } else if (ORACLE.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT U.UM_USER_ID, rownum AS rnum FROM "
-                        + "(SELECT  U.UM_USER_ID FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID "
-                        + "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
+                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
+                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
             } else {
                 sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR"
-                                + " INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID =U.UM_ID");
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
+                        + "UM_USER_ROLE UR INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID =U.UM_ID");
             }
 
             sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
                     .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId);
-        } else if (isClaimFiltering) {
+        } else if (isUsernameFiltering && isClaimFiltering || isClaimFiltering) {
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                        + "U.UM_USER_ID) AS rn, p.*  FROM (SELECT DISTINCT U.UM_USER_ID  FROM  UM_USER U INNER JOIN "
-                        + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM  UM_USER U "
+                                + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT U.UM_USER_ID, ROW_NUMBER() OVER "
-                        + "(ORDER BY U.UM_USER_ID) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID FROM UM_USER U INNER "
-                        + "JOIN " + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, ROW_NUMBER() OVER "
+                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME FROM UM_USER "
+                                + "U INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else if (ORACLE.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID FROM (SELECT U.UM_USER_ID, rownum AS rnum FROM "
-                        + "(SELECT U.UM_USER_ID FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = "
-                        + "UA.UM_USER_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
+                        + "FROM (SELECT UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = "
+                                + "UA.UM_USER_ID");
             } else {
-                sqlStatement = new StringBuilder("SELECT DISTINCT U.UM_USER_ID FROM UM_USER U INNER JOIN "
-                        + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                sqlStatement = new StringBuilder(
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U INNER JOIN "
+                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             }
             sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId)
                     .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
+        } else if (isUsernameFiltering) {
+            if (DB2.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_USER U");
+            } else if (MSSQL.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, ROW_NUMBER() OVER "
+                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME FROM UM_USER "
+                                + "U");
+            } else if (ORACLE.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
+                        + "FROM (SELECT UM_USER_NAME FROM UM_USER U");
+            } else {
+                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
+            }
+
+            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId);
         } else {
             throw new UserStoreException("Condition is not valid.");
         }
@@ -3255,7 +3321,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 if (!MYSQL.equals(dbType) || (MYSQL.equals(dbType) && totalMultiGroupFilters > 1
-                        && totalMulitClaimFitlers > 1)) {
+                        && totalMultiClaimFilters > 1)) {
                     multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
                     hitGroupFilter = true;
                 } else {
@@ -3264,53 +3330,37 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager
-                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = ?",
-                            expressionCondition.getAttributeValue());
+                    sqlBuilder.where("U.UM_USER_NAME = ?", expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = LOWER(?)",
-                            expressionCondition.getAttributeValue());
+                    sqlBuilder.where("U.UM_USER_NAME = LOWER(?)", expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager
-                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?",
-                            "%" + expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE LOWER(?)",
-                            "%" + expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder
+                            .where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue() + "%");
                 }
             } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager
-                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?",
-                            "%" + expressionCondition.getAttributeValue());
+                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE LOWER(?)",
-                            "%" + expressionCondition.getAttributeValue());
+                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
                     && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                String usernameAttribute = claimManager
-                        .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
                 if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE LIKE ?",
-                            expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder
-                            .where("UA.UM_ATTR_NAME = '" + usernameAttribute + "' AND UA.UM_ATTR_VALUE = LIKE LOWER(?)",
-                                    expressionCondition.getAttributeValue() + "%");
+                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
                 }
             } else {
                 // Claim filtering
                 if (!MYSQL.equals(dbType) || (MYSQL.equals(dbType) && totalMultiGroupFilters > 1
-                        && totalMulitClaimFitlers > 1)) {
+                        && totalMultiClaimFilters > 1)) {
                     multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
                     hitClaimFilter = true;
                 } else {
@@ -3321,7 +3371,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (MYSQL.equals(dbType)) {
-            sqlBuilder.updateSql(" GROUP BY U.UM_USER_ID ");
+            sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME ");
             if (groupFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
             }
@@ -3330,15 +3380,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
-        if (!(MYSQL.equals(dbType) && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1)) {
+        if (!(MYSQL.equals(dbType) && totalMultiGroupFilters > 1 && totalMultiClaimFilters > 1)) {
             if (DB2.equals(dbType)) {
                 sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
             } else if (MSSQL.equals(dbType)) {
                 sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
             } else if (ORACLE.equals(dbType)) {
-                sqlBuilder.setTail(" ORDER BY UM_USER_ID) where rownum <= ?) WHERE rnum > ?", limit, offset);
+                sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
             } else {
-                sqlBuilder.setTail(" ORDER BY UM_USER_ID ASC LIMIT ? OFFSET ?", limit, offset);
+                sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
             }
         }
         return sqlBuilder;
