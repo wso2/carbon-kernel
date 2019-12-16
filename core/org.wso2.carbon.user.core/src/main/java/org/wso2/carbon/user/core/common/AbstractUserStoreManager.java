@@ -11541,7 +11541,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param userIDs   userIDs of the users.
      * @return list of user IDs.
      */
-    protected List<String> getUserNamesFromUserIDs(List<String> userIDs) throws UserStoreException {
+    public List<String> getUserNamesFromUserIDs(List<String> userIDs) throws UserStoreException {
 
         List<String> userNames = new ArrayList<>();
         for (String userID : userIDs) {
@@ -11556,7 +11556,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param userNames   user names of the users.
      * @return list of user IDs.
      */
-    protected List<String> getUserIDsFromUserNames(List<String> userNames) throws UserStoreException {
+    public List<String> getUserIDsFromUserNames(List<String> userNames) throws UserStoreException {
 
         List<String> userIDs = new ArrayList<>();
         for (String userName : userNames) {
