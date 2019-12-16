@@ -729,7 +729,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected List<String> doGetInternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
-        String username = getUserNameFromUserID(userID, null);
+        String username = getUserNameFromUserID(userID);
         if (StringUtils.isEmpty(username)) {
             throw new UserStoreException("No user found with UserID: " + userID);
         }
@@ -7799,7 +7799,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (List<String>) object;
         }
 
-        String username = getUserNameFromUserID(userID, null);
+        String username = getUserNameFromUserID(userID);
         if (username != null) {
             List<String> roleList = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, username));
             if (!roleList.isEmpty()) {
@@ -7841,7 +7841,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Add to user role cache uisng username.
-        String username = getUserNameFromUserID(userID, null);
+        String username = getUserNameFromUserID(userID);
         if (username != null) {
             addToUserRolesCache(this.tenantId, username, roleList);
         }
@@ -8596,7 +8596,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doGetRoleListOfUsersWithID(getUserIDsFromUserNames(entry.getValue()), entry.getKey());
                     userRoles.forEach((key, value) -> {
                         try {
-                            allRoleNames.put(getUserNameFromUserID(key, null), value);
+                            allRoleNames.put(getUserNameFromUserID(key), value);
                         } catch (UserStoreException ignored) {
                             // Ignore
                         }
@@ -10972,7 +10972,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else{
-            String userNameFromUserID = getUserNameFromUserID(userID, profileName);
+            String userNameFromUserID = getUserNameFromUserID(userID);
             isUserExists = userNameFromUserID != null;
         }
 
@@ -11419,7 +11419,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (userName == null) {
-            userName = getUserNameFromUserID(userID, profileName);
+            userName = getUserNameFromUserID(userID);
         }
 
         User user = new User(userID, userName, userName);
@@ -11504,10 +11504,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return user name.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String getUserNameFromUserID(String userID) throws UserStoreException {
 
-        User user = userUniqueIDManger.getUser(userID, profileName, this);
+        UserStore userStore = getUserStoreWithID(userID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserNameFromUserID(userStore.getDomainFreeUserId());
+        }
+
+        if (isUniqueUserIdEnabledInUserStore(userStore)) {
+            return doGetUserNameFromUserIDWithID(userID);
+        }
+        User user = userUniqueIDManger.getUser(userID, null, this);
         return user.getUsername();
+    }
+
+    /**
+     * provides the userName of the given user.
+     *
+     * @param userID userID of the user.
+     * @return userName of the user.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected String doGetUserNameFromUserIDWithID(String userID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserNameFromUserIDWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserNameFromUserIDWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -11520,7 +11545,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         List<String> userNames = new ArrayList<>();
         for (String userID : userIDs) {
-            userNames.add(getUserNameFromUserID(userID, null));
+            userNames.add(getUserNameFromUserID(userID));
         }
         return userNames;
     }
@@ -11743,7 +11768,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         boolean isUserEixisting;
         String userNameFromUserID = null;
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            userNameFromUserID = getUserNameFromUserID(userID, null);
+            userNameFromUserID = getUserNameFromUserID(userID);
             isUserEixisting = userNameFromUserID != null;
         } else {
             user = userUniqueIDManger.getUser(userID, null, this);
@@ -11915,7 +11940,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            String userNameFromUserID = getUserNameFromUserID(userID, profileName);
+            String userNameFromUserID = getUserNameFromUserID(userID);
             isUserExists = userNameFromUserID != null;
         }
 
@@ -12143,7 +12168,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueIdEnabled) {
                 isUserExists = doCheckExistingUserWithID(userID);
             } else {
-                String userNameFromUserID = getUserNameFromUserID(userID, null);
+                String userNameFromUserID = getUserNameFromUserID(userID);
                 isUserExists = userNameFromUserID != null;
             }
 
@@ -12551,7 +12576,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
-            hybridRoleManager.updateHybridRoleListOfUser(getUserNameFromUserID(userID, null),
+            hybridRoleManager.updateHybridRoleListOfUser(getUserNameFromUserID(userID),
                     internalRoleDel.toArray(new String[0]), internalRoleNew.toArray(new String[0]));
         }
 
@@ -12583,7 +12608,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (isUniqueUserIdEnabledInUserStore(userStore)) {
                         doUpdateRoleListOfUserWithID(userID, deletedRoles, newRoles);
                     } else {
-                        doUpdateRoleListOfUser(getUserNameFromUserID(userID, null), deletedRoles, newRoles);
+                        doUpdateRoleListOfUser(getUserNameFromUserID(userID), deletedRoles, newRoles);
                     }
                 } catch (UserStoreException ex) {
                     handleUpdateRoleListOfUserFailureWithID(
@@ -12600,7 +12625,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Clear user role cache from username.
-        String username = getUserNameFromUserID(userID, null);
+        String username = getUserNameFromUserID(userID);
         if (username != null) {
             clearUserRolesCache(username);
         }
@@ -13468,7 +13493,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         String[] roles;
 
-        String username = getUserNameFromUserID(userID, null);
+        String username = getUserNameFromUserID(userID);
         if (username == null) {
             roles = getRoleListOfUserFromCache(tenantId, userID);
             if (roles != null && roles.length > 0) {
@@ -14012,7 +14037,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
             UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
             userClaimSearchEntry.setUserName(UserCoreUtil.addDomainToName(
-                    getUserNameFromUserID(entry.getKey(), profileName), domainName));
+                    getUserNameFromUserID(entry.getKey()), domainName));
             Map<String, String> userClaims = new HashMap<>();
 
             for (String claim : claims) {
