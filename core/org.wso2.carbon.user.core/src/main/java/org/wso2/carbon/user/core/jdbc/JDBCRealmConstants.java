@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.jdbc;
 public final class JDBCRealmConstants {
 
     public static final String SELECT_USER = "SelectUserSQL";
+    public static final String SELECT_USER_NAME = "SelectUserNameSQL";
     public static final String SELECT_USER_ID_WITH_ID = "SelectUserIDWithIDSQL";
     public static final String SELECT_USER_WITH_ID = "SelectUserWithIDSQL";
     public static final String SELECT_USER_ID_FROM_USER_NAME = "SelectUserIDFromUserNameSQL";
@@ -130,6 +131,9 @@ public final class JDBCRealmConstants {
             "AND UM_TENANT_ID = ? AND UM_ATTR_VALUE LIKE ? AND UM_PROFILE_ID = ?";
     public static final String COUNT_USERS_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME LIKE ? " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_SQL = "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
+    public static final String SELECT_USER_NAME_SQL =
+            "SELECT UM_USER_ID, UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, "
+                    + "UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
     public static final String SELECT_USER_ID_SQL = "SELECT UM_USER_ID, UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, "
             + "UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?";
     public static final String SELECT_USER_ID_WITH_ID_SQL = "SELECT UM_USER.UM_REQUIRE_CHANGE, UM_USER"

@@ -647,14 +647,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 AuthenticationResult.AuthenticationStatus.FAIL);
         User user;
 
-        if (!checkUserPasswordValid(credential)) {
+        if (!isValidCredentials(credential)) {
             String reason = "Password validation failed";
             if (log.isDebugEnabled()) {
                 log.debug(reason);
             }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
+            return getAuthenticationResult(reason);
         }
 
         Connection dbConnection = null;
@@ -694,10 +692,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (log.isDebugEnabled()) {
                         log.debug(reason);
                     }
-                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-                    authenticationResult.setFailureReason(new FailureReason(reason));
-                    isAuthed = false;
-                    break;
+                    return getAuthenticationResult(reason);
                 }
 
                 String userID = rs.getString(1);
@@ -776,36 +771,21 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public AuthenticationResult doAuthenticateWithID(String preferredUserNameProperty, String preferredUserNameValue,
             Object credential, String profileName) throws UserStoreException {
 
+        // If the user is trying to authenticate with username.
+        if (preferredUserNameProperty.equals(getUserNameMappedAttribute())) {
+            return doAuthenticateWithUserName(preferredUserNameValue, credential);
+        }
+
         AuthenticationResult authenticationResult = new AuthenticationResult(
                 AuthenticationResult.AuthenticationStatus.FAIL);
         User user;
 
-        if (!checkUserNameValid(preferredUserNameValue)) {
-            String reason = "Username validation failed";
-            if (log.isDebugEnabled()) {
-                log.debug(reason);
-            }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
-        }
-
-        if (!checkUserPasswordValid(credential)) {
+        if (!isValidCredentials(credential)) {
             String reason = "Password validation failed";
             if (log.isDebugEnabled()) {
                 log.debug(reason);
             }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
-        }
-
-        if (UserCoreUtil.isRegistryAnnonymousUser(preferredUserNameValue)) {
-            String reason = "Anonymous user trying to login";
-            log.error(reason);
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
+            return getAuthenticationResult(reason);
         }
 
         // add the properties
@@ -849,7 +829,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             int count = 0;
             while (rs.next()) {
-
                 // Handle multiple matching users.
                 count++;
                 if (count > 1) {
@@ -858,10 +837,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (log.isDebugEnabled()) {
                         log.debug(reason);
                     }
-                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-                    authenticationResult.setFailureReason(new FailureReason(reason));
-                    isAuthed = false;
-                    break;
+                    return getAuthenticationResult(reason);
                 }
 
                 String userID = rs.getString(1);
@@ -921,24 +897,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 AuthenticationResult.AuthenticationStatus.FAIL);
         User user;
 
-        if (StringUtils.isEmpty(userID)) {
-            String reason = "Username validation failed";
-            if (log.isDebugEnabled()) {
-                log.debug(reason);
-            }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
-        }
-
-        if (!checkUserPasswordValid(credential)) {
+        if (!isValidCredentials(credential)) {
             String reason = "Password validation failed";
             if (log.isDebugEnabled()) {
                 log.debug(reason);
             }
-            authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
-            authenticationResult.setFailureReason(new FailureReason(reason));
-            return authenticationResult;
+            return getAuthenticationResult(reason);
         }
 
         Connection dbConnection = null;
@@ -966,7 +930,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             rs = prepStmt.executeQuery();
             while (rs.next()) {
-
                 String userName = rs.getString(2);
                 String storedPassword = rs.getString(3);
                 String saltValue = null;
@@ -1010,6 +973,120 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             log.debug("UserID " + userID + " login attempt. Login success: " + isAuthed);
         }
 
+        return authenticationResult;
+    }
+
+    protected AuthenticationResult doAuthenticateWithUserName(String userName, Object credential)
+            throws UserStoreException {
+
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
+        User user;
+
+        // In order to avoid unnecessary db queries.
+        if (!isValidUserName(userName)) {
+            String reason = "Username validation failed.";
+            if (log.isDebugEnabled()) {
+                log.debug(reason);
+            }
+            return getAuthenticationResult(reason);
+        }
+
+        if (UserCoreUtil.isRegistryAnnonymousUser(userName)) {
+            String reason = "Anonymous user trying to login.";
+            log.error(reason);
+            return getAuthenticationResult(reason);
+        }
+
+        if (!isValidCredentials(credential)) {
+            String reason = "Password validation failed.";
+            if (log.isDebugEnabled()) {
+                log.debug(reason);
+            }
+            return getAuthenticationResult(reason);
+        }
+
+        Connection dbConnection = null;
+        ResultSet rs = null;
+        PreparedStatement prepStmt = null;
+        String sqlstmt;
+        String password;
+        boolean isAuthed = false;
+
+        try {
+            dbConnection = getDBConnection();
+            dbConnection.setAutoCommit(false);
+
+            if (isCaseSensitiveUsername()) {
+                sqlstmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_NAME);
+            } else {
+                sqlstmt = realmConfig
+                        .getUserStoreProperty(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE);
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug(sqlstmt);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlstmt);
+            prepStmt.setString(1, userName);
+            if (sqlstmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String userID = rs.getString(1);
+                String storedPassword = rs.getString(3);
+                String saltValue = null;
+                if ("true".equalsIgnoreCase(
+                        realmConfig.getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
+                    saltValue = rs.getString(4);
+                }
+                boolean requireChange = rs.getBoolean(5);
+                Timestamp changedTime = rs.getTimestamp(6);
+
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.add(GregorianCalendar.HOUR, -24);
+                Date date = gc.getTime();
+
+                if (requireChange && changedTime.before(date)) {
+                    isAuthed = false;
+                    authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult.setFailureReason(new FailureReason("Password change required."));
+                } else {
+                    password = preparePassword(credential, saltValue);
+                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                        isAuthed = true;
+                        user = getUser(userID, userName, null);
+                        authenticationResult = new AuthenticationResult(
+                                AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving user authentication info for userName : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException("Authentication Failure", e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("UserName " + userName + " login attempt. Login success: " + isAuthed);
+        }
+
+        return authenticationResult;
+    }
+
+    private AuthenticationResult getAuthenticationResult(String reason) {
+
+        AuthenticationResult authenticationResult = new AuthenticationResult(
+                AuthenticationResult.AuthenticationStatus.FAIL);
+        authenticationResult.setFailureReason(new FailureReason(reason));
         return authenticationResult;
     }
 
@@ -3285,7 +3362,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 sqlStatement = new StringBuilder(
                         "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
                                 + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
-                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID "
+                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
+                                + ".UM_USER_ID "
                                 + "=U.UM_ID ");
             } else if (MSSQL.equals(dbType)) {
                 sqlStatement = new StringBuilder(
@@ -3301,7 +3379,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
-                        + "UM_USER_ROLE UR INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID =U.UM_ID");
+                                + "UM_USER_ROLE UR INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID "
+                                + "=U.UM_ID");
             }
 
             sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
@@ -3320,7 +3399,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                        + "FROM (SELECT UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = "
+                                + "FROM (SELECT UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON U"
+                                + ".UM_ID = "
                                 + "UA.UM_USER_ID");
             } else {
                 sqlStatement = new StringBuilder(
@@ -3342,7 +3422,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                        + "FROM (SELECT UM_USER_NAME FROM UM_USER U");
+                                + "FROM (SELECT UM_USER_NAME FROM UM_USER U");
             } else {
                 sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
             }
