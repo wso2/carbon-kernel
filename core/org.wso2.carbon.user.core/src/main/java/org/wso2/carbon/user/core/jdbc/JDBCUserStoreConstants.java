@@ -210,6 +210,8 @@ public class JDBCUserStoreConstants {
                 JDBCCaseInsensitiveConstants.SELECT_USER_WITH_ID_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME, "Select User ID From UserName SQL",
                 JDBCRealmConstants.SELECT_USER_ID_FROM_USER_NAME_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_NAME_FROM_USER_ID, "Select UserName From User ID SQL",
+                JDBCRealmConstants.SELECT_USER_NAME_FROM_USER_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE,
                 "Select User ID From UserName SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.SELECT_USER_ID_FROM_USER_NAME_SQL_CASE_INSENSITIVE, "");

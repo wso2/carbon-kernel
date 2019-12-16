@@ -1330,16 +1330,41 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String doGetUserNameFromUserIDWithID(String userID) throws UserStoreException {
 
-        Map<String, String> claims = doGetUserClaimValuesWithID(userID,
-                new String[] { UserCoreClaimConstants.USERNAME_CLAIM_URI }, getMyDomainName(), profileName);
-        if (claims.containsKey(UserCoreClaimConstants.USERNAME_CLAIM_URI)
-                && claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI) != null) {
-            return claims.get(UserCoreClaimConstants.USERNAME_CLAIM_URI);
-        } else {
-            return null;
+        if (userID == null) {
+            throw new IllegalArgumentException("userID cannot be null.");
         }
+
+        Connection dbConnection = null;
+        String sqlStmt;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        String userName = null;
+        try {
+            dbConnection = getDBConnection();
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_NAME_FROM_USER_ID);
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, userID);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                userName = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            String msg = "Database error occurred while retrieving userName for a userID : " + userID;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+
+        return userName;
     }
 
     @Override

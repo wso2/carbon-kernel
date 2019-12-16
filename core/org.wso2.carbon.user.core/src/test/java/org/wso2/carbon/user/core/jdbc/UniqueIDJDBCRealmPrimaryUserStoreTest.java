@@ -208,7 +208,7 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         // Check UserIDFromUsername and UserNameFromUserID.
         String userId = admin.getUserIDFromUserName("user2");
         assertNotNull(userId);
-        assertEquals("user2", admin.getUserNameFromUserID(userId, null));
+        assertEquals("user2", admin.getUserNameFromUserID(userId));
     }
 
     @Test

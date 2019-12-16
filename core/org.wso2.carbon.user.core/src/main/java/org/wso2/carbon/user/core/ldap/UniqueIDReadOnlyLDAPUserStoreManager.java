@@ -596,10 +596,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    public String getUserNameFromUserID(String userID, String profileName) throws UserStoreException {
+    public String doGetUserNameFromUserIDWithID(String userID) throws UserStoreException {
 
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
-        String[] userNames = super.getUserListFromProperties(userIDAttribute, userID, profileName);
+        String[] userNames = super.getUserListFromProperties(userIDAttribute, userID, null);
         if (userNames.length > 1) {
             throw new UserStoreException(
                     "Invalid scenario. Multiple users cannot be found for the given userID: " + userID);
@@ -625,7 +625,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     protected Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames, String profileName)
             throws UserStoreException {
 
-        return super.getUserPropertyValues(getUserNameFromUserID(userID, profileName), propertyNames, profileName);
+        return super.getUserPropertyValues(getUserNameFromUserID(userID), propertyNames, profileName);
     }
 
     @Override
@@ -643,7 +643,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (userID == null) {
             return false;
         }
-        return getUserNameFromUserID(userID, null) != null;
+        return getUserNameFromUserID(userID) != null;
     }
 
     @Override
@@ -1126,7 +1126,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(false);
-        String userName = getUserNameFromUserID(userID, null);
+        String userName = getUserNameFromUserID(userID);
         return getLDAPRoleListOfUser(userName, filter, searchBase, false);
     }
 
@@ -1153,7 +1153,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 searchBase = groupNameAttributeName + "=" + tenantDomain + "," + searchBase;
             }
         }
-        String userName = getUserNameFromUserID(userID, null);
+        String userName = getUserNameFromUserID(userID);
         return getLDAPRoleListOfUser(userName, filter, searchBase, true);
     }
 
@@ -1430,13 +1430,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
-        return super.doCheckIsUserInRole(this.getUserNameFromUserID(userID, null), roleName);
+        return super.doCheckIsUserInRole(this.getUserNameFromUserID(userID), roleName);
     }
 
     @Override
     public Date getPasswordExpirationTimeWithID(String userID) throws UserStoreException {
 
-        String username = getUserNameFromUserID(userID, null);
+        String username = getUserNameFromUserID(userID);
         return super.getPasswordExpirationTime(username);
     }
 
