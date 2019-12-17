@@ -3781,11 +3781,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (SQLException e) {
-            String msg = ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage();
             if (log.isDebugEnabled()) {
-                log.debug(msg);
+                log.debug(ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage());
             }
-            throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
+            throw new UserStoreException(ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage(),
+                    ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
         } catch (UserStoreException ex) {
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
                             .getCode(),
@@ -3849,11 +3849,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
 
         } catch (SQLException e) {
-            String msg = ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage();
             if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+                log.debug(ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage(), e);
             }
-            throw new UserStoreException(msg, ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
+            throw new UserStoreException(ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage(),
+                    ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getCode(), e);
 
         } catch (UserStoreException ex) {
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
