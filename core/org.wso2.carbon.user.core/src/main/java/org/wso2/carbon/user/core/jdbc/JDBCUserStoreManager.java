@@ -96,9 +96,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public static final String QUERY_BINDING_SYMBOL = "?";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
-    private static final String ERROR_WHILE_EXECUTING_THE_SQL = "Error while executing the SQL";
-    private static final String ERROR_OCCURRED_WHILE_RETRIEVING_USERS_FOR_FILTER = "Error occurred while retrieving " +
-            "users for filter : ";
 
     protected DataSource jdbcds = null;
     protected Random random = new Random();
@@ -3784,7 +3781,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (SQLException e) {
-            String msg = ERROR_WHILE_EXECUTING_THE_SQL;
+            String msg = ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(msg);
             }
@@ -3852,7 +3849,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
 
         } catch (SQLException e) {
-            String msg = ERROR_OCCURRED_WHILE_RETRIEVING_USERS_FOR_FILTER + filter;
+            String msg = ERROR_CODE_ERROR_WHILE_EXECUTING_THE_SQL.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
