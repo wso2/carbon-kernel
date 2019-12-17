@@ -50,6 +50,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     private static final String[] DEFAULT_BLACKLISTED_THREADS = {"MessageDeliveryTaskThreadPool", "HumanTaskServer" ,
             "BPELServer", "CarbonDeploymentSchedulerThread"};
     private List<String> blacklistedThreadList = new ArrayList<>();
+    private boolean isEnableCorrelationLogs;
 
     public CorrelationLogInterceptor() {
         String blacklistedThreadNames = System.getProperty(BLACKLISTED_THREADS_SYSTEM_PROPERTY);
@@ -61,6 +62,8 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
         if (!StringUtils.isEmpty(blacklistedThreadNames)) {
             blacklistedThreadList.addAll(Arrays.asList(StringUtils.split(blacklistedThreadNames, ',')));
         }
+
+        isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
     }
 
     @Override
@@ -81,7 +84,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     @Override
     public Object createStatement(Object proxy, Method method, Object[] args, Object statement, long time) {
         try {
-            if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+            if (isEnableCorrelationLogs) {
                 return invokeProxy(method, args, statement, time);
             } else {
                 return statement;
