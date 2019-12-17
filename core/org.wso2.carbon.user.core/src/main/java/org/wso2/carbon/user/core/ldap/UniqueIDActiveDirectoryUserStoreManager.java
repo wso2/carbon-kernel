@@ -902,8 +902,6 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         // Set Advanced Properties
         UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
-                UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
                 UserStoreConfigConstants.SCIMEnabledDescription);
         setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");

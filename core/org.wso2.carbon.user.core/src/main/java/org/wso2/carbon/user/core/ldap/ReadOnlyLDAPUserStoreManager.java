@@ -4553,4 +4553,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         super.finalize();
     }
+
+    @Override
+    public boolean isUniqueUserIdEnabled() {
+
+        return false;
+    }
+
 }
