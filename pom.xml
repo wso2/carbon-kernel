@@ -44,7 +44,7 @@
             </plugin>
            <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
+                <artifactId>maven-javadoc-pluginss</artifactId>
                 <configuration>
                     <aggregate>true</aggregate>
                     <excludePackageNames>*.internal.*</excludePackageNames>
