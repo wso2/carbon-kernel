@@ -209,36 +209,16 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             throws UserStoreException;
 
     /**
-     * Post listener for the get user conditional list method.
-     *
-     * @param condition        condition.
-     * @param domain           user store domain.
-     * @param profileName      profile name.
-     * @param limit            number of search results.
-     * @param offset           start index of the search.
-     * @param sortBy           sort by attribute.
-     * @param sortOrder        sort order.
-     * @param userStoreManager user store manager.
-     * @param users            Filtered user list.
-     * @return true if handling succeeds, otherwise false.
-     * @throws UserStoreException User Store Exception.
-     */
-    boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
-            String sortBy, String sortOrder, String[] users, UserStoreManager userStoreManager)
-            throws UserStoreException;
-
-    /**
      * Pre listener for the get user method.
      *
      * @param userID           user ID.
      * @param requestedClaims  Requested claims.
      * @param profileName      Profile name.
-     * @param user             User.
      * @param userStoreManager user store manager.
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException User Store Exception.
      */
-    boolean doPreGetUserWithID(String userID, String[] requestedClaims, String profileName, User user,
+    boolean doPreGetUserWithID(String userID, String[] requestedClaims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
