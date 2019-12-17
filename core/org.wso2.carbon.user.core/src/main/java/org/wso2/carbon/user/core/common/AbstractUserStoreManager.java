@@ -11538,8 +11538,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * provides the unique user IDs of the given users.
      *
-     * @param userIDs   userIDs of the users.
+     * @param userIDs userIDs of the users.
      * @return list of user IDs.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     public List<String> getUserNamesFromUserIDs(List<String> userIDs) throws UserStoreException {
 
@@ -11553,8 +11554,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * provides the unique user IDs of the given users.
      *
-     * @param userNames   user names of the users.
+     * @param userNames user names of the users.
      * @return list of user IDs.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     public List<String> getUserIDsFromUserNames(List<String> userNames) throws UserStoreException {
 
@@ -11567,6 +11569,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userIDs.add(userId);
         }
         return userIDs;
+    }
+
+    /**
+     * Provide the users list for a given usernames list.
+     *
+     * @param userNamesList
+     * @return list of users.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    public List<User> getUsersFromUserNames(List<String> userNamesList) throws UserStoreException {
+
+        List<User> usersList = new ArrayList<>();
+        for (String userName : userNamesList) {
+            String userID = getUserIDFromUserName(userName);
+            User user = new User(userID, userName, userName);
+            usersList.add(user);
+        }
+        return usersList;
     }
 
     /**
