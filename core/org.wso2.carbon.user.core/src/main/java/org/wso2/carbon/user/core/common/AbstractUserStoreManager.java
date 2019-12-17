@@ -11574,7 +11574,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Provide the users list for a given usernames list.
      *
-     * @param userNamesList
+     * @param userNamesList user names list.
      * @return list of users.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */

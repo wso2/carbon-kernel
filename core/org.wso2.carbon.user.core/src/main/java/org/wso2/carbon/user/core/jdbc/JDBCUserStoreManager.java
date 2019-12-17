@@ -4608,4 +4608,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         return AbstractUserStoreManager.USERNAME_CLAIM_URI.equals(claim);
     }
+
+    @Override
+    public boolean isUniqueUserIdEnabled() {
+
+        return false;
+    }
 }

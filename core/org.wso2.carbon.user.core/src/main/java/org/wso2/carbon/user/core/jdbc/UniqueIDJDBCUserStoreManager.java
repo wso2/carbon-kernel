@@ -3676,18 +3676,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public Properties getDefaultUserStoreProperties() {
-
-        Properties defaultUserStoreProperties = super.getDefaultUserStoreProperties();
-        Property[] advancedProperties = defaultUserStoreProperties.getAdvancedProperties();
-        Property property = new Property(UserStoreConfigConstants.UserIDEnabled, "true",
-                "Enable User ID" + "#" + UserStoreConfigConstants.UserIDEnabledDescription, null);
-        advancedProperties = (Property[]) ArrayUtils.add(advancedProperties, property);
-        defaultUserStoreProperties.setAdvancedProperties(advancedProperties);
-        return defaultUserStoreProperties;
-    }
-
-    @Override
     public int getUserId(String username) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
@@ -3699,4 +3687,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         throw new UserStoreException("Operation is not supported.");
     }
 
+    @Override
+    public boolean isUniqueUserIdEnabled() {
+
+        return true;
+    }
 }

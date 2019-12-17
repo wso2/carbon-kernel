@@ -47,7 +47,6 @@
             <Property name="PasswordJavaRegEx">[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">[\\S]{5,30}</Property>
             <Property name="TenantManager">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
-            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager>
 
         <!-- Active directory configuration follows. This only operates under read mode. -->
