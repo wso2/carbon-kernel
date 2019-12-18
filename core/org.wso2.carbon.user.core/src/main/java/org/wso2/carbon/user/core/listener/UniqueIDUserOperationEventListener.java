@@ -25,7 +25,7 @@ import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
-import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
+import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 
 import java.util.List;
 import java.util.Map;
@@ -294,11 +294,13 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @param claims                 claims.
      * @param profileName            profile name.
      * @param userClaimSearchEntries user claim search entries.
+     * @param userStoreManager       The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException UserStoreException.
      */
     boolean doPostGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims, String profileName,
-            List<UserClaimSearchEntry> userClaimSearchEntries) throws UserStoreException;
+            List<UniqueIDUserClaimSearchEntry> userClaimSearchEntries, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Define any additional actions before actual authentication is happen.
@@ -647,12 +649,13 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Post listener for get role list of users.
      *
-     * @param userIDs         user IDs.
-     * @param rolesOfUsersMap map of roles against users
+     * @param userIDs          user IDs.
+     * @param rolesOfUsersMap  map of roles against users
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error
      * @throws UserStoreException UserStoreException
      */
-    boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap)
-            throws UserStoreException;
+    boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap,
+            UserStoreManager userStoreManager) throws UserStoreException;
 
 }

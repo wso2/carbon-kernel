@@ -19,18 +19,15 @@
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
@@ -42,7 +39,6 @@ import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -751,9 +747,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private StringBuilder getSqlQuery(int limit) {
 
-        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER.UM_USER_ID, UM_USER.UM_USER_PASSWORD, UM_USER"
-                + ".UM_SALT_VALUE, UM_USER.UM_REQUIRE_CHANGE, UM_USER.UM_CHANGED_TIME FROM UM_USER WHERE UM_USER"
-                + ".UM_TENANT_ID=? UM_USER.UM_ID IN (");
+        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER.UM_USER_ID, UM_USER.UM_USER_NAME, UM_USER"
+                + ".UM_USER_PASSWORD, UM_USER.UM_SALT_VALUE, UM_USER.UM_REQUIRE_CHANGE, UM_USER.UM_CHANGED_TIME FROM "
+                + "UM_USER WHERE UM_USER.UM_TENANT_ID=? AND UM_USER.UM_ID IN (");
 
         for (int i = 1; i <= limit; i++) {
             sqlStatement.append("SELECT UM_USER_ATTRIBUTE.UM_USER_ID FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? "
