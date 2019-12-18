@@ -23,7 +23,7 @@ import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
-import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
+import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 
 import java.util.Date;
 import java.util.List;
@@ -379,7 +379,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return User claim search entry set.
      * @throws UserStoreException User Store Exception.
      */
-    List<UserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims, String profileName)
+    List<UniqueIDUserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims, String profileName)
             throws UserStoreException;
 
     /**

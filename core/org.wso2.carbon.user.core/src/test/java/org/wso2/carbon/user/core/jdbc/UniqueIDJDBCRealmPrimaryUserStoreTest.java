@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
+import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -602,11 +603,12 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void test200GetUsersClaimValuesWithID() throws UserStoreException {
 
-        String[] allClaims = {ClaimTestUtil.CLAIM_URI1, ClaimTestUtil.CLAIM_URI2,
-                ClaimTestUtil.CLAIM_URI3};
+        String[] allClaims = {
+                ClaimTestUtil.CLAIM_URI1, ClaimTestUtil.CLAIM_URI2, ClaimTestUtil.CLAIM_URI3
+        };
 
-        List<UserClaimSearchEntry> obtained = admin.getUsersClaimValuesWithID(Arrays.stream(new String[]{userId1, userId2})
-                        .collect(Collectors.toList()),
+        List<UniqueIDUserClaimSearchEntry> obtained = admin.getUsersClaimValuesWithID(
+                Arrays.stream(new String[] { userId1, userId2 }).collect(Collectors.toList()),
                 Arrays.stream(allClaims).collect(Collectors.toList()), null);
 
         assertEquals(2, obtained.size());
