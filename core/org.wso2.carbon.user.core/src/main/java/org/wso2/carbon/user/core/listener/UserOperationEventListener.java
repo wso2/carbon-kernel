@@ -766,7 +766,7 @@ public interface UserOperationEventListener {
     default boolean doPostGetRoleListOfUsers(String[] userNames, Map<String, List<String>> rolesOfUsersMap,
             UserStoreManager userStoreManager) throws UserStoreException {
 
-        return doPostGetRoleListOfUsers(userNames, rolesOfUsersMap);
+        return true;
     }
 
     /**
@@ -800,7 +800,7 @@ public interface UserOperationEventListener {
             UserClaimSearchEntry[] userClaimSearchEntries, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        return doPostGetUsersClaimValues(userNames, claims, profileName, userClaimSearchEntries);
+        return true;
     }
 
 }
