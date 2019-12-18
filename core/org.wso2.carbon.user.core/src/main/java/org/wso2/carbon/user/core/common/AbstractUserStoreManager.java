@@ -59,6 +59,7 @@ import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
 import org.wso2.carbon.user.core.model.OperationalOperation;
+import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
@@ -8612,7 +8613,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetRoleListOfUsers(userNames, allRoleNames)) {
+                if (!newListener.doPostGetRoleListOfUsers(userNames, allRoleNames, this)) {
                     break;
                 }
             }
@@ -8706,11 +8707,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
             if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
                 if (((AbstractUserStoreManager) secondaryUserStoreManager).isUniqueUserIdEnabled()) {
-                    List<UserClaimSearchEntry> userClaimSearchEntries = ((AbstractUserStoreManager)
+                    List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries = ((AbstractUserStoreManager)
                             secondaryUserStoreManager).doGetUsersClaimValuesWithID(getUserIDsFromUserNames(
                                     entry.getValue()), Arrays.asList(claims), entry.getKey(), profileName);
-                    allUsers = (UserClaimSearchEntry[]) ArrayUtils.addAll(userClaimSearchEntries
-                                            .toArray(new UserClaimSearchEntry[0]), allUsers);
+
+                    List<UserClaimSearchEntry> userClaimSearchEntries = getUserClaimSearchEntries(
+                            uniqueIDUserClaimSearchEntries);
+                    allUsers = (UserClaimSearchEntry[]) ArrayUtils
+                            .addAll(userClaimSearchEntries.toArray(new UserClaimSearchEntry[0]), allUsers);
                 } else {
                     UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
                             .doGetUsersClaimValues(entry.getValue(), claims, entry.getKey(), profileName);
@@ -8723,12 +8727,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetUsersClaimValues(userNames, claims, profileName, allUsers)) {
+                if (!newListener.doPostGetUsersClaimValues(userNames, claims, profileName, allUsers, this)) {
                     break;
                 }
             }
         }
         return allUsers;
+    }
+
+    public List<UserClaimSearchEntry> getUserClaimSearchEntries(
+            List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries) {
+
+        List<UserClaimSearchEntry> userClaimSearchEntries = new ArrayList<>();
+        for (UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry : uniqueIDUserClaimSearchEntries) {
+            userClaimSearchEntries.add(uniqueIDUserClaimSearchEntry.getUserClaimSearchEntry());
+        }
+        return userClaimSearchEntries;
     }
 
     public UserClaimSearchEntry[] doGetUsersClaimValues(List<String> users, String[] claims, String domainName,
@@ -13986,35 +14000,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<UserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
-                                                                String profileName) throws UserStoreException {
-// TODO: 12/2/19 This should return new model of UserClaimSearchEntry with User object instead of usernames
+    public List<UniqueIDUserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
+            String profileName) throws UserStoreException {
+
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{List.class, List.class, String.class};
+            Class[] argTypes = new Class[] { List.class, List.class, String.class };
             Object object = callSecure("getUsersClaimValuesWithID", new Object[] { userIDs, claims, profileName },
                     argTypes);
-            return (List<UserClaimSearchEntry>) object;
+            return (List<UniqueIDUserClaimSearchEntry>) object;
         }
 
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        List<UserClaimSearchEntry> allUsers = new ArrayList<>();
+        List<UniqueIDUserClaimSearchEntry> allUsers = new ArrayList<>();
         Map<String, List<String>> domainFreeUsers = getDomainFreeUsersWithID(userIDs);
 
         for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
             if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
                 if (isUniqueUserIdEnabled(secondaryUserStoreManager)) {
-                    List<UserClaimSearchEntry> users = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                    List<UniqueIDUserClaimSearchEntry> users = ((AbstractUserStoreManager) secondaryUserStoreManager)
                             .doGetUsersClaimValuesWithID(entry.getValue(), claims, entry.getKey(), profileName);
                     allUsers.addAll(users);
                 } else {
                     UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
-                            .doGetUsersClaimValues(getUserNamesFromUserIDs(entry.getValue()), claims.toArray(
-                                    new String[0]), entry.getKey(), profileName);
-                    allUsers.addAll(Arrays.asList(users));
+                            .doGetUsersClaimValues(getUserNamesFromUserIDs(entry.getValue()),
+                                    claims.toArray(new String[0]), entry.getKey(), profileName);
+                    List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries =
+                            getUniqueIDUserClaimSearchEntries(users);
+                    allUsers.addAll(uniqueIDUserClaimSearchEntries);
                 }
             }
         }
@@ -14022,7 +14038,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetUsersClaimValuesWithID(userIDs, claims, profileName, allUsers)) {
+                if (!newListener.doPostGetUsersClaimValuesWithID(userIDs, claims, profileName, allUsers, this)) {
                     break;
                 }
             }
@@ -14031,13 +14047,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return allUsers;
     }
 
-    public List<UserClaimSearchEntry> doGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
-                                                                  String domainName, String profileName)
+    public List<UniqueIDUserClaimSearchEntry> getUniqueIDUserClaimSearchEntries(UserClaimSearchEntry[] users)
             throws UserStoreException {
+
+        List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries = new ArrayList<>();
+        for (UserClaimSearchEntry userClaimSearchEntry : users) {
+            UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry = new UniqueIDUserClaimSearchEntry();
+            String userName = userClaimSearchEntry.getUserName();
+            String userID = getUserNameFromUserID(userName);
+            User user = getUser(userID, userName, userName);
+            uniqueIDUserClaimSearchEntry.setUser(user);
+            uniqueIDUserClaimSearchEntry.setClaims(userClaimSearchEntry.getClaims());
+            uniqueIDUserClaimSearchEntries.add(uniqueIDUserClaimSearchEntry);
+        }
+        return uniqueIDUserClaimSearchEntries;
+    }
+
+    public List<UniqueIDUserClaimSearchEntry> doGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
+            String domainName, String profileName) throws UserStoreException {
 
         Set<String> propertySet = new HashSet<>();
         Map<String, String> claimToAttributeMap = new HashMap<>();
-        List<UserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
+        List<UniqueIDUserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
         for (String claim : claims) {
             String property;
             try {
@@ -14054,9 +14085,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUsersPropertyValuesWithID(userIDs, properties, profileName);
 
         for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
+            UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry = new UniqueIDUserClaimSearchEntry();
             UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
-            userClaimSearchEntry.setUserName(UserCoreUtil.addDomainToName(
-                    getUserNameFromUserID(entry.getKey()), domainName));
+            String userID = entry.getKey();
+            String userName = getUserNameFromUserID(userID);
+            User user = getUser(userID, userName, userName);
+            uniqueIDUserClaimSearchEntry.setUser(user);
+            userClaimSearchEntry.setUserName(userName);
             Map<String, String> userClaims = new HashMap<>();
 
             for (String claim : claims) {
@@ -14067,8 +14102,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
             }
+            uniqueIDUserClaimSearchEntry.setClaims(userClaims);
             userClaimSearchEntry.setClaims(userClaims);
-            userClaimSearchEntryList.add(userClaimSearchEntry);
+            uniqueIDUserClaimSearchEntry.setUserClaimSearchEntry(userClaimSearchEntry);
+            userClaimSearchEntryList.add(uniqueIDUserClaimSearchEntry);
         }
         return userClaimSearchEntryList;
     }
@@ -14112,7 +14149,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { List.class };
+            Class[] argTypes = new Class[] { List.class };
             Object object = callSecure("getRoleListOfUsersWithID", new Object[] { userIDs }, argTypes);
             return (Map<String, List<String>>) object;
         }
@@ -14147,7 +14184,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetRoleListOfUsersWithID(userIDs, allRoleNames)) {
+                if (!newListener.doPostGetRoleListOfUsersWithID(userIDs, allRoleNames, this)) {
                     break;
                 }
             }

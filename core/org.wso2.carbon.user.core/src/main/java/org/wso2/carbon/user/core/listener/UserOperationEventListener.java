@@ -752,6 +752,23 @@ public interface UserOperationEventListener {
         return true;
     }
 
+
+
+    /**
+     * Post listener for get role list of users.
+     *
+     * @param userNames        user names
+     * @param rolesOfUsersMap  map of roles against users
+     * @param userStoreManager User Store Manager.
+     * @return false in case of error
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPostGetRoleListOfUsers(String[] userNames, Map<String, List<String>> rolesOfUsersMap,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return doPostGetRoleListOfUsers(userNames, rolesOfUsersMap);
+    }
+
     /**
      * Post listener for get claim values of users
      *
@@ -766,6 +783,24 @@ public interface UserOperationEventListener {
             UserClaimSearchEntry[] userClaimSearchEntries) throws UserStoreException {
 
         return true;
+    }
+
+    /**
+     * Post listener for get claim values of users
+     *
+     * @param userNames              user names
+     * @param claims                 claims
+     * @param profileName            profile name
+     * @param userClaimSearchEntries user claim search entries
+     * @param userStoreManager       User Store Manager.
+     * @return false in case of error
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPostGetUsersClaimValues(String[] userNames, String[] claims, String profileName,
+            UserClaimSearchEntry[] userClaimSearchEntries, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return doPostGetUsersClaimValues(userNames, claims, profileName, userClaimSearchEntries);
     }
 
 }
