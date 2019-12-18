@@ -6792,7 +6792,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // First we have to check whether this user store is already resolved and we have it either in the cache or
         // in our local database. If so we can use that.
-        String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId);
+        String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
 
         // If we don't have the domain name in our side, then we have to iterate through each user store and find
         // where is this user id from and mark it as the user store domain.
@@ -6806,7 +6806,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         if (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null) {
                             // If we found a domain name for the give user id, update the domain resolver with the name.
                             domainName = entry.getKey();
-                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName);
+                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
                             break;
                         }
                     } else {
@@ -6814,7 +6814,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         if (abstractUserStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
                                 null).length > 0) {
                             domainName = entry.getKey();
-                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName);
+                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
                             break;
                         }
                     }
@@ -7988,7 +7988,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doInitialSetup() throws UserStoreException {
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
         hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
-        userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource, tenantId);
+        userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource);
     }
 
     /**
