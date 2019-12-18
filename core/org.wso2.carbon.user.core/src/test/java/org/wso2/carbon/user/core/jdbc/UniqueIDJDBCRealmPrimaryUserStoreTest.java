@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.DefaultRealm;
+import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -44,6 +45,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -451,18 +453,18 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         assertNull(obtained.get(ClaimTestUtil.CLAIM_URI2));
     }
 
-//    public void test186AuthenticateWithIDLoginIdentifier() throws UserStoreException {
-//
-//        LoginIdentifier loginIdentifier1 = new LoginIdentifier(ClaimTestUtil.CLAIM_URI1,
-//                "usergivenname2withId", null, LoginIdentifier.LoginIdentifierType.CLAIM_URI);
-//        LoginIdentifier loginIdentifier2 = new LoginIdentifier(ClaimTestUtil.CLAIM_URI3,
-//                "usergivenname3withId", null, LoginIdentifier.LoginIdentifierType.CLAIM_URI);
-//        List<LoginIdentifier> loginIdentifiers = new ArrayList<>();
-//        loginIdentifiers.add(loginIdentifier1);
-//        loginIdentifiers.add(loginIdentifier2);
-//        assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS,
-//                admin.authenticateWithID(loginIdentifiers, null, "pass2").getAuthenticationStatus());
-//    }
+    public void test186AuthenticateWithIDLoginIdentifier() throws UserStoreException {
+
+        LoginIdentifier loginIdentifier1 = new LoginIdentifier(ClaimTestUtil.CLAIM_URI1,
+                "usergivenname2withId", null, LoginIdentifier.LoginIdentifierType.CLAIM_URI);
+        LoginIdentifier loginIdentifier2 = new LoginIdentifier(ClaimTestUtil.CLAIM_URI3,
+                "usergivenname3withId", null, LoginIdentifier.LoginIdentifierType.CLAIM_URI);
+        List<LoginIdentifier> loginIdentifiers = new ArrayList<>();
+        loginIdentifiers.add(loginIdentifier1);
+        loginIdentifiers.add(loginIdentifier2);
+        assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS,
+                admin.authenticateWithID(loginIdentifiers, null, "pass2").getAuthenticationStatus());
+    }
 
     public void test187UpdateCredentialWithID() throws UserStoreException {
 
