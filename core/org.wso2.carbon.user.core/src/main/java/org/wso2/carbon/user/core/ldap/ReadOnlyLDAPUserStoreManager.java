@@ -2797,12 +2797,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    @Override
-    protected long doCountRoles(String filter) throws UserStoreException {
-
-        throw new UserStoreException("Error occurred while getting roles count");
-    }
-
     /**
      * Get offset, that is start index.
      *
