@@ -150,6 +150,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     };
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
+    private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
@@ -6780,7 +6781,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private UserStore getUserStoreInternalWithId(String userId) throws UserStoreException {
 
-        int index;
+        // If the user id is null, we set current user store manger as the selected one and return.
         UserStore userStore = new UserStore();
         if (userId == null) {
             userStore.setUserStoreManager(this);
@@ -6788,56 +6789,67 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userStore.setDomainName(getMyDomainName());
             return userStore;
         }
-        index = userId.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-        String domainFreeId = null;
 
-        // Check whether we have a secondary UserStoreManager setup.
-        if (index > 0) {
-            // Using the short-circuit. User name comes with the domain name.
-            String domain = userId.substring(0, index);
-            UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-            domainFreeId = userId.substring(index + 1);
+        // First we have to check whether this user store is already resolved and we have it either in the cache or
+        // in our local database. If so we can use that.
+        String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId);
 
-            if (secManager != null) {
-                userStore.setUserStoreManager(secManager);
-                userStore.setDomainAwareUserId(userId);
-                userStore.setDomainFreeUserId(domainFreeId);
-                userStore.setDomainName(domain);
-                userStore.setRecurssive(true);
-                return userStore;
-            } else {
-                if (!domain.equalsIgnoreCase(getMyDomainName())) {
-                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                            || APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain))) {
-                        userStore.setHybridRole(true);
-                    } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
-                        userStore.setSystemStore(true);
-                    } else {
-                        throw new UserStoreException("Invalid Domain Name");
+        // If we don't have the domain name in our side, then we have to iterate through each user store and find
+        // where is this user id from and mark it as the user store domain.
+        if (domainName == null) {
+            // Iterate through each registered user stores.
+            for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+                if (entry.getValue() instanceof AbstractUserStoreManager) {
+                    // If there is a user for the give user id, then that is the correct domain.
+                    if (((AbstractUserStoreManager) entry.getValue()).doGetUserNameFromUserIDWithID(userId) != null) {
+                        // If we found a domain name for the give user id, update the domain resolver with the name.
+                        domainName = entry.getKey();
+                        userUniqueIDDomainResolver.setDomainForUserId(userId, domainName);
+                        break;
                     }
                 }
-
-                userStore.setDomainAwareUserId(userId);
-                userStore.setDomainFreeUserId(domainFreeId);
-                userStore.setDomainName(domain);
-                userStore.setRecurssive(false);
-                return userStore;
             }
         }
 
-        String domain = getMyDomainName();
-        userStore.setUserStoreManager(this);
-        if (index > 0) {
-            userStore.setDomainAwareUserId(userId);
-            userStore.setDomainFreeUserId(domainFreeId);
-        } else {
-            userStore.setDomainAwareUserId(domain + CarbonConstants.DOMAIN_SEPARATOR + userId);
+        // Okay we didn't find the domain from there either. So this should either the PRIMARY domain or an invalid
+        // user id. So set the current user store manager domain as the domain name.
+        if (domainName == null || domainName.equals(getMyDomainName())) {
+            String domain = getMyDomainName();
+            userStore.setUserStoreManager(this);
+            userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(userId, domainName));
             userStore.setDomainFreeUserId(userId);
+            userStore.setRecurssive(false);
+            userStore.setDomainName(domain);
+            return userStore;
         }
-        userStore.setRecurssive(false);
-        userStore.setDomainName(domain);
 
-        return userStore;
+        UserStoreManager secManager = getSecondaryUserStoreManager(domainName);
+        if (secManager != null) {
+            userStore.setUserStoreManager(secManager);
+            userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(userId, domainName));
+            userStore.setDomainFreeUserId(userId);
+            userStore.setDomainName(domainName);
+            userStore.setRecurssive(true);
+            return userStore;
+        } else {
+            if (!domainName.equalsIgnoreCase(getMyDomainName())) {
+                if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domainName)
+                        || APPLICATION_DOMAIN.equalsIgnoreCase(domainName)
+                        || WORKFLOW_DOMAIN.equalsIgnoreCase(domainName))) {
+                    userStore.setHybridRole(true);
+                } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
+                    userStore.setSystemStore(true);
+                } else {
+                    throw new UserStoreException("Invalid Domain Name");
+                }
+            }
+
+            userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(userId, domainName));
+            userStore.setDomainFreeUserId(userId);
+            userStore.setDomainName(domainName);
+            userStore.setRecurssive(false);
+            return userStore;
+        }
     }
 
     /**
@@ -7965,6 +7977,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doInitialSetup() throws UserStoreException {
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
         hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource, tenantId);
     }
 
     /**
