@@ -62,10 +62,10 @@ public class UserUniqueIDManger {
      * @param uniqueId User's unique id.
      * @return User object if user presents for the unique id. Null otherwise.
      */
-    public User getUser(String uniqueId, String profile, AbstractUserStoreManager userStoreManager)
+    public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, profile);
+        String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, null);
 
         if (usernames.length > 1) {
             throw new UserStoreException("More than one user presents with the same user unique id.");
@@ -104,15 +104,14 @@ public class UserUniqueIDManger {
     /**
      * Get user's unique id from the claims.
      * @param username Username of the user.
-     * @param profile Profile name of the user.
      * @param userStoreManager User store manger to use.
      * @return User's unique id.
      */
-    public String getUniqueId(String username, String profile, AbstractUserStoreManager userStoreManager)
+    public String getUniqueId(String username, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
         return userStoreManager.getUserClaimValues(username, new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
-                profile).get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
+                null).get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
     }
 
     /**
@@ -145,7 +144,7 @@ public class UserUniqueIDManger {
         List<User> users = new ArrayList<>();
         for (String username : paginatedSearchResult.getUsers()) {
             User user = new User();
-            String uniqueId = getUniqueId(username, null, userStoreManager);
+            String uniqueId = getUniqueId(username, userStoreManager);
             if (StringUtils.isEmpty(uniqueId)) {
                 user = addUser(username, null, userStoreManager);
             } else {
@@ -183,7 +182,7 @@ public class UserUniqueIDManger {
         List<User> users = new ArrayList<>();
         for (String username : listUsers) {
             User user = new User();
-            String uniqueId = getUniqueId(username, null, userStoreManager);
+            String uniqueId = getUniqueId(username, userStoreManager);
             user.setUsername(username);
             user.setUserID(uniqueId);
             user.setUserStoreDomain(userStoreManager.getMyDomainName());

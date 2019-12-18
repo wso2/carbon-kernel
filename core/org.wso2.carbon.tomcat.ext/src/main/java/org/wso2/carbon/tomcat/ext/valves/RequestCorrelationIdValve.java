@@ -70,6 +70,7 @@ public class RequestCorrelationIdValve extends ValveBase {
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
     private static final String PADDING_CHAR = "=";
     private static final String SPLITTING_CHAR = "&";
+    private boolean isEnableCorrelationLogs;
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -88,6 +89,8 @@ public class RequestCorrelationIdValve extends ValveBase {
         if (StringUtils.isNotEmpty(configuredCorrelationIdMdc)) {
             correlationIdMdc = configuredCorrelationIdMdc;
         }
+
+        isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
     }
 
     @Override
@@ -106,7 +109,7 @@ public class RequestCorrelationIdValve extends ValveBase {
                 associateToThread(associateToThreadMap);
             }
 
-            if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+            if (isEnableCorrelationLogs) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_START, request);
@@ -116,7 +119,7 @@ public class RequestCorrelationIdValve extends ValveBase {
                 getNext().invoke(request, response);
             }
         } finally {
-            if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+            if (isEnableCorrelationLogs) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_END, request);

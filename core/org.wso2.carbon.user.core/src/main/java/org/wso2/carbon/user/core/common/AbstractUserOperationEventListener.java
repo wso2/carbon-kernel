@@ -24,6 +24,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserOperationEventListener;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.List;
@@ -412,15 +413,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
-            int offset, String sortBy, String sortOrder, String[] users, UserStoreManager userStoreManager)
-            throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreGetUserWithID(String userID, String[] requestedClaims, String profileName, User user,
+    public boolean doPreGetUserWithID(String userID, String[] requestedClaims, String profileName,
             UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
@@ -455,15 +448,16 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostGetUserListOfRoleWithID(String roleName, List<User> userList,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
     public boolean doPostGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims, String profileName,
-            List<UserClaimSearchEntry> userClaimSearchEntries) throws UserStoreException {
+            List<UniqueIDUserClaimSearchEntry> userClaimSearchEntries, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         return true;
     }
@@ -477,7 +471,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
     @Override
     public boolean doPostAuthenticateWithID(String preferredUserNameClaim, String preferredUserNameValue,
-            boolean authenticated, UserStoreManager userStoreManager) throws UserStoreException {
+            AuthenticationResult authenticationResult, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -490,8 +484,8 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers, boolean authenticated,
-            UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostAuthenticateWithID(List<LoginIdentifier> loginIdentifiers,
+            AuthenticationResult authenticationResult, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -504,8 +498,8 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostAuthenticateWithID(String userID, boolean authenticated, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPostAuthenticateWithID(String userID, AuthenticationResult authenticationResult,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -663,8 +657,8 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap)
-            throws UserStoreException {
+    public boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }

@@ -52,7 +52,6 @@
             <Property name="UsernameJavaScriptRegEx">[\\S]{3,30}</Property>
             <Property name="RolenameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
             <Property name="RolenameJavaScriptRegEx">[\\S]{3,30}</Property>
-            <Property name="UserIDEnabled">true</Property>
         </UserStoreManager>
 
         <AuthorizationManager

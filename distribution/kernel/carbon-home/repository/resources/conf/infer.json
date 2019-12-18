@@ -31,7 +31,6 @@
       "user_store.properties.StoreSaltedPassword": true,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.UserNameUniqueAcrossTenants": false,
-      "user_store.properties.UserIDEnabled": true,
       "user_store.properties.EnableMaxUserLimitForSCIM": "false",
       "tenant_mgt.tenant_manager.type": "jdbc"
     },
@@ -85,7 +84,6 @@
       "user_store.properties.SCIMEnabled": false,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
-      "user_store.properties.UserIDEnabled": true,
       "user_store.properties.UserIDAttribute": "scimId",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
     },
@@ -155,7 +153,6 @@
       "user_store.properties.StartTLSEnabled": false,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
-      "user_store.properties.UserIDEnabled": true,
       "user_store.properties.UserIDAttribute": "scimId",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
     },
@@ -235,7 +232,6 @@
       "user_store.properties.SCIMEnabled": false,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
-      "user_store.properties.UserIDEnabled": true,
       "user_store.properties.UserIDAttribute": "scimId",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
     }

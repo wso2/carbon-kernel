@@ -1968,8 +1968,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         // Set Advanced Properties.
         UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(UserStoreConfigConstants.UserIDEnabled, "Enable User ID", "true",
-                UserStoreConfigConstants.UserIDEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
                 UserStoreConfigConstants.SCIMEnabledDescription);
 

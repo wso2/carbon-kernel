@@ -59,6 +59,7 @@ import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
 import org.wso2.carbon.user.core.model.OperationalOperation;
+import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
@@ -69,6 +70,7 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -89,7 +91,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
@@ -4743,7 +4744,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### </Listeners> #####################################################
 
-        if ((deletedUsers != null && deletedUsers.length > 0) || (newUsers != null && newUsers.length > 0)) {
+        if (deletedUsers.length > 0 || newUsers != null && newUsers.length > 0) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 try {
                     if (isUniqueUserIdEnabledInUserStore(userStore)) {
@@ -8631,6 +8632,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof AbstractUserOperationEventListener) {
+                AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                if (!newListener.doPostGetRoleListOfUsers(userNames, allRoleNames, this)) {
+                    break;
+                }
+            }
+        }
+
         return allRoleNames;
     }
 
@@ -8719,11 +8729,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
             if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
                 if (((AbstractUserStoreManager) secondaryUserStoreManager).isUniqueUserIdEnabled()) {
-                    List<UserClaimSearchEntry> userClaimSearchEntries = ((AbstractUserStoreManager)
+                    List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries = ((AbstractUserStoreManager)
                             secondaryUserStoreManager).doGetUsersClaimValuesWithID(getUserIDsFromUserNames(
                                     entry.getValue()), Arrays.asList(claims), entry.getKey(), profileName);
-                    allUsers = (UserClaimSearchEntry[]) ArrayUtils.addAll(userClaimSearchEntries
-                                            .toArray(new UserClaimSearchEntry[0]), allUsers);
+
+                    List<UserClaimSearchEntry> userClaimSearchEntries = getUserClaimSearchEntries(
+                            uniqueIDUserClaimSearchEntries);
+                    allUsers = (UserClaimSearchEntry[]) ArrayUtils
+                            .addAll(userClaimSearchEntries.toArray(new UserClaimSearchEntry[0]), allUsers);
                 } else {
                     UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
                             .doGetUsersClaimValues(entry.getValue(), claims, entry.getKey(), profileName);
@@ -8741,7 +8754,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         }
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+            if (listener instanceof AbstractUserOperationEventListener) {
+                AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                if (!newListener.doPostGetUsersClaimValues(userNames, claims, profileName, allUsers, this)) {
+                    break;
+                }
+            }
+        }
         return allUsers;
+    }
+
+    public List<UserClaimSearchEntry> getUserClaimSearchEntries(
+            List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries) {
+
+        List<UserClaimSearchEntry> userClaimSearchEntries = new ArrayList<>();
+        for (UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry : uniqueIDUserClaimSearchEntries) {
+            userClaimSearchEntries.add(uniqueIDUserClaimSearchEntry.getUserClaimSearchEntry());
+        }
+        return userClaimSearchEntries;
     }
 
     public UserClaimSearchEntry[] doGetUsersClaimValues(List<String> users, String[] claims, String domainName,
@@ -9614,7 +9646,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doAuthenticateWithID(loginIdentifiers, credential);
                 } else {
                     String userName = getUsernameByClaims(loginIdentifiers);
-                    String userID = userUniqueIDManger.getUniqueId(userName, null, this);
+                    String userID = userUniqueIDManger.getUniqueId(userName, this);
                     boolean status = ((AbstractUserStoreManager) secUserStoreManager)
                             .doAuthenticate(userName, credential);
                     if (status) {
@@ -9641,7 +9673,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     authenticationResult = abstractUserStoreManager.doAuthenticateWithID(loginIdentifiers, credential);
                 } else {
                     String userName = getUsernameByClaims(loginIdentifiers);
-                    String userID = userUniqueIDManger.getUniqueId(userName, null, abstractUserStoreManager);
+                    String userID = userUniqueIDManger.getUniqueId(userName, abstractUserStoreManager);
                     boolean status = abstractUserStoreManager.doAuthenticate(userName, credential);
                     if (status) {
                         User user = getUser(userID, userName, null);
@@ -9696,7 +9728,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(loginIdentifiers, authenticated, abstractUserStoreManager)) {
+                        .doPostAuthenticateWithID(loginIdentifiers, authenticationResult, abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
@@ -10057,8 +10089,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
                             AuthenticationResult.AuthenticationStatus.FAIL);
                     if (status) {
-                        String userID = userUniqueIDManger.getUniqueId(users.get(0), profileName, this);
-                        User user = userUniqueIDManger.getUser(userID, profileName, this);
+                        String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
+                        User user = userUniqueIDManger.getUser(userID, this);
                         authenticationResult.setAuthenticatedUser(user);
                     } else {
                         authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
@@ -10118,7 +10150,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, authenticated,
+                        .doPostAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, authenticationResult,
                                 abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
@@ -10299,7 +10331,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doAuthenticateWithID(userID, credential);
                 } else {
                     User user = userUniqueIDManger
-                            .getUser(userID, null, (AbstractUserStoreManager) secUserStoreManager);
+                            .getUser(userID, (AbstractUserStoreManager) secUserStoreManager);
                     boolean status = ((AbstractUserStoreManager) secUserStoreManager)
                             .doAuthenticate(user.getUsername(), credential);
                     if (status) {
@@ -10325,7 +10357,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
                     authenticationResult = abstractUserStoreManager.doAuthenticateWithID(userID, credential);
                 } else {
-                    User user = userUniqueIDManger.getUser(userID, null, abstractUserStoreManager);
+                    User user = userUniqueIDManger.getUser(userID, abstractUserStoreManager);
                     boolean status = abstractUserStoreManager.doAuthenticate(user.getUsername(), credential);
                     if (status) {
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
@@ -10380,7 +10412,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!((AbstractUserOperationEventListener) listener)
-                        .doPostAuthenticateWithID(userID, authenticated, abstractUserStoreManager)) {
+                        .doPostAuthenticateWithID(userID, authenticationResult, abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
@@ -10527,7 +10559,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, profileName, this);
+            user = userUniqueIDManger.getUser(userID, this);
             isUserExists = user != null;
         }
 
@@ -10548,7 +10580,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
                 if (user == null) {
-                    user = userUniqueIDManger.getUser(userID, profileName, this);
+                    user = userUniqueIDManger.getUser(userID, this);
                 }
             } else {
                 user = getUserFromID(userID, requestedClaims, userStore.getDomainName(), profileName);
@@ -10612,7 +10644,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            User user = userUniqueIDManger.getUser(userID, null, this);
+            User user = userUniqueIDManger.getUser(userID, this);
             if (user == null) {
                 return false;
             }
@@ -10645,7 +10677,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Check whether roles exist in cache
-        User user = userUniqueIDManger.getUser(userID, null, this);
+        User user = userUniqueIDManger.getUser(userID, this);
         if (user != null) {
             roleNames = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, user.getUsername()));
             if (roleNames.size() > 0) {
@@ -10808,7 +10840,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else{
-            user = userUniqueIDManger.getUser(userID, profileName, this);
+            user = userUniqueIDManger.getUser(userID, this);
             isUserExists = user != null;
         }
 
@@ -10905,7 +10937,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else{
-            user = userUniqueIDManger.getUser(userID, profileName, this);
+            user = userUniqueIDManger.getUser(userID, this);
             isUserExists = user != null;
         }
 
@@ -10999,7 +11031,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueIdEnabled) {
-            User user = userUniqueIDManger.getUser(userID, profileName, this);
+            User user = userUniqueIDManger.getUser(userID, this);
             return Arrays.asList(getUserClaimValues(user.getDomainQualifiedUsername(), profileName));
         }
 
@@ -11312,14 +11344,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             AuthenticationResult authenticationResult;
             try {
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, null, this);
+                    User user = userUniqueIDManger.getUser(userID, this);
                     boolean auth = this.doAuthenticate(user.getUsername(), oldCredentialObj);
                     authenticationResult = new AuthenticationResult(auth ?
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
                             AuthenticationResult.AuthenticationStatus.FAIL);
                 } else {
-                    authenticationResult = this.doAuthenticateWithID(claimManager.getAttributeName(getMyDomainName(),
-                            UserCoreClaimConstants.USERNAME_CLAIM_URI), userID, oldCredentialObj, null);
+                    authenticationResult = this.doAuthenticateWithID(userID, oldCredentialObj);
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
@@ -11349,7 +11380,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     // If unique id feature is not enabled, we have to call the legacy methods.
                     if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                        User user = userUniqueIDManger.getUser(userID, null, this);
+                        User user = userUniqueIDManger.getUser(userID, this);
                         // If we don't have a record for this user, let's try to call directly using the user id.
                         if (user == null) {
                             updateCredential(userID, newCredential, oldCredential);
@@ -11491,7 +11522,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             return doGetUserIDFromUserNameWithID(userName);
         }
-        return userUniqueIDManger.getUniqueId(userName, null, this);
+        return userUniqueIDManger.getUniqueId(userName, this);
     }
 
     /**
@@ -11528,7 +11559,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             return doGetUserNameFromUserIDWithID(userID);
         }
-        User user = userUniqueIDManger.getUser(userID, null, this);
+        User user = userUniqueIDManger.getUser(userID, this);
         return user.getUsername();
     }
 
@@ -11551,10 +11582,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * provides the unique user IDs of the given users.
      *
-     * @param userIDs   userIDs of the users.
+     * @param userIDs userIDs of the users.
      * @return list of user IDs.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected List<String> getUserNamesFromUserIDs(List<String> userIDs) throws UserStoreException {
+    public List<String> getUserNamesFromUserIDs(List<String> userIDs) throws UserStoreException {
 
         List<String> userNames = new ArrayList<>();
         for (String userID : userIDs) {
@@ -11566,10 +11598,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * provides the unique user IDs of the given users.
      *
-     * @param userNames   user names of the users.
+     * @param userNames user names of the users.
      * @return list of user IDs.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected List<String> getUserIDsFromUserNames(List<String> userNames) throws UserStoreException {
+    public List<String> getUserIDsFromUserNames(List<String> userNames) throws UserStoreException {
 
         List<String> userIDs = new ArrayList<>();
         for (String userName : userNames) {
@@ -11580,6 +11613,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userIDs.add(userId);
         }
         return userIDs;
+    }
+
+    /**
+     * Provide the users list for a given usernames list.
+     *
+     * @param userNamesList user names list.
+     * @return list of users.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    public List<User> getUsersFromUserNames(List<String> userNamesList) throws UserStoreException {
+
+        List<User> usersList = new ArrayList<>();
+        for (String userName : userNamesList) {
+            String userID = getUserIDFromUserName(userName);
+            User user = new User(userID, userName, userName);
+            usersList.add(user);
+        }
+        return usersList;
     }
 
     /**
@@ -11622,7 +11673,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue + "of "
                                 + "the " + "claim: " + claimURI);
             }
-            return userUniqueIDManger.getUniqueId(userNames.get(0), profileName, this);
+            return userUniqueIDManger.getUniqueId(userNames.get(0), this);
         }
     }
 
@@ -11784,7 +11835,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userNameFromUserID = getUserNameFromUserID(userID);
             isUserEixisting = userNameFromUserID != null;
         } else {
-            user = userUniqueIDManger.getUser(userID, null, this);
+            user = userUniqueIDManger.getUser(userID, this);
             isUserEixisting = user != null;
         }
 
@@ -11854,7 +11905,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, profileName, this);
+            user = userUniqueIDManger.getUser(userID, this);
             isUserExists = user != null;
         }
 
@@ -12003,7 +12054,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isReadOnly()) {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, null, this);
+                    User user = userUniqueIDManger.getUser(userID, this);
                     doSetUserClaimValues(user.getUsername(), claims, profileName);
                 } else {
                     doSetUserClaimValuesWithID(userID, claims, profileName);
@@ -12196,7 +12247,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, null, this);
+                    User user = userUniqueIDManger.getUser(userID, this);
                     doUpdateCredentialByAdmin(user.getUsername(), newCredential);
                 } else {
                     doUpdateCredentialByAdminWithID(userID, newCredentialObj);
@@ -12272,7 +12323,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             isUserEixisting = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, null, this);
+            user = userUniqueIDManger.getUser(userID, this);
             isUserEixisting = user != null;
         }
 
@@ -12368,14 +12419,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         User user = null;
-        boolean isUserEixisting;
+        boolean isUserExisting;
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            isUserEixisting = doCheckExistingUserWithID(userID);
+            isUserExisting = doCheckExistingUserWithID(userID);
         } else {
-            isUserEixisting = userUniqueIDManger.getUser(userID, null, this) != null;
+            user = userUniqueIDManger.getUser(userID, this);
+            isUserExisting = user != null;
         }
 
-        if (!isUserEixisting) {
+        if (!isUserExisting) {
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userID,
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
@@ -12464,7 +12516,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabled()) {
-                    User user = userUniqueIDManger.getUser(userID, null, this);
+                    User user = userUniqueIDManger.getUser(userID, this);
                     if (user == null) {
                         throw new UserStoreException("User cannot be found.");
                     }
@@ -12694,16 +12746,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public final void updateUserListOfRoleWithID(final String roleName, final String[] deletedUserIDs,
-            final String[] newUserIDs) throws UserStoreException {
+    public final void updateUserListOfRoleWithID(final String roleName,  String[] deletedUserIDs,
+             String[] newUserIDs) throws UserStoreException {
 
         try {
             AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 UserStore userStore = getUserStore(roleName);
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    List<User> deletedUsers = userUniqueIDManger.listUsers(deletedUserIDs, this);
-                    List<User> newUsers = userUniqueIDManger.listUsers(newUserIDs, this);
+                    List<User> deletedUsers = new ArrayList<>();
+                    List<User> newUsers = new ArrayList<>();
+                    if (deletedUserIDs != null) {
+                        deletedUsers = userUniqueIDManger.getUsers(Arrays.asList(deletedUserIDs), this);
+                    }
+                    if (newUserIDs != null) {
+                        newUsers = userUniqueIDManger.getUsers(Arrays.asList(newUserIDs), this);
+                    }
                     // If we don't have a record for this user, let's try to call directly using the user id.
                     updateUserListOfRoleInternal(roleName, deletedUsers.stream().map(User::getDomainQualifiedUsername)
                             .toArray(String[]::new), newUsers.stream().map(User::getDomainQualifiedUsername).toArray(String[]::new));
@@ -13178,6 +13236,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
 
+        if (userIDList == null) {
+            userIDList = new String[0];
+        }
         UserStore userStore = getUserStore(roleName);
 
         if (isSharedRole && !isSharedGroupEnabled()) {
@@ -13480,7 +13541,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            User user = userUniqueIDManger.getUser(userID, null, this);
+            User user = userUniqueIDManger.getUser(userID, this);
             // If we don't have a record for this user, let's try to call directly using the user id.
             if (user == null) {
                 return false;
@@ -13980,35 +14041,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<UserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
-                                                                String profileName) throws UserStoreException {
-// TODO: 12/2/19 This should return new model of UserClaimSearchEntry with User object instead of usernames
+    public List<UniqueIDUserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
+            String profileName) throws UserStoreException {
+
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{List.class, List.class, String.class};
+            Class[] argTypes = new Class[] { List.class, List.class, String.class };
             Object object = callSecure("getUsersClaimValuesWithID", new Object[] { userIDs, claims, profileName },
                     argTypes);
-            return (List<UserClaimSearchEntry>) object;
+            return (List<UniqueIDUserClaimSearchEntry>) object;
         }
 
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        List<UserClaimSearchEntry> allUsers = new ArrayList<>();
+        List<UniqueIDUserClaimSearchEntry> allUsers = new ArrayList<>();
         Map<String, List<String>> domainFreeUsers = getDomainFreeUsersWithID(userIDs);
 
         for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
             if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
                 if (isUniqueUserIdEnabled(secondaryUserStoreManager)) {
-                    List<UserClaimSearchEntry> users = ((AbstractUserStoreManager) secondaryUserStoreManager)
+                    List<UniqueIDUserClaimSearchEntry> users = ((AbstractUserStoreManager) secondaryUserStoreManager)
                             .doGetUsersClaimValuesWithID(entry.getValue(), claims, entry.getKey(), profileName);
                     allUsers.addAll(users);
                 } else {
                     UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
-                            .doGetUsersClaimValues(getUserNamesFromUserIDs(entry.getValue()), claims.toArray(
-                                    new String[0]), entry.getKey(), profileName);
-                    allUsers.addAll(Arrays.asList(users));
+                            .doGetUsersClaimValues(getUserNamesFromUserIDs(entry.getValue()),
+                                    claims.toArray(new String[0]), entry.getKey(), profileName);
+                    List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries =
+                            getUniqueIDUserClaimSearchEntries(users);
+                    allUsers.addAll(uniqueIDUserClaimSearchEntries);
                 }
             }
         }
@@ -14016,7 +14079,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetUsersClaimValuesWithID(userIDs, claims, profileName, allUsers)) {
+                if (!newListener.doPostGetUsersClaimValuesWithID(userIDs, claims, profileName, allUsers, this)) {
                     break;
                 }
             }
@@ -14025,13 +14088,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return allUsers;
     }
 
-    public List<UserClaimSearchEntry> doGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
-                                                                  String domainName, String profileName)
+    public List<UniqueIDUserClaimSearchEntry> getUniqueIDUserClaimSearchEntries(UserClaimSearchEntry[] users)
             throws UserStoreException {
+
+        List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries = new ArrayList<>();
+        for (UserClaimSearchEntry userClaimSearchEntry : users) {
+            UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry = new UniqueIDUserClaimSearchEntry();
+            String userName = userClaimSearchEntry.getUserName();
+            String userID = getUserIDFromUserName(userName);
+            User user = getUser(userID, userName, userName);
+            uniqueIDUserClaimSearchEntry.setUser(user);
+            uniqueIDUserClaimSearchEntry.setClaims(userClaimSearchEntry.getClaims());
+            uniqueIDUserClaimSearchEntries.add(uniqueIDUserClaimSearchEntry);
+        }
+        return uniqueIDUserClaimSearchEntries;
+    }
+
+    public List<UniqueIDUserClaimSearchEntry> doGetUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
+            String domainName, String profileName) throws UserStoreException {
 
         Set<String> propertySet = new HashSet<>();
         Map<String, String> claimToAttributeMap = new HashMap<>();
-        List<UserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
+        List<UniqueIDUserClaimSearchEntry> userClaimSearchEntryList = new ArrayList<>();
         for (String claim : claims) {
             String property;
             try {
@@ -14048,9 +14126,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUsersPropertyValuesWithID(userIDs, properties, profileName);
 
         for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
+            UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry = new UniqueIDUserClaimSearchEntry();
             UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
-            userClaimSearchEntry.setUserName(UserCoreUtil.addDomainToName(
-                    getUserNameFromUserID(entry.getKey()), domainName));
+            String userID = entry.getKey();
+            String userName = getUserNameFromUserID(userID);
+            User user = getUser(userID, userName, userName);
+            uniqueIDUserClaimSearchEntry.setUser(user);
+            userClaimSearchEntry.setUserName(userName);
             Map<String, String> userClaims = new HashMap<>();
 
             for (String claim : claims) {
@@ -14061,8 +14143,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
             }
+            uniqueIDUserClaimSearchEntry.setClaims(userClaims);
             userClaimSearchEntry.setClaims(userClaims);
-            userClaimSearchEntryList.add(userClaimSearchEntry);
+            uniqueIDUserClaimSearchEntry.setUserClaimSearchEntry(userClaimSearchEntry);
+            userClaimSearchEntryList.add(uniqueIDUserClaimSearchEntry);
         }
         return userClaimSearchEntryList;
     }
@@ -14106,7 +14190,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { List.class };
+            Class[] argTypes = new Class[] { List.class };
             Object object = callSecure("getRoleListOfUsersWithID", new Object[] { userIDs }, argTypes);
             return (Map<String, List<String>>) object;
         }
@@ -14141,7 +14225,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
             if (listener instanceof AbstractUserOperationEventListener) {
                 AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                if (!newListener.doPostGetRoleListOfUsersWithID(userIDs, allRoleNames)) {
+                if (!newListener.doPostGetRoleListOfUsersWithID(userIDs, allRoleNames, this)) {
                     break;
                 }
             }
