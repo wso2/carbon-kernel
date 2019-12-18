@@ -70,7 +70,6 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.CharBuffer;
@@ -91,6 +90,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
@@ -6801,11 +6801,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
                 if (entry.getValue() instanceof AbstractUserStoreManager) {
                     // If there is a user for the give user id, then that is the correct domain.
-                    if (((AbstractUserStoreManager) entry.getValue()).doGetUserNameFromUserIDWithID(userId) != null) {
-                        // If we found a domain name for the give user id, update the domain resolver with the name.
-                        domainName = entry.getKey();
-                        userUniqueIDDomainResolver.setDomainForUserId(userId, domainName);
-                        break;
+                    AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) entry.getValue();
+                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                        if (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null) {
+                            // If we found a domain name for the give user id, update the domain resolver with the name.
+                            domainName = entry.getKey();
+                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName);
+                            break;
+                        }
+                    } else {
+                        // This is happening when the user store is not supporting uniqueID.
+                        if (abstractUserStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
+                                null).length > 0) {
+                            domainName = entry.getKey();
+                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName);
+                            break;
+                        }
                     }
                 }
             }
