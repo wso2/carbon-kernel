@@ -177,12 +177,6 @@
 				<Description>Unique ID of the user</Description>
 				<ReadOnly/>
 			</Claim>
-			<Claim>
-				<ClaimURI>http://wso2.org/claims/identity/uuid</ClaimURI>
-				<DisplayName>Unique user id</DisplayName>
-				<AttributeID>uuid</AttributeID>
-				<Description>Unique User ID</Description>
-			</Claim>
 		    <!--Claim> 
 				<ClaimURI>http://wso2.org/claims/primaryChallengeQuestion</ClaimURI> 
 				<DisplayName>Primary Challenge Question</DisplayName> 

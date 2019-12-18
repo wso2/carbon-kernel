@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +34,6 @@ import java.util.UUID;
  */
 public class UserUniqueIDManger {
 
-    private static final String USER_ID_CLAIM = "http://wso2.org/claims/identity/uuid";
-
     /**
      * Add new user and create a unique user id for that user.
      * @param username Username in the user store.
@@ -46,8 +45,7 @@ public class UserUniqueIDManger {
         Map<String, String> claims = new HashMap<>();
         String uniqueId = generateUniqueId();
 
-        // TODO: 12/12/19 Change the unique id claim to userId when the user store is not readonly.
-        claims.put(USER_ID_CLAIM, uniqueId);
+        claims.put(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId);
 
         userStoreManager.setUserClaimValues(username, claims, profileName);
 
@@ -67,7 +65,7 @@ public class UserUniqueIDManger {
     public User getUser(String uniqueId, String profile, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String[] usernames = userStoreManager.getUserList(USER_ID_CLAIM, uniqueId, profile);
+        String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, profile);
 
         if (usernames.length > 1) {
             throw new UserStoreException("More than one user presents with the same user unique id.");
@@ -113,7 +111,8 @@ public class UserUniqueIDManger {
     public String getUniqueId(String username, String profile, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        return userStoreManager.getUserClaimValues(username, new String[]{USER_ID_CLAIM}, profile).get(USER_ID_CLAIM);
+        return userStoreManager.getUserClaimValues(username, new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
+                profile).get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
     }
 
     /**
@@ -124,7 +123,7 @@ public class UserUniqueIDManger {
     public boolean checkUserExist(String uniqueId, String profile, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String[] usernames = userStoreManager.getUserList(USER_ID_CLAIM, uniqueId, profile);
+        String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, profile);
         if (usernames.length > 1) {
             throw new UserStoreException("More than one user presents with the same user unique id.");
         }
