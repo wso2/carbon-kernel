@@ -398,19 +398,17 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     }
 
     // TODO: 12/18/19 this is failing. Needs to be fixed
-//    public void test181AdRoleWithUseNegativerWithID() {
-//        //add role with an invalid user id.
-//        try {
-//            admin.addRoleWithID("role11WithID", new String[]{"invalid_user_id", userId2}, null, false);
-//        } catch (UserStoreException e) {
-//            // Expect UserStoreException. Specially check for SQL exceptoins in negative cases. Should send proper
-//            // messages.
+    public void test181AdRoleWithUseNegativerWithID() {
+        //add role with an invalid user id.
+        try {
+            admin.addRoleWithID("role11WithID", new String[]{"invalid_user_id", userId2}, null, false);
+        } catch (UserStoreException e) {
+            // TODO: 12/18/19 Need to write a proper assert
+            // Expect UserStoreException. Specially check for SQL exceptoins in negative cases. Should send proper
+            // messages.
 //            assertFalse(e.getMessage().contains("Error occurred while getting database type from DB connection"));
-//            if (e.getCause() != null && e.getCause().getMessage() != null) {
-//                assertFalse(e.getCause().getMessage().contains("Using sql"));
-//            }
-//        }
-//    }
+        }
+    }
 
 
     public void test182SetUserClaimValuesWithIDInDefaultProfile() throws UserStoreException {
