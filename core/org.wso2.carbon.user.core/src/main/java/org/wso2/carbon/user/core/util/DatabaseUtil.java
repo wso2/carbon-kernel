@@ -714,7 +714,7 @@ public class DatabaseUtil {
             while (rs.next()) {
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
-                User user = ((AbstractUserStoreManager) userStoreManager).getUser(userID, userName, userName);
+                User user = ((AbstractUserStoreManager) userStoreManager).getUser(userID, userName);
                 users.add(user);
             }
             if (users.size() > 0) {
