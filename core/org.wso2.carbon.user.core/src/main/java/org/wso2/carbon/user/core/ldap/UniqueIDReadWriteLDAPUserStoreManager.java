@@ -261,7 +261,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         String userID = getUniqueUserID();
         persistUser(userID, userName, credential, roleList, claims);
-        return getUser(userID, userName, profileName);
+        return getUser(userID, userName);
 
     }
 

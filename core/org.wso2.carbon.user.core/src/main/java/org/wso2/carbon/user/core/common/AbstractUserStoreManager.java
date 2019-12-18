@@ -9661,7 +9661,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     boolean status = ((AbstractUserStoreManager) secUserStoreManager)
                             .doAuthenticate(userName, credential);
                     if (status) {
-                        User user = getUser(userID, userName, null);
+                        User user = getUser(userID, userName);
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     } else {
@@ -9687,7 +9687,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     String userID = userUniqueIDManger.getUniqueId(userName, abstractUserStoreManager);
                     boolean status = abstractUserStoreManager.doAuthenticate(userName, credential);
                     if (status) {
-                        User user = getUser(userID, userName, null);
+                        User user = getUser(userID, userName);
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     } else {
@@ -11226,7 +11226,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private User getUserFromID(String userID, String[] requestedClaims, String domainName, String profileName)
             throws UserStoreException {
 
-        User user = getUser(userID, null, profileName);
+        User user = getUser(userID, null);
         if (ArrayUtils.isNotEmpty(requestedClaims)) {
             Map<String, String> claimValues = doGetUserClaimValuesWithID(userID, requestedClaims, domainName, profileName);
             user.setAttributes(claimValues);
@@ -11457,13 +11457,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Get the user.
      *
-     * @param userID      user ID.
-     * @param userName    user name.
-     * @param profileName profile name.
+     * @param userID   user ID.
+     * @param userName user name.
      * @return User.
      * @throws UserStoreException User Store Exception.
      */
-    public User getUser(String userID, String userName, String profileName) throws UserStoreException {
+    public User getUser(String userID, String userName) throws UserStoreException {
 
         if (userID == null && userName == null) {
             throw new UserStoreException("Both userID and UserName cannot be null.");
@@ -14107,7 +14106,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry = new UniqueIDUserClaimSearchEntry();
             String userName = userClaimSearchEntry.getUserName();
             String userID = getUserIDFromUserName(userName);
-            User user = getUser(userID, userName, userName);
+            User user = getUser(userID, userName);
             uniqueIDUserClaimSearchEntry.setUser(user);
             uniqueIDUserClaimSearchEntry.setClaims(userClaimSearchEntry.getClaims());
             uniqueIDUserClaimSearchEntries.add(uniqueIDUserClaimSearchEntry);
@@ -14141,7 +14140,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
             String userID = entry.getKey();
             String userName = getUserNameFromUserID(userID);
-            User user = getUser(userID, userName, userName);
+            User user = getUser(userID, userName);
             uniqueIDUserClaimSearchEntry.setUser(user);
             userClaimSearchEntry.setUserName(userName);
             Map<String, String> userClaims = new HashMap<>();

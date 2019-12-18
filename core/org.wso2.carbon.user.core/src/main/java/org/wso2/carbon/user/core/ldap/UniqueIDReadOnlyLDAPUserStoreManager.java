@@ -289,7 +289,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (super.doAuthenticate(users[0], credential)) {
             String userName = users[0];
             String userID = getUserIDFromUserName(userName);
-            user = getUser(userID, userName, profileName);
+            user = getUser(userID, userName);
             user.setPreferredUsername(preferredUserNameValue);
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
             authenticationResult.setAuthenticatedUser(user);
@@ -323,7 +323,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (super.doAuthenticate(users.get(0), credential)) {
             String userName = users.get(0);
             String userID = getUserIDFromUserName(userName);
-            user = getUser(userID, userName, null);
+            user = getUser(userID, userName);
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
             authenticationResult.setAuthenticatedUser(user);
             return authenticationResult;
@@ -513,7 +513,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         if (super.doAuthenticate(users[0], credential)) {
             String userName = users[0];
-            user = getUser(userID, userName, null);
+            user = getUser(userID, userName);
             authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.SUCCESS);
             authenticationResult.setAuthenticatedUser(user);
             return authenticationResult;
@@ -790,7 +790,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             id = (String) userID.get();
                         }
 
-                        User user = getUser(id, name, null);
+                        User user = getUser(id, name);
                         user.setDisplayName(display);
                         user.setUserStoreDomain(domain);
                         user.setTenantDomain(getTenantDomain(tenantId));
@@ -1064,7 +1064,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     String domainName = realmConfig
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-                    userObject = getUser(id, userName, null);
+                    userObject = getUser(id, userName);
                     userObject.setDisplayName(displayName);
                     userObject.setUserStoreDomain(domainName);
                     userObject.setTenantDomain(getTenantDomain(tenantId));
@@ -1406,8 +1406,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         userList.setSkippedUserCount(userNames.getSkippedUserCount());
         List<User> users = new ArrayList<>();
         for (String userName : userNames.getUsers()) {
-            User user = new User();
-            user.setUsername(userName);
+            User user = getUser(null, userName);
             users.add(user);
         }
         userList.setUsers(users);

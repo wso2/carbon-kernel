@@ -142,7 +142,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         String userID = getUniqueUserID();
         persistUser(userID, userName, credential, roleList, claims);
-        return getUser(userID, userName, profileName);
+        return getUser(userID, userName);
     }
 
     /**
