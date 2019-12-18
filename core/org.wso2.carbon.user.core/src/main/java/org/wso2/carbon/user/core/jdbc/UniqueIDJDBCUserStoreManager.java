@@ -747,9 +747,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private StringBuilder getSqlQuery(int limit) {
 
-        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER.UM_USER_ID, UM_USER.UM_USER_PASSWORD, UM_USER"
-                + ".UM_SALT_VALUE, UM_USER.UM_REQUIRE_CHANGE, UM_USER.UM_CHANGED_TIME FROM UM_USER WHERE UM_USER"
-                + ".UM_TENANT_ID=? UM_USER.UM_ID IN (");
+        StringBuilder sqlStatement = new StringBuilder("SELECT UM_USER.UM_USER_ID, UM_USER.UM_USER_NAME, UM_USER"
+                + ".UM_USER_PASSWORD, UM_USER.UM_SALT_VALUE, UM_USER.UM_REQUIRE_CHANGE, UM_USER.UM_CHANGED_TIME FROM "
+                + "UM_USER WHERE UM_USER.UM_TENANT_ID=? AND UM_USER.UM_ID IN (");
 
         for (int i = 1; i <= limit; i++) {
             sqlStatement.append("SELECT UM_USER_ATTRIBUTE.UM_USER_ID FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? "
