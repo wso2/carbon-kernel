@@ -11305,8 +11305,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
                             AuthenticationResult.AuthenticationStatus.FAIL);
                 } else {
-                    authenticationResult = this.doAuthenticateWithID(claimManager.getAttributeName(getMyDomainName(),
-                            UserCoreClaimConstants.USERNAME_CLAIM_URI), userID, oldCredentialObj, null);
+                    authenticationResult = this.doAuthenticateWithID(userID, oldCredentialObj);
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
