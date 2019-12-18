@@ -19,6 +19,7 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.utils.xml.StringUtils;
 
@@ -53,11 +54,12 @@ public class UserUniqueIDDomainResolver {
             "WHERE UM_USER_ID = ?";
     private static final String UPDATE_DOMAIN_NAME =
             "UPDATE UM_UUID_DOMAIN_MAPPER " +
-            "SET UM_DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ?), UM_TENANT_ID = ? " +
+            "SET UM_DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
+                    "AND UM_TENANT_ID = ?), UM_TENANT_ID = ? " +
             "WHERE UM_USER_ID = ?";
     private static final String ADD_DOMAIN_NAME =
             "INSERT INTO UM_UUID_DOMAIN_MAPPER (UM_USER_ID, UM_DOMAIN_ID, UM_TENANT_ID) " +
-            "VALUES (?, (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ?), ?)";
+            "VALUES (?, (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID = ?), ?)";
     private static final String GET_DOMAIN =
             "SELECT UM_DOMAIN_NAME " +
             "FROM UM_DOMAIN " +
@@ -65,22 +67,9 @@ public class UserUniqueIDDomainResolver {
             "FROM UM_UUID_DOMAIN_MAPPER " +
             "WHERE UM_USER_ID = ? AND UM_TENANT_ID = ?)";
 
-    // Caching.
-    private Cache<String, String> uniqueIdDomainCache;
-    private int tenantId;
-
-    public UserUniqueIDDomainResolver(DataSource dataSource, int tenantId) {
+    public UserUniqueIDDomainResolver(DataSource dataSource) {
 
         this.dataSource = dataSource;
-        this.tenantId = tenantId;
-
-        CacheManager cacheManager = Caching.getCacheManagerFactory()
-                .getCacheManager(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_MANGER_NAME);
-        uniqueIdDomainCache = cacheManager.getCache(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_NAME);
-        if (uniqueIdDomainCache == null) {
-            uniqueIdDomainCache = cacheManager.<String, String>createCacheBuilder(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_NAME)
-                    .build();
-        }
     }
 
     /**
@@ -90,37 +79,47 @@ public class UserUniqueIDDomainResolver {
      * @return Domain related to this user. Null if no domain name recorded.
      * @throws UserStoreException If error occurred.
      */
-    public String getDomainForUserId(String userId) throws UserStoreException {
+    public String getDomainForUserId(String userId, int tenantId) throws UserStoreException {
 
-        if (StringUtils.isEmpty(userId)) {
-            throw new UserStoreException("User Id cannot be empty or null.");
-        }
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(tenantId, true);
+            CacheManager cacheManager = Caching.getCacheManagerFactory()
+                    .getCacheManager(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_MANGER_NAME);
+            Cache<String, String> uniqueIdDomainCache = cacheManager.getCache(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_NAME);
 
-        // Read the cache first.
-        String domainName = uniqueIdDomainCache.get(userId);
-        if (domainName != null) {
+            if (StringUtils.isEmpty(userId)) {
+                throw new UserStoreException("User Id cannot be empty or null.");
+            }
+
+            // Read the cache first.
+            String domainName = uniqueIdDomainCache.get(userId);
+            if (domainName != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache hit for user id: " + userId);
+                }
+                return domainName;
+            }
+
             if (log.isDebugEnabled()) {
-                log.debug("Cache hit for user id: " + userId);
+                log.debug("Cache miss for user id: " + userId + " searching from the database.");
+            }
+
+            // Read the domain name from the Database;
+            domainName = getDomainFromDB(userId, tenantId);
+
+            // Update the cache.
+            if (domainName != null) {
+                uniqueIdDomainCache.put(userId, domainName);
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain with name: " + domainName + " retrieved from the database.");
+                }
             }
             return domainName;
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Cache miss for user id: " + userId + " searching from the database.");
-        }
-
-        // Read the domain name from the Database;
-        domainName = getDomainFromDB(userId);
-
-        // Update the cache.
-        if (domainName != null) {
-            uniqueIdDomainCache.put(userId, domainName);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain with name: " + domainName + " retrieved from the database.");
-            }
-        }
-
-        return domainName;
     }
 
     /**
@@ -130,29 +129,40 @@ public class UserUniqueIDDomainResolver {
      * @param userDomain Domain
      * @throws UserStoreException
      */
-    public void setDomainForUserId(String userId, String userDomain) throws UserStoreException {
+    public void setDomainForUserId(String userId, String userDomain, int tenantId) throws UserStoreException {
 
-        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(userDomain)) {
-            throw new UserStoreException("User id or user domain cannot be empty or null.");
-        }
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(tenantId, true);
+            CacheManager cacheManager = Caching.getCacheManagerFactory()
+                    .getCacheManager(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_MANGER_NAME);
+            Cache<String, String> uniqueIdDomainCache = cacheManager.getCache(UNIQUE_ID_DOMAIN_RESOLVER_CACHE_NAME);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Persisting user id: " + userId + " against domain: " + userDomain);
-        }
+            if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(userDomain)) {
+                throw new UserStoreException("User id or user domain cannot be empty or null.");
+            }
 
-        // Persist the domain in the DB.
-        persistDomainAgainstUserId(userId, userDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Persisting user id: " + userId + " against domain: " + userDomain);
+            }
 
-        // Add to the cache.
-        uniqueIdDomainCache.put(userId, userDomain);
+            // Persist the domain in the DB.
+            persistDomainAgainstUserId(userId, userDomain, tenantId);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Successfully persisted user id: " + userId + " against domain: " + userDomain
-                    + " and added to the cache.");
+            // Add to the cache.
+            uniqueIdDomainCache.put(userId, userDomain);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully persisted user id: " + userId + " against domain: " + userDomain
+                        + " and added to the cache.");
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
-    private String getDomainFromDB(String userId) throws UserStoreException {
+    private String getDomainFromDB(String userId, int tenantId) throws UserStoreException {
 
         String domainName = null;
         try (Connection dbConnection = getDBConnection();
@@ -170,7 +180,7 @@ public class UserUniqueIDDomainResolver {
         return domainName;
     }
 
-    private void persistDomainAgainstUserId(String userId, String userDomain) throws UserStoreException {
+    private void persistDomainAgainstUserId(String userId, String userDomain, int tenantId) throws UserStoreException {
 
         try (Connection dbConnection = getDBConnection()) {
 
@@ -184,7 +194,8 @@ public class UserUniqueIDDomainResolver {
                 try (PreparedStatement preparedStatement = dbConnection.prepareStatement(UPDATE_DOMAIN_NAME)) {
                     preparedStatement.setString(1, userDomain);
                     preparedStatement.setInt(2, tenantId);
-                    preparedStatement.setString(3, userId);
+                    preparedStatement.setInt(3, tenantId);
+                    preparedStatement.setString(4, userId);
                     preparedStatement.execute();
                 }
             } else {
@@ -196,6 +207,7 @@ public class UserUniqueIDDomainResolver {
                     preparedStatement.setString(1, userId);
                     preparedStatement.setString(2, userDomain);
                     preparedStatement.setInt(3, tenantId);
+                    preparedStatement.setInt(4, tenantId);
                     preparedStatement.execute();
                 }
             }
