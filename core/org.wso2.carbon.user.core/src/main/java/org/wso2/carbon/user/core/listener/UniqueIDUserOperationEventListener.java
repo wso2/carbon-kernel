@@ -394,12 +394,12 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     /**
      * Define any additional actions after user is added.
      *
-     * @param userID           User ID of User.
+     * @param user             User.
      * @param userStoreManager The underlying UserStoreManager.
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    boolean doPostAddUserWithID(String userID, Object credential, String[] roleList, Map<String, String> claims,
+    boolean doPostAddUserWithID(User user, Object credential, String[] roleList, Map<String, String> claims,
             String profile, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**

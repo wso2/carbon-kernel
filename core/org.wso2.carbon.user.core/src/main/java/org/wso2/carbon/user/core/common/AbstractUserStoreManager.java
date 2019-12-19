@@ -9768,7 +9768,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return authenticationResult;
     }
 
-    private String getUsernameByClaims(List<LoginIdentifier> loginIdentifiers) throws UserStoreException {
+    public String getUsernameByClaims(List<LoginIdentifier> loginIdentifiers) throws UserStoreException {
 
         if (loginIdentifiers.isEmpty()) {
             return null;
@@ -12922,11 +12922,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // We have to make sure this call is going through the Java Security Manager.
         if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{
+            Class[] argTypes = new Class[] {
                     String.class, Object.class, String[].class, Map.class, String.class
             };
             Object object = callSecure("addUserWithID",
-                    new Object[]{userName, credential, roleList, claims, profileName}, argTypes);
+                    new Object[] { userName, credential, roleList, claims, profileName }, argTypes);
             return (User) object;
         }
 
@@ -13173,7 +13173,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-
             // Call the do add user method of the underlying user store to add the user.
             try {
                 // If unique user id property is enabled, then we can call the new methods in the user store.
@@ -13183,8 +13182,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 } else {
                     // If the underlying user store does not support the unique ID generation, then we have to generate
                     // the ID and keep the mapping in our side.
-                    doAddUser(userName, credentialObj, externalRoles.toArray(new String[0]), claims,
-                            profileName, false);
+                    doAddUser(userName, credentialObj, externalRoles.toArray(new String[0]), claims, profileName,
+                            false);
                     user = userUniqueIDManger.addUser(userStore.getDomainFreeName(), profileName, this);
                 }
             } catch (UserStoreException ex) {
@@ -13195,8 +13194,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (internalRoles.size() > 0) {
-                hybridRoleManager
-                        .updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
+                hybridRoleManager.updateHybridRoleListOfUser(userName, null, internalRoles.toArray(new String[0]));
             }
 
             // #################### <Post-Listeners> #####################################################
@@ -13211,8 +13209,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
 
                     if (!((AbstractUserOperationEventListener) listener)
-                            .doPostAddUserWithID(user.getUserID(), credentialArgument, roleList, claims, profileName,
-                                    this)) {
+                            .doPostAddUserWithID(user, credentialArgument, roleList, claims, profileName, this)) {
                         handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getMessage(),
                                         UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName,

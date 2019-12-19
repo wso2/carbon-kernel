@@ -512,7 +512,7 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPostAddUserWithID(String userID, Object credential, String[] roleList, Map<String, String> claims,
+    public boolean doPostAddUserWithID(User user, Object credential, String[] roleList, Map<String, String> claims,
             String profile, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
