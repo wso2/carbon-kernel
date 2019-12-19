@@ -229,7 +229,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     continue;
                 }
 
-                User user = getUser(userID, userName, null);
+                User user = getUser(userID, userName);
                 userList.add(user);
             }
             rs.close();
@@ -860,7 +860,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        user = getUser(userID, userName, profileName);
+                        user = getUser(userID, userName);
                         user.setPreferredUsername(preferredUserNameProperty);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
@@ -948,7 +948,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        user = getUser(userID, userName, null);
+                        user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
@@ -1054,7 +1054,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     password = preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
-                        user = getUser(userID, userName, null);
+                        user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
@@ -1105,7 +1105,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         claims = addUserIDAttribute(userID, claims);
         persistUser(userID, userName, credential, roleList, claims, profileName, requirePasswordChange);
 
-        return getUser(userID, userName, profileName);
+        return getUser(userID, userName);
 
     }
 
@@ -2942,7 +2942,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                     continue;
                 }
-                User user = getUser(userID, userName, profileName);
+                User user = getUser(userID, userName);
                 list.add(user);
             }
             rs.close();
@@ -3104,7 +3104,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             while (rs.next()) {
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
-                User user = getUser(userID, userName, profileName);
+                User user = getUser(userID, userName);
                 list.add(user);
             }
 
@@ -3270,7 +3270,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     while (rs.next()) {
                         String userID = rs.getString(1);
                         String userName = rs.getString(2);
-                        User user = getUser(userID, userName, profileName);
+                        User user = getUser(userID, userName);
                         tempUserList.add(user);
                     }
 
@@ -3289,7 +3289,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 while (rs.next()) {
                     String userID = rs.getString(1);
                     String userName = rs.getString(2);
-                    User user = getUser(userID, userName, profileName);
+                    User user = getUser(userID, userName);
                     list.add(user);
                 }
             }
