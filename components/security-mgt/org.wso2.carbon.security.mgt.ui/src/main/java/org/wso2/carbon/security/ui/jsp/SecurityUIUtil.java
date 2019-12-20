@@ -39,7 +39,7 @@ import javax.activation.DataSource;
 
 /**
  *
- * JSP Utility class for Security Mgt UI component
+ * JSP Utility class for Security Mgt UI component.
  */
 public class SecurityUIUtil {
 

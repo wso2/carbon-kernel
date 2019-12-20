@@ -52,7 +52,7 @@ import java.util.Enumeration;
 
 /**
  *
- * Client class for KeyStoreAdminServiceStub
+ * Client class for KeyStoreAdminServiceStub.
  */
 public class KeyStoreAdminClient {
 

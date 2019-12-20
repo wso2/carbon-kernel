@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  *
- * JSP Utility class for Security Mgt UI component
+ * JSP Utility class for Security Mgt UI component.
  */
 public class Util {
 

@@ -39,7 +39,7 @@ import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper;
 
 /**
  *
- * Client class for SecurityAdminServiceStub
+ * Client class for SecurityAdminServiceStub.
  */
 public class SecurityAdminClient {
 

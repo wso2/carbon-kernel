@@ -20,7 +20,7 @@ package org.wso2.carbon.security.ui.client;
 
 /**
  *
- * Blue print for KeyStoreBean Object
+ * Blue print for KeyStoreBean Object.
  */
 public class KeyStoreBean {
 
