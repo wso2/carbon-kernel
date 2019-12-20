@@ -22,6 +22,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
+/**
+ *
+ * Singleton ServiceHolder used for registry service operations
+ */
 public class ServiceHolder {
 
     private static ServiceHolder instance = null;
@@ -34,8 +38,8 @@ public class ServiceHolder {
 
     }
 
-
     public static void init(BundleContext context) {
+
         bundleContext = context;
         registryTracker = new ServiceTracker(bundleContext, RegistryService.class.getName(), null);
         registryTracker.open();
@@ -44,12 +48,12 @@ public class ServiceHolder {
     }
 
     public static ServiceHolder getInstance() {
+
         return instance;
     }
 
     public RegistryService getRegistryService() {
+
         return (RegistryService) registryTracker.getService();
     }
-
-
 }

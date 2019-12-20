@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.security.ui;
 
+/**
+ *
+ * Class containing the constants used by Security Mgt UI component
+ */
 public class SecurityUIConstants {
 
     public static final int DEFAULT_ITEMS_PER_PAGE = 10;
@@ -41,5 +45,6 @@ public class SecurityUIConstants {
     public static final String KEYSTORE_LIST_FILTER = "org.wso2.carbon.keystore.filter";
     public static final String KEYSTORE_CERT_LIST_FILTER = "org.wso2.carbon.keystore.cert.filter";
 
-    private SecurityUIConstants(){}
+    private SecurityUIConstants() {
+    }
 }

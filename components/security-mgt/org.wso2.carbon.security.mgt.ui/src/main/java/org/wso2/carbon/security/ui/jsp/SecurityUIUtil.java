@@ -31,10 +31,16 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.security.ui.ServiceHolder;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+
+/**
+ *
+ * JSP Utility class for Security Mgt UI component
+ */
 public class SecurityUIUtil {
 
     private static String url = null;
@@ -58,7 +64,8 @@ public class SecurityUIUtil {
             host = (host == null) ? "localhost" : host;
             String port = System.getProperty("carbon.https.port");
             StringBuilder urlValue = new StringBuilder();
-            url = (urlValue.append("https://").append(host).append(":").append(port).append("/").append(contextRoot).append(servicePath).append("/")).toString();
+            url = (urlValue.append("https://").append(host).append(":").append(port).append("/")
+                    .append(contextRoot).append(servicePath).append("/")).toString();
         }
 
         return url;
@@ -66,6 +73,7 @@ public class SecurityUIUtil {
 
     public static List parseRequest(ServletRequestContext requestContext)
             throws FileUploadException {
+
         FileItemFactory factory = new DiskFileItemFactory();
         ServletFileUpload upload = new ServletFileUpload(factory);
         return upload.parseRequest(requestContext);
@@ -73,13 +81,14 @@ public class SecurityUIUtil {
 
     public static String getTextParameter(DiskFileItem diskFileItem, String characterEncoding)
             throws Exception {
+
         String encoding = diskFileItem.getCharSet();
         if (encoding == null) {
             encoding = characterEncoding;
         }
         String textValue;
         if (encoding == null) {
-            textValue = new String(diskFileItem.get());
+            textValue = new String(diskFileItem.get(), StandardCharsets.UTF_8);
         } else {
             textValue = new String(diskFileItem.get(), encoding);
         }
@@ -87,9 +96,9 @@ public class SecurityUIUtil {
     }
 
     public static DataHandler getFileParameter(DiskFileItem diskFileItem) throws Exception {
+
         DataSource dataSource = new DiskFileDataSource(diskFileItem);
-        DataHandler dataHandler = new DataHandler(dataSource);
-        return dataHandler;
+        return new DataHandler(dataSource);
     }
 
 }
