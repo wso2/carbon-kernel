@@ -2689,7 +2689,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userIDs));
                     }
-                    return getUsersFromIDs(userIDs, null, extractedDomain, profileName);
+                    return userStoreManager.getUsersFromIDs(userIDs, null, extractedDomain, profileName);
 
                 } catch (UserStoreException ex) {
                     handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
