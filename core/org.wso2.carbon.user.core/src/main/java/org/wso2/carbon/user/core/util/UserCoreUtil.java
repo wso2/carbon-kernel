@@ -882,8 +882,8 @@ public final class UserCoreUtil {
             }
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             dbConnection.setAutoCommit(false);
-            DatabaseUtil.updateDatabase(dbConnection, removeDomainSqlStatement, tenantId, domain);
             if (isExistingDomain(domain, tenantId, dbConnection)) {
+                DatabaseUtil.updateDatabase(dbConnection, removeDomainSqlStatement, tenantId, domain);
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
             }
             dbConnection.commit();
