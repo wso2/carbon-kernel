@@ -2689,7 +2689,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userIDs));
                     }
-                    return getUsersFromIDs(userIDs, null, extractedDomain, profileName);
+                    return userStoreManager.getUsersFromIDs(userIDs, null, extractedDomain, profileName);
 
                 } catch (UserStoreException ex) {
                     handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
@@ -6285,6 +6285,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
 
+        if (userList == null) {
+            userList = new String[0];
+        }
+
         UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (isSharedRole && !isSharedGroupEnabled()) {
@@ -6320,9 +6324,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-        if (userList == null) {
-            userList = new String[0];
-        }
         if (permissions == null) {
             permissions = new org.wso2.carbon.user.api.Permission[0];
         }
@@ -6760,6 +6761,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userStore.setDomainFreeName(domainFreeName);
                 userStore.setDomainName(domain);
                 userStore.setRecurssive(false);
+                userStore.setUserStoreManager(this);
                 return userStore;
             }
         }
@@ -6859,6 +6861,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userStore.setDomainFreeUserId(userId);
             userStore.setDomainName(domainName);
             userStore.setRecurssive(false);
+            userStore.setUserStoreManager(this);
             return userStore;
         }
     }
@@ -7825,9 +7828,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         String username = getUserNameFromUserID(userID);
         if (username != null) {
-            List<String> roleList = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, username));
-            if (!roleList.isEmpty()) {
-                return roleList;
+            String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, username);
+            if (roleListOfUserFromCache != null) {
+                List<String> roleList = Arrays.asList(roleListOfUserFromCache);
+                if (!roleList.isEmpty()) {
+                    return roleList;
+                }
             }
         }
 
@@ -8731,6 +8737,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        if (claims == null) {
+            claims = new String[0];
         }
 
         UserClaimSearchEntry[] allUsers = new UserClaimSearchEntry[0];
@@ -10690,9 +10700,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Check whether roles exist in cache
         User user = userUniqueIDManger.getUser(userID, this);
         if (user != null) {
-            roleNames = Arrays.asList(getRoleListOfUserFromCache(this.tenantId, user.getUsername()));
-            if (roleNames.size() > 0) {
-                return roleNames;
+            String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, user.getUsername());
+            if (roleListOfUserFromCache != null) {
+                roleNames = Arrays.asList(roleListOfUserFromCache);
+                if (roleNames.size() > 0) {
+                    return roleNames;
+                }
             }
         }
 
