@@ -216,6 +216,8 @@ public final class JDBCRealmConstants {
     public static final String ADD_DOMAIN_SQL = "INSERT INTO UM_DOMAIN (UM_DOMAIN_NAME, UM_TENANT_ID) VALUES (?, ?)";
     public static final String CHECK_DOMAIN_ID_EXISTING_SQL = "SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_ID=? AND UM_TENANT_ID=?";
     public static final String UPDATE_DOMAIN_SQL = "UPDATE UM_DOMAIN SET UM_DOMAIN_NAME=? WHERE UM_DOMAIN_NAME=? AND UM_TENANT_ID=?";
+    public static final String REMOVE_DOMAIN_FROM_USER_ROLE =
+            "DELETE FROM UM_HYBRID_USER_ROLE WHERE UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
     public static final String DELETE_DOMAIN_SQL = "DELETE FROM UM_DOMAIN WHERE UM_DOMAIN_NAME=? AND UM_TENANT_ID=?";
     public static final String DIGEST_FUNCTION = "PasswordDigest";
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";

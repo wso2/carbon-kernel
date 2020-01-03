@@ -21,7 +21,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
@@ -52,6 +54,7 @@ public class DatabaseUtil {
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
     private static final String SQL_STATEMENT_PARAMETER_PLACEHOLDER = "?";
+    private static final String DISABLED = "Disabled";
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -677,6 +680,7 @@ public class DatabaseUtil {
         String[] values = new String[0];
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
+        List<String> disabledDomainName = getDisabledDomainNames();
         try {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (params != null && params.length > 0) {
@@ -696,7 +700,7 @@ public class DatabaseUtil {
             while (rs.next()) {
                 String name = rs.getString(1);
                 String domain = rs.getString(2);
-                if (domain != null) {
+                if (StringUtils.isNotEmpty(domain) && !disabledDomainName.contains(domain)) {
                     name = UserCoreUtil.addDomainToName(name, domain);
                 }
                 lst.add(name);
@@ -714,6 +718,34 @@ public class DatabaseUtil {
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
+    }
+
+    /**
+     * Get the disabled domain name.
+     *
+     * @return disabled domain name.
+     */
+    private static List<String> getDisabledDomainNames() throws UserStoreException {
+
+        RealmConfiguration secondaryRealmConfiguration = null;
+        try {
+            secondaryRealmConfiguration = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                    getRealmConfiguration().getSecondaryRealmConfig();
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while retrieving user store configurations", e);
+        }
+        List<String> disableDomainName = new ArrayList<>();
+        if (secondaryRealmConfiguration != null) {
+            do {
+                if (Boolean.parseBoolean(secondaryRealmConfiguration.getUserStoreProperty(DISABLED))) {
+                    String domainName = secondaryRealmConfiguration.getUserStoreProperty(UserStoreConfigConstants
+                            .DOMAIN_NAME);
+                    disableDomainName.add(domainName.toUpperCase());
+                }
+                secondaryRealmConfiguration = secondaryRealmConfiguration.getSecondaryRealmConfig();
+            } while (secondaryRealmConfiguration != null);
+        }
+        return disableDomainName;
     }
 
     public static int getIntegerValueFromDatabase(Connection dbConnection, String sqlStmt,
