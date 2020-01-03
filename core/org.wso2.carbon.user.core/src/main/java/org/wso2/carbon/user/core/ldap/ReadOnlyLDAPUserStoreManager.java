@@ -2989,7 +2989,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Method to verify whether the filter operation is a single attribute filter scenario or multi attribute filter scenario
+     * Method to verify whether the filter operation is a single attribute filter scenario or multi attribute
+     * filter scenario.
      *
      * @param expressionConditions Expression conditions
      * @return True if the operation is a single attribute filter.
