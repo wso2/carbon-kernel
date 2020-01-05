@@ -19,7 +19,6 @@
 package org.wso2.carbon.security.ui;
 
 /**
- *
  * Class containing the constants used by Security Mgt UI component.
  */
 public class SecurityUIConstants {

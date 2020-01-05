@@ -51,7 +51,6 @@ import java.security.KeyStore;
 import java.util.Enumeration;
 
 /**
- *
  * Client class for KeyStoreAdminServiceStub.
  */
 public class KeyStoreAdminClient {

@@ -23,7 +23,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
 /**
- *
  * Singleton ServiceHolder used for registry service operations.
  */
 public class ServiceHolder {
