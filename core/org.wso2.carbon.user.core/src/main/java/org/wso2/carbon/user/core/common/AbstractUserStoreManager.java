@@ -7953,9 +7953,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // According to implementation, getRoleListOfUser method would return everyone role name for all users.
                 return new String[]{realmConfig.getEveryOneRoleName()};
             }
-            return getUserRolesWithID(userID, "*").toArray(new String[0]);
+            return getUserRolesWithID(userID, filter).toArray(new String[0]);
         } else {
-            return getUserRoles(username, "*");
+            return getUserRoles(username, filter);
         }
     }
 
