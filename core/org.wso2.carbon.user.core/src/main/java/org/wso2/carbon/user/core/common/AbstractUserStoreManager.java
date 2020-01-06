@@ -7953,7 +7953,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (String[]) object;
         }
 
-        return getUserRoles(username, filter);
+        if (isUniqueUserIdEnabledInUserStore(getUserStore(username))) {
+            String userID = getUserIDFromUserName(username);
+            if (userID == null) {
+                // According to implementation, getRoleListOfUser method would return everyone role name for all users.
+                return new String[]{realmConfig.getEveryOneRoleName()};
+            }
+            return getUserRolesWithID(userID, filter).toArray(new String[0]);
+        } else {
+            return getUserRoles(username, filter);
+        }
     }
 
 
