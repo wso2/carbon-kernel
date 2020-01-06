@@ -880,17 +880,25 @@ public final class UserCoreUtil {
         Connection dbConnection = null;
         try {
             String sqlStatement = JDBCRealmConstants.DELETE_DOMAIN_SQL;
-
+            String removeDomainSqlStatement = JDBCRealmConstants.REMOVE_DOMAIN_FROM_USER_ROLE;
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             dbConnection.setAutoCommit(false);
             if (isExistingDomain(domain, tenantId, dbConnection)) {
+                DatabaseUtil.updateDatabase(dbConnection, removeDomainSqlStatement, tenantId, domain);
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
             }
             dbConnection.commit();
         } catch (UserStoreException e) {
+            try {
+                dbConnection.rollback();
+            } catch (SQLException e1) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while rollback the connection", e1);
+                }
+            }
             String errorMessage =
                     "Error occurred while deleting domain : " + domain + " for tenant : " + tenantId;
             if (log.isDebugEnabled()) {
@@ -898,6 +906,15 @@ public final class UserCoreUtil {
             }
             throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
+            try {
+                if(dbConnection != null) {
+                    dbConnection.rollback();
+                }
+            } catch (SQLException e1) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while rollback the connection", e1);
+                }
+            }
             String errorMessage =
                     "DB error occurred while deleting domain : " + domain + " & tenant id : " + tenantId;
             if (log.isDebugEnabled()) {

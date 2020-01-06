@@ -7953,7 +7953,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (String[]) object;
         }
 
-        return getUserRoles(username, filter);
+        if (isUniqueUserIdEnabledInUserStore(getUserStore(username))) {
+            String userID = getUserIDFromUserName(username);
+            if (userID == null) {
+                // According to implementation, getRoleListOfUser method would return everyone role name for all users.
+                return new String[]{realmConfig.getEveryOneRoleName()};
+            }
+            return getUserRolesWithID(userID, filter).toArray(new String[0]);
+        } else {
+            return getUserRoles(username, filter);
+        }
     }
 
 
@@ -11481,21 +11490,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (userID == null && userName == null) {
             throw new UserStoreException("Both userID and UserName cannot be null.");
         }
+
+        String domain = getMyDomainName();
         if (userID == null) {
             userID = getUserIDFromUserName(userName);
         }
 
-        String domain = getMyDomainName();
-
         if (userName == null) {
             userName = getUserNameFromUserID(userID);
-            String domainFromUsername = UserCoreUtil.extractDomainFromName(userName);
-            if (!domain.equalsIgnoreCase(domainFromUsername)) {
-                domain = domainFromUsername;
-            }
         }
-
-        userName = UserCoreUtil.removeDomainFromName(userName);
+        if (userName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            domain = UserCoreUtil.extractDomainFromName(userName);
+            userName = UserCoreUtil.removeDomainFromName(userName);
+        }
         User user = new User(userID, userName, userName);
         user.setTenantDomain(getTenantDomain(tenantId));
         user.setUserStoreDomain(domain);

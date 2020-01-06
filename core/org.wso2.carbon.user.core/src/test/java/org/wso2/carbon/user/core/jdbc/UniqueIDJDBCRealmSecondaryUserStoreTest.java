@@ -788,7 +788,6 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
             String propName = propElem.getAttributeValue(new QName(
                     UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME));
             String propValue = propElem.getText();
-            //                propValue = resolveEncryption(propElem);
             if (propName != null && propValue != null) {
                 map.put(propName.trim(), propValue.trim());
             }
