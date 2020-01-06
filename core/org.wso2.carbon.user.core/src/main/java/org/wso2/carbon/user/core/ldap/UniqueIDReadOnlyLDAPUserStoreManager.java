@@ -625,7 +625,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     protected Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames, String profileName)
             throws UserStoreException {
 
-        return super.getUserPropertyValues(getUserNameFromUserID(userID), propertyNames, profileName);
+        return super.getUserPropertyValues(doGetUserNameFromUserID(userID), propertyNames, profileName);
     }
 
     @Override
@@ -643,7 +643,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (userID == null) {
             return false;
         }
-        return getUserNameFromUserID(userID) != null;
+        return doGetUserNameFromUserID(userID) != null;
     }
 
     @Override
@@ -1126,7 +1126,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(false);
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         return getLDAPRoleListOfUser(userName, filter, searchBase, false);
     }
 
@@ -1153,7 +1153,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 searchBase = groupNameAttributeName + "=" + tenantDomain + "," + searchBase;
             }
         }
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         return getLDAPRoleListOfUser(userName, filter, searchBase, true);
     }
 
@@ -1429,7 +1429,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
-        return super.doCheckIsUserInRole(this.getUserNameFromUserID(userID), roleName);
+        return super.doCheckIsUserInRole(this.doGetUserNameFromUserID(userID), roleName);
     }
 
     @Override
