@@ -50,6 +50,9 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Enumeration;
 
+/**
+ * Client class for KeyStoreAdminServiceStub.
+ */
 public class KeyStoreAdminClient {
 
     private static final Log log = LogFactory.getLog(KeyStoreAdminClient.class);
@@ -58,6 +61,7 @@ public class KeyStoreAdminClient {
 
     public KeyStoreAdminClient(String cookie, String url, ConfigurationContext configContext)
             throws java.lang.Exception {
+
         try {
             this.serviceEndPoint = url + "KeyStoreAdminService";
             this.stub = new KeyStoreAdminServiceStub(configContext, serviceEndPoint);
@@ -73,6 +77,7 @@ public class KeyStoreAdminClient {
     }
 
     public KeyStoreData[] getKeyStores() throws java.lang.Exception {
+
         try {
             GetKeyStoresResponse response = stub.getKeyStores();
             return response.get_return();
@@ -84,6 +89,7 @@ public class KeyStoreAdminClient {
 
     public void addKeyStore(byte[] content, String filename, String password, String provider,
                             String type, String pvtkspass) throws java.lang.Exception {
+
         try {
             String data = Base64.encode(content);
             AddKeyStore request = new AddKeyStore();
@@ -119,6 +125,7 @@ public class KeyStoreAdminClient {
     }
 
     public void deleteStore(String keyStoreName) throws java.lang.Exception {
+
         try {
             DeleteStore request = new DeleteStore();
             request.setKeyStoreName(keyStoreName);
@@ -131,6 +138,7 @@ public class KeyStoreAdminClient {
 
     public void importCertToStore(String filename, byte[] content, String keyStoreName)
             throws java.lang.Exception {
+
         try {
             String data = Base64.encode(content);
             ImportCertToStore request = new ImportCertToStore();
@@ -145,6 +153,7 @@ public class KeyStoreAdminClient {
     }
 
     public String[] getStoreEntries(String keyStoreName) throws java.lang.Exception {
+
         try {
             GetStoreEntries request = new GetStoreEntries();
             request.setKeyStoreName(keyStoreName);
@@ -192,6 +201,7 @@ public class KeyStoreAdminClient {
 
     public boolean isPrivateKeyStore(byte[] content, String password, String type)
             throws java.lang.Exception {
+
         try {
             boolean isPrivateStore = false;
             ByteArrayInputStream stream = new ByteArrayInputStream(content);
@@ -213,6 +223,7 @@ public class KeyStoreAdminClient {
     }
 
     public KeyStoreData getKeystoreInfo(String keyStoreName) throws java.lang.Exception {
+
         try {
             GetKeystoreInfo request = new GetKeystoreInfo();
             request.setKeyStoreName(keyStoreName);
@@ -224,10 +235,11 @@ public class KeyStoreAdminClient {
         }
     }
 
-    public void removeCertificateFromKeyStore(String keySoreName, String CertificateAlias) throws java.lang.Exception {
+    public void removeCertificateFromKeyStore(String keySoreName, String certificateAlias) throws java.lang.Exception {
+
         RemoveCertFromStore request = new RemoveCertFromStore();
         request.setKeyStoreName(keySoreName);
-        request.setAlias(CertificateAlias);
+        request.setAlias(certificateAlias);
         try {
             stub.removeCertFromStore(request);
         } catch (java.lang.Exception e) {
@@ -236,7 +248,9 @@ public class KeyStoreAdminClient {
         }
     }
 
-    public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber) throws java.lang.Exception {
+    public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber)
+            throws java.lang.Exception {
+
         try {
             GetPaginatedKeystoreInfo request = new GetPaginatedKeystoreInfo();
             request.setKeyStoreName(keyStoreName);

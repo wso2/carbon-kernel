@@ -25,6 +25,9 @@ import org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JSP Utility class for Security Mgt UI component.
+ */
 public class Util {
 
     private Util(){}
@@ -77,6 +80,7 @@ public class Util {
     }
 
     public static KeyStoreData[] doFilter(String filter, KeyStoreData[] keyStoreDataSet) {
+
         String regPattern = filter.replace("*", ".*");
         List<KeyStoreData> list = new ArrayList<>();
 

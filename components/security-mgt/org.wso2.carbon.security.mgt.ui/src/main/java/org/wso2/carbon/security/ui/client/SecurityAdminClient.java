@@ -37,6 +37,9 @@ import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityConfigData;
 import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioData;
 import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper;
 
+/**
+ * Client class for SecurityAdminServiceStub.
+ */
 public class SecurityAdminClient {
 
     private static final Log log = LogFactory.getLog(SecurityAdminClient.class);
@@ -44,6 +47,7 @@ public class SecurityAdminClient {
 
     public SecurityAdminClient(String cookie, String url, ConfigurationContext configContext)
             throws java.lang.Exception {
+
         try {
             String serviceEndPoint = url + "SecurityAdminService";
             this.stub = new SecurityAdminServiceStub(configContext, serviceEndPoint);
@@ -60,6 +64,7 @@ public class SecurityAdminClient {
 
     public void activateUsernameTokenAuthentication(String serviceName, String[] userGroups)
             throws java.lang.Exception {
+
         try {
             ActivateUsernameTokenAuthentication request = new ActivateUsernameTokenAuthentication();
             request.setServiceName(serviceName);
@@ -72,6 +77,7 @@ public class SecurityAdminClient {
     }
 
     public void disableSecurityOnService(String serviceName) throws java.lang.Exception {
+
         try {
             DisableSecurityOnService request = new DisableSecurityOnService();
             request.setServiceName(serviceName);
@@ -84,6 +90,7 @@ public class SecurityAdminClient {
 
     public void applyKerberosSecurity(String serviceName, String scenarioId, String servicePrincipal,
                                       String password) throws java.lang.Exception {
+
         try {
             ApplyKerberosSecurityPolicy request = new ApplyKerberosSecurityPolicy();
             request.setServiceName(serviceName);
@@ -101,6 +108,7 @@ public class SecurityAdminClient {
 
     public void applySecurity(String serviceName, String scenarioId, String policyPath, String[] trustedStores,
                               String privateStore, String[] userGroups) throws java.lang.Exception {
+
         try {
             ApplySecurity request = new ApplySecurity();
             request.setServiceName(serviceName);
@@ -117,6 +125,7 @@ public class SecurityAdminClient {
     }
 
     public SecurityScenarioDataWrapper getScenarios(String serviceName) throws java.lang.Exception {
+
         try {
             GetScenarios request = new GetScenarios();
             request.setServiceName(serviceName);
@@ -129,6 +138,7 @@ public class SecurityAdminClient {
     }
 
     public SecurityScenarioData getSecurityScenario(String serviceId) throws java.lang.Exception {
+
         try {
             GetSecurityScenario request = new GetSecurityScenario();
             request.setSceneId(serviceId);
@@ -142,6 +152,7 @@ public class SecurityAdminClient {
 
     public SecurityConfigData getSecurityConfigData(String serviceName, String scenrioId, String policyPath)
             throws java.lang.Exception {
+
         try {
             GetSecurityConfigData request = new GetSecurityConfigData();
             request.setServiceName(serviceName);
