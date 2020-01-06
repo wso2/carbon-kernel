@@ -43,6 +43,14 @@ public class UserStoreConfigConstants {
     public static final String enableMaxUserLimitForSCIMDescription = "Whether to include max user limit during SCIM " +
             "user list operation";
     public static final String enableMaxUserLimitDisplayName = "Enable MaxUserLimit For SCIM";
+    public static final String immutableAttributes = "ImmutableAttributes";
+    public static final String immutableAttributesDescription = "Comma-separated list of user store maintained " +
+            "immutable attributes";
+    public static final String immutableAttributesDisplayName = "Immutable Attributes";
+    public static final String timestampAttributes = "TimestampAttributes";
+    public static final String timestampAttributesDescription = "Comma-separated list of user store attributes " +
+            "having the data type of Timestamp and may require a conversion when reading from/writing to user store";
+    public static final String timestampAttributesDisplayName = "Timestamp Attributes";
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";

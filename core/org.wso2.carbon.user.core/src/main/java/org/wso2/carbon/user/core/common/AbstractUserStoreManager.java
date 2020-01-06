@@ -557,8 +557,52 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doSetUserClaimValues(String userName, Map<String, String> claims,
-                                                 String profileName) throws UserStoreException;
+    protected void doSetUserClaimValues(String userName, Map<String, String> claims,
+                                                 String profileName) throws UserStoreException {
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        // resolving claims to user store attributes
+        Map<String, String> claimAttributeValueMapForPersist = resolveClaimAttributeMap(userName, claims);
+
+        processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
+
+        // persist the attribute values map
+        persistUserStoreAttributeValues(claimAttributeValueMapForPersist, userName, profileName);
+    }
+
+    private Map<String, String> resolveClaimAttributeMap(String userName, Map<String, String> claims) throws UserStoreException {
+
+        Map<String, String> claimAttributeValueMap = new HashMap<>();
+        try {
+            for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
+                String claimURI = claimEntry.getKey();
+                String attributeName = getClaimAtrribute(claimURI, userName, null);
+                claimAttributeValueMap.put(attributeName, claimEntry.getValue());
+            }
+        }  catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error occurred while getting claim attribute for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+        return claimAttributeValueMap;
+    }
+
+    /**
+     * Persist a processed map of claim attribute values.
+     *
+     * @param processedClaimAttributeValueMapForPersist a processed map of user store attribute valeus
+     * @param userName userName of the user
+     * @param profileName The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException An unexpected exception has occurred
+     */
+    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
+                                                   String userName, String profileName) throws UserStoreException {
+        // Not implemented
+    };
 
     /**
      * Set many user claim values.
@@ -571,11 +615,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserClaimValuesWithID operation is not implemented in: " + this.getClass());
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
-        throw new NotImplementedException(
-                "doUpdateCredentialByAdminWithID operation is not implemented in: " + this.getClass());
+
+        // resolving claims to user store attributes
+        Map<String, String> claimAttributeValueMapForPersist = resolveClaimAttributeMap(userID, claims);
+
+        processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
+
+        // persist the attribute values map
+        persistUserStoreAttributeValues(claimAttributeValueMapForPersist, userID, profileName);
     }
 
     /**
@@ -7229,8 +7279,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] properties = propertySet.toArray(new String[propertySet.size()]);
-        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties,
+        Map<String, String> userPropertyValues = this.getUserPropertyValues(userName, properties,
                 profileName);
+
+        processAttributesAfterRetrieval(userPropertyValues);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -7265,7 +7317,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = mapping.getMappedAttribute();
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
 
                 if (isOverrideUsernameClaimEnabled && USERNAME_CLAIM_URI.equals(mapping.getClaim()
                         .getClaimUri())) {
@@ -7283,7 +7335,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
                 if (value != null && value.trim().length() > 0) {
                     finalValues.put(claim, value);
                 }
@@ -7344,6 +7396,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         return finalValues;
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values after retrieval.
+     *
+     * @param userStoreProperties un-processed map (userstore attribute name -> attribute value) of user store
+     *                            attribute values
+     */
+    protected void processAttributesAfterRetrieval(Map<String, String> userStoreProperties) {
+
+        // Not implemented.
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values before update.
+     *
+     * @param userStoreProperties un-processed map (userstore attribute name -> attribute value) of user store
+     *                            attribute values
+     */
+    protected void processAttributesBeforeUpdate(Map<String, String> userStoreProperties) {
+
+        // Not implemented.
     }
 
     /**
@@ -8876,6 +8950,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         for (String userName : users) {
             Map<String, String> propertyValuesMap = getUserPropertyValues(userName, propertyNames, profileName);
+            processAttributesAfterRetrieval(propertyValuesMap);
             if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
                 usersPropertyValuesMap.put(userName, propertyValuesMap);
             }
@@ -11145,7 +11220,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] properties = propertySet.toArray(new String[0]);
-        Map<String, String> uerProperties = this.getUserPropertyValuesWithID(userID, properties, profileName);
+        Map<String, String> userPropertyValues = this.getUserPropertyValuesWithID(userID, properties, profileName);
+        processAttributesAfterRetrieval(userPropertyValues);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -11174,7 +11250,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = mapping.getMappedAttribute();
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
                 if (value != null && value.trim().length() > 0) {
                     finalValues.put(claim, value);
                 }
@@ -11184,7 +11260,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
                 if (value != null && value.trim().length() > 0) {
                     finalValues.put(claim, value);
                 }
@@ -14224,6 +14300,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         for (String userID : userIDs) {
             Map<String, String> propertyValuesMap = getUserPropertyValuesWithID(userID, propertyNames, profileName);
+            processAttributesAfterRetrieval(propertyValuesMap);
             if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
                 usersPropertyValuesMap.put(userID, propertyValuesMap);
             }

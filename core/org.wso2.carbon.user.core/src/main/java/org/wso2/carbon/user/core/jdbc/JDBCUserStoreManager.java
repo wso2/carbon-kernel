@@ -72,12 +72,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
@@ -1510,7 +1511,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     profileName = UserCoreConstants.DEFAULT_PROFILE;
                 }
 
-                addProperties(dbConnection, userName, claims, profileName);
+                Map<String, String> userStoreAttributeValues = new HashMap<>();
+
+                for (Map.Entry<String, String> claimEntry: claims.entrySet()) {
+                    userStoreAttributeValues.put(getClaimAtrribute(claimEntry.getKey(), userName, null),
+                            claimEntry.getValue());
+                }
+                addProperties(dbConnection, userName, userStoreAttributeValues, profileName);
             }
 
             dbConnection.commit();
@@ -2227,63 +2234,30 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     /**
      *
      */
+    @Override
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
-        Connection dbConnection = null;
-        if (profileName == null) {
-            profileName = UserCoreConstants.DEFAULT_PROFILE;
-        }
 
-        if (claims.get(UserCoreConstants.PROFILE_CONFIGURATION) == null) {
-            claims.put(UserCoreConstants.PROFILE_CONFIGURATION,
-                    UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
-        }
+        claims.putIfAbsent(UserCoreConstants.PROFILE_CONFIGURATION, UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
+        super.doSetUserClaimValues(userName, claims, profileName);
+    }
+
+    @Override
+    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
+                                                   String userName, String profileName) throws UserStoreException {
+
+        Connection dbConnection = null;
 
         try {
-
-            ArrayList<String> propertyListToUpdate = new ArrayList<>();
-            Map<String, String> claimPropertyMap = new HashMap<>();
-            Iterator<Map.Entry<String, String>> ite = claims.entrySet().iterator();
-
-            // Get the property names fo the claims
-            while (ite.hasNext()) {
-                Map.Entry<String, String> entry = ite.next();
-                String claimURI = entry.getKey();
-
-                String property = getClaimAtrribute(claimURI, userName, null);
-                propertyListToUpdate.add(property);
-                claimPropertyMap.put(claimURI, property);
-            }
-
-            String[] propertyArr = new String[propertyListToUpdate.size()];
-            propertyArr = propertyListToUpdate.toArray(propertyArr);
-
-            // Get available properties
-            Map<String, String> availableProperties = getUserPropertyValues(userName, propertyArr, profileName);
-            Map<String, String> newClaims = new HashMap<>();
-            Map<String, String> availableClaims = new HashMap<>();
-
-            // Divide claim list to already available claims (need to update those) and new claims (need to add those)
-            Iterator<Map.Entry<String, String>> ite2 = claims.entrySet().iterator();
-            while (ite2.hasNext()) {
-                Map.Entry<String, String> entry = ite2.next();
-                String claimURI = entry.getKey();
-                String claimValue = claimPropertyMap.get(claimURI);
-                if (claimValue != null && availableProperties.containsKey(claimValue)) {
-                    String availableValue = availableProperties.get(claimValue);
-                    if (availableValue != null && availableValue.equals(entry.getValue())) {
-                        continue;
-                    } else {
-                        availableClaims.put(claimURI, entry.getValue());
-                    }
-                } else {
-                    newClaims.put(claimURI, entry.getValue());
-                }
-            }
+            Set<String> receivedProperties = processedClaimAttributeValueMapForPersist.keySet();
+            Map<String, String> alreadyAvailableProperties = getUserPropertyValues(userName,
+                    receivedProperties.toArray(new String[0]), profileName);
 
             dbConnection = getDBConnection();
-            addProperties(dbConnection, userName, newClaims, profileName);
-            updateProperties(dbConnection, userName, availableClaims, profileName);
+            addProperties(dbConnection, userName, filterNewlyAddedProperties(processedClaimAttributeValueMapForPersist,
+                    alreadyAvailableProperties), profileName);
+            updateProperties(dbConnection, userName, filterUpdatedProperties(processedClaimAttributeValueMapForPersist,
+                    receivedProperties, alreadyAvailableProperties), profileName);
             dbConnection.commit();
         } catch (SQLException e) {
             String msg = "Database error occurred while setting user claim values for user : " + userName;
@@ -2291,15 +2265,31 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error occurred while getting claim attribute for user : " + userName;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+    }
+
+    protected Map<String, String> filterNewlyAddedProperties(Map<String, String> processedClaimAttributeValueMapForPersist, Map<String, String> alreadyAvailableProperties) {
+
+        return processedClaimAttributeValueMapForPersist.entrySet().stream()
+                        .filter(property -> !alreadyAvailableProperties.containsKey(property.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey,
+                                property -> processedClaimAttributeValueMapForPersist.get(property.getKey())));
+    }
+
+    protected Map<String, String> filterUpdatedProperties(Map<String, String> processedClaimAttributeValueMapForPersist,
+                                                        Set<String> receivedProperties,
+                                                        Map<String, String> alreadyAvailableProperties) {
+
+        return alreadyAvailableProperties.entrySet().stream()
+                        .filter(property ->
+                                receivedProperties.contains(property.getKey()) &&
+                                        !StringUtils.equals(processedClaimAttributeValueMapForPersist
+                                                        .get(property.getKey()),
+                                                property.getValue()))
+                        .collect(Collectors.toMap(Map.Entry::getKey,
+                                property -> processedClaimAttributeValueMapForPersist.get(property.getKey())));
     }
 
     /**
@@ -3321,10 +3311,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param userName
      * @param properties
      * @param profileName
-     * @throws org.wso2.carbon.user.api.UserStoreException
+     * @throws UserStoreException
      */
     private void addProperties(Connection dbConnection, String userName, Map<String, String> properties,
-                               String profileName) throws org.wso2.carbon.user.api.UserStoreException {
+                               String profileName) throws UserStoreException {
+
         String type;
         try {
             type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -3356,7 +3347,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             Map<String, String> userAttributes = new HashMap<>();
             for (Map.Entry<String, String> entry : properties.entrySet()) {
-                String attributeName = getClaimAtrribute(entry.getKey(), userName, null);
+                String attributeName = entry.getKey();
                 String attributeValue = entry.getValue();
                 userAttributes.put(attributeName, attributeValue);
             }
@@ -3419,7 +3410,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @throws org.wso2.carbon.user.api.UserStoreException
      */
     private void updateProperties(Connection dbConnection, String userName, Map<String, String> properties,
-                                 String profileName) throws org.wso2.carbon.user.api.UserStoreException {
+                                 String profileName) throws UserStoreException {
+
         String type;
         try {
             type = DatabaseCreator.getDatabaseType(dbConnection);
@@ -3431,7 +3423,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(msg, e);
         }
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY + "-" + type);
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY + "-"
+                + type);
         if (sqlStmt == null) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY);
         }
@@ -3450,7 +3443,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
             for (Map.Entry<String, String> entry : properties.entrySet()) {
-                String propertyName = getClaimAtrribute(entry.getKey(), userName, null);
+                String propertyName = entry.getKey();
                 String propertyValue = entry.getValue();
                 if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                     if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {

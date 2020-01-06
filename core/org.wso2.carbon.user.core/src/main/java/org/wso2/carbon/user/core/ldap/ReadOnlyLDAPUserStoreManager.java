@@ -677,11 +677,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             // Active Directory attribute: objectGUID
                             // RFC 4530 attribute: entryUUID
                             final byte[] bytes = (byte[]) attObject;
-                            if (bytes.length == 16 && name.endsWith("UID")) {
+                            if (bytes.length == 16 && name.toUpperCase().endsWith("UID")) {
                                 // objectGUID byte order is not big-endian
                                 // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
                                 // https://community.oracle.com/thread/1157698
-                                if (name.equals(OBJECT_GUID)) {
+                                if (name.equalsIgnoreCase(OBJECT_GUID)) {
                                     // check the property for objectGUID transformation
                                     String property =
                                             realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
@@ -2606,7 +2606,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        if (OBJECT_GUID.equals(property)) {
+        if (OBJECT_GUID.equalsIgnoreCase(property)) {
             String transformObjectGuidToUuidProperty =
                     realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
@@ -2614,7 +2614,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     Boolean.parseBoolean(transformObjectGuidToUuidProperty);
 
             String convertedValue;
-            if (transformObjectGuidToUuid) {
+            if (StringUtils.equals(value, "*")) {
+                convertedValue = value;
+            } else if (transformObjectGuidToUuid) {
                 convertedValue = transformUUIDToObjectGUID(value);
             } else {
                 byte[] bytes = Base64.decodeBase64(value.getBytes());
@@ -3750,16 +3752,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     String profileName) throws UserStoreException {
         throw new UserStoreException(
                 "User store is operating in read only mode. Cannot write into the user store.");
-    }
-
-    /**
-     *
-     */
-    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
-
     }
 
     /**
