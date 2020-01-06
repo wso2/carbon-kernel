@@ -1215,7 +1215,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                             claimEntry.getValue());
                 }
 
-                addPropertiesWithID(dbConnection, userID, claims, profileName);
+                addPropertiesWithID(dbConnection, userID, userStoreAttributeValues, profileName);
             }
             dbConnection.commit();
 
