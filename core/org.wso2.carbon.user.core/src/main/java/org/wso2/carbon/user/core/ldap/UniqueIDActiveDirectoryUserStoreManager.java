@@ -292,7 +292,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             logger.warn("Unsecured connection is being used. Password operations will fail");
         }
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -381,7 +381,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             logger.warn("Unsecured connection is being used. Password operations will fail");
         }
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -524,7 +524,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -648,7 +648,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     public void doSetUserClaimValueWithID(String userID, String claimURI, String value, String profileName)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         try {
             String attributeName = getClaimAtrribute(claimURI, userName, null);
             doSetUserAttribute(userName, attributeName, value, profileName);

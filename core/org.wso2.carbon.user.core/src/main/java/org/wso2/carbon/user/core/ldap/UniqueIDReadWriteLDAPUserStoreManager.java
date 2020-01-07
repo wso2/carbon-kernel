@@ -512,7 +512,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (debug) {
             log.debug("Deleting user: " + userID);
         }
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         // delete user from LDAP group if read-write enabled.
         String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -634,7 +634,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -705,7 +705,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     @Override
     public void doUpdateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -828,7 +828,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -948,7 +948,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doSetUserClaimValueWithID(String userID, String claimURI, String value, String profileName)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         try {
             String attributeName = getClaimAtrribute(claimURI, userName, null);
             doSetUserAttribute(userName, attributeName, value, profileName);
@@ -1051,7 +1051,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doDeleteUserClaimValueWithID(String userID, String claimURI, String profileName)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -1116,7 +1116,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doDeleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -1302,7 +1302,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         // get the DN of the user entry
         String userNameDN = this.getNameInSpaceForUserName(userName);
         String membershipAttribute = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
