@@ -96,6 +96,9 @@ public class UserStoreConfigConstants {
     public static final String usernameSearchFilterDescription = "Filtering criteria for searching a particular user entry";
     public static final String userNameAttribute = "UserNameAttribute";
     public static final String userNameAttributeDescription = "Attribute used for uniquely identifying a user entry. Users can be authenticated using their email address, uid and etc";
+    public static final String userIdAttribute = "UserIDAttribute";
+    public static final String userIdAttributeName = "User ID Attribute";
+    public static final String userIdAttributeDescription = "Attribute used for uniquely identifying a user entry.";
     public static final String readGroups = "ReadGroups";
     public static final String readLDAPGroupsDescription = "Specifies whether groups should be read from LDAP";
     public static final String groupSearchBase = "GroupSearchBase";

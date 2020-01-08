@@ -823,7 +823,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     @Override
-    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist, String userName, String profileName) throws UserStoreException {
+    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
+                                                   String userName, String profileName) throws UserStoreException {
 
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -846,8 +847,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         try {
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
+
             // assume only one user is returned from the search
-            // TODO:what if more than one user is returned
             if (returnedResultList.hasMore()) {
                 returnedUserEntry = returnedResultList.next().getName();
                 handleLdapUserIdAttributeChanges(processedClaimAttributeValueMapForPersist, subDirContext,
@@ -912,16 +913,17 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
-    protected void handleLdapUserIdAttributeChanges(Map<String, String> userStoreAttributeValues, DirContext subDirContext,
-                                                    String returnedUserEntry) throws NamingException {
+    protected void handleLdapUserIdAttributeChanges(Map<String, String> userStoreAttributeValues,
+                                                    DirContext subDirContext, String returnedUserEntry)
+            throws NamingException {
 
         userStoreAttributeValues.computeIfPresent("uid",
                 (attributeName, attributeValue) -> UserCoreUtil.removeDomainFromName(attributeValue));
     }
 
     @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String value,
-                                    String profileName) throws UserStoreException {
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
 
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
@@ -948,7 +950,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
-            // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
@@ -965,12 +966,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             Attributes updatedAttributes = new BasicAttributes(true);
             // if there is no attribute for profile configuration in LDAP, skip
             // updating it.
-            // get the claimMapping related to this claimURI
-            String attributeName = null;
-            attributeName = getClaimAtrribute(claimURI, userName, null);
-
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-			/* if updated attribute value is null, remove its values. */
+            /* if updated attribute value is null, remove its values. */
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
@@ -1012,7 +1009,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
-
     }
 
 

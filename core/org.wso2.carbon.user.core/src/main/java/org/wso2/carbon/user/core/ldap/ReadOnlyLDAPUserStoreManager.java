@@ -3748,15 +3748,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     /**
      *
      */
-    public void doSetUserClaimValue(String userName, String claimURI, String claimValue,
-                                    String profileName) throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
-    }
-
-    /**
-     *
-     */
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
         throw new UserStoreException(

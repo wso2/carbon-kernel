@@ -230,6 +230,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
      */
     protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
                                  String userName) throws UserStoreException {
+
         if (claims != null) {
             Map<String, String> attributeValueMap = new HashMap<>();
 
@@ -266,7 +267,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     logger.debug("AttributeName: " + attributeName + " AttributeValue: " + attributeValue);
                 }
                 basicAttributes.put(claim);
-
             });
         }
     }
@@ -510,8 +510,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void handleLdapUserIdAttributeChanges(Map<String, String> userStoreAttributeValues, DirContext subDirContext,
-                                                    String returnedUserEntry) throws NamingException {
+    protected void handleLdapUserIdAttributeChanges(Map<String, String> userStoreAttributeValues,
+                                                    DirContext subDirContext, String returnedUserEntry)
+            throws NamingException {
+
         if (userStoreAttributeValues.containsKey("cn")) {
             subDirContext.rename(returnedUserEntry, "CN=" +
                     escapeSpecialCharactersForDN(userStoreAttributeValues.get("cn")));
@@ -520,8 +522,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String value,
-                                    String profileName) throws UserStoreException {
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
         // get the LDAP Directory context
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -542,7 +545,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
-            // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -559,7 +561,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             // if there is no attribute for profile configuration in LDAP, skip
             // updating it.
             // get the claimMapping related to this claimURI
-            String attributeName = getClaimAtrribute(claimURI, userName, null);
 
             if ("CN".equals(attributeName)) {
                 subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
@@ -568,7 +569,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
 
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-			/* if updated attribute value is null, remove its values. */
+            /* if updated attribute value is null, remove its values. */
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
@@ -603,7 +604,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
-
     }
 
     @Override

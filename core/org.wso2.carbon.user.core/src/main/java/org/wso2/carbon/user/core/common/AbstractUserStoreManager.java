@@ -511,8 +511,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred
      */
-    protected abstract void doSetUserClaimValue(String userName, String claimURI,
-                                                String claimValue, String profileName) throws UserStoreException;
+    protected void doSetUserClaimValue(String userName, String claimURI,
+                                                String claimValue, String profileName) throws UserStoreException {
+
+        try {
+            String attributeName = getClaimAtrribute(claimURI, userName, null);
+            Map<String, String> userStoreAttributeValueMap = new HashMap<String, String>()
+            {{
+                put(attributeName, claimValue);
+            }};
+            processAttributesBeforeUpdate(userStoreAttributeValueMap);
+            for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
+                doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
+                            + userName);
+        }
+    }
 
     /**
      * Set the user attribute of the user.
@@ -525,10 +542,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserAttribute operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doSetUserAttribute operation is not implemented in: " + this.getClass());
+        // Not implemented
     }
     /**
      * Set a single user claim value.
@@ -542,11 +556,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
+        String userName = doGetUserNameFromUserID(userID);
+        try {
+            String attributeName = getClaimAtrribute(claimURI, userName, null);
+            Map<String, String> userStoreAttributeValueMap = new HashMap<String, String>()
+            {{
+                put(attributeName, claimValue);
+            }};
+            processAttributesBeforeUpdate(userStoreAttributeValueMap);
+            for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
+                doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
+                            + userName);
         }
-        throw new NotImplementedException(
-                "doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -564,7 +589,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // resolving claims to user store attributes
-        Map<String, String> claimAttributeValueMapForPersist = resolveClaimAttributeMap(userName, claims);
+        Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userName, claims);
 
         processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
 
@@ -572,14 +597,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         persistUserStoreAttributeValues(claimAttributeValueMapForPersist, userName, profileName);
     }
 
-    private Map<String, String> resolveClaimAttributeMap(String userName, Map<String, String> claims) throws UserStoreException {
+    private Map<String, String> resolveUserStoreAttributeValueMap(String userName, Map<String, String> claims) throws UserStoreException {
 
-        Map<String, String> claimAttributeValueMap = new HashMap<>();
+        Map<String, String> userStoreAttributeValueMap = new HashMap<>();
         try {
             for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
                 String claimURI = claimEntry.getKey();
                 String attributeName = getClaimAtrribute(claimURI, userName, null);
-                claimAttributeValueMap.put(attributeName, claimEntry.getValue());
+                userStoreAttributeValueMap.put(attributeName, claimEntry.getValue());
             }
         }  catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMessage = "Error occurred while getting claim attribute for user : " + userName;
@@ -588,7 +613,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             throw new UserStoreException(errorMessage, e);
         }
-        return claimAttributeValueMap;
+        return userStoreAttributeValueMap;
     }
 
     /**
@@ -601,6 +626,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
                                                    String userName, String profileName) throws UserStoreException {
+
         // Not implemented
     };
 
@@ -620,7 +646,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // resolving claims to user store attributes
-        Map<String, String> claimAttributeValueMapForPersist = resolveClaimAttributeMap(userID, claims);
+        Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userID, claims);
 
         processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
 
@@ -11615,6 +11641,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String getUniqueUserID() {
 
         return UUID.randomUUID().toString();
+    }
+
+    protected boolean isUserIdGeneratedByUserStore(String username, Map<String, String> userAttributes) {
+
+        return false;
     }
 
     /**

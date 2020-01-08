@@ -2179,49 +2179,38 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     }
 
-    /**
-     *
-     */
-    public void doSetUserClaimValue(String userName, String claimURI, String claimValue,
-                                    String profileName) throws UserStoreException {
+    @Override
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
         if (profileName == null) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
-        if (claimValue == null) {
+        if (value == null) {
             throw new UserStoreException("Cannot set null values.");
         }
         Connection dbConnection = null;
-        String property = null;
         try {
             dbConnection = getDBConnection();
-            property = getClaimAtrribute(claimURI, userName, null);
-            String value = getProperty(dbConnection, userName, property, profileName);
-            if (value == null) {
-                addProperty(dbConnection, userName, property, claimValue, profileName);
+            String propertyValue = getProperty(dbConnection, userName, attributeName, profileName);
+            if (propertyValue == null) {
+                addProperty(dbConnection, userName, attributeName, value, profileName);
             } else {
-                updateProperty(dbConnection, userName, property, claimValue, profileName);
+                updateProperty(dbConnection, userName, attributeName, value, profileName);
             }
             dbConnection.commit();
         } catch (SQLException e) {
             String msg =
-                    "Database error occurred while saving user claim value for user : " + userName + " & claim URI : " +
-                    claimURI + " claim value : " + claimValue;
+                    "Database error occurred while saving user claim value for user : " + userName + " & attribute : " +
+                            attributeName + " value : " + value;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
         } catch (UserStoreException e) {
             String errorMessage =
-                    "Error occurred while adding or updating claim value for user : " + userName + " & claim URI : " +
-                    claimURI + " attribute : " + property + " profile : " + profileName;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage =
-                    "Error occurred while getting claim attribute for user : " + userName + " & claim URI : " +
-                    claimURI;
+                    "Error occurred while adding or updating claim value for user : " + userName + " attribute : "
+                            + attributeName + " profile : " + profileName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }

@@ -26,6 +26,7 @@ public class ActiveDirectoryUserStoreConstants {
 
     //Properties for Read Active Directory User Store Manager
     public static final ArrayList<Property> ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
+    public static final ArrayList<Property> UNIQUE_ID_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
 
     //For multiple attribute separation
@@ -145,6 +146,9 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("UniqueID", "", "", "");
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
+                UserStoreConfigConstants.userIdAttributeName, "",
+                UserStoreConfigConstants.userIdAttributeDescription, false);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
@@ -156,6 +160,16 @@ public class ActiveDirectoryUserStoreConstants {
         Property property = new Property(name, value, propertyDescription, null);
         ACTIVE_DIRECTORY_UM_PROPERTIES.add(property);
 
+    }
+
+    private static void setMandatoryPropertyForUniqueIdStore(String name, String displayName, String value,
+                                                             String description, boolean encrypt) {
+        String propertyDescription = displayName + "#" + description;
+        if (encrypt) {
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
+        UNIQUE_ID_ACTIVE_DIRECTORY_UM_PROPERTIES.add(property);
     }
 
     private static void setProperty(String name, String displayName, String value,
