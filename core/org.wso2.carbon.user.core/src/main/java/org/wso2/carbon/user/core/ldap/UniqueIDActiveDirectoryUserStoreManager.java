@@ -222,21 +222,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
             Object attObject = userAttributes.get(userIdAttribute).get();
 
-            if (attObject instanceof String) {
-                generatedUserId = (String) attObject;
-            } else if (attObject instanceof byte[]) {
-                // return canonical representation of UUIDs or base64 encoded string of other binary data
-                final byte[] bytes = (byte[]) attObject;
-                if (bytes.length == 16) {
-                    // objectGUID byte order is not big-endian
-                    // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
-                    // https://community.oracle.com/thread/1157698
-                    final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
-                    generatedUserId = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
-                } else {
-                    generatedUserId = new String(Base64.encodeBase64((byte[]) attObject));
-                }
-            }
+            generatedUserId = resolveLdapAttributeValue(attObject);
 
             // update the user roles
             doUpdateRoleListOfUserWithID(generatedUserId, null, roleList);

@@ -780,15 +780,15 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         String id = null;
                         String domain = null;
                         if (userName != null) {
-                            name = (String) userName.get();
+                            name = resolveLdapAttributeValue(userName.get());
                             if (displayName != null) {
-                                display = (String) displayName.get();
+                                display = resolveLdapAttributeValue(displayName.get());
                             }
                             domain = this.getRealmConfiguration()
                                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                         }
                         if (userID != null) {
-                            id = (String) userID.get();
+                            id = resolveLdapAttributeValue(userID.get());
                         }
 
                         User user = getUser(id, name);
@@ -841,6 +841,27 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         RoleContext roleContext = createRoleContext(roleName);
         return getUserListOfLDAPRoleWithID(roleContext, filter);
+    }
+
+    protected String resolveLdapAttributeValue(Object attObject) {
+
+        String generatedUserId = null;
+        if (attObject instanceof String) {
+            generatedUserId = (String) attObject;
+        } else if (attObject instanceof byte[]) {
+            // return canonical representation of UUIDs or base64 encoded string of other binary data
+            final byte[] bytes = (byte[]) attObject;
+            if (bytes.length == 16) {
+                // objectGUID byte order is not big-endian
+                // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                // https://community.oracle.com/thread/1157698
+                final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
+                generatedUserId = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+            } else {
+                generatedUserId = new String(Base64.encodeBase64((byte[]) attObject));
+            }
+        }
+        return generatedUserId;
     }
 
     protected List<User> getUserListOfLDAPRoleWithID(RoleContext context, String filter) throws UserStoreException {

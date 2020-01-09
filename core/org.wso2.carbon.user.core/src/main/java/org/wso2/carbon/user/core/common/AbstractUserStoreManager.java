@@ -11587,7 +11587,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return User.
      * @throws UserStoreException User Store Exception.
      */
-    protected User getUser(String userID, String userName) throws UserStoreException {
+    public User getUser(String userID, String userName) throws UserStoreException {
 
         if (userID == null && userName == null) {
             throw new UserStoreException("Both userID and UserName cannot be null.");
