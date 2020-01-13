@@ -4555,6 +4555,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return false;
     }
 
+    /**
+     * Check whether the given attribute is configured as a binary attribute in the respective user store.
+     *
+     * @param attributeName Name of the attribute.
+     * @return True for a binary attribute, else false.
+     */
     protected boolean isBinaryUserAttribute(String attributeName) {
 
         String ldapBinaryAttributesProperty = Optional.ofNullable(realmConfig
