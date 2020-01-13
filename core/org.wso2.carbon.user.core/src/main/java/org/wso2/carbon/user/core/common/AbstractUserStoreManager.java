@@ -503,24 +503,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Set a single user claim value
+     * Set a single user claim value.
      *
-     * @param userName    The user name
-     * @param claimURI    The claim URI
-     * @param claimValue  The value
+     * @param userName    The user name.
+     * @param claimURI    The claim URI.
+     * @param claimValue  The value.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doSetUserClaimValue(String userName, String claimURI,
-                                                String claimValue, String profileName) throws UserStoreException {
+                                       String claimValue, String profileName) throws UserStoreException {
 
         try {
             String attributeName = getClaimAtrribute(claimURI, userName, null);
-            Map<String, String> userStoreAttributeValueMap = new HashMap<String, String>()
-            {{
-                put(attributeName, claimValue);
-            }};
+            Map<String, String> userStoreAttributeValueMap = new HashMap<>();
+
+            userStoreAttributeValueMap.put(attributeName, claimValue);
             processAttributesBeforeUpdate(userStoreAttributeValueMap);
+
             for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
                 doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
             }
@@ -534,7 +534,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Set the user attribute of the user.
      *
-     * @param userName      user name.
+     * @param userName      User name.
      * @param attributeName Attribute name.
      * @param value         Attribute value.
      * @param profileName   profile name.
@@ -542,8 +542,71 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
-        // Not implemented
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttribute operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttribute operation is not implemented in: " + this.getClass());
     }
+
+    /**
+     * Set the user attribute of the user.
+     *
+     * @param userID        User ID.
+     * @param attributeName Attribute name.
+     * @param value         Attribute value.
+     * @param profileName   Profile Name.
+     * @throws UserStoreException Thrown if the operation is not implemented in the underlying user store.
+     */
+    protected void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttributeWithID operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttributeWithID operation is not implemented in: "
+                + this.getClass());
+    }
+
+    /**
+     * Set the user attributes of a user.
+     *
+     * @param userName                 UserName of the user.
+     * @param processedClaimAttributes A processed map of user store attribute values.
+     * @param profileName              The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException Thrown if the operation is not implemented in the underlying user store.
+     */
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttributes operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttributes operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Set the user attributes of a user.
+     *
+     * @param processedClaimAttributes A processed map of user store attribute values.
+     * @param userID                   UserID of the user.
+     * @param profileName              The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException Thrown if the operation is not implemented in the underlying user store.
+     */
+    protected void doSetUserAttributesWithID(String userID,
+                                             Map<String, String> processedClaimAttributes, String profileName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttributesWithID operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttributesWithID operation is not implemented in: "
+                + this.getClass());
+    }
+
     /**
      * Set a single user claim value.
      *
@@ -556,34 +619,33 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        String userName = doGetUserNameFromUserID(userID);
         try {
-            String attributeName = getClaimAtrribute(claimURI, userName, null);
-            Map<String, String> userStoreAttributeValueMap = new HashMap<String, String>()
-            {{
-                put(attributeName, claimValue);
-            }};
+            String attributeName = getClaimAtrribute(claimURI, userID, null);
+            Map<String, String> userStoreAttributeValueMap = new HashMap<>();
+            userStoreAttributeValueMap.put(attributeName, claimValue);
             processAttributesBeforeUpdate(userStoreAttributeValueMap);
+
             for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
-                doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
+                doSetUserAttributeWithID(userID, entry.getKey(), entry.getValue(), profileName);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(
                     "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
-                            + userName);
+                            + userID);
         }
     }
 
     /**
-     * Set many user claim values
+     * Set many user claim values.
      *
-     * @param userName    The user name
-     * @param claims      Map of claim URIs against values
+     * @param userName    The user name.
+     * @param claims      Map of claim URIs against values.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
     protected void doSetUserClaimValues(String userName, Map<String, String> claims,
-                                                 String profileName) throws UserStoreException {
+                                        String profileName) throws UserStoreException {
+
         if (profileName == null) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
@@ -594,41 +656,39 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
 
         // persist the attribute values map
-        persistUserStoreAttributeValues(claimAttributeValueMapForPersist, userName, profileName);
+        doSetUserAttributes(userName, claimAttributeValueMapForPersist, profileName);
     }
 
-    private Map<String, String> resolveUserStoreAttributeValueMap(String userName, Map<String, String> claims) throws UserStoreException {
+    /**
+     * Resolves claim URIs as user store properties.
+     *
+     * @param userIdentifier Username of the user.
+     * @param claims         A map of claim URIs to be resolved.
+     * @return A map of user store property values.
+     * @throws UserStoreException Thrown if a particular claim URI could not be resolved.
+     */
+    private Map<String, String> resolveUserStoreAttributeValueMap(String userIdentifier, Map<String, String> claims)
+            throws UserStoreException {
 
         Map<String, String> userStoreAttributeValueMap = new HashMap<>();
+
         try {
             for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
                 String claimURI = claimEntry.getKey();
-                String attributeName = getClaimAtrribute(claimURI, userName, null);
+                String attributeName = getClaimAtrribute(claimURI, userIdentifier, null);
                 userStoreAttributeValueMap.put(attributeName, claimEntry.getValue());
             }
-        }  catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error occurred while getting claim attribute for user : " + userName;
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error occurred while getting claim attribute for user : " + userIdentifier;
+
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+
             throw new UserStoreException(errorMessage, e);
         }
         return userStoreAttributeValueMap;
     }
-
-    /**
-     * Persist a processed map of claim attribute values.
-     *
-     * @param processedClaimAttributeValueMapForPersist a processed map of user store attribute valeus
-     * @param userName userName of the user
-     * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
-     */
-    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
-                                                   String userName, String profileName) throws UserStoreException {
-
-        // Not implemented
-    };
 
     /**
      * Set many user claim values.
@@ -651,7 +711,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
 
         // persist the attribute values map
-        persistUserStoreAttributeValues(claimAttributeValueMapForPersist, userID, profileName);
+        doSetUserAttributesWithID(userID, claimAttributeValueMapForPersist, profileName);
     }
 
     /**
@@ -7427,10 +7487,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Handles the processing of any special user store attribute values after retrieval.
      *
-     * @param userStoreProperties un-processed map (userstore attribute name -> attribute value) of user store
-     *                            attribute values
+     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     *                       attribute values
      */
-    protected void processAttributesAfterRetrieval(Map<String, String> userStoreProperties) {
+    protected void processAttributesAfterRetrieval(Map<String, String> userAttributes) {
 
         // Not implemented.
     }
@@ -7438,10 +7498,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Handles the processing of any special user store attribute values before update.
      *
-     * @param userStoreProperties un-processed map (userstore attribute name -> attribute value) of user store
-     *                            attribute values
+     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     *                       attribute values
      */
-    protected void processAttributesBeforeUpdate(Map<String, String> userStoreProperties) {
+    protected void processAttributesBeforeUpdate(Map<String, String> userAttributes) {
 
         // Not implemented.
     }
@@ -11643,7 +11703,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return UUID.randomUUID().toString();
     }
 
-    protected boolean isUserIdGeneratedByUserStore(String username, Map<String, String> userAttributes) {
+    /**
+     * Check whether the userID attribute is generated/maintained by the user store itself.
+     *
+     * @param userName       User's userName.
+     * @param userAttributes A map user attribute values.
+     * @return True if generated, else false.
+     */
+    protected boolean isUserIdGeneratedByUserStore(String userName, Map<String, String> userAttributes) {
 
         return false;
     }

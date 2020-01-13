@@ -68,7 +68,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -843,25 +845,34 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         return getUserListOfLDAPRoleWithID(roleContext, filter);
     }
 
-    protected String resolveLdapAttributeValue(Object attObject) {
+    /**
+     * Resolves the value of a LDAP attribute to a string based on the data type.
+     *
+     * @param attributeObject Attribute Value.
+     * @return Resolved string value.
+     */
+    protected String resolveLdapAttributeValue(Object attributeObject) {
 
-        String generatedUserId = null;
-        if (attObject instanceof String) {
-            generatedUserId = (String) attObject;
-        } else if (attObject instanceof byte[]) {
-            // return canonical representation of UUIDs or base64 encoded string of other binary data
-            final byte[] bytes = (byte[]) attObject;
+        String resolvedStringValue = null;
+        if (attributeObject instanceof String) {
+            resolvedStringValue = (String) attributeObject;
+        } else if (attributeObject instanceof byte[]) {
+            // Return canonical representation of UUIDs or base64 encoded string of other binary data.
+            final byte[] bytes = (byte[]) attributeObject;
             if (bytes.length == 16) {
-                // objectGUID byte order is not big-endian
-                // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
-                // https://community.oracle.com/thread/1157698
-                final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
-                generatedUserId = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+                 /*
+                 ObjectGUID byte order is not big-endian.
+                 https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                 https://community.oracle.com/thread/1157698
+                  */
+                final ByteBuffer byteBuffer = ByteBuffer.wrap(swapBytes(bytes));
+                resolvedStringValue = new UUID(byteBuffer.getLong(), byteBuffer.getLong()).toString();
             } else {
-                generatedUserId = new String(Base64.encodeBase64((byte[]) attObject));
+                resolvedStringValue = new String(Base64.encodeBase64((byte[]) attributeObject));
             }
         }
-        return generatedUserId;
+
+        return resolvedStringValue;
     }
 
     protected List<User> getUserListOfLDAPRoleWithID(RoleContext context, String filter) throws UserStoreException {
@@ -1361,30 +1372,37 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         for (attrs = attribute.getAll(); attrs.hasMore(); ) {
                             Object attObject = attrs.next();
                             String attr = null;
+
                             if (attObject instanceof String) {
                                 attr = (String) attObject;
                             } else if (attObject instanceof byte[]) {
-                                // return canonical representation of UUIDs or base64 encoded string of other binary data
-                                // Active Directory attribute: objectGUID
-                                // RFC 4530 attribute: entryUUID
+                                 /*
+                                 Return canonical representation of UUIDs or base64 encoded string of other binary data.
+                                 Active Directory attribute: objectGUID
+                                 RFC 4530 attribute: entryUUID
+                                  */
                                 final byte[] bytes = (byte[]) attObject;
+
                                 if (bytes.length == 16 && userIDProperty.toUpperCase().endsWith("UID")) {
-                                    // objectGUID byte order is not big-endian
-                                    // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
-                                    // https://community.oracle.com/thread/1157698
+                                     /*
+                                     ObjectGUID byte order is not big-endian.
+                                     https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                                     https://community.oracle.com/thread/1157698
+                                      */
                                     if (userIDProperty.equalsIgnoreCase(OBJECT_GUID)) {
                                         // check the property for objectGUID transformation
-                                        String transformtoObjectGuidProperty =
+                                        String transformToObjectGuidProperty =
                                                 realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
-                                        boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformtoObjectGuidProperty) ||
-                                                Boolean.parseBoolean(transformtoObjectGuidProperty);
+                                        boolean transformObjectGuidToUuid =
+                                                StringUtils.isEmpty(transformToObjectGuidProperty) ||
+                                                        Boolean.parseBoolean(transformToObjectGuidProperty);
 
                                         if (transformObjectGuidToUuid) {
                                             final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
-                                            attr = new java.util.UUID(bb.getLong(), bb.getLong()).toString();
+                                            attr = new UUID(bb.getLong(), bb.getLong()).toString();
                                         } else {
-                                            // Ignore transforming objectGUID to UUID canonical format
+                                            // Ignore transforming objectGUID to UUID canonical format.
                                             attr = new String(Base64.encodeBase64((byte[]) attObject));
                                         }
                                     }
@@ -1507,6 +1525,22 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     public int getUserId(String username) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    @Override
+    protected void doSetUserAttributesWithID(String userID, Map<String, String> processedClaimAttributes,
+                                             String profileName) throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
     }
 
     @Override
@@ -1841,7 +1875,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         Properties properties = new Properties();
         properties.setMandatoryProperties(
-                ReadOnlyLDAPUserStoreConstants.ROLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
+                Stream.concat(ReadOnlyLDAPUserStoreConstants.ROLDAP_USERSTORE_PROPERTIES.stream(),
+                        ReadOnlyLDAPUserStoreConstants.UNIQUE_ID_ROLDAP_USERSTORE_PROPERTIES.stream())
+                        .toArray(Property[]::new));
         properties.setOptionalProperties(
                 ReadOnlyLDAPUserStoreConstants.OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
         properties.setAdvancedProperties(UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));

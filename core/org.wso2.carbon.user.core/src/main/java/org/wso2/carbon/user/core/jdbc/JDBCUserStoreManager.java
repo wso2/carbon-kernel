@@ -2220,9 +2220,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    /**
-     *
-     */
     @Override
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
@@ -2232,24 +2229,25 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
-                                                   String userName, String profileName) throws UserStoreException {
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
 
         Connection dbConnection = null;
 
         try {
-            Set<String> receivedProperties = processedClaimAttributeValueMapForPersist.keySet();
+            Set<String> receivedProperties = processedClaimAttributes.keySet();
             Map<String, String> alreadyAvailableProperties = getUserPropertyValues(userName,
                     receivedProperties.toArray(new String[0]), profileName);
 
             dbConnection = getDBConnection();
-            addProperties(dbConnection, userName, filterNewlyAddedProperties(processedClaimAttributeValueMapForPersist,
+            addProperties(dbConnection, userName, filterNewlyAddedProperties(processedClaimAttributes,
                     alreadyAvailableProperties), profileName);
-            updateProperties(dbConnection, userName, filterUpdatedProperties(processedClaimAttributeValueMapForPersist,
+            updateProperties(dbConnection, userName, filterUpdatedProperties(processedClaimAttributes,
                     receivedProperties, alreadyAvailableProperties), profileName);
             dbConnection.commit();
         } catch (SQLException e) {
             String msg = "Database error occurred while setting user claim values for user : " + userName;
+
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
@@ -2259,26 +2257,40 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    protected Map<String, String> filterNewlyAddedProperties(Map<String, String> processedClaimAttributeValueMapForPersist, Map<String, String> alreadyAvailableProperties) {
+    /**
+     * Filter the new user properties.
+     *
+     * @param processedClaimAttributeValues A map of processed claim attribute values.
+     * @param alreadyAvailableProperties    A map of already available property values.
+     * @return A map of newly added user properties.
+     */
+    protected Map<String, String> filterNewlyAddedProperties(
+            Map<String, String> processedClaimAttributeValues,
+            Map<String, String> alreadyAvailableProperties) {
 
-        return processedClaimAttributeValueMapForPersist.entrySet().stream()
-                        .filter(property -> !alreadyAvailableProperties.containsKey(property.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey,
-                                property -> processedClaimAttributeValueMapForPersist.get(property.getKey())));
+        return processedClaimAttributeValues.entrySet().stream()
+                .filter(property -> !alreadyAvailableProperties.containsKey(property.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        property -> processedClaimAttributeValues.get(property.getKey())));
     }
 
-    protected Map<String, String> filterUpdatedProperties(Map<String, String> processedClaimAttributeValueMapForPersist,
-                                                        Set<String> receivedProperties,
-                                                        Map<String, String> alreadyAvailableProperties) {
+    /**
+     * Filter the updated user properties.
+     *
+     * @param processedClaimAttributeValues A map of processed claim attribute values.
+     * @param alreadyAvailableProperties    A map of already available property values.
+     * @return A map of updated user properties.
+     */
+    protected Map<String, String> filterUpdatedProperties(Map<String, String> processedClaimAttributeValues,
+                                                          Set<String> receivedProperties,
+                                                          Map<String, String> alreadyAvailableProperties) {
 
         return alreadyAvailableProperties.entrySet().stream()
-                        .filter(property ->
-                                receivedProperties.contains(property.getKey()) &&
-                                        !StringUtils.equals(processedClaimAttributeValueMapForPersist
-                                                        .get(property.getKey()),
-                                                property.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey,
-                                property -> processedClaimAttributeValueMapForPersist.get(property.getKey())));
+                .filter(property -> receivedProperties.contains(property.getKey()) &&
+                        !StringUtils.equals(processedClaimAttributeValues.get(property.getKey()),
+                                property.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        property -> processedClaimAttributeValues.get(property.getKey())));
     }
 
     /**

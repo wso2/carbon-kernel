@@ -510,14 +510,14 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void handleLdapUserIdAttributeChanges(Map<String, String> userStoreAttributeValues,
-                                                    DirContext subDirContext, String returnedUserEntry)
+    protected void handleLdapUserNameAttributeChanges(Map<String, String> userAttributeValues,
+                                                      DirContext subDirContext, String returnedUserEntry)
             throws NamingException {
 
-        if (userStoreAttributeValues.containsKey("cn")) {
-            subDirContext.rename(returnedUserEntry, "CN=" +
-                    escapeSpecialCharactersForDN(userStoreAttributeValues.get("cn")));
-            userStoreAttributeValues.remove("cn");
+        if (userAttributeValues.containsKey(LDAPConstants.CN)) {
+            subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" +
+                    escapeSpecialCharactersForDN(userAttributeValues.get(LDAPConstants.CN)));
+            userAttributeValues.remove(LDAPConstants.CN);
         }
     }
 
@@ -525,10 +525,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
-        // get the LDAP Directory context
+        // Get the LDAP Directory context.
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
-        // search the relevant user entry by user name
+        // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -544,7 +544,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
-            // assume only one user is returned from the search
+            // Assume only one user is returned from the search.
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -558,18 +558,15 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
-            // if there is no attribute for profile configuration in LDAP, skip
-            // updating it.
-            // get the claimMapping related to this claimURI
-
-            if ("CN".equals(attributeName)) {
+            // If there is no attribute for profile configuration in LDAP, skip updating it.
+            if (LDAPConstants.CN_CAPITALIZED.equals(attributeName)) {
                 subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
-                subDirContext.rename(returnedUserEntry, "CN=" + value);
+                subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" + value);
                 return;
             }
 
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-            /* if updated attribute value is null, remove its values. */
+            // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
@@ -591,9 +588,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
             updatedAttributes.put(currentUpdatedAttribute);
 
-            // update the attributes in the relevant entry of the directory
-            // store
-
+            // Update the attributes in the relevant entry of the directory store.
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
@@ -860,7 +855,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
 
-
         if (logger.isDebugEnabled()) {
             logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
         }
@@ -870,7 +864,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 logger.debug("Active Directory maintained default attributes: " + Arrays.toString(immutableAttributes));
             }
 
-            Arrays.stream(immutableAttributes).forEach(userStorePropertyValues::remove);
+            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
         }
     }
 
@@ -892,6 +886,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
 
             Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .map(StringUtils::trim)
                     .filter(attribute -> userStorePropertyValues.get(attribute) != null)
                     .collect(Collectors.toMap(Function.identity(),
                             attribute -> convertDateFormatFromAD(userStorePropertyValues.get(attribute))));
@@ -908,10 +903,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         }
     }
 
-    private String convertDateFormatFromAD(String fromDate) {
+    /**
+     * Convert Active Directory date format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Active Directory date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromAD(String date) {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(ACTIVE_DIRECTORY_DATE_TIME_FORMAT);
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse(fromDate, dateTimeFormatter);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
     }

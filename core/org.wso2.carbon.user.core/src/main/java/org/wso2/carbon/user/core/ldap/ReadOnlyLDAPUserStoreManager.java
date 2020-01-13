@@ -68,6 +68,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
@@ -3737,6 +3738,22 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
+    @Override
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    @Override
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
     /**
      *
      */
@@ -4534,6 +4551,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public boolean isUniqueUserIdEnabled() {
+
+        return false;
+    }
+
+    protected boolean isBinaryUserAttribute(String attributeName) {
+
+        String ldapBinaryAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY)).orElse("");
+
+        String[] ldapBinaryAttributes = StringUtils.split(ldapBinaryAttributesProperty, ",");
+
+        if (ArrayUtils.isNotEmpty(ldapBinaryAttributes)) {
+            if (log.isDebugEnabled()) {
+                log.debug("LDAP binary attributes: " + Arrays.toString(ldapBinaryAttributes));
+            }
+
+            return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
+        }
 
         return false;
     }

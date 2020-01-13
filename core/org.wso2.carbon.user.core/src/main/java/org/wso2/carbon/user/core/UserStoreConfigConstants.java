@@ -94,6 +94,10 @@ public class UserStoreConfigConstants {
     public static final String usernameListFilterDescription = "Filtering criteria for listing all the user entries in LDAP";
     public static final String usernameSearchFilter = "UserNameSearchFilter";
     public static final String usernameSearchFilterDescription = "Filtering criteria for searching a particular user entry";
+    public static final String userIdSearchFilter = "UserIdSearchFilter";
+    public static final String userIdSearchFilterAttributeName = "UserID Search Filter";
+    public static final String userIdSearchFilterDescription = "Filtering criteria for searching a particular user " +
+            "entry";
     public static final String userNameAttribute = "UserNameAttribute";
     public static final String userNameAttributeDescription = "Attribute used for uniquely identifying a user entry. Users can be authenticated using their email address, uid and etc";
     public static final String userIdAttribute = "UserIDAttribute";

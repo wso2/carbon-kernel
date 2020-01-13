@@ -149,6 +149,9 @@ public class ActiveDirectoryUserStoreConstants {
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
                 UserStoreConfigConstants.userIdAttributeName, "",
                 UserStoreConfigConstants.userIdAttributeDescription, false);
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.userIdSearchFilterDescription, false);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

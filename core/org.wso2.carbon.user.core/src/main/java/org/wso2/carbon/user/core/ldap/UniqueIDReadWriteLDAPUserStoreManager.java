@@ -68,6 +68,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
@@ -825,27 +826,36 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
-        String userName = doGetUserNameFromUserID(userID);
-        super.doSetUserClaimValuesWithID(userName, claims, profileName);
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
-    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
-                                                   String userName, String profileName) throws UserStoreException {
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
 
-        // get the LDAP Directory context
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void doSetUserAttributesWithID(String userID, Map<String, String> processedClaimAttributes,
+                                             String profileName) throws UserStoreException {
+        // Get the LDAP Directory context.
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
-        // search the relevant user entry by user name
+        // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userSearchFilter = realmConfig
-                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        // if user name contains domain name, remove domain name
-        userName = UserCoreUtil.removeDomainFromName(userName);
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
+        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        if (isBinaryUserAttribute(userIDAttribute)) {
+            userID = transformUUIDToObjectGUID(userID);
+        }
+
+        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -858,37 +868,40 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
 
-            // assume only one user is returned from the search
+            // Assume only one user is returned from the search.
             if (returnedResultList.hasMore()) {
                 returnedUserEntry = returnedResultList.next().getName();
-                handleLdapUserIdAttributeChanges(processedClaimAttributeValueMapForPersist, subDirContext,
+                handleLdapUserIdAttributeChanges(processedClaimAttributes, subDirContext,
                         returnedUserEntry);
             }
 
         } catch (NamingException e) {
-            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userID;
+
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
 
-        if (processedClaimAttributeValueMapForPersist.containsKey(realmConfig.getUserStoreProperty(
+        if (processedClaimAttributes.containsKey(realmConfig.getUserStoreProperty(
                 LDAPConstants.USER_NAME_ATTRIBUTE))) {
-            removeFromUserCache(userName);
+            removeFromUserCache(userID);
         }
 
         Attributes updatedAttributes = new BasicAttributes(true);
 
-        processedClaimAttributeValueMapForPersist.entrySet().forEach(claimEntry -> {
+        processedClaimAttributes.entrySet().forEach(claimEntry -> {
             Attribute currentUpdatedAttribute = new BasicAttribute(claimEntry.getKey());
-            /* if updated attribute value is null, remove its values. */
+            // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                 currentUpdatedAttribute.clear();
             } else {
                 String userAttributeSeparator = ",";
+
                 if (claimEntry.getValue() != null && !claimEntry.getKey().equals("uid")
                         && !claimEntry.getKey().equals("sn")) {
                     String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
@@ -916,18 +929,26 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
         } catch (NamingException e) {
-            handleException(e, userName);
+            handleException(e, userID);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
     }
 
-    protected void handleLdapUserIdAttributeChanges(Map<String, String> userStoreAttributeValues,
+    /**
+     * Handle the modification of any changes to the userName attribute.
+     *
+     * @param userAttributeValues A map of user attributes and values.
+     * @param subDirContext       Sub directory context.
+     * @param returnedUserEntry   Returned result from the user search operation.
+     * @throws NamingException Thrown if an error is occurred during the userName modification.
+     */
+    protected void handleLdapUserIdAttributeChanges(Map<String, String> userAttributeValues,
                                                     DirContext subDirContext, String returnedUserEntry)
             throws NamingException {
 
-        userStoreAttributeValues.computeIfPresent("uid",
+        userAttributeValues.computeIfPresent(LDAPConstants.UID,
                 (attributeName, attributeValue) -> UserCoreUtil.removeDomainFromName(attributeValue));
     }
 
@@ -939,21 +960,18 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+    protected void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
             throws UserStoreException {
-
-        // get the LDAP Directory context
+        // Get the LDAP Directory context.
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
-        // search the relevant user entry by user name
+        // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        // if user name contains domain name, remove domain name
-        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
-        if (userNames.length > 1) {
-            userName = userNames[1];
-        }
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
+        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -968,10 +986,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
-            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userID;
+
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
@@ -980,7 +1000,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-            /* if updated attribute value is null, remove its values. */
+            // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
@@ -989,12 +1009,14 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 } else {
                     String userAttributeSeparator = ",";
                     String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+
                     if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
                         userAttributeSeparator = claimSeparator;
                     }
 
                     if (value.contains(userAttributeSeparator)) {
                         StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+
                         while (st.hasMoreElements()) {
                             String newVal = st.nextElement().toString();
                             if (newVal != null && newVal.trim().length() > 0) {
@@ -1008,12 +1030,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 }
             }
             updatedAttributes.put(currentUpdatedAttribute);
-            // update the attributes in the relevant entry of the directory store
+
+            // Update the attributes in the relevant entry of the directory store.
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE, updatedAttributes);
-
         } catch (Exception e) {
-            handleException(e, userName);
+            handleException(e, userID);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
@@ -2006,11 +2028,15 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public Properties getDefaultUserStoreProperties() {
 
         Properties properties = new Properties();
+
         properties.setMandatoryProperties(
-                ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
+                Stream.concat(ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.stream(),
+                        ReadWriteLDAPUserStoreConstants.UNIQUE_ID_RWLDAP_USERSTORE_PROPERTIES.stream())
+                        .toArray(Property[]::new));
         properties.setOptionalProperties(
                 ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
         properties.setAdvancedProperties(UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
+
         return properties;
     }
 

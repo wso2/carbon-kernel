@@ -70,7 +70,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1761,44 +1760,48 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+    protected void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
             throws UserStoreException {
-
-        // This method is not needed for JDBC userstores as the users are already added with the IDs.
-
-        String userID = getUserIDFromUserName(userName);
 
         if (profileName == null) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
+
         if (value == null) {
             throw new UserStoreException("Cannot set null values.");
         }
+
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
             String propertyValue = getProperty(dbConnection, userID, attributeName, profileName);
+
             if (propertyValue == null) {
                 addPropertyWithID(dbConnection, userID, attributeName, value, profileName);
             } else {
                 updatePropertyWithID(dbConnection, userID, attributeName, value, profileName);
             }
+
             dbConnection.commit();
         } catch (SQLException e) {
             String msg =
                     "Database error occurred while saving user claim value for user : " + userID + " & attribute : "
                             + attributeName + " claim value : " + value;
+
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
+
             throw new UserStoreException(msg, e);
         } catch (UserStoreException e) {
             String errorMessage =
                     "Error occurred while adding or updating claim value for user : " + userID + " attribute : "
                             + attributeName + " profile : " + profileName;
+
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
@@ -1821,31 +1824,47 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected void persistUserStoreAttributeValues(Map<String, String> processedClaimAttributeValueMapForPersist,
-                                                   String userId, String profileName) throws UserStoreException {
+    protected void doSetUserAttributesWithID(String userId, Map<String, String> processedClaimAttributes,
+                                             String profileName) throws UserStoreException {
 
         Connection dbConnection = null;
 
         try {
-            Set<String> receivedProperties = processedClaimAttributeValueMapForPersist.keySet();
+            Set<String> receivedProperties = processedClaimAttributes.keySet();
             Map<String, String> alreadyAvailableProperties = getUserPropertyValuesWithID(userId,
                     receivedProperties.toArray(new String[0]), profileName);
 
             dbConnection = getDBConnection();
-            addPropertiesWithID(dbConnection, userId, filterNewlyAddedProperties(processedClaimAttributeValueMapForPersist,
+            addPropertiesWithID(dbConnection, userId, filterNewlyAddedProperties(processedClaimAttributes,
                     alreadyAvailableProperties), profileName);
-            updateProperties(dbConnection, userId, filterUpdatedProperties(processedClaimAttributeValueMapForPersist,
+            updateProperties(dbConnection, userId, filterUpdatedProperties(processedClaimAttributes,
                     receivedProperties, alreadyAvailableProperties), profileName);
             dbConnection.commit();
         } catch (SQLException e) {
             String msg = "Database error occurred while setting user claim values for user : " + userId;
+
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
+
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+    }
+
+    @Override
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
     }
 
     @Override
@@ -2546,13 +2565,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * Add properties as a batch.
      *
      * @param dbConnection DB connection.
-     * @param userID       user ID.
-     * @param properties   properties need to be added.
-     * @param profileName  profile name.
-     * @throws UserStoreException
+     * @param userID       User ID.
+     * @param properties   Properties need to be added.
+     * @param profileName  Profile name.
+     * @throws UserStoreException Thrown if writing values to the database fails.
      */
     private void addPropertiesWithID(Connection dbConnection, String userID, Map<String, String> properties,
-            String profileName) throws UserStoreException {
+                                     String profileName) throws UserStoreException {
 
         String type;
         try {
@@ -2642,13 +2661,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * Update properties as a batch.
      *
      * @param dbConnection DB connection.
-     * @param userID       user ID.
-     * @param properties   properties need to be added.
-     * @param profileName  profile name.
-     * @throws UserStoreException
+     * @param userID       User ID.
+     * @param properties   Properties need to be added.
+     * @param profileName  Profile name.
+     * @throws UserStoreException Thrown if writing values to the database fails.
      */
     private void updateProperties(Connection dbConnection, String userID, Map<String, String> properties,
-            String profileName) throws UserStoreException {
+                                  String profileName) throws UserStoreException {
 
         String type;
         try {
