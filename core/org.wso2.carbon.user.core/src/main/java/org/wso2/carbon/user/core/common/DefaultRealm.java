@@ -34,6 +34,7 @@ import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
@@ -61,6 +62,7 @@ public class DefaultRealm implements UserRealm {
     private UserStoreManager userStoreManager = null;
     private AuthorizationManager authzManager = null;
     private Map<String, Object> properties = null;
+    public static int timeOut=UserCoreConstants.REALM_CACHE_DEFAULT_TIME_OUT;
 
     /**
      * Usage of this method is found on tests.
@@ -112,7 +114,8 @@ public class DefaultRealm implements UserRealm {
         this.tenantId = tenantId;
         properties = propertiesMap;
         dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
-
+        this.timeOut = Integer.parseInt(realmConfig.getRealmProperty(UserCoreClaimConstants.DEFUALT_CACHE_TIMEOUT));
+        log.debug("\n Time : "+ this.timeOut);
         Map<String, ClaimMapping> claimMappings = new HashMap<String, ClaimMapping>();
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
 
