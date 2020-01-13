@@ -10114,17 +10114,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         if (log.isDebugEnabled()) {
                             log.debug(message);
                         }
-                    }
-                    boolean status = abstractUserStoreManager.doAuthenticate(users.get(0), credentialObj);
-                    authenticationResult = new AuthenticationResult(status ?
-                            AuthenticationResult.AuthenticationStatus.SUCCESS :
-                            AuthenticationResult.AuthenticationStatus.FAIL);
-                    if (status) {
-                        String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
-                        User user = userUniqueIDManger.getUser(userID, this);
-                        authenticationResult.setAuthenticatedUser(user);
                     } else {
-                        authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
+                        boolean status = abstractUserStoreManager.doAuthenticate(users.get(0), credentialObj);
+                        authenticationResult = new AuthenticationResult(status ?
+                                AuthenticationResult.AuthenticationStatus.SUCCESS :
+                                AuthenticationResult.AuthenticationStatus.FAIL);
+                        if (status) {
+                            String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
+                            User user = userUniqueIDManger.getUser(userID, this);
+                            authenticationResult.setAuthenticatedUser(user);
+                        } else {
+                            authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
+                        }
                     }
                 }
                 if (authenticationResult.getAuthenticationStatus()
@@ -10389,7 +10390,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     authenticationResult = abstractUserStoreManager.doAuthenticateWithID(userID, credential);
                 } else {
                     User user = userUniqueIDManger.getUser(userID, abstractUserStoreManager);
-                    boolean status = abstractUserStoreManager.doAuthenticate(user.getUsername(), credential);
+                    boolean status = ((AbstractUserStoreManager) (abstractUserStoreManager.getSecondaryUserStoreManager(
+                            user.getUserStoreDomain()))).doAuthenticate(user.getUsername(), credential);
                     if (status) {
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
@@ -11485,7 +11487,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return User.
      * @throws UserStoreException User Store Exception.
      */
-    protected User getUser(String userID, String userName) throws UserStoreException {
+    public User getUser(String userID, String userName) throws UserStoreException {
 
         if (userID == null && userName == null) {
             throw new UserStoreException("Both userID and UserName cannot be null.");
@@ -11557,9 +11559,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            return doGetUserIDFromUserNameWithID(userName);
+            return doGetUserIDFromUserNameWithID(userStore.getDomainFreeName());
         }
-        return userUniqueIDManger.getUniqueId(userName, this);
+        return userUniqueIDManger.getUniqueId(userStore.getDomainFreeName(), this);
     }
 
     /**
@@ -14326,5 +14328,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             usersWithDomain.add(UserCoreUtil.addDomainToName(user, entry.getKey()));
         }
         return usersWithDomain;
+    }
+
+    private String getUserStoreDomainName(UserStoreManager userStoreManager) {
+
+        String domainNameProperty = userStoreManager.getRealmConfiguration()
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        if (StringUtils.isEmpty(domainNameProperty)) {
+            domainNameProperty = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+        return domainNameProperty;
     }
 }

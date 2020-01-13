@@ -19,8 +19,10 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,9 +79,8 @@ public class UserUniqueIDManger {
 
         User user = new User();
         user.setUserID(uniqueId);
-        user.setUsername(usernames[0]);
-        user.setUserStoreDomain(userStoreManager.getMyDomainName());
-
+        user.setUsername(UserCoreUtil.removeDomainFromName(usernames[0]));
+        user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(usernames[0]));
         return user;
     }
 
