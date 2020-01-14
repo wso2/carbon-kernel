@@ -4575,7 +4575,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
         }
-
         return false;
     }
 }

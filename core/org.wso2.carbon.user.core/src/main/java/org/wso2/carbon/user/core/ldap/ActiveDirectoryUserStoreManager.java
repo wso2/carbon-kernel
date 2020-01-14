@@ -847,7 +847,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues, String profileName) {
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
+                                                 String profileName) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
@@ -868,7 +869,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues, String profileName) {
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
+                                                   String profileName) {
 
         String timestampAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse("");
