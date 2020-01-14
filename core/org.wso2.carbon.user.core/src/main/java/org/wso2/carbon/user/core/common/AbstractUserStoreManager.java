@@ -527,7 +527,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(
                     "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
-                            + userName);
+                            + userName, e);
         }
     }
 
@@ -631,7 +631,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(
                     "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
-                            + userID);
+                            + userID, e);
         }
     }
 
@@ -7491,8 +7491,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *                       attribute values
      */
     protected void processAttributesAfterRetrieval(Map<String, String> userAttributes) {
-
-        // Not implemented.
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
 
     /**
@@ -7502,8 +7501,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *                       attribute values
      */
     protected void processAttributesBeforeUpdate(Map<String, String> userAttributes) {
-
-        // Not implemented.
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
 
     /**

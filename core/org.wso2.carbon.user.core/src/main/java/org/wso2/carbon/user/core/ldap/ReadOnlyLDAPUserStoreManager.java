@@ -4578,5 +4578,4 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         return false;
     }
-
 }
