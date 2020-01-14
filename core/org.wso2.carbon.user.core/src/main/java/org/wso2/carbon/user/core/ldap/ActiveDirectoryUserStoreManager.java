@@ -21,7 +21,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -258,7 +257,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 attributeValueMap.put(attributeName, entry.getValue());
             }
 
-            processAttributesBeforeUpdate(attributeValueMap);
+            processAttributesBeforeUpdate(userName, attributeValueMap, null);
 
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
@@ -848,7 +847,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void processAttributesBeforeUpdate(Map<String, String> userStorePropertyValues) {
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues, String profileName) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
@@ -861,7 +860,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         if (ArrayUtils.isNotEmpty(immutableAttributes)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Active Directory maintained default attributes: " + Arrays.toString(immutableAttributes));
+                logger.debug("Skipping Active Directory maintained default attributes: " + Arrays.toString(immutableAttributes));
             }
 
             Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
@@ -869,7 +868,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void processAttributesAfterRetrieval(Map<String, String> userStorePropertyValues) {
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues, String profileName) {
 
         String timestampAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse("");

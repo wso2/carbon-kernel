@@ -519,7 +519,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             Map<String, String> userStoreAttributeValueMap = new HashMap<>();
 
             userStoreAttributeValueMap.put(attributeName, claimValue);
-            processAttributesBeforeUpdate(userStoreAttributeValueMap);
+            processAttributesBeforeUpdate(userName, userStoreAttributeValueMap, profileName);
 
             for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
                 doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
@@ -623,7 +623,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String attributeName = getClaimAtrribute(claimURI, userID, null);
             Map<String, String> userStoreAttributeValueMap = new HashMap<>();
             userStoreAttributeValueMap.put(attributeName, claimValue);
-            processAttributesBeforeUpdate(userStoreAttributeValueMap);
+            processAttributesBeforeUpdateWithID(userID, userStoreAttributeValueMap, profileName);
 
             for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
                 doSetUserAttributeWithID(userID, entry.getKey(), entry.getValue(), profileName);
@@ -653,7 +653,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // resolving claims to user store attributes
         Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userName, claims);
 
-        processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
+        processAttributesBeforeUpdate(userName, claimAttributeValueMapForPersist, profileName);
 
         // persist the attribute values map
         doSetUserAttributes(userName, claimAttributeValueMapForPersist, profileName);
@@ -708,7 +708,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // resolving claims to user store attributes
         Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userID, claims);
 
-        processAttributesBeforeUpdate(claimAttributeValueMapForPersist);
+        processAttributesBeforeUpdateWithID(userID, claimAttributeValueMapForPersist, profileName);
 
         // persist the attribute values map
         doSetUserAttributesWithID(userID, claimAttributeValueMapForPersist, profileName);
@@ -7368,7 +7368,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, String> userPropertyValues = this.getUserPropertyValues(userName, properties,
                 profileName);
 
-        processAttributesAfterRetrieval(userPropertyValues);
+        processAttributesAfterRetrieval(userName, userPropertyValues, profileName);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -7487,20 +7487,48 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Handles the processing of any special user store attribute values after retrieval.
      *
+     * @param userName       Username of the user.
      * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
-     *                       attribute values
+     * @param profileName    Profile name of the user.
      */
-    protected void processAttributesAfterRetrieval(Map<String, String> userAttributes) {
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userAttributes,
+                                                   String profileName) {
         // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
 
     /**
      * Handles the processing of any special user store attribute values before update.
      *
+     * @param userName       Username of the user.
      * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
-     *                       attribute values
+     * @param profileName    Profile name of the user.
      */
-    protected void processAttributesBeforeUpdate(Map<String, String> userAttributes) {
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userAttributes,
+                                                 String profileName) {
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values after retrieval.
+     *
+     * @param userID         User ID of the user.
+     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     * @param profileName    Profile name of the user.
+     */
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userAttributes,
+                                                         String profileName) {
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values before update.
+     *
+     * @param userID         User ID of the user.
+     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     * @param profileName    Profile name of the user.
+     */
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userAttributes,
+                                                       String profileName) {
         // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
 
@@ -9034,7 +9062,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         for (String userName : users) {
             Map<String, String> propertyValuesMap = getUserPropertyValues(userName, propertyNames, profileName);
-            processAttributesAfterRetrieval(propertyValuesMap);
+            processAttributesAfterRetrieval(userName, propertyValuesMap, profileName);
             if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
                 usersPropertyValuesMap.put(userName, propertyValuesMap);
             }
@@ -11305,7 +11333,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         String[] properties = propertySet.toArray(new String[0]);
         Map<String, String> userPropertyValues = this.getUserPropertyValuesWithID(userID, properties, profileName);
-        processAttributesAfterRetrieval(userPropertyValues);
+        processAttributesAfterRetrievalWithID(userID, userPropertyValues, profileName);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -14396,7 +14424,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         for (String userID : userIDs) {
             Map<String, String> propertyValuesMap = getUserPropertyValuesWithID(userID, propertyNames, profileName);
-            processAttributesAfterRetrieval(propertyValuesMap);
+            processAttributesAfterRetrievalWithID(userID, propertyValuesMap, profileName);
             if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
                 usersPropertyValuesMap.put(userID, propertyValuesMap);
             }

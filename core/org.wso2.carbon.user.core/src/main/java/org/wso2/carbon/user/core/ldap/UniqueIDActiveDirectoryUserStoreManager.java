@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,7 +50,6 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -164,7 +162,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    protected boolean isUserIdGeneratedByUserStore(String userName, Map<String, String> userAttributes) {
+    protected boolean isUserIdGeneratedByUserStore(String userID, Map<String, String> userAttributes) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
@@ -210,24 +208,22 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         Name compoundName = null;
         try {
             NameParser ldapParser = dirContext.getNameParser("");
-            compoundName = ldapParser.parse("cn=" + escapeSpecialCharactersForDN(userName));
+            compoundName = ldapParser.parse(LDAPConstants.CN + "=" + escapeSpecialCharactersForDN(userName));
 
-            // bind the user. A disabled user account with no password
+            // Bind the user. A disabled user account with no password.
             dirContext.bind(compoundName, null, basicAttributes);
             isUserBinded = true;
 
-            String userIdAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);;
-            String generatedUserId = null;
-            Attributes userAttributes = dirContext.getAttributes(compoundName, new String[] {userIdAttribute});
+            if (isUserIdGeneratedByUserStore(userID, claims)) {
+                String userIdAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                Attributes userAttributes = dirContext.getAttributes(compoundName, new String[]{userIdAttribute});
+                userID = resolveLdapAttributeValue(userAttributes.get(userIdAttribute).get());
+            }
 
-            Object attObject = userAttributes.get(userIdAttribute).get();
+            // Update the user roles.
+            doUpdateRoleListOfUserWithID(userID, null, roleList);
 
-            generatedUserId = resolveLdapAttributeValue(attObject);
-
-            // update the user roles
-            doUpdateRoleListOfUserWithID(generatedUserId, null, roleList);
-
-            // reset the password and enable the account
+            // Reset the password and enable the account.
             if (!isSSLConnection) {
                 logger.warn("Unsecured connection is being used. Enabling user account operation will fail");
             }
@@ -306,8 +302,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
             // Add userID attribute.
             attributeValueMap.put(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE), userID);
-
-            processAttributesBeforeUpdate(attributeValueMap);
+            processAttributesBeforeUpdateWithID(userID, attributeValueMap, null);
 
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
@@ -916,7 +911,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    protected void processAttributesBeforeUpdate(Map<String, String> userStorePropertyValues) {
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                       String profileName) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
@@ -929,7 +925,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         if (ArrayUtils.isNotEmpty(immutableAttributes)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Active Directory maintained default attributes: "
+                logger.debug("Skipping Active Directory maintained default attributes: "
                         + Arrays.toString(immutableAttributes));
             }
 
@@ -938,7 +934,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    protected void processAttributesAfterRetrieval(Map<String, String> userStorePropertyValues) {
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                         String profileName) {
 
         String timestampAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse("");
