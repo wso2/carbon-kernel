@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.jdbc;
 import junit.framework.TestCase;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Assert;
+import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.BaseTestCase;
@@ -31,7 +32,6 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
@@ -92,7 +92,8 @@ public class ReadOnlyJDBCRealmWithIDTest extends BaseTestCase {
     public void doRoleStuff() throws Exception {
         UserStoreManager admin = realm.getUserStoreManager();
 
-        admin.addRole("Internal/role2", null, null);
+        Permission permission = new Permission("/permission/admin/login", "ui.execute");
+        admin.addRole("Internal/role2", null, new Permission[]{permission});
         admin.addRole("Internal/role3", null, null);
         admin.addRole("Internal/role4", null, null);
 
