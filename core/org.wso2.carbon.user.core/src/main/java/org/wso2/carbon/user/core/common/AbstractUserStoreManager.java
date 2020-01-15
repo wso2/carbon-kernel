@@ -6179,8 +6179,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param permissions  Permissions of the role role.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handleAddRoleFailureWithID(String errorCode, String errorMessage, String roleName, String[] userIDList,
-            Permission[] permissions) throws UserStoreException {
+    private void handleAddRoleFailureWithID(String errorCode, String errorMessage, String roleName,
+                                            String[] userIDList,  org.wso2.carbon.user.api.Permission[]
+                                                    permissions) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
@@ -6308,8 +6309,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 doAddInternalRole(roleName, userList, permissions);
             } else {
                 doAddInternalRoleWithID(roleName,
-                        getUserIDsFromUserNames(Arrays.asList(userList)).toArray(new String[0]),
-                        (Permission[]) permissions);
+                        getUserIDsFromUserNames(Arrays.asList(userList)).toArray(new String[0]), permissions);
             }
 
             // Calling only the audit logger, to maintain the back-ward compatibility
@@ -7024,7 +7024,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param permissions Relevant permissions added for new role.
      * @throws UserStoreException User Store Exception.
      */
-    private void handleRoleAlreadyExistExceptionWithID(String roleName, String[] userIDList, Permission[] permissions)
+    private void handleRoleAlreadyExistExceptionWithID(String roleName, String[] userIDList,
+                                                       org.wso2.carbon.user.api.Permission[] permissions)
             throws UserStoreException {
 
         String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
@@ -7179,14 +7180,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
             String domainName, String profileName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class, String.class };
-            Object object = callSecure("doGetUserClaimValues", new Object[] {
-                    userName, claims, domainName, profileName
-            }, argTypes);
-            return (Map<String, String>) object;
-        }
 
         // Here the user name should be domain-less.
         boolean requireRoles = false;
@@ -11561,7 +11554,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             return doGetUserIDFromUserNameWithID(userStore.getDomainFreeName());
         }
-        return userUniqueIDManger.getUniqueId(userStore.getDomainFreeName(), this);
+
+        Map<String, String> claims = doGetUserClaimValues(userName,
+                new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
+                userStore.getDomainName(), null);
+        if (claims != null && claims.size() == 1) {
+            return claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
+        }
+        return null;
     }
 
     /**
@@ -13515,7 +13515,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param permissions permissions.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected void doAddInternalRoleWithID(String roleName, String[] userIDList, Permission[] permissions)
+    protected void doAddInternalRoleWithID(String roleName, String[] userIDList,
+                                           org.wso2.carbon.user.api.Permission[] permissions)
             throws UserStoreException {
 
         // #################### Domain Name Free Zone Starts Here ################################

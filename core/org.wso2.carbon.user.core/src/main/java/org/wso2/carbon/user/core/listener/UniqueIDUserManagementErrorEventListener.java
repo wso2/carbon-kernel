@@ -217,7 +217,8 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @throws UserStoreException Exception that will be thrown during the execution of this method.
      */
     boolean onAddRoleFailureWithID(String errorCode, String errorMessage, String roleName, String[] userList,
-            Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException;
+                                   org.wso2.carbon.user.api.Permission[] permissions,
+                                   UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Defines any additional actions that need to be done if there is failure while trying to update user list of a
