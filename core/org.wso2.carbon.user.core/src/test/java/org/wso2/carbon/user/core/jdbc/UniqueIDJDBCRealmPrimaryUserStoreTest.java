@@ -421,9 +421,9 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     public void test183AuthenticateWithID() throws UserStoreException {
 
         assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS, admin.authenticateWithID(userId1,
-                null, "pass1").getAuthenticationStatus());
+                "pass1").getAuthenticationStatus());
         assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS, admin.authenticateWithID(userId2,
-                null, "pass2").getAuthenticationStatus());
+                "pass2").getAuthenticationStatus());
     }
 
     public void test184AuthenticateWithIDPreferredUsername() throws UserStoreException {
@@ -468,18 +468,18 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
         admin.updateCredentialWithID(userId1, "pass11", "pass1");
         assertEquals(AuthenticationResult.AuthenticationStatus.FAIL, admin.authenticateWithID(userId1,
-                null, "pass1").getAuthenticationStatus());
+                "pass1").getAuthenticationStatus());
         assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS, admin.authenticateWithID(userId1,
-                null, "pass11").getAuthenticationStatus());
+                "pass11").getAuthenticationStatus());
     }
 
     public void test188UpdateCredentialByAdminWithID() throws UserStoreException {
 
         admin.updateCredentialByAdminWithID(userId1, "pass22");
         assertEquals(AuthenticationResult.AuthenticationStatus.FAIL, admin.authenticateWithID(userId1,
-                null, "pass11").getAuthenticationStatus());
+                "pass11").getAuthenticationStatus());
         assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS, admin.authenticateWithID(userId1,
-                null, "pass22").getAuthenticationStatus());
+                "pass22").getAuthenticationStatus());
     }
 
     public void test189SetUserClaimValuesInCustomProfile() throws UserStoreException {
