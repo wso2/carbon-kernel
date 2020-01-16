@@ -10213,8 +10213,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public final AuthenticationResult authenticateWithID(final String userID, final String domain,
-            final Object credential) throws UserStoreException {
+    public final AuthenticationResult authenticateWithID(final String userID, final Object credential)
+            throws UserStoreException {
 
         try {
             return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
@@ -10234,10 +10234,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                         + "the user"
                                         + " store preference order: " + userStorePreferenceOrder);
                     }
-                    return generateUserStoreChainWithID(userID, domain, credential, userStorePreferenceOrder);
+                    return generateUserStoreChainWithID(userID, credential, userStorePreferenceOrder);
                 } else {
                     // Authenticate the user.
-                    return authenticateInternalWithID(userID, domain, credential);
+                    return authenticateInternalWithID(userID, credential);
                 }
 
             });
@@ -10251,7 +10251,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private AuthenticationResult generateUserStoreChainWithID(String userID, String domain, Object credential,
+    private AuthenticationResult generateUserStoreChainWithID(String userID, Object credential,
             List<String> userStorePreferenceOrder) throws UserStoreException {
 
         IterativeUserStoreManager initialUserStoreManager = null;
@@ -10275,19 +10275,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate the"
                             + " user through all the available user store list.");
                 }
-                return authenticateInternalWithID(userID, domain, credential);
+                return authenticateInternalWithID(userID, credential);
             }
         }
         // Authenticate using the initial user store from the user store preference list.
-        return initialUserStoreManager.authenticateWithID(userID, domain, credential);
+        return initialUserStoreManager.authenticateWithID(userID, credential);
     }
 
-    private AuthenticationResult authenticateInternalWithID(String userID, String domain, Object credential)
+    private AuthenticationResult authenticateInternalWithID(String userID, Object credential)
             throws UserStoreException {
 
-        AbstractUserStoreManager abstractUserStoreManager = this;
-        if (this instanceof IterativeUserStoreManager) {
-            abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
+        UserStore userStoreWithID = getUserStoreWithID(userID);
+        AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) userStoreWithID.getUserStoreManager();
+
+        if (userStoreWithID.getUserStoreManager() instanceof IterativeUserStoreManager) {
+            abstractUserStoreManager = ((IterativeUserStoreManager) userStoreWithID.getUserStoreManager()).getAbstractUserStoreManager();
         }
         boolean authenticated = false;
         AuthenticationResult authenticationResult = new AuthenticationResult(
@@ -10358,83 +10360,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
             }
 
-            if (StringUtils.isNotEmpty(domain)) {
-                UserStoreManager secUserStoreManager = abstractUserStoreManager.getSecondaryUserStoreManager(domain);
-                if (isUniqueUserIdEnabled(secUserStoreManager)) {
-                    authenticationResult = ((AbstractUserStoreManager) secUserStoreManager)
-                            .doAuthenticateWithID(userID, credential);
-                } else {
-                    User user = userUniqueIDManger
-                            .getUser(userID, (AbstractUserStoreManager) secUserStoreManager);
-                    boolean status = ((AbstractUserStoreManager) secUserStoreManager)
-                            .doAuthenticate(user.getUsername(), credential);
-                    if (status) {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                        authenticationResult.setAuthenticatedUser(user);
-                    } else {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult
-                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
-                    }
-                }
-
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-                if (authenticated) {
-                    // Set domain in thread local variable for subsequent operations
-                    UserCoreUtil.setDomainInThreadLocal(domain);
-                }
+            if (isUniqueUserIdEnabled(abstractUserStoreManager)) {
+                authenticationResult = ((AbstractUserStoreManager) abstractUserStoreManager)
+                        .doAuthenticateWithID(userID, credential);
             } else {
-                // Domain is not provided. Try to authenticate with the current user store manager.
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = abstractUserStoreManager.doAuthenticateWithID(userID, credential);
+                User user = userUniqueIDManger
+                        .getUser(userID, (AbstractUserStoreManager) abstractUserStoreManager);
+                boolean status = ((AbstractUserStoreManager) abstractUserStoreManager)
+                        .doAuthenticate(user.getUsername(), credential);
+                if (status) {
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                    authenticationResult.setAuthenticatedUser(user);
                 } else {
-                    User user = userUniqueIDManger.getUser(userID, abstractUserStoreManager);
-                    boolean status = ((AbstractUserStoreManager) (abstractUserStoreManager.getSecondaryUserStoreManager(
-                            user.getUserStoreDomain()))).doAuthenticate(user.getUsername(), credential);
-                    if (status) {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                        authenticationResult.setAuthenticatedUser(user);
-                    } else {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult
-                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
-                    }
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult
+                            .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
                 }
+            }
 
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-                if (authenticated) {
-                    // Set domain in thread local variable for subsequent operations
-                    UserCoreUtil
-                            .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
-                }
+            if (authenticationResult.getAuthenticationStatus()
+                    == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                authenticated = true;
+            }
+            if (authenticated) {
+                // Set domain in thread local variable for subsequent operations
+                UserCoreUtil.setDomainInThreadLocal(userStoreWithID.getDomainName());
             }
         } finally {
             credentialObj.clear();
-        }
-
-        // If authentication fails in the previous step and if the user has not specified a
-        // domain- then we need to execute chained UserStoreManagers recursively.
-        if (!authenticated && StringUtils.isEmpty(domain)) {
-            AbstractUserStoreManager userStoreManager;
-            if (this instanceof IterativeUserStoreManager) {
-                IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
-                userStoreManager = iterativeUserStoreManager.nextUserStoreManager();
-            } else {
-                userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
-            }
-            if (userStoreManager != null) {
-                authenticationResult = userStoreManager.authenticateWithID(userID, null, credential);
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-            }
         }
 
         if (!authenticated) {

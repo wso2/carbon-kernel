@@ -431,9 +431,9 @@ public class JDBCRealmSecondaryUserStoreTest extends BaseTestCase {
     public void test183AuthenticateWithID() throws UserStoreException {
 
         assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS, admin.authenticateWithID(userId1,
-                null, "pass1").getAuthenticationStatus());
+                "pass1").getAuthenticationStatus());
         assertEquals(AuthenticationResult.AuthenticationStatus.SUCCESS, admin.authenticateWithID(userId2,
-                null, "pass2").getAuthenticationStatus());
+                "pass2").getAuthenticationStatus());
     }
 
     private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,

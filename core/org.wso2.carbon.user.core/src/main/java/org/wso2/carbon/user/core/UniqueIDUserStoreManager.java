@@ -71,12 +71,11 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * the user is authenticated.
      *
      * @param userID     The user ID.
-     * @param domain     User store domain.
      * @param credential The credential of a user.
      * @return authenticated result.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    AuthenticationResult authenticateWithID(String userID, String domain, Object credential) throws UserStoreException;
+    AuthenticationResult authenticateWithID(String userID, Object credential) throws UserStoreException;
 
     /**
      * Retrieves users upto a maximum limit that matches the user name filter.
