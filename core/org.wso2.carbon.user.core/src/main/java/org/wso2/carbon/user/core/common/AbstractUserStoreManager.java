@@ -650,12 +650,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        // resolving claims to user store attributes
+        // Resolving claims to user store attributes.
         Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userName, claims);
 
         processAttributesBeforeUpdate(userName, claimAttributeValueMapForPersist, profileName);
 
-        // persist the attribute values map
+        // Persist the attribute values map.
         doSetUserAttributes(userName, claimAttributeValueMapForPersist, profileName);
     }
 
@@ -705,12 +705,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
-        // resolving claims to user store attributes
+        // Resolving claims to user store attributes.
         Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userID, claims);
 
         processAttributesBeforeUpdateWithID(userID, claimAttributeValueMapForPersist, profileName);
 
-        // persist the attribute values map
+        // Persist the attribute values map.
         doSetUserAttributesWithID(userID, claimAttributeValueMapForPersist, profileName);
     }
 
@@ -7488,7 +7488,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Handles the processing of any special user store attribute values after retrieval.
      *
      * @param userName       Username of the user.
-     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
      * @param profileName    Profile name of the user.
      */
     protected void processAttributesAfterRetrieval(String userName, Map<String, String> userAttributes,
@@ -7500,7 +7500,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Handles the processing of any special user store attribute values before update.
      *
      * @param userName       Username of the user.
-     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
      * @param profileName    Profile name of the user.
      */
     protected void processAttributesBeforeUpdate(String userName, Map<String, String> userAttributes,
@@ -7512,7 +7512,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Handles the processing of any special user store attribute values after retrieval.
      *
      * @param userID         User ID of the user.
-     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
      * @param profileName    Profile name of the user.
      */
     protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userAttributes,
@@ -7524,7 +7524,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Handles the processing of any special user store attribute values before update.
      *
      * @param userID         User ID of the user.
-     * @param userAttributes un-processed map (user store attribute name -> attribute value) of user store
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
      * @param profileName    Profile name of the user.
      */
     protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userAttributes,
