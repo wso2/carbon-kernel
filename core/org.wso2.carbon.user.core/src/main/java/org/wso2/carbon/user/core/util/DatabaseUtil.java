@@ -794,6 +794,10 @@ public class DatabaseUtil {
 
         RealmConfiguration secondaryRealmConfiguration = null;
         try {
+            if (CarbonContext.getThreadLocalCarbonContext().getUserRealm() == null ||
+                    (CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration() == null)) {
+                return new ArrayList<>();
+            }
             secondaryRealmConfiguration = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getRealmConfiguration().getSecondaryRealmConfig();
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
