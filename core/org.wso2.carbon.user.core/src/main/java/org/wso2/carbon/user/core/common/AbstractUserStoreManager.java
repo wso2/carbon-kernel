@@ -2352,10 +2352,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
-                        + " for the given domain name.");
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
+            if (secondaryUserStoreManager != null) {
+                userManager = secondaryUserStoreManager;
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                            + " for the given domain name.");
+                }
             }
         }
 
@@ -2577,10 +2580,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
-                        + " for the given domain name.");
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
+            if (secondaryUserStoreManager != null) {
+                userManager = secondaryUserStoreManager;
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                            + " for the given domain name.");
+                }
             }
         }
 
@@ -8991,10 +8997,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded" +
-                        " for the given domain name.");
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
+            if (secondaryUserStoreManager != null) {
+                userManager = secondaryUserStoreManager;
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                            + " for the given domain name.");
+                }
             }
         }
 
