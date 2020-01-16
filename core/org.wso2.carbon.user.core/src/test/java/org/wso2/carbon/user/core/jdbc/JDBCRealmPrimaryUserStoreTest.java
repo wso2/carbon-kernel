@@ -58,7 +58,7 @@ public class JDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test.xml";
 
-    private static String TEST_URL = "jdbc:h2:./target/BasicJDBCDatabaseTest/CARBON_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/BasicJDBCPRIMARYDatabaseTest/CARBON_TEST";
     private AbstractUserStoreManager admin = null;
     private static String userId1;
     private static String userId2;
@@ -73,7 +73,7 @@ public class JDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void initRealmStuff(String dbUrl) throws Exception {
 
-        String dbFolder = "target/BasicJDBCDatabaseTest";
+        String dbFolder = "target/BasicJDBCPRIMARYDatabaseTest";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
