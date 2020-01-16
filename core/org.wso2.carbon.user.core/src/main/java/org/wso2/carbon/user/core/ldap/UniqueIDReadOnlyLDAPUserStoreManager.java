@@ -1383,7 +1383,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                                   */
                                 final byte[] bytes = (byte[]) attObject;
 
-                                if (bytes.length == 16 && userIDProperty.toUpperCase().endsWith("UID")) {
+                                if (bytes.length == 16 && userIDProperty.toLowerCase().endsWith(LDAPConstants.UID)) {
                                      /*
                                      ObjectGUID byte order is not big-endian.
                                      https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx

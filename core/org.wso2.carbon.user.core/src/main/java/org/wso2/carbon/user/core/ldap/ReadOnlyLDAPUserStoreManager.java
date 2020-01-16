@@ -678,7 +678,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             // Active Directory attribute: objectGUID
                             // RFC 4530 attribute: entryUUID
                             final byte[] bytes = (byte[]) attObject;
-                            if (bytes.length == 16 && name.toUpperCase().endsWith("UID")) {
+                            if (bytes.length == 16 && name.toLowerCase().endsWith(LDAPConstants.UID)) {
                                 // objectGUID byte order is not big-endian
                                 // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
                                 // https://community.oracle.com/thread/1157698

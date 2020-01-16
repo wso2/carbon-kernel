@@ -851,7 +851,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                                                  String profileName) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
-                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
 
         String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
 
@@ -873,7 +873,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                                                    String profileName) {
 
         String timestampAttributesProperty = Optional.ofNullable(realmConfig
-                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse("");
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
 
         String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
 
