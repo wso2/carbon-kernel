@@ -85,7 +85,7 @@
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
-      "user_store.properties.UserIdSearchFilter": "(\u0026amp;(objectClass\u003dperson)(uid\u003d?))",
+      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
     },
     "read_write_ldap": {
@@ -155,7 +155,7 @@
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
-      "user_store.properties.UserIdSearchFilter": "(\u0026amp;(objectClass\u003dperson)(uid\u003d?))",
+      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
     },
     "active_directory": {
@@ -235,7 +235,7 @@
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
-      "user_store.properties.UserIdSearchFilter": "(\u0026amp;(objectClass\u003dperson)(uid\u003d?))",
+      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
       "user_store.properties.EnableMaxUserLimitForSCIM": "false"
     }
   },
