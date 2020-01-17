@@ -183,7 +183,7 @@ public class UserUniqueIDManger {
         List<User> users = new ArrayList<>();
         for (String username : listUsers) {
             User user = new User();
-            String uniqueId = getUniqueId(username, userStoreManager);
+            String uniqueId = getUniqueId(UserCoreUtil.removeDomainFromName(username), userStoreManager);
             user.setUsername(username);
             user.setUserID(uniqueId);
             user.setUserStoreDomain(userStoreManager.getMyDomainName());

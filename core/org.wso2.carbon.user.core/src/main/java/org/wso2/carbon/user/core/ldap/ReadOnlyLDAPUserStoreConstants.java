@@ -26,6 +26,7 @@ public class ReadOnlyLDAPUserStoreConstants {
 
     //Properties for Read Write LDAP User Store Manager
     public static final ArrayList<Property> ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
+    public static final ArrayList<Property> UNIQUE_ID_ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
 
     //For multiple attribute separation
@@ -56,6 +57,12 @@ public class ReadOnlyLDAPUserStoreConstants {
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
+                UserStoreConfigConstants.userIdAttributeName, "",
+                UserStoreConfigConstants.userIdAttributeDescription, false);
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.userIdSearchFilterDescription, false);
 
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
@@ -94,6 +101,17 @@ public class ReadOnlyLDAPUserStoreConstants {
         Property property = new Property(name, value, propertyDescription, null);
         ROLDAP_USERSTORE_PROPERTIES.add(property);
 
+    }
+
+    private static void setMandatoryPropertyForUniqueIdStore(String name, String displayName, String value,
+                                                             String description, boolean encrypt) {
+
+        String propertyDescription = displayName + "#" + description;
+        if (encrypt) {
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
+        UNIQUE_ID_ROLDAP_USERSTORE_PROPERTIES.add(property);
     }
 
     private static void setProperty(String name, String displayName, String value,

@@ -17,9 +17,10 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -34,9 +35,17 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringTokenizer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -76,6 +85,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
+    private static final String ACTIVE_DIRECTORY_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     // For AD's this value is 1500 by default, hence overriding the default value.
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 1500;
@@ -219,8 +229,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
      */
     protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
                                  String userName) throws UserStoreException {
+
         if (claims != null) {
-            BasicAttribute claim;
+            Map<String, String> attributeValueMap = new HashMap<>();
 
             for (Map.Entry<String, String> entry : claims.entrySet()) {
                 // avoid attributes with empty values
@@ -235,7 +246,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     continue;
                 }
 
-                String attributeName = null;
+                String attributeName;
                 try {
                     attributeName = getClaimAtrribute(claimURI, userName, null);
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
@@ -243,14 +254,19 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     throw new UserStoreException(errorMessage, e);
                 }
 
-                claim = new BasicAttribute(attributeName);
-                claim.add(claims.get(entry.getKey()));
+                attributeValueMap.put(attributeName, entry.getValue());
+            }
+
+            processAttributesBeforeUpdate(userName, attributeValueMap, null);
+
+            attributeValueMap.forEach((attributeName, attributeValue) -> {
+                BasicAttribute claim = new BasicAttribute(attributeName);
+                claim.add(attributeValue);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("AttributeName: " + attributeName + " AttributeValue: " +
-                            claims.get(entry.getKey()));
+                    logger.debug("AttributeName: " + attributeName + " AttributeValue: " + attributeValue);
                 }
                 basicAttributes.put(claim);
-            }
+            });
         }
     }
 
@@ -492,151 +508,26 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         return password.getBytes(StandardCharsets.UTF_16LE);
     }
 
-    /**
-     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
-     * of updating user's profile information in LDAP user store.
-     *
-     * @param userName
-     * @param claims
-     * @param profileName
-     * @throws org.wso2.carbon.user.core.UserStoreException
-     */
     @Override
-    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-        // get the LDAP Directory context
-        DirContext dirContext = this.connectionSource.getContext();
-        DirContext subDirContext = null;
-        // search the relevant user entry by user name
-        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userSearchFilter = realmConfig
-                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        // if user name contains domain name, remove domain name
-        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
-        if (userNames.length > 1) {
-            userName = userNames[1];
+    protected void handleLdapUserNameAttributeChanges(Map<String, String> userAttributeValues,
+                                                      DirContext subDirContext, String returnedUserEntry)
+            throws NamingException {
+
+        if (userAttributeValues.containsKey(LDAPConstants.CN)) {
+            subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" +
+                    escapeSpecialCharactersForDN(userAttributeValues.get(LDAPConstants.CN)));
+            userAttributeValues.remove(LDAPConstants.CN);
         }
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
-
-        SearchControls searchControls = new SearchControls();
-        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        searchControls.setReturningAttributes(null);
-
-        NamingEnumeration<SearchResult> returnedResultList = null;
-        String returnedUserEntry = null;
-
-        boolean cnModified = false;
-        String cnValue = null;
-
-        try {
-
-            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
-            // assume only one user is returned from the search
-            // TODO:what if more than one user is returned
-            returnedUserEntry = returnedResultList.next().getName();
-
-        } catch (NamingException e) {
-            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } finally {
-            JNDIUtil.closeNamingEnumeration(returnedResultList);
-        }
-
-        if (profileName == null) {
-            profileName = UserCoreConstants.DEFAULT_PROFILE;
-        }
-
-        if (claims.get(UserCoreConstants.PROFILE_CONFIGURATION) == null) {
-            claims.put(UserCoreConstants.PROFILE_CONFIGURATION,
-                    UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
-        }
-
-        try {
-            Attributes updatedAttributes = new BasicAttributes(true);
-
-            String domainName =
-                    userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > -1
-                            ? userName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0]
-                            : realmConfig.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
-            for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
-                String claimURI = claimEntry.getKey();
-                // if there is no attribute for profile configuration in LDAP,
-                // skip updating it.
-                if (claimURI.equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
-                    continue;
-                }
-                // get the claimMapping related to this claimURI
-                String attributeName = getClaimAtrribute(claimURI, userName, null);
-                //remove user DN from cache if changing username attribute
-                if (realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE).equals
-                        (attributeName)) {
-                    removeFromUserCache(userName);
-                }
-                // if mapped attribute is CN, then skip treating as a modified
-                // attribute -
-                // it should be an object rename
-                if ("CN".toLowerCase().equals(attributeName.toLowerCase())) {
-                    cnModified = true;
-                    cnValue = claimEntry.getValue();
-                    continue;
-                }
-                Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-				/* if updated attribute value is null, remove its values. */
-                if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
-                    currentUpdatedAttribute.clear();
-                } else {
-                    if (claimEntry.getValue() != null) {
-                        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-                        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                            userAttributeSeparator = claimSeparator;
-                        }
-                        if (claimEntry.getValue().contains(userAttributeSeparator)) {
-                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
-                            while (st.hasMoreElements()) {
-                                String newVal = st.nextElement().toString();
-                                if (newVal != null && newVal.trim().length() > 0) {
-                                    currentUpdatedAttribute.add(newVal.trim());
-                                }
-                            }
-                        } else {
-                            currentUpdatedAttribute.add(claimEntry.getValue());
-                        }
-                    } else {
-                        currentUpdatedAttribute.add(claimEntry.getValue());
-                    }
-                }
-                updatedAttributes.put(currentUpdatedAttribute);
-            }
-            // update the attributes in the relevant entry of the directory
-            // store
-
-            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
-            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
-                    updatedAttributes);
-
-            if (cnModified && cnValue != null) {
-                subDirContext.rename(returnedUserEntry, "CN=" + escapeSpecialCharactersForDN(cnValue));
-            }
-
-        } catch (Exception e) {
-            handleException(e, userName);
-        } finally {
-            JNDIUtil.closeContext(subDirContext);
-            JNDIUtil.closeContext(dirContext);
-        }
-
     }
 
     @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String value,
-                                    String profileName) throws UserStoreException {
-        // get the LDAP Directory context
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        // Get the LDAP Directory context.
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
-        // search the relevant user entry by user name
+        // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -652,8 +543,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
-            // assume only one user is returned from the search
-            // TODO:what if more than one user is returned
+            // Assume only one user is returned from the search.
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -667,19 +557,15 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
-            // if there is no attribute for profile configuration in LDAP, skip
-            // updating it.
-            // get the claimMapping related to this claimURI
-            String attributeName = getClaimAtrribute(claimURI, userName, null);
-
-            if ("CN".equals(attributeName)) {
+            // If there is no attribute for profile configuration in LDAP, skip updating it.
+            if (LDAPConstants.CN_CAPITALIZED.equals(attributeName)) {
                 subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
-                subDirContext.rename(returnedUserEntry, "CN=" + value);
+                subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" + value);
                 return;
             }
 
             Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-			/* if updated attribute value is null, remove its values. */
+            // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
@@ -701,9 +587,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
             updatedAttributes.put(currentUpdatedAttribute);
 
-            // update the attributes in the relevant entry of the directory
-            // store
-
+            // Update the attributes in the relevant entry of the directory store.
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
@@ -714,7 +598,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
-
     }
 
     @Override
@@ -947,6 +830,12 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
 
@@ -955,6 +844,78 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         Property property = new Property(name, value, displayName + "#" + description, null);
         ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
 
+    }
+
+    @Override
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
+                                                 String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Active Directory maintained default attributes: " + Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
+        }
+    }
+
+    @Override
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
+                                                   String profileName) {
+
+        String timestampAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Active Directory timestamp attributes: " + Arrays.toString(timestampAttributes));
+        }
+
+        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            }
+
+            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .map(StringUtils::trim)
+                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
+                    .collect(Collectors.toMap(Function.identity(),
+                            attribute -> convertDateFormatFromAD(userStorePropertyValues.get(attribute))));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            }
+
+            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            }
+        }
+    }
+
+    /**
+     * Convert Active Directory date format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Active Directory date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromAD(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(ACTIVE_DIRECTORY_DATE_TIME_FORMAT);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
     }
 
 }
