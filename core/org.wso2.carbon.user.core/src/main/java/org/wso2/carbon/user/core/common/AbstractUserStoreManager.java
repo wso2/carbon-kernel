@@ -7077,13 +7077,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return
      */
     public boolean isSCIMEnabled() {
-        String scimEnabled = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_SCIM_ENABLED);
-        if (scimEnabled != null) {
-            return Boolean.parseBoolean(scimEnabled);
-        } else {
-            return false;
-        }
+
+        return true;
     }
 
     /**

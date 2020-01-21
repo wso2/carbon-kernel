@@ -1888,9 +1888,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         // Set Advanced Properties.
         UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
-                UserStoreConfigConstants.SCIMEnabledDescription);
-
         setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
                 UserStoreConfigConstants.passwordHashMethodDescription);
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",
