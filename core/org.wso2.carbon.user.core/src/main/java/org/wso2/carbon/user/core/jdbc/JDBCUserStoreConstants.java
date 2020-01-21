@@ -73,7 +73,6 @@ public class JDBCUserStoreConstants {
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
         //set Advanced properties
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false", "Support Bulk User Import " +
                 "Operation for this user store");
         setAdvancedProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256", UserStoreConfigConstants
