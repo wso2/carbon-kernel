@@ -74,8 +74,7 @@ public class RealmCache {
         }
             
         if (log.isDebugEnabled()) {
-            log.debug("created authorization cache : " + realmCache + " \n realm cache timeout : "+ DefaultRealm.timeOut);
-            //log.debug(" realm : " + realmConfig);
+            log.debug("created authorization cache : " + realmCache);
         }
         return cacheManager.getCache(CUSTOM_TENANT_CACHE);
         } finally {
