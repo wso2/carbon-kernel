@@ -829,7 +829,92 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
-        throw new UserStoreException("Operation is not supported.");
+        // Get the LDAP Directory context.
+        DirContext dirContext = this.connectionSource.getContext();
+        DirContext subDirContext = null;
+        // Search the relevant user entry by user name.
+        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String userSearchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        // If user name contains domain name, remove domain name.
+        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
+
+        if (userNames.length > 1) {
+            userName = userNames[1];
+        }
+
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
+
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = null;
+
+        try {
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
+            // Assume only one user is returned from the search.
+            returnedUserEntry = returnedResultList.next().getName();
+
+        } catch (NamingException e) {
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
+
+        try {
+            Attributes updatedAttributes = new BasicAttributes(true);
+            // If there is no attribute for profile configuration in LDAP, skip updating it.
+            Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
+            // If updated attribute value is null, remove its values.
+            if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
+                currentUpdatedAttribute.clear();
+            } else {
+                if (attributeName.equals("uid") || attributeName.equals("sn")) {
+                    currentUpdatedAttribute.add(value);
+                } else {
+                    String userAttributeSeparator = ",";
+                    String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+
+                    if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                        userAttributeSeparator = claimSeparator;
+                    }
+
+                    if (value.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+
+                        while (st.hasMoreElements()) {
+                            String newVal = st.nextElement().toString();
+
+                            if (newVal != null && newVal.trim().length() > 0) {
+                                currentUpdatedAttribute.add(newVal.trim());
+                            }
+                        }
+                    } else {
+                        currentUpdatedAttribute.add(value);
+                    }
+
+                }
+            }
+            updatedAttributes.put(currentUpdatedAttribute);
+
+            // Update the attributes in the relevant entry of the directory store.
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
+                    updatedAttributes);
+        } catch (Exception e) {
+            handleException(e, userName);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }
     }
 
     @Override
