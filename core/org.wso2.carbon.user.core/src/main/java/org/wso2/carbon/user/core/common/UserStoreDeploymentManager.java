@@ -70,8 +70,7 @@ public class UserStoreDeploymentManager {
                 try {
                     primaryUSM.addSecondaryUserStoreManager(realmConfiguration, userRealm);
                 } catch (UserStoreException ex) {
-                    log.warn(ex.getMessage());
-                    throw new DeploymentException(ex.getMessage(), ex);
+                    throw new DeploymentException("Error occurred while initializing new user store manager.", ex);
                 }
 
                 log.info("Realm configuration of tenant:" + CarbonContext.getThreadLocalCarbonContext().getTenantId() + "  modified with " + absoluteFilePath);
