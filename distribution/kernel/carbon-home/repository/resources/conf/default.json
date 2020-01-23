@@ -120,6 +120,7 @@
   "keystore.primary.password": "wso2carbon",
   "keystore.primary.alias": "wso2carbon",
   "keystore.primary.key_password": "wso2carbon",
+  "keystore.userstore_password_encryption": "InternalKeyStore",
   "keystore.internal.file_name": "$ref{keystore.primary.file_name}",
   "keystore.internal.type": "$ref{keystore.primary.type}",
   "keystore.internal.password": "$ref{keystore.primary.password}",
