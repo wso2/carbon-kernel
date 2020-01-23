@@ -90,6 +90,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
@@ -151,6 +154,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
     private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
+    private static final String RESOLVE_USER_ID_FROM_USER_NAME_CACHE_MANGER_NAME =
+            "user_id_from_user_name_cache_manager";
+    private static final String RESOLVE_USER_NAME_FROM_USER_ID_CACHE_MANGER_NAME =
+            "user_name_from_user_id_cache_manager";
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
@@ -11702,6 +11709,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public String getUserIDFromUserName(String userName) throws UserStoreException {
 
+        CacheManager cacheManager = Caching.getCacheManagerFactory()
+                .getCacheManager(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_MANGER_NAME);
+        Cache<String, String> userIdUserNameCache =
+                cacheManager.getCache(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_MANGER_NAME);
+
+        // Read the cache first.
+        String userId = userIdUserNameCache.get(userName);
+        if (userId != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache hit for user name: " + userName);
+            }
+            return userId;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Cache miss for user name: " + userName + " searching from the database.");
+        }
+
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -11709,16 +11734,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            return doGetUserIDFromUserNameWithID(userStore.getDomainFreeName());
+            return cacheUserID(userName, userIdUserNameCache,
+                    doGetUserIDFromUserNameWithID(userStore.getDomainFreeName()));
         }
 
         Map<String, String> claims = doGetUserClaimValues(userName,
                 new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
                 userStore.getDomainName(), null);
         if (claims != null && claims.size() == 1) {
-            return claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
+            return cacheUserID(userName, userIdUserNameCache, claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI));
         }
         return null;
+    }
+
+    private String cacheUserID(String userName, Cache<String, String> userIdUserNameCache, String userId) {
+
+        if (userId != null) {
+            userIdUserNameCache.put(userName, userId);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Id for the user name: " + userName + " retrieved from the database.");
+        }
+        return userId;
     }
 
     /**
@@ -11762,6 +11799,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public String getUserNameFromUserID(String userID) throws UserStoreException {
 
+        CacheManager cacheManager = Caching.getCacheManagerFactory()
+                .getCacheManager(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_MANGER_NAME);
+        Cache<String, String> userNameUserIDCache =
+                cacheManager.getCache(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_MANGER_NAME);
+
+        // Read the cache first.
+        String userName = userNameUserIDCache.get(userID);
+        if (userName != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache hit for user id: " + userID);
+            }
+            return userName;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Cache miss for user id: " + userID + " searching from the database.");
+        }
+
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -11769,9 +11824,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            return UserCoreUtil.addDomainToName(doGetUserNameFromUserIDWithID(userID), getMyDomainName());
+            return UserCoreUtil
+                    .addDomainToName(cacheUserName(userID, userNameUserIDCache, doGetUserNameFromUserIDWithID(userID)),
+                            getMyDomainName());
         }
-        return userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
+        return cacheUserName(userID, userNameUserIDCache,
+                userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername());
+    }
+
+    private String cacheUserName(String userID, Cache<String, String> userNameUserIDCache, String userName) {
+
+        if (userName != null) {
+            userNameUserIDCache.put(userID, userName);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("User name for the user id: " + userID + " retrieved from the database.");
+        }
+        return userName;
     }
 
     /**
