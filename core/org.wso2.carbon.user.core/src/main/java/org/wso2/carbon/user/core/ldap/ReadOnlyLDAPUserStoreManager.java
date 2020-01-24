@@ -68,6 +68,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
@@ -677,11 +678,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             // Active Directory attribute: objectGUID
                             // RFC 4530 attribute: entryUUID
                             final byte[] bytes = (byte[]) attObject;
-                            if (bytes.length == 16 && name.endsWith("UID")) {
+                            if (bytes.length == 16 && name.toLowerCase().endsWith(LDAPConstants.UID)) {
                                 // objectGUID byte order is not big-endian
                                 // https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
                                 // https://community.oracle.com/thread/1157698
-                                if (name.equals(OBJECT_GUID)) {
+                                if (name.equalsIgnoreCase(OBJECT_GUID)) {
                                     // check the property for objectGUID transformation
                                     String property =
                                             realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
@@ -2606,7 +2607,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        if (OBJECT_GUID.equals(property)) {
+        if (OBJECT_GUID.equalsIgnoreCase(property)) {
             String transformObjectGuidToUuidProperty =
                     realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
@@ -2614,7 +2615,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     Boolean.parseBoolean(transformObjectGuidToUuidProperty);
 
             String convertedValue;
-            if (transformObjectGuidToUuid) {
+            if (StringUtils.equals(value, "*")) {
+                convertedValue = value;
+            } else if (transformObjectGuidToUuid) {
                 convertedValue = transformUUIDToObjectGUID(value);
             } else {
                 byte[] bytes = Base64.decodeBase64(value.getBytes());
@@ -3735,31 +3738,28 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
+    @Override
+    protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    @Override
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
     /**
      *
      */
     public void doDeleteUser(String userName) throws UserStoreException {
         throw new UserStoreException(
                 "User store is operating in read only mode. Cannot write into the user store.");
-    }
-
-    /**
-     *
-     */
-    public void doSetUserClaimValue(String userName, String claimURI, String claimValue,
-                                    String profileName) throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
-    }
-
-    /**
-     *
-     */
-    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-        throw new UserStoreException(
-                "User store is operating in read only mode. Cannot write into the user store.");
-
     }
 
     /**
@@ -4276,9 +4276,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         //Set Advanced Properties
 
         RO_LDAP_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
-                .SCIMEnabledDescription);
-
         setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
                 UserStoreConfigConstants.passwordHashMethodDescription);
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
@@ -4555,4 +4552,26 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return false;
     }
 
+    /**
+     * Check whether the given attribute is configured as a binary attribute in the respective user store.
+     *
+     * @param attributeName Name of the attribute.
+     * @return True for a binary attribute, else false.
+     */
+    protected boolean isBinaryUserAttribute(String attributeName) {
+
+        String ldapBinaryAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY)).orElse("");
+
+        String[] ldapBinaryAttributes = StringUtils.split(ldapBinaryAttributesProperty, ",");
+
+        if (ArrayUtils.isNotEmpty(ldapBinaryAttributes)) {
+            if (log.isDebugEnabled()) {
+                log.debug("LDAP binary attributes: " + Arrays.toString(ldapBinaryAttributes));
+            }
+
+            return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
+        }
+        return false;
+    }
 }

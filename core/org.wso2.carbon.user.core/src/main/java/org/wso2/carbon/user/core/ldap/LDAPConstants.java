@@ -34,12 +34,16 @@ public class LDAPConstants {
     public static final String LDAP_INITIAL_CONTEXT_FACTORY = "LDAPInitialContextFactory";
     //Property that defines the status of the referral to be used:
     public static final String PROPERTY_REFERRAL = "Referral";
+    public static final String UID = "uid";
+    public static final String CN = "cn";
+    public static final String CN_CAPITALIZED = "CN";
 
     public static final String LDAP_ATTRIBUTES_BINARY = "java.naming.ldap.attributes.binary";
     public static final String PRIMARY_GROUP_ID = "PrimaryGroupId";
 
     //filter attribute in user-mgt.xml that filters users by user name
     public static final String USER_NAME_SEARCH_FILTER = "UserNameSearchFilter";
+    public static final String USER_ID_SEARCH_FILTER = "UserIdSearchFilter";
     //this property indicates which object class should be used for user entries in LDAP
     public static final String USER_ENTRY_OBJECT_CLASS = "UserEntryObjectClass";
     // roles

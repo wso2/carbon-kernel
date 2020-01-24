@@ -503,21 +503,38 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Set a single user claim value
+     * Set a single user claim value.
      *
-     * @param userName    The user name
-     * @param claimURI    The claim URI
-     * @param claimValue  The value
+     * @param userName    The user name.
+     * @param claimURI    The claim URI.
+     * @param claimValue  The value.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected abstract void doSetUserClaimValue(String userName, String claimURI,
-                                                String claimValue, String profileName) throws UserStoreException;
+    protected void doSetUserClaimValue(String userName, String claimURI,
+                                       String claimValue, String profileName) throws UserStoreException {
+
+        try {
+            String attributeName = getClaimAtrribute(claimURI, userName, null);
+            Map<String, String> userStoreAttributeValueMap = new HashMap<>();
+
+            userStoreAttributeValueMap.put(attributeName, claimValue);
+            processAttributesBeforeUpdate(userName, userStoreAttributeValueMap, profileName);
+
+            for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
+                doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
+                            + userName, e);
+        }
+    }
 
     /**
      * Set the user attribute of the user.
      *
-     * @param userName      user name.
+     * @param userName      User name.
      * @param attributeName Attribute name.
      * @param value         Attribute value.
      * @param profileName   profile name.
@@ -528,8 +545,68 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doSetUserAttribute operation is not implemented in: " + this.getClass());
         }
+
         throw new NotImplementedException("doSetUserAttribute operation is not implemented in: " + this.getClass());
     }
+
+    /**
+     * Set the user attribute of the user.
+     *
+     * @param userID        User ID.
+     * @param attributeName Attribute name.
+     * @param value         Attribute value.
+     * @param profileName   Profile Name.
+     * @throws UserStoreException Thrown if the operation is not implemented in the underlying user store.
+     */
+    protected void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttributeWithID operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttributeWithID operation is not implemented in: "
+                + this.getClass());
+    }
+
+    /**
+     * Set the user attributes of a user.
+     *
+     * @param userName                 UserName of the user.
+     * @param processedClaimAttributes A processed map of user store attribute values.
+     * @param profileName              The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException Thrown if the operation is not implemented in the underlying user store.
+     */
+    protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
+                                       String profileName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttributes operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttributes operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Set the user attributes of a user.
+     *
+     * @param processedClaimAttributes A processed map of user store attribute values.
+     * @param userID                   UserID of the user.
+     * @param profileName              The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException Thrown if the operation is not implemented in the underlying user store.
+     */
+    protected void doSetUserAttributesWithID(String userID,
+                                             Map<String, String> processedClaimAttributes, String profileName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doSetUserAttributesWithID operation is not implemented in: " + this.getClass());
+        }
+
+        throw new NotImplementedException("doSetUserAttributesWithID operation is not implemented in: "
+                + this.getClass());
+    }
+
     /**
      * Set a single user claim value.
      *
@@ -542,23 +619,76 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
+        try {
+            String attributeName = getClaimAtrribute(claimURI, userID, null);
+            Map<String, String> userStoreAttributeValueMap = new HashMap<>();
+            userStoreAttributeValueMap.put(attributeName, claimValue);
+            processAttributesBeforeUpdateWithID(userID, userStoreAttributeValueMap, profileName);
+
+            for (Map.Entry<String, String> entry : userStoreAttributeValueMap.entrySet()) {
+                doSetUserAttributeWithID(userID, entry.getKey(), entry.getValue(), profileName);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
+                            + userID, e);
         }
-        throw new NotImplementedException(
-                "doSetUserClaimValueWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
-     * Set many user claim values
+     * Set many user claim values.
      *
-     * @param userName    The user name
-     * @param claims      Map of claim URIs against values
+     * @param userName    The user name.
+     * @param claims      Map of claim URIs against values.
      * @param profileName The profile name, can be null. If null the default profile is considered.
-     * @throws UserStoreException An unexpected exception has occurred
+     * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected abstract void doSetUserClaimValues(String userName, Map<String, String> claims,
-                                                 String profileName) throws UserStoreException;
+    protected void doSetUserClaimValues(String userName, Map<String, String> claims,
+                                        String profileName) throws UserStoreException {
+
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        // Resolving claims to user store attributes.
+        Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userName, claims);
+
+        processAttributesBeforeUpdate(userName, claimAttributeValueMapForPersist, profileName);
+
+        // Persist the attribute values map.
+        doSetUserAttributes(userName, claimAttributeValueMapForPersist, profileName);
+    }
+
+    /**
+     * Resolves claim URIs as user store properties.
+     *
+     * @param userIdentifier Username of the user.
+     * @param claims         A map of claim URIs to be resolved.
+     * @return A map of user store property values.
+     * @throws UserStoreException Thrown if a particular claim URI could not be resolved.
+     */
+    private Map<String, String> resolveUserStoreAttributeValueMap(String userIdentifier, Map<String, String> claims)
+            throws UserStoreException {
+
+        Map<String, String> userStoreAttributeValueMap = new HashMap<>();
+
+        try {
+            for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
+                String claimURI = claimEntry.getKey();
+                String attributeName = getClaimAtrribute(claimURI, userIdentifier, null);
+                userStoreAttributeValueMap.put(attributeName, claimEntry.getValue());
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error occurred while getting claim attribute for user : " + userIdentifier;
+
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+
+            throw new UserStoreException(errorMessage, e);
+        }
+        return userStoreAttributeValueMap;
+    }
 
     /**
      * Set many user claim values.
@@ -571,11 +701,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserClaimValuesWithID operation is not implemented in: " + this.getClass());
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
-        throw new NotImplementedException(
-                "doUpdateCredentialByAdminWithID operation is not implemented in: " + this.getClass());
+
+        // Resolving claims to user store attributes.
+        Map<String, String> claimAttributeValueMapForPersist = resolveUserStoreAttributeValueMap(userID, claims);
+
+        processAttributesBeforeUpdateWithID(userID, claimAttributeValueMapForPersist, profileName);
+
+        // Persist the attribute values map.
+        doSetUserAttributesWithID(userID, claimAttributeValueMapForPersist, profileName);
     }
 
     /**
@@ -2352,10 +2488,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
-                        + " for the given domain name.");
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
+            if (secondaryUserStoreManager != null) {
+                userManager = secondaryUserStoreManager;
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                            + " for the given domain name.");
+                }
             }
         }
 
@@ -2577,10 +2716,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
-                        + " for the given domain name.");
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
+            if (secondaryUserStoreManager != null) {
+                userManager = secondaryUserStoreManager;
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                            + " for the given domain name.");
+                }
             }
         }
 
@@ -6179,8 +6321,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param permissions  Permissions of the role role.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handleAddRoleFailureWithID(String errorCode, String errorMessage, String roleName, String[] userIDList,
-            Permission[] permissions) throws UserStoreException {
+    private void handleAddRoleFailureWithID(String errorCode, String errorMessage, String roleName,
+                                            String[] userIDList,  org.wso2.carbon.user.api.Permission[]
+                                                    permissions) throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
@@ -6308,8 +6451,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 doAddInternalRole(roleName, userList, permissions);
             } else {
                 doAddInternalRoleWithID(roleName,
-                        getUserIDsFromUserNames(Arrays.asList(userList)).toArray(new String[0]),
-                        (Permission[]) permissions);
+                        getUserIDsFromUserNames(Arrays.asList(userList)).toArray(new String[0]), permissions);
             }
 
             // Calling only the audit logger, to maintain the back-ward compatibility
@@ -6935,13 +7077,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return
      */
     public boolean isSCIMEnabled() {
-        String scimEnabled = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_SCIM_ENABLED);
-        if (scimEnabled != null) {
-            return Boolean.parseBoolean(scimEnabled);
-        } else {
-            return false;
-        }
+
+        return true;
     }
 
     /**
@@ -7024,7 +7161,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param permissions Relevant permissions added for new role.
      * @throws UserStoreException User Store Exception.
      */
-    private void handleRoleAlreadyExistExceptionWithID(String roleName, String[] userIDList, Permission[] permissions)
+    private void handleRoleAlreadyExistExceptionWithID(String roleName, String[] userIDList,
+                                                       org.wso2.carbon.user.api.Permission[] permissions)
             throws UserStoreException {
 
         String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
@@ -7180,14 +7318,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
             String domainName, String profileName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class, String.class };
-            Object object = callSecure("doGetUserClaimValues", new Object[] {
-                    userName, claims, domainName, profileName
-            }, argTypes);
-            return (Map<String, String>) object;
-        }
-
         // Here the user name should be domain-less.
         boolean requireRoles = false;
         boolean requireIntRoles = false;
@@ -7229,8 +7359,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] properties = propertySet.toArray(new String[propertySet.size()]);
-        Map<String, String> uerProperties = this.getUserPropertyValues(userName, properties,
+        Map<String, String> userPropertyValues = this.getUserPropertyValues(userName, properties,
                 profileName);
+
+        processAttributesAfterRetrieval(userName, userPropertyValues, profileName);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -7265,7 +7397,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = mapping.getMappedAttribute();
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
 
                 if (isOverrideUsernameClaimEnabled && USERNAME_CLAIM_URI.equals(mapping.getClaim()
                         .getClaimUri())) {
@@ -7283,7 +7415,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
                 if (value != null && value.trim().length() > 0) {
                     finalValues.put(claim, value);
                 }
@@ -7344,6 +7476,54 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         return finalValues;
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values after retrieval.
+     *
+     * @param userName       Username of the user.
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
+     * @param profileName    Profile name of the user.
+     */
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userAttributes,
+                                                   String profileName) {
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values before update.
+     *
+     * @param userName       Username of the user.
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
+     * @param profileName    Profile name of the user.
+     */
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userAttributes,
+                                                 String profileName) {
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values after retrieval.
+     *
+     * @param userID         User ID of the user.
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
+     * @param profileName    Profile name of the user.
+     */
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userAttributes,
+                                                         String profileName) {
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
+    }
+
+    /**
+     * Handles the processing of any special user store attribute values before update.
+     *
+     * @param userID         User ID of the user.
+     * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
+     * @param profileName    Profile name of the user.
+     */
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userAttributes,
+                                                       String profileName) {
+        // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
 
     /**
@@ -8876,6 +9056,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         for (String userName : users) {
             Map<String, String> propertyValuesMap = getUserPropertyValues(userName, propertyNames, profileName);
+            processAttributesAfterRetrieval(userName, propertyValuesMap, profileName);
             if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
                 usersPropertyValuesMap.put(userName, propertyValuesMap);
             }
@@ -8998,10 +9179,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain)) {
-            userManager = getSecondaryUserStoreManager(extractedDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded" +
-                        " for the given domain name.");
+            UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
+            if (secondaryUserStoreManager != null) {
+                userManager = secondaryUserStoreManager;
+                if (log.isDebugEnabled()) {
+                    log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
+                            + " for the given domain name.");
+                }
             }
         }
 
@@ -10211,8 +10395,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public final AuthenticationResult authenticateWithID(final String userID, final String domain,
-            final Object credential) throws UserStoreException {
+    public final AuthenticationResult authenticateWithID(final String userID, final Object credential)
+            throws UserStoreException {
 
         try {
             return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
@@ -10232,10 +10416,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                         + "the user"
                                         + " store preference order: " + userStorePreferenceOrder);
                     }
-                    return generateUserStoreChainWithID(userID, domain, credential, userStorePreferenceOrder);
+                    return generateUserStoreChainWithID(userID, credential, userStorePreferenceOrder);
                 } else {
                     // Authenticate the user.
-                    return authenticateInternalWithID(userID, domain, credential);
+                    return authenticateInternalWithID(userID, credential);
                 }
 
             });
@@ -10249,7 +10433,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private AuthenticationResult generateUserStoreChainWithID(String userID, String domain, Object credential,
+    private AuthenticationResult generateUserStoreChainWithID(String userID, Object credential,
             List<String> userStorePreferenceOrder) throws UserStoreException {
 
         IterativeUserStoreManager initialUserStoreManager = null;
@@ -10273,19 +10457,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate the"
                             + " user through all the available user store list.");
                 }
-                return authenticateInternalWithID(userID, domain, credential);
+                return authenticateInternalWithID(userID, credential);
             }
         }
         // Authenticate using the initial user store from the user store preference list.
-        return initialUserStoreManager.authenticateWithID(userID, domain, credential);
+        return initialUserStoreManager.authenticateWithID(userID, credential);
     }
 
-    private AuthenticationResult authenticateInternalWithID(String userID, String domain, Object credential)
+    private AuthenticationResult authenticateInternalWithID(String userID, Object credential)
             throws UserStoreException {
 
-        AbstractUserStoreManager abstractUserStoreManager = this;
-        if (this instanceof IterativeUserStoreManager) {
-            abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
+        UserStore userStoreWithID = getUserStoreWithID(userID);
+        AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) userStoreWithID.getUserStoreManager();
+
+        if (userStoreWithID.getUserStoreManager() instanceof IterativeUserStoreManager) {
+            abstractUserStoreManager = ((IterativeUserStoreManager) userStoreWithID.getUserStoreManager()).getAbstractUserStoreManager();
         }
         boolean authenticated = false;
         AuthenticationResult authenticationResult = new AuthenticationResult(
@@ -10356,83 +10542,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
             }
 
-            if (StringUtils.isNotEmpty(domain)) {
-                UserStoreManager secUserStoreManager = abstractUserStoreManager.getSecondaryUserStoreManager(domain);
-                if (isUniqueUserIdEnabled(secUserStoreManager)) {
-                    authenticationResult = ((AbstractUserStoreManager) secUserStoreManager)
-                            .doAuthenticateWithID(userID, credential);
-                } else {
-                    User user = userUniqueIDManger
-                            .getUser(userID, (AbstractUserStoreManager) secUserStoreManager);
-                    boolean status = ((AbstractUserStoreManager) secUserStoreManager)
-                            .doAuthenticate(user.getUsername(), credential);
-                    if (status) {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                        authenticationResult.setAuthenticatedUser(user);
-                    } else {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult
-                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
-                    }
-                }
-
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-                if (authenticated) {
-                    // Set domain in thread local variable for subsequent operations
-                    UserCoreUtil.setDomainInThreadLocal(domain);
-                }
+            if (isUniqueUserIdEnabled(abstractUserStoreManager)) {
+                authenticationResult = ((AbstractUserStoreManager) abstractUserStoreManager)
+                        .doAuthenticateWithID(userID, credential);
             } else {
-                // Domain is not provided. Try to authenticate with the current user store manager.
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = abstractUserStoreManager.doAuthenticateWithID(userID, credential);
+                User user = userUniqueIDManger
+                        .getUser(userID, (AbstractUserStoreManager) abstractUserStoreManager);
+                boolean status = ((AbstractUserStoreManager) abstractUserStoreManager)
+                        .doAuthenticate(user.getUsername(), credential);
+                if (status) {
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                    authenticationResult.setAuthenticatedUser(user);
                 } else {
-                    User user = userUniqueIDManger.getUser(userID, abstractUserStoreManager);
-                    boolean status = ((AbstractUserStoreManager) (abstractUserStoreManager.getSecondaryUserStoreManager(
-                            user.getUserStoreDomain()))).doAuthenticate(user.getUsername(), credential);
-                    if (status) {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                        authenticationResult.setAuthenticatedUser(user);
-                    } else {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult
-                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
-                    }
+                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                    authenticationResult
+                            .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
                 }
+            }
 
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-                if (authenticated) {
-                    // Set domain in thread local variable for subsequent operations
-                    UserCoreUtil
-                            .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
-                }
+            if (authenticationResult.getAuthenticationStatus()
+                    == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                authenticated = true;
+            }
+            if (authenticated) {
+                // Set domain in thread local variable for subsequent operations
+                UserCoreUtil.setDomainInThreadLocal(userStoreWithID.getDomainName());
             }
         } finally {
             credentialObj.clear();
-        }
-
-        // If authentication fails in the previous step and if the user has not specified a
-        // domain- then we need to execute chained UserStoreManagers recursively.
-        if (!authenticated && StringUtils.isEmpty(domain)) {
-            AbstractUserStoreManager userStoreManager;
-            if (this instanceof IterativeUserStoreManager) {
-                IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
-                userStoreManager = iterativeUserStoreManager.nextUserStoreManager();
-            } else {
-                userStoreManager = (AbstractUserStoreManager) abstractUserStoreManager.getSecondaryUserStoreManager();
-            }
-            if (userStoreManager != null) {
-                authenticationResult = userStoreManager.authenticateWithID(userID, null, credential);
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-            }
         }
 
         if (!authenticated) {
@@ -11147,7 +11284,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] properties = propertySet.toArray(new String[0]);
-        Map<String, String> uerProperties = this.getUserPropertyValuesWithID(userID, properties, profileName);
+        Map<String, String> userPropertyValues = this.getUserPropertyValuesWithID(userID, properties, profileName);
+        processAttributesAfterRetrievalWithID(userID, userPropertyValues, profileName);
 
         List<String> getAgain = new ArrayList<>();
         Map<String, String> finalValues = new HashMap<>();
@@ -11176,7 +11314,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = mapping.getMappedAttribute();
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
                 if (value != null && value.trim().length() > 0) {
                     finalValues.put(claim, value);
                 }
@@ -11186,7 +11324,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
-                value = uerProperties.get(property);
+                value = userPropertyValues.get(property);
                 if (value != null && value.trim().length() > 0) {
                     finalValues.put(claim, value);
                 }
@@ -11544,6 +11682,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Check whether the userID attribute is generated/maintained by the user store itself.
+     *
+     * @param userName       User's userName.
+     * @param userAttributes A map user attribute values.
+     * @return True if generated, else false.
+     */
+    protected boolean isUserIdGeneratedByUserStore(String userName, Map<String, String> userAttributes) {
+
+        return false;
+    }
+
+    /**
      * provides the unique user ID of the given user.
      *
      * @param userName username of the user.
@@ -11561,7 +11711,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             return doGetUserIDFromUserNameWithID(userStore.getDomainFreeName());
         }
-        return userUniqueIDManger.getUniqueId(userStore.getDomainFreeName(), this);
+
+        Map<String, String> claims = doGetUserClaimValues(userName,
+                new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
+                userStore.getDomainName(), null);
+        if (claims != null && claims.size() == 1) {
+            return claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
+        }
+        return null;
     }
 
     /**
@@ -13515,7 +13672,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param permissions permissions.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected void doAddInternalRoleWithID(String roleName, String[] userIDList, Permission[] permissions)
+    protected void doAddInternalRoleWithID(String roleName, String[] userIDList,
+                                           org.wso2.carbon.user.api.Permission[] permissions)
             throws UserStoreException {
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -14226,6 +14384,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         for (String userID : userIDs) {
             Map<String, String> propertyValuesMap = getUserPropertyValuesWithID(userID, propertyNames, profileName);
+            processAttributesAfterRetrievalWithID(userID, propertyValuesMap, profileName);
             if (propertyValuesMap != null && !propertyValuesMap.isEmpty()) {
                 usersPropertyValuesMap.put(userID, propertyValuesMap);
             }
