@@ -30,6 +30,9 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
+import org.wso2.carbon.user.core.common.UserIdResolverCache;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -57,6 +60,8 @@ public class JDBCRealmWithUniqueIDTest extends BaseTestCase {
     public void testStuff() throws Exception {
 
         DatabaseUtil.closeDatabasePoolConnection();
+        UserIdResolverCache.getInstance().clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
+        UserIdResolverCache.getInstance().clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
         initRealmStuff(TEST_URL);
         doUserStuff();
         doUserRoleStuff();
