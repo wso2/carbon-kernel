@@ -643,7 +643,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param profileName The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    protected void doSetUserClaimValues(String userName, Map<String, String> claims,
+    public void doSetUserClaimValues(String userName, Map<String, String> claims,
                                         String profileName) throws UserStoreException {
 
         if (profileName == null) {
