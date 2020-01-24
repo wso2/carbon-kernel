@@ -133,7 +133,7 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName) throws UserStoreException {
+    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName) throws UserStoreException {
 
         this.abstractUserStoreManager.doSetUserClaimValues(userName, claims, profileName);
     }
