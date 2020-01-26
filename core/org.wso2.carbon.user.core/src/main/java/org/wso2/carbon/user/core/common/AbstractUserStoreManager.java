@@ -90,6 +90,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
@@ -114,6 +115,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String SCIM2_USERNAME_CLAIM_URI = "urn:ietf:params:scim:schemas:core:2.0:User:userName";
     protected static final String USERNAME_CLAIM_URI = "http://wso2.org/claims/username";
     private static final String APPLICATION_DOMAIN = "Application";
+    private static final String INTERNAL_DOMAIN = "Internal";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
     private static final String INVALID_USER_NAME = "InvalidUserName";
@@ -1024,6 +1026,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected abstract String[] doGetRoleNames(String filter, int maxItemLimit)
             throws UserStoreException;
+
+    /**
+     * This method would returns the role Name actually this must be implemented in interface. As it
+     * is not good to change the API in point release. This has been added to Abstract class
+     *
+     * @param filter
+     * @return
+     * @throws .UserStoreException
+     */
+    protected String[] doGetRoleNames(String filter, int offset, int limit)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetRoleNames operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doGetRoleNames operation is not implemented in: " + this.getClass());
+    }
 
     /**
      * @param filter
@@ -7306,6 +7325,203 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
         return roleList;
+    }
+
+    /**
+     * @param filter
+     * @param maxItemLimit
+     * @param noHybridlRoles
+     * @return
+     * @throws UserStoreException
+     */
+    public final String[] getRoleNames(String filter, int maxItemLimit, boolean noHybridlRoles,
+                                       boolean noSystemRole, boolean noSharedRoles, int startIndex, int count)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, int.class, boolean.class, boolean.class, boolean.class, int
+                    .class, int.class};
+            Object object = callSecure("getRoleNames", new Object[]{filter, maxItemLimit, noHybridlRoles,
+                    noSystemRole, noSharedRoles, startIndex, count}, argTypes);
+            return (String[]) object;
+        }
+
+        String[] roleList = new String[0];
+
+        if (!noHybridlRoles && (filter.toLowerCase().startsWith(APPLICATION_DOMAIN.toLowerCase()))) {
+            return hybridRoleManager.getHybridRoles(filter, startIndex, count);
+        } else if (!noHybridlRoles && !isAnInternalRole(filter) && !filter
+                .contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            // When domain name is not present in the filter value.
+            if ("*".equals(filter)) {
+                roleList = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+                if (roleList.length > 0 && roleList.length == count) {
+                    return roleList;
+                } else {
+                    count = count - roleList.length;
+                    startIndex = 0;
+                }
+            } else {
+                // Since Application domain roles are stored in db with the "Application/" prefix, when domain is not
+                // present in the filter, need to append the "Application/" before sending for db query.
+                String[] applicationDomainRoleArray = hybridRoleManager
+                        .getHybridRoles(APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + filter,
+                                startIndex, count);
+                int applicationRoleLength = applicationDomainRoleArray.length;
+                if (applicationRoleLength > 0 && count == applicationRoleLength) {
+                    return applicationDomainRoleArray;
+                } else {
+                    count = count - applicationRoleLength;
+                    startIndex = 0;
+                    String[] internalDomainRoleArray = hybridRoleManager.getHybridRoles(INTERNAL_DOMAIN +
+                            UserCoreConstants.DOMAIN_SEPARATOR + filter, startIndex, count);
+                    int internalRoleSize = internalDomainRoleArray.length;
+                    if (internalRoleSize > 0 && internalRoleSize == count) {
+                        roleList = UserCoreUtil.combineArrays(applicationDomainRoleArray, internalDomainRoleArray);
+                        return roleList;
+                    } else {
+                        roleList = UserCoreUtil.combineArrays(applicationDomainRoleArray, internalDomainRoleArray);
+                        count = count - internalRoleSize;
+                        startIndex = 0;
+                    }
+                }
+            }
+        } else if (!noHybridlRoles) {
+            roleList = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+            if (roleList.length > 0 && roleList.length == count) {
+                return roleList;
+            } else {
+                count = count - roleList.length;
+                startIndex = 0;
+            }
+        }
+
+        if (!noSystemRole) {
+            String[] systemRoles = systemUserRoleManager.getSystemRoles();
+            if (systemRoles.length > 0 && systemRoles.length >= count) {
+                return getRolesWithPagination(count, roleList, systemRoles);
+            } else {
+                count = count - systemRoles.length;
+                startIndex = 0;
+                roleList = UserCoreUtil.combineArrays(roleList, systemRoles);
+            }
+        }
+
+        int index;
+        index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+
+        // Check whether we have a secondary UserStoreManager setup.
+        if (index > 0) {
+            // Using the short-circuit. User name comes with the domain name.
+            String domain = filter.substring(0, index);
+
+            UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                    || APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                return roleList;
+            }
+            if (secManager != null) {
+                // We have a secondary UserStoreManager registered for this domain.
+                filter = filter.substring(index + 1);
+                if (secManager instanceof AbstractUserStoreManager) {
+                    if (readGroupsEnabled) {
+                        return getGroupsEnabledRoles(filter, startIndex, count, roleList,
+                                (AbstractUserStoreManager) secManager);
+                    }
+                } else {
+                    String[] externalRoles = secManager.getRoleNames();
+                    if (externalRoles.length > 0 && externalRoles.length > count) {
+                        externalRoles = Arrays.asList(externalRoles).subList(0, count).toArray(new String[count]);
+                    }
+                    return UserCoreUtil.combineArrays(roleList, externalRoles);
+                }
+            } else {
+                throw new UserStoreException("Invalid Domain Name");
+            }
+        } else if (index == 0) {
+            if (readGroupsEnabled) {
+                return getGroupsEnabledRoles(filter, startIndex, count, roleList, index);
+            }
+        }
+
+        if (readGroupsEnabled) {
+            String[] externalRoles = doGetRoleNames(filter, startIndex, count);
+            roleList = UserCoreUtil.combineArrays(externalRoles, roleList);
+            if (externalRoles.length > 0 && externalRoles.length == count) {
+                return roleList;
+            } else {
+                count = count - externalRoles.length;
+                startIndex = 0;
+            }
+        }
+
+        String primaryDomain = getMyDomainName();
+
+        if (this.getSecondaryUserStoreManager() != null) {
+            for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(primaryDomain)) {
+                    continue;
+                }
+                UserStoreManager storeManager = entry.getValue();
+                if (storeManager instanceof AbstractUserStoreManager) {
+                    try {
+                        if (readGroupsEnabled) {
+                            String[] secondRoleList = ((AbstractUserStoreManager) storeManager)
+                                    .doGetRoleNames(filter, startIndex, count);
+                            roleList = UserCoreUtil.combineArrays(roleList, secondRoleList);
+                            if (secondRoleList.length > 0 && count == secondRoleList.length) {
+                                return roleList;
+                            } else {
+                                count = count - secondRoleList.length;
+                                startIndex = 0;
+                            }
+                        }
+                    } catch (UserStoreException e) {
+                        // We can ignore and proceed. Ignore the results from this user store.
+                        // Print message.
+                        log.error(e);
+                    }
+                } else {
+                    String[] roleNames;
+                    roleNames = storeManager.getRoleNames();
+                    int rolesLength = roleNames.length;
+                    if (rolesLength > 0 && rolesLength >= count) {
+                        return getRolesWithPagination(count, roleList, roleNames);
+                    } else {
+                        count = count - rolesLength;
+                        startIndex = 0;
+                        roleList = UserCoreUtil.combineArrays(roleList, roleNames);
+                    }
+
+                }
+            }
+        }
+        return roleList;
+    }
+
+    private String[] getRolesWithPagination(int count, String[] roleList, String[] roleNames)
+            throws UserStoreException {
+
+        if (roleNames.length > count) {
+            roleNames = Arrays.asList(roleNames).subList(0, count).toArray(new String[count]);
+        }
+        roleList = UserCoreUtil.combineArrays(roleList, roleNames);
+        return roleList;
+    }
+
+    private String[] getGroupsEnabledRoles(String filter, int startIndex, int count, String[] roleList,
+                                           AbstractUserStoreManager secManager) throws UserStoreException {
+
+        String[] externalRoles = secManager
+                .doGetRoleNames(filter, startIndex, count);
+        return UserCoreUtil.combineArrays(roleList, externalRoles);
+    }
+
+    private String[] getGroupsEnabledRoles(String filter, int startIndex, int count, String[] roleList, int index)
+            throws UserStoreException {
+
+        String[] externalRoles = doGetRoleNames(filter.substring(index + 1), startIndex, count);
+        return UserCoreUtil.combineArrays(roleList, externalRoles);
     }
 
     /**

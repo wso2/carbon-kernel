@@ -435,4 +435,11 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      * @return RealmConfiguration
      */
     RealmConfiguration getRealmConfiguration();
+
+    default String[] getRoleNames(String filter, int maxItemLimit, boolean noHybridlRoles,
+                                  boolean noSystemRole, boolean noSharedRoles, int startIndex, int count)
+            throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported");
+    }
 }

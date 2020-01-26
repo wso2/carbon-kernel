@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -62,7 +63,12 @@ public class HybridRoleManager {
     private String isCascadeDeleteEnabled;
     private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
+    private static final String INTERNAL_DOMAIN = "Internal";
     private static final String WORKFLOW_DOMAIN = "Workflow";
+
+    private static final String DB2 = "db2";
+    private static final String MSSQL = "mssql";
+    private static final String ORACLE = "oracle";
 
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
@@ -202,6 +208,148 @@ public class HybridRoleManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    /**
+     * @param filter
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getHybridRoles(String filter, int offset, int limit) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        int searchTime;
+
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
+        }
+
+        try {
+            searchTime = Integer.parseInt(realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = DEFAULT_MAX_SEARCH_TIME;
+        }
+
+        try {
+            if (filter != null && filter.trim().length() != 0) {
+                filter = filter.trim();
+                filter = filter.replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            dbConnection.setAutoCommit(false);
+            if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+                dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            }
+
+            String dbType = DatabaseCreator.getDatabaseType(dbConnection);
+            String sqlStmt;
+
+            if (DB2.equalsIgnoreCase(dbType)) {
+                int initialOffset = offset;
+                offset = offset + limit;
+                limit = initialOffset + 1;
+                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_DB2;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED_DB2;
+                }
+            } else if (ORACLE.equalsIgnoreCase(dbType)) {
+                limit = offset + limit;
+                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_ORACLE;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED_ORACLE;
+                }
+            } else if (MSSQL.equalsIgnoreCase(dbType)) {
+                int initialOffset = offset;
+                offset = limit + offset;
+                limit = initialOffset + 1;
+                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_MSSQL;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED_MSSQL;
+                }
+            } else {
+                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED;
+                }
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            byte increment = 0;
+            if (filter.startsWith(INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
+            } else {
+                prepStmt.setString(++increment, filter);
+            }
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(++increment, tenantId);
+            }
+            if (filter.startsWith(INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, "%/%");
+            }
+            prepStmt.setInt(++increment, limit);
+            prepStmt.setInt(++increment, offset);
+
+            try {
+                prepStmt.setQueryTimeout(searchTime);
+            } catch (Exception e) {
+                // This can be ignored since timeout method is not implemented.
+                log.debug(e);
+            }
+            List<String> filteredRoles = new ArrayList<String>();
+
+            try {
+                rs = prepStmt.executeQuery();
+            } catch (SQLException e) {
+                log.error("Error while retrieving roles from Internal JDBC role store", e);
+                // May be due time out, therefore ignore this exception
+            }
+
+            if (rs != null) {
+                while (rs.next()) {
+                    String name = rs.getString(1);
+                    // Append the domain
+                    if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                                + name;
+                    }
+                    filteredRoles.add(name);
+                }
+            }
+            return filteredRoles.toArray(new String[filteredRoles.size()]);
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while getting hybrid roles from filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String msg = "Error occur while getting database type";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }

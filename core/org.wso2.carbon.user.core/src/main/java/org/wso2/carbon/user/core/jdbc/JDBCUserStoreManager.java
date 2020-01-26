@@ -79,6 +79,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
@@ -593,6 +594,122 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
         return roles;
 
+    }
+
+    /**
+     *
+     */
+    public String[] doGetRoleNames(String filter, int offset, int limit) throws UserStoreException {
+
+        String[] roles = new String[0];
+        Connection dbConnection = null;
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
+        }
+
+        if (limit <= 0) {
+            return roles;
+        }
+
+        try {
+            if (filter != null && filter.trim().length() != 0) {
+                filter = filter.trim();
+                filter = filter.replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            List<String> lst = new LinkedList<String>();
+
+            dbConnection = getDBConnection();
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            String dbType = DatabaseCreator.getDatabaseType(dbConnection);
+
+            if (DB2.equalsIgnoreCase(dbType)) {
+                int initialOffset = offset;
+                offset = offset + limit;
+                limit = initialOffset + 1;
+            } else if (ORACLE.equalsIgnoreCase(dbType)) {
+                limit = offset + limit;
+            } else if (MSSQL.equalsIgnoreCase(dbType)) {
+                int initialOffset = offset;
+                offset = limit + offset;
+                limit = initialOffset + 1;
+            }
+
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED + "-" + dbType);
+            if (sqlStmt == null) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED);
+            }
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            byte count = 0;
+            prepStmt.setString(++count, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(++count, tenantId);
+            }
+            prepStmt.setInt(++count, limit);
+            prepStmt.setInt(++count, offset);
+            try {
+                rs = prepStmt.executeQuery();
+            } catch (SQLException e) {
+                if (e instanceof SQLTimeoutException) {
+                    log.error("The cause might be a time out. Hence ignored", e);
+                } else {
+                    String errorMessage =
+                            "Error while fetching roles from JDBC user store according to filter : " + filter +
+                                    " & max item limit : " + limit;
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e);
+                    }
+                    throw new UserStoreException(errorMessage, e);
+                }
+            }
+
+            if (rs != null) {
+                while (rs.next()) {
+                    String name = rs.getString(1);
+                    // Append the domain if exist.
+                    String domain =
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                    name = UserCoreUtil.addDomainToName(name, domain);
+                    lst.add(name);
+                }
+            }
+
+            if (lst.size() > 0) {
+                roles = lst.toArray(new String[lst.size()]);
+            }
+
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving role names for filter : " + filter + " & max item limit : " +
+                    limit;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            String msg = "Error occur while getting role names";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+        return roles;
     }
 
     private void setPSRestrictions(PreparedStatement ps, int maxItemLimit) throws SQLException {

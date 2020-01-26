@@ -62,6 +62,25 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED, JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_SQL);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_DB2)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_DB2,
+                    JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_SQL_DB2);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_MSSQL)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_MSSQL,
+                    JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_SQL_MSSQL);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_ORACLE)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_ORACLE,
+                    JDBCRealmConstants.GET_ROLE_LIST_PAGINATED_SQL_ORACLE);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLE_LIST)) {
             properties.put(JDBCRealmConstants.GET_SHARED_ROLE_LIST, JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL);
         }

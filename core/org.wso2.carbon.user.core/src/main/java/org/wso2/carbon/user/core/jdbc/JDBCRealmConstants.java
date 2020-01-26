@@ -27,6 +27,10 @@ public final class JDBCRealmConstants {
     public static final String SELECT_USER_NAME_FROM_USER_ID = "SelectUserNameFromUserIDSQL";
     public static final String SELECT_USER_ID = "SelectUserIDSQL";
     public static final String GET_ROLE_LIST = "GetRoleListSQL";
+    public static final String GET_ROLE_LIST_PAGINATED = "GetRoleListPaginatedSQL";
+    public static final String GET_ROLE_LIST_PAGINATED_MSSQL = "GetRoleListPaginatedSQL-mssql";
+    public static final String GET_ROLE_LIST_PAGINATED_DB2 = "GetRoleListPaginatedSQL-db2";
+    public static final String GET_ROLE_LIST_PAGINATED_ORACLE = "GetRoleListPaginatedSQL-oracle";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_USER_FILTER = "UserFilterSQL";
     public static final String GET_USER_FILTER_WITH_ID = "UserFilterWithIDSQL";
@@ -149,6 +153,20 @@ public final class JDBCRealmConstants {
     public static final String SELECT_USER_NAME_FROM_USER_ID_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE "
             + "UM_USER_ID=? AND UM_TENANT_ID=?";
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
+    public static final String GET_ROLE_LIST_PAGINATED_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM " +
+            "UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME ASC LIMIT ? OFFSET ?";
+
+    public static final String GET_ROLE_LIST_PAGINATED_SQL_DB2 =
+            "SELECT UM_ROLE_NAME FROM(SELECT ROW_NUMBER() OVER (ORDER BY UM_ROLE_NAME) AS rn, U.*  FROM UM_ROLE AS U) " +
+                    "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' AND rn BETWEEN ? AND ?";
+
+    public static final String GET_ROLE_LIST_PAGINATED_SQL_MSSQL = "SELECT UM_ROLE_NAME FROM (SELECT UM_ROLE_NAME," +
+            "UM_TENANT_ID, ROW_NUMBER() OVER (ORDER BY UM_ROLE_NAME) AS RowNum FROM UM_ROLE) AS P WHERE P" +
+            ".UM_ROLE_NAME LIKE ? AND P.UM_TENANT_ID= ? AND UM_SHARED_ROLE ='0' AND P.RowNum BETWEEN ? AND ?";
+
+    public static final String GET_ROLE_LIST_PAGINATED_SQL_ORACLE = "SELECT UM_ROLE_NAME FROM (SELECT UM_ROLE_NAME," +
+            " UM_TENANT_ID, rownum AS rnum FROM (SELECT UM_ROLE_NAME, UM_TENANT_ID FROM UM_ROLE ORDER BY " +
+            "UM_ROLE_NAME) WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' AND rownum <= ?) WHERE  rnum > ?";
     public static final String GET_SHARED_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_SHARED_ROLE ='1' ORDER BY UM_ROLE_NAME";
     public static final String GET_USER_FILTER_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_WITH_ID_SQL = "SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER WHERE "
