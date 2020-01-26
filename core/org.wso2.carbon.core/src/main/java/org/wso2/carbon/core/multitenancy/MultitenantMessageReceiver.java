@@ -538,7 +538,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
         if ("org.apache.synapse.transport.nhttp.HttpCoreNIOListener".equals(transportInClassName) ||
                 "org.apache.synapse.transport.nhttp.HttpCoreNIOSSLListener".equals(transportInClassName)||
                 "org.apache.synapse.transport.passthru.PassThroughHttpListener".equals(transportInClassName) ||
-                "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName)){
+                "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName) ||
+                "org.apache.synapse.transport.passthru.PassThroughHttpMultiSSLListener".equals(transportInClassName)) {
             tenantInMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
         }
 
