@@ -80,21 +80,13 @@ public class UserIdResolverCache {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-            // Element already in the cache. Remove it first.
-            clearCacheEntry(key, cacheName);
-
             Cache<String, String> cache = UserIdResolverCache(cacheName);
-            if (cache != null) {
+            if (cache != null && !cache.containsKey(key)) {
                 cache.put(key, entry);
                 if (log.isDebugEnabled()) {
                     log.debug(
                             cacheName + " which is under " + USER_ID_RESOLVER_CACHE_MANAGER + ", added the entry: "
                                     + entry + " for the key: " + key + " successfully");
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Error while getting the cache: " + cacheName + " which is under "
-                            + USER_ID_RESOLVER_CACHE_MANAGER);
                 }
             }
         } finally {

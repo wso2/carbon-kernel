@@ -3696,7 +3696,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userID = getUserIDFromUserName(userName);
             isUserExists = userID != null;
             UserIdResolverCache.getInstance()
-                    .clearCacheEntry(UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+                    .clearCacheEntry(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                             RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
             UserIdResolverCache.getInstance()
                     .clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
@@ -11718,16 +11718,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             userID = UserIdResolverCache.getInstance()
-                    .getValueFromCache(UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+                    .getValueFromCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                             RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
             if (StringUtils.isEmpty(userID)) {
                 userID = doGetUserIDFromUserNameWithID(userName);
                 UserIdResolverCache.getInstance()
-                        .addToCache(UserCoreUtil.addDomainToName(userName, getMyDomainName()), userID,
+                        .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
                                 RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
             }
             UserIdResolverCache.getInstance()
-                    .addToCache(userID, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+                    .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                             RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
             return userID;
         }
@@ -11807,24 +11807,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (StringUtils.isEmpty(userName)) {
                 userName = doGetUserNameFromUserIDWithID(userID);
                 UserIdResolverCache.getInstance()
-                        .addToCache(userID, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+                        .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                                 RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
             }
             UserIdResolverCache.getInstance()
-                    .addToCache(UserCoreUtil.addDomainToName(userName, getMyDomainName()), userID,
+                    .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
                             RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
-            return UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
         }
        userName =  UserIdResolverCache.getInstance().getValueFromCache(userID,
                 RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
         if (StringUtils.isEmpty(userName)) {
             userName = userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
             UserIdResolverCache.getInstance()
-                    .addToCache(userID, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+                    .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                             RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
         }
-        UserIdResolverCache.getInstance().addToCache(UserCoreUtil.addDomainToName(userName, getMyDomainName()), userID,
-                RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
+        UserIdResolverCache.getInstance()
+                .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
+                        RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
         return userName;
     }
 
