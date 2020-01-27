@@ -1,0 +1,4 @@
+# Codeowners for user components.
+/core/org.wso2.carbon.user.core @tharindu-bandara @JKAUSHALYA @madurangasiriwardena @ashensw @sarubi @wijith7 @gayashanbc
+
+/core/org.wso2.carbon.user.api @tharindu-bandara @JKAUSHALYA @madurangasiriwardena @ashensw @sarubi @wijith7 @gayashanbc
