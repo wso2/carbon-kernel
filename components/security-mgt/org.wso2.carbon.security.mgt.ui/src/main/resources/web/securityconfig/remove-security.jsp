@@ -21,6 +21,12 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%
+    String httpMethod = request.getMethod();
+    if (!"post".equalsIgnoreCase(httpMethod)) {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        return;
+    }
+    
     String forwardTo = null;
     String serviceName = (String) session.getAttribute("serviceName");
     String keyStore = request.getParameter("keyStore");

@@ -424,7 +424,7 @@
             </form>
         </div>
         <div id="divDeleteSecurity" style="display: none">
-            <form name="deleteSecurity" action="remove-security.jsp?serviceName=<%=
+            <form name="deleteSecurity" method="post" action="remove-security.jsp?serviceName=<%=
             Encode.forUriComponent(serviceName)%>">
                 <input type="submit" value="<fmt:message key="delete"/>"/>
             </form>
