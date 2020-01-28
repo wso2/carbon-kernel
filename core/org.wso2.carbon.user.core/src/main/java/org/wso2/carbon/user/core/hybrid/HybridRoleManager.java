@@ -297,13 +297,13 @@ public class HybridRoleManager {
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             byte increment = 0;
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(++increment, tenantId);
+            }
             if (filter.startsWith(INTERNAL_DOMAIN)) {
                 prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
             } else {
                 prepStmt.setString(++increment, filter);
-            }
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(++increment, tenantId);
             }
             if (filter.startsWith(INTERNAL_DOMAIN)) {
                 prepStmt.setString(++increment, "%/%");
