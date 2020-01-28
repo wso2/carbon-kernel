@@ -392,7 +392,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException;
 
     /**
-     * Retrieves list of group IDs of a given user ID.
+     * Retrieves list of groups of a given user ID.
      *
      * @param userId    User ID.
      * @param limit     No of search results. If the given value is greater than the system configured max limit
@@ -407,7 +407,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             throws UserStoreException;
 
     /**
-     * Retrieves list of group IDs evaluating the condition.
+     * Retrieves list of groups evaluating the condition.
      *
      * @param condition Conditional filter.
      * @param limit     No of search results. If the given value is greater than the system configured max limit
@@ -415,10 +415,27 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param offset    Start index of the user search.
      * @param sortBy    Sorted by.
      * @param sortOrder Sorted order.
-     * @return
+     * @return List of Group objects.
+     * @throws UserStoreException thrown by the underlying UserStoreManager.
      */
     List<Group> getGroupList(Condition condition, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException;
+
+    /**
+     * Get list of groups.
+     *
+     * @param noHybridGroups Whether hybrid groups exists.
+     * @param noSystemGroups Whether system groups exists.
+     * @param limit          No of search results. If the given value is greater than the system configured max limit
+     *                       it will be reset to the system configured max limit.
+     * @param offset         Start index of the user search.
+     * @param sortBy         Sort by.
+     * @param sortOrder      Sort order.
+     * @return List of groups available in the system.
+     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     */
+    List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
+                          String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Retrieves list of Users that belongs to a given group ID.
@@ -436,21 +453,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             throws UserStoreException;
 
     /**
-     * Retrieves list of Users by evaluating the condition.
-     *
-     * @param condition Conditional filter.
-     * @param limit     No of search results. If the given value is greater than the system configured max limit
-     *                  it will be reset to the system configured max limit.
-     * @param offset    Start index of the user search.
-     * @param sortBy    Sort by.
-     * @param sortOrder Sort order.
-     * @return List of Users.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
-     */
-    List<User> getUserList(Condition condition, int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException;
-
-    /**
      * Add a group to the system.
      *
      * @param groupName     Group's display name.
@@ -458,9 +460,10 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param permissions   Array of permissions of the group.
      * @param isSharedGroup Whether the added group is a shared or not.
      * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @return created Group object.
      */
-    void addGroup(String groupName, String[] userIDList, Permission[] permissions,
-                  boolean isSharedGroup) throws UserStoreException;
+    Group addGroup(String groupName, String[] userIDList, Permission[] permissions,
+                   boolean isSharedGroup) throws UserStoreException;
 
     /**
      * Update users that belongs to a group.
@@ -501,10 +504,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return A map which contains group list with each user belongs.
      * @throws UserStoreException thrown by the underlying UserStoreManager.
      */
-    default Map<String, List<String>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException {
-
-        return null;
-    }
+    Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
 
     /**
      * Check whether a group exists or not.
@@ -514,35 +514,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException thrown by the underlying UserStoreManager.
      */
     boolean isGroupExist(String groupID) throws UserStoreException;
-
-    /**
-     * Get list of groups.
-     *
-     * @param noHybridGroups Whether hybrid groups exists.
-     * @param noSystemGroups Whether system groups exists.
-     * @param limit          No of search results. If the given value is greater than the system configured max limit
-     *                       it will be reset to the system configured max limit.
-     * @param offset         Start index of the user search.
-     * @param sortBy         Sort by.
-     * @param sortOrder      Sort order.
-     * @return List of groups available in the system.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
-     */
-    List<Group> getGroups(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
-                          String sortBy, String sortOrder) throws UserStoreException;
-
-    /**
-     * @param condition Conditional filter.
-     * @param limit     No of search results. If the given value is greater than the system configured max limit
-     *                  it will be reset to the system configured max limit.
-     * @param offset    Start index of the user search.
-     * @param sortBy    Sort by.
-     * @param sortOrder Sort order.
-     * @return List of Users.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
-     */
-    List<Group> getGroups(Condition condition, int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException;
 
     /**
      * Delete a group.
@@ -558,8 +529,9 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param groupID      Group ID.
      * @param newGroupName New group name.
      * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @return Group object.
      */
-    void renameGroup(String groupID, String newGroupName) throws UserStoreException;
+    Group renameGroup(String groupID, String newGroupName) throws UserStoreException;
 
     /**
      * Add a user.
@@ -569,8 +541,9 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param claims      Maps of user claim values.
      * @param groupIDs    Array of group IDs.
      * @param profileName Profile name.
+     * @return User object.
      * @throws UserStoreException thrown by the underlying UserStoreManager.
      */
-    void addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
+    User addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
                  String profileName) throws UserStoreException;
 }

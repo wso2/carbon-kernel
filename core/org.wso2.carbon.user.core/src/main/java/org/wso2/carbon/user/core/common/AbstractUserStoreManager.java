@@ -14491,18 +14491,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<User> getUserList(Condition condition, int limit, int offset, String sortBy,
-                                  String sortOrder) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getUserList operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getUserList operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public void addGroup(String groupName, String[] userIDList, Permission[] permissions, boolean isSharedGroup)
+    public Group addGroup(String groupName, String[] userIDList, Permission[] permissions, boolean isSharedGroup)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14535,25 +14524,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Group> getGroups(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset, String sortBy,
-                                 String sortOrder) throws UserStoreException {
+    public List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
+                                    String sortBy, String sortOrder) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("getGroups operation is not implemented in: " + this.getClass());
+            log.debug("getGroupList operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "getGroups operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public List<Group> getGroups(Condition condition, int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getGroups operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getGroups operation is not implemented in: " + this.getClass());
+                "getGroupList operation is not implemented in: " + this.getClass());
     }
 
     @Override
@@ -14589,7 +14567,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Map<String, List<String>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException {
+    public Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("getGroupListOfUsers operation is not implemented in: " + this.getClass());
@@ -14619,7 +14597,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void renameGroup(String groupID, String newGroupName) throws UserStoreException {
+    public Group renameGroup(String groupID, String newGroupName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("renameGroup operation is not implemented in: " + this.getClass());
@@ -14629,7 +14607,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
+    public User addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
                         String profileName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {

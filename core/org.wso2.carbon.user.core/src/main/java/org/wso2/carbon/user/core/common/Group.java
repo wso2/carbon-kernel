@@ -28,24 +28,62 @@ import java.util.Map;
 public class Group extends Entity {
 
     private static final long serialVersionUID = -6157030956831929121L;
+    private String groupID;
+    private String groupName;
     private Permission[] permissions;
 
-    public Group(String groupID, String name) {
+    public Group() {
 
-        super(groupID, name);
+       super();
     }
 
-    public Group(String groupID, String name, String displayName, String tenantDomain, String userStoreDomain,
+    public Group(String groupID) {
+
+        this.groupID = groupID;
+
+    }
+
+    public Group(String groupID, String groupName) {
+
+        this.groupID = groupID;
+        this.groupName = groupName;
+    }
+
+    public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
                  Map<String, String> attributes) {
 
-        super(groupID, name, displayName, tenantDomain, userStoreDomain, attributes);
+        super(displayName, tenantDomain, userStoreDomain, attributes);
+        this.groupID = groupID;
+        this.groupName = groupName;
     }
 
-    public Group(String groupID, String name, String displayName, String tenantDomain, String userStoreDomain,
+    public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
                  Map<String, String> attributes, Permission[] permissions) {
 
-        super(groupID, name, displayName, tenantDomain, userStoreDomain, attributes);
+        super(displayName, tenantDomain, userStoreDomain, attributes);
+        this.groupID = groupID;
+        this.groupName = groupName;
         this.permissions = permissions;
+    }
+
+    public String getGroupID() {
+
+        return groupID;
+    }
+
+    public void setGroupID(String groupID) {
+
+        this.groupID = groupID;
+    }
+
+    public String getGroupName() {
+
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+
+        this.groupName = groupName;
     }
 
     public Permission[] getPermissions() {
