@@ -92,6 +92,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
@@ -3693,6 +3695,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabled) {
             userID = getUserIDFromUserName(userName);
             isUserExists = userID != null;
+            clearUserIDResolverCache(userName, userStore, userID);
         } else {
             isUserExists = doCheckExistingUser(userName);
         }
@@ -11707,18 +11710,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserIDFromUserName(userStore.getDomainFreeName());
         }
+        String userID = getFromUserIDCache(userName, userStore);
+        if (StringUtils.isEmpty(userID)) {
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                userID = doGetUserIDFromUserNameWithID(userName);
+                addToUserIDCache(userID, userName, userStore);
+                addToUserNameCache(userID, userName, userStore);
+                return userID;
+            }
 
-        if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            return doGetUserIDFromUserNameWithID(userStore.getDomainFreeName());
+            Map<String, String> claims = doGetUserClaimValues(userName,
+                    new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
+                    userStore.getDomainName(), null);
+            if (claims != null && claims.size() == 1) {
+                userID = claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
+                addToUserIDCache(userID, userName, userStore);
+                addToUserNameCache(userID, userName, userStore);
+                return userID;
+            }
         }
-
-        Map<String, String> claims = doGetUserClaimValues(userName,
-                new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
-                userStore.getDomainName(), null);
-        if (claims != null && claims.size() == 1) {
-            return claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
-        }
-        return null;
+        return userID;
     }
 
     /**
@@ -11767,11 +11778,56 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserNameFromUserID(userStore.getDomainFreeUserId());
         }
-
-        if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            return UserCoreUtil.addDomainToName(doGetUserNameFromUserIDWithID(userID), getMyDomainName());
+        String userName = getFromUserNameCache(userID);
+        if (StringUtils.isEmpty(userName)) {
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                userName = doGetUserNameFromUserIDWithID(userID);
+                addToUserNameCache(userID, userName, userStore);
+                addToUserIDCache(userID, userName, userStore);
+                return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
+            }
+            userName = userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
+            addToUserNameCache(userID, userName, userStore);
+            addToUserIDCache(userID, userName, userStore);
+            return userName;
         }
-        return userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
+        return userName;
+    }
+
+    private String getFromUserNameCache(String userID) {
+
+        return UserIdResolverCache.getInstance().getValueFromCache(userID,
+                RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+    }
+
+    private String getFromUserIDCache(String userName, UserStore userStore) {
+
+        return UserIdResolverCache.getInstance()
+                .getValueFromCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
+                        RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
+    }
+
+    private void addToUserIDCache(String userID, String userName, UserStore userStore) {
+
+        UserIdResolverCache.getInstance()
+                .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
+                        RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
+    }
+
+    private void addToUserNameCache(String userID, String userName, UserStore userStore) {
+
+        UserIdResolverCache.getInstance()
+                .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
+                        RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+    }
+
+    private void clearUserIDResolverCache(String userName, UserStore userStore, String userID) {
+
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
+                        RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
     }
 
     /**
