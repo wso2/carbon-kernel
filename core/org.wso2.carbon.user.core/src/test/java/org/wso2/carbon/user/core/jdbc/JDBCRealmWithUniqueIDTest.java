@@ -60,8 +60,10 @@ public class JDBCRealmWithUniqueIDTest extends BaseTestCase {
     public void testStuff() throws Exception {
 
         DatabaseUtil.closeDatabasePoolConnection();
-        UserIdResolverCache.getInstance().clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
-        UserIdResolverCache.getInstance().clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         initRealmStuff(TEST_URL);
         doUserStuff();
         doUserRoleStuff();

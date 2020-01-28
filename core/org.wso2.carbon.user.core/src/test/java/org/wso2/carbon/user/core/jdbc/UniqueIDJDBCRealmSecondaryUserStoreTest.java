@@ -81,8 +81,10 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
 
         super.setUp();
         DatabaseUtil.closeDatabasePoolConnection();
-        UserIdResolverCache.getInstance().clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME);
-        UserIdResolverCache.getInstance().clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         initRealmStuff(TEST_URL);
         DatabaseUtil.closeDatabasePoolConnection();
     }
