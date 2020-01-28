@@ -1758,7 +1758,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userID = getUserIDFromUserName(userName);
             isUserExists = userID != null;
         } else{
-            isUserExists = doCheckExistingUser(userName);
+            isUserExists = doCheckExistingUser(userStore.getDomainFreeName());
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -1779,7 +1779,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueIdEnabled) {
                 finalValues = doGetUserClaimValuesWithID(userID, claims, userStore.getDomainName(), profileName);
             } else {
-                finalValues = doGetUserClaimValues(userName, claims, userStore.getDomainName(), profileName);
+                finalValues = doGetUserClaimValues(userStore.getDomainFreeName(), claims, userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
             handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
@@ -14363,6 +14363,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             User user = getUser(userID, userName);
             uniqueIDUserClaimSearchEntry.setUser(user);
             uniqueIDUserClaimSearchEntry.setClaims(userClaimSearchEntry.getClaims());
+            uniqueIDUserClaimSearchEntry.setUserClaimSearchEntry(userClaimSearchEntry);
             uniqueIDUserClaimSearchEntries.add(uniqueIDUserClaimSearchEntry);
         }
         return uniqueIDUserClaimSearchEntries;
@@ -14469,17 +14470,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     allRoleNames.putAll(roleNames);
                 } else {
                     List<User> users = userUniqueIDManger
-                            .getUsers(userIDs, (AbstractUserStoreManager) secondaryUserStoreManager);
+                            .getUsers(entry.getValue(), (AbstractUserStoreManager) secondaryUserStoreManager);
                     Map<String, List<String>> userRoles = ((AbstractUserStoreManager) secondaryUserStoreManager)
                             .doGetRoleListOfUsers(users.stream().map(User::getUsername).collect(Collectors.toList()),
                                     entry.getKey());
-                    userRoles.forEach((key, value) -> {
-                        try {
-                            allRoleNames.put(getUserIDFromUserName(key), value);
-                        } catch (UserStoreException ignored) {
-                            // Ignore
-                        }
-                    });
+
+                    for (User user : users) {
+                        allRoleNames.put(user.getUserID(), userRoles.get(user.getUsername()));
+                    }
                 }
             }
         }
