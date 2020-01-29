@@ -14542,6 +14542,143 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return combinedRoles;
     }
 
+    @Override
+    public List<Group> getGroupList(Condition condition, int limit, int offset, String sortBy,
+                                    String sortOrder) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupList operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupList operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Group addGroup(String groupName, String[] userIDList, Permission[] permissions, boolean isSharedGroup)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("addGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "addGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupListOfUser operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getUserListOfGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getUserListOfGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
+                                    String sortBy, String sortOrder) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupList operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupList operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public void updateUserListOfGroup(String groupID, String[] deletedUserIDs, String[] newUserIDs)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("updateUserListOfGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "updateUserListOfGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public void updateGroupListOfUser(String userID, String[] deletedGroupIDs, String[] newGroupIDs)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("updateGroupListOfUser operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "updateGroupListOfUser operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public boolean isUserInGroup(String userID, String groupID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("isUserInGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "isUserInGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupListOfUsers operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupListOfUsers operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public boolean isGroupExist(String groupID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("isGroupExist operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "isGroupExist operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public void deleteGroup(String groupID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("deleteGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "deleteGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Group renameGroup(String groupID, String newGroupName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("renameGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "renameGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public User addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
+                        String profileName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("addUser operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "addUser operation is not implemented in: " + this.getClass());
+    }
 
     private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {
 
