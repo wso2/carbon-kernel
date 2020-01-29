@@ -101,6 +101,16 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException;
 
     /**
+     * Update the username of the given user.
+     *
+     * @param userID      userID of the user.
+     * @param newUserName new user name.
+     * @return updated user.
+     * @throws UserStoreException User Store Exception.
+     */
+    User updateUserName(String userID, String newUserName) throws UserStoreException;
+
+    /**
      * Checks whether the user is in the user store.
      *
      * @param userID The user ID.

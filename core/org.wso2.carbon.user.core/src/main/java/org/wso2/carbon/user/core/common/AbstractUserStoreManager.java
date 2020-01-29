@@ -10711,6 +10711,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public User updateUserName(String userID, String newUserName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("updateUserName operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("updateUserName operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
     public User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
