@@ -29,7 +29,6 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.JNDIUtil;
@@ -667,14 +666,6 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             JNDIUtil.closeContext(dirContext);
         }
 
-    }
-
-    @Override
-    public List<Group> doGetGroupList(int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException {
-
-        logger.error("+++++++++++++++++++UniqueIDActiveDirectoryUserstore ++++++++++++++++++++++++++++++++");
-       return new ArrayList<>();
     }
 
     @Override

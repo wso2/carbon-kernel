@@ -78,7 +78,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,8 +90,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
@@ -8122,8 +8119,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return roleList;
     }
 
-
-
     /**
      * Retrieve the list of users directly from the database,
      * without using the cache.
@@ -14595,68 +14590,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
                                     String sortBy, String sortOrder) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{boolean.class, boolean.class, int.class, int.class, String.class,
-                    String.class};
-            Object object = callSecure("getGroupList", new Object[]{noHybridGroups, noSystemGroups, limit,
-                            offset, sortBy, sortOrder},
-                    argTypes);
-            return (List<Group>) object;
-        }
-
-        List<Group> groupList = new ArrayList<>();
-        String[] hybridRoleList = new String[0];
-
-        if (!noHybridGroups) {
-            hybridRoleList = hybridRoleManager.getHybridRoles(null);
-        }
-        if (!noSystemGroups) {
-            String[] systemRoles = systemUserRoleManager.getSystemRoles();
-
-        }
-
-//        String primaryDomain = getMyDomainName();
-
-        if (this.getSecondaryUserStoreManager() != null) {
-            for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
-//                if (entry.getKey().equalsIgnoreCase(primaryDomain)) {
-//                    continue;
-//                }
-                UserStoreManager storeManager = entry.getValue();
-                if (storeManager instanceof AbstractUserStoreManager) {
-                    try {
-                        if (readGroupsEnabled) {
-                            List<Group> userstoreGroupList = ((AbstractUserStoreManager) storeManager)
-                                    .doGetGroupList(limit, offset, sortBy, sortOrder);
-                            groupList = Stream
-                                    .of(groupList, userstoreGroupList)
-                                    .flatMap(Collection::stream)
-                                    .collect(Collectors.toList());
-                        }
-                    } catch (UserStoreException e) {
-                        // We can ignore and proceed. Ignore the results from this user store.
-                        log.error(e);
-                    }
-                } else {
-                    // TODO: 2020-01-29 decide this part
-//                    groupList = Stream
-//                            .of(groupList, storeManager.getGroupList())
-//                            .flatMap(Collection::stream)
-//                            .collect(Collectors.toList());
-                }
-            }
-        }
-        return groupList;
-    }
-
-    public List<Group> doGetGroupList(int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException {
-
         if (log.isDebugEnabled()) {
-            log.debug("doGetUserListFromPropertiesWithID operation is not implemented in: " + this.getClass());
+            log.debug("getGroupList operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "doGetUserListFromPropertiesWithID operation is not implemented in: " + this.getClass());
+                "getGroupList operation is not implemented in: " + this.getClass());
     }
 
     @Override
