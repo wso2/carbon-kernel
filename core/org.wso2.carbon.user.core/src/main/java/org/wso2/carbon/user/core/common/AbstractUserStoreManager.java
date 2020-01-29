@@ -11710,6 +11710,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserIDFromUserName(userStore.getDomainFreeName());
         }
+        userName = userStore.getDomainFreeName();
         String userID = getFromUserIDCache(userName, userStore);
         if (StringUtils.isEmpty(userID)) {
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
