@@ -11719,6 +11719,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserIDFromUserName(userStore.getDomainFreeName());
         }
+        userName = userStore.getDomainFreeName();
         String userID = getFromUserIDCache(userName, userStore);
         if (StringUtils.isEmpty(userID)) {
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
@@ -13063,18 +13064,30 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private final void updateUserListOfRoleInternalWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException {
 
+        String[] deletedUsernames = new String[0];
+        if (ArrayUtils.isNotEmpty(deletedUserIDs)) {
+            List<String> deletedUsernameList = getUserNamesFromUserIDs(Arrays.asList(deletedUserIDs));
+            deletedUsernames = deletedUsernameList.toArray(new String[0]);
+        }
+
+        String[] newUsernames = new String[0];
+        if (ArrayUtils.isNotEmpty(newUserIDs)) {
+            List<String> newUsernameList = getUserNamesFromUserIDs(Arrays.asList(newUserIDs));
+            newUsernames = newUsernameList.toArray(new String[0]);
+        }
+
         String primaryDomain = getMyDomainName();
         if (primaryDomain != null) {
             primaryDomain += CarbonConstants.DOMAIN_SEPARATOR;
         }
 
-        if (deletedUserIDs != null && deletedUserIDs.length > 0) {
-            Arrays.sort(deletedUserIDs);
+        if (deletedUsernames.length > 0) {
+            Arrays.sort(deletedUsernames);
             // Updating the user list of a role belong to the primary domain.
             if (UserCoreUtil.isPrimaryAdminRole(roleName, realmConfig)) {
-                for (int i = 0; i < deletedUserIDs.length; i++) {
-                    if (deletedUserIDs[i].equalsIgnoreCase(realmConfig.getAdminUserName()) || (primaryDomain
-                            + deletedUserIDs[i]).equalsIgnoreCase(realmConfig.getAdminUserName())) {
+                for (int i = 0; i < deletedUsernames.length; i++) {
+                    if (deletedUsernames[i].equalsIgnoreCase(realmConfig.getAdminUserName()) || (primaryDomain
+                            + deletedUsernames[i]).equalsIgnoreCase(realmConfig.getAdminUserName())) {
                         handleUpdateRoleListOfUserFailureWithID(
                                 ErrorMessages.ERROR_CODE_CANNOT_REMOVE_ADMIN_ROLE_FROM_ADMIN.getCode(),
                                 ErrorMessages.ERROR_CODE_CANNOT_REMOVE_ADMIN_ROLE_FROM_ADMIN.getMessage(), roleName,
@@ -13099,11 +13112,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUserIDs, newUserIDs);
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsernames,
+                        newUsernames);
                 handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true);
             } else {
-                hybridRoleManager
-                        .updateUserListOfHybridRole(userStore.getDomainAwareName(), deletedUserIDs, newUserIDs);
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(), deletedUsernames,
+                        newUsernames);
                 handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true);
             }
             clearUserRolesCacheByTenant(this.tenantId);
@@ -13112,7 +13126,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isSystemStore()) {
             systemUserRoleManager.updateUserListOfSystemRole(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromNames(deletedUserIDs), UserCoreUtil.removeDomainFromNames(newUserIDs));
+                    UserCoreUtil.removeDomainFromNames(deletedUsernames),
+                    UserCoreUtil.removeDomainFromNames(newUsernames));
             handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true);
             return;
         }
@@ -13179,7 +13194,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         clearUserRolesCacheByTenant(this.tenantId);
 
         // Call relevant listeners after updating user list of role.
-        handleDoPostUpdateUserListOfRole(roleName, deletedUserIDs, newUserIDs, false);
+        handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false);
     }
 
     @Override
