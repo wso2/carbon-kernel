@@ -1035,7 +1035,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @return
      * @throws .UserStoreException
      */
-    protected String[] doGetRoleNames(String filter, int offset, int limit)
+    protected PaginatedSearchResult doGetRoleNames(String filter, int offset, int limit)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -7347,34 +7347,50 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] roleList = new String[0];
+        PaginatedSearchResult searchResult;
 
         if (!noHybridlRoles && (filter.toLowerCase().startsWith(APPLICATION_DOMAIN.toLowerCase()))) {
-            return hybridRoleManager.getHybridRoles(filter, startIndex, count);
+            searchResult = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+            return searchResult.getRoles();
         } else if (!noHybridlRoles && !isAnInternalRole(filter) && !filter
                 .contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             // When domain name is not present in the filter value.
             if ("*".equals(filter)) {
-                roleList = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+                searchResult = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+                roleList = searchResult.getRoles();
                 if (roleList.length > 0 && roleList.length == count) {
                     return roleList;
                 } else {
                     count = count - roleList.length;
-                    startIndex = 0;
+                    int nonPaginatedUserCount = searchResult.getSkippedRoleCount();
+                    if (roleList.length == 0) {
+                        startIndex = startIndex - nonPaginatedUserCount;
+                    }
                 }
             } else {
+                int nonPaginatedUserCount = 0;
                 // Since Application domain roles are stored in db with the "Application/" prefix, when domain is not
                 // present in the filter, need to append the "Application/" before sending for db query.
-                String[] applicationDomainRoleArray = hybridRoleManager
+                String[] applicationDomainRoleArray;
+                searchResult = hybridRoleManager
                         .getHybridRoles(APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + filter,
                                 startIndex, count);
+                applicationDomainRoleArray = searchResult.getRoles();
                 int applicationRoleLength = applicationDomainRoleArray.length;
                 if (applicationRoleLength > 0 && count == applicationRoleLength) {
                     return applicationDomainRoleArray;
                 } else {
                     count = count - applicationRoleLength;
-                    startIndex = 0;
-                    String[] internalDomainRoleArray = hybridRoleManager.getHybridRoles(INTERNAL_DOMAIN +
+                    nonPaginatedUserCount = searchResult.getSkippedRoleCount();
+                    if (applicationRoleLength > 0) {
+                        startIndex = 0;
+                    } else {
+                        startIndex = startIndex - nonPaginatedUserCount;
+                    }
+                    String[] internalDomainRoleArray;
+                    searchResult = hybridRoleManager.getHybridRoles(INTERNAL_DOMAIN +
                             UserCoreConstants.DOMAIN_SEPARATOR + filter, startIndex, count);
+                    internalDomainRoleArray = searchResult.getRoles();
                     int internalRoleSize = internalDomainRoleArray.length;
                     if (internalRoleSize > 0 && internalRoleSize == count) {
                         roleList = UserCoreUtil.combineArrays(applicationDomainRoleArray, internalDomainRoleArray);
@@ -7382,17 +7398,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } else {
                         roleList = UserCoreUtil.combineArrays(applicationDomainRoleArray, internalDomainRoleArray);
                         count = count - internalRoleSize;
-                        startIndex = 0;
+                        nonPaginatedUserCount = searchResult.getSkippedRoleCount();
+                        if (internalRoleSize > 0) {
+                            startIndex = 0;
+                        } else {
+                            startIndex = startIndex - nonPaginatedUserCount;
+                        }
                     }
                 }
             }
         } else if (!noHybridlRoles) {
-            roleList = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+            searchResult = hybridRoleManager.getHybridRoles(filter, startIndex, count);
+            roleList = searchResult.getRoles();
             if (roleList.length > 0 && roleList.length == count) {
                 return roleList;
             } else {
                 count = count - roleList.length;
-                startIndex = 0;
+                int nonPaginatedUserCount = searchResult.getSkippedRoleCount();
+                if (roleList.length > 0) {
+                    startIndex = 0;
+                } else {
+                    startIndex = startIndex - nonPaginatedUserCount;
+                }
             }
         }
 
@@ -7445,13 +7472,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (readGroupsEnabled) {
-            String[] externalRoles = doGetRoleNames(filter, startIndex, count);
+            PaginatedSearchResult result = doGetRoleNames(filter, startIndex, count);
+            String[] externalRoles = result.getRoles();
             roleList = UserCoreUtil.combineArrays(externalRoles, roleList);
             if (externalRoles.length > 0 && externalRoles.length == count) {
                 return roleList;
             } else {
                 count = count - externalRoles.length;
-                startIndex = 0;
+                int nonPaginatedUserCount = result.getSkippedRoleCount();
+                if (externalRoles.length > 0) {
+                    startIndex = 0;
+                } else {
+                    startIndex = startIndex - nonPaginatedUserCount;
+                }
             }
         }
 
@@ -7466,14 +7499,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (storeManager instanceof AbstractUserStoreManager) {
                     try {
                         if (readGroupsEnabled) {
-                            String[] secondRoleList = ((AbstractUserStoreManager) storeManager)
+                            PaginatedSearchResult result = ((AbstractUserStoreManager) storeManager)
                                     .doGetRoleNames(filter, startIndex, count);
+                            String[] secondRoleList = result.getRoles();
                             roleList = UserCoreUtil.combineArrays(roleList, secondRoleList);
                             if (secondRoleList.length > 0 && count == secondRoleList.length) {
                                 return roleList;
                             } else {
                                 count = count - secondRoleList.length;
-                                startIndex = 0;
+                                int nonPaginatedUserCount = result.getSkippedRoleCount();
+                                if (secondRoleList.length > 0) {
+                                    startIndex = 0;
+                                } else {
+                                    startIndex = startIndex - nonPaginatedUserCount;
+                                }
                             }
                         }
                     } catch (UserStoreException e) {
@@ -7512,15 +7551,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private String[] getGroupsEnabledRoles(String filter, int startIndex, int count, String[] roleList,
                                            AbstractUserStoreManager secManager) throws UserStoreException {
 
-        String[] externalRoles = secManager
-                .doGetRoleNames(filter, startIndex, count);
+        PaginatedSearchResult result = secManager.doGetRoleNames(filter, startIndex, count);
+
+        String[] externalRoles = result.getRoles();
         return UserCoreUtil.combineArrays(roleList, externalRoles);
     }
 
     private String[] getGroupsEnabledRoles(String filter, int startIndex, int count, String[] roleList, int index)
             throws UserStoreException {
 
-        String[] externalRoles = doGetRoleNames(filter.substring(index + 1), startIndex, count);
+        PaginatedSearchResult result = doGetRoleNames(filter.substring(index + 1), startIndex, count);
+        String[] externalRoles = result.getRoles();
         return UserCoreUtil.combineArrays(roleList, externalRoles);
     }
 

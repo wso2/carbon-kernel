@@ -599,7 +599,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     /**
      *
      */
-    public String[] doGetRoleNames(String filter, int offset, int limit) throws UserStoreException {
+    public PaginatedSearchResult doGetRoleNames(String filter, int offset, int limit) throws UserStoreException {
 
         String[] roles = new String[0];
         Connection dbConnection = null;
@@ -607,14 +607,39 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
+        PaginatedSearchResult result = new PaginatedSearchResult();
+
+        if (limit == 0) {
+            return result;
+        }
+
         if (offset <= 0) {
             offset = 0;
         } else {
             offset = offset - 1;
         }
 
-        if (limit <= 0) {
-            return roles;
+        int givenMax;
+        int searchTime;
+
+        try {
+            givenMax =
+                    Integer.parseInt(
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+
+        try {
+            searchTime =
+                    Integer.parseInt(
+                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+
+        if (limit < 0 || limit > givenMax) {
+            limit = givenMax;
         }
 
         try {
@@ -662,6 +687,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             prepStmt.setInt(++count, limit);
             prepStmt.setInt(++count, offset);
+            prepStmt.setQueryTimeout(searchTime);
             try {
                 rs = prepStmt.executeQuery();
             } catch (SQLException e) {
@@ -692,7 +718,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (lst.size() > 0) {
                 roles = lst.toArray(new String[lst.size()]);
             }
-
+            Arrays.sort(roles);
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving role names for filter : " + filter + " & max item limit : " +
                     limit;
@@ -709,7 +735,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
-        return roles;
+        result.setRoles(roles);
+
+        if (roles.length == 0) {
+            result.setSkippedRoleCount((int) doCountRoles(filter));
+        }
+        return result;
     }
 
     private void setPSRestrictions(PreparedStatement ps, int maxItemLimit) throws SQLException {

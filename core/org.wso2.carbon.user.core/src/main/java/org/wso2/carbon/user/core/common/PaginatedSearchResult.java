@@ -21,10 +21,12 @@ package org.wso2.carbon.user.core.common;
 public class PaginatedSearchResult {
 
     private String[] users;
+    private String[] roles;
 
     //This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
     // required to know how many users skipped in that user store to identify the start index of next user store.
     private int skippedUserCount;
+    private int skippedRoleCount;
 
     public String[] getUsers() {
 
@@ -39,6 +41,16 @@ public class PaginatedSearchResult {
         this.users = users;
     }
 
+    public String[] getRoles() {
+
+        return roles;
+    }
+
+    public void setRoles(String[] roles) {
+
+        this.roles = roles;
+    }
+
     public int getSkippedUserCount() {
 
         return skippedUserCount;
@@ -47,5 +59,15 @@ public class PaginatedSearchResult {
     public void setSkippedUserCount(int skippedUserCount) {
 
         this.skippedUserCount = skippedUserCount;
+    }
+
+    public int getSkippedRoleCount() {
+
+        return skippedRoleCount;
+    }
+
+    public void setSkippedRoleCount(int skippedRoleCount) {
+
+        this.skippedRoleCount = skippedRoleCount;
     }
 }

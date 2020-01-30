@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
+import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
@@ -63,7 +64,6 @@ public class HybridRoleManager {
     private String isCascadeDeleteEnabled;
     private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
-    private static final String INTERNAL_DOMAIN = "Internal";
     private static final String WORKFLOW_DOMAIN = "Workflow";
 
     private static final String DB2 = "db2";
@@ -218,13 +218,16 @@ public class HybridRoleManager {
      * @return
      * @throws UserStoreException
      */
-    public String[] getHybridRoles(String filter, int offset, int limit) throws UserStoreException {
+    public PaginatedSearchResult getHybridRoles(String filter, int offset, int limit) throws UserStoreException {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
+        String[] roles = new String[0];
 
         int searchTime;
+
+        PaginatedSearchResult result = new PaginatedSearchResult();
 
         if (offset <= 0) {
             offset = 0;
@@ -266,14 +269,14 @@ public class HybridRoleManager {
                 int initialOffset = offset;
                 offset = offset + limit;
                 limit = initialOffset + 1;
-                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_DB2;
                 } else {
                     sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED_DB2;
                 }
             } else if (ORACLE.equalsIgnoreCase(dbType)) {
                 limit = offset + limit;
-                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_ORACLE;
                 } else {
                     sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED_ORACLE;
@@ -282,13 +285,13 @@ public class HybridRoleManager {
                 int initialOffset = offset;
                 offset = limit + offset;
                 limit = initialOffset + 1;
-                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_MSSQL;
                 } else {
                     sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED_MSSQL;
                 }
             } else {
-                if (filter.startsWith(INTERNAL_DOMAIN)) {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED;
                 } else {
                     sqlStmt = HybridJDBCConstants.GET_ROLES_PAGINATED;
@@ -297,15 +300,15 @@ public class HybridRoleManager {
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             byte increment = 0;
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(++increment, tenantId);
-            }
-            if (filter.startsWith(INTERNAL_DOMAIN)) {
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                 prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
             } else {
                 prepStmt.setString(++increment, filter);
             }
-            if (filter.startsWith(INTERNAL_DOMAIN)) {
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(++increment, tenantId);
+            }
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                 prepStmt.setString(++increment, "%/%");
             }
             prepStmt.setInt(++increment, limit);
@@ -337,7 +340,10 @@ public class HybridRoleManager {
                     filteredRoles.add(name);
                 }
             }
-            return filteredRoles.toArray(new String[filteredRoles.size()]);
+            if (filteredRoles.size() > 0) {
+                roles = filteredRoles.toArray(new String[filteredRoles.size()]);
+            }
+            Arrays.sort(roles);
         } catch (SQLException e) {
             String errorMessage = "Error occurred while getting hybrid roles from filter : " + filter;
             if (log.isDebugEnabled()) {
@@ -353,6 +359,100 @@ public class HybridRoleManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
+        result.setRoles(roles);
+
+        if (roles.length == 0) {
+            result.setSkippedRoleCount(doCountRoles(filter));
+        }
+        return result;
+    }
+
+    /**
+     * Count roles in user stores.
+     *
+     * @param filter the filter for the user name. Use '*' to have all.
+     * @return user count
+     * @throws UserStoreException UserStoreException
+     */
+    public int doCountRoles(String filter) throws UserStoreException {
+
+        int usersCount = 0;
+        String sqlStmt;
+
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(filter)) {
+            filter = filter.trim();
+            filter = filter.replace("*", "%");
+            filter = filter.replace("?", "_");
+        } else {
+            filter = "%";
+        }
+
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
+
+            String dbType = DatabaseCreator.getDatabaseType(dbConnection);
+
+            if (DB2.equalsIgnoreCase(dbType)) {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL_DB2;
+                } else {
+                    sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
+                }
+            } else if (ORACLE.equalsIgnoreCase(dbType)) {
+                // Test in oracle db and add the query
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
+                } else {
+                    sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
+                }
+            } else if (MSSQL.equalsIgnoreCase(dbType)) {
+                // Test in mssql db and add the query
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
+                } else {
+                    sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
+                }
+            } else {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
+                } else {
+                    sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
+                }
+            }
+
+            PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            byte increment = 0;
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
+            } else {
+                prepStmt.setString(++increment, filter);
+            }
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, "%/%");
+            }
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(++increment, tenantId);
+            }
+
+            ResultSet resultSets = prepStmt.executeQuery();
+            while (resultSets.next()) {
+                usersCount = resultSets.getInt(1);
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving users for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+
+        } catch (Exception e) {
+            String msg = "Error occur while getting database type";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
+        return usersCount;
     }
 
     /**
@@ -366,7 +466,7 @@ public class HybridRoleManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
-        String sqlStmt = HybridJDBCConstants.GET_ROLES;
+        String sqlStmt;
         int maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
         int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
 
@@ -403,10 +503,52 @@ public class HybridRoleManager {
             if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
                 dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             }
+
+            String dbType = DatabaseCreator.getDatabaseType(dbConnection);
+
+            if (DB2.equalsIgnoreCase(dbType)) {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_DB2;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES;
+                }
+            } else if (ORACLE.equalsIgnoreCase(dbType)) {
+                // Test in oracle db and add the query
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES;
+                }
+            } else if (MSSQL.equalsIgnoreCase(dbType)) {
+                // Test in mssql db and add the query
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES;
+                }
+            } else {
+                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLES;
+                }
+            }
+
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, filter);
+
+            byte increment = 0;
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
+            } else {
+                prepStmt.setString(++increment, filter);
+            }
+
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, "%/%");
+            }
+
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
+                prepStmt.setInt(++increment, tenantId);
             }
             prepStmt.setMaxRows(maxItemLimit);
             try {
@@ -442,6 +584,12 @@ public class HybridRoleManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String msg = "Error occur while getting database type";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
