@@ -42,7 +42,7 @@ public class AuthenticationResult implements Serializable {
 
     public Optional<User> getAuthenticatedUser() {
 
-        return Optional.of(authenticatedUser);
+        return Optional.ofNullable(authenticatedUser);
     }
 
     public void setAuthenticatedUser(User authenticatedUser) {
@@ -72,7 +72,7 @@ public class AuthenticationResult implements Serializable {
 
     public Optional<FailureReason> getFailureReason() {
 
-        return Optional.of(failureReason);
+        return Optional.ofNullable(failureReason);
     }
 
     public void setFailureReason(FailureReason failureReason) {
