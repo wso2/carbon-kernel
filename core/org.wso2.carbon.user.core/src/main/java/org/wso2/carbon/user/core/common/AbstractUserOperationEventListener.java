@@ -519,6 +519,19 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
+    public boolean doPreUpdateUserName(String userID, String newUserName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateUserName(User user, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean doPreUpdateCredentialWithID(String userID, Object newCredential, Object oldCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
 

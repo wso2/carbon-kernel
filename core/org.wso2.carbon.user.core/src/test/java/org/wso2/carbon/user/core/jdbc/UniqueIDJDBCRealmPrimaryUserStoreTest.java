@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.common.UserIdResolverCache;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
@@ -52,6 +53,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
@@ -65,6 +69,7 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     public void setUp() throws Exception {
 
         super.setUp();
+        clearUserIdResolverCache();
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff(TEST_URL);
         DatabaseUtil.closeDatabasePoolConnection();
@@ -398,6 +403,7 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     }
 
     // TODO: 12/18/19 this is failing. Needs to be fixed
+
     public void test181AdRoleWithUseNegativerWithID() {
         //add role with an invalid user id.
         try {
@@ -409,7 +415,6 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 //            assertFalse(e.getMessage().contains("Error occurred while getting database type from DB connection"));
         }
     }
-
 
     public void test182SetUserClaimValuesWithIDInDefaultProfile() throws UserStoreException {
 
@@ -643,5 +648,13 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         for (String role : roles) {
             assertFalse(admin.getUserListOfRoleWithID(role).stream().map(User::getUserID).collect(Collectors.toList()).contains(userId1));
         }
+    }
+
+    private void clearUserIdResolverCache() {
+
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
     }
 }
