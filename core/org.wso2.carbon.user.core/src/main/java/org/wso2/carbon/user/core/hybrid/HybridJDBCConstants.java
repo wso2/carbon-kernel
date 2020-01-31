@@ -106,7 +106,7 @@ public class HybridJDBCConstants {
             "UM_ROLE_NAME) WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND NOT UM_ROLE_NAME LIKE ? AND rownum <= ?) " +
             "WHERE  rnum > ?";
     public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
-            "UM_ROLE_NAME LIKE AND NOT UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
+            "UM_ROLE_NAME LIKE ? AND NOT UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
     public static final String COUNT_INTERNAL_ROLES_SQL_DB2 = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE " +
             "WHERE NOT(UM_ROLE_NAME LIKE ?) AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
     public static final String COUNT_ROLES_SQL =
