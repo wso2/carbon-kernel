@@ -1397,8 +1397,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // Let's authenticate with the primary UserStoreManager.
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    String userNameProperty = claimManager
-                            .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                    String userNameProperty = getUsernameProperty();
                     AuthenticationResult authenticationResult = abstractUserStoreManager
                             .doAuthenticateWithID(userNameProperty, userName, credential, null);
                     if (authenticationResult.getAuthenticationStatus()
@@ -1476,6 +1475,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         return authenticated;
+    }
+
+    private String getUsernameProperty() throws org.wso2.carbon.user.api.UserStoreException {
+
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        if (StringUtils.isBlank(userNameProperty)) {
+             userNameProperty = claimManager
+                    .getAttributeName(getMyDomainName(), UserCoreClaimConstants.USERNAME_CLAIM_URI);
+        }
+        return userNameProperty;
     }
 
     /**
@@ -3189,8 +3198,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             boolean isAuth;
             if (isUniqueUserIdEnabled) {
-                String preferredUserNameProperty = claimManager.getAttributeName(getMyDomainName(),
-                        UserCoreClaimConstants.USERNAME_CLAIM_URI);
+                String preferredUserNameProperty = getUsernameProperty();
                 isAuth = this.doAuthenticateWithID(preferredUserNameProperty, userName, oldCredentialObj, null)
                         .getAuthenticationStatus() == AuthenticationResult.AuthenticationStatus.SUCCESS;
             } else {
@@ -6007,18 +6015,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-        return userList;
-    }
-
-    private String[] getUserNamesList(String[] userList) throws UserStoreException {
-
-        if (isUniqueUserIdEnabled()) {
-            List<String> userNamesList = new ArrayList<>();
-            for (String userID : userList) {
-                userNamesList.add(getUserClaimValueWithID(userID, UserCoreClaimConstants.USERNAME_CLAIM_URI, null));
-            }
-            userList = userNamesList.toArray(new String[0]);
-        }
         return userList;
     }
 

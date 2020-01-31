@@ -1099,7 +1099,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         // Assigning unique user ID of the user as the username in the system.
         String userID = getUniqueUserID();
-        // Assign preferredUsername to the username claim.
+        // Assign username to the username claim.
         claims = addUserNameAttribute(userName, claims);
         // Assign userID to the userid claim.
         claims = addUserIDAttribute(userID, claims);

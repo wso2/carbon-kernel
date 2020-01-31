@@ -46,6 +46,16 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
+import java.nio.ByteBuffer;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -62,15 +72,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
-import java.nio.ByteBuffer;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -559,7 +560,34 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
 
-        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        return getUserIDFromProperty(userNameProperty, userName);
+    }
+
+    private String getUserIDFromProperty(String property, String claimValue) throws UserStoreException {
+
+        try {
+            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, null);
+            if (userIds.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "No UserID found for the property: " + property + ", value: " + claimValue + ", in domain:"
+                                    + " " + getMyDomainName());
+                }
+                return null;
+            } else if (userIds.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
+                                + "of the " + "property: " + property);
+            } else {
+                // username can have only one userId. Take the first element.
+                return userIds.get(0);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "property"
+                            + property + " value: " + claimValue, e);
+        }
     }
 
     @Override
@@ -576,21 +604,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
                 return null;
             }
-            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, profileName);
-            if (userIds.isEmpty()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("No UserID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:"
-                            + " " + getMyDomainName());
-                }
-                return null;
-            } else if (userIds.size() > 1) {
-                throw new UserStoreException(
-                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
-                                + "of the " + "claim: " + claimURI);
-            } else {
-                // username can have only one userId. Take the first element.
-                return userIds.get(0);
-            }
+            return getUserIDFromProperty(property, claimValue);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(
                     "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "claim"
