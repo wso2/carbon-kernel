@@ -52,7 +52,6 @@
       <Property name="commitOnReturn">false</Property>
       <Property name="rollbackOnReturn">false</Property>
       <Property name="CountRetrieverClass">org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever</Property>
-      <Property name="EnableMaxUserLimitForSCIM">false</Property>
       <Property name="UserIDEnabled">true</Property>
       <Property name="DomainName">SECONDARYJDBC</Property>
       <Property name="Description"/>
