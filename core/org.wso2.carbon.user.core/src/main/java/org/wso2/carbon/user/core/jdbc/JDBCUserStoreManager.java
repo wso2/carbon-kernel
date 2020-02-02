@@ -669,8 +669,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 limit = offset + limit;
             } else if (MSSQL.equalsIgnoreCase(dbType)) {
                 int initialOffset = offset;
-                offset = limit + offset;
-                limit = initialOffset + 1;
+                offset = limit;
+                limit = initialOffset;
             }
 
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_PAGINATED + "-" + dbType);

@@ -283,8 +283,8 @@ public class HybridRoleManager {
                 }
             } else if (MSSQL.equalsIgnoreCase(dbType)) {
                 int initialOffset = offset;
-                offset = limit + offset;
-                limit = initialOffset + 1;
+                offset = limit;
+                limit = initialOffset;
                 if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_PAGINATED_MSSQL;
                 } else {
@@ -394,20 +394,6 @@ public class HybridRoleManager {
             if (DB2.equalsIgnoreCase(dbType)) {
                 if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL_DB2;
-                } else {
-                    sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
-                }
-            } else if (ORACLE.equalsIgnoreCase(dbType)) {
-                // Test in oracle db and add the query
-                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-                    sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
-                } else {
-                    sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
-                }
-            } else if (MSSQL.equalsIgnoreCase(dbType)) {
-                // Test in mssql db and add the query
-                if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-                    sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
                 } else {
                     sqlStmt = HybridJDBCConstants.COUNT_ROLES_SQL;
                 }
