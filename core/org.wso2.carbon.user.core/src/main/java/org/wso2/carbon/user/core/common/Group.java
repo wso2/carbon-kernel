@@ -28,8 +28,6 @@ import java.util.Map;
 public class Group extends Entity {
 
     private static final long serialVersionUID = -6157030956831929121L;
-    private String groupID;
-    private String groupName;
     private Permission[] permissions;
 
     public Group() {
@@ -39,51 +37,46 @@ public class Group extends Entity {
 
     public Group(String groupID) {
 
-        this.groupID = groupID;
+        super(groupID);
 
     }
 
     public Group(String groupID, String groupName) {
 
-        this.groupID = groupID;
-        this.groupName = groupName;
+        super(groupID, groupName);
     }
 
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
                  Map<String, String> attributes) {
 
-        super(displayName, tenantDomain, userStoreDomain, attributes);
-        this.groupID = groupID;
-        this.groupName = groupName;
+        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, attributes);
     }
 
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
                  Map<String, String> attributes, Permission[] permissions) {
 
-        super(displayName, tenantDomain, userStoreDomain, attributes);
-        this.groupID = groupID;
-        this.groupName = groupName;
+        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, attributes);
         this.permissions = permissions;
     }
 
     public String getGroupID() {
 
-        return groupID;
+        return super.getId();
     }
 
     public void setGroupID(String groupID) {
 
-        this.groupID = groupID;
+        super.setId(groupID);
     }
 
     public String getGroupName() {
 
-        return groupName;
+        return super.getName();
     }
 
     public void setGroupName(String groupName) {
 
-        this.groupName = groupName;
+        super.setName(groupName);
     }
 
     public Permission[] getPermissions() {
