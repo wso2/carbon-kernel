@@ -38,6 +38,7 @@ public class User extends Entity {
     }
 
     public User(String userID) {
+
         super.setId(userID);
     }
 

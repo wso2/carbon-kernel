@@ -30,9 +30,9 @@ public class Group extends Entity {
     private static final long serialVersionUID = -6157030956831929121L;
     private Permission[] permissions;
 
-    public Group() {
+    public Group(String groupID) {
 
-       super();
+        super.setId(groupID);
     }
 
     public Group(String groupID, String groupName) {
