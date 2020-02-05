@@ -41,7 +41,7 @@ public class User extends Entity {
 
     public User(String userID) {
 
-        super(userID);
+        this.userID = userID;
     }
 
     public User(String userID, String username, String preferredUsername) {
@@ -54,28 +54,30 @@ public class User extends Entity {
     public User(String userID, String username, String preferredUsername, String displayName, String tenantDomain,
                 String userStoreDomain, Map<String, String> attributes) {
 
-        super(userID, username, displayName, tenantDomain, userStoreDomain, attributes);
+        super(displayName, tenantDomain, userStoreDomain, attributes);
+        this.userID = userID;
+        this.username = username;
         this.preferredUsername = preferredUsername;
     }
 
     public String getUserID() {
 
-        return super.getId();
+        return userID;
     }
 
     public void setUserID(String userID) {
 
-        super.setId(userID);
+        this.userID = userID;
     }
 
     public String getUsername() {
 
-        return super.getName();
+        return username;
     }
 
     public void setUsername(String username) {
 
-        super.setName(username);
+        this.username = username;
     }
 
     public String getDomainQualifiedUsername() {
