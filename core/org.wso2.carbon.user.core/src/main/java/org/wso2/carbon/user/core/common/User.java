@@ -30,8 +30,6 @@ import java.util.Map;
 public class User extends Entity {
 
     private static final long serialVersionUID = -8811345359211553015L;
-    private String userID;
-    private String username;
     private String preferredUsername;
 
     public User() {
@@ -40,49 +38,46 @@ public class User extends Entity {
     }
 
     public User(String userID) {
-
-        this.userID = userID;
+        super.setId(userID);
     }
 
     public User(String userID, String username, String preferredUsername) {
 
-        this.userID = userID;
-        this.username = username;
+        super.setId(userID);
+        super.setName(username);
         this.preferredUsername = preferredUsername;
     }
 
     public User(String userID, String username, String preferredUsername, String displayName, String tenantDomain,
                 String userStoreDomain, Map<String, String> attributes) {
 
-        super(displayName, tenantDomain, userStoreDomain, attributes);
-        this.userID = userID;
-        this.username = username;
+        super(userID, username, displayName, tenantDomain, userStoreDomain, attributes);
         this.preferredUsername = preferredUsername;
     }
 
     public String getUserID() {
 
-        return userID;
+        return super.getId();
     }
 
     public void setUserID(String userID) {
 
-        this.userID = userID;
+        super.setId(userID);
     }
 
     public String getUsername() {
 
-        return username;
+        return super.getName();
     }
 
     public void setUsername(String username) {
 
-        this.username = username;
+        super.setName(username);
     }
 
     public String getDomainQualifiedUsername() {
 
-        return UserCoreUtil.addDomainToName(username, userStoreDomain);
+        return UserCoreUtil.addDomainToName(super.name, userStoreDomain);
     }
 
     public String getFullQualifiedUsername() {

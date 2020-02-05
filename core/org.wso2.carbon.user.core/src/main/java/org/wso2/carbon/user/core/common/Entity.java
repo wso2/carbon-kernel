@@ -27,6 +27,8 @@ import java.util.Map;
 public class Entity implements Serializable {
 
     private static final long serialVersionUID = -9038468040609754623L;
+    protected String id;
+    protected String name;
     protected String displayName;
     protected String tenantDomain;
     protected String userStoreDomain;
@@ -36,13 +38,41 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String displayName, String tenantDomain,
+    public Entity(String id, String name) {
+
+        this.id = id;
+        this.name = name;
+    }
+
+    public Entity(String id, String name, String displayName, String tenantDomain,
                   String userStoreDomain, Map<String, String> attributes) {
 
+        this.id = id;
+        this.name = name;
         this.displayName = displayName;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
         this.attributes = attributes;
+    }
+
+    public String getId() {
+
+        return id;
+    }
+
+    public void setId(String id) {
+
+        this.id = id;
+    }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
     }
 
     public String getDisplayName() {
