@@ -14567,7 +14567,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroup(String groupName, String[] userIDList, Permission[] permissions, boolean isSharedGroup)
+    public Group addGroup(String groupName, List<String> userIDList, List<Permission> permissions)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14611,7 +14611,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void updateUserListOfGroup(String groupID, String[] deletedUserIDs, String[] newUserIDs)
+    public void updateUserListOfGroup(String groupID, List<String> deletedUserIDs, List<String> newUserIDs)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14622,7 +14622,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void updateGroupListOfUser(String userID, String[] deletedGroupIDs, String[] newGroupIDs)
+    public void updateGroupListOfUser(String userID, List<String> deletedGroupIDs, List<String> newGroupIDs)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14683,7 +14683,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public User addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
+    public User addUser(String userName, Object credential, Map<String, String> claims, List<String> groupIDs,
                         String profileName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
