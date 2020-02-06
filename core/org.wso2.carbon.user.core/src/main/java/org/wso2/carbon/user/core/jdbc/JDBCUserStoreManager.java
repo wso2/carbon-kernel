@@ -596,9 +596,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     }
 
-    /**
-     *
-     */
+    @Override
     public PaginatedSearchResult doGetRoleNames(String filter, int offset, int limit) throws UserStoreException {
 
         String[] roles = new String[0];

@@ -17,6 +17,7 @@ package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
 import java.util.Date;
@@ -436,7 +437,20 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      */
     RealmConfiguration getRealmConfiguration();
 
-    default String[] getRoleNames(String filter, int maxItemLimit, boolean noHybridlRoles,
+    /**
+     * Get all the role names which resides in the given start index and count.
+     *
+     * @param filter        The string to filter out roles.
+     * @param maxItemLimit  Maximum limit for the role retrieval.
+     * @param noHybridRoles Whether hybrid roles should be included.
+     * @param noSystemRole  Whether system roles should be included.
+     * @param noSharedRoles Whether shared roles should be included.
+     * @param startIndex    Start index.
+     * @param count         Number of roles required.
+     * @return An array of role names.
+     * @throws UserStoreException if the operation failed.
+     */
+    default String[] getRoleNames(String filter, int maxItemLimit, boolean noHybridRoles,
                                   boolean noSystemRole, boolean noSharedRoles, int startIndex, int count)
             throws UserStoreException {
 

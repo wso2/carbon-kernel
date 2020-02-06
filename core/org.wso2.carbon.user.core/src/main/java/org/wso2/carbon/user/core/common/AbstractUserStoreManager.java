@@ -1030,23 +1030,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException;
 
     /**
-     * This method would returns the role Name actually this must be implemented in interface. As it
-     * is not good to change the API in point release. This has been added to Abstract class
-     *
-     * @param filter
-     * @return
-     * @throws .UserStoreException
-     */
-    protected PaginatedSearchResult doGetRoleNames(String filter, int offset, int limit)
-            throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doGetRoleNames operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doGetRoleNames operation is not implemented in: " + this.getClass());
-    }
-
-    /**
      * @param filter
      * @param maxItemLimit
      * @return
@@ -7331,13 +7314,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return roleList;
     }
 
-    /**
-     * @param filter
-     * @param maxItemLimit
-     * @param noHybridlRoles
-     * @return
-     * @throws UserStoreException
-     */
+    @Override
     public final String[] getRoleNames(String filter, int maxItemLimit, boolean noHybridlRoles,
                                        boolean noSystemRole, boolean noSharedRoles, int startIndex, int count)
             throws UserStoreException {

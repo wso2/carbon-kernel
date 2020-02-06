@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.user.core;
 
+import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
@@ -89,4 +90,20 @@ public interface PaginatedUserStoreManager {
      * @throws UserStoreException
      */
     Map<String, List<String>> getRoleListOfUsers(String[] userNames) throws UserStoreException;
+
+    /**
+     * Get all the role names which satisfies the given filter, offset and limit.
+     *
+     * @param filter The string to filter out roles.
+     * @param offset Start index of the role search.
+     * @param limit  No of search results. If the given value is greater than the system configured max limit it will
+     *               be reset to the system configured max limit.
+     * @return An array of role names.
+     * @throws UserStoreException
+     */
+    default PaginatedSearchResult doGetRoleNames(String filter, int offset, int limit)
+            throws UserStoreException {
+
+        throw new NotImplementedException("doGetRoleNames operation is not implemented in: " + this.getClass());
+    }
 }

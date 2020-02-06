@@ -214,9 +214,9 @@ public class HybridRoleManager {
     }
 
     /**
-     * @param filter
-     * @return
-     * @throws UserStoreException
+     * @param filter The string to filter out roles.
+     * @return Role count and role names wrapped inside PaginatedSearchResult.
+     * @throws UserStoreException if the operation failed.
      */
     public PaginatedSearchResult getHybridRoles(String filter, int offset, int limit) throws UserStoreException {
 
@@ -388,9 +388,7 @@ public class HybridRoleManager {
         }
 
         try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
-
             String dbType = DatabaseCreator.getDatabaseType(dbConnection);
-
             if (DB2.equalsIgnoreCase(dbType)) {
                 if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                     sqlStmt = HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL_DB2;
