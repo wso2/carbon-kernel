@@ -401,20 +401,17 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException;
 
+    // Group centric methods........................................................................................
+
     /**
-     * Retrieves list of groups of a given user ID.
+     * Get group details using group ID.
      *
-     * @param userId    User ID.
-     * @param limit     No of search results. If the given value is greater than the system configured max limit
-     *                  it will be reset to the system configured max limit.
-     * @param offset    Start index of the user search.
-     * @param sortBy    Sorted by.
-     * @param sortOrder Sorted order.
-     * @return List of Group objects.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @param groupID            Group ID.
+     * @param requiredAttributes Claims required.
+     * @return Group Object with details.
+     * @throws UserStoreException If an error occurs while retrieving a group.
      */
-    List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
-            throws UserStoreException;
+    Group getGroup(String groupID, List<String> requiredAttributes) throws UserStoreException;
 
     /**
      * Retrieves list of groups evaluating the condition.
@@ -426,26 +423,10 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param sortBy    Sorted by.
      * @param sortOrder Sorted order.
      * @return List of Group objects.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @throws UserStoreException If an error occurs while listing groups.
      */
-    List<Group> getGroupList(Condition condition, int limit, int offset, String sortBy, String sortOrder)
+    List<Group> listGroups(Condition condition, Integer limit, Integer offset, String sortBy, String sortOrder)
             throws UserStoreException;
-
-    /**
-     * Get list of groups.
-     *
-     * @param noHybridGroups Whether hybrid groups exists.
-     * @param noSystemGroups Whether system groups exists.
-     * @param limit          No of search results. If the given value is greater than the system configured max limit
-     *                       it will be reset to the system configured max limit.
-     * @param offset         Start index of the user search.
-     * @param sortBy         Sort by.
-     * @param sortOrder      Sort order.
-     * @return List of groups available in the system.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
-     */
-    List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
-                          String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Retrieves list of Users that belongs to a given group ID.
@@ -457,44 +438,45 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param sortBy    Sort by.
      * @param sortOrder Sort order.
      * @return List of Users.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @throws UserStoreException If an error occurs while listing users of a group.
      */
-    List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
+    List<User> getUserListOfGroup(String groupID, Integer limit, Integer offset, String sortBy, String sortOrder)
             throws UserStoreException;
 
     /**
      * Add a group to the system.
      *
-     * @param groupName     Group's display name.
-     * @param userIDList    Array of User IDs belongs to the group.
-     * @param permissions   Array of permissions of the group.
-     * @param isSharedGroup Whether the added group is a shared or not.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @param groupName   Group's display name.
+     * @param userIDs     List of User IDs belongs to the group.
+     * @param permissions List of permissions of the group.
+     * @param attributes  Group attributes values.
      * @return created Group object.
+     * @throws UserStoreException If an error occurs while adding a group.
      */
-    Group addGroup(String groupName, String[] userIDList, Permission[] permissions,
-                   boolean isSharedGroup) throws UserStoreException;
+    Group addGroup(String groupName, List<String> userIDs, List<Permission> permissions,
+                   Map<String, String> attributes) throws UserStoreException;
+
+    /**
+     * Update group claim values.
+     *
+     * @param groupID     Group ID.
+     * @param attributes  Map of attribute values. These values will be replaced.
+     * @param permissions List of permissions.
+     * @return Updated group.
+     * @throws UserStoreException If an error occurs while updating group.
+     */
+    Group updateGroup(String groupID, Map<String, String> attributes,
+                      List<Permission> permissions) throws UserStoreException;
 
     /**
      * Update users that belongs to a group.
      *
      * @param groupID        Group ID.
-     * @param deletedUserIDs Array of user IDs that deleted.
-     * @param newUserIDs     Array of user IDs that added.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @param deletedUserIDs List of user IDs that deleted.
+     * @param newUserIDs     List of user IDs that added.
+     * @throws UserStoreException If an error occurs while updating user list of a group.
      */
-    void updateUserListOfGroup(String groupID, String[] deletedUserIDs, String[] newUserIDs)
-            throws UserStoreException;
-
-    /**
-     * Update groups that a user belongs to.
-     *
-     * @param userID          User ID.
-     * @param deletedGroupIDs Arrays of groups IDs that need to be deleted.
-     * @param newGroupIDs     Array of group IDs that need to be added.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
-     */
-    void updateGroupListOfUser(String userID, String[] deletedGroupIDs, String[] newGroupIDs)
+    void updateUserListOfGroup(String groupID, List<String> deletedUserIDs, List<String> newUserIDs)
             throws UserStoreException;
 
     /**
@@ -503,25 +485,16 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param userID  User ID.
      * @param groupID Group ID.
      * @return true if user exists in the group.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @throws UserStoreException If an error occurs while checking a user in a group.
      */
     boolean isUserInGroup(String userID, String groupID) throws UserStoreException;
-
-    /**
-     * Get groups of users.
-     *
-     * @param userIDs User IDs.
-     * @return A map which contains group list with each user belongs.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
-     */
-    Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
 
     /**
      * Check whether a group exists or not.
      *
      * @param groupID Group ID.
      * @return Return true if group exists in the system.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @throws UserStoreException If an error occurs while checking whether a group exists in the system.
      */
     boolean isGroupExist(String groupID) throws UserStoreException;
 
@@ -529,7 +502,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * Delete a group.
      *
      * @param groupID Group ID.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @throws UserStoreException If an error occurs while deleting a group.
      */
     void deleteGroup(String groupID) throws UserStoreException;
 
@@ -538,10 +511,12 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      *
      * @param groupID      Group ID.
      * @param newGroupName New group name.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
      * @return Group object.
+     * @throws UserStoreException If an error occurs while renaming a group.
      */
     Group renameGroup(String groupID, String newGroupName) throws UserStoreException;
+
+    // User centric, group related methods................................................................
 
     /**
      * Add a user.
@@ -549,11 +524,46 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param userName    User Name.
      * @param credential  Credentials.
      * @param claims      Maps of user claim values.
-     * @param groupIDs    Array of group IDs.
+     * @param groupIDs    List of group IDs.
      * @param profileName Profile name.
      * @return User object.
-     * @throws UserStoreException thrown by the underlying UserStoreManager.
+     * @throws UserStoreException If an error occurs while adding user.
      */
-    User addUser(String userName, Object credential, Map<String, String> claims, String[] groupIDs,
+    User addUser(String userName, Object credential, Map<String, String> claims, List<String> groupIDs,
                  String profileName) throws UserStoreException;
+
+    /**
+     * Retrieves list of groups of a given user ID.
+     *
+     * @param userId    User ID.
+     * @param limit     No of search results. If the given value is greater than the system configured max limit
+     *                  it will be reset to the system configured max limit.
+     * @param offset    Start index of the user search.
+     * @param sortBy    Sorted by.
+     * @param sortOrder Sorted order.
+     * @return List of Group objects.
+     * @throws UserStoreException If an error occurs while getting group list of a user.
+     */
+    List<Group> getGroupListOfUser(String userId, Integer limit, Integer offset, String sortBy, String sortOrder)
+            throws UserStoreException;
+
+    /**
+     * Update groups that a user belongs to.
+     *
+     * @param userID          User ID.
+     * @param deletedGroupIDs List of groups IDs that need to be deleted.
+     * @param newGroupIDs     List of group IDs that need to be added.
+     * @throws UserStoreException If an error occurs while updating group list of a user.
+     */
+    void updateGroupListOfUser(String userID, List<String> deletedGroupIDs, List<String> newGroupIDs)
+            throws UserStoreException;
+
+    /**
+     * Get groups of users.
+     *
+     * @param userIDs List of User IDs.
+     * @return A map which contains group list with each user belongs.
+     * @throws UserStoreException If an error occurs while updating group list of users.
+     */
+    Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
 }
