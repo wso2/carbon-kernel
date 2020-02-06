@@ -63,7 +63,6 @@
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="LeadingOrTrailingSpaceAllowedInUserName">false</Property>
-            <Property name="EnableMaxUserLimitForSCIM">false</Property>
         </UserStoreManager>
 	
 	    <!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
@@ -104,7 +103,6 @@
             <Property name="RetryAttempts"/>
             <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
             <Property name="ConnectionRetryDelay">120000</Property>
-            <Property name="EnableMaxUserLimitForSCIM">false</Property>
         </UserStoreManager-->
 	
 	    <!-- Active directory configuration is as follows.
@@ -168,7 +166,6 @@
             <Property name="RetryAttempts"/>
             <Property name="StartTLSEnabled">false</Property>
             <Property name="ConnectionRetryDelay">120000</Property>
-            <Property name="EnableMaxUserLimitForSCIM">false</Property>
         </UserStoreManager-->
 
         <!-- Following user manager is used by Identity Server (IS) as its default user manager.
@@ -224,7 +221,6 @@
             <Property name="RetryAttempts"/>
             <Property name="StartTLSEnabled">false</Property>
             <Property name="ConnectionRetryDelay">120000</Property>
-            <Property name="EnableMaxUserLimitForSCIM">false</Property>
         </ISUserStoreManager-->
 
         <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">

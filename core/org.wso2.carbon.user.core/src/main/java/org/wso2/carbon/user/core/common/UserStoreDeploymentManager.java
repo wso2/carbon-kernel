@@ -70,8 +70,14 @@ public class UserStoreDeploymentManager {
                 try {
                     primaryUSM.addSecondaryUserStoreManager(realmConfiguration, userRealm);
                 } catch (UserStoreException ex) {
-                    log.warn(ex.getMessage());
-                    throw new DeploymentException(ex.getMessage(), ex);
+                    String domainName = realmConfiguration
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error occurred while initializing secondary user store manager with domain: "
+                                + domainName);
+                    }
+                    throw new DeploymentException("Error occurred while initializing secondary user store manager.",
+                            ex);
                 }
 
                 log.info("Realm configuration of tenant:" + CarbonContext.getThreadLocalCarbonContext().getTenantId() + "  modified with " + absoluteFilePath);

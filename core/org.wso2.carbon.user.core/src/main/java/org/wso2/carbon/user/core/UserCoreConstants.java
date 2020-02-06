@@ -155,6 +155,7 @@ public class UserCoreConstants {
         public static final String PROPERTY_MAX_USER_LIST = "MaxUserNameListLength";
         public static final String PROPERTY_MAX_ROLE_LIST = "MaxRoleNameListLength";
         public static final String PROPERTY_MAX_SEARCH_TIME = "MaxSearchQueryTime";
+        @Deprecated
         public static final String PROPERTY_MAX_USER_LIST_FOR_SCIM = "EnableMaxUserLimitForSCIM";
 
         public static final String READ_GROUPS_ENABLED = "ReadGroups";

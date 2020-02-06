@@ -172,7 +172,6 @@
 <!--      <Property name="AddRoleToUserSQLCaseInsensitive-openedge">INSERT INTO UM_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_TENANT_ID) SELECT UR.UM_ID, UU.UM_ID, ? FROM UM_ROLE UR, UM_USER UU WHERE UR.UM_ROLE_NAME=? AND UR.UM_TENANT_ID=? AND LOWER(UU.UM_USER_NAME)=LOWER(?) AND UU.UM_TENANT_ID=?</Property>-->
 <!--      <Property name="AddUserPropertySQLCaseInsensitive-openedge">INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) SELECT UM_ID, ?, ?, ?, ? FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=?</Property>-->
 <!--      <Property name="ClaimOperationsSupported">true</Property>-->
-      <Property name="EnableMaxUserLimitForSCIM">false</Property>
       <Property name="UserIDEnabled">true</Property>
       <Property name="DomainName">SECONDARY</Property>
       <Property name="Description"/>
