@@ -9982,6 +9982,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return null;
         }
 
+        for (LoginIdentifier loginIdentifier : loginIdentifiers) {
+            if (loginIdentifier.getLoginIdentifierType()
+                    .equals(LoginIdentifier.LoginIdentifierType.CLAIM_URI)) {
+                String mappedAttribute;
+                try {
+                    mappedAttribute = claimManager.getAttributeName(getMyDomainName(), loginIdentifier.getLoginKey());
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException(e);
+                }
+                if (mappedAttribute != null) {
+                    loginIdentifier.setLoginIdentifierType(LoginIdentifier.LoginIdentifierType.ATTRIBUTE);
+                    loginIdentifier.setLoginKey(mappedAttribute);
+                }
+            }
+        }
+
         String userName = null;
         String[] resultedUserList = null;
         // Need to populate the claim email as the first element in the

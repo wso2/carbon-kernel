@@ -590,13 +590,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public String[] getUserListFromProperties(String property, String value, String profileName)
-            throws UserStoreException {
-
-        throw new UserStoreException("Operation is not supported.");
-    }
-
-    @Override
     public boolean doCheckExistingUserNameWithIDImpl(String userName) throws UserStoreException {
 
         String sqlStmt;
