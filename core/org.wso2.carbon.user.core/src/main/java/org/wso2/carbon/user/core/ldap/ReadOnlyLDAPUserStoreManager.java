@@ -2637,44 +2637,40 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
         }
         String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute};
-        String enableMaxUserLimitForSCIM = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_MAX_USER_LIST_FOR_SCIM);
         try {
-            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
-                SearchControls searchCtls = new SearchControls();
-                searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                if (ArrayUtils.isNotEmpty(returnedAttributes)) {
-                    searchCtls.setReturningAttributes(returnedAttributes);
-                }
-                String nameInNamespace = null;
-                try {
-                    nameInNamespace = dirContext.getNameInNamespace();
-                } catch (NamingException e) {
-                    log.error("Error while getting DN of search base", e);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " +
-                            nameInNamespace);
-                    if (ArrayUtils.isEmpty(returnedAttributes)) {
-                        log.debug("No attributes requested");
-                    } else {
-                        for (String attribute : returnedAttributes) {
-                            log.debug("Requesting attribute :" + attribute);
-                        }
-                    }
-                }
-                String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-                String[] searchBaseArray = searchBases.split("#");
-
-                for (String searchBase : searchBaseArray) {
-                    answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED, returnedAttributes);
-                    if (answer.hasMore()) {
-                        break;
-                    }
-                }
-            } else {
-                answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
+                searchCtls.setReturningAttributes(returnedAttributes);
             }
+            String nameInNamespace = null;
+            try {
+                nameInNamespace = dirContext.getNameInNamespace();
+            } catch (NamingException e) {
+                log.error("Error while getting DN of search base", e);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " +
+                        nameInNamespace);
+                if (ArrayUtils.isEmpty(returnedAttributes)) {
+                    log.debug("No attributes requested");
+                } else {
+                    for (String attribute : returnedAttributes) {
+                        log.debug("Requesting attribute :" + attribute);
+                    }
+                }
+            }
+            String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+            String[] searchBaseArray = searchBases.split("#");
+
+            for (String searchBase : searchBaseArray) {
+                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
+                        returnedAttributes);
+                if (answer.hasMore()) {
+                    break;
+                }
+            }
+
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
@@ -4314,9 +4310,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
-        setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM, UserStoreConfigConstants
-                        .enableMaxUserLimitDisplayName, "false",
-                UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
 
