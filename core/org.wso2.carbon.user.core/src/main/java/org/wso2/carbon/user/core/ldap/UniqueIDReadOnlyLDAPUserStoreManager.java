@@ -1283,13 +1283,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    public String[] getUserListFromProperties(String property, String value, String profileName)
-            throws UserStoreException {
-
-        throw new UserStoreException("Operation is not supported.");
-    }
-
-    @Override
     public List<String> doGetUserListFromPropertiesWithID(String property, String value, String profileName)
             throws UserStoreException {
 
