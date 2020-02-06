@@ -40,9 +40,12 @@ public class UserStoreConfigConstants {
     public static final String claimOperationsSupported = "ClaimOperationsSupported";
     public static final String claimOperationsSupportedDescription = "Whether the userstore supports claim read and write";
     public static final String getClaimOperationsSupportedDisplayName = "Claim Operations Supported";
+    @Deprecated
     public static final String enableMaxUserLimitForSCIM = "EnableMaxUserLimitForSCIM";
+    @Deprecated
     public static final String enableMaxUserLimitForSCIMDescription = "Whether to include max user limit during SCIM " +
             "user list operation";
+    @Deprecated
     public static final String enableMaxUserLimitDisplayName = "Enable MaxUserLimit For SCIM";
     public static final String immutableAttributes = "ImmutableAttributes";
     public static final String immutableAttributesDescription = "Comma-separated list of user store maintained " +

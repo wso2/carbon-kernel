@@ -46,6 +46,16 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
+import java.nio.ByteBuffer;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -62,15 +72,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
-import java.nio.ByteBuffer;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -355,46 +356,41 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (debug) {
             log.debug("Listing users with SearchFilter: " + searchFilter);
         }
-        String[] returnedAttributes = new String[] { userPropertyName, serviceNameAttribute };
-        String enableMaxUserLimitForSCIM = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST_FOR_SCIM);
+        String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute};
         try {
-            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
-                SearchControls searchCtls = new SearchControls();
-                searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                if (ArrayUtils.isNotEmpty(returnedAttributes)) {
-                    searchCtls.setReturningAttributes(returnedAttributes);
-                }
-                String nameInNamespace = null;
-                try {
-                    nameInNamespace = dirContext.getNameInNamespace();
-                } catch (NamingException e) {
-                    log.error("Error while getting DN of search base", e);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
-                            + nameInNamespace);
-                    if (ArrayUtils.isEmpty(returnedAttributes)) {
-                        log.debug("No attributes requested");
-                    } else {
-                        for (String attribute : returnedAttributes) {
-                            log.debug("Requesting attribute :" + attribute);
-                        }
-                    }
-                }
-                String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-                String[] searchBaseArray = searchBases.split("#");
-
-                for (String searchBase : searchBaseArray) {
-                    answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
-                            returnedAttributes);
-                    if (answer.hasMore()) {
-                        break;
-                    }
-                }
-            } else {
-                answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
+                searchCtls.setReturningAttributes(returnedAttributes);
             }
+            String nameInNamespace = null;
+            try {
+                nameInNamespace = dirContext.getNameInNamespace();
+            } catch (NamingException e) {
+                log.error("Error while getting DN of search base", e);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
+                        + nameInNamespace);
+                if (ArrayUtils.isEmpty(returnedAttributes)) {
+                    log.debug("No attributes requested");
+                } else {
+                    for (String attribute : returnedAttributes) {
+                        log.debug("Requesting attribute :" + attribute);
+                    }
+                }
+            }
+            String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+            String[] searchBaseArray = searchBases.split("#");
+
+            for (String searchBase : searchBaseArray) {
+                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
+                        returnedAttributes);
+                if (answer.hasMore()) {
+                    break;
+                }
+            }
+
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
@@ -559,7 +555,34 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
 
-        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        return getUserIDFromProperty(userNameProperty, userName);
+    }
+
+    private String getUserIDFromProperty(String property, String claimValue) throws UserStoreException {
+
+        try {
+            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, null);
+            if (userIds.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "No UserID found for the property: " + property + ", value: " + claimValue + ", in domain:"
+                                    + " " + getMyDomainName());
+                }
+                return null;
+            } else if (userIds.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
+                                + "of the " + "property: " + property);
+            } else {
+                // username can have only one userId. Take the first element.
+                return userIds.get(0);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "property"
+                            + property + " value: " + claimValue, e);
+        }
     }
 
     @Override
@@ -576,21 +599,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
                 return null;
             }
-            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, profileName);
-            if (userIds.isEmpty()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("No UserID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:"
-                            + " " + getMyDomainName());
-                }
-                return null;
-            } else if (userIds.size() > 1) {
-                throw new UserStoreException(
-                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
-                                + "of the " + "claim: " + claimURI);
-            } else {
-                // username can have only one userId. Take the first element.
-                return userIds.get(0);
-            }
+            return getUserIDFromProperty(property, claimValue);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(
                     "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "claim"
@@ -1315,46 +1324,41 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (log.isDebugEnabled()) {
             log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
         }
-        String[] returnedAttributes = new String[] { userIDProperty, serviceNameAttribute };
-        String enableMaxUserLimitForSCIM = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST_FOR_SCIM);
+        String[] returnedAttributes = new String[]{userIDProperty, serviceNameAttribute};
         try {
-            if (Boolean.parseBoolean(enableMaxUserLimitForSCIM)) {
-                SearchControls searchCtls = new SearchControls();
-                searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                if (ArrayUtils.isNotEmpty(returnedAttributes)) {
-                    searchCtls.setReturningAttributes(returnedAttributes);
-                }
-                String nameInNamespace = null;
-                try {
-                    nameInNamespace = dirContext.getNameInNamespace();
-                } catch (NamingException e) {
-                    log.error("Error while getting DN of search base", e);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
-                            + nameInNamespace);
-                    if (ArrayUtils.isEmpty(returnedAttributes)) {
-                        log.debug("No attributes requested");
-                    } else {
-                        for (String attribute : returnedAttributes) {
-                            log.debug("Requesting attribute :" + attribute);
-                        }
-                    }
-                }
-                String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-                String[] searchBaseArray = searchBases.split("#");
-
-                for (String searchBase : searchBaseArray) {
-                    answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
-                            returnedAttributes);
-                    if (answer.hasMore()) {
-                        break;
-                    }
-                }
-            } else {
-                answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
+                searchCtls.setReturningAttributes(returnedAttributes);
             }
+            String nameInNamespace = null;
+            try {
+                nameInNamespace = dirContext.getNameInNamespace();
+            } catch (NamingException e) {
+                log.error("Error while getting DN of search base", e);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
+                        + nameInNamespace);
+                if (ArrayUtils.isEmpty(returnedAttributes)) {
+                    log.debug("No attributes requested");
+                } else {
+                    for (String attribute : returnedAttributes) {
+                        log.debug("Requesting attribute :" + attribute);
+                    }
+                }
+            }
+            String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+            String[] searchBaseArray = searchBases.split("#");
+
+            for (String searchBase : searchBaseArray) {
+                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
+                        returnedAttributes);
+                if (answer.hasMore()) {
+                    break;
+                }
+            }
+
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
@@ -1922,9 +1926,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
-        setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM,
-                UserStoreConfigConstants.enableMaxUserLimitDisplayName, "false",
-                UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {

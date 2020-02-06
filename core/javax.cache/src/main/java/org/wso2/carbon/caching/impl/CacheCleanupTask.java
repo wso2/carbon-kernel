@@ -58,15 +58,19 @@ public class CacheCleanupTask implements Runnable {
             cc.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             cc.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             for (CacheImpl cache : caches) {
-                cache.runCacheExpiry();
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache expiry completed for cache " + cache.getName());
+                try {
+                    cache.runCacheExpiry();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cache expiry completed for the cache: " + cache.getName());
+                    }
+                } catch (IllegalStateException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error occurred while running CacheCleanupTask for the cache: " + cache.getName(), e);
+                    }
+                } catch (Throwable e) {
+                    log.error("Error occurred while running CacheCleanupTask for the cache: " + cache.getName(), e);
                 }
             }
-        } catch (IllegalStateException e) {
-            log.debug("Error occurred while running CacheCleanupTask", e);
-        } catch (Throwable e) {
-            log.error("Error occurred while running CacheCleanupTask", e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
