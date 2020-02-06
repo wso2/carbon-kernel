@@ -14694,26 +14694,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group getGroup(String groupID) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getGroup operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getGroup operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public Map<String, String> getGroupClaimValues(String groupID, List<String> claims) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupClaimValues operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getGroupClaimValues operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
     public List<Claim> getGroupClaims() throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14724,13 +14704,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group setGroupClaimValues(String groupID, Map<String, String> claims) throws UserStoreException {
+    public Group getGroup(String groupID, List<String> requiredClaims) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("setGroupClaimValues operation is not implemented in: " + this.getClass());
+            log.debug("getGroup operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "setGroupClaimValues operation is not implemented in: " + this.getClass());
+                "getGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Group updateGroup(String groupID, Map<String, String> claimValues) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("updateGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "updateGroup operation is not implemented in: " + this.getClass());
     }
 
     private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {

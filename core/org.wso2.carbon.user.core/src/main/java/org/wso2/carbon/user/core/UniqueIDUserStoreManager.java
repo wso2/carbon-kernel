@@ -406,11 +406,12 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     /**
      * Get group details using group ID.
      *
-     * @param groupID Group ID.
+     * @param groupID        Group ID.
+     * @param requiredClaims Claims required.
      * @return Group Object with details.
-     * @throws UserStoreException If an error occurred when retrieving a group.
+     * @throws UserStoreException If an error occurs while retrieving a group.
      */
-    Group getGroup(String groupID) throws UserStoreException;
+    Group getGroup(String groupID, List<String> requiredClaims) throws UserStoreException;
 
     /**
      * Retrieves list of groups evaluating the condition.
@@ -470,6 +471,16 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     Group addGroup(String groupName, List<String> userIDList, List<Permission> permissions) throws UserStoreException;
 
     /**
+     * Update group claim values.
+     *
+     * @param groupID     Group ID.
+     * @param claimValues Map of claim values.
+     * @return Updated group.
+     * @throws UserStoreException If an error occurs while updating group.
+     */
+    Group updateGroup(String groupID, Map<String, String> claimValues) throws UserStoreException;
+
+    /**
      * Update users that belongs to a group.
      *
      * @param groupID        Group ID.
@@ -516,26 +527,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException If an error occurs while renaming a group.
      */
     Group renameGroup(String groupID, String newGroupName) throws UserStoreException;
-
-    /**
-     * Get list of given claim values.
-     *
-     * @param groupID Group ID.
-     * @param claims  List of claims.
-     * @return Map of claims and values.
-     * @throws UserStoreException If an error occurred when retrieving claim values.
-     */
-    Map<String, String> getGroupClaimValues(String groupID, List<String> claims) throws UserStoreException;
-
-    /**
-     * Update claim values of a group.
-     *
-     * @param groupID Group ID.
-     * @param claims  Map of claims and values.
-     * @return Updated Group.
-     * @throws UserStoreException If an error occurred when updating claims of a group.
-     */
-    Group setGroupClaimValues(String groupID, Map<String, String> claims) throws UserStoreException;
 
     /**
      * Get list of claims related to a group.
