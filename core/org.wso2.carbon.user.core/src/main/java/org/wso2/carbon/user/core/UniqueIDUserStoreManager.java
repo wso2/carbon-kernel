@@ -403,6 +403,14 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
 
     // Group centric methods........................................................................................
 
+    /**
+     * Get group details using group ID.
+     *
+     * @param groupID Group ID.
+     * @return Group Object with details.
+     * @throws UserStoreException If an error occurred when retrieving a group.
+     */
+    Group getGroup(String groupID) throws UserStoreException;
 
     /**
      * Retrieves list of groups evaluating the condition.
@@ -414,7 +422,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param sortBy    Sorted by.
      * @param sortOrder Sorted order.
      * @return List of Group objects.
-     * @throws UserStoreException  If an error occurs while listing groups.
+     * @throws UserStoreException If an error occurs while listing groups.
      */
     List<Group> getGroupList(Condition condition, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException;
@@ -430,10 +438,10 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param sortBy         Sort by.
      * @param sortOrder      Sort order.
      * @return List of groups available in the system.
-     * @throws UserStoreException  If an error occurs while listing groups.
+     * @throws UserStoreException If an error occurs while listing groups.
      */
     List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
-                          String sortBy, String sortOrder) throws UserStoreException;
+                             String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Retrieves list of Users that belongs to a given group ID.
@@ -453,9 +461,9 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     /**
      * Add a group to the system.
      *
-     * @param groupName     Group's display name.
-     * @param userIDList    List of User IDs belongs to the group.
-     * @param permissions   List of permissions of the group.
+     * @param groupName   Group's display name.
+     * @param userIDList  List of User IDs belongs to the group.
+     * @param permissions List of permissions of the group.
      * @return created Group object.
      * @throws UserStoreException If an error occurs while adding a group.
      */
@@ -508,6 +516,34 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException If an error occurs while renaming a group.
      */
     Group renameGroup(String groupID, String newGroupName) throws UserStoreException;
+
+    /**
+     * Get list of given claim values.
+     *
+     * @param groupID Group ID.
+     * @param claims  List of claims.
+     * @return Map of claims and values.
+     * @throws UserStoreException If an error occurred when retrieving claim values.
+     */
+    Map<String, String> getGroupClaimValues(String groupID, List<String> claims) throws UserStoreException;
+
+    /**
+     * Update claim values of a group.
+     *
+     * @param groupID Group ID.
+     * @param claims  Map of claims and values.
+     * @return Updated Group.
+     * @throws UserStoreException If an error occurred when updating claims of a group.
+     */
+    Group setGroupClaimValues(String groupID, Map<String, String> claims) throws UserStoreException;
+
+    /**
+     * Get list of claims related to a group.
+     *
+     * @return List of claims.
+     * @throws UserStoreException If an error occurred when retrieving claims of a group.
+     */
+    List<Claim> getGroupClaims() throws UserStoreException;
 
     // User centric, group related methods................................................................
 

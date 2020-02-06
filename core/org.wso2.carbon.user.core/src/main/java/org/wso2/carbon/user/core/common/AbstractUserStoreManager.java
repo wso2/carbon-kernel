@@ -14693,6 +14693,46 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 "addUser operation is not implemented in: " + this.getClass());
     }
 
+    @Override
+    public Group getGroup(String groupID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Map<String, String> getGroupClaimValues(String groupID, List<String> claims) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupClaimValues operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupClaimValues operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<Claim> getGroupClaims() throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupClaims operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupClaims operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Group setGroupClaimValues(String groupID, Map<String, String> claims) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("setGroupClaimValues operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "setGroupClaimValues operation is not implemented in: " + this.getClass());
+    }
+
     private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {
 
         List<String> usersWithDomain = new ArrayList<>();
