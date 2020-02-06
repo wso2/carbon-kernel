@@ -24,6 +24,8 @@ public class UserStoreConfigConstants {
     public static final String DOMAIN_NAME = "DomainName";
     public static final String USER_STORES = "userstores";
     public static final String TENANTS = "tenants";
+    public static final String RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME = "user_id_from_user_name_cache";
+    public static final String RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME = "user_name_from_user_id_cache";
     //Define datasource property for JDBC
     public static final String dataSource = "dataSource";
     public static final String dataSourceDescription = "Connection name to user store";
@@ -34,7 +36,6 @@ public class UserStoreConfigConstants {
     public static final String maxUserNameListLengthDescription = "Maximum number of users retrieved at once";
     public static final String userRolesCacheEnabled = "UserRolesCacheEnabled";
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
-    public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
     public static final String claimOperationsSupported = "ClaimOperationsSupported";
     public static final String claimOperationsSupportedDescription = "Whether the userstore supports claim read and write";
@@ -43,6 +44,14 @@ public class UserStoreConfigConstants {
     public static final String enableMaxUserLimitForSCIMDescription = "Whether to include max user limit during SCIM " +
             "user list operation";
     public static final String enableMaxUserLimitDisplayName = "Enable MaxUserLimit For SCIM";
+    public static final String immutableAttributes = "ImmutableAttributes";
+    public static final String immutableAttributesDescription = "Comma-separated list of user store maintained " +
+            "immutable attributes";
+    public static final String immutableAttributesDisplayName = "Immutable Attributes";
+    public static final String timestampAttributes = "TimestampAttributes";
+    public static final String timestampAttributesDescription = "Comma-separated list of user store attributes " +
+            "having the data type of Timestamp and may require a conversion when reading from/writing to user store";
+    public static final String timestampAttributesDisplayName = "Timestamp Attributes";
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";
@@ -86,8 +95,15 @@ public class UserStoreConfigConstants {
     public static final String usernameListFilterDescription = "Filtering criteria for listing all the user entries in LDAP";
     public static final String usernameSearchFilter = "UserNameSearchFilter";
     public static final String usernameSearchFilterDescription = "Filtering criteria for searching a particular user entry";
+    public static final String userIdSearchFilter = "UserIdSearchFilter";
+    public static final String userIdSearchFilterAttributeName = "UserID Search Filter";
+    public static final String userIdSearchFilterDescription = "Filtering criteria for searching a particular user " +
+            "entry";
     public static final String userNameAttribute = "UserNameAttribute";
     public static final String userNameAttributeDescription = "Attribute used for uniquely identifying a user entry. Users can be authenticated using their email address, uid and etc";
+    public static final String userIdAttribute = "UserIDAttribute";
+    public static final String userIdAttributeName = "User ID Attribute";
+    public static final String userIdAttributeDescription = "Attribute used for uniquely identifying a user entry.";
     public static final String readGroups = "ReadGroups";
     public static final String readLDAPGroupsDescription = "Specifies whether groups should be read from LDAP";
     public static final String groupSearchBase = "GroupSearchBase";

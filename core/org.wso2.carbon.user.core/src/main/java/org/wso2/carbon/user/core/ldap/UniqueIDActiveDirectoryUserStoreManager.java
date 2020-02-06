@@ -17,9 +17,10 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -50,10 +51,19 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringTokenizer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class is responsible for manipulating Microsoft Active Directory(AD)and Active Directory
@@ -80,6 +90,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription =
             "Configure this to define the LDAP binary attributes " + "seperated by a space. Ex:mpegVideo mySpecialKey";
+    private static final String ACTIVE_DIRECTORY_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     // For AD's this value is 1500 by default, hence overriding the default value.
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 1500;
@@ -142,7 +153,24 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         String userID = getUniqueUserID();
         persistUser(userID, userName, credential, roleList, claims);
+
+        if (isUserIdGeneratedByUserStore(userName, claims)) {
+            return getUser(null, userName);
+        }
+
         return getUser(userID, userName);
+    }
+
+    @Override
+    protected boolean isUserIdGeneratedByUserStore(String userID, Map<String, String> userAttributes) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        return ArrayUtils.contains(immutableAttributes, userIdProperty);
     }
 
     /**
@@ -180,16 +208,22 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         Name compoundName = null;
         try {
             NameParser ldapParser = dirContext.getNameParser("");
-            compoundName = ldapParser.parse("cn=" + escapeSpecialCharactersForDN(userName));
+            compoundName = ldapParser.parse(LDAPConstants.CN + "=" + escapeSpecialCharactersForDN(userName));
 
-            // bind the user. A disabled user account with no password
+            // Bind the user. A disabled user account with no password.
             dirContext.bind(compoundName, null, basicAttributes);
             isUserBinded = true;
 
-            // update the user roles
+            if (isUserIdGeneratedByUserStore(userID, claims)) {
+                String userIdAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                Attributes userAttributes = dirContext.getAttributes(compoundName, new String[]{userIdAttribute});
+                userID = resolveLdapAttributeValue(userAttributes.get(userIdAttribute).get());
+            }
+
+            // Update the user roles.
             doUpdateRoleListOfUserWithID(userID, null, roleList);
 
-            // reset the password and enable the account
+            // Reset the password and enable the account.
             if (!isSSLConnection) {
                 logger.warn("Unsecured connection is being used. Enabling user account operation will fail");
             }
@@ -239,8 +273,9 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes, String userID,
             String userName) throws UserStoreException {
 
-        BasicAttribute claim;
         if (claims != null) {
+            Map<String, String> attributeValueMap = new HashMap<>();
+
             for (Map.Entry<String, String> entry : claims.entrySet()) {
                 // avoid attributes with empty values
                 if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
@@ -262,19 +297,22 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                     throw new UserStoreException(errorMessage, e);
                 }
 
-                claim = new BasicAttribute(attributeName);
-                claim.add(claims.get(entry.getKey()));
+                attributeValueMap.put(attributeName, entry.getValue());
+            }
+
+            // Add userID attribute.
+            attributeValueMap.put(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE), userID);
+            processAttributesBeforeUpdateWithID(userID, attributeValueMap, null);
+
+            attributeValueMap.forEach((attributeName, attributeValue) -> {
+                BasicAttribute claim = new BasicAttribute(attributeName);
+                claim.add(attributeValue);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("AttributeName: " + attributeName + " AttributeValue: " + claims.get(entry.getKey()));
+                    logger.debug("AttributeName: " + attributeName + " AttributeValue: " + attributeValue);
                 }
                 basicAttributes.put(claim);
-            }
+            });
         }
-        // Add userID attribute.
-        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
-        claim = new BasicAttribute(userIDAttribute);
-        claim.add(userID);
-        basicAttributes.put(claim);
     }
 
     @Override
@@ -292,7 +330,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             logger.warn("Unsecured connection is being used. Password operations will fail");
         }
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -381,7 +419,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             logger.warn("Unsecured connection is being used. Password operations will fail");
         }
 
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -521,120 +559,15 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
-            throws UserStoreException {
+    protected void handleLdapUserIdAttributeChanges(Map<String, String> userAttributeValues,
+                                                    DirContext subDirContext, String returnedUserEntry)
+            throws NamingException {
 
-        String userName = getUserNameFromUserID(userID);
-        // get the LDAP Directory context
-        DirContext dirContext = this.connectionSource.getContext();
-        DirContext subDirContext = null;
-        // search the relevant user entry by user name
-        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        // if user name contains domain name, remove domain name
-        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
-        if (userNames.length > 1) {
-            userName = userNames[1];
+        if (userAttributeValues.containsKey(LDAPConstants.CN)) {
+            subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" +
+                    escapeSpecialCharactersForDN(userAttributeValues.get(LDAPConstants.CN)));
+            userAttributeValues.remove(LDAPConstants.CN);
         }
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
-
-        SearchControls searchControls = new SearchControls();
-        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        searchControls.setReturningAttributes(null);
-
-        NamingEnumeration<SearchResult> returnedResultList = null;
-        String returnedUserEntry;
-
-        boolean cnModified = false;
-        String cnValue = null;
-
-        try {
-
-            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
-            // Assume only one user is returned from the search
-            returnedUserEntry = returnedResultList.next().getName();
-
-        } catch (NamingException e) {
-            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } finally {
-            JNDIUtil.closeNamingEnumeration(returnedResultList);
-        }
-
-        claims.putIfAbsent(UserCoreConstants.PROFILE_CONFIGURATION, UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
-
-        try {
-            Attributes updatedAttributes = new BasicAttributes(true);
-
-            String domainName = userName.contains(UserCoreConstants.DOMAIN_SEPARATOR) ?
-                    userName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0] :
-                    realmConfig.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
-            for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
-                String claimURI = claimEntry.getKey();
-                // if there is no attribute for profile configuration in LDAP,
-                // skip updating it.
-                if (claimURI.equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
-                    continue;
-                }
-                // get the claimMapping related to this claimURI
-                String attributeName = getClaimAtrribute(claimURI, userName, domainName);
-                //remove user DN from cache if changing username attribute
-                if (realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE).equals(attributeName)) {
-                    removeFromUserCache(userName);
-                }
-                // if mapped attribute is CN, then skip treating as a modified
-                // attribute -
-                // it should be an object rename
-                if ("CN".toLowerCase().equals(attributeName.toLowerCase())) {
-                    cnModified = true;
-                    cnValue = claimEntry.getValue();
-                    continue;
-                }
-                Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-                /* if updated attribute value is null, remove its values. */
-                if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
-                    currentUpdatedAttribute.clear();
-                } else {
-                    if (claimEntry.getValue() != null) {
-                        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-                        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                            userAttributeSeparator = claimSeparator;
-                        }
-                        if (claimEntry.getValue().contains(userAttributeSeparator)) {
-                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
-                            while (st.hasMoreElements()) {
-                                String newVal = st.nextElement().toString();
-                                if (newVal != null && newVal.trim().length() > 0) {
-                                    currentUpdatedAttribute.add(newVal.trim());
-                                }
-                            }
-                        } else {
-                            currentUpdatedAttribute.add(claimEntry.getValue());
-                        }
-                    } else {
-                        currentUpdatedAttribute.add(claimEntry.getValue());
-                    }
-                }
-                updatedAttributes.put(currentUpdatedAttribute);
-            }
-            // update the attributes in the relevant entry of the directory store
-            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
-            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE, updatedAttributes);
-
-            if (cnModified && cnValue != null) {
-                subDirContext.rename(returnedUserEntry, "CN=" + escapeSpecialCharactersForDN(cnValue));
-            }
-
-        } catch (Exception e) {
-            handleException(e, userName);
-        } finally {
-            JNDIUtil.closeContext(subDirContext);
-            JNDIUtil.closeContext(dirContext);
-        }
-
     }
 
     @Override
@@ -645,31 +578,23 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    public void doSetUserClaimValueWithID(String userID, String claimURI, String value, String profileName)
+    public void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
             throws UserStoreException {
-
-        String userName = getUserNameFromUserID(userID);
-        try {
-            String attributeName = getClaimAtrribute(claimURI, userName, null);
-            doSetUserAttribute(userName, attributeName, value, profileName);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(
-                    "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
-                            + userName);
-        }
-    }
-
-    @Override
-    public void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
-            throws UserStoreException {
-
-        // get the LDAP Directory context
+        // Get the LDAP Directory context.
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
-        // search the relevant user entry by user name
+
+        // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
+        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        if (isBinaryUserAttribute(userIDAttribute)) {
+            value = transformUUIDToObjectGUID(value);
+        }
+
+        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -679,15 +604,16 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         String returnedUserEntry;
 
         try {
-
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
-            // Assume only one user is returned from the search
+            // Assume only one user is returned from the search.
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
-            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userID;
+
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
+
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
@@ -696,9 +622,9 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
 
-            if ("CN".equals(attributeName)) {
+            if (LDAPConstants.CN_CAPITALIZED.equals(attributeName)) {
                 subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
-                subDirContext.rename(returnedUserEntry, "CN=" + value);
+                subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" + value);
                 return;
             }
 
@@ -708,13 +634,17 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 currentUpdatedAttribute.clear();
             } else {
                 String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+
                 if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
                     userAttributeSeparator = claimSeparator;
                 }
+
                 if (value.contains(userAttributeSeparator)) {
                     StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+
                     while (st.hasMoreElements()) {
                         String newVal = st.nextElement().toString();
+
                         if (newVal != null && newVal.trim().length() > 0) {
                             currentUpdatedAttribute.add(newVal.trim());
                         }
@@ -725,12 +655,12 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             }
             updatedAttributes.put(currentUpdatedAttribute);
 
-            // update the attributes in the relevant entry of the directory store
+            // Update the attributes in the relevant entry of the directory store.
             subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE, updatedAttributes);
 
         } catch (Exception e) {
-            handleException(e, userName);
+            handleException(e, userID);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
@@ -742,11 +672,15 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     public Properties getDefaultUserStoreProperties() {
 
         Properties properties = new Properties();
+
         properties.setMandatoryProperties(
-                ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_PROPERTIES.toArray(new Property[0]));
+                Stream.concat(ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_PROPERTIES.stream(),
+                        ActiveDirectoryUserStoreConstants.UNIQUE_ID_ACTIVE_DIRECTORY_UM_PROPERTIES.stream())
+                        .toArray(Property[]::new));
         properties.setOptionalProperties(
                 ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.toArray(new Property[0]));
         properties.setAdvancedProperties(UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
+
         return properties;
     }
 
@@ -902,8 +836,6 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         // Set Advanced Properties
         UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
-                UserStoreConfigConstants.SCIMEnabledDescription);
         setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
         setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true",
                 UserStoreConfigConstants.emptyRolesAllowedDescription);
@@ -962,12 +894,90 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         setAdvancedProperty(UserStoreConfigConstants.enableMaxUserLimitForSCIM,
                 UserStoreConfigConstants.enableMaxUserLimitDisplayName, "false",
                 UserStoreConfigConstants.enableMaxUserLimitForSCIMDescription);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
 
         Property property = new Property(name, value, displayName + "#" + description, null);
         UNIQUE_ID_ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
+    }
+
+    @Override
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                       String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Active Directory maintained default attributes: "
+                        + Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).forEach(userStorePropertyValues::remove);
+        }
+    }
+
+    @Override
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                         String profileName) {
+
+        String timestampAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Active Directory timestamp attributes: " + Arrays.toString(timestampAttributes));
+        }
+
+        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            }
+
+            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
+                    .collect(Collectors.toMap(Function.identity(),
+                            attribute -> convertDateFormatFromAD(userStorePropertyValues.get(attribute))));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            }
+
+            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            }
+        }
+    }
+
+    /**
+     * Convert Active Directory date format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Active Directory date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromAD(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(ACTIVE_DIRECTORY_DATE_TIME_FORMAT);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
     }
 
 }

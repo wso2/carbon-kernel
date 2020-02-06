@@ -96,6 +96,20 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
             throws UserStoreException;
 
     /**
+     * Defines additional actions that need to be done when there is a failure while trying to update username.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message relevant to the the particular erroneous scenario.
+     * @param userID           Name of the user.
+     * @param newUserName      new username.
+     * @param userStoreManager UserStore Manager.
+     * @return true if the handling succeeded.
+     * @throws UserStoreException Exception that would be thrown if there is an erroneous case.
+     */
+    boolean onUpdateUserNameFailure(String errorCode, String errorMessage, String userID, String newUserName,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
      * Defines any additional actions that need to be done whether there is a failure while trying to update
      * credential of a user.
      *
@@ -217,7 +231,8 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @throws UserStoreException Exception that will be thrown during the execution of this method.
      */
     boolean onAddRoleFailureWithID(String errorCode, String errorMessage, String roleName, String[] userList,
-            Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException;
+                                   org.wso2.carbon.user.api.Permission[] permissions,
+                                   UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Defines any additional actions that need to be done if there is failure while trying to update user list of a

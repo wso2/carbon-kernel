@@ -46,6 +46,16 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
+import java.nio.ByteBuffer;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -62,12 +72,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -465,7 +469,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
             String property = loginIdentifier.getLoginKey();
             String value = loginIdentifier.getLoginValue();
-            if (OBJECT_GUID.equals(property)) {
+            if (OBJECT_GUID.equalsIgnoreCase(property)) {
                 String transformObjectGuidToUuidProperty = realmConfig
                         .getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
@@ -556,7 +560,34 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     protected String doGetUserIDFromUserNameWithID(String userName) throws UserStoreException {
 
-        return getUserIDFromProperties(USERNAME_CLAIM_URI, userName, null);
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        return getUserIDFromProperty(userNameProperty, userName);
+    }
+
+    private String getUserIDFromProperty(String property, String claimValue) throws UserStoreException {
+
+        try {
+            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, null);
+            if (userIds.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "No UserID found for the property: " + property + ", value: " + claimValue + ", in domain:"
+                                    + " " + getMyDomainName());
+                }
+                return null;
+            } else if (userIds.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
+                                + "of the " + "property: " + property);
+            } else {
+                // username can have only one userId. Take the first element.
+                return userIds.get(0);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "property"
+                            + property + " value: " + claimValue, e);
+        }
     }
 
     @Override
@@ -573,21 +604,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
                 return null;
             }
-            List<String> userIds = this.doGetUserListFromPropertiesWithID(property, claimValue, profileName);
-            if (userIds.isEmpty()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("No UserID found for the claim: " + claimURI + ", value: " + claimValue + ", in domain:"
-                            + " " + getMyDomainName());
-                }
-                return null;
-            } else if (userIds.size() > 1) {
-                throw new UserStoreException(
-                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
-                                + "of the " + "claim: " + claimURI);
-            } else {
-                // username can have only one userId. Take the first element.
-                return userIds.get(0);
-            }
+            return getUserIDFromProperty(property, claimValue);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(
                     "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "claim"
@@ -625,7 +642,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     protected Map<String, String> getUserPropertyValuesWithID(String userID, String[] propertyNames, String profileName)
             throws UserStoreException {
 
-        return super.getUserPropertyValues(getUserNameFromUserID(userID), propertyNames, profileName);
+        return super.getUserPropertyValues(doGetUserNameFromUserID(userID), propertyNames, profileName);
     }
 
     @Override
@@ -643,7 +660,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (userID == null) {
             return false;
         }
-        return getUserNameFromUserID(userID) != null;
+        return doGetUserNameFromUserID(userID) != null;
     }
 
     @Override
@@ -779,15 +796,15 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         String id = null;
                         String domain = null;
                         if (userName != null) {
-                            name = (String) userName.get();
+                            name = resolveLdapAttributeValue(userName.get());
                             if (displayName != null) {
-                                display = (String) displayName.get();
+                                display = resolveLdapAttributeValue(displayName.get());
                             }
                             domain = this.getRealmConfiguration()
                                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                         }
                         if (userID != null) {
-                            id = (String) userID.get();
+                            id = resolveLdapAttributeValue(userID.get());
                         }
 
                         User user = getUser(id, name);
@@ -840,6 +857,36 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         RoleContext roleContext = createRoleContext(roleName);
         return getUserListOfLDAPRoleWithID(roleContext, filter);
+    }
+
+    /**
+     * Resolves the value of a LDAP attribute to a string based on the data type.
+     *
+     * @param attributeObject Attribute Value.
+     * @return Resolved string value.
+     */
+    protected String resolveLdapAttributeValue(Object attributeObject) {
+
+        String resolvedStringValue = null;
+        if (attributeObject instanceof String) {
+            resolvedStringValue = (String) attributeObject;
+        } else if (attributeObject instanceof byte[]) {
+            // Return canonical representation of UUIDs or base64 encoded string of other binary data.
+            final byte[] bytes = (byte[]) attributeObject;
+            if (bytes.length == 16) {
+                 /*
+                 ObjectGUID byte order is not big-endian.
+                 https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                 https://community.oracle.com/thread/1157698
+                  */
+                final ByteBuffer byteBuffer = ByteBuffer.wrap(swapBytes(bytes));
+                resolvedStringValue = new UUID(byteBuffer.getLong(), byteBuffer.getLong()).toString();
+            } else {
+                resolvedStringValue = new String(Base64.encodeBase64((byte[]) attributeObject));
+            }
+        }
+
+        return resolvedStringValue;
     }
 
     protected List<User> getUserListOfLDAPRoleWithID(RoleContext context, String filter) throws UserStoreException {
@@ -1126,7 +1173,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(false);
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         return getLDAPRoleListOfUser(userName, filter, searchBase, false);
     }
 
@@ -1153,7 +1200,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 searchBase = groupNameAttributeName + "=" + tenantDomain + "," + searchBase;
             }
         }
-        String userName = getUserNameFromUserID(userID);
+        String userName = doGetUserNameFromUserID(userID);
         return getLDAPRoleListOfUser(userName, filter, searchBase, true);
     }
 
@@ -1260,14 +1307,16 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
         String userIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        if (OBJECT_GUID.equals(property)) {
+        if (OBJECT_GUID.equalsIgnoreCase(property)) {
             String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
             boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
                     .parseBoolean(transformObjectGuidToUuidProperty);
 
             String convertedValue;
-            if (transformObjectGuidToUuid) {
+            if (StringUtils.equals(value, "*")) {
+                convertedValue = value;
+            } else if (transformObjectGuidToUuid) {
                 convertedValue = transformUUIDToObjectGUID(value);
             } else {
                 byte[] bytes = Base64.decodeBase64(value.getBytes());
@@ -1335,7 +1384,46 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     if (attribute != null) {
                         StringBuilder attrBuffer = new StringBuilder();
                         for (attrs = attribute.getAll(); attrs.hasMore(); ) {
-                            String attr = (String) attrs.next();
+                            Object attObject = attrs.next();
+                            String attr = null;
+
+                            if (attObject instanceof String) {
+                                attr = (String) attObject;
+                            } else if (attObject instanceof byte[]) {
+                                 /*
+                                 Return canonical representation of UUIDs or base64 encoded string of other binary data.
+                                 Active Directory attribute: objectGUID
+                                 RFC 4530 attribute: entryUUID
+                                  */
+                                final byte[] bytes = (byte[]) attObject;
+
+                                if (bytes.length == 16 && userIDProperty.toLowerCase().endsWith(LDAPConstants.UID)) {
+                                     /*
+                                     ObjectGUID byte order is not big-endian.
+                                     https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+                                     https://community.oracle.com/thread/1157698
+                                      */
+                                    if (userIDProperty.equalsIgnoreCase(OBJECT_GUID)) {
+                                        // check the property for objectGUID transformation
+                                        String transformToObjectGuidProperty =
+                                                realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+                                        boolean transformObjectGuidToUuid =
+                                                StringUtils.isEmpty(transformToObjectGuidProperty) ||
+                                                        Boolean.parseBoolean(transformToObjectGuidProperty);
+
+                                        if (transformObjectGuidToUuid) {
+                                            final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
+                                            attr = new UUID(bb.getLong(), bb.getLong()).toString();
+                                        } else {
+                                            // Ignore transforming objectGUID to UUID canonical format.
+                                            attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                        }
+                                    }
+                                } else {
+                                    attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                }
+                            }
                             if (StringUtils.isNotEmpty(attr)) {
 
                                 String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
@@ -1429,7 +1517,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
-        return super.doCheckIsUserInRole(this.getUserNameFromUserID(userID), roleName);
+        return super.doCheckIsUserInRole(this.doGetUserNameFromUserID(userID), roleName);
     }
 
     @Override
@@ -1451,6 +1539,22 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     public int getUserId(String username) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void doSetUserAttributeWithID(String userID, String attributeName, String value, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    @Override
+    protected void doSetUserAttributesWithID(String userID, Map<String, String> processedClaimAttributes,
+                                             String profileName) throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
     }
 
     @Override
@@ -1525,25 +1629,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    public void doSetUserClaimValueWithID(String userID, String claimURI, String claimValue, String profileName)
-            throws UserStoreException {
-
-        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
-    }
-
-    @Override
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
-
-    }
-
-    @Override
-    public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-
-        throw new UserStoreException("User store is operating in read only mode. Cannot write into the user store.");
 
     }
 
@@ -1800,7 +1889,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         Properties properties = new Properties();
         properties.setMandatoryProperties(
-                ReadOnlyLDAPUserStoreConstants.ROLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
+                Stream.concat(ReadOnlyLDAPUserStoreConstants.ROLDAP_USERSTORE_PROPERTIES.stream(),
+                        ReadOnlyLDAPUserStoreConstants.UNIQUE_ID_ROLDAP_USERSTORE_PROPERTIES.stream())
+                        .toArray(Property[]::new));
         properties.setOptionalProperties(
                 ReadOnlyLDAPUserStoreConstants.OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.toArray(new Property[0]));
         properties.setAdvancedProperties(UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.toArray(new Property[0]));
@@ -1811,9 +1902,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         // Set Advanced Properties.
         UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false",
-                UserStoreConfigConstants.SCIMEnabledDescription);
-
         setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
                 UserStoreConfigConstants.passwordHashMethodDescription);
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",

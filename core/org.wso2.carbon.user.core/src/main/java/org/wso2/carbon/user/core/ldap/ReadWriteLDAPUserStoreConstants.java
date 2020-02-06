@@ -26,6 +26,7 @@ public class ReadWriteLDAPUserStoreConstants {
 
     //Properties for Read Write LDAP User Store Manager
     public static final ArrayList<Property> RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
+    public static final ArrayList<Property> UNIQUE_ID_RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTINAL_RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
 
     //For multiple attribute separation
@@ -67,6 +68,12 @@ public class ReadWriteLDAPUserStoreConstants {
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
+                UserStoreConfigConstants.userIdAttributeName, "",
+                UserStoreConfigConstants.userIdAttributeDescription, false);
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.userIdSearchFilterDescription, false);
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
         setProperty(DisplayNameAttribute, "Display name attribute", "", DisplayNameAttributeDescription);
@@ -117,6 +124,17 @@ public class ReadWriteLDAPUserStoreConstants {
         Property property = new Property(name, value, propertyDescription, null);
         RWLDAP_USERSTORE_PROPERTIES.add(property);
 
+    }
+
+    private static void setMandatoryPropertyForUniqueIdStore(String name, String displayName, String value,
+                                                             String description, boolean encrypt) {
+
+        String propertyDescription = displayName + "#" + description;
+        if (encrypt) {
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
+        UNIQUE_ID_RWLDAP_USERSTORE_PROPERTIES.add(property);
     }
 
     private static void setProperty(String name, String displayName, String value,

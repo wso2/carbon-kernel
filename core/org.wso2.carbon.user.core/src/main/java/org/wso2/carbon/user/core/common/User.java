@@ -20,7 +20,6 @@ package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -28,16 +27,10 @@ import java.util.Map;
  *
  * @since 4.6.0
  */
-public class User implements Serializable {
+public class User extends Entity {
 
     private static final long serialVersionUID = -8811345359211553015L;
-    private String userID;
-    private String username;
     private String preferredUsername;
-    private String displayName;
-    private String tenantDomain;
-    private String userStoreDomain;
-    private Map<String, String> attributes;
 
     public User() {
 
@@ -46,53 +39,51 @@ public class User implements Serializable {
 
     public User(String userID) {
 
-        this.userID = userID;
+        super(userID);
     }
 
     public User(String userID, String username, String preferredUsername) {
 
-        this.userID = userID;
-        this.username = username;
+        super(userID, username);
         this.preferredUsername = preferredUsername;
     }
 
     public User(String userID, String username, String preferredUsername, String displayName, String tenantDomain,
-            String userStoreDomain, Map<String, String> attributes) {
+                String userStoreDomain, Map<String, String> attributes) {
 
-        this.userID = userID;
-        this.username = username;
+        super(userID, username, displayName, tenantDomain, userStoreDomain, attributes);
         this.preferredUsername = preferredUsername;
-        this.displayName = displayName;
-        this.tenantDomain = tenantDomain;
-        this.userStoreDomain = userStoreDomain;
-        this.attributes = attributes;
     }
 
     public String getUserID() {
-        return userID;
+
+        return super.getId();
     }
 
     public void setUserID(String userID) {
-        this.userID = userID;
+
+        super.setId(userID);
     }
 
     public String getUsername() {
-        return username;
+
+        return super.getName();
     }
 
     public void setUsername(String username) {
-        this.username = username;
+
+        super.setName(username);
     }
 
     public String getDomainQualifiedUsername() {
 
-        return UserCoreUtil.addDomainToName(username, userStoreDomain);
+        return UserCoreUtil.addDomainToName(super.getName(), super.getUserStoreDomain());
     }
 
     public String getFullQualifiedUsername() {
 
         String domainQualifiedUsername = getDomainQualifiedUsername();
-        return UserCoreUtil.addTenantDomainToEntry(domainQualifiedUsername, tenantDomain);
+        return UserCoreUtil.addTenantDomainToEntry(domainQualifiedUsername, super.getTenantDomain());
     }
 
     public String getPreferredUsername() {
@@ -103,46 +94,6 @@ public class User implements Serializable {
     public void setPreferredUsername(String preferredUsername) {
 
         this.preferredUsername = preferredUsername;
-    }
-
-    public void setDisplayName(String displayName) {
-
-        this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-
-        return displayName;
-    }
-
-    public String getTenantDomain() {
-
-        return tenantDomain;
-    }
-
-    public void setTenantDomain(String tenantDomain) {
-
-        this.tenantDomain = tenantDomain;
-    }
-
-    public String getUserStoreDomain() {
-
-        return userStoreDomain;
-    }
-
-    public void setUserStoreDomain(String userStoreDomain) {
-
-        this.userStoreDomain = userStoreDomain;
-    }
-
-    public Map<String, String> getAttributes() {
-
-        return attributes;
-    }
-
-    public void setAttributes(Map<String, String> attributes) {
-
-        this.attributes = attributes;
     }
 
     @Override

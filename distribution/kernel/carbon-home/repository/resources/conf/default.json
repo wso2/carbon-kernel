@@ -120,6 +120,7 @@
   "keystore.primary.password": "wso2carbon",
   "keystore.primary.alias": "wso2carbon",
   "keystore.primary.key_password": "wso2carbon",
+  "keystore.userstore_password_encryption": "InternalKeyStore",
   "keystore.internal.file_name": "$ref{keystore.primary.file_name}",
   "keystore.internal.type": "$ref{keystore.primary.type}",
   "keystore.internal.password": "$ref{keystore.primary.password}",
@@ -174,9 +175,7 @@
   "tasks.server_password": "admin",
   "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver",
   "server.base_path" : "${carbon.protocol}://${carbon.host}:${carbon.management.port}",
-  "system.parameter": {
-    "org.wso2.CipherTransformation": "RSA/ECB/OAEPwithSHA1andMGF1Padding"
-  },
+  "system.parameter.\u0027org.wso2.CipherTransformation\u0027": "RSA/ECB/OAEPwithSHA1andMGF1Padding",
 
   "admin_service.wsdl.enable": false,
   "monitoring.jmx.rmi_registry_port": "9999",

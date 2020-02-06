@@ -17,22 +17,30 @@
  */
 package org.wso2.carbon.user.core.jdbc;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 import org.wso2.carbon.user.core.common.UserIdResolverCache;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -41,6 +49,8 @@ import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -49,19 +59,20 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
+public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
 
     public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test-uniqueId.xml";
 
-    private static String TEST_URL = "jdbc:h2:./target/BasicUniqueIDJDBCDatabaseTest/CARBON_TEST";
+    private static String TEST_URL = "jdbc:h2:./target/UniqueIDJDBCRealmSecondaryUserStoreTest/CARBON_TEST";
     private AbstractUserStoreManager admin = null;
     private static String userId1;
     private static String userId2;
@@ -69,15 +80,18 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     public void setUp() throws Exception {
 
         super.setUp();
-        clearUserIdResolverCache();
         DatabaseUtil.closeDatabasePoolConnection();
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         initRealmStuff(TEST_URL);
         DatabaseUtil.closeDatabasePoolConnection();
     }
 
     public void initRealmStuff(String dbUrl) throws Exception {
 
-        String dbFolder = "target/BasicUniqueIDJDBCDatabaseTest";
+        String dbFolder = "target/UniqueIDJDBCRealmSecondaryUserStoreTest";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
         }
@@ -94,65 +108,82 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), MultitenantConstants.SUPER_TENANT_ID);
         admin = (AbstractUserStoreManager) realm.getUserStoreManager();
+        addSecondaryUserStoreManager(realmConfig, admin, realm);
         ds.close();
     }
 
     public void test100AdRole() throws UserStoreException {
 
-        admin.addRole("role1", null, null);
-        admin.addRole("role3", null, null);
-        admin.addRole("role4", null, null);
+        admin.addRole("SECONDARY/role1", null, null);
+        admin.addRole("SECONDARY/role3", null, null);
+        admin.addRole("SECONDARY/role4", null, null);
+        admin.addRole("role5", null, null);
         //admin, Internal/everyone, role1, role3, role4
-        Assert.assertEquals(5, admin.getRoleNames().length);
+        Assert.assertEquals(6, admin.getRoleNames().length);
+        assertTrue(ArrayUtils.contains(admin.getRoleNames(), "SECONDARY/role1"));
     }
 
     public void test101AddUser() throws UserStoreException {
 
-        admin.addUser("user2", "pass2", null, null, null, false);
-        admin.addUser("user3", "pass3", null, null, null, false);
-        admin.addUser("user4", "pass4", null, null, null, false);
+        admin.addUser("SECONDARY/user2", "pass2", null, null,
+                null, false);
+        admin.addUser("SECONDARY/user3", "pass3", null, null,
+                null, false);
+        admin.addUser("user4", "pass4", null, null, null,
+                false);
         //  user2,user3,user4 + admin
         Assert.assertEquals(4, admin.listUsers("*", 100).length);
+        assertTrue(ArrayUtils.contains(admin.listUsers("*", 100), "SECONDARY/user2"));
     }
 
     public void test102AdRoleWithUser() throws UserStoreException {
 
-        admin.addRole("role2", new String[]{"user2"}, null);
+        admin.addRole("SECONDARY/role2", new String[]{"SECONDARY/user2"}, null);
         //admin, Internal/everyone, role1, role2, role3, role4
-        Assert.assertEquals(6, admin.getRoleNames().length);
+        Assert.assertEquals(7, admin.getRoleNames().length);
     }
 
     public void test103AddUserWithRole() throws UserStoreException {
 
-        admin.addUser("user1", "pass1", new String[]{"role1"}, null, null, false);
+        admin.addUser("SECONDARY/user1", "pass1", new String[]{"role1"}, null,
+                null, false);
         //  user1,user2,user3,user4 + admin
         Assert.assertEquals(5, admin.listUsers("*", 100).length);
     }
 
     public void test104Authenticate() throws UserStoreException {
-
+        //Add a primary user with the same name.
+        admin.addUser("user1", "primaryuser1", null, null,
+                null, false);
+        //Test authenticate with secondary user store credentials.
         assertTrue(admin.authenticate("user1", "pass1"));
-        assertTrue(admin.authenticate("user2", "pass2"));
+        assertTrue(admin.authenticate("SECONDARY/user1", "pass1"));
+
+        //Test authenticate with primary user store credentials.
+        assertTrue(admin.authenticate("user1", "primaryuser1"));
+        assertFalse(admin.authenticate("SECONDARY/user1", "primaryuser1"));
     }
 
     public void test105UpdateCredential() throws UserStoreException {
 
-        admin.updateCredential("user1", "pass11", "pass1");
+        admin.updateCredential("SECONDARY/user1", "pass11", "pass1");
         assertFalse(admin.authenticate("user1", "pass1"));
         assertTrue(admin.authenticate("user1", "pass11"));
     }
 
     public void test106UpdateCredentialByAdmin() throws UserStoreException {
 
-        admin.updateCredentialByAdmin("user2", "pass22");
+        admin.updateCredentialByAdmin("SECONDARY/user2", "pass22");
         assertFalse(admin.authenticate("user2", "pass2"));
         assertTrue(admin.authenticate("user2", "pass22"));
     }
 
     public void test107SetUserClaimValueInDefaultProfile() throws UserStoreException {
 
-        admin.setUserClaimValue("user1", ClaimTestUtil.CLAIM_URI1, "usergivenname1", null);
-        assertEquals("usergivenname1", admin.getUserClaimValue("user1", ClaimTestUtil.CLAIM_URI1, null));
+        admin.setUserClaimValue("SECONDARY/user1", ClaimTestUtil.CLAIM_URI1,
+                "usergivenname1", null);
+        assertEquals("usergivenname1", admin.getUserClaimValue("SECONDARY/user1",
+                ClaimTestUtil.CLAIM_URI1, null));
     }
 
     public void test108SetUserClaimValuesInDefaultProfile() throws UserStoreException {
@@ -162,12 +193,12 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         map.put(ClaimTestUtil.CLAIM_URI1, "usergivenname2");
         map.put(ClaimTestUtil.CLAIM_URI3, "usergivenname3");
 
-        admin.setUserClaimValues("user2", map, null);
+        admin.setUserClaimValues("SECONDARY/user2", map, null);
 
         String[] allClaims = {ClaimTestUtil.CLAIM_URI1, ClaimTestUtil.CLAIM_URI2,
                 ClaimTestUtil.CLAIM_URI3};
 
-        Map<String, String> obtained = admin.getUserClaimValues("user2", allClaims, null);
+        Map<String, String> obtained = admin.getUserClaimValues("SECONDARY/user2", allClaims, null);
         assertEquals("usergivenname2", obtained.get(ClaimTestUtil.CLAIM_URI1));
         assertEquals("usergivenname3", obtained.get(ClaimTestUtil.CLAIM_URI3));
         assertNull(obtained.get(ClaimTestUtil.CLAIM_URI2));
@@ -176,10 +207,13 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     public void test109SetUserClaimValueInCustomProfile() throws UserStoreException {
 
         //Test Set/Get User Claim Values in home profile
-        admin.setUserClaimValue("user1", ClaimTestUtil.CLAIM_URI1, "usergivenname1_home",
+        admin.setUserClaimValue("SECONDARY/user1", ClaimTestUtil.CLAIM_URI1, "usergivenname1_home",
                 ClaimTestUtil.HOME_PROFILE_NAME);
-        assertEquals("usergivenname1_home", admin.getUserClaimValue("user1", ClaimTestUtil.CLAIM_URI1, ClaimTestUtil.HOME_PROFILE_NAME));
-        assertEquals("usergivenname1", admin.getUserClaimValue("user1", ClaimTestUtil.CLAIM_URI1, null));
+        assertEquals("usergivenname1_home", admin.getUserClaimValue("SECONDARY/user1",
+                ClaimTestUtil.CLAIM_URI1,
+                ClaimTestUtil.HOME_PROFILE_NAME));
+        assertEquals("usergivenname1", admin.getUserClaimValue("SECONDARY/user1",
+                ClaimTestUtil.CLAIM_URI1, null));
     }
 
     public void test110SetUserClaimValuesInCustomProfile() throws UserStoreException {
@@ -188,77 +222,84 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         map.put(ClaimTestUtil.CLAIM_URI1, "usergivenname2_home");
         map.put(ClaimTestUtil.CLAIM_URI3, "usergivenname3_home");
 
-        admin.setUserClaimValues("user2", map, ClaimTestUtil.HOME_PROFILE_NAME);
+        admin.setUserClaimValues("SECONDARY/user2", map, ClaimTestUtil.HOME_PROFILE_NAME);
         String[] allClaims = {ClaimTestUtil.CLAIM_URI1, ClaimTestUtil.CLAIM_URI2,
                 ClaimTestUtil.CLAIM_URI3};
-        Map<String, String> obtained = admin.getUserClaimValues("user2", allClaims, ClaimTestUtil.HOME_PROFILE_NAME);
+        Map<String, String> obtained = admin.getUserClaimValues("SECONDARY/user2", allClaims,
+                ClaimTestUtil.HOME_PROFILE_NAME);
         assertEquals("usergivenname2_home", obtained.get(ClaimTestUtil.CLAIM_URI1));
         assertEquals("usergivenname3_home", obtained.get(ClaimTestUtil.CLAIM_URI3));
         assertNull(obtained.get(ClaimTestUtil.CLAIM_URI2));
 
-        obtained = admin.getUserClaimValues("user2", allClaims, null);
+        obtained = admin.getUserClaimValues("SECONDARY/user2", allClaims, null);
         assertEquals("usergivenname2", obtained.get(ClaimTestUtil.CLAIM_URI1));
         assertEquals("usergivenname3", obtained.get(ClaimTestUtil.CLAIM_URI3));
         assertNull(obtained.get(ClaimTestUtil.CLAIM_URI2));
 
         // With the username and userID claim in default profile.
-        assertEquals(4, admin.getUserClaimValues("user2", null).length);
-        assertEquals(2, admin.getUserClaimValues("user2", ClaimTestUtil.HOME_PROFILE_NAME).length);
+        assertEquals(4, admin.getUserClaimValues("SECONDARY/user2", null).length);
+        assertEquals(2, admin.getUserClaimValues("SECONDARY/user2", ClaimTestUtil.HOME_PROFILE_NAME).length);
     }
 
     public void test111GetUserIDFromUsernameAndUserNameFromUserId() throws UserStoreException {
         // Check UserIDFromUsername and UserNameFromUserID.
-        String userId = admin.getUserIDFromUserName("user2");
+        String userId = admin.getUserIDFromUserName("SECONDARY/user2");
         assertNotNull(userId);
-        assertEquals("user2", admin.getUserNameFromUserID(userId));
+        assertEquals("SECONDARY/user2", admin.getUserNameFromUserID(userId));
     }
 
     public void test112GetUserListInDefaultProfile() throws UserStoreException {
 
-        assertEquals(1, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "usergivenname2", null).length);
+        assertEquals(1, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "usergivenname2",
+                null).length);
     }
 
     public void test113GetUserListInCustomProfile() throws UserStoreException {
 
-        assertEquals(1, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "usergivenname2_home", ClaimTestUtil.HOME_PROFILE_NAME).length);
+        assertEquals(1, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "usergivenname2_home",
+                ClaimTestUtil.HOME_PROFILE_NAME).length);
     }
 
     public void test114GetUserListWithPagination() throws UserStoreException {
 
-        assertEquals(1, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "usergivenname2", null, 10, 1).length);
-        assertEquals(0, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "usergivenname2", null, 10, 2).length);
+        assertEquals(1, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "SECONDARY/usergivenname2",
+                null, 10, 1).length);
+        assertEquals(0, admin.getUserList(ClaimTestUtil.CLAIM_URI1, "SECONDARY/usergivenname2",
+                null, 10, 2).length);
     }
 
     public void test115GetUserListWithCondition() throws UserStoreException {
 
         ExpressionCondition expressionCondition = new ExpressionCondition(ExpressionOperation.EQ.toString(),
                 ExpressionAttribute.USERNAME.toString(), "user2");
-        assertEquals(1, admin.getUserList(expressionCondition, null, null, 10, 0, null, null).length);
-        assertEquals(0, admin.getUserList(expressionCondition, null, null, 10, 2, null, null).length);
+        assertEquals(1, admin.getUserList(expressionCondition, "SECONDARY", null,
+                10, 0, null, null).length);
+        assertEquals(0, admin.getUserList(expressionCondition, "SECONDARY", null,
+                10, 2, null, null).length);
     }
 
     public void test116GetRoleListOfUser() throws UserStoreException {
 
-        assertEquals(2, admin.getRoleListOfUser("user1").length);
+        assertEquals(2, admin.getRoleListOfUser("SECONDARY/user1").length);
     }
 
     public void test117UpdateRoleListOfUser() throws UserStoreException {
 
-        admin.updateRoleListOfUser("user1", null, new String[]{"role2"});
-        admin.updateRoleListOfUser("user1", new String[]{"role2"}, new String[]{"role4",
+        admin.updateRoleListOfUser("SECONDARY/user1", null, new String[]{"role2"});
+        admin.updateRoleListOfUser("SECONDARY/user1", new String[]{"role2"}, new String[]{"role4",
                 "role3"});
 
-        String[] rolesOfUser = admin.getRoleListOfUser("user1");
+        String[] rolesOfUser = admin.getRoleListOfUser("SECONDARY/user1");
         assertEquals(4, rolesOfUser.length);
 
-        admin.updateRoleListOfUser("user1", new String[]{"role3"}, null);
+        admin.updateRoleListOfUser("SECONDARY/user1", new String[]{"role3"}, null);
 
-        String[] rolesOfUserNew = admin.getRoleListOfUser("user1");
+        String[] rolesOfUserNew = admin.getRoleListOfUser("SECONDARY/user1");
         assertEquals(3, rolesOfUserNew.length);
 
         //negative
         try {
-            admin.updateRoleListOfUser("user1", new String[]{"role2"}, new String[]{"role4",
+            admin.updateRoleListOfUser("SECONDARY/user1", new String[]{"role2"}, new String[]{"role4",
                     "no_role1"});
         } catch (UserStoreException e) {
             // Expected
@@ -268,40 +309,39 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void test118UpdateUserListOfRole() throws UserStoreException {
 
-        admin.updateUserListOfRole("role2", new String[]{"user1"}, null);
-        admin.updateUserListOfRole("role3", null, new String[]{"user1", "user2"});
+        admin.updateUserListOfRole("SECONDARY/role2", new String[]{"user1"}, null);
+        admin.updateUserListOfRole("SECONDARY/role3", null, new String[]{"user1", "user2"});
         //negative
         try {
-            admin.updateUserListOfRole("role3", null, new String[]{"nouser1", "nouser2"});
+            admin.updateUserListOfRole("SECONDARY/role3", null, new String[]{"nouser1", "nouser2"});
         } catch (UserStoreException e) {
             // Expected
             assertEquals("User nouser1 does not exit in the system.", e.getMessage());
         }
-        String[] users = admin.getUserListOfRole("role3");
+        String[] users = admin.getUserListOfRole("SECONDARY/role3");
         assertEquals(2, users.length);
 
-        admin.updateUserListOfRole("role3", new String[]{"user1"}, null);
+        admin.updateUserListOfRole("SECONDARY/role3", new String[]{"user1"}, null);
 
-        String[] usersNew = admin.getUserListOfRole("role3");
+        String[] usersNew = admin.getUserListOfRole("SECONDARY/role3");
         assertEquals(1, usersNew.length);
     }
 
     public void test119IsUserInRole() throws UserStoreException {
 
-        assertFalse(admin.isUserInRole("user1", "role3"));
-        assertTrue(admin.isUserInRole("user2", "role3"));
+        assertFalse(admin.isUserInRole("SECONDARY/user1", "role3"));
     }
 
     public void test120IsUserExists() throws UserStoreException {
 
-        assertTrue(admin.isExistingUser("user2"));
-        assertFalse(admin.isExistingUser("no-user2"));
+        assertTrue(admin.isExistingUser("SECONDARY/user2"));
+        assertFalse(admin.isExistingUser("SECONDARY/no-user2"));
     }
 
     public void test121IsRoleExists() throws UserStoreException {
 
-        assertTrue(admin.isExistingRole("role3"));
-        assertFalse(admin.isExistingRole("no-role3"));
+        assertTrue(admin.isExistingRole("SECONDARY/role3"));
+        assertFalse(admin.isExistingRole("SECONDARY/no-role3"));
     }
 
     public void test122GetUsersClaimValues() throws UserStoreException {
@@ -309,7 +349,8 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         String[] allClaims = {ClaimTestUtil.CLAIM_URI1, ClaimTestUtil.CLAIM_URI2,
                 ClaimTestUtil.CLAIM_URI3};
 
-        UserClaimSearchEntry[] obtained = admin.getUsersClaimValues(new String[]{"user1", "user2"}, allClaims, null);
+        UserClaimSearchEntry[] obtained = admin.getUsersClaimValues(new String[]{"SECONDARY/user1", "SECONDARY/user2"},
+                allClaims, null);
 
         assertEquals(2, obtained.length);
         assertNotNull(obtained[0].getClaims().get("http://wso2.org/givenname"));
@@ -318,103 +359,94 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void test123UpdateRoleName() throws UserStoreException {
 
-        String[] usersBefore = admin.getUserListOfRole("role3");
-        admin.updateRoleName("role3", "newrole3");
-        String[] usersAfter = admin.getUserListOfRole("newrole3");
+        String[] usersBefore = admin.getUserListOfRole("SECONDARY/role3");
+        admin.updateRoleName("SECONDARY/role3", "SECONDARY/newrole3");
+        String[] usersAfter = admin.getUserListOfRole("SECONDARY/newrole3");
         assertEquals(usersBefore.length, usersAfter.length);
     }
 
     public void test124DeleteUserClaimValue() throws UserStoreException {
 
-        assertNotNull(admin.getUserClaimValue("user1", "http://wso2.org/givenname", null));
-        admin.deleteUserClaimValue("user1", "http://wso2.org/givenname", null);
-        assertNull(admin.getUserClaimValue("user1", "http://wso2.org/givenname", null));
+        assertNotNull(admin.getUserClaimValue("SECONDARY/user1",
+                "http://wso2.org/givenname", null));
+        admin.deleteUserClaimValue("SECONDARY/user1",
+                "http://wso2.org/givenname", null);
+        assertNull(admin.getUserClaimValue("SECONDARY/user1",
+                "http://wso2.org/givenname", null));
     }
 
     public void test125DeleteUserClaimValues() throws UserStoreException {
 
-        assertNotNull(admin.getUserClaimValue("user2", "http://wso2.org/givenname3", null));
-        admin.deleteUserClaimValues("user2", new String[]{"http://wso2.org/givenname3"}, null);
-        assertNull(admin.getUserClaimValue("user2", "http://wso2.org/givenname3", null));
+        assertNotNull(admin.getUserClaimValue("SECONDARY/user2", "http://wso2.org/givenname3", null));
+        admin.deleteUserClaimValues("SECONDARY/user2", new String[]{"http://wso2.org/givenname3"}, null);
+        assertNull(admin.getUserClaimValue("SECONDARY/user2", "http://wso2.org/givenname3", null));
     }
 
     public void test126DeleteRole() throws UserStoreException {
 
-        String[] users = admin.getUserListOfRole("role1");
+        String[] users = admin.getUserListOfRole("SECONDARY/role1");
         for (String user : users) {
-            assertTrue(ArrayUtils.contains(admin.getRoleListOfUser(user), "role1"));
+            assertTrue(ArrayUtils.contains(admin.getRoleListOfUser(user), "SECONDARY/role1"));
         }
-        admin.deleteRole("role1");
-        assertFalse(ArrayUtils.contains(admin.getRoleNames(), "role1"));
+        admin.deleteRole("SECONDARY/role1");
+        assertFalse(ArrayUtils.contains(admin.getRoleNames(), "SECONDARY/role1"));
 
         for (String user : users) {
-            assertFalse(ArrayUtils.contains(admin.getRoleListOfUser(user), "role1"));
+            assertFalse(ArrayUtils.contains(admin.getRoleListOfUser(user), "SECONDARY/role1"));
         }
     }
 
     public void test176DeleteUser() throws UserStoreException {
 
-        String[] roles = admin.getRoleListOfUser("user1");
+        String[] roles = admin.getRoleListOfUser("SECONDARY/user1");
         for (String role : roles) {
-            assertTrue(ArrayUtils.contains(admin.getUserListOfRole(role), "user1"));
+            assertTrue(ArrayUtils.contains(admin.getUserListOfRole(role), "SECONDARY/user1"));
         }
-        admin.deleteUser("user1");
-        assertFalse(ArrayUtils.contains(admin.listUsers("*", 100), "role1"));
+        admin.deleteUser("SECONDARY/user1");
+        assertFalse(ArrayUtils.contains(admin.listUsers("*", 100), "SECONDARY/role1"));
 
         for (String role : roles) {
-            assertFalse(ArrayUtils.contains(admin.getUserListOfRole(role), "user1"));
+            assertFalse(ArrayUtils.contains(admin.getUserListOfRole(role), "SECONDARY/user1"));
         }
     }
 
 
     public void test177AdRoleWithID() throws UserStoreException {
 
-        admin.addRoleWithID("role1WithID", null, null, false);
-        //admin, Internal/everyone, role1WithID, role3, role4
-        Assert.assertEquals(6, admin.getRoleNames().length);
+        admin.addRoleWithID("SECONDARY/role1WithID", null, null, false);
+        Assert.assertEquals(7, admin.getRoleNames().length);
     }
 
     public void test178AddUserWithID() throws UserStoreException {
 
-        User user2WithID = admin.addUserWithID("user2WithID", "pass2", null, null, null);
+        User user2WithID = admin.addUserWithID("SECONDARY/user2WithID", "pass2",
+                null, null, null);
         assertNotNull(user2WithID);
         userId2 = user2WithID.getUserID();
-        assertNotNull(admin.addUserWithID("user3WithID", "pass3", null, null, null));
-        assertNotNull(admin.addUserWithID("user4WithID", "pass4", null, null, null));
+        assertNotNull(admin.addUserWithID("SECONDARY/user3WithID", "pass3", null,
+                null, null));
+        assertNotNull(admin.addUserWithID("SECONDARY/user4WithID", "pass4", null,
+                null, null));
         //  user2,user3,user4 + admin + user2WithID,user3WithID,user4WithID
-        Assert.assertEquals(7, admin.listUsersWithID("*", 100).size());
+        Assert.assertEquals(8, admin.listUsersWithID("*", 100).size());
     }
 
     public void test179AdRoleWithUserWithID() throws UserStoreException {
 
-        admin.addRoleWithID("role2WithID", new String[]{userId2}, null, false);
-        //admin, Internal/everyone, role1, role2, role3, role4,role1WithID
-        Assert.assertEquals(7, admin.getRoleNames().length);
+        admin.addRoleWithID("SECONDARY/role2WithID", new String[]{userId2}, null, false);
+        Assert.assertEquals(8, admin.getRoleNames().length);
     }
 
     public void test180AddUserWithRoleWithID() throws UserStoreException {
 
-        User user1WithID = admin.addUserWithID("user1WithID", "pass1", new String[]{"role1WithID"},
+        User user1WithID = admin.addUserWithID("SECONDARY/user1WithID", "pass1", new String[]{"role1WithID"},
                 null, null);
         assertNotNull(user1WithID);
         userId1 = user1WithID.getUserID();
         //  user2,user3,user4 + admin + user2WithID,user3WithID,user4WithID,user1WithID
-        Assert.assertEquals(8, admin.listUsersWithID("*", 100).size());
+        Assert.assertEquals(9, admin.listUsersWithID("*", 100).size());
     }
 
-    // TODO: 12/18/19 this is failing. Needs to be fixed
-
-    public void test181AdRoleWithUseNegativerWithID() {
-        //add role with an invalid user id.
-        try {
-            admin.addRoleWithID("role11WithID", new String[]{"invalid_user_id", userId2}, null, false);
-        } catch (UserStoreException e) {
-            // TODO: 12/18/19 Need to write a proper assert
-            // Expect UserStoreException. Specially check for SQL exceptoins in negative cases. Should send proper
-            // messages.
-//            assertFalse(e.getMessage().contains("Error occurred while getting database type from DB connection"));
-        }
-    }
 
     public void test182SetUserClaimValuesWithIDInDefaultProfile() throws UserStoreException {
 
@@ -516,22 +548,28 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void test191GetUserListWithIDInDefaultProfile() throws UserStoreException {
 
-        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1, "usergivenname2withId", null).size());
+        assertEquals(1,
+                admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1, "SECONDARY/usergivenname2withId",
+                        null).size());
     }
 
     public void test192GetUserListWithIDInCustomProfile() throws UserStoreException {
 
-        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1, "usergivenname1_home_with_id",
+        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1,
+                "SECONDARY/usergivenname1_home_with_id",
                 ClaimTestUtil.HOME_PROFILE_NAME).size());
     }
 
     public void test193GetUserListWithIDWithPagination() throws UserStoreException {
 
-        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1, "usergivenname2withId",
+        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1,
+                "SECONDARY/usergivenname2withId",
                 null, 10, 0).size());
-        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1, "usergivenname1_home_with_id",
+        assertEquals(1, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1,
+                "SECONDARY/usergivenname1_home_with_id",
                 ClaimTestUtil.HOME_PROFILE_NAME, 10, 0).size());
-        assertEquals(0, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1, "usergivenname2withId",
+        assertEquals(0, admin.getUserListWithID(ClaimTestUtil.CLAIM_URI1,
+                "SECONDARY/usergivenname2withId",
                 null, 10, 2).size());
     }
 
@@ -539,8 +577,10 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
         ExpressionCondition expressionCondition = new ExpressionCondition(ExpressionOperation.EQ.toString(),
                 ExpressionAttribute.USERNAME.toString(), "user2WithID");
-        assertEquals(1, admin.getUserListWithID(expressionCondition, null, null, 10, 0, null, null).size());
-        assertEquals(0, admin.getUserListWithID(expressionCondition, null, null, 10, 2, null, null).size());
+        assertEquals(1, admin.getUserListWithID(expressionCondition, "SECONDARY",
+                null, 10, 0, null, null).size());
+        assertEquals(0, admin.getUserListWithID(expressionCondition, "SECONDARY",
+                null, 10, 2, null, null).size());
     }
 
     public void test195GetRoleListOfUserWithID() throws UserStoreException {
@@ -564,7 +604,8 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
         //negative
         try {
-            admin.updateRoleListOfUserWithID("user1", new String[]{"role2"}, new String[]{"role4", "no_role1"});
+            admin.updateRoleListOfUserWithID(userId1, new String[]{"role2"}, new String[]{"role4",
+                    "no_role1"});
         } catch (UserStoreException e) {
             // Expected
             assertEquals("The role: no_role1 does not exist.", e.getMessage());
@@ -573,31 +614,30 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void test197UpdateUserListOfRoleWithID() throws UserStoreException {
 
-        List<User> usersOfRole = admin.getUserListOfRoleWithID("role1WithID");
+        List<User> usersOfRole = admin.getUserListOfRoleWithID("SECONDARY/role1WithID");
         assertEquals(0, usersOfRole.size());
 
-        admin.updateUserListOfRoleWithID("role1WithID", new String[]{userId1}, null);
-        admin.updateUserListOfRoleWithID("role1WithID", null, new String[]{userId1, userId2});
+        admin.updateUserListOfRoleWithID("SECONDARY/role1WithID", new String[]{userId1}, null);
+        admin.updateUserListOfRoleWithID("SECONDARY/role1WithID", null, new String[]{userId1, userId2});
         //negative
         try {
-            admin.updateUserListOfRole("role1WithID", null, new String[]{"nouser1", "nouser2"});
+            admin.updateUserListOfRole("SECONDARY/role1WithID", null, new String[]{"nouser1", "nouser2"});
         } catch (UserStoreException e) {
             // Expected
             assertEquals("User nouser1 does not exit in the system.", e.getMessage());
         }
-        List<User> users = admin.getUserListOfRoleWithID("role1WithID");
+        List<User> users = admin.getUserListOfRoleWithID("SECONDARY/role1WithID");
         assertEquals(2, users.size());
 
-        admin.updateUserListOfRoleWithID("role1WithID", new String[]{userId1}, null);
+        admin.updateUserListOfRoleWithID("SECONDARY/role1WithID", new String[]{userId1}, null);
 
-        List<User> usersNew = admin.getUserListOfRoleWithID("role1WithID");
+        List<User> usersNew = admin.getUserListOfRoleWithID("SECONDARY/role1WithID");
         assertEquals(1, usersNew.size());
     }
 
     public void test198IsUserInRoleWithID() throws UserStoreException {
 
         assertFalse(admin.isUserInRoleWithID(userId1, "role1WithID"));
-        assertTrue(admin.isUserInRoleWithID(userId2, "role1WithID"));
     }
 
     public void test199IsUserExists() throws UserStoreException {
@@ -650,11 +690,116 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         }
     }
 
-    private void clearUserIdResolverCache() {
+    private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,
+                                              AbstractUserStoreManager userStoreManager,
+                                              UserRealm userRealm) throws Exception {
 
-        UserIdResolverCache.getInstance()
-                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
-        UserIdResolverCache.getInstance()
-                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        String dbUrl = "jdbc:h2:./target/BasicUniqueIDJDBCDatabaseTestSecondary/CARBON_TEST";
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
+        ds.setUrl(dbUrl);
+        DatabaseCreator creator = new DatabaseCreator(ds);
+        creator.createRegistryDatabase();
+        InputStream inStream = this.getClass().getClassLoader().getResource("SECONDARY.xml").openStream();
+        RealmConfiguration realmConfig = getRealmConfiguration(primaryRealm,"src/test/resources/SECONDARY.xml", inStream);
+        userStoreManager.addSecondaryUserStoreManager(realmConfig, userRealm);
+        ds.close();
     }
+
+    private RealmConfiguration getRealmConfiguration(RealmConfiguration primaryRealm, String identifier,
+                                                     InputStream scriptBinaryStream)
+            throws UserStoreException, XMLStreamException {
+
+        return buildUserStoreConfiguration(primaryRealm, getRealmElement(scriptBinaryStream), identifier);
+    }
+
+
+    private OMElement getRealmElement(InputStream inputStream) throws XMLStreamException,
+            org.wso2.carbon.user.core.UserStoreException {
+
+        try {
+            inputStream = CarbonUtils.replaceSystemVariablesInXml(inputStream);
+            StAXOMBuilder builder = new StAXOMBuilder(inputStream);
+            return builder.getDocumentElement();
+        } catch (CarbonException e) {
+            throw new org.wso2.carbon.user.core.UserStoreException(e.getMessage(), e);
+        }
+    }
+
+    private RealmConfiguration buildUserStoreConfiguration(RealmConfiguration primaryRealm,
+                                 OMElement userStoreElement,
+                                 String filePath) throws org.wso2.carbon.user.api.UserStoreException {
+        RealmConfiguration realmConfig;
+        String userStoreClass;
+        Map<String, String> userStoreProperties;
+        boolean passwordsExternallyManaged = false;
+
+        realmConfig = new RealmConfiguration();
+        String pattern = Pattern.quote(System.getProperty("file.separator"));
+        String[] fileNames = filePath.split(pattern);
+        String fileName = fileNames[fileNames.length - 1].replace(".xml", "").replace("_", ".");
+        userStoreClass = userStoreElement.getAttributeValue(new QName(UserCoreConstants.RealmConfig.ATTR_NAME_CLASS));
+        userStoreProperties = getChildPropertyElements(userStoreElement);
+
+        if (!userStoreProperties.get(UserStoreConfigConstants.DOMAIN_NAME).equalsIgnoreCase(fileName)) {
+            throw new org.wso2.carbon.user.core.UserStoreException(
+                    "File name is required to be the user store domain name(eg.: wso2.com-->wso2_com.xml).");
+        }
+
+        String sIsPasswordExternallyManaged = userStoreProperties
+                .get(UserCoreConstants.RealmConfig.LOCAL_PASSWORDS_EXTERNALLY_MANAGED);
+
+        if (null != sIsPasswordExternallyManaged
+                && !sIsPasswordExternallyManaged.trim().equals("")) {
+            passwordsExternallyManaged = Boolean.parseBoolean(sIsPasswordExternallyManaged);
+        }
+
+        realmConfig.setUserStoreClass(userStoreClass);
+        realmConfig.setAuthorizationManagerClass(primaryRealm.getAuthorizationManagerClass());
+        realmConfig.setEveryOneRoleName(UserCoreUtil.addDomainToName(primaryRealm.getEveryOneRoleName(),
+                UserCoreConstants.INTERNAL_DOMAIN));
+        realmConfig.setUserStoreProperties(userStoreProperties);
+        realmConfig.setPasswordsExternallyManaged(passwordsExternallyManaged);
+        realmConfig.setAuthzProperties(primaryRealm.getAuthzProperties());
+        realmConfig.setRealmProperties(primaryRealm.getRealmProperties());
+        realmConfig.setPasswordsExternallyManaged(primaryRealm.isPasswordsExternallyManaged());
+
+        if (realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST) == null) {
+            realmConfig.getUserStoreProperties().put(
+                    UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST,
+                    UserCoreConstants.RealmConfig.PROPERTY_VALUE_DEFAULT_MAX_COUNT);
+        }
+
+        if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY) == null) {
+            realmConfig.getUserStoreProperties().put(
+                    UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY,
+                    UserCoreConstants.RealmConfig.PROPERTY_VALUE_DEFAULT_READ_ONLY);
+        }
+        return realmConfig;
+    }
+
+    private Map<String, String> getChildPropertyElements(OMElement omElement) {
+
+        try {
+            AXIOMXPath xPath = new AXIOMXPath(UserCoreConstants.RealmConfig.DOMAIN_NAME_XPATH);
+            OMElement val = (OMElement) xPath.selectSingleNode(omElement);
+        } catch (Exception ignored) {
+        }
+
+        Map<String, String> map = new HashMap<String, String>();
+        Iterator<?> ite = omElement.getChildrenWithName(new QName(
+                UserCoreConstants.RealmConfig.LOCAL_NAME_PROPERTY));
+        while (ite.hasNext()) {
+            OMElement propElem = (OMElement) ite.next();
+            String propName = propElem.getAttributeValue(new QName(
+                    UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME));
+            String propValue = propElem.getText();
+            if (propName != null && propValue != null) {
+                map.put(propName.trim(), propValue.trim());
+            }
+        }
+        return map;
+    }
+
 }

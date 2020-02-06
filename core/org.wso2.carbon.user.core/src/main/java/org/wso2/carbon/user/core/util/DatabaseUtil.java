@@ -23,12 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.service.RealmService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -717,7 +718,8 @@ public class DatabaseUtil {
             while (rs.next()) {
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
-                User user = ((AbstractUserStoreManager) userStoreManager).getUser(userID, userName);
+
+                User user = getUser(userStoreManager, userID, userName);
                 users.add(user);
             }
             if (users.size() > 0) {
@@ -735,6 +737,7 @@ public class DatabaseUtil {
     }
 
     /*This retrieves two parameters, combines them and send back*/
+
     public static String[] getStringValuesFromDatabaseForInternalRoles(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
         String[] values = new String[0];
@@ -791,6 +794,10 @@ public class DatabaseUtil {
 
         RealmConfiguration secondaryRealmConfiguration = null;
         try {
+            if (CarbonContext.getThreadLocalCarbonContext().getUserRealm() == null ||
+                    (CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration() == null)) {
+                return new ArrayList<>();
+            }
             secondaryRealmConfiguration = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getRealmConfiguration().getSecondaryRealmConfig();
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
@@ -1192,5 +1199,33 @@ public class DatabaseUtil {
                 throw new UserStoreException(errMsg);
             }
         }
+    }
+
+    private static String getTenantDomain(int tenantID) throws UserStoreException {
+
+        String tenantDomain;
+        RealmService realmService = UserCoreUtil.getRealmService();
+        try {
+            if (realmService != null) {
+                tenantDomain = realmService.getTenantManager().getDomain(tenantID);
+            } else {
+                tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while getting the tenant domain.", e);
+        }
+        return tenantDomain;
+    }
+
+    private static User getUser(UserStoreManager userStoreManager, String userID, String userName)
+            throws UserStoreException {
+
+        String domainName = userStoreManager.getRealmConfiguration()
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        User user = new User(userID);
+        user.setUsername(userName);
+        user.setUserStoreDomain(domainName);
+        user.setTenantDomain(getTenantDomain(userStoreManager.getTenantId()));
+        return user;
     }
 }

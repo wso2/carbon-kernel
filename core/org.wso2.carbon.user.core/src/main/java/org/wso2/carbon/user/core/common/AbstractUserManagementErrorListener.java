@@ -184,6 +184,13 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
     }
 
     @Override
+    public boolean onUpdateUserNameFailure(String errorCode, String errorMessage, String userID, String newUserName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean onUpdateCredentialFailureWithID(String errorCode, String errorMessage, String userID,
             Object newCredential, Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 

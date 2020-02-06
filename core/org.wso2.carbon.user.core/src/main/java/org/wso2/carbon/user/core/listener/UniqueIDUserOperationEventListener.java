@@ -403,6 +403,28 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             String profile, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
+     * Define any additional actions before update username of the user.
+     *
+     * @param userID           user ID of the user.
+     * @param newUserName      new username of the user.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean doPreUpdateUserName(String userID, String newUserName, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Define any additional actions after update username of the user.
+     *
+     * @param user             updated user.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    boolean doPostUpdateUserName(User user, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
      * Define any additional actions before credential is updated by user.
      *
      * @param userID           User ID of User.
