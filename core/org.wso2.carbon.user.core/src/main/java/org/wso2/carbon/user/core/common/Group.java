@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.core.Permission;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,11 +29,11 @@ import java.util.Map;
 public class Group extends Entity {
 
     private static final long serialVersionUID = -6157030956831929121L;
-    private Permission[] permissions;
+    private List<Permission> permissions;
 
     public Group(String groupID) {
 
-        super.setId(groupID);
+        super(groupID);
     }
 
     public Group(String groupID, String groupName) {
@@ -47,7 +48,7 @@ public class Group extends Entity {
     }
 
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 Map<String, String> attributes, Permission[] permissions) {
+                 Map<String, String> attributes, List<Permission> permissions) {
 
         super(groupID, groupName, displayName, tenantDomain, userStoreDomain, attributes);
         this.permissions = permissions;
@@ -73,12 +74,12 @@ public class Group extends Entity {
         super.setName(groupName);
     }
 
-    public Permission[] getPermissions() {
+    public List<Permission> getPermissions() {
 
         return permissions;
     }
 
-    public void setPermissions(Permission[] permissions) {
+    public void setPermissions(List<Permission> permissions) {
 
         this.permissions = permissions;
     }

@@ -24,18 +24,23 @@ import java.util.Map;
 /**
  * Represents Entity class, which is the super class of Group and User.
  */
-public class Entity implements Serializable {
+public abstract class Entity implements Serializable {
 
     private static final long serialVersionUID = -9038468040609754623L;
-    protected String id;
-    protected String name;
-    protected String displayName;
-    protected String tenantDomain;
-    protected String userStoreDomain;
-    protected Map<String, String> attributes;
+    private String id;
+    private String name;
+    private String displayName;
+    private String tenantDomain;
+    private String userStoreDomain;
+    private Map<String, String> attributes;
 
     public Entity() {
 
+    }
+
+    public Entity(String id) {
+
+        this.id = id;
     }
 
     public Entity(String id, String name) {
@@ -55,22 +60,22 @@ public class Entity implements Serializable {
         this.attributes = attributes;
     }
 
-    public String getId() {
+    protected String getId() {
 
         return id;
     }
 
-    public void setId(String id) {
+    protected void setId(String id) {
 
         this.id = id;
     }
 
-    public String getName() {
+    protected String getName() {
 
         return name;
     }
 
-    public void setName(String name) {
+    protected void setName(String name) {
 
         this.name = name;
     }

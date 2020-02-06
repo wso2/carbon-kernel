@@ -39,13 +39,12 @@ public class User extends Entity {
 
     public User(String userID) {
 
-        super.setId(userID);
+        super(userID);
     }
 
     public User(String userID, String username, String preferredUsername) {
 
-        super.setId(userID);
-        super.setName(username);
+        super(userID, username);
         this.preferredUsername = preferredUsername;
     }
 
@@ -78,13 +77,13 @@ public class User extends Entity {
 
     public String getDomainQualifiedUsername() {
 
-        return UserCoreUtil.addDomainToName(super.name, userStoreDomain);
+        return UserCoreUtil.addDomainToName(super.getName(), super.getUserStoreDomain());
     }
 
     public String getFullQualifiedUsername() {
 
         String domainQualifiedUsername = getDomainQualifiedUsername();
-        return UserCoreUtil.addTenantDomainToEntry(domainQualifiedUsername, tenantDomain);
+        return UserCoreUtil.addTenantDomainToEntry(domainQualifiedUsername, super.getTenantDomain());
     }
 
     public String getPreferredUsername() {

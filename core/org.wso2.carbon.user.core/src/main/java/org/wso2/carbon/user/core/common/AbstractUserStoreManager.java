@@ -14556,18 +14556,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Group> getGroupList(Condition condition, int limit, int offset, String sortBy,
-                                    String sortOrder) throws UserStoreException {
+    public List<Group> listGroups(Condition condition, Integer limit, Integer offset, String sortBy,
+                                  String sortOrder) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("getGroupList operation is not implemented in: " + this.getClass());
+            log.debug("listGroups operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "getGroupList operation is not implemented in: " + this.getClass());
+                "listGroups operation is not implemented in: " + this.getClass());
     }
 
     @Override
-    public Group addGroup(String groupName, List<String> userIDList, List<Permission> permissions)
+    public Group addGroup(String groupName, List<String> userIDs, List<Permission> permissions,
+                          Map<String, String> attributes)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14578,7 +14579,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
+    public List<Group> getGroupListOfUser(String userId, Integer limit, Integer offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14589,7 +14590,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
+    public List<User> getUserListOfGroup(String groupID, Integer limit, Integer offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14597,17 +14598,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         throw new NotImplementedException(
                 "getUserListOfGroup operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public List<Group> getGroupList(boolean noHybridGroups, boolean noSystemGroups, int limit, int offset,
-                                    String sortBy, String sortOrder) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupList operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getGroupList operation is not implemented in: " + this.getClass());
     }
 
     @Override
@@ -14694,17 +14684,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Claim> getGroupClaims() throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupClaims operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getGroupClaims operation is not implemented in: " + this.getClass());
-    }
-
-    @Override
-    public Group getGroup(String groupID, List<String> requiredClaims) throws UserStoreException {
+    public Group getGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("getGroup operation is not implemented in: " + this.getClass());
@@ -14714,7 +14694,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group updateGroup(String groupID, Map<String, String> claimValues) throws UserStoreException {
+    public Group updateGroup(String groupID, Map<String, String> attributes,
+                             List<Permission> permissions) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("updateGroup operation is not implemented in: " + this.getClass());
