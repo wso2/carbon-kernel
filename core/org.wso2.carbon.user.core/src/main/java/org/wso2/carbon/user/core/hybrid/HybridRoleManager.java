@@ -48,6 +48,8 @@ import java.util.regex.Matcher;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_SQL;
+import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
 
 public class HybridRoleManager {
 
@@ -764,6 +766,50 @@ public class HybridRoleManager {
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    /**
+     * Get hybrid role count for the given filter.
+     *
+     * @param filter The domain qualified filter. If the domain is 'Internal', all the 'Application' roles are skipped.
+     * @throws UserStoreException If an error occur while getting the hybrid role count using the filter.
+     */
+    public Long countHybridRoles(String filter) throws UserStoreException {
+
+        Connection dbConnection = null;
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                sqlStmt = COUNT_INTERNAL_ONLY_ROLES_SQL;
+                filter = filter.replace(UserCoreConstants.INTERNAL_DOMAIN, "");
+            } else {
+                sqlStmt = COUNT_INTERNAL_ROLES_SQL;
+            }
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setQueryTimeout(UserCoreConstants.MAX_SEARCH_TIME);
+
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("RESULT");
+            } else {
+                log.error("No role count is retrieved for Internal domain filter: " + filter);
+                return (long) -1;
+            }
+        } catch (SQLException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("An error occurred while getting hybrid roles count Using sql : " + sqlStmt + ", with " +
+                        "the filter: " + filter);
+            }
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, resultSet, prepStmt);
         }
     }
 
