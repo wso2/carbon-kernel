@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.core.claim.Claim;
 
 import java.util.List;
 import java.util.Map;
@@ -42,15 +43,15 @@ public class Group extends Entity {
     }
 
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 Map<String, String> attributes) {
+                 List<Claim> claims) {
 
-        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, attributes);
+        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, claims);
     }
 
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 Map<String, String> attributes, List<Permission> permissions) {
+                 List<Claim> claims, List<Permission> permissions) {
 
-        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, attributes);
+        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, claims);
         this.permissions = permissions;
     }
 

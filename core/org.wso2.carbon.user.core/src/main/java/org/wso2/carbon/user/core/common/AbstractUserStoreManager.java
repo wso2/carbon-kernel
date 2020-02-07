@@ -14556,7 +14556,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Group> listGroups(Condition condition, Integer limit, Integer offset, String sortBy,
+    public List<Group> listGroups(Condition condition, int limit, int offset, String sortBy,
                                   String sortOrder) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14567,8 +14567,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroup(String groupName, List<String> userIDs, List<Permission> permissions,
-                          Map<String, String> attributes)
+    public List<Group> listGroups(Condition condition, int limit, int offset) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("listGroups operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "listGroups operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<Group> listGroups(Condition condition) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("listGroups operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "listGroups operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Group addGroup(String groupName, List<User> users, List<Permission> permissions,
+                          List<Claim> claims)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14601,7 +14621,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void updateUserListOfGroup(String groupID, List<String> deletedUserIDs, List<String> newUserIDs)
+    public void updateUserListOfGroup(String groupID, List<User> deletedUsers, List<User> newUsers)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14612,7 +14632,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void updateGroupListOfUser(String userID, List<String> deletedGroupIDs, List<String> newGroupIDs)
+    public void updateGroupListOfUser(String userID, List<Group> deletedGroups, List<Group> newGroups)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14673,7 +14693,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public User addUser(String userName, Object credential, Map<String, String> claims, List<String> groupIDs,
+    public User addUser(String userName, Object credential, List<Claim> claims, List<Group> groups,
                         String profileName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14694,7 +14714,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group updateGroup(String groupID, Map<String, String> attributes,
+    public Group updateGroup(String groupID, List<Claim> claims,
                              List<Permission> permissions) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
