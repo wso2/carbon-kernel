@@ -468,13 +468,13 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * Add a group to the system.
      *
      * @param groupName   Group's display name.
-     * @param users       List of User IDs belongs to the group.
+     * @param usersIDs    List of User IDs belongs to the group.
      * @param permissions List of permissions of the group.
      * @param claims      List of Claims.
      * @return created Group object.
      * @throws UserStoreException If an error occurs while adding a group.
      */
-    Group addGroup(String groupName, List<User> users, List<Permission> permissions,
+    Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
                    List<Claim> claims) throws UserStoreException;
 
     /**

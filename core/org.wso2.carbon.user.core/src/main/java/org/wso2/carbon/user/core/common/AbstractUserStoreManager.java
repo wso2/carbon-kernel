@@ -14587,7 +14587,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroup(String groupName, List<User> users, List<Permission> permissions,
+    public Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
                           List<Claim> claims)
             throws UserStoreException {
 
