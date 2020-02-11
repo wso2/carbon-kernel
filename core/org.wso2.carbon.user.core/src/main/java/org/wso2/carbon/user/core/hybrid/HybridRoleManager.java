@@ -68,6 +68,8 @@ public class HybridRoleManager {
 
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
+    private static final String DB2 = "db2";
+
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
         super();
@@ -257,10 +259,32 @@ public class HybridRoleManager {
             if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
                 dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             }
+
+            String dbType = DatabaseCreator.getDatabaseType(dbConnection);
+
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                if (DB2.equalsIgnoreCase(dbType)) {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_DB2;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES;
+                }
+            }
+
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, filter);
+
+            byte increment = 0;
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
+            } else {
+                prepStmt.setString(++increment, filter);
+            }
+
+            if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                prepStmt.setString(++increment, "%/%");
+            }
+
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
+                prepStmt.setInt(++increment, tenantId);
             }
             prepStmt.setMaxRows(maxItemLimit);
             try {
@@ -296,6 +320,12 @@ public class HybridRoleManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String msg = "Error occur while getting database type";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
