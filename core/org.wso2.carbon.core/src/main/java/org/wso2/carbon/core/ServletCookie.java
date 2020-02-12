@@ -19,24 +19,31 @@ import javax.servlet.http.Cookie;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *  This extended method handle the sameSite value and newly added value for the cookies.
+ */
 public class ServletCookie extends Cookie {
 
     private SameSiteCookie sameSite;
     private Map<String, String> attributes;
 
     public ServletCookie(String name, String value) {
+
         super(name, value);
     }
 
     public void setSameSite(SameSiteCookie value) {
+
         this.sameSite = value;
     }
 
     public SameSiteCookie getSameSite() {
+
         return sameSite;
     }
 
     public void setAttribute(String attributeName, String attributeValue) {
+
         if (this.attributes == null) {
             attributes = new HashMap<>();
         }
@@ -44,6 +51,7 @@ public class ServletCookie extends Cookie {
     }
 
     public Map<String, String> getAttributes() {
+
         return attributes;
     }
 }
