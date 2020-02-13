@@ -33,6 +33,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * Tomcat Response wrapper, which can handle the responses and generates headers with sameSite attribute value.
+ */
 public class CarbonResponseWrapper extends Response {
 
     private Response wrapped;
@@ -46,13 +49,20 @@ public class CarbonResponseWrapper extends Response {
         return wrapped;
     }
 
+    /**
+     * When "ServletCookie" uses to generate cookies, gets the sameSite value from ServletCookie and append it
+     * into the cookieString, otherwise append sameSite value as "Strict" by default.
+     *
+     * @param cookie Cookie.
+     * @return Set-Cookie string value generated using cookie attributes.
+     */
     @Override
     public String generateCookieString(Cookie cookie) {
         String cookieString = super.generateCookieString(cookie);
         if (cookie instanceof ServletCookie) {
-            cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite();
+            cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();
         } else {
-            cookieString = cookieString + "; SameSite=" + SameSiteCookie.Strict;
+            cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
         }
         return cookieString;
     }
@@ -402,5 +412,4 @@ public class CarbonResponseWrapper extends Response {
     public void setStatus(int status, String message) {
         wrapped.setStatus(status, message);
     }
-
 }

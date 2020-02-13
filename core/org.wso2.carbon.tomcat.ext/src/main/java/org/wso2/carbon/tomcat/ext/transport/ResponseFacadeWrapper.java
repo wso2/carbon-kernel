@@ -19,6 +19,9 @@ import org.apache.catalina.connector.ResponseFacade;
 
 import javax.servlet.http.Cookie;
 
+/**
+ * Tomcat Response facade extension to put SameSite attribute to any cookie present, where it is not already set.
+ */
 public class ResponseFacadeWrapper extends ResponseFacade {
     private CarbonResponseWrapper carbonResponseWrapper;
 
