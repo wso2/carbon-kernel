@@ -450,6 +450,17 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     List<Group> listGroups(Condition condition) throws UserStoreException;
 
     /**
+     * Retrieves list of Users that belongs to a given group ID only.
+     *
+     * @param groupID   Group ID.
+     * @param sortBy    Sort by.
+     * @param sortOrder Sort order.
+     * @return List of Users.
+     * @throws UserStoreException If an error occurs while listing users of a group.
+     */
+    List<User> getUserListOfGroup(String groupID, String sortBy, String sortOrder) throws UserStoreException;
+
+    /**
      * Retrieves list of Users that belongs to a given group ID.
      *
      * @param groupID   Group ID.
@@ -461,7 +472,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return List of Users.
      * @throws UserStoreException If an error occurs while listing users of a group.
      */
-    List<User> getUserListOfGroup(String groupID, Integer limit, Integer offset, String sortBy, String sortOrder)
+    List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException;
 
     /**
@@ -475,7 +486,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException If an error occurs while adding a group.
      */
     Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
-                   List<Claim> claims) throws UserStoreException;
+                   List<org.wso2.carbon.user.core.common.Claim> claims) throws UserStoreException;
 
     /**
      * Update group claim values.
@@ -486,18 +497,18 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return Updated group.
      * @throws UserStoreException If an error occurs while updating group.
      */
-    Group updateGroup(String groupID, List<Claim> claims,
+    Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims,
                       List<Permission> permissions) throws UserStoreException;
 
     /**
      * Update users that belongs to a group.
      *
-     * @param groupID      Group ID.
-     * @param deletedUsers List of users that deleted.
-     * @param newUsers     List of users that added.
+     * @param groupID        Group ID.
+     * @param deletedUserIds List of user IDs that deleted.
+     * @param newUserIds     List of user IDs that added.
      * @throws UserStoreException If an error occurs while updating user list of a group.
      */
-    void updateUserListOfGroup(String groupID, List<User> deletedUsers, List<User> newUsers)
+    void updateUserListOfGroup(String groupID, List<String> deletedUserIds, List<String> newUserIds)
             throws UserStoreException;
 
     /**
@@ -545,13 +556,24 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param userName    User Name.
      * @param credential  Credentials.
      * @param claims      Maps of user claim values.
-     * @param groups      List of groups.
+     * @param groupsIds      List of groups.
      * @param profileName Profile name.
      * @return User object.
      * @throws UserStoreException If an error occurs while adding user.
      */
-    User addUser(String userName, Object credential, List<Claim> claims, List<Group> groups,
+    User addUser(String userName, Object credential, List<Claim> claims, List<String> groupsIds,
                  String profileName) throws UserStoreException;
+
+    /**
+     * Retrieves list of groups of a given user ID only.
+     *
+     * @param userId    User ID.
+     * @param sortBy    Sorted by.
+     * @param sortOrder Sorted order.
+     * @return List of Group objects.
+     * @throws UserStoreException If an error occurs while getting group list of a user.
+     */
+    List<Group> getGroupListOfUser(String userId, String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Retrieves list of groups of a given user ID.
@@ -565,18 +587,18 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return List of Group objects.
      * @throws UserStoreException If an error occurs while getting group list of a user.
      */
-    List<Group> getGroupListOfUser(String userId, Integer limit, Integer offset, String sortBy, String sortOrder)
+    List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException;
 
     /**
      * Update groups that a user belongs to.
      *
-     * @param userID        User ID.
-     * @param deletedGroups List of groups that need to be deleted.
-     * @param newGroups     List of groups that need to be added.
+     * @param userID          User ID.
+     * @param deletedGroupIds List of group IDs that need to be deleted.
+     * @param newGroupIds     List of group IDs that need to be added.
      * @throws UserStoreException If an error occurs while updating group list of a user.
      */
-    void updateGroupListOfUser(String userID, List<Group> deletedGroups, List<Group> newGroups)
+    void updateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds)
             throws UserStoreException;
 
     /**

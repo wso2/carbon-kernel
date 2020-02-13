@@ -18,28 +18,34 @@
 
 package org.wso2.carbon.user.core.common;
 
-public class Attribute <T> {
+public class Claim {
 
-    private String key;
-    private T value;
+    private String claimUrl;
+    private String claimValue;
 
-    public String getKey() {
+    public Claim(String claimUrl, String value) {
 
-        return key;
+        this.claimUrl = claimUrl;
+        this.claimValue = value;
     }
 
-    public void setKey(String key) {
+    public String getClaimUrl() {
 
-        this.key = key;
+        return claimUrl;
     }
 
-    public T getValue() {
+    public void setClaimUrl(String claimUrl) {
 
-        return value;
+        this.claimUrl = claimUrl;
     }
 
-    public void setValue(T value) {
+    public String getClaimValue() {
 
-        this.value = value;
+        return claimValue;
+    }
+
+    public void setClaimValue(String claimValue) {
+
+        this.claimValue = claimValue;
     }
 }

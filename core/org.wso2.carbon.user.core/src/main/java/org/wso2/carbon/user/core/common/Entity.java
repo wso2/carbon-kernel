@@ -18,11 +18,10 @@
 
 package org.wso2.carbon.user.core.common;
 
-import org.wso2.carbon.user.core.claim.Claim;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * Represents Entity class, which is the super class of Group and User.

@@ -19,10 +19,9 @@
 package org.wso2.carbon.user.core.common;
 
 import org.wso2.carbon.user.core.Permission;
-import org.wso2.carbon.user.core.claim.Claim;
 
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * Represents a Group.
