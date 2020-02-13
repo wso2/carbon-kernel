@@ -31,6 +31,7 @@ public class User extends Entity {
 
     private static final long serialVersionUID = -8811345359211553015L;
     private String preferredUsername;
+    private Map<String, String> attributes;
 
     public User() {
 
@@ -51,7 +52,8 @@ public class User extends Entity {
     public User(String userID, String username, String preferredUsername, String displayName, String tenantDomain,
                 String userStoreDomain, Map<String, String> attributes) {
 
-        super(userID, username, displayName, tenantDomain, userStoreDomain, attributes);
+        super(userID, username, displayName, tenantDomain, userStoreDomain);
+        this.attributes = attributes;
         this.preferredUsername = preferredUsername;
     }
 
@@ -84,6 +86,16 @@ public class User extends Entity {
 
         String domainQualifiedUsername = getDomainQualifiedUsername();
         return UserCoreUtil.addTenantDomainToEntry(domainQualifiedUsername, super.getTenantDomain());
+    }
+
+    public Map<String, String> getAttributes() {
+
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+
+        this.attributes = attributes;
     }
 
     public String getPreferredUsername() {
