@@ -19,24 +19,17 @@ package org.wso2.carbon.core;
  * Handle the default values of the sameSite cookie attribute.
  */
 public enum SameSiteCookie {
-    LAX,
-    STRICT,
-    NONE;
+    LAX("Lax"),
+    STRICT("Strict"),
+    NONE("None");
 
-    /**
-     * Handle the sameSite translation from enum to as expected in the sameSite Specification.
-     *
-     * @return Expected sameSite value in the sameSite Specification.
-     */
-    public String toPrintable() {
-        switch (this) {
-            case LAX:
-                return "Lax";
-            case NONE:
-                return "None";
-            case STRICT:
-            default:
-                return "Strict";
-        }
+    public final String name;
+
+    SameSiteCookie(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }
