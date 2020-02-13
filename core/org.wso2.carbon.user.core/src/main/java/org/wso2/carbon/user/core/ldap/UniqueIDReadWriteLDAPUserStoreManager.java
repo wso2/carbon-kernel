@@ -32,8 +32,10 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -103,6 +105,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
 
     protected Random random = new Random();
+    protected UserCoreUtil userCoreUtil = new UserCoreUtil();
 
     protected boolean kdcEnabled = false;
 
@@ -1255,6 +1258,190 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
+    }
+
+    @Override
+    protected Group doAddGroup(String groupName, List<String> userIDs, Map<String, String> attributes)
+            throws org.wso2.carbon.user.api.UserStoreException {
+
+        String groupIDAttributeProperty =
+                this.getRealmConfiguration().getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute);
+        String domainName = this.getRealmConfiguration().getRealmProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        String groupID;
+        Group createdGroup = null;
+        if (StringUtils.isNotBlank(domainName)) {
+            groupName = domainName.concat(UserCoreConstants.DOMAIN_SEPARATOR).concat(groupName);
+        }
+        if (attributes == null || attributes.isEmpty() ||StringUtils.isBlank(attributes.get(groupIDAttributeProperty))) {
+            attributes = userCoreUtil.getMandatoryAttributesOfGroup(claimManager, getGroupClaimAttributes());
+        }
+        // No groupID support.
+        if (StringUtils.isBlank(groupIDAttributeProperty)) {
+            groupID = attributes.get(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_ID_CLAIM_URI));
+            doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
+            int tenantID = getTenantID();
+            userCoreUtil.persistGroupAttributes(groupName, tenantID, attributes, dataSource);
+            createdGroup = new Group(groupID, groupName, groupName, getTenantDomain(tenantID), domainName, attributes);
+        } else {
+            List<String> groupRelatedProperties = getGroupRelatedAttributes();
+            if(userCoreUtil.isPropertyGeneratedByUserStore(realmConfig, groupIDAttributeProperty)) {
+                // No attribute will be stored because all the mandatory attributes will be auto generated.
+                doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
+                createdGroup = null;
+
+            } else {
+
+                groupID = attributes.get(groupIDAttributeProperty);
+                createdGroup = doAddGroupWithValues(groupName, userIDs.toArray(new String[0]), attributes, groupID);
+            }
+        }
+        return createdGroup;
+
+    }
+
+    private Group doAddGroupWithValues(String groupName, String[] userIDList, Map<String, String> attributes,
+                                       String groupIDAttribute) throws org.wso2.carbon.user.api.UserStoreException {
+
+        List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
+        String groupID = attributes.get(groupIDAttribute);
+        RoleContext roleContext;
+        roleContext = createRoleContext(groupName);
+        roleContext.setMembers(userList.toArray(new String[0]));
+        roleContext.setRoleID(attributes.get(groupIDAttribute));
+        roleContext.setWhenCreated(
+                attributes.get(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI)));
+        roleContext.setWhenModified(
+                attributes.get(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI)));
+
+        addLDAPRole(roleContext);
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        groupName = groupName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        roleContext = createRoleContext(groupName);
+        addLDAPGroup(roleContext);
+        return new Group(groupID, groupName);
+
+    }
+
+    private void addLDAPGroup(RoleContext context) throws UserStoreException {
+
+        String roleName = context.getRoleName();
+        String roleID = context.getRoleID();
+        String[] userList = context.getMembers();
+        String groupEntryObjectClass = ((LDAPRoleContext) context).getGroupEntryObjectClass();
+        String groupNameAttribute = ((LDAPRoleContext) context).getRoleNameProperty();
+        String searchBase = ((LDAPRoleContext) context).getSearchBase();
+
+        if ((ArrayUtils.isEmpty(userList)) && !emptyRolesAllowed) {
+            String errorMessage = "Can not create empty role. There should be at least " + "one user for the role.";
+            throw new UserStoreException(errorMessage);
+        } else if (userList == null && emptyRolesAllowed
+                || userList != null && userList.length > 0 && !emptyRolesAllowed || emptyRolesAllowed) {
+
+            // if (userList.length > 0) {
+            DirContext mainDirContext = this.connectionSource.getContext();
+            DirContext groupContext = null;
+            NamingEnumeration<SearchResult> results = null;
+
+            try {
+                // create the attribute set for group entry
+                Attributes groupAttributes = new BasicAttributes(true);
+
+                // create group entry's object class attribute
+                Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+                objectClassAttribute.add(groupEntryObjectClass);
+                groupAttributes.put(objectClassAttribute);
+
+                // create cn attribute
+                Attribute cnAttribute = new BasicAttribute(groupNameAttribute);
+                cnAttribute.add(roleName);
+                groupAttributes.put(cnAttribute);
+
+                //Create groupID attribute
+//                Attribute
+                // following check is for if emptyRolesAllowed made this
+                // code executed.
+                if (userList != null && userList.length > 0) {
+
+                    String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                    Attribute memberAttribute = new BasicAttribute(memberAttributeName);
+                    for (String userName : userList) {
+
+                        if (userName == null || userName.trim().length() == 0) {
+                            continue;
+                        }
+                        // search the user in user search base
+                        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+                        results = searchInUserBase(searchFilter, new String[] {}, SearchControls.SUBTREE_SCOPE,
+                                mainDirContext);
+                        // we assume only one user with the given user
+                        // name under user search base.
+                        SearchResult userResult = null;
+                        if (results.hasMore()) {
+                            userResult = results.next();
+                        } else {
+                            String errorMsg =
+                                    "There is no user with the user name: " + userName + " to be added to this role.";
+                            logger.error(errorMsg);
+                            throw new UserStoreException(errorMsg);
+                        }
+                        // get his DN
+                        String userEntryDN = userResult.getNameInNamespace();
+                        // put it as member-attribute value
+                        memberAttribute.add(userEntryDN);
+                    }
+                    groupAttributes.put(memberAttribute);
+                }
+
+                groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
+                NameParser ldapParser = groupContext.getNameParser("");
+                /*
+                 * Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" +
+                 * roleName);
+                 */
+                Name compoundGroupName = ldapParser.parse("cn=" + roleName);
+                groupContext.bind(compoundGroupName, null, groupAttributes);
+
+            } catch (NamingException e) {
+                String errorMsg = "Role: " + roleName + " could not be added.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
+                throw new UserStoreException(errorMsg, e);
+            } catch (Exception e) {
+                String errorMsg = "Role: " + roleName + " could not be added.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
+                throw new UserStoreException(errorMsg, e);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(results);
+                JNDIUtil.closeContext(groupContext);
+                JNDIUtil.closeContext(mainDirContext);
+            }
+
+        }
+
+
+    }
+
+    private int getTenantID() {
+        CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
+        if (cc != null) {
+            return cc.getTenantId();
+        } else {
+            return UserCoreConstants.SUPER_TENANT_ID;
+        }
+    }
+
+    private List<String> getGroupRelatedAttributes() throws org.wso2.carbon.user.api.UserStoreException {
+
+        List<String> attributes = new ArrayList<>();
+        for (String claim : getGroupClaimAttributes()) {
+            attributes.add(claimManager.getAttributeName(claim));
+        }
+        return attributes;
     }
 
     @Override

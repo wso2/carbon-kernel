@@ -26,6 +26,10 @@ public class RoleContext {
 
     private String[] members;
 
+    private String roleID;
+    private String whenCreated;
+    private  String whenModified;
+
     public boolean isShared() {
         return shared;
     }
@@ -54,7 +58,37 @@ public class RoleContext {
         return members;
     }
 
+    public String getRoleID() {
+
+        return roleID;
+    }
+
+    public void setRoleID(String roleID) {
+
+        this.roleID = roleID;
+    }
+
     public void setMembers(String[] members) {
         this.members = members;
+    }
+
+    public String getWhenCreated() {
+
+        return whenCreated;
+    }
+
+    public void setWhenCreated(String whenCreated) {
+
+        this.whenCreated = whenCreated;
+    }
+
+    public String getWhenModified() {
+
+        return whenModified;
+    }
+
+    public void setWhenModified(String whenModified) {
+
+        this.whenModified = whenModified;
     }
 }

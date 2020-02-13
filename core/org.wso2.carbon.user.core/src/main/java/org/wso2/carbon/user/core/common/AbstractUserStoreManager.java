@@ -152,6 +152,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     };
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
+    private UserCoreUtil userCoreUtil = new UserCoreUtil();
     private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
@@ -6338,6 +6339,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    private void handleAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
+                                       List<Permission> permissions)
+            throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
+                    .onAddGroupFailure(errorCode, errorMessage, groupName, userIDs, permissions, this)) {
+                return;
+            }
+        }
+    }
+
     /**
      * This method is responsible for calling relevant postAddRole listener methods after successfully adding role.
      *
@@ -7172,6 +7186,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
         String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), roleName);
         handleAddRoleFailureWithID(errorCode, errorMessage, roleName, userIDList, permissions);
+        throw new UserStoreException(errorCode + " - " + errorMessage);
+    }
+
+    /**
+     *
+     * @param groupName
+     * @param userIDList
+     * @param permissions
+     * @throws UserStoreException
+     */
+    private void handleGroupAlreadyExistException(String groupName, List<String> userIDList,
+                                                       List<org.wso2.carbon.user.core.Permission> permissions)
+            throws UserStoreException {
+
+        String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), groupName);
+        handleAddGroupFailure(errorCode, errorMessage, groupName, userIDList, permissions);
         throw new UserStoreException(errorCode + " - " + errorMessage);
     }
 
@@ -14589,14 +14620,292 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group addGroup(String groupName, List<String> userIDs, List<Permission> permissions,
                           Map<String, String> attributes)
-            throws UserStoreException {
+            throws org.wso2.carbon.user.api.UserStoreException {
+
+        if (groupName.isEmpty()) {
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), groupName,
+                    userIDs, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
+        }
+        Group createdGroup = null;
+        
+        UserStore userStore = getUserStoreOfRoles(groupName);
+
+        // Get User list from userIDs.
+        List<User> userList = new ArrayList<>();
+        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+            userList = userUniqueIDManger.getUsers(userIDs, this);
+        }
+
+
+        if (userIDs == null) {
+            userIDs = new ArrayList<>();
+        }
+
+        if (permissions == null) {
+            permissions = new ArrayList<>();
+        }
+
+        if (userStore.isHybridRole()) {
+            if (!handlePreAddGroup(groupName, userIDs, permissions, false)) {
+                handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                        ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), groupName,
+                        userIDs, permissions);
+                throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
+            }
+            attributes = userCoreUtil.getMandatoryAttributesOfGroup(claimManager, getGroupClaimAttributes());
+
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                createdGroup = doAddInternalGroup(groupName, claimManager.getAttributeName(UserCoreClaimConstants.GROUP_ID_CLAIM_URI),
+                        permissions, attributes, userIDs);
+            } else {
+                // This will return null.
+                doAddInternalRole(groupName, userList.stream().map(User::getDomainQualifiedUsername)
+                        .toArray(String[]::new), permissions.stream().toArray(
+                        org.wso2.carbon.user.api.Permission[]::new));
+            }
+
+            // Calling only the audit logger, to maintain the back-ward compatibility.
+            handlePostAddGroup(groupName, userIDs, permissions, false);
+            return createdGroup;
+
+        }
+
+        if (userStore.isRecurssive()) {
+            createdGroup = ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
+                    .addGroup(userStore.getDomainFreeName(), userIDs, permissions, attributes);
+
+        }
+
+        // This happens only once during first startup - adding administrator user/role.
+        if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+            groupName = userStore.getDomainFreeName();
+            userIDs = UserCoreUtil.removeDomains(userIDs);
+        }
+
+        // #################### <Listeners> #####################################################
+
+        if (!handlePreAddGroup(groupName, userIDs, permissions, false)) {
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
+        }
+        // #################### </Listeners> #####################################################
+
+        // Check for validations
+        if (isReadOnly()) {
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, userIDs, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!isRoleNameValid(groupName)) {
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+            String errorMessage = String
+                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), groupName, regEx);
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
+            handleAddGroupFailure(errorCode, errorMessage, groupName, userIDs, permissions);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        if (doCheckExistingRole(groupName)) {
+            handleGroupAlreadyExistException(groupName, userIDs, permissions);
+        }
+
+        String roleWithDomain;
+        if (writeGroupsEnabled) {
+            try {
+                // add role in to actual user store
+                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                    List<User> users = userUniqueIDManger.getUsers(userIDs, this);
+                    doAddRole(groupName, users.stream().map(User::getUsername).toArray(String[]::new), false);
+                } else {
+                    createdGroup = doAddGroup(groupName, userIDs, attributes);
+                }
+                roleWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
+            } catch (UserStoreException ex) {
+                handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getMessage(), ex.getMessage()),
+                        groupName, userIDs, permissions);
+                throw ex;
+            }
+        } else {
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, userIDs,
+                    permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+        }
+
+        // add permission in to the the permission store
+        for (org.wso2.carbon.user.api.Permission permission : permissions) {
+            String resourceId = permission.getResourceId();
+            String action = permission.getAction();
+            if (resourceId == null || resourceId.trim().length() == 0) {
+                continue;
+            }
+
+            if (action == null || action.trim().length() == 0) {
+                // default action value
+                action = "read";
+            }
+            // This is a special case. We need to pass domain aware name.
+            userRealm.getAuthorizationManager().authorizeRole(roleWithDomain, resourceId, action);
+        }
+
+        // if existing users are added to role, need to update user role cache
+        if ((userIDs != null) && (userIDs.size()> 0)) {
+            clearUserRolesCacheByTenant(tenantId);
+        }
+
+        // #################### <Listeners> #####################################################
+        handlePostAddGroup(groupName, userIDs, permissions, false);
+        // #################### </Listeners> #####################################################
+
+
+        return createdGroup;
+    }
+
+    /**
+     *
+     * @param groupName
+     * @param userIDs
+     * @param attributes
+     * @return
+     * @throws org.wso2.carbon.user.api.UserStoreException
+     */
+    protected Group doAddGroup(String groupName, List<String> userIDs, Map<String, String> attributes)
+            throws org.wso2.carbon.user.api.UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("addGroup operation is not implemented in: " + this.getClass());
+            log.debug("doAddGroup operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException(
-                "addGroup operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException("doAddGroup operation is not implemented in: " + this.getClass());
+
     }
+
+    private void handlePostAddGroup(String groupName, List<String> userIDs, List<Permission> permissions, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(groupName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPostAddInternalGroup(groupName, userIDs, permissions, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!internalRole) {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPostAddGroup(groupName, userIDs, permissions, this);
+                }
+
+                if (!success) {
+                    handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDs,
+                            permissions);
+                    throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage());
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(), ex.getMessage()),
+                    groupName, userIDs, permissions);
+            throw ex;
+        }
+
+    }
+
+    // Handle pre add group tasks.
+    private boolean handlePreAddGroup(String groupName, List<String> userIDs, List<Permission> permissions,
+                                      boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalRole(groupName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPreAddInternalGroup(groupName, userIDs, permissions, this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!internalRole) {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPreAddGroup(groupName, userIDs, permissions, this);
+                }
+
+                if (!success) {
+                    handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDs,
+                            permissions);
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
+                    groupName, userIDs, permissions);
+            throw ex;
+        }
+        return true;
+    }
+
+    protected Group doAddInternalGroup(String groupName, String groupIDAttribute, List<Permission> permissions,
+                                       Map<String, String> attributeMap, List<String> userIDList) throws UserStoreException {
+
+        String[] users = getUserNamesFromUserIDs(userIDList).stream().toArray(String[]::new);
+        Group createdGroup = null;
+//        if (groupName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+        if (hybridRoleManager.isExistingRole(groupName)) {
+            handleRoleAlreadyExistExceptionWithID(groupName, userIDList.stream().toArray(String[]::new),
+                    permissions.stream().toArray(org.wso2.carbon.user.api.Permission[]::new));
+        }
+        createdGroup = hybridRoleManager.addHybridGroup(groupName, groupIDAttribute, attributeMap, users);
+//        } else {
+//            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(groupName))) {
+//                handleRoleAlreadyExistExceptionWithID(groupName, userIDList.stream().toArray(String[]::new),
+//                        permissions.stream().toArray(org.wso2.carbon.user.api.Permission[]::new));
+//            }
+//            createdGroup = hybridRoleManager.addHybridGroup(UserCoreUtil.removeDomainFromName(groupName), users, attributeMap);
+//        }
+
+        if (permissions != null && createdGroup != null) {
+            for (org.wso2.carbon.user.api.Permission permission : permissions) {
+                String resourceId = permission.getResourceId();
+                String action = permission.getAction();
+                // This is a special case. We need to pass domain aware name.
+                userRealm.getAuthorizationManager()
+                        .authorizeRole(UserCoreUtil.addInternalDomainName(groupName), resourceId, action);
+            }
+            createdGroup.setPermissions(permissions);
+
+        }
+        if (createdGroup != null) {
+            createdGroup.setUserStoreDomain(APPLICATION_DOMAIN);
+            createdGroup.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+            attributeMap.remove(groupIDAttribute);
+            createdGroup.setAttributes(attributeMap);
+        }
+
+        if ((userIDList != null) && (userIDList.size() > 0)) {
+            clearUserRolesCacheByTenant(this.tenantId);
+        }
+        return createdGroup;
+    }
+
 
     @Override
     public List<Group> getGroupListOfUser(String userId, Integer limit, Integer offset, String sortBy, String sortOrder)
@@ -14741,5 +15050,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             domainNameProperty = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         return domainNameProperty;
+    }
+
+    protected List<String> getGroupClaimAttributes() {
+
+        String[] groupClaimList = {
+                UserCoreClaimConstants.GROUP_ID_CLAIM_URI,
+                UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI,
+                UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI
+        };
+        return Arrays.asList(groupClaimList);
     }
 }

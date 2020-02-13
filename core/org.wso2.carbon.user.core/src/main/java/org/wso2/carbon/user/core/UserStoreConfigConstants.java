@@ -117,6 +117,11 @@ public class UserStoreConfigConstants {
     public static final String groupNameAttributeDescription = "Attribute used for uniquely identifying a user entry";
     public static final String groupNameSearchFilter = "GroupNameSearchFilter";
     public static final String groupNameSearchFilterDescription = "Filtering criteria for searching a particular group entry";
+    public static final String groupIDAttribute = "GroupIDAttribute";
+    public static final String groupIDAttributeDescription = "Attribute used for uniquely identifying a group ID entry";
+    public static final String groupIDSearchFilter = "GroupIDSearchFilter";
+    public static final String groupIDSearchFilterDescription = "Filtering criteria for searching a particular group " +
+            "ID entry";
     public static final String membershipAttribute = "MembershipAttribute";
     public static final String membershipAttributeDescription = "Attribute used to define members of LDAP groups";
     public static final String memberOfAttribute = LDAPConstants.MEMBEROF_ATTRIBUTE;

@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
@@ -65,6 +66,7 @@ public class HybridRoleManager {
     private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
+    private UserCoreUtil userCoreUtil = new UserCoreUtil();
 
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
@@ -154,6 +156,93 @@ public class HybridRoleManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
+    }
+
+    /**
+     *
+     * @param groupName
+     * @param groupIDAttribute
+     * @param claims
+     * @param userList
+     * @return
+     * @throws UserStoreException
+     */
+    public Group addHybridGroup(String groupName, String groupIDAttribute, Map<String, String> claims,
+                                String[] userList) throws UserStoreException {
+
+        Connection dbConnection = null;
+        Group createdGroup = null;
+
+        try {
+
+            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+
+            // This method is always invoked by the primary user store manager.
+            String primaryDomainName = getMyDomainName();
+
+            if (primaryDomainName != null) {
+                primaryDomainName = primaryDomainName.toUpperCase();
+            }
+
+            String groupID = claims.get(groupIDAttribute);
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+
+
+            if (!this.isExistingRole(groupName)) {
+                DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
+                        groupName, tenantId);
+                dbConnection.commit();
+
+                userCoreUtil.persistGroupAttributes(groupName, tenantId, claims, dataSource);
+                createdGroup = new Group(groupID, groupName);
+            } else {
+                throwRoleAlreadyExistsError(groupName);
+            }
+            if (userList != null) {
+                String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
+                String type = DatabaseCreator.getDatabaseType(dbConnection);
+                if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
+                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL;
+                }
+                if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_OPENEDGE;
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
+                            sql, primaryDomainName, userList, tenantId, groupName, tenantId);
+                } else {
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
+                            sql, primaryDomainName, userList, groupName, tenantId, tenantId, tenantId);
+                }
+            }
+            dbConnection.commit();
+        } catch (UserStoreException e) {
+            String errorMessage = "Error occurred while adding hybrid role : " + groupName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            // handle duplicate entry.
+            if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                throwRoleAlreadyExistsError(groupName);
+            }
+
+            // Propagate any other.
+            throw e;
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while adding hybrid role : " + groupName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            // Other SQL Exception
+            throw new UserStoreException(e.getMessage(), e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+        return createdGroup;
     }
 
     /**
