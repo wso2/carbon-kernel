@@ -23,13 +23,15 @@ public enum SameSiteCookie {
     STRICT("Strict"),
     NONE("None");
 
-    public final String name;
+    private final String name;
 
     SameSiteCookie(String name) {
+
         this.name = name;
     }
 
     public String getName() {
+
         return name;
     }
 }
