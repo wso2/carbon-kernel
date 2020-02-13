@@ -210,7 +210,7 @@ public final class CarbonUILoginUtil {
 
                 // If the index page URL contains a scheme or the tenant-dashboard, redirects to default index page
                 if (hasScheme(indexPageURL) || indexPageURL.contains("tenant-dashboard/index.jsp")) {
-                    indexPageURL = null;
+                    indexPageURL = "/carbon/admin/index.jsp";
                 }
             }
         }
