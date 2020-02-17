@@ -24,6 +24,7 @@ public class LDAPConstants {
     public static final String CONNECTION_PASSWORD = "ConnectionPassword";
     public static final String USER_SEARCH_BASE = "UserSearchBase";
     public static final String GROUP_SEARCH_BASE = "GroupSearchBase";
+    public static final String GROUP_ID_ATTRIBUTE = "GroupIDAttribute";
     public static final String USER_NAME_LIST_FILTER = "UserNameListFilter";
     public static final String USER_NAME_ATTRIBUTE = "UserNameAttribute";
     public static final String USER_ID_ATTRIBUTE = "UserIDAttribute";

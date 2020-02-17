@@ -26,6 +26,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.utils.Secret;
@@ -1164,11 +1165,11 @@ public final class UserCoreUtil {
     /**
      * @param groupName  Group Name.
      * @param tenantId   Tenant ID.
-     * @param attributes     Map of claims to be stored. Can not be Null.
+     * @param claims     List of claims to be stored. Can not be Null.
      * @param dataSource Datasource.
      * @throws UserStoreException Throws when an error occur persisting role attribute details.
      */
-    public void persistGroupAttributes(String groupName, int tenantId, Map<String, String> attributes,
+    public void persistGroupAttributes(String groupName, int tenantId, List<Claim> claims,
                                        DataSource dataSource)
             throws UserStoreException {
 
@@ -1177,9 +1178,9 @@ public final class UserCoreUtil {
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(JDBCRealmConstants.ADD_ROLE_ATTRIBUTE_SQL);
-            for (Map.Entry attr : attributes.entrySet()) {
-                    prepStmt.setString(1, attr.getKey().toString());
-                    prepStmt.setString(2, attr.getValue().toString());
+            for (Claim claim : claims) {
+                    prepStmt.setString(1, claim.getClaimUrl());
+                    prepStmt.setString(2, claim.getClaimValue());
                     prepStmt.setString(3, groupName);
                     prepStmt.setInt(4, tenantId);
                     prepStmt.addBatch();
@@ -1260,5 +1261,14 @@ public final class UserCoreUtil {
         }
         return claims;
 
+    }
+
+    public String getGroupID(List<Claim> claims, String groupIDClaimURL) {
+        for (Claim claim : claims) {
+            if (groupIDClaimURL.equals(claim.getClaimUrl())) {
+                return claim.getClaimValue();
+            }
+        }
+        return  null;
     }
 }

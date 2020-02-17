@@ -6341,14 +6341,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private void handleAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
+    private void handleAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> usersIDs,
                                        List<Permission> permissions)
             throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
-                    .onAddGroupFailure(errorCode, errorMessage, groupName, userIDs, permissions, this)) {
+                    .onAddGroupFailure(errorCode, errorMessage, groupName, usersIDs, permissions, this)) {
                 return;
             }
         }
@@ -14663,29 +14663,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
                           List<org.wso2.carbon.user.core.common.Claim> claims)
-    public Group addGroup(String groupName, List<String> userIDs, List<Permission> permissions,
-                          Map<String, String> attributes)
             throws org.wso2.carbon.user.api.UserStoreException {
 
         if (groupName.isEmpty()) {
             handleAddGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
                     ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), groupName,
-                    userIDs, permissions);
+                    usersIDs, permissions);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
-        Group createdGroup = null;
 
+        // Claims can not be null, because these claims should contain minimum of id, created time and modified time.
+        if (claims == null || claims.isEmpty() || claims.size() < 3) {
+
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_CLAIMS_FOR_GROUP.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_CLAIMS_FOR_GROUP.getMessage(), groupName,
+                    usersIDs, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_CLAIMS_FOR_GROUP.toString());
+        }
+
+        Group createdGroup = null;
         UserStore userStore = getUserStoreOfRoles(groupName);
 
+        if (usersIDs == null) {
+            usersIDs = new ArrayList<>();
+        }
         // Get User list from userIDs.
         List<User> userList = new ArrayList<>();
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            userList = userUniqueIDManger.getUsers(userIDs, this);
-        }
-
-
-        if (userIDs == null) {
-            userIDs = new ArrayList<>();
+            userList = userUniqueIDManger.getUsers(usersIDs, this);
         }
 
         if (permissions == null) {
@@ -14693,17 +14698,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (userStore.isHybridRole()) {
-            if (!handlePreAddGroup(groupName, userIDs, permissions, false)) {
+            if (!handlePreAddGroup(groupName, usersIDs, permissions, false)) {
                 handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
                         ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), groupName,
-                        userIDs, permissions);
+                        usersIDs, permissions);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
             }
-            attributes = userCoreUtil.getMandatoryAttributesOfGroup(claimManager, getGroupClaimAttributes());
 
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                createdGroup = doAddInternalGroup(groupName, claimManager.getAttributeName(UserCoreClaimConstants.GROUP_ID_CLAIM_URI),
-                        permissions, attributes, userIDs);
+                createdGroup = doAddInternalGroup(groupName, UserCoreClaimConstants.GROUP_ID_CLAIM_URI,
+                        permissions, claims, usersIDs);
             } else {
                 // This will return null.
                 doAddInternalRole(groupName, userList.stream().map(User::getDomainQualifiedUsername)
@@ -14712,26 +14716,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Calling only the audit logger, to maintain the back-ward compatibility.
-            handlePostAddGroup(groupName, userIDs, permissions, false);
+            handlePostAddGroup(groupName, usersIDs, permissions, false);
             return createdGroup;
 
         }
 
         if (userStore.isRecurssive()) {
-            createdGroup = ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
-                    .addGroup(userStore.getDomainFreeName(), userIDs, permissions, attributes);
+            return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
+                    .addGroup(userStore.getDomainFreeName(), usersIDs, permissions, claims);
 
         }
 
         // This happens only once during first startup - adding administrator user/role.
         if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             groupName = userStore.getDomainFreeName();
-            userIDs = UserCoreUtil.removeDomains(userIDs);
+            usersIDs = UserCoreUtil.removeDomains(usersIDs);
         }
 
         // #################### <Listeners> #####################################################
 
-        if (!handlePreAddGroup(groupName, userIDs, permissions, false)) {
+        if (!handlePreAddGroup(groupName, usersIDs, permissions, false)) {
             throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
         }
         // #################### </Listeners> #####################################################
@@ -14739,7 +14743,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Check for validations
         if (isReadOnly()) {
             handleAddGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, userIDs, permissions);
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, usersIDs, permissions);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
@@ -14749,12 +14753,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String errorMessage = String
                     .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), groupName, regEx);
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
-            handleAddGroupFailure(errorCode, errorMessage, groupName, userIDs, permissions);
+            handleAddGroupFailure(errorCode, errorMessage, groupName, usersIDs, permissions);
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
         if (doCheckExistingRole(groupName)) {
-            handleGroupAlreadyExistException(groupName, userIDs, permissions);
+            handleGroupAlreadyExistException(groupName, usersIDs, permissions);
         }
 
         String roleWithDomain;
@@ -14762,25 +14766,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // add role in to actual user store
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    List<User> users = userUniqueIDManger.getUsers(userIDs, this);
+                    List<User> users = userUniqueIDManger.getUsers(usersIDs, this);
                     doAddRole(groupName, users.stream().map(User::getUsername).toArray(String[]::new), false);
                 } else {
-                    createdGroup = doAddGroup(groupName, userIDs, attributes);
+                    createdGroup = doAddGroup(groupName, usersIDs, claims);
+                    createdGroup.setPermissions(permissions);
+                    createdGroup.setUserStoreDomain(userStore.getDomainName());
+                    createdGroup.setTenantDomain(getTenantDomain(tenantId));
                 }
                 roleWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
             } catch (UserStoreException ex) {
                 handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getMessage(), ex.getMessage()),
-                        groupName, userIDs, permissions);
+                        groupName, usersIDs, permissions);
                 throw ex;
             }
         } else {
             handleAddGroupFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, userIDs,
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, usersIDs,
                     permissions);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
-
         // add permission in to the the permission store
         for (org.wso2.carbon.user.api.Permission permission : permissions) {
             String resourceId = permission.getResourceId();
@@ -14798,12 +14804,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // if existing users are added to role, need to update user role cache
-        if ((userIDs != null) && (userIDs.size()> 0)) {
+        if ((usersIDs != null) && (usersIDs.size()> 0)) {
             clearUserRolesCacheByTenant(tenantId);
         }
 
         // #################### <Listeners> #####################################################
-        handlePostAddGroup(groupName, userIDs, permissions, false);
+        handlePostAddGroup(groupName, usersIDs, permissions, false);
         // #################### </Listeners> #####################################################
 
 
@@ -14814,11 +14820,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *
      * @param groupName
      * @param userIDs
-     * @param attributes
+     * @param claims
      * @return
      * @throws org.wso2.carbon.user.api.UserStoreException
      */
-    protected Group doAddGroup(String groupName, List<String> userIDs, Map<String, String> attributes)
+    protected Group doAddGroup(String groupName, List<String> userIDs, List<org.wso2.carbon.user.core.common.Claim> claims)
             throws org.wso2.carbon.user.api.UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14908,24 +14914,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return true;
     }
 
-    protected Group doAddInternalGroup(String groupName, String groupIDAttribute, List<Permission> permissions,
-                                       Map<String, String> attributeMap, List<String> userIDList) throws UserStoreException {
+    protected Group doAddInternalGroup(String groupName, String groupIDClaim, List<Permission> permissions,
+                                       List<org.wso2.carbon.user.core.common.Claim> claims, List<String> userIDList)
+            throws UserStoreException {
 
         String[] users = getUserNamesFromUserIDs(userIDList).stream().toArray(String[]::new);
         Group createdGroup = null;
-//        if (groupName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-        if (hybridRoleManager.isExistingRole(groupName)) {
-            handleRoleAlreadyExistExceptionWithID(groupName, userIDList.stream().toArray(String[]::new),
-                    permissions.stream().toArray(org.wso2.carbon.user.api.Permission[]::new));
+        String domainName = UserCoreUtil.getDomainName(realmConfig);
+        if (groupName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            if (hybridRoleManager.isExistingRole(groupName)) {
+                handleRoleAlreadyExistExceptionWithID(groupName, userIDList.stream().toArray(String[]::new),
+                        permissions.stream().toArray(org.wso2.carbon.user.api.Permission[]::new));
+            }
+            createdGroup = hybridRoleManager.addHybridGroup(groupName, groupIDClaim, claims, users);
+        } else {
+            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(groupName))) {
+                handleRoleAlreadyExistExceptionWithID(groupName, userIDList.stream().toArray(String[]::new),
+                        permissions.stream().toArray(org.wso2.carbon.user.api.Permission[]::new));
+            }
+            createdGroup = hybridRoleManager.addHybridGroup(UserCoreUtil.addDomainToName(groupName, domainName),
+                    groupIDClaim, claims, users);
         }
-        createdGroup = hybridRoleManager.addHybridGroup(groupName, groupIDAttribute, attributeMap, users);
-//        } else {
-//            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(groupName))) {
-//                handleRoleAlreadyExistExceptionWithID(groupName, userIDList.stream().toArray(String[]::new),
-//                        permissions.stream().toArray(org.wso2.carbon.user.api.Permission[]::new));
-//            }
-//            createdGroup = hybridRoleManager.addHybridGroup(UserCoreUtil.removeDomainFromName(groupName), users, attributeMap);
-//        }
 
         if (permissions != null && createdGroup != null) {
             for (org.wso2.carbon.user.api.Permission permission : permissions) {
@@ -14939,10 +14948,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         }
         if (createdGroup != null) {
-            createdGroup.setUserStoreDomain(APPLICATION_DOMAIN);
+            createdGroup.setUserStoreDomain(domainName);
             createdGroup.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            attributeMap.remove(groupIDAttribute);
-            createdGroup.setAttributes(attributeMap);
+            createdGroup.setClaims(claims);
         }
 
         if ((userIDList != null) && (userIDList.size() > 0)) {
@@ -15095,6 +15103,97 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         throw new NotImplementedException(
                 "getGroupListOfUser operation is not implemented in: " + this.getClass());
+    }
+
+
+    /**
+     * Get the user.
+     *
+     * @param groupID   group ID.
+     * @param groupName group name.
+     * @return User.
+     * @throws UserStoreException User Store Exception.
+     */
+    public Group getGroup(String groupID, String groupName) throws UserStoreException {
+
+        if (groupID == null && groupName == null) {
+            throw new UserStoreException("Both userID and UserName cannot be null.");
+        }
+
+        String domain = getMyDomainName();
+        if (groupID == null) {
+            return getGroupFromGroupName(groupName);
+        }
+
+        if (groupName == null) {
+            groupName = getUserNameFromUserID(groupID);
+        }
+        if (groupName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            domain = UserCoreUtil.extractDomainFromName(groupName);
+            groupName = UserCoreUtil.removeDomainFromName(groupName);
+        }
+        Group group = new Group(groupID, groupName);
+        group.setTenantDomain(getTenantDomain(tenantId));
+        group.setUserStoreDomain(domain);
+        return group;
+    }
+
+    /**
+     * provides the unique user ID of the given user.
+     *
+     * @param groupName RoleName of the group.
+     * @return Group ID.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    public Group getGroupFromGroupName(String groupName) throws UserStoreException {
+
+        UserStore userStore = getUserStore(groupName);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getGroupFromGroupName(userStore.getDomainFreeName());
+        }
+        groupName = userStore.getDomainFreeName();
+        Group group = null; // TODO: 2020-02-17  take from cache
+        if (group == null) {
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                group = doGetGroupFromGroupName(groupName);
+                // TODO: 2020-02-17 add to cache
+//                addToUserIDCache(groupID, roleName, userStore);
+//                addToUserNameCache(groupID, roleName, userStore);
+
+            }
+
+//            Map<String, String> claims = doGetUserClaimValues(roleName,
+//                    new String[]{UserCoreClaimConstants.USER_ID_CLAIM_URI},
+//                    userStore.getDomainName(), null);
+//            if (claims != null && claims.size() == 1) {
+//                groupID = claims.get(UserCoreClaimConstants.USER_ID_CLAIM_URI);
+//                addToUserIDCache(groupID, roleName, userStore);
+//                addToUserNameCache(groupID, roleName, userStore);
+//                return groupID;
+//            }
+        }
+        return group;
+    }
+
+    protected Group doGetGroupFromGroupName(String groupName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupFromGroupName operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupFromGroupName operation is not implemented in: " + this.getClass());
+
+    }
+
+    protected List<String> doGetGroupListFromProperties(String property, String value)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupListFromPropertie operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupListFromPropertie operation is not implemented in: " + this.getClass());
     }
 
     private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {

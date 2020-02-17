@@ -490,9 +490,9 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
-    protected Group doAddGroup(String groupName, List<String> userIDs, Map<String, String> attributes)
+    protected Group doAddGroup(String groupName, List<String> userIDs, List<Claim> claims)
             throws org.wso2.carbon.user.api.UserStoreException {
 
-        return abstractUserStoreManager.doAddGroup(groupName, userIDs, attributes);
+        return abstractUserStoreManager.doAddGroup(groupName, userIDs, claims);
     }
 }

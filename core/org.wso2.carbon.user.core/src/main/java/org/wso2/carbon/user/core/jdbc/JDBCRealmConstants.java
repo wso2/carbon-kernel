@@ -491,7 +491,8 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_PROPERTY_OPENEDGE = "AddUserPropertySQL-openedge";
 
     // Group ID feature support
-    public static final String ADD_ROLE_ATTRIBUTE_SQL = "INSERT INTO UM_ROLE_ATTRIBUTE (UM_ATTR_NAME, UM_ATTR_VALUE, " +
+    public static final String ADD_ROLE_ATTRIBUTE_SQL = "INSERT INTO UM_ROLE_ATTRIBUTE (UM_ATTR_NAME, " +
+            "UM_ATTR_VALUE, " +
             "UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?, ?, ?)";
 
     private JDBCRealmConstants() {

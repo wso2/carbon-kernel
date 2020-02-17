@@ -198,6 +198,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE("31705", "Constrain violation while adding a system role."),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE("31706", "Constrain violation while adding a hybrid role."),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE("31707", "Constrain violation while adding a role."),
+        ERROR_CODE_CANNOT_ADD_EMPTY_CLAIMS_FOR_GROUP("31708", "Cannot add role with empty attributes."),
 
         // Error code while deleting role
         ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE("31801", "Un-expected error during pre-step of delete "

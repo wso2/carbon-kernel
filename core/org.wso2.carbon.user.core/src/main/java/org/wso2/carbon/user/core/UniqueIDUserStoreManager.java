@@ -486,7 +486,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException If an error occurs while adding a group.
      */
     Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
-                   List<org.wso2.carbon.user.core.common.Claim> claims) throws UserStoreException;
+                   List<org.wso2.carbon.user.core.common.Claim> claims)
+            throws org.wso2.carbon.user.api.UserStoreException;
 
     /**
      * Update group claim values.

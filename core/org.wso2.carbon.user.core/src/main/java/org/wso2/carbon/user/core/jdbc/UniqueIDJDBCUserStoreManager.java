@@ -28,17 +28,21 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -97,6 +101,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             "This is the separator for multiple claim " + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final List<Property> UNIQUE_ID_JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
+    private UserCoreUtil userCoreUtil = new UserCoreUtil();
 
     public UniqueIDJDBCUserStoreManager() {
 
@@ -3655,5 +3660,26 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public boolean isUniqueUserIdEnabled() {
 
         return true;
+    }
+
+    @Override
+    protected Group doAddGroup(String groupName, List<String> userIDs, List<Claim> claims)
+            throws org.wso2.carbon.user.api.UserStoreException {
+
+        String domainName = this.getRealmConfiguration().getRealmProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        String groupID = userCoreUtil.getGroupID(claims, UserCoreClaimConstants.GROUP_ID_CLAIM_URI);
+        Group createdGroup = null;
+        if (groupID != null) {
+            doAddRoleWithID(groupName, userIDs.stream().toArray(String[]::new), false);
+            if (StringUtils.isNotBlank(domainName) && !groupName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                groupName = UserCoreUtil.addDomainToName(groupName, domainName);
+            }
+            userCoreUtil.persistGroupAttributes(groupName, tenantId, claims, dataSource);
+            createdGroup = new Group(groupID, groupName);
+            createdGroup.setTenantDomain(getTenantDomain(tenantId));
+            createdGroup.setUserStoreDomain(domainName);
+            createdGroup.setClaims(claims);
+        }
+        return createdGroup;
     }
 }

@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
@@ -45,8 +46,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import javax.sql.DataSource;
+import javax.swing.text.html.Option;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_SQL;
@@ -161,19 +164,20 @@ public class HybridRoleManager {
     }
 
     /**
-     *
      * @param groupName
-     * @param groupIDAttribute
+     * @param groupIDClaim
      * @param claims
      * @param userList
      * @return
      * @throws UserStoreException
      */
-    public Group addHybridGroup(String groupName, String groupIDAttribute, Map<String, String> claims,
+    public Group addHybridGroup(String groupName, String groupIDClaim,
+                                List<org.wso2.carbon.user.core.common.Claim> claims,
                                 String[] userList) throws UserStoreException {
 
         Connection dbConnection = null;
         Group createdGroup = null;
+        String groupID = userCoreUtil.getGroupID(claims, groupIDClaim);
 
         try {
 
@@ -186,9 +190,7 @@ public class HybridRoleManager {
                 primaryDomainName = primaryDomainName.toUpperCase();
             }
 
-            String groupID = claims.get(groupIDAttribute);
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-
 
             if (!this.isExistingRole(groupName)) {
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,

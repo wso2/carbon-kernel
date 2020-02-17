@@ -32,6 +32,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
@@ -1261,7 +1262,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    protected Group doAddGroup(String groupName, List<String> userIDs, Map<String, String> attributes)
+    protected Group doAddGroup(String groupName, List<String> userIDs, List<Claim> claims)
             throws org.wso2.carbon.user.api.UserStoreException {
 
         String groupIDAttributeProperty =
@@ -1269,30 +1270,31 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String domainName = this.getRealmConfiguration().getRealmProperty(UserStoreConfigConstants.DOMAIN_NAME);
         String groupID;
         Group createdGroup = null;
-        if (StringUtils.isNotBlank(domainName)) {
-            groupName = domainName.concat(UserCoreConstants.DOMAIN_SEPARATOR).concat(groupName);
-        }
-        if (attributes == null || attributes.isEmpty() ||StringUtils.isBlank(attributes.get(groupIDAttributeProperty))) {
-            attributes = userCoreUtil.getMandatoryAttributesOfGroup(claimManager, getGroupClaimAttributes());
+        if (StringUtils.isNotBlank(domainName) && !groupName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+            groupName = UserCoreUtil.addDomainToName(groupName, domainName);
         }
         // No groupID support.
         if (StringUtils.isBlank(groupIDAttributeProperty)) {
-            groupID = attributes.get(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_ID_CLAIM_URI));
+            groupID = userCoreUtil.getGroupID(claims, UserCoreClaimConstants.GROUP_ID_CLAIM_URI);
             doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
             int tenantID = getTenantID();
-            userCoreUtil.persistGroupAttributes(groupName, tenantID, attributes, dataSource);
-            createdGroup = new Group(groupID, groupName, groupName, getTenantDomain(tenantID), domainName, attributes);
+            userCoreUtil.persistGroupAttributes(groupName, tenantID, claims, dataSource);
+            createdGroup = new Group(groupID, groupName, groupName, getTenantDomain(tenantID), domainName, claims);
         } else {
-            List<String> groupRelatedProperties = getGroupRelatedAttributes();
             if(userCoreUtil.isPropertyGeneratedByUserStore(realmConfig, groupIDAttributeProperty)) {
+                // TODO: 2020-02-17 Do we assume this kind of scenario only happens for AD or do we provide them attributes to configure 
                 // No attribute will be stored because all the mandatory attributes will be auto generated.
                 doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
-                createdGroup = null;
+                return getGroup(null, groupName);
 
             } else {
-
-                groupID = attributes.get(groupIDAttributeProperty);
-                createdGroup = doAddGroupWithValues(groupName, userIDs.toArray(new String[0]), attributes, groupID);
+                // TODO: 2020-02-17  Do we provide flexibility to LDAP as well
+                groupID = userCoreUtil.getGroupID(claims, UserCoreClaimConstants.GROUP_ID_CLAIM_URI);
+                Map<String, String> attributes = new HashMap<>();
+                for (Claim claim : claims) {
+                    attributes.put(claim.getClaimUrl(), claim.getClaimValue());
+                }
+                return doAddGroupWithValues(groupName, userIDs.toArray(new String[0]), attributes, groupID);
             }
         }
         return createdGroup;
@@ -1325,7 +1327,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
     private void addLDAPGroup(RoleContext context) throws UserStoreException {
 
-        String roleName = context.getRoleName();
+        String roleName = context.getRoleName();// TODO: 2020-02-17 this should implement to store id
         String roleID = context.getRoleID();
         String[] userList = context.getMembers();
         String groupEntryObjectClass = ((LDAPRoleContext) context).getGroupEntryObjectClass();
@@ -1433,15 +1435,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         } else {
             return UserCoreConstants.SUPER_TENANT_ID;
         }
-    }
-
-    private List<String> getGroupRelatedAttributes() throws org.wso2.carbon.user.api.UserStoreException {
-
-        List<String> attributes = new ArrayList<>();
-        for (String claim : getGroupClaimAttributes()) {
-            attributes.add(claimManager.getAttributeName(claim));
-        }
-        return attributes;
     }
 
     @Override
