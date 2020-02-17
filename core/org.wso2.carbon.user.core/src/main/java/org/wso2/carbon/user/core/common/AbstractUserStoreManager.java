@@ -14607,7 +14607,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Group> listGroups(Condition condition, Integer limit, Integer offset, String sortBy,
+    public List<Group> listGroups(Condition condition, int limit, int offset, String sortBy,
                                   String sortOrder) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14618,6 +14618,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public List<Group> listGroups(Condition condition, int limit, int offset) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("listGroups operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "listGroups operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<Group> listGroups(Condition condition) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("listGroups operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "listGroups operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
+                          List<org.wso2.carbon.user.core.common.Claim> claims)
     public Group addGroup(String groupName, List<String> userIDs, List<Permission> permissions,
                           Map<String, String> attributes)
             throws org.wso2.carbon.user.api.UserStoreException {
@@ -14629,7 +14651,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
         Group createdGroup = null;
-        
+
         UserStore userStore = getUserStoreOfRoles(groupName);
 
         // Get User list from userIDs.
@@ -14906,9 +14928,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return createdGroup;
     }
 
-
     @Override
-    public List<Group> getGroupListOfUser(String userId, Integer limit, Integer offset, String sortBy, String sortOrder)
+    public List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14919,7 +14940,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<User> getUserListOfGroup(String groupID, Integer limit, Integer offset, String sortBy, String sortOrder)
+    public List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14930,7 +14951,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void updateUserListOfGroup(String groupID, List<String> deletedUserIDs, List<String> newUserIDs)
+    public void updateUserListOfGroup(String groupID, List<String> deletedUserIds, List<String> newUserIds)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -14941,7 +14962,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public void updateGroupListOfUser(String userID, List<String> deletedGroupIDs, List<String> newGroupIDs)
+    public void updateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -15002,7 +15023,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public User addUser(String userName, Object credential, Map<String, String> claims, List<String> groupIDs,
+    public User addUser(String userName, Object credential, List<Claim> claims, List<String> groupsIds,
                         String profileName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -15023,7 +15044,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group updateGroup(String groupID, Map<String, String> attributes,
+    public Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims,
                              List<Permission> permissions) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -15031,6 +15052,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         throw new NotImplementedException(
                 "updateGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<User> getUserListOfGroup(String groupID, String sortBy, String sortOrder) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getUserListOfGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getUserListOfGroup operation is not implemented in: " + this.getClass());
+    }
+
+    @Override
+    public List<Group> getGroupListOfUser(String userId, String sortBy, String sortOrder) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "getGroupListOfUser operation is not implemented in: " + this.getClass());
     }
 
     private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {

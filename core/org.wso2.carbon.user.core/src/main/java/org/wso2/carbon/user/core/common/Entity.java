@@ -18,8 +18,10 @@
 
 package org.wso2.carbon.user.core.common;
 
+
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
+
 
 /**
  * Represents Entity class, which is the super class of Group and User.
@@ -32,7 +34,7 @@ public abstract class Entity implements Serializable {
     private String displayName;
     private String tenantDomain;
     private String userStoreDomain;
-    private Map<String, String> attributes;
+    private List<Claim> claims;
 
     public Entity() {
 
@@ -50,14 +52,24 @@ public abstract class Entity implements Serializable {
     }
 
     public Entity(String id, String name, String displayName, String tenantDomain,
-                  String userStoreDomain, Map<String, String> attributes) {
+                  String userStoreDomain) {
 
         this.id = id;
         this.name = name;
         this.displayName = displayName;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
-        this.attributes = attributes;
+    }
+
+    public Entity(String id, String name, String displayName, String tenantDomain,
+                  String userStoreDomain, List<Claim> claims) {
+
+        this.id = id;
+        this.name = name;
+        this.displayName = displayName;
+        this.tenantDomain = tenantDomain;
+        this.userStoreDomain = userStoreDomain;
+        this.claims = claims;
     }
 
     protected String getId() {
@@ -110,13 +122,13 @@ public abstract class Entity implements Serializable {
         this.userStoreDomain = userStoreDomain;
     }
 
-    public Map<String, String> getAttributes() {
+    public List<Claim> getClaims() {
 
-        return attributes;
+        return claims;
     }
 
-    public void setAttributes(Map<String, String> attributes) {
+    public void setClaims(List<Claim> claims) {
 
-        this.attributes = attributes;
+        this.claims = claims;
     }
 }

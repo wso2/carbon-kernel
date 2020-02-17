@@ -149,6 +149,10 @@
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.sun.xml.ws</groupId>
+            <artifactId>jaxws-ri</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

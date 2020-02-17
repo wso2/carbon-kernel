@@ -105,9 +105,6 @@
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
                                 <bundleDef>commons-lang.wso2:commons-lang:${orbit.version.commons.lang}</bundleDef>
-                                <bundleDef>
-                                    org.wso2.orbit.sun.xml.ws:jaxws-ri:${version.org.wso2.orbit.com.sun.xml.ws.jaxws}
-                                </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-scratchpad:${orbit.version.poi.scratchpad}
                                 </bundleDef>
