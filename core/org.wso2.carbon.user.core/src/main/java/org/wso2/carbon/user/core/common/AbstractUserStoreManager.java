@@ -45,6 +45,7 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.SecretHandleableListener;
@@ -90,6 +91,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
@@ -6896,6 +6898,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Using the short-circuit. User name comes with the domain name.
             String domain = user.substring(0, index);
             UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+            if (secManager == null) {
+                secManager = getSecondaryUserStore(domain);
+            }
             domainFreeName = user.substring(index + 1);
 
             if (secManager != null) {
@@ -6997,6 +7002,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         UserStoreManager secManager = getSecondaryUserStoreManager(domainName);
+        if (secManager == null) {
+            secManager = getSecondaryUserStore(domainName);
+        }
         if (secManager != null) {
             userStore.setUserStoreManager(secManager);
             userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(userId, domainName));
@@ -7048,6 +7056,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return null;
         }
         return userStoreManagerHolder.get(userDomain.toUpperCase());
+    }
+
+    private UserStoreManager getSecondaryUserStore(String userDomain) throws UserStoreException {
+
+        org.wso2.carbon.user.api.UserStoreManager userStoreManager;
+        try {
+            RealmService realmService = UserStoreMgtDSComponent.getRealmService();
+            if (realmService == null) {
+                return null;
+            }
+            userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+            return ((AbstractUserStoreManager) userStoreManager).getSecondaryUserStoreManager(userDomain);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(e.getMessage(), e);
+        }
     }
 
     /**
