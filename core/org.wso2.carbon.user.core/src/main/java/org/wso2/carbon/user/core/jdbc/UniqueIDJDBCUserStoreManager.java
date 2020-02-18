@@ -573,7 +573,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         String isUnique = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
         if (Boolean.parseBoolean(isUnique) && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
-            String uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_ID_UNIQUE_SQL_WITH_ID);
+            String uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_ID_UNIQUE_WITH_ID);
             isExisting = isValueExisting(uniquenesSql, null, userID);
             if (log.isDebugEnabled()) {
                 log.debug("The user ID should be unique across tenants.");
